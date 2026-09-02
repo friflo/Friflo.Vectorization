@@ -24,5 +24,5 @@ while (true)
     Socket clientSocket = await serverSocket.AcceptAsync();
     
     // Pass engine reference to every client I/O session
-    _ = TuiSession.HandleClientSessionAsync(clientSocket, engine, CancellationToken.None);
+    _ = TuiTestMenu.HandleClientSessionAsync(clientSocket, engine, CancellationToken.None);
 }

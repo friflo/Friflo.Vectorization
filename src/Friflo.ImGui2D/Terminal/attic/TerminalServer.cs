@@ -93,7 +93,7 @@ public class TuiTerminalServer
 
                 // ReadOnlyMemory<byte> receivedMemory = buffer.AsMemory(0, bytesRead);
                 
-                await TuiSession.HandleClientSessionAsync(socket, EngineSingleton, cancellationToken);
+                await TuiTestMenu.HandleClientSessionAsync(socket, EngineSingleton, cancellationToken);
                 
                 // Zero-allocation broadcast
                 // await BroadcastAsync(clients, receivedMemory, cancellationToken);

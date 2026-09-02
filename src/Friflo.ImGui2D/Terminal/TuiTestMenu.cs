@@ -15,7 +15,7 @@ namespace Friflo.ImGui2D.Terminal;
 
 
 
-public class TuiSession
+public class TuiTestMenu
 {
     // Pre-encoded UTF-8 byte array with ANSI sequences for colored UI
     public static ReadOnlySpan<byte> HelloWorldScreen => """

@@ -67,7 +67,7 @@ public sealed class SingleThreadedShardEngine
                 _shardState[evt.Socket] = initialState;
                 
                 // Render full menu for new client
-                _ = TuiSession.RenderFullMenuAsync(evt.Socket, initialState.SelectedIndex);
+                _ = TuiTestMenu.RenderFullMenuAsync(evt.Socket, initialState.SelectedIndex);
                 break;
 
             case ClientEventType.Disconnected:
@@ -75,14 +75,14 @@ public sealed class SingleThreadedShardEngine
                 break;
 
             case ClientEventType.Input:
-                if (_shardState.TryGetValue(evt.Socket, out var state))
+                if (_shardState.TryGetValue(evt.Socket, out PlayerState state))
                 {
                     ReadOnlySpan<byte> input = evt.Payload.Span;
 
                     if (input.Length >= 3 && input[0] == 0x1B && input[1] == 0x5B)
                     {
                         int oldIndex = state.SelectedIndex;
-                        int maxItems = TuiSession.MenuItems.Length;
+                        int maxItems = TuiTestMenu.MenuItems.Length;
 
                         if (input[2] == 0x41) // Arrow Up
                             state.SelectedIndex = (state.SelectedIndex > 0) ? state.SelectedIndex - 1 : maxItems - 1;
@@ -94,7 +94,7 @@ public sealed class SingleThreadedShardEngine
                             _shardState[evt.Socket] = state;
                             
                             // Differential update without full screen clear
-                            _ = TuiSession.UpdateMenuSelectionAsync(evt.Socket, oldIndex, state.SelectedIndex);
+                            _ = TuiTestMenu.UpdateMenuSelectionAsync(evt.Socket, oldIndex, state.SelectedIndex);
                         }
                     }
                 }
