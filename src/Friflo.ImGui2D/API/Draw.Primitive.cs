@@ -81,7 +81,7 @@ public readonly ref partial struct ImDraw
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void FillTriangle(Vector2 v0, Vector2 v1, Vector2 v2, Color32 color)
     {
-        if (color.Packed == 0) return;
+        if (color.A == 0) return;
         FillQuad(v0, v1, v2, v2, color);
     }
 
@@ -90,7 +90,7 @@ public readonly ref partial struct ImDraw
     /// </summary>
     public void StrokeLine(Vector2 start, Vector2 end, float thickness, Color32 color)
     {
-        if (color.Packed == 0) return;
+        if (color.A == 0) return;
         Vector2 dir = end - start;
         float len = dir.Length();
         if (len < 0.0001f) return;
@@ -112,6 +112,7 @@ public readonly ref partial struct ImDraw
     /// </summary>
     public void StrokeRect(Vector2 position, Vector2 size, float thickness, Color32 color)
     {
+        if (color.A == 0) return;
         float x = position.X;
         float y = position.Y;
         float w = size.X;
@@ -129,7 +130,6 @@ public readonly ref partial struct ImDraw
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void StrokeCornerArc(Vector2 center, float innerRadius, float outerRadius, ArcCorner corner, Color32 color, int segments)
     {
-        if (color.A == 0) return;
         if (segments < 1) segments = 1;
 
         if (segments <= ArcLookups.CornerTableLength)
@@ -161,6 +161,7 @@ public readonly ref partial struct ImDraw
     
     public void StrokeArc(Vector2 center, float innerRadius, float outerRadius, float startAngle, float endAngle, Color32 color, int segments)
     {
+        if (color.A == 0) return;
         if (segments < 1) segments = 1;
         float step = (endAngle - startAngle) / segments;
 
@@ -185,7 +186,7 @@ public readonly ref partial struct ImDraw
     /// </summary>
     public void StrokeRectRounded(Vector2 position, Vector2 size, float radius, float thickness, Color32 color, int segments = 8)
     {
-        if (color.Packed == 0) return;
+        if (color.A == 0) return;
         if (thickness <= 0f) return;
 
         if (radius <= 0f) {
@@ -232,7 +233,7 @@ public readonly ref partial struct ImDraw
     /// </summary>
     public void FillRectRounded(Vector2 position, Vector2 size, float radius, Color32 color, int segments = 8)
     {
-        if (color.Packed == 0) return;
+        if (color.A == 0) return;
         if (radius <= 0f) {
             FillRect(position, size, color);
             return;
@@ -288,6 +289,7 @@ public readonly ref partial struct ImDraw
 
     public void FillArc(Vector2 center, float radius, float startAngle, float endAngle, Color32 color, int segments)
     {
+        if (color.A == 0) return;
         if (segments < 1) segments = 1;
         float step = (endAngle - startAngle) / segments;
 
@@ -312,6 +314,7 @@ public readonly ref partial struct ImDraw
     /// </summary>
     public void FillCircle(Vector2 center, float radius, Color32 color, int segments = 32)
     {
+        if (color.A == 0) return;
         if (segments < 3) segments = 3;
         float step = MathF.PI * 2f / segments;
 
@@ -337,6 +340,7 @@ public readonly ref partial struct ImDraw
     /// </summary>
     public void StrokeCircle(Vector2 center, float radius, float thickness, Color32 color, int segments = 32)
     {
+        if (color.A == 0) return;
         if (segments < 3) segments = 3;
         float step = MathF.PI * 2f / segments;
         float halfThick = thickness * 0.5f;
