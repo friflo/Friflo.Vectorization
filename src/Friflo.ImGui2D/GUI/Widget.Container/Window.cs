@@ -82,7 +82,7 @@ public readonly ref partial struct GuiWidget
     {
         var scrollSize = Window.CurrentLayout.maxSize + Sizes.WindowPadding.Size;
         
-        PopScrollArea(scope.windowId, scope.startCursor, scope.outerSize, scrollSize);
+        PopScrollArea(scope.windowId, scope.startCursor, scope.outerSize, scrollSize, Colors.WindowColor);
         
         draw.PopScissor();
         draw.PopZIndex();

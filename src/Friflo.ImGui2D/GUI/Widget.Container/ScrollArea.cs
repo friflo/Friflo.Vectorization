@@ -3,8 +3,9 @@
 
 using System;
 using System.Numerics;
-// ReSharper disable SuggestVarOrType_SimpleTypes
 
+// ReSharper disable SuggestVarOrType_SimpleTypes
+// ReSharper disable UseWithExpressionToCopyStruct
 // ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable once CheckNamespace
 namespace Friflo.ImGui2D;
@@ -44,8 +45,8 @@ public readonly ref partial struct GuiWidget
 	    float scrollbarWidth  = hasVertScrollbar ? Sizes.TrackThickness : 0f;
 
 	    // Provide concrete viewport width for UI.Fill_X elements (accounting for padding, focus clearance, and scrollbar)
-	    float effectiveWidth  = MathF.Max(0f, outerSize.X - padding.Size.X - 2 * Sizes.FocusOutlineThickness.X - scrollbarWidth);
-	    float effectiveHeight = MathF.Max(0f, outerSize.Y - padding.Size.Y - 2 * Sizes.FocusOutlineThickness.Y);
+	    float effectiveWidth  = MathF.Max(0f, outerSize.X - padding.Size.X - scrollbarWidth);
+	    float effectiveHeight = MathF.Max(0f, outerSize.Y - padding.Size.Y);
 
 	    // Exact width (effectiveWidth) and Content height (0f, Sizing.Content)
 	    var boundsSize = new Vector2(effectiveWidth, effectiveHeight);
@@ -53,11 +54,11 @@ public readonly ref partial struct GuiWidget
 	    return new RectVector2(innerStartCursor, boundsSize);
     }
     
-    private void PopScrollArea(int childId, Vector2 startCursor, Vector2 outerSize, Vector2 scrollSize)
+    private void PopScrollArea(int childId, Vector2 startCursor, Vector2 outerSize, Vector2 scrollSize, Color32 background)
     {
 	    var window = Window;
 	    
-	    var baseContentSize = scrollSize + 2 * Sizes.FocusOutlineThickness;
+	    var baseContentSize = scrollSize;
 
 	    ref var scrollState = ref window.GetOrCreateScrollState(childId);
 
@@ -85,22 +86,22 @@ public readonly ref partial struct GuiWidget
 
 	    // Render scrollbars based on exact visibility criteria
 	    if (showVert) {
-	        DrawScrollbar(childId, startCursor, outerSize, contentSize.Y, ref scrollState, ScrollAxis.Vertical);
+	        DrawScrollbar(childId, startCursor, outerSize, contentSize.Y, ref scrollState, ScrollAxis.Vertical, background);
 	    }
 	    if (showHoriz) {
-	        DrawScrollbar(childId, startCursor, outerSize, contentSize.X, ref scrollState, ScrollAxis.Horizontal);
+	        DrawScrollbar(childId, startCursor, outerSize, contentSize.X, ref scrollState, ScrollAxis.Horizontal, background);
 	    }
     }
     
-	private void DrawScrollbar(int childId, Vector2 pos, Vector2 size, float totalContentSize, ref ScrollState scrollState, ScrollAxis axis)
+	private void DrawScrollbar(int childId, Vector2 pos, Vector2 size, float totalContentSize, ref ScrollState scrollState, ScrollAxis axis, Color32 background)
 	{
 	    var window = Window;
-	    float trackThickness = Sizes.TrackThickness;
+	    float trackThickness	= Sizes.TrackThickness;
 	    bool isHorizontal = axis == ScrollAxis.Horizontal;
 
 	    // Axis-parameterized geometry setup
 	    Vector2 trackPos = isHorizontal 
-	        ? new Vector2(pos.X, pos.Y + size.Y - trackThickness) 
+	        ? new Vector2(pos.X,                           pos.Y + size.Y - trackThickness) 
 	        : new Vector2(pos.X + size.X - trackThickness, pos.Y);
 
 	    Vector2 trackSize = isHorizontal 
@@ -177,8 +178,10 @@ public readonly ref partial struct GuiWidget
 	                                           : Colors.ScrollThumb;
 
 	    // Render track and thumb
-	    draw.FillRect(trackPos, trackSize, Colors.ScrollTrackBg);
-	    draw.FillRectRounded(thumbPos, thumbSize, Sizes.CornerRadius, thumbColor, GuiSizes.CornerSegments);
+	    draw.FillRect       (trackPos, trackSize, background);
+		float offset			= 2;
+	    Vector2 posOffset = isHorizontal ? new Vector2(0, offset) : new Vector2(offset, 0);
+	    draw.FillRectRounded(thumbPos + posOffset, thumbSize - 2 * posOffset, Sizes.CornerRadius, thumbColor, GuiSizes.CornerSegments);
 	}
 }
 
