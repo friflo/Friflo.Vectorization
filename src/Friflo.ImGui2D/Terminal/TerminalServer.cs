@@ -69,6 +69,14 @@ public class TuiTerminalServer
     private static async ValueTask ProcessClientAsync(Socket socket, ConcurrentDictionary<Socket, byte> clients, CancellationToken cancellationToken)
     {
         Console.WriteLine($"[+] Client connected: {socket.RemoteEndPoint}");
+        
+        // Send Hello World Screen with ANSI colors upon connect (zero-allocation)
+        
+        // ReadOnlyMemory<byte> rawTuiMode = TuiSession.EnableRawTuiMode.ToArray();
+        // await socket.SendAsync(rawTuiMode, SocketFlags.None, cancellationToken);
+        
+        ReadOnlyMemory<byte> screenData = TuiSession.HelloWorldScreen.ToArray(); // Once per connect
+        await socket.SendAsync(screenData, SocketFlags.None, cancellationToken);
 
         // Rent a buffer from the shared pool for reading raw bytes (No allocation)
         byte[] buffer = ArrayPool<byte>.Shared.Rent(4096);
@@ -81,10 +89,12 @@ public class TuiTerminalServer
                 int bytesRead = await socket.ReceiveAsync(buffer.AsMemory(), SocketFlags.None, cancellationToken);
                 if (bytesRead == 0) break; // Client disconnected
 
-                ReadOnlyMemory<byte> receivedMemory = buffer.AsMemory(0, bytesRead);
+                // ReadOnlyMemory<byte> receivedMemory = buffer.AsMemory(0, bytesRead);
+                
+                await TuiSession.ProcessClientNavigationAsync(socket, cancellationToken);
                 
                 // Zero-allocation broadcast
-                await BroadcastAsync(clients, receivedMemory, cancellationToken);
+                // await BroadcastAsync(clients, receivedMemory, cancellationToken);
             }
         }
         catch (Exception)
