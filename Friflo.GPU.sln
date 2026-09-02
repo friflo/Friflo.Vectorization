@@ -22,6 +22,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Friflo.Generators.CodeFixes
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Friflo.ImGui2D", "src\Friflo.ImGui2D\Friflo.ImGui2D.csproj", "{C79EDF8C-9DA8-42B1-9C22-35BF1364A398}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests-TuiTerminalServer", "src\Tests-TuiTerminalServer\Tests-TuiTerminalServer.csproj", "{F1063E3C-546B-47DF-B69C-304AB6283E19}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -72,5 +74,9 @@ Global
 		{C79EDF8C-9DA8-42B1-9C22-35BF1364A398}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C79EDF8C-9DA8-42B1-9C22-35BF1364A398}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C79EDF8C-9DA8-42B1-9C22-35BF1364A398}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F1063E3C-546B-47DF-B69C-304AB6283E19}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F1063E3C-546B-47DF-B69C-304AB6283E19}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F1063E3C-546B-47DF-B69C-304AB6283E19}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F1063E3C-546B-47DF-B69C-304AB6283E19}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
