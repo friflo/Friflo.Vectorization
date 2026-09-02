@@ -8,13 +8,8 @@ using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Text;
 
-// ReSharper disable RedundantSwitchExpressionArms
-// ReSharper disable ConvertIfStatementToReturnStatement
-// ReSharper disable InconsistentNaming
 // ReSharper disable MemberCanBePrivate.Global
-// ReSharper disable UseWithExpressionToCopyStruct
-// ReSharper disable CompareOfFloatsByEqualityOperator
-// ReSharper disable SuggestVarOrType_BuiltInTypes
+// ReSharper disable ConvertIfStatementToReturnStatement
 // ReSharper disable once CheckNamespace
 namespace Friflo.ImGui2D;
 
