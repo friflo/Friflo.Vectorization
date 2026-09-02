@@ -1,0 +1,46 @@
+﻿// Copyright (c) Ullrich Praetz - https://github.com/friflo. All rights reserved.
+// See LICENSE file in the project root for full license information.
+
+using System;
+
+// ReSharper disable SuggestVarOrType_BuiltInTypes
+// ReSharper disable once CheckNamespace
+namespace Friflo.ImGui2D;
+
+
+public readonly ref partial struct GuiWidget
+{
+    internal bool Button(ReadOnlySpan<char> name, Dim size, GuiStyle? style, WidgetID id)
+    {
+        var window = Window;
+        using var _ = UseStyle(style);
+
+        int parentHash = window.GetCurrentScopeHash();
+        int widgetId   = id.Resolve(name, parentHash);
+
+        var pos      = window.Cursor;
+        var textSize = draw.MeasureText(name);
+
+        // Calculate final pixel footprint based on measured text size as content fallback
+        var defaultSize = textSize + Sizes.FramePadding.Size;
+        var finalSize   = window.WidgetSize(size, defaultSize);
+
+        var isHover     = window.IsHoverAtCursor(finalSize, draw);
+        bool isFocused  = RegisterFocusable(widgetId, pos, finalSize);
+        var widgetState = GetWidgetState(isHover, widgetId);
+
+        // Background
+        draw.FillRectRounded  (pos, finalSize, Sizes.CornerRadius, Colors.ButtonState(widgetState), GuiSizes.CornerSegments);
+        draw.StrokeRectRounded(pos, finalSize, Sizes.CornerRadius, 2, Colors.ButtonBorder, GuiSizes.CornerSegments);
+
+        if (isFocused) {
+            DrawFocus(pos, finalSize);
+            window.EnsureVisibleInScrollArea(pos, finalSize);
+        }
+        draw.DrawTextInRect(name, pos + Sizes.FramePadding.Min, textSize, TextAlignment.Center, VerticalAlignment.Middle, Colors.ButtonText);
+        
+        MoveCursor(finalSize);
+        
+        return IsFired(widgetState, isFocused);
+    }
+}

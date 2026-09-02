@@ -73,7 +73,7 @@ public class ImGuiRenderer : IRenderer
         renderPassDescriptor.colorAttachments[0] = new GpuRenderPassColorAttachment {
             loadOp      = LoadOp.Clear,
             storeOp     = StoreOp.Store,
-            clearValue  = new GpuColor(0.1f, 0.1f, 0.1f, 1f)
+            clearValue  = new GpuColor(0.6f, 0.61f, 0.62f, 1f)
         };
     }
 
@@ -234,7 +234,7 @@ public static class GuiExtensions
         var isFocused   = widget.RegisterFocusable(widgetId, pos, size);
         var widgetState = widget.GetWidgetState(isHover, widgetId);
         
-        draw.FillRectRounded  (pos, size, widget.Sizes.CornerRadius, widget.Colors.ButtonState(widgetState)); // background
+        draw.FillRectRounded  (pos, size, widget.Sizes.CornerRadius, widget.Colors.ButtonState(widgetState), GuiSizes.CornerSegments); // background
         draw.StrokeRectRounded(pos, size, widget.Sizes.CornerRadius, 2, widget.Colors.ButtonBorder, GuiSizes.CornerSegments);
 
         if (isFocused) {
