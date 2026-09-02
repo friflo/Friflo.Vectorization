@@ -20,8 +20,8 @@ public enum ColorId
     ButtonHover,
     ButtonDown,
     
-    SliderFill,
     SliderColor,
+    SliderBg,
     
     FocusColor
 }
@@ -39,8 +39,8 @@ public struct GuiColors
     public Color32  ButtonHover     { readonly get => buttonHover;   set => buttonHover  = Add(ColorId.ButtonHover,  value); }
     public Color32  ButtonDown      { readonly get => buttonDown;    set => buttonDown   = Add(ColorId.ButtonDown,   value); }
     
-    public Color32  SliderFill      { readonly get => sliderFill;    set => sliderFill   = Add(ColorId.SliderFill,   value); }
-    public Color32  SliderColor     { readonly get => sliderColor;   set => sliderColor  = Add(ColorId.SliderColor,  value); }
+    public Color32  SliderColor     { readonly get => sliderColor;   set => sliderColor  = Add(ColorId.SliderColor,   value); }
+    public Color32  SliderBg        { readonly get => sliderBg;      set => sliderBg     = Add(ColorId.SliderBg,     value); }
     
     public Color32  FocusColor      { readonly get => focusColor;    set => focusColor   = Add(ColorId.FocusColor,   value); }
     
@@ -70,8 +70,8 @@ public struct GuiColors
     [Browse(Never)] private     Color32 buttonHover;
     [Browse(Never)] private     Color32 buttonDown;
     
-    [Browse(Never)] private     Color32 sliderFill;
     [Browse(Never)] private     Color32 sliderColor;
+    [Browse(Never)] private     Color32 sliderBg;
     
     [Browse(Never)] private     Color32 focusColor;
     
@@ -96,8 +96,8 @@ public struct GuiColors
                 case ColorId.ButtonBorder:  target.buttonBorder = source.buttonBorder;  break;
                 case ColorId.ButtonHover:   target.buttonHover  = source.buttonHover;   break;
                 case ColorId.ButtonDown:    target.buttonDown   = source.buttonDown;    break;
-                case ColorId.SliderFill:    target.sliderFill   = source.sliderFill;    break;
                 case ColorId.SliderColor:   target.sliderColor  = source.sliderColor;   break;
+                case ColorId.SliderBg:      target.sliderBg     = source.sliderBg;      break;
                 case ColorId.FocusColor:    target.focusColor   = source.focusColor;  	break;
             }
         }
@@ -109,18 +109,27 @@ public struct GuiColors
         foreach (var colorState in source.overrides)
         {
             switch (colorState) {
-                case ColorId.WindowColor:   WindowColor  = source.windowColor;   break;
-                case ColorId.TextColor:     TextColor    = source.textColor;     break;
-                case ColorId.ButtonText:    ButtonText   = source.buttonText;    break;
-                case ColorId.ButtonColor:   ButtonColor  = source.buttonColor;   break;
-                case ColorId.ButtonBorder:  ButtonBorder = source.buttonBorder;  break;
-                case ColorId.ButtonHover:   ButtonHover  = source.buttonHover;   break;
-                case ColorId.ButtonDown:    ButtonDown   = source.buttonDown;    break;
-                case ColorId.SliderFill:    SliderFill   = source.sliderFill;    break;
-                case ColorId.SliderColor:   SliderColor  = source.sliderColor;   break;
-                case ColorId.FocusColor:    FocusColor   = source.focusColor;    break;
+                case ColorId.WindowColor:   WindowColor  = source.windowColor;      break;
+                case ColorId.TextColor:     TextColor    = source.textColor;        break;
+                case ColorId.ButtonText:    ButtonText   = source.buttonText;       break;
+                case ColorId.ButtonColor:   ButtonColor  = source.buttonColor;      break;
+                case ColorId.ButtonBorder:  ButtonBorder = source.buttonBorder;     break;
+                case ColorId.ButtonHover:   ButtonHover  = source.buttonHover;      break;
+                case ColorId.ButtonDown:    ButtonDown   = source.buttonDown;       break;
+                case ColorId.SliderColor:   SliderColor  = source.sliderColor;      break;
+                case ColorId.SliderBg:      SliderBg     = source.sliderBg;         break;
+                case ColorId.FocusColor:    FocusColor   = source.focusColor;       break;
             }
         }
+    }
+    
+    public readonly Color32 SliderState(WidgetState widgetState)
+    {
+        return widgetState switch {
+            WidgetState.Down    => ButtonDown,
+            WidgetState.Hover   => ButtonHover,
+            _                   => SliderBg
+        };
     }
     
     public readonly Color32 ButtonState(WidgetState widgetState)

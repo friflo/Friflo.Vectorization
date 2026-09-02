@@ -36,19 +36,19 @@ internal sealed class GuiState
     {
         return new GuiColors
         {
-            WindowColor  = 0xf0f1f2ff, // 0xf7f8f9ff,
-            TextColor    = 0x000000ff,
+            WindowColor     = 0xf0f1f2ff, // 0xf7f8f9ff,
+            TextColor       = 0x000000ff,
             
-            ButtonText   = 0x000000ff,
-            ButtonColor  = 0xffffffff,
-            ButtonBorder = 0xe0e0e0ff,
-            ButtonHover  = 0xe0e0e0ff,
-            ButtonDown   = 0xb0b0b0ff,
+            ButtonText      = 0x000000ff,
+            ButtonColor     = 0xffffffff,
+            ButtonBorder    = 0xe0e0e0ff,
+            ButtonHover     = 0xe0e0e0ff,
+            ButtonDown      = 0xc0c0c0ff,
             
-            SliderFill   = 0xffffffff,
-            SliderColor  = 0xbbbbbbff,
+            SliderColor     = 0xffffffff,
+            SliderBg        = 0xd8d8d8ff,
             
-            FocusColor   = 0x007affff
+            FocusColor      = 0x007affff
         };
     }
     
