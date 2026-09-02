@@ -45,17 +45,17 @@ public struct LayoutNode
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal readonly float WidgetFillWidth(float distRight)
+    internal readonly float WidgetFillWidth(float distRight, Vector2 minSize)
     {
         var remaining = boundsSize.X - (cursor.X - startCursor.X) - distRight;
-        return remaining > 0f ? remaining : 0f;
+        return remaining > minSize.X ? remaining : minSize.X;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal readonly float WidgetFillHeight(float distBottom)
+    internal readonly float WidgetFillHeight(float distBottom, Vector2 minSize)
     {
         var remaining = boundsSize.Y - (cursor.Y - startCursor.Y) - distBottom;
-        return remaining > 0f ? remaining : 0f;
+        return remaining > minSize.Y ? remaining : minSize.Y;
     }
 }
 
@@ -230,13 +230,13 @@ public sealed class GuiWindow
     {
         var width = size.sizingX switch {
             Sizing.Exact   => size.Width,
-            Sizing.Fill    => CurrentLayout.WidgetFillWidth(size.DistRight),
+            Sizing.Fill    => CurrentLayout.WidgetFillWidth(size.DistRight, defaultSize),
             Sizing.Content => defaultSize.X,
             _              => defaultSize.X
         };
         var height = size.sizingY switch {
             Sizing.Exact   => size.Height,
-            Sizing.Fill    => CurrentLayout.WidgetFillHeight(size.DistBottom),
+            Sizing.Fill    => CurrentLayout.WidgetFillHeight(size.DistBottom, defaultSize),
             Sizing.Content => defaultSize.Y,
             _              => defaultSize.Y
         };
