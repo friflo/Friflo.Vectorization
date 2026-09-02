@@ -25,7 +25,7 @@ public readonly ref partial struct GuiWidget
         var textSize    = draw.MeasureText(name);
 
         var totalSize   = new Vector2(boxSize + padding.Size.X + textSize.X, boxSize);
-        var isHover     = window.IsHoverAtCursor(totalSize, draw);
+        var isHover     = window.IsHoverAtCapture(pos, totalSize, draw);
         bool isFocused  = RegisterFocusable(widgetId, pos, totalSize);
         var widgetState = GetWidgetState(isHover, widgetId);
         bool isToggled  = IsFired(widgetState, isFocused);

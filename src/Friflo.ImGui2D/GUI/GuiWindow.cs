@@ -270,23 +270,32 @@ public sealed class GuiWindow
     
     public bool IsHoverAt(Vector2 pos, Vector2 size, ImDraw draw)
     {
-        var widgetRect = new RectVector2(pos, size);
+        var input       = host.input;
+        var widgetRect  = new RectVector2(pos, size);
         
         // Is the mouse cursor inside the widget bounds?
-        if (!widgetRect.Contains(host.input.MousePos)) {
+        if (!widgetRect.Contains(input.MousePos)) {
             return false;
         }
         // Is the mouse cursor inside the currently active scissor clip region?
         var scissor = draw.batch.currentScissor;
         if (scissor.size.X > 0 && scissor.size.Y > 0) {
-            if (!scissor.Contains(host.input.MousePos)) return false;
+            if (!scissor.Contains(input.MousePos)) return false;
         }
-        return host.IsTopWindowAt(host.input.MousePos, this);
+        return host.IsTopWindowAt(input.MousePos, this);
     }
-
-    public bool IsHoverAtCursor(Vector2 size, ImDraw draw)
+    
+    public bool IsHoverAtCapture(Vector2 pos, Vector2 size, ImDraw draw)
     {
-        return IsHoverAt(Cursor, size, draw);
+        var input = host.input;
+        if (input.actionHoverCaptured) {
+            return false;
+        }
+        var isHover = IsHoverAt(pos, size, draw);
+        if (isHover) {
+            input.actionHoverCaptured = true;
+        }
+        return isHover;
     }
     
 #region resize

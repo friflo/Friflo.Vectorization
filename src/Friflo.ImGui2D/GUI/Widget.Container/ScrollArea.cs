@@ -36,6 +36,9 @@ public readonly ref partial struct GuiWidget
 	            scrollState.offset.X = MathF.Max(0f, scrollState.offset.X - wheelX * LineHeight);
 	        }
 	    }
+	    if (scrollState.isHovered) {
+		    input.actionHoverCaptured = true;
+	    }
 	    scrollState.dragState = GetDragState(scrollState.isHovered, childId);
 	    
 	    // Offset inner start cursor by current scroll position

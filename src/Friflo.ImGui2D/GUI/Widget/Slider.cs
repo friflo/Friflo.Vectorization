@@ -23,7 +23,7 @@ public readonly ref partial struct GuiWidget
         float height    = LineHeight + padding.Vertical;
         var pos         = window.Cursor;
         var totalSize   = new Vector2(width, height);
-        var isHover     = window.IsHoverAtCursor(totalSize, draw);
+        var isHover     = window.IsHoverAtCapture(pos, totalSize, draw);
         bool isFocused  = RegisterFocusable(widgetId, pos, totalSize);
         var widgetState = GetWidgetState(isHover, widgetId);
         bool changed    = false;

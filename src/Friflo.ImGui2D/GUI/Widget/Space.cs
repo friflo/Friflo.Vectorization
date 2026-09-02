@@ -29,7 +29,7 @@ public readonly ref partial struct GuiWidget
             int parentHash  = window.GetCurrentScopeHash();
             int widgetId    = id.Resolve(parentHash);
             
-            bool isHover    = window.IsHoverAt(pos, size, draw);
+            bool isHover    = window.IsHoverAtCapture(pos, size, draw);
             widgetState     = GetWidgetState(isHover, widgetId);
             isFocused       = RegisterFocusable(widgetId, pos, size);
         }

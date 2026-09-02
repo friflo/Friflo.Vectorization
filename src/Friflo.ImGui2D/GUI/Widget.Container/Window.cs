@@ -49,7 +49,7 @@ public readonly ref partial struct GuiWidget
         var titleBarSize     = new Vector2(window.Size.X, titleBarHeight);
         int titleBarId       = WidgetID.CombineHash(parentHash, "__titlebar".GetHashCode());
 
-        bool isTitleHover = !isResizing && window.IsHoverAt(window.Pos, titleBarSize, draw);
+        bool isTitleHover = !isResizing && window.IsHoverAtCapture(window.Pos, titleBarSize, draw);
         var titleState    = GetDragState(isTitleHover, titleBarId);
 
         if (titleState == DragState.Down) {

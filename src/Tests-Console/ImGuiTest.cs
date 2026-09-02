@@ -230,7 +230,7 @@ public static class GuiExtensions
         var textSize    = draw.MeasureText(name);
         var size        = textSize + widget.Sizes.FramePadding.Size;
         var pos         = window.Cursor;
-        var isHover     = window.IsHoverAtCursor(size, draw);
+        var isHover     = window.IsHoverAtCapture(pos, size, draw);
         var isFocused   = widget.RegisterFocusable(widgetId, pos, size);
         var widgetState = widget.GetWidgetState(isHover, widgetId);
         

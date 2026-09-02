@@ -80,6 +80,7 @@ public sealed class GuiInput
     /// <summary> The widget currently being dragged (persists while mouse is held down) </summary>
     private             int                     dragItem;   // MUST stay private. read/write only in GetWidgetState()
     
+    internal            bool                    actionHoverCaptured;
     private             int                     focusedItem;
     private             GuiWindow?              focusedWindow;
     private             int                     targetFocusItem;
@@ -407,6 +408,8 @@ public sealed class GuiInput
         mousePosLast    = MousePos;
         mouseWheel      = mouseWheelAccu;
         mouseWheelAccu  = default;
+        
+        actionHoverCaptured   = false;
         
         HandleKeyEvents();
         
