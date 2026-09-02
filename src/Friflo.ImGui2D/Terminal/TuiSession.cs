@@ -13,6 +13,8 @@ using System.Threading.Tasks;
 namespace Friflo.ImGui2D.Terminal;
 
 
+
+
 public class TuiSession
 {
     // Pre-encoded UTF-8 byte array with ANSI sequences for colored UI
@@ -31,30 +33,33 @@ public class TuiSession
         Type a message and press ENTER to broadcast:
         > 
         """u8;
-    
-    // \x1b[?1h  = Enable Application Cursor Keys (force terminal to send \x1bOA / \x1b[A)
-    // \x1b[?25l = Hide Cursor (optional for cleaner TUI)
-    public static ReadOnlySpan<byte> EnableRawTuiMode => "\x1b[?1h\x1b[?25l"u8;
-    
-    // ANSI Sequences
-    private static readonly byte[] ClearScreen = "\x1b[2J\x1b[H"u8.ToArray();
-    private static readonly byte[] ResetColor = "\x1b[0m"u8.ToArray();
-    private static readonly byte[] HighlightColor = "\x1b[1;42;30m"u8.ToArray(); // Green background, black text
 
-    // Menu options
-    private static readonly string[] MenuItems = new[]
+    // Terminal setup sequences
+    public static ReadOnlySpan<byte> EnableRawTuiMode => "\x1b[?1h\x1b[?25l"u8;
+
+    // ANSI Sequences for Menu Rendering
+    public static readonly byte[] ClearScreen = "\x1b[2J\x1b[H"u8.ToArray();
+    public static readonly byte[] ResetColor = "\x1b[0m"u8.ToArray();
+    public static readonly byte[] HighlightColor = "\x1b[1;42;30m"u8.ToArray(); // Green background, black text
+    public static readonly byte[] EraseInLine = "\x1b[K"u8.ToArray();
+
+    // Menu options & positioning
+    public const int MenuStartRow = 5;
+    public static readonly string[] MenuItems = new[]
     {
-        "  1. Start Application  ",
-        "  2. Settings           ",
-        "  3. Exit               "
+        "1. Start Application",
+        "2. Settings",
+        "3. Exit"
     };
 
-    public static async ValueTask ProcessClientNavigationAsync(Socket socket, CancellationToken cancellationToken)
+    // I/O Loop: Reads raw socket bytes and pushes them into the single-threaded engine queue
+    public static async ValueTask HandleClientSessionAsync(Socket socket, SingleThreadedShardEngine engine, CancellationToken cancellationToken)
     {
-        int selectedIndex = 0;
+        // Enable raw mode on client terminal
+        await socket.SendAsync(EnableRawTuiMode.ToArray(), SocketFlags.None, cancellationToken);
 
-        // Draw initial screen
-        await RenderMenuAsync(socket, selectedIndex, cancellationToken);
+        // Notify engine about new client connection
+        await engine.EnqueueEventAsync(socket, ClientEventType.Connected);
 
         byte[] buffer = ArrayPool<byte>.Shared.Rent(256);
 
@@ -65,63 +70,62 @@ public class TuiSession
                 int bytesRead = await socket.ReceiveAsync(buffer.AsMemory(), SocketFlags.None, cancellationToken);
                 if (bytesRead == 0) break;
 
-                ReadOnlySpan<byte> received = buffer.AsSpan(0, bytesRead);
+                ReadOnlyMemory<byte> payload = buffer.AsMemory(0, bytesRead);
 
-                // Check for ANSI Arrow Key Sequences (\x1b[A and \x1b[B)
-                if (received.Length >= 3 && received[0] == 0x1B && received[1] == 0x5B)
-                {
-                    bool stateChanged = false;
+                Console.WriteLine($"received [{bytesRead}] text: {Encoding.UTF8.GetString(payload.Span)}");
 
-                    if (received[2] == 0x41) // Arrow Up
-                    {
-                        selectedIndex = (selectedIndex > 0) ? selectedIndex - 1 : MenuItems.Length - 1;
-                        stateChanged = true;
-                    }
-                    else if (received[2] == 0x42) // Arrow Down
-                    {
-                        selectedIndex = (selectedIndex < MenuItems.Length - 1) ? selectedIndex + 1 : 0;
-                        stateChanged = true;
-                    }
-
-                    // Redraw screen on navigation change
-                    if (stateChanged)
-                    {
-                        await RenderMenuAsync(socket, selectedIndex, cancellationToken);
-                    }
-                }
+                // Forward raw input directly to the shard event loop
+                await engine.EnqueueEventAsync(socket, ClientEventType.Input, payload);
             }
         }
         finally
         {
             ArrayPool<byte>.Shared.Return(buffer);
+            await engine.EnqueueEventAsync(socket, ClientEventType.Disconnected);
         }
     }
 
-    private static async ValueTask RenderMenuAsync(Socket socket, int selectedIndex, CancellationToken cancellationToken)
+    // Full screen initial render
+    public static async ValueTask RenderFullMenuAsync(Socket socket, int selectedIndex, CancellationToken cancellationToken = default)
     {
-        // Clear screen and move cursor home
         await socket.SendAsync(ClearScreen, SocketFlags.None, cancellationToken);
 
-        // Header
         byte[] header = Encoding.UTF8.GetBytes("\x1b[1;36m=== TUI NAVIGATION MENU ===\x1b[0m\r\nUse Up/Down Arrow keys to navigate.\r\n\r\n");
         await socket.SendAsync(header, SocketFlags.None, cancellationToken);
 
-        // Render Menu Items
         for (int i = 0; i < MenuItems.Length; i++)
         {
-            if (i == selectedIndex)
-            {
-                // Active item with highlight background
-                await socket.SendAsync(HighlightColor, SocketFlags.None, cancellationToken);
-                await socket.SendAsync(Encoding.UTF8.GetBytes($"> {MenuItems[i]} <\r\n"), SocketFlags.None, cancellationToken);
-                await socket.SendAsync(ResetColor, SocketFlags.None, cancellationToken);
-            }
-            else
-            {
-                // Inactive item
-                await socket.SendAsync(Encoding.UTF8.GetBytes($"  {MenuItems[i]}  \r\n"), SocketFlags.None, cancellationToken);
-            }
+            await RenderMenuItemAsync(socket, i, isSelected: (i == selectedIndex), cancellationToken);
         }
     }
-}
 
+    // Flicker-free differential update (updates only changing menu items)
+    public static async ValueTask UpdateMenuSelectionAsync(Socket socket, int oldIndex, int newIndex, CancellationToken cancellationToken = default)
+    {
+        await RenderMenuItemAsync(socket, oldIndex, isSelected: false, cancellationToken);
+        await RenderMenuItemAsync(socket, newIndex, isSelected: true, cancellationToken);
+    }
+
+    // Helper method to draw a single menu line at a precise row
+    private static async ValueTask RenderMenuItemAsync(Socket socket, int index, bool isSelected, CancellationToken cancellationToken)
+    {
+        int targetRow = MenuStartRow + index;
+
+        // Position cursor at specific line
+        string moveCursor = $"\x1b[{targetRow};1H";
+        await socket.SendAsync(Encoding.UTF8.GetBytes(moveCursor), SocketFlags.None, cancellationToken);
+
+        if (isSelected)
+        {
+            await socket.SendAsync(HighlightColor, SocketFlags.None, cancellationToken);
+            await socket.SendAsync(Encoding.UTF8.GetBytes($"> {MenuItems[index]} <"), SocketFlags.None, cancellationToken);
+            await socket.SendAsync(ResetColor, SocketFlags.None, cancellationToken);
+        }
+        else
+        {
+            await socket.SendAsync(Encoding.UTF8.GetBytes($"  {MenuItems[index]}  "), SocketFlags.None, cancellationToken);
+        }
+
+        await socket.SendAsync(EraseInLine, SocketFlags.None, cancellationToken);
+    }
+}

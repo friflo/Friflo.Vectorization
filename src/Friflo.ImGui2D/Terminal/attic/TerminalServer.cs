@@ -20,6 +20,8 @@ public class TuiTerminalServer
     private readonly    ConcurrentDictionary<Socket, byte>  clients = new();
     private             Socket?                             listenSocket;
     private             CancellationTokenSource?            cts;
+    
+    private static readonly SingleThreadedShardEngine EngineSingleton = new SingleThreadedShardEngine();
 
     public TuiTerminalServer(int port)
     {
@@ -75,8 +77,8 @@ public class TuiTerminalServer
         // ReadOnlyMemory<byte> rawTuiMode = TuiSession.EnableRawTuiMode.ToArray();
         // await socket.SendAsync(rawTuiMode, SocketFlags.None, cancellationToken);
         
-        ReadOnlyMemory<byte> screenData = TuiSession.HelloWorldScreen.ToArray(); // Once per connect
-        await socket.SendAsync(screenData, SocketFlags.None, cancellationToken);
+        // ReadOnlyMemory<byte> screenData = TuiSession.HelloWorldScreen.ToArray(); // Once per connect
+        // await socket.SendAsync(screenData, SocketFlags.None, cancellationToken);
 
         // Rent a buffer from the shared pool for reading raw bytes (No allocation)
         byte[] buffer = ArrayPool<byte>.Shared.Rent(4096);
@@ -91,7 +93,7 @@ public class TuiTerminalServer
 
                 // ReadOnlyMemory<byte> receivedMemory = buffer.AsMemory(0, bytesRead);
                 
-                await TuiSession.ProcessClientNavigationAsync(socket, cancellationToken);
+                await TuiSession.HandleClientSessionAsync(socket, EngineSingleton, cancellationToken);
                 
                 // Zero-allocation broadcast
                 // await BroadcastAsync(clients, receivedMemory, cancellationToken);
