@@ -1,0 +1,23 @@
+﻿// Copyright (c) Ullrich Praetz - https://github.com/friflo. All rights reserved.
+// See LICENSE file in the project root for full license information.
+
+
+using System;
+
+// ReSharper disable ConvertToPrimaryConstructor
+// ReSharper disable CheckNamespace
+namespace Friflo.ImGui2D.TUI;
+
+
+internal sealed class TuiBuffer<T> : ImBuffer<T> where T : unmanaged
+{
+    
+    public   override Memory<T>     Memory => default;
+    
+    public override void Dispose() {
+    }
+    
+    public override void Write(int start, int length) {
+        // <copy buffer -> GPU>
+    }
+}

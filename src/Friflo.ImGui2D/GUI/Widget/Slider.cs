@@ -37,23 +37,24 @@ public readonly ref partial struct GuiWidget
                 changed = true;
             }
         }
-        draw.FillRectRounded  (pos, totalSize, Sizes.CornerRadius, Colors.SliderState(widgetState), GuiSizes.CornerSegments); // background
-
-        // Fill bar
-        float tVal = Math.Clamp((value - min) / (max - min), 0f, 1f);
-        var fillSize = new Vector2(width * tVal, height);
-        
-        draw.FillRectRounded(pos, fillSize, Sizes.CornerRadius, Colors.SliderColor, GuiSizes.CornerSegments);
-        draw.StrokeRectRounded(pos, totalSize, Sizes.CornerRadius, 2, Colors.ButtonBorder, GuiSizes.CornerSegments);
-
-        // Render blue focus outline
+        var labelText = StringBuilder().AppendFloat(value, format.IsEmpty ? "F1" : format, FormatProvider);
+        var tui = draw.batch.tui;
+        if (tui != null) {
+            tui.Slider(labelText.Span(), ref value, min, max, width, pos, totalSize);
+        } else {
+            draw.FillRectRounded  (pos, totalSize, Sizes.CornerRadius, Colors.SliderState(widgetState), GuiSizes.CornerSegments); // background
+            // Fill bar
+            float tVal = Math.Clamp((value - min) / (max - min), 0f, 1f);
+            var fillSize = new Vector2(width * tVal, height);
+            
+            draw.FillRectRounded(pos, fillSize, Sizes.CornerRadius, Colors.SliderColor, GuiSizes.CornerSegments);
+            draw.StrokeRectRounded(pos, totalSize, Sizes.CornerRadius, 2, Colors.ButtonBorder, GuiSizes.CornerSegments);
+            draw.DrawTextInRect(labelText.Span(), pos, totalSize, TextAlignment.Center, VerticalAlignment.Middle, Colors.TextColor);
+        }
         if (isFocused) {
             DrawFocus(pos, totalSize);
             window.EnsureVisibleInScrollArea(pos, totalSize);
         }
-        var labelText = StringBuilder().AppendFloat(value, format.IsEmpty ? "F1" : format, FormatProvider);
-        draw.DrawTextInRect(labelText.Span(), pos, totalSize, TextAlignment.Center, VerticalAlignment.Middle, Colors.TextColor);
-
         MoveCursor(totalSize);
         return changed;
     }

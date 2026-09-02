@@ -3,6 +3,7 @@ using System;
 using System.Globalization;
 using Friflo.ImGui2D;
 using Friflo.ImGui2D.Headless;
+using Friflo.ImGui2D.TUI;
 using NUnit.Framework;
 using Tests.Utils;
 
@@ -24,6 +25,20 @@ public class Tests_ImDraw_window1
     {
         batch.SetFormatProvider(CultureInfo.InvariantCulture);
         
+    }
+    
+    [Test]
+    public void Tests_ImDraw_window1_TUI()
+    {
+        var backend = new TuiBackend(200, 100);
+        var batch   = backend.CreateBatch();
+
+        var gui = batch.BeginGui(1280, 1000);
+        
+        using (gui.BeginWindow("Window 1", new(100, 20), new(400, 950))) {
+            Window1(gui); 
+        }
+        batch.DrawRectCommands();
     }
     
     [Test]

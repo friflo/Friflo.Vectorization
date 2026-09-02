@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Numerics;
 using System.Text;
+using Friflo.ImGui2D.TUI;
 
 // ReSharper disable InconsistentNaming
 // ReSharper disable PrivateFieldCanBeConvertedToLocalVariable
@@ -73,7 +74,8 @@ public abstract class ImBatch : IDisposable
     // --- resources owned by DrawModule
     internal readonly   GuiHost             host;
     internal readonly   GuiInput            input;
-    private  readonly   ImFont              backendDefaultFont;
+    internal readonly   ImFont              backendDefaultFont;
+    internal readonly   TuiBatch?           tui;
     internal            ImFont              currentFont;
     internal            ImTexture           currentFontTexture;
     
@@ -86,7 +88,7 @@ public abstract class ImBatch : IDisposable
     internal            RectVector2         currentScissor;
     internal            bool                sortZIndex;
     internal            ZIndex              currentZIndex;
-    private             int                 currentSequence;
+    internal            int                 currentSequence;
     internal            Matrix4x4           projection;
     private             int                 vertexStart;                // start of next Draw()
     internal            int                 vertexCount;
@@ -98,7 +100,9 @@ public abstract class ImBatch : IDisposable
         formatProvider  = CultureInfo.InvariantCulture;
         host            = backend.host;
         input           = backend.input;
-        
+        if (this is TuiBatch typeTuiBatch) {
+            tui = typeTuiBatch;
+        }
         // --- vertex & index buffer - to draw quads
         int maxQuads   = maxVertices / 4;
         int maxIndices = maxQuads * 6;
@@ -161,6 +165,7 @@ public abstract class ImBatch : IDisposable
         /* if (defaultFontTexture.IsDisposed) {    // TODO IM_TEX
             SetFontDefault();
         } */
+        tui?.Reset();
         guiState.Reset();
         currentTexture      = currentFontTexture;
         vertexStart         = 0;
@@ -186,6 +191,10 @@ public abstract class ImBatch : IDisposable
     
     public void Flush()
     {
+        if (tui != null) {
+            tui.FlushRects();
+            return;
+        }
         int pendingVertices = vertexCount - vertexStart;
         if (pendingVertices <= 0) {
             return;

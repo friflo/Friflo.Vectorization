@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable once CheckNamespace
-namespace Friflo.ImGui2D.Terminal;
+namespace Friflo.ImGui2D.TUI;
 
 
 public class TuiTerminalServer

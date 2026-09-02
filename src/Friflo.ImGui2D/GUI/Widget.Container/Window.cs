@@ -57,15 +57,19 @@ public readonly ref partial struct GuiWidget
         }
 
         // Render background & titlebar
-        draw.FillRectRounded(window.Pos, window.Size, Sizes.CornerRadius, Colors.WindowColor, GuiSizes.CornerSegments);
 
         var headerColor = Colors.ButtonState(titleState);
-        draw.FillRectRounded(window.Pos, titleBarSize, Sizes.CornerRadius, headerColor, GuiSizes.CornerSegments);
-
-        var fontHeight = LineHeight;
-        var textPos    = window.Pos + new Vector2(10f, (titleBarHeight - fontHeight) / 2f);
-        draw.DrawText(title, textPos, Colors.TextColor);
-        
+        var fontHeight  = LineHeight;
+        var textPos     = window.Pos + new Vector2(10f, (titleBarHeight - fontHeight) / 2f);
+        var tui = draw.batch.tui;
+        if (tui != null) {
+            tui.FillRect(window.Pos, window.Size, Colors.WindowColor);
+            tui.DrawText(title, textPos, Colors.TextColor, headerColor);
+        } else {
+            draw.FillRectRounded(window.Pos, window.Size, Sizes.CornerRadius, Colors.WindowColor, GuiSizes.CornerSegments);
+            draw.FillRectRounded(window.Pos, titleBarSize, Sizes.CornerRadius, headerColor, GuiSizes.CornerSegments);
+            draw.DrawText(title, textPos, Colors.TextColor);
+        }
         // --- Push content scissor rect (clips everything below titlebar) ---
         var titleOffset = new Vector2(0f, titleBarHeight);
         var innerSize   = Vector2.Max(Vector2.Zero, window.Size - titleOffset);

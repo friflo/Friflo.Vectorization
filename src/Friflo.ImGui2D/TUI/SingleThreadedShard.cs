@@ -1,4 +1,4 @@
-﻿namespace Friflo.ImGui2D.Terminal;
+﻿namespace Friflo.ImGui2D.TUI;
 
 using System;
 using System.Collections.Generic;

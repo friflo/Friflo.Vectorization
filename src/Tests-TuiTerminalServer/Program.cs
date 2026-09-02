@@ -2,7 +2,7 @@
 
 using System.Net;
 using System.Net.Sockets;
-using Friflo.ImGui2D.Terminal;
+using Friflo.ImGui2D.TUI;
 
 Console.WriteLine("TUI Terminal Server");
 
