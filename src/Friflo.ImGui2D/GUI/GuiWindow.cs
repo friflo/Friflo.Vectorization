@@ -68,12 +68,14 @@ internal enum ScrollAxis
 internal struct ScrollState
 {
     public Vector2      offset;
+    public bool         isHovered;          // 1 frame delay to capture dragging before subsequent widgets in scroll area
+    public DragState    dragState;
     public Vector2      targetOffset;
     public bool         isDragging;
     public ScrollAxis   dragAxis;
     public Vector2      dragStartMouse;
     public Vector2      dragStartOffset;
-    public Vector2      lastContentSize;     // Cached from previous frame
+    public Vector2      lastContentSize;    // Cached from previous frame
 }
 
 internal struct ScrollAreaInfo
@@ -337,7 +339,7 @@ public sealed class GuiWindow
         }
 
         ResizeEdge edge = ResizeEdge.None;
-
+        margin = 0; // todo remove margins below
         if (mousePos.X <= Pos.X + margin)               edge |= ResizeEdge.Left;
         else if (mousePos.X >= Pos.X + Size.X - margin) edge |= ResizeEdge.Right;
 

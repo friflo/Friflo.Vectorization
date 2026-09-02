@@ -36,7 +36,8 @@ public readonly ref partial struct GuiWidget
 	            scrollState.offset.X = MathF.Max(0f, scrollState.offset.X - wheelX * LineHeight);
 	        }
 	    }
-
+	    scrollState.dragState = GetDragState(scrollState.isHovered, childId);
+	    
 	    // Offset inner start cursor by current scroll position
 	    var innerStartCursor = startCursor + padding.Min - scrollState.offset;
 
@@ -85,15 +86,16 @@ public readonly ref partial struct GuiWidget
 	    scrollState.offset = Vector2.Clamp(scrollState.offset, Vector2.Zero, maxScroll);
 
 	    // Render scrollbars based on exact visibility criteria
+	    scrollState.isHovered = false;
 	    if (showVert) {
-	        DrawScrollbar(childId, startCursor, outerSize, contentSize.Y, ref scrollState, ScrollAxis.Vertical, background);
+	        DrawScrollbar(startCursor, outerSize, contentSize.Y, ref scrollState, ScrollAxis.Vertical, background);
 	    }
 	    if (showHoriz) {
-	        DrawScrollbar(childId, startCursor, outerSize, contentSize.X, ref scrollState, ScrollAxis.Horizontal, background);
+	        DrawScrollbar(startCursor, outerSize, contentSize.X, ref scrollState, ScrollAxis.Horizontal, background);
 	    }
     }
     
-	private void DrawScrollbar(int childId, Vector2 pos, Vector2 size, float totalContentSize, ref ScrollState scrollState, ScrollAxis axis, Color32 background)
+	private void DrawScrollbar(Vector2 pos, Vector2 size, float totalContentSize, ref ScrollState scrollState, ScrollAxis axis, Color32 background)
 	{
 	    var window = Window;
 	    float trackThickness	= Sizes.TrackThickness;
@@ -126,14 +128,15 @@ public readonly ref partial struct GuiWidget
 	        : new Vector2(trackThickness, thumbLength);
 
 	    // Hit testing
-	    bool canHover		= !input.IsDragActive;
+		bool isDown			= scrollState.dragState == DragState.Down;
+	    bool canHover		= !input.IsDragActive || isDown;
 	    bool isThumbHovered = canHover && window.IsHoverAt(thumbPos, thumbSize, draw);
 	    bool isTrackHovered = canHover && window.IsHoverAt(trackPos, trackSize, draw);
-
+		if (isTrackHovered) {
+			scrollState.isHovered = true;
+	    }
+		
 	    // Handle mouse drag start on thumb
-	    var dragState	= GetDragState(isTrackHovered, childId);
-	    var isDown 		= dragState == DragState.Down;
-	    
 	    if (isThumbHovered && isDown && !scrollState.isDragging) {
 	        scrollState.isDragging		= true;
 	        scrollState.dragAxis		= axis;
