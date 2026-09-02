@@ -24,9 +24,9 @@ public enum SizeId
 public struct GuiSizes
 {
     public  float       CornerRadius            => 8;
-    public const int    CornerSegments          = 3; // better than 4. 4 segments have a pixel spike at 45 deg.
+    public const int    CornerSegments          =  3; // better than 4. 4 segments have a pixel spike at 45 deg.
     public Padding2D    ChildPadding            => new(6, 6);
-    public float        TrackThickness          => 16;
+    public float        TrackThickness          => 20;
     public float        FocusRadius             => 14;
     
     
