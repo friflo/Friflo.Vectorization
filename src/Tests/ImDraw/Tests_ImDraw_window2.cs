@@ -18,7 +18,7 @@ public class Tests_ImDraw_window2
         var         batch   = backend.CreateBatch();
 
         long        start   = 0;
-        const int   repeat  = 10; // 500_000 - 14.8 sec
+        const int   repeat  = 10; // 500_000 - 11.8 sec
         
         for (int n = 0; n < repeat; n++)
         {

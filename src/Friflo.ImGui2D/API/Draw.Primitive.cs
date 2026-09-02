@@ -124,6 +124,41 @@ public readonly ref partial struct ImDraw
         FillRect(new Vector2(x, y + thickness),                 new Vector2(thickness, h - thickness * 2f), color);
     }
     
+// Source code comments must always be in English
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void StrokeCornerArc(Vector2 center, float innerRadius, float outerRadius, ArcCorner corner, Color32 color, int segments)
+    {
+        if (color.A == 0) return;
+        if (segments < 1) segments = 1;
+
+        if (segments <= ArcLookups.CornerTableLength)
+        {
+            ReadOnlySpan<Vector2> lookup = ArcLookups.CornerTables[segments];
+            ArcLookups.GetCornerTransform(corner, out float signX, out float signY, out bool swapXY);
+
+            for (int i = 0; i < segments; i++)
+            {
+                Vector2 u0 = lookup[i];
+                Vector2 u1 = lookup[i + 1];
+
+                Vector2 dir0 = swapXY ? new Vector2(u0.Y * signX, u0.X * signY) : new Vector2(u0.X * signX, u0.Y * signY);
+                Vector2 dir1 = swapXY ? new Vector2(u1.Y * signX, u1.X * signY) : new Vector2(u1.X * signX, u1.Y * signY);
+
+                Vector2 inner0 = center + dir0 * innerRadius;
+                Vector2 outer0 = center + dir0 * outerRadius;
+                Vector2 inner1 = center + dir1 * innerRadius;
+                Vector2 outer1 = center + dir1 * outerRadius;
+
+                FillQuad(inner0, outer0, outer1, inner1, color);
+            }
+            return;
+        }
+
+        var (startAngle, endAngle) = ArcLookups.GetCornerAngles(corner);
+        StrokeArc(center, innerRadius, outerRadius, startAngle, endAngle, color, segments);
+    }
+    
     public void StrokeArc(Vector2 center, float innerRadius, float outerRadius, float startAngle, float endAngle, Color32 color, int segments)
     {
         if (segments < 1) segments = 1;
@@ -179,16 +214,16 @@ public readonly ref partial struct ImDraw
         Vector2 cBl = position + new Vector2(radius,          size.Y - radius);
 
         if (innerRadius <= 0f) {
-            FillArc(cTl, radius, MathF.PI,        MathF.PI * 1.5f,   color, segments);
-            FillArc(cTr, radius, MathF.PI * 1.5f, MathF.PI * 2f,     color, segments);
-            FillArc(cBr, radius, 0f,              MathF.PI * 0.5f,   color, segments);
-            FillArc(cBl, radius, MathF.PI * 0.5f, MathF.PI,          color, segments);
+            FillCornerArc(cTl, radius, ArcCorner.TopLeft,     color, segments);
+            FillCornerArc(cTr, radius, ArcCorner.TopRight,    color, segments);
+            FillCornerArc(cBr, radius, ArcCorner.BottomRight, color, segments);
+            FillCornerArc(cBl, radius, ArcCorner.BottomLeft,  color, segments);
             return;
         }
-        StrokeArc(cTl, innerRadius, radius, MathF.PI,        MathF.PI * 1.5f,   color, segments);
-        StrokeArc(cTr, innerRadius, radius, MathF.PI * 1.5f, MathF.PI * 2f,     color, segments);
-        StrokeArc(cBr, innerRadius, radius, 0f,              MathF.PI * 0.5f,   color, segments);
-        StrokeArc(cBl, innerRadius, radius, MathF.PI * 0.5f, MathF.PI,          color, segments);
+        StrokeCornerArc(cTl, innerRadius, radius, ArcCorner.TopLeft,     color, segments);
+        StrokeCornerArc(cTr, innerRadius, radius, ArcCorner.TopRight,    color, segments);
+        StrokeCornerArc(cBr, innerRadius, radius, ArcCorner.BottomRight, color, segments);
+        StrokeCornerArc(cBl, innerRadius, radius, ArcCorner.BottomLeft,  color, segments);
     }
     
 

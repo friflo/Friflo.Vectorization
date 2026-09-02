@@ -33,7 +33,7 @@ public class Tests_ImDraw_window1
         var         batch   = backend.CreateBatch();
         EnsureBatchApi(batch);
         long        start   = 0;
-        const int   repeat  = 10; // 500_000 - 8.3 sec    bottleneck: FillArc() - GuiSizes.CornerSegments = 4
+        const int   repeat  = 10; // 500_000 - 5.9 sec    bottleneck: FillArc() - GuiSizes.CornerSegments = 3
         
         for (int n = 0; n < repeat; n++)
         {
