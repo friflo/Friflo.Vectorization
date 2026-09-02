@@ -81,6 +81,7 @@ public sealed class GuiInput
     private             int                     dragItem;   // MUST stay private. read/write only in GetWidgetState()
     
     internal            bool                    actionHoverCaptured;
+    internal            bool                    lastActionHoverCaptured; // support window resize if mouse near border but hovers a different window
     private             int                     focusedItem;
     private             GuiWindow?              focusedWindow;
     private             int                     targetFocusItem;
@@ -409,7 +410,8 @@ public sealed class GuiInput
         mouseWheel      = mouseWheelAccu;
         mouseWheelAccu  = default;
         
-        actionHoverCaptured   = false;
+        lastActionHoverCaptured = actionHoverCaptured;
+        actionHoverCaptured     = false;
         
         HandleKeyEvents();
         

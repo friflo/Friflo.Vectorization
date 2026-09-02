@@ -310,7 +310,7 @@ public sealed class GuiWindow
         
         if (edgeDragState == DragState.Down) {
             if (activeEdge == ResizeEdge.None) {
-                activeResizeEdge    = GetResizeEdge(input.MousePos, border);
+                activeResizeEdge    = hoverEdge;
                 activeResizeSize    = Size;
                 SetTopWindow();
             }
@@ -356,6 +356,9 @@ public sealed class GuiWindow
         else if (mousePos.Y >= Pos.Y + Size.Y - margin) edge |= ResizeEdge.Bottom;
         
         if (edge != ResizeEdge.None) {
+            if (!host.input.lastActionHoverCaptured) {
+                return edge; // no action hover captured in last frame  =>  enable hover
+            }
             var topMost = host.GetTopWindowAt(host.input.MousePos);
             if (topMost == null || topMost == this) {
                 return edge;
