@@ -17,8 +17,9 @@ internal ref struct WrappedLineEnumerator
 {
     private readonly    ReadOnlySpan<char>  text;
     private readonly    float               maxWidth;
-    private readonly    ImFont              font;
+    private readonly    ImFont              font; 
     private readonly    float               scale;
+    private readonly    float               lineHeight;
 
     private             int                 lineStart;
     private             int                 index;
@@ -29,12 +30,13 @@ internal ref struct WrappedLineEnumerator
 
     public              ReadOnlySpan<char>  Current { get; private set; }
 
-    public WrappedLineEnumerator(ReadOnlySpan<char> text, float maxWidth, ImFont font, float scale = 1.0f)
+    public WrappedLineEnumerator(ReadOnlySpan<char> text, float maxWidth, ImFont font, bool isTui, float scale)
     {
         this.text               = text;
         this.maxWidth           = maxWidth;
         this.font               = font;
         this.scale              = scale;
+        this.lineHeight         = isTui ? font.lineHeight : 0;
         this.lineStart          = 0;
         this.index              = 0;
         this.lastSpace          = -1;
@@ -49,6 +51,8 @@ internal ref struct WrappedLineEnumerator
     public bool MoveNext()
     {
         if (hasEnded) return false;
+        
+        float scaledAdvance = lineHeight;
 
         for (; index < text.Length; index++)
         {
@@ -68,13 +72,13 @@ internal ref struct WrappedLineEnumerator
                 return true;
             }
 
-            if (!font.TryGetGlyph(c, out var glyph))
-            {
-                if (!font.TryGetGlyph('?', out glyph)) continue;
+            if (lineHeight == 0) {
+                if (!font.TryGetGlyph(c, out var glyph))
+                {
+                    if (!font.TryGetGlyph('?', out glyph)) continue;
+                }
+                scaledAdvance = glyph.advance * scale;
             }
-
-            float scaledAdvance = glyph.advance * scale;
-
             if (c == ' ')
             {
                 lastSpace        = index;
@@ -84,29 +88,23 @@ internal ref struct WrappedLineEnumerator
             // Line width exceeded?
             if (currentLineWidth + scaledAdvance > maxWidth && currentLineWidth > 0f)
             {
-                if (lastSpace != -1 && lastSpace >= lineStart)
-                {
+                if (lastSpace != -1 && lastSpace >= lineStart) {
                     // Break at last space
                     Current          = text[lineStart..lastSpace];
                     lineStart        = lastSpace + 1;
                     currentLineWidth = (currentLineWidth + scaledAdvance) - widthAtLastSpace;
                     lastSpace        = -1;
-                }
-                else
-                {
+                } else  {
                     // Hard wrap inside word
                     Current          = text[lineStart..index];
                     lineStart        = index;
                     currentLineWidth = scaledAdvance;
                 }
-
                 index++;
                 return true;
             }
-
             currentLineWidth += scaledAdvance;
         }
-
         // Return trailing line
         Current  = text[lineStart..];
         hasEnded = true;

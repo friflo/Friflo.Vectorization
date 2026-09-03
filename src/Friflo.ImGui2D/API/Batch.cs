@@ -61,7 +61,7 @@ public abstract class ImBatch : IDisposable
 #region private / internal
     private             DrawCommand[]       drawList        = [];
     private   readonly  List<DrawCommand>   drawCommands 	= [];
-    private   readonly  List<CmdSegment>    commandSegments = [];
+    internal  readonly  List<CmdSegment>    commandSegments = [];
     internal  readonly  Memory<Vertex2D>    vertexBuffer;
     
     internal  readonly  Stack<RectVector2>  scissorStack        = [];

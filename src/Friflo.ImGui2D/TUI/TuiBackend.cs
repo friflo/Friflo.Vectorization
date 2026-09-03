@@ -9,9 +9,11 @@ namespace Friflo.ImGui2D.TUI;
 
 public sealed class TuiBackend : ImGuiBackend
 {
-    internal            TuiCell[]   cells;
-    internal readonly   int         terminalWidth;
-    internal readonly   int         terminalHeight;
+    public   readonly   int         terminalWidth;
+    public   readonly   int         terminalHeight;
+    internal readonly   TuiCell[]   cells;
+    
+    public              TuiCell[]   Cells => cells;
         
     public TuiBackend(int terminalWidth, int terminalHeight) {
         this.terminalWidth  = terminalWidth;

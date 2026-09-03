@@ -131,7 +131,7 @@ public readonly ref partial struct ImDraw
 
         // Pass 1: Count lines to calculate total block height
         int lineCount = 0;
-        foreach (ReadOnlySpan<char> _ in GetWrappedLines(text, effectiveMaxWidth, font, scale)) {
+        foreach (ReadOnlySpan<char> _ in GetWrappedLines(text, effectiveMaxWidth, font, batch.tui != null, scale)) {
             lineCount++;
         }
 
@@ -150,7 +150,7 @@ public readonly ref partial struct ImDraw
         // Pass 2: Draw each line horizontally aligned
         float currentY = startY;
 
-        foreach (ReadOnlySpan<char> line in GetWrappedLines(text, effectiveMaxWidth, font, scale))
+        foreach (ReadOnlySpan<char> line in GetWrappedLines(text, effectiveMaxWidth, font, batch.tui != null, scale))
         {
             float lineX = position.X;
 
@@ -251,7 +251,7 @@ public readonly ref partial struct ImDraw
 
         var sb = new StringBuilder(text.Length);
 
-        foreach (ReadOnlySpan<char> line in GetWrappedLines(text, maxWidth, font, scale)) {
+        foreach (ReadOnlySpan<char> line in GetWrappedLines(text, maxWidth, font, batch.tui != null, scale)) {
             if (sb.Length > 0) sb.Append('\n');
             sb.Append(line);
         }
@@ -268,8 +268,8 @@ public readonly ref partial struct ImDraw
 
         Vector2 currentPos = position;
         int lineCount = 0;
-
-        foreach (ReadOnlySpan<char> line in GetWrappedLines(text, maxWidth, font, scale))
+        
+        foreach (ReadOnlySpan<char> line in GetWrappedLines(text, maxWidth, font, batch.tui != null, scale))
         {
             DrawText(line, currentPos, color, font, scale);
             currentPos.Y += font.lineHeight * scale;
@@ -281,9 +281,9 @@ public readonly ref partial struct ImDraw
     /// <summary>
     /// Helper method to create the line enumerator.
     /// </summary>
-    private static WrappedLineEnumerator GetWrappedLines(ReadOnlySpan<char> text, float maxWidth, ImFont font, float scale)
+    private static WrappedLineEnumerator GetWrappedLines(ReadOnlySpan<char> text, float maxWidth, ImFont font, bool isTui, float scale = 1f)
     {
-        return new WrappedLineEnumerator(text, maxWidth, font, scale);
+        return new WrappedLineEnumerator(text, maxWidth, font, isTui, scale);
     }
 }
 
