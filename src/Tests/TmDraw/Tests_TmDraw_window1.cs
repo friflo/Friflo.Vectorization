@@ -33,13 +33,22 @@ public class Tests_TmDraw_window1
         var backend = new TuiBackend();
         var batch   = backend.CreateBatch();
 
-        var gui = batch.BeginGui(1280, 1000);
+        long        start   = 0;
+        const int   repeat  = 10; // 500_000 - ? sec
         
-        using (gui.BeginWindow("Window 1", new(200, 200), new(500, 950))) {
-            Window1(gui); 
+        for (int n = 0; n < repeat; n++)
+        {
+            var gui = batch.BeginGui(1280, 1000);
+            
+            using (gui.BeginWindow("Window 1", new(200, 200), new(500, 950))) {
+                Window1(gui); 
+            }
+            batch.DrawRectCommands(50, 30);
+            if (n == 0) start = Mem.GetAllocatedBytes();
         }
-        batch.DrawRectCommands(50, 30);
+        // Mem.AssertNoAlloc(start);
         
+        Assert.That(backend.StridedFrameBuffer.Length, Is.EqualTo(1530));
         var screen  = new string(backend.StridedFrameBuffer);
         var dir     = Path.GetDirectoryName(GetCurrentFilePath())!;
         var tuiFile = $"{dir}/{TestContext.CurrentContext.Test.Name}.txt";
