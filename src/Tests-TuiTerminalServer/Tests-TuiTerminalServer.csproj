@@ -9,7 +9,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Friflo.ImGui2D\Friflo.ImGui2D.csproj" />
+      <ProjectReference Include="..\Friflo.TmGui\Friflo.TmGui.csproj" />
     </ItemGroup>
 
 </Project>
