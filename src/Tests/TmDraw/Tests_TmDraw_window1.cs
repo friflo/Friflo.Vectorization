@@ -22,20 +22,15 @@ public class Tests_TmDraw_window1
     private bool    enabled2;
     private float   volume;
     
-    
-    
     private static void EnsureBatchApi(TmBatch batch)
     {
         batch.SetFormatProvider(CultureInfo.InvariantCulture);
-        
     }
     
     [Test]
     public void Tests_TmDraw_window1_TUI()
     {
-        var terminalWidth   = 200;
-        var terminalHeight  = 100;
-        var backend = new TuiBackend(terminalWidth, terminalHeight);
+        var backend = new TuiBackend();
         var batch   = backend.CreateBatch();
 
         var gui = batch.BeginGui(1280, 1000);
@@ -43,23 +38,12 @@ public class Tests_TmDraw_window1
         using (gui.BeginWindow("Window 1", new(200, 200), new(500, 950))) {
             Window1(gui); 
         }
-        batch.DrawRectCommands();
+        batch.DrawRectCommands(50, 30);
         
+        var screen  = new string(backend.StridedFrameBuffer);
         var dir     = Path.GetDirectoryName(GetCurrentFilePath())!;
         var tuiFile = $"{dir}/{TestContext.CurrentContext.Test.Name}.txt";
         
-        var cells       = backend.Cells;
-        var textBuffer  = new char[30 * 51];
-        var text        = textBuffer.AsSpan();
-        var pos         = 0;
-        
-        for (int line = 0; line < 30; line++) {
-            for (int col = 0; col < 50; col++) {
-                text[pos++] = cells[line * terminalWidth + col].character;
-            }
-            text[pos++] = '\n';
-        }
-        var screen = new string(textBuffer);
         File.WriteAllText(tuiFile, screen, Utf8WithoutBom);
     }
     

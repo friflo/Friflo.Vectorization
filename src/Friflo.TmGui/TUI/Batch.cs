@@ -108,66 +108,18 @@ public sealed class TuiBatch : TmBatch
         }
     }
     
-    public void DrawRectCommandsNoScissor()
-    {
-        EndTuiBatch();
-        
-        var commands      = rectCommands;
-        var rects         = tuiRects;
-        var texts         = CollectionsMarshal.AsSpan(textBuffer);
-        var terminalWidth = backend.terminalWidth;
-        var cells         = backend.cells.AsSpan();
-        var clear         = new TuiCell { character = '.' };
-        
-        cells.Fill(clear);
-        
-        foreach (var segment in commandSegments)
-        {
-            var lastCmd = segment.index + segment.length;
-            for (int cmdIndex = segment.index; cmdIndex < lastCmd; cmdIndex++)
-            {
-                var cmd         = commands[cmdIndex];
-                var scissorTL   = cmd.scissorTL;
-                var scissorBR   = cmd.scissorBR;
-                
-                var lastRect = cmd.rectView.offset + cmd.rectView.length;
-                for (int index = cmd.rectView.offset; index < lastRect; index++)
-                {
-                    var rect = rects[index];
-                    if (rect.text.len != 0)
-                    {
-                        var cell    = new TuiCell { color = rect.color, background = rect.background };
-                        var text    = texts.Slice(rect.text.start, rect.text.len);
-                        var first   = terminalWidth * rect.TL.y + rect.TL.x;
-                        for (int n = 0; n < text.Length; n++) {
-                            cell.character = text[n];
-                            cells[first + n] = cell;
-                        }
-                        continue;
-                    } 
-                    var width   = rect.BR.x - rect.TL.x;
-                    var lastY   = rect.BR.y;
-                    var fill    = new TuiCell { character = ' ', color = rect.color, background = rect.background };
-                    for (int y =  rect.TL.y; y < lastY; y++) {
-                        cells.Slice(terminalWidth * y + rect.TL.x, width).Fill(fill);
-                    }
-                }
-            }
-        }
-    }
-    
 
-    public void DrawRectCommands()
+    public void DrawRectCommands(int targetWidth, int targetHeight)
     {
         EndTuiBatch();
         
-        var commands      = rectCommands;
-        var rects         = tuiRects;
-        var texts         = CollectionsMarshal.AsSpan(textBuffer);
-        var terminalWidth = backend.terminalWidth;
-        var cells         = backend.cells.AsSpan();
-        var clear         = new TuiCell { character = '.' };
+        var commands    = rectCommands;
+        var rects       = tuiRects;
+        var texts       = CollectionsMarshal.AsSpan(textBuffer);
+        backend.PrepareBuffers(targetWidth, targetHeight);
         
+        var cells         = backend.Cells;
+        var clear         = new TuiCell { character = '.' };
         cells.Fill(clear);
         
         foreach (var segment in commandSegments)
@@ -209,7 +161,7 @@ public sealed class TuiBatch : TmBatch
 
                         if (count > 0 && startY == rect.TL.y)
                         {
-                            var row = cells.Slice(terminalWidth * startY + startX, count);
+                            var row = cells.Slice(targetWidth * startY + startX, count);
                             for (int n = 0; n < count; n++) {
                                 cell.character = text[offsetX + n];
                                 row[n] = cell;
@@ -223,10 +175,19 @@ public sealed class TuiBatch : TmBatch
                     var fill  = new TuiCell { character = ' ', color = rect.color, background = rect.background };
 
                     for (int y = startY; y < endY; y++) {
-                        cells.Slice(terminalWidth * y + startX, width).Fill(fill);
+                        cells.Slice(targetWidth * y + startX, width).Fill(fill);
                     }
                 }
             }
+        }
+        // fill StridedFrameBuffer
+        var buffer = backend.StridedFrameBuffer;
+        int pos = 0;
+        for (int line = 0; line < targetHeight; line++) {
+            for (int col = 0; col < targetWidth; col++) {
+                buffer[pos++] = cells[line * targetWidth + col].character;
+            }
+            buffer[pos++] = '\n';
         }
     }
 
