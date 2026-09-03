@@ -34,7 +34,7 @@ public class Tests_TmDraw_window1
         var batch   = backend.CreateBatch();
 
         long        start   = 0;
-        const int   repeat  = 10; // 1_000_000 - 2.2 sec
+        const int   repeat  = 10; // 2_000_000 - 3.8 sec
         
         for (int n = 0; n < repeat; n++)
         {
