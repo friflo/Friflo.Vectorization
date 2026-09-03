@@ -43,7 +43,7 @@ public class Tests_TmDraw_window1
             using (gui.BeginWindow("Window 1", new(200, 200), new(500, 950))) {
                 Window1(gui); 
             }
-            batch.DrawRectCommands(50, 30);
+            batch.DrawRectCommandsColor(50, 30);
             if (n == 0) start = Mem.GetAllocatedBytes();
         }
         Mem.AssertNoAlloc(start);

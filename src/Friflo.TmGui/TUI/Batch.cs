@@ -109,7 +109,7 @@ public sealed class TuiBatch : TmBatch
 #endregion
 
 
-    public void DrawRectCommands(int targetWidth, int targetHeight)
+    public void DrawRectCommandsColor(int targetWidth, int targetHeight)
     {
         EndTuiBatch();
         
@@ -118,8 +118,8 @@ public sealed class TuiBatch : TmBatch
         var texts       = CollectionsMarshal.AsSpan(textBuffer);
         backend.PrepareBuffers(targetWidth, targetHeight);
         
-        var cells         = backend.Cells;
-        var clear         = new TuiCell { character = '.' };
+        var cells         = backend.ColorCells;
+        var clear         = new TuiColorCell { character = '.' };
         cells.Fill(clear);
         
         foreach (var segment in commandSegments)
@@ -148,7 +148,7 @@ public sealed class TuiBatch : TmBatch
                     // Text rendering branch with two-sided horizontal clipping
                     if (rect.text.len != 0)
                     {
-                        var cell = new TuiCell { color = rect.color, background = rect.background };
+                        var cell = new TuiColorCell { color = rect.color, background = rect.background };
                         var text = texts.Slice(rect.text.start, rect.text.len);
 
                         // Offset for left-side clipping
@@ -172,7 +172,7 @@ public sealed class TuiBatch : TmBatch
 
                     // Fill clipped background area row by row via SIMD Span.Fill
                     var width = endX - startX;
-                    var fill  = new TuiCell { character = ' ', color = rect.color, background = rect.background };
+                    var fill  = new TuiColorCell { character = ' ', color = rect.color, background = rect.background };
 
                     for (int y = startY; y < endY; y++) {
                         cells.Slice(targetWidth * y + startX, width).Fill(fill);

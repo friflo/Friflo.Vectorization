@@ -9,13 +9,13 @@ namespace Friflo.TmGui.TUI;
 
 public sealed class TuiBackend : TmGuiBackend
 {
-    private     int             targetWidth;
-    private     int             targetHeight;
-    private     TuiCell[]       cells               = [];
-    private     char[]          stridedFrameBuffer  = [];
+    private     int                 targetWidth;
+    private     int                 targetHeight;
+    private     TuiColorCell[]      colorCells          = [];
+    private     char[]              stridedFrameBuffer  = [];
     
-    public      Span<TuiCell>   Cells               => cells.             AsSpan().Slice(0,  targetWidth      * targetHeight);
-    public      Span<char>      StridedFrameBuffer  => stridedFrameBuffer.AsSpan().Slice(0, (targetWidth + 1) * targetHeight);
+    public      Span<TuiColorCell>  ColorCells          => colorCells.        AsSpan().Slice(0,  targetWidth      * targetHeight);
+    public      Span<char>          StridedFrameBuffer  => stridedFrameBuffer.AsSpan().Slice(0, (targetWidth + 1) * targetHeight);
         
     
     internal void PrepareBuffers(int width, int height)
@@ -24,8 +24,8 @@ public sealed class TuiBackend : TmGuiBackend
         targetHeight    = height;
         int cellCount   = width * height;
         
-        if (cellCount > cells.Length) {
-            cells = new TuiCell[cellCount];
+        if (cellCount > colorCells.Length) {
+            colorCells = new TuiColorCell[cellCount];
         }
         int charCount = (width + 1) * height;
         if (charCount > stridedFrameBuffer.Length) {

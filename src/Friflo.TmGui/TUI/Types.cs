@@ -11,7 +11,7 @@ using System;
 
 namespace Friflo.TmGui.TUI;
 
-public struct TuiCell
+public struct TuiColorCell
 {
     public  char        character;      //  2 bytes
     public  Color32     color;          //  4 bytes
