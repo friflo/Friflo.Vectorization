@@ -116,7 +116,7 @@ public sealed class TuiBatch : TmBatch
         var commands    = rectCommands;
         var rects       = tuiRects;
         var texts       = CollectionsMarshal.AsSpan(textBuffer);
-        backend.PrepareBuffers(targetWidth, targetHeight);
+        backend.PrepareBuffersColor(targetWidth, targetHeight);
         
         var cells         = backend.ColorCells;
         var clear         = new TuiColorCell { character = '.' };
@@ -192,6 +192,86 @@ public sealed class TuiBatch : TmBatch
             for (int col = 0; col < targetWidth; col++) {
                 dstRow[col] = srcRow[col].character;
             }
+            buffer[line * stride + targetWidth] = '\n';
+        }
+    }
+    
+    
+    public void DrawRectCommandsChar(int targetWidth, int targetHeight)
+    {
+        EndTuiBatch();
+        
+        var commands    = rectCommands;
+        var rects       = tuiRects;
+        var texts       = CollectionsMarshal.AsSpan(textBuffer);
+        backend.PrepareBuffersChar(targetWidth, targetHeight);
+        
+        var cells       = backend.CharCells;
+        cells.Fill('.');
+        
+        foreach (var segment in commandSegments)
+        {
+            var lastCmd = segment.index + segment.length;
+            for (int cmdIndex = segment.index; cmdIndex < lastCmd; cmdIndex++)
+            {
+                var cmd       = commands[cmdIndex];
+                var scissorTL = cmd.scissorTL;
+                var scissorBR = cmd.scissorBR;
+                
+                var lastRect    = cmd.rectView.offset + cmd.rectView.length;
+                for (int index  = cmd.rectView.offset; index < lastRect; index++)
+                {
+                    var rect = rects[index];
+
+                    // Fast AABB intersection clipping against scissor bounds
+                    int startX = Math.Max(rect.TL.x, scissorTL.x);
+                    int startY = Math.Max(rect.TL.y, scissorTL.y);
+                    int endX   = Math.Min(rect.BR.x, scissorBR.x);
+                    int endY   = Math.Min(rect.BR.y, scissorBR.y);
+
+                    // Early exit for fully clipped rectangles
+                    if (startX >= endX || startY >= endY) continue;
+
+                    // Text rendering branch with two-sided horizontal clipping
+                    if (rect.text.len != 0)
+                    {
+                        var text = texts.Slice(rect.text.start, rect.text.len);
+
+                        // Offset for left-side clipping
+                        int offsetX = startX - rect.TL.x;
+
+                        // Clamp character count strictly against right scissor bound (endX)
+                        int maxVisibleWidth = endX - startX;
+                        int availableText   = text.Length - offsetX;
+                        int count           = Math.Min(availableText, maxVisibleWidth);
+
+                        if (count > 0 && startY == rect.TL.y)
+                        {
+                            var srcSpan = text.Slice(offsetX, count);
+                            var dstSpan = cells.Slice(targetWidth * startY + startX, count);
+                            srcSpan.CopyTo(dstSpan);
+                        }
+                        continue;
+                    } 
+
+                    var width = endX - startX;
+
+                    for (int y = startY; y < endY; y++) {
+                        cells.Slice(targetWidth * y + startX, width).Fill(' ');
+                    }
+                }
+            }
+        }
+        
+        // Fill StridedFrameBuffer via ultra-fast SIMD Row Copy
+        var buffer = backend.StridedFrameBuffer;
+        int stride = targetWidth + 1;
+
+        for (int line = 0; line < targetHeight; line++) {
+            var srcRow = cells.Slice(line * targetWidth, targetWidth);
+            var dstRow = buffer.Slice(line * stride, targetWidth);
+
+            srcRow.CopyTo(dstRow);
             buffer[line * stride + targetWidth] = '\n';
         }
     }
