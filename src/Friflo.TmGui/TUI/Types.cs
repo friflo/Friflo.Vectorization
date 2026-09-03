@@ -20,7 +20,7 @@ public struct TuiCell
     public override string ToString() => $"'{character}'";
 }
 
-public readonly struct TuiVector : IEquatable<TuiVector>
+internal readonly struct TuiVector : IEquatable<TuiVector>
 {
     internal readonly   int x;      //  4 bytes
     internal readonly   int y;      //  4 bytes
@@ -40,7 +40,7 @@ public readonly struct TuiVector : IEquatable<TuiVector>
     public override int     GetHashCode() => HashCode.Combine(x, y);
 }
 
-public struct TextSpan
+internal struct TextSpan
 {
     internal int    start;  //  4 bytes
     internal int    len;    //  4 bytes
@@ -48,7 +48,7 @@ public struct TextSpan
     public override string ToString() => $"[{start}..{start + len}]";
 }
 
-public readonly struct TuiRect
+internal readonly struct TuiRect
 {
     public readonly     TextSpan    text;           //  8 bytes
     public readonly     TuiVector   TL;             //  8 bytes - top / lLeft
@@ -73,7 +73,7 @@ public readonly struct TuiRect
     }
 }
 
-public readonly struct RectView
+internal readonly struct RectView
 {
     public  readonly    int     offset;     //  4 bytes
     public  readonly    int     length;     //  4 bytes
@@ -86,7 +86,7 @@ public readonly struct RectView
     }
 }
 
-public readonly struct TuiRectCommand
+internal readonly struct TuiRectCommand
 {
     public  readonly    ulong       zIndex;       //  8 bytes
     public  readonly    int         sequence;     //  4 bytes

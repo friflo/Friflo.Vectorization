@@ -43,6 +43,7 @@ public sealed class TuiBatch : TmBatch
         xScale      = yScale / CharacterAspectRatio;
     }
     
+#region internal
     internal void Reset()
     {
         rectStart   = 0;   
@@ -63,8 +64,6 @@ public sealed class TuiBatch : TmBatch
         var br      = new TuiVector(xScale * currentScissor.size.X + tl.x, yScale * currentScissor.size.Y + tl.y);
         rectCommands.Add(new TuiRectCommand(currentZIndex.value, currentSequence++, view, tl, br));
     }
-    
-
     
     private static void SortRectCommands(List<TuiRectCommand> commands, List<CmdSegment> segments)
     {
@@ -107,7 +106,8 @@ public sealed class TuiBatch : TmBatch
             segments.Add(new CmdSegment { index = 0, length = rectCommands.Count });
         }
     }
-    
+#endregion
+
 
     public void DrawRectCommands(int targetWidth, int targetHeight)
     {
@@ -196,6 +196,8 @@ public sealed class TuiBatch : TmBatch
         }
     }
 
+
+#region Draw / Widget methods
     public Vector2 DrawText(ReadOnlySpan<char> text, Vector2 position, Color32 color, Color32 background)
     {
         var textSpan    = new TextSpan { start = textBuffer.Count, len = text.Length };
@@ -248,4 +250,5 @@ public sealed class TuiBatch : TmBatch
         var tuiSize     = new TuiVector(size.X     * xScale, size.Y     * yScale);
         tuiRects.Add(new TuiRect(tuiPos, tuiSize, background));
     }
+#endregion
 }
