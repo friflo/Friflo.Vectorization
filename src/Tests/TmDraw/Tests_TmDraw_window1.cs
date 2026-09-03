@@ -27,7 +27,7 @@ public class Tests_TmDraw_window1
         batch.SetFormatProvider(CultureInfo.InvariantCulture);
     }
     
-    
+    /// Result in <see cref="TuiBackend.FrameBuffer"/>
     [Test]
     public void Tests_TmDraw_window1_TUI_char()
     {
@@ -49,15 +49,16 @@ public class Tests_TmDraw_window1
         }
         Mem.AssertNoAlloc(start);
         
-        Assert.That(backend.StridedFrameBuffer.Length, Is.EqualTo(1530));
-        var screen  = new string(backend.StridedFrameBuffer);
+        Assert.That(backend.FrameBuffer.Length, Is.EqualTo(1530));
+        var screen  = new string(backend.FrameBuffer);
         var dir     = Path.GetDirectoryName(GetCurrentFilePath())!;
         var tuiFile = $"{dir}/{TestContext.CurrentContext.Test.Name}.txt";
         
         File.WriteAllText(tuiFile, screen, Utf8WithoutBom);
     }
     
-    
+
+    /// Result in <see cref="TuiBackend.FrameBufferColor"/>
     [Test]
     public void Tests_TmDraw_window1_TUI_color()
     {
@@ -79,8 +80,14 @@ public class Tests_TmDraw_window1
         }
         Mem.AssertNoAlloc(start);
         
-        Assert.That(backend.StridedFrameBuffer.Length, Is.EqualTo(1530));
-        var screen  = new string(backend.StridedFrameBuffer);
+        var buffer = backend.FrameBufferColor;
+        Assert.That(buffer.Length, Is.EqualTo(1530));
+        
+        var chars = new char[buffer.Length];
+        for (int i = 0; i < buffer.Length; i++) {
+            chars[i] = buffer[i].character;
+        }
+        var screen  = new string(chars);
         var dir     = Path.GetDirectoryName(GetCurrentFilePath())!;
         var tuiFile = $"{dir}/{TestContext.CurrentContext.Test.Name}.txt";
         

@@ -3,6 +3,8 @@
 
 using System;
 
+// ReSharper disable SuggestVarOrType_BuiltInTypes
+// ReSharper disable ReplaceSliceWithRangeIndexer
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable once CheckNamespace
 namespace Friflo.TmGui.TUI;
@@ -12,12 +14,15 @@ public sealed class TuiBackend : TmGuiBackend
     private     int                 targetWidth;
     private     int                 targetHeight;
     private     TuiColorCell[]      colorCells          = [];
-    private     char[]              stridedFrameBuffer  = [];
+    private     TuiColorCell[]      frameBufferColor    = [];
     private     char[]              charCells           = [];
+    private     char[]              frameBuffer         = [];
     
-    public      Span<TuiColorCell>  ColorCells          => colorCells.        AsSpan().Slice(0,  targetWidth      * targetHeight);
-    public      Span<char>          CharCells           => charCells.         AsSpan().Slice(0,  targetWidth      * targetHeight);
-    public      Span<char>          StridedFrameBuffer  => stridedFrameBuffer.AsSpan().Slice(0, (targetWidth + 1) * targetHeight);
+    internal    Span<TuiColorCell>  ColorCells          => colorCells.      AsSpan().Slice(0,  targetWidth      * targetHeight);
+    internal    Span<char>          CharCells           => charCells.       AsSpan().Slice(0,  targetWidth      * targetHeight);
+    
+    public      Span<TuiColorCell>  FrameBufferColor    => frameBufferColor.AsSpan().Slice(0, (targetWidth + 1) * targetHeight);
+    public      Span<char>          FrameBuffer         => frameBuffer.     AsSpan().Slice(0, (targetWidth + 1) * targetHeight);
         
     
     internal void PrepareBuffersColor(int width, int height)
@@ -30,8 +35,8 @@ public sealed class TuiBackend : TmGuiBackend
             colorCells = new TuiColorCell[cellCount];
         }
         int charCount = (width + 1) * height;
-        if (charCount > stridedFrameBuffer.Length) {
-            stridedFrameBuffer  = new char[charCount];
+        if (charCount > frameBufferColor.Length) {
+            frameBufferColor  = new TuiColorCell[charCount];
         }
     }
     
@@ -45,8 +50,8 @@ public sealed class TuiBackend : TmGuiBackend
             charCells = new char[cellCount];
         }
         int charCount = (width + 1) * height;
-        if (charCount > stridedFrameBuffer.Length) {
-            stridedFrameBuffer  = new char[charCount];
+        if (charCount > frameBuffer.Length) {
+            frameBuffer  = new char[charCount];
         }
     }
     
