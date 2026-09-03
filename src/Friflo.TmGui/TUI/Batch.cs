@@ -180,14 +180,19 @@ public sealed class TuiBatch : TmBatch
                 }
             }
         }
+        
         // fill StridedFrameBuffer
         var buffer = backend.StridedFrameBuffer;
-        int pos = 0;
+        int stride = targetWidth + 1;
+
         for (int line = 0; line < targetHeight; line++) {
+            var srcRow = cells.Slice(line * targetWidth, targetWidth);
+            var dstRow = buffer.Slice(line * stride, targetWidth);
+
             for (int col = 0; col < targetWidth; col++) {
-                buffer[pos++] = cells[line * targetWidth + col].character;
+                dstRow[col] = srcRow[col].character;
             }
-            buffer[pos++] = '\n';
+            buffer[line * stride + targetWidth] = '\n';
         }
     }
 
