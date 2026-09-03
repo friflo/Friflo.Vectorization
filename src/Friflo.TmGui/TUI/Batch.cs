@@ -58,10 +58,10 @@ public sealed class TuiBatch : TmBatch
             return;
         }
         var view    = new RectView(rectStart, rectCount);
-        rectStart   = rectCount;
+        rectStart   = tuiRects.Count;
         var tl      = new TuiVector(xScale * currentScissor.pos.X,         yScale * currentScissor.pos.Y);
         var br      = new TuiVector(xScale * currentScissor.size.X + tl.x, yScale * currentScissor.size.Y + tl.y);
-        rectCommands.Add(new TuiRectCommand(currentZIndex.value, currentSequence, view, tl, br));
+        rectCommands.Add(new TuiRectCommand(currentZIndex.value, currentSequence++, view, tl, br));
     }
     
 
@@ -108,7 +108,7 @@ public sealed class TuiBatch : TmBatch
         }
     }
     
-    public void DrawRectCommands()
+    public void DrawRectCommandsNoScissor()
     {
         EndTuiBatch();
         
@@ -150,6 +150,80 @@ public sealed class TuiBatch : TmBatch
                     var fill    = new TuiCell { character = ' ', color = rect.color, background = rect.background };
                     for (int y =  rect.TL.y; y < lastY; y++) {
                         cells.Slice(terminalWidth * y + rect.TL.x, width).Fill(fill);
+                    }
+                }
+            }
+        }
+    }
+    
+
+    public void DrawRectCommands()
+    {
+        EndTuiBatch();
+        
+        var commands      = rectCommands;
+        var rects         = tuiRects;
+        var texts         = CollectionsMarshal.AsSpan(textBuffer);
+        var terminalWidth = backend.terminalWidth;
+        var cells         = backend.cells.AsSpan();
+        var clear         = new TuiCell { character = '.' };
+        
+        cells.Fill(clear);
+        
+        foreach (var segment in commandSegments)
+        {
+            var lastCmd = segment.index + segment.length;
+            for (int cmdIndex = segment.index; cmdIndex < lastCmd; cmdIndex++)
+            {
+                var cmd       = commands[cmdIndex];
+                var scissorTL = cmd.scissorTL;
+                var scissorBR = cmd.scissorBR;
+                
+                var lastRect    = cmd.rectView.offset + cmd.rectView.length;
+                for (int index  = cmd.rectView.offset; index < lastRect; index++)
+                {
+                    var rect = rects[index];
+
+                    // Fast AABB intersection clipping against scissor bounds
+                    int startX = Math.Max(rect.TL.x, scissorTL.x);
+                    int startY = Math.Max(rect.TL.y, scissorTL.y);
+                    int endX   = Math.Min(rect.BR.x, scissorBR.x);
+                    int endY   = Math.Min(rect.BR.y, scissorBR.y);
+
+                    // Early exit for fully clipped rectangles
+                    if (startX >= endX || startY >= endY) continue;
+
+                    // Text rendering branch with two-sided horizontal clipping
+                    if (rect.text.len != 0)
+                    {
+                        var cell = new TuiCell { color = rect.color, background = rect.background };
+                        var text = texts.Slice(rect.text.start, rect.text.len);
+
+                        // Offset for left-side clipping
+                        int offsetX = startX - rect.TL.x;
+
+                        // Clamp character count strictly against right scissor bound (endX)
+                        int maxVisibleWidth = endX - startX;
+                        int availableText   = text.Length - offsetX;
+                        int count           = Math.Min(availableText, maxVisibleWidth);
+
+                        if (count > 0 && startY == rect.TL.y)
+                        {
+                            var row = cells.Slice(terminalWidth * startY + startX, count);
+                            for (int n = 0; n < count; n++) {
+                                cell.character = text[offsetX + n];
+                                row[n] = cell;
+                            }
+                        }
+                        continue;
+                    } 
+
+                    // Fill clipped background area row by row via SIMD Span.Fill
+                    var width = endX - startX;
+                    var fill  = new TuiCell { character = ' ', color = rect.color, background = rect.background };
+
+                    for (int y = startY; y < endY; y++) {
+                        cells.Slice(terminalWidth * y + startX, width).Fill(fill);
                     }
                 }
             }

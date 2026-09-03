@@ -40,7 +40,7 @@ public class Tests_TmDraw_window1
 
         var gui = batch.BeginGui(1280, 1000);
         
-        using (gui.BeginWindow("Window 1", new(200, 200), new(400, 950))) {
+        using (gui.BeginWindow("Window 1", new(200, 200), new(500, 950))) {
             Window1(gui); 
         }
         batch.DrawRectCommands();

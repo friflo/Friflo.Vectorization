@@ -78,7 +78,7 @@ public readonly struct RectView
     public  readonly    int     offset;     //  4 bytes
     public  readonly    int     length;     //  4 bytes
 
-    public override     string  ToString() => $"[{offset}..{length}]";
+    public override     string  ToString() => $"[{offset}..{offset + length}]";
     
     public RectView(int offset, int length) {
         this.offset = offset;
@@ -86,18 +86,27 @@ public readonly struct RectView
     }
 }
 
-public readonly struct TuiRectCommand(
-    ulong           zIndex,
-    int             sequence,
-    RectView        rectView,
-    TuiVector       scissorTL,
-    TuiVector       scissorBR)
+public readonly struct TuiRectCommand
 {
-    public  readonly    ulong       zIndex      = zIndex;       //  8 bytes
-    public  readonly    int         sequence    = sequence;     //  4 bytes
-    public  readonly    RectView    rectView    = rectView;     //  8 bytes
-    public  readonly    TuiVector   scissorTL   = scissorTL;    //  8 bytes
-    public  readonly    TuiVector   scissorBR   = scissorBR;    //  8 bytes
+    public  readonly    ulong       zIndex;       //  8 bytes
+    public  readonly    int         sequence;     //  4 bytes
+    public  readonly    RectView    rectView;     //  8 bytes
+    public  readonly    TuiVector   scissorTL;    //  8 bytes
+    public  readonly    TuiVector   scissorBR;    //  8 bytes
 
-    public override string ToString() => $"zIndex: {zIndex} ({sequence})   quads: {rectView.length}";
+    public TuiRectCommand(
+        ulong           zIndex,
+        int             sequence,
+        RectView        rectView,
+        TuiVector       scissorTl,
+        TuiVector       scissorBr)
+    {
+        this.zIndex     = zIndex;
+        this.sequence   = sequence;
+        this.rectView   = rectView;
+        scissorTL       = scissorTl;
+        scissorBR       = scissorBr;
+    }
+
+    public override string ToString() => $"zIndex: {zIndex} ({sequence})   views: {rectView.ToString()}";
 }
