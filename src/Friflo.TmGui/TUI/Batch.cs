@@ -58,7 +58,9 @@ public sealed class TuiBatch : TmBatch
         }
         var view    = new RectView(rectStart, rectCount);
         rectStart   = rectCount;
-        rectCommands.Add(new TuiRectCommand(currentZIndex.value, currentSequence, view, currentScissor));
+        var tl      = new TuiVector(xScale * currentScissor.pos.X,         yScale * currentScissor.pos.Y);
+        var br      = new TuiVector(xScale * currentScissor.size.X + tl.x, yScale * currentScissor.size.Y + tl.y);
+        rectCommands.Add(new TuiRectCommand(currentZIndex.value, currentSequence, view, tl, br));
     }
     
 
@@ -109,7 +111,6 @@ public sealed class TuiBatch : TmBatch
     {
         EndTuiBatch();
         
-        var scissor         = new RectVector2(Vector2.Zero, viewport);
         var commands        = rectCommands;
         var rects           = tuiRects;
         var texts           = CollectionsMarshal.AsSpan(textBuffer);
@@ -123,11 +124,10 @@ public sealed class TuiBatch : TmBatch
             var lastCmd = segment.index + segment.length;
             for (int cmdIndex = segment.index; cmdIndex < lastCmd; cmdIndex++)
             {
-                var cmd = commands[cmdIndex];
-                if (!cmd.scissor.Equals(scissor)) {
-                    scissor = cmd.scissor;
-                    // <set scissor call>    
-                }
+                var cmd         = commands[cmdIndex];
+                var scissorTL   = cmd.scissorTL;
+                var scissorBR   = cmd.scissorBR;
+                
                 var lastRect = cmd.rectView.offset + cmd.rectView.length;
                 for (int index = cmd.rectView.offset; index < lastRect; index++)
                 {
@@ -136,18 +136,18 @@ public sealed class TuiBatch : TmBatch
                     {
                         var cell    = new TuiCell { color = rect.color, background = rect.background };
                         var text    = texts.Slice(rect.text.start, rect.text.len);
-                        var first   = terminalWidth * rect.pos.y + rect.pos.x;
+                        var first   = terminalWidth * rect.TL.y + rect.TL.x;
                         for (int n = 0; n < text.Length; n++) {
                             cell.character = text[n];
                             cells[first + n] = cell;
                         }
                         continue;
                     } 
-                    var width   = rect.bottomRight.x - rect.pos.x;
-                    var lastY   = rect.bottomRight.y;
+                    var width   = rect.BR.x - rect.TL.x;
+                    var lastY   = rect.BR.y;
                     var fill    = new TuiCell { character = ' ', color = rect.color, background = rect.background };
-                    for (int y =  rect.pos.y; y < lastY; y++) {
-                        cells.Slice(terminalWidth * y + rect.pos.x, width).Fill(fill);
+                    for (int y =  rect.TL.y; y < lastY; y++) {
+                        cells.Slice(terminalWidth * y + rect.TL.x, width).Fill(fill);
                     }
                 }
             }

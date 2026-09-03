@@ -5,6 +5,10 @@
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable ArrangeThisQualifier
 // ReSharper disable once CheckNamespace
+// ReSharper disable InconsistentNaming
+
+using System;
+
 namespace Friflo.TmGui.TUI;
 
 public struct TuiCell
@@ -16,7 +20,7 @@ public struct TuiCell
     public override string ToString() => $"'{character}'";
 }
 
-public readonly struct TuiVector
+public readonly struct TuiVector : IEquatable<TuiVector>
 {
     internal readonly   int x;      //  4 bytes
     internal readonly   int y;      //  4 bytes
@@ -27,6 +31,13 @@ public readonly struct TuiVector
         this.x = (int)x;
         this.y = (int)y;
     }
+    
+    public static   bool    operator ==(TuiVector left, TuiVector right) => left.x == right.x && left.y == right.y;
+    public static   bool    operator !=(TuiVector left, TuiVector right) => !(left == right);
+    
+    public          bool    Equals(TuiVector other) => x == other.x && y == other.y;
+    public override bool    Equals(object? obj) => obj is TuiVector other && Equals(other);
+    public override int     GetHashCode() => HashCode.Combine(x, y);
 }
 
 public struct TextSpan
@@ -40,22 +51,22 @@ public struct TextSpan
 public readonly struct TuiRect
 {
     public readonly     TextSpan    text;           //  8 bytes
-    public readonly     TuiVector   pos;            //  8 bytes - topLeft
-    public readonly     TuiVector   bottomRight;    //  8 bytes
+    public readonly     TuiVector   TL;             //  8 bytes - top / lLeft
+    public readonly     TuiVector   BR;             //  8 bytes - bottom / right
     public readonly     Color32     color;          //  4 bytes
     public readonly     Color32     background;     //  4 bytes
     
-    public override     string      ToString()       => $"[{pos.x}, {pos.y} | {bottomRight.x}, {bottomRight.y}]";
+    public override     string      ToString()       => $"[{TL.x}, {TL.y} | {BR.x}, {BR.y}]";
     
-    internal TuiRect(TuiVector pos, TuiVector size, Color32 background) {
-        this.pos            = pos;
-        this.bottomRight    = new TuiVector(pos.x + size.x, pos.y + size.y);
+    internal TuiRect(TuiVector tl, TuiVector size, Color32 background) {
+        this.TL            = tl;
+        this.BR    = new TuiVector(tl.x + size.x, tl.y + size.y);
         this.background     = background;
     }
         
-    internal TuiRect(TextSpan text, TuiVector pos, Color32 color, Color32 background) {
+    internal TuiRect(TextSpan text, TuiVector tl, Color32 color, Color32 background) {
         this.text       = text;
-        this.pos        = pos;
+        this.TL        = tl;
         this.color      = color;
         this.background = background;
     }
@@ -78,12 +89,14 @@ public readonly struct TuiRectCommand(
     ulong           zIndex,
     int             sequence,
     RectView        rectView,
-    RectVector2     scissor)
+    TuiVector       scissorTL,
+    TuiVector       scissorBR)
 {
-    public  readonly    ulong           zIndex      = zIndex;       //  8 bytes
-    public  readonly    int             sequence    = sequence;     //  4 bytes
-    public  readonly    RectView        rectView    = rectView;     //  8 bytes
-    public  readonly    RectVector2     scissor     = scissor;      // 16 bytes
+    public  readonly    ulong       zIndex      = zIndex;       //  8 bytes
+    public  readonly    int         sequence    = sequence;     //  4 bytes
+    public  readonly    RectView    rectView    = rectView;     //  8 bytes
+    public  readonly    TuiVector   scissorTL   = scissorTL;    //  8 bytes
+    public  readonly    TuiVector   scissorBR   = scissorBR;    //  8 bytes
 
     public override string ToString() => $"zIndex: {zIndex} ({sequence})   quads: {rectView.length}";
 }
