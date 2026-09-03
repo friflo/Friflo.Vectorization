@@ -8,9 +8,9 @@ namespace Friflo.ImGui2D.TUI;
 
 public struct TuiCell
 {
-    internal char       character;      //  2 bytes
-    internal Color32    color;          //  4 bytes
-    internal Color32    background;     //  4 bytes
+    public  char        character;      //  2 bytes
+    public  Color32     color;          //  4 bytes
+    public  Color32     background;     //  4 bytes
     
     public override string ToString() => $"'{character}'";
 }

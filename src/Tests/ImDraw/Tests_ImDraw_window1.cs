@@ -1,6 +1,9 @@
 ﻿
 using System;
 using System.Globalization;
+using System.IO;
+using System.Runtime.CompilerServices;
+using System.Text;
 using Friflo.ImGui2D;
 using Friflo.ImGui2D.Headless;
 using Friflo.ImGui2D.TUI;
@@ -30,15 +33,42 @@ public class Tests_ImDraw_window1
     [Test]
     public void Tests_ImDraw_window1_TUI()
     {
-        var backend = new TuiBackend(200, 100);
+        var terminalWidth   = 200;
+        var terminalHeight  = 100;
+        var backend = new TuiBackend(terminalWidth, terminalHeight);
         var batch   = backend.CreateBatch();
 
         var gui = batch.BeginGui(1280, 1000);
         
-        using (gui.BeginWindow("Window 1", new(100, 20), new(400, 950))) {
+        using (gui.BeginWindow("Window 1", new(200, 200), new(400, 950))) {
             Window1(gui); 
         }
         batch.DrawRectCommands();
+        
+        var sourceFileDir   = GetCurrentFilePath().Replace(".cs", "");
+        Directory.CreateDirectory(sourceFileDir);
+        var tuiFile          = $"{sourceFileDir}/{TestContext.CurrentContext.Test.Name}.tui.txt";
+        
+        var cells       = backend.Cells;
+        var textBuffer  = new char[50 * 81];
+        var text        = textBuffer.AsSpan();
+        var pos     = 0;
+        
+        for (int line = 0; line < 50; line++) {
+            for (int col = 0; col < 80; col++) {
+                text[pos++] = cells[line * terminalWidth + col].character;
+            }
+            text[pos++] = '\n';
+        }
+        var screen = new string(textBuffer);
+        File.WriteAllText(tuiFile, screen, Utf8WithoutBom);
+    }
+    
+    private static readonly UTF8Encoding Utf8WithoutBom = new UTF8Encoding(encoderShouldEmitUTF8Identifier: false);
+    
+    // Compiler automatically injects the absolute path of the source file at compile-time
+    private static string GetCurrentFilePath([CallerFilePath] string path = "") {
+        return path;
     }
     
     [Test]

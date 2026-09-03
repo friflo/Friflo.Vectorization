@@ -102,7 +102,7 @@ public sealed class TuiBatch : ImBatch
         var texts           = CollectionsMarshal.AsSpan(textBuffer);
         var terminalWidth   = backend.terminalWidth;
         var cells           = backend.cells.AsSpan();
-        var clear           = new TuiCell { character = '#' };
+        var clear           = new TuiCell { character = '.' };
         cells.Fill(clear);
         
         foreach (var segment in commandSegments)
@@ -132,7 +132,7 @@ public sealed class TuiBatch : ImBatch
                     } 
                     var width   = rect.size.x;
                     var lastY   = rect.pos.y + rect.size.y;
-                    var fill    = new TuiCell { character = '#', color = rect.color, background = rect.background };
+                    var fill    = new TuiCell { character = ' ', color = rect.color, background = rect.background };
                     for (int y =  rect.pos.y; y < lastY; y++) {
                         cells.Slice(terminalWidth * y, width).Fill(fill);
                     }
@@ -163,7 +163,7 @@ public sealed class TuiBatch : ImBatch
         textBuffer.Add('[');
         textBuffer.AddRange(text);
         textBuffer.Add(']');
-        var textSpan    = new TextSpan { start = textStart, len = text.Length };
+        var textSpan    = new TextSpan { start = textStart, len = textBuffer.Count - textStart };
         var tuiPos      = new TuiVector(position.X * lineScale, position.Y * lineScale);
         tuiRects.Add(new TuiRect(textSpan, tuiPos, color, background));
     }
@@ -173,7 +173,7 @@ public sealed class TuiBatch : ImBatch
         var textStart = textBuffer.Count;
         textBuffer.AddRange(value ? "[x] " : "[ ] ");        
         textBuffer.AddRange(text);
-        var textSpan    = new TextSpan { start = textStart, len = text.Length };
+        var textSpan    = new TextSpan { start = textStart, len = textBuffer.Count - textStart };
         var tuiPos      = new TuiVector(position.X * lineScale, position.Y * lineScale);
         tuiRects.Add(new TuiRect(textSpan, tuiPos, color, background));
     }
