@@ -61,9 +61,7 @@ public sealed class TuiBatch : TmBatch
         }
         var view    = new RectView(rectStart, rectCount);
         rectStart   = tuiRects.Count;
-        var tl      = new TuiVector(xScale * currentScissor.pos.X,         yScale * currentScissor.pos.Y);
-        var br      = new TuiVector(xScale * currentScissor.size.X + tl.x, yScale * currentScissor.size.Y + tl.y);
-        rectCommands.Add(new TuiRectCommand(currentZIndex.value, currentSequence++, view, tl, br));
+        rectCommands.Add(new TuiRectCommand(currentZIndex.value, currentSequence++, view, currentScissor.pos, currentScissor.pos + currentScissor.size));
     }
     
     private static void SortRectCommands(List<TuiRectCommand> commands, List<CmdSegment> segments)
@@ -129,19 +127,25 @@ public sealed class TuiBatch : TmBatch
             for (int cmdIndex = segment.index; cmdIndex < lastCmd; cmdIndex++)
             {
                 var cmd       = commands[cmdIndex];
-                var scissorTL = cmd.scissorTL;
-                var scissorBR = cmd.scissorBR;
+                var scissorL  = (int)(cmd.scissorTL.X * xScale);
+                var scissorT  = (int)(cmd.scissorTL.Y * yScale);
+                var scissorR  = (int)(cmd.scissorBR.X * xScale);
+                var scissorB  = (int)(cmd.scissorBR.Y * yScale);
                 
                 var lastRect    = cmd.rectView.offset + cmd.rectView.length;
                 for (int index  = cmd.rectView.offset; index < lastRect; index++)
                 {
-                    var rect = rects[index];
+                    var rect    = rects[index];
+                    var rectL   = (int)(rect.TL.X * xScale);
+                    var rectT   = (int)(rect.TL.Y * yScale);
+                    var rectR   = (int)(rect.BR.X * xScale);
+                    var rectB   = (int)(rect.BR.Y * yScale);
 
                     // Fast AABB intersection clipping against scissor bounds
-                    int startX = Math.Max(rect.TL.x, scissorTL.x);
-                    int startY = Math.Max(rect.TL.y, scissorTL.y);
-                    int endX   = Math.Min(rect.BR.x, scissorBR.x);
-                    int endY   = Math.Min(rect.BR.y, scissorBR.y);
+                    int startX = Math.Max(rectL, scissorL);
+                    int startY = Math.Max(rectT, scissorT);
+                    int endX   = Math.Min(rectR, scissorR);
+                    int endY   = Math.Min(rectB, scissorB);
 
                     // Early exit for fully clipped rectangles
                     if (startX >= endX || startY >= endY) continue;
@@ -153,14 +157,14 @@ public sealed class TuiBatch : TmBatch
                         var text = texts.Slice(rect.text.start, rect.text.len);
 
                         // Offset for left-side clipping
-                        int offsetX = startX - rect.TL.x;
+                        int offsetX = startX - rectL;
 
                         // Clamp character count strictly against right scissor bound (endX)
                         int maxVisibleWidth = endX - startX;
                         int availableText   = text.Length - offsetX;
                         int count           = Math.Min(availableText, maxVisibleWidth);
 
-                        if (count > 0 && startY == rect.TL.y)
+                        if (count > 0 && startY == rectT)
                         {
                             var row = cells.Slice(targetWidth * startY + startX, count);
                             for (int n = 0; n < count; n++) {
@@ -216,19 +220,25 @@ public sealed class TuiBatch : TmBatch
             for (int cmdIndex = segment.index; cmdIndex < lastCmd; cmdIndex++)
             {
                 var cmd       = commands[cmdIndex];
-                var scissorTL = cmd.scissorTL;
-                var scissorBR = cmd.scissorBR;
+                var scissorL  = (int)(cmd.scissorTL.X * xScale);
+                var scissorT  = (int)(cmd.scissorTL.Y * yScale);
+                var scissorR  = (int)(cmd.scissorBR.X * xScale);
+                var scissorB  = (int)(cmd.scissorBR.Y * yScale);
                 
                 var lastRect    = cmd.rectView.offset + cmd.rectView.length;
                 for (int index  = cmd.rectView.offset; index < lastRect; index++)
                 {
-                    var rect = rects[index];
+                    var rect    = rects[index];
+                    var rectL   = (int)(rect.TL.X * xScale);
+                    var rectT   = (int)(rect.TL.Y * yScale);
+                    var rectR   = (int)(rect.BR.X * xScale);
+                    var rectB   = (int)(rect.BR.Y * yScale);
 
                     // Fast AABB intersection clipping against scissor bounds
-                    int startX = Math.Max(rect.TL.x, scissorTL.x);
-                    int startY = Math.Max(rect.TL.y, scissorTL.y);
-                    int endX   = Math.Min(rect.BR.x, scissorBR.x);
-                    int endY   = Math.Min(rect.BR.y, scissorBR.y);
+                    int startX = Math.Max(rectL, scissorL);
+                    int startY = Math.Max(rectT, scissorT);
+                    int endX   = Math.Min(rectR, scissorR);
+                    int endY   = Math.Min(rectB, scissorB);
 
                     // Early exit for fully clipped rectangles
                     if (startX >= endX || startY >= endY) continue;
@@ -239,14 +249,14 @@ public sealed class TuiBatch : TmBatch
                         var text = texts.Slice(rect.text.start, rect.text.len);
 
                         // Offset for left-side clipping
-                        int offsetX = startX - rect.TL.x;
+                        int offsetX = startX - rectL;
 
                         // Clamp character count strictly against right scissor bound (endX)
                         int maxVisibleWidth = endX - startX;
                         int availableText   = text.Length - offsetX;
                         int count           = Math.Min(availableText, maxVisibleWidth);
 
-                        if (count > 0 && startY == rect.TL.y)
+                        if (count > 0 && startY == rectT)
                         {
                             var srcSpan = text.Slice(offsetX, count);
                             var dstSpan = cells.Slice(targetWidth * startY + startX, count);
@@ -282,18 +292,15 @@ public sealed class TuiBatch : TmBatch
     public Vector2 DrawText(ReadOnlySpan<char> text, Vector2 position, Color32 color, Color32 background)
     {
         var textSpan    = new TextSpan { start = textBuffer.Count, len = text.Length };
-        var tl          = new TuiVector(position.X * xScale, position.Y * yScale);
-        var br          = new TuiVector(tl.x + textSpan.len, tl.y + 1);
-        tuiRects.Add(new TuiRect(textSpan, tl, br, color, background));
+        var br          = position + new Vector2(textSpan.len * charWidth, lineHeight);
+        tuiRects.Add(new TuiRect(textSpan, position, br, color, background));
         textBuffer.AddRange(text);
         return new Vector2(lineHeight * text.Length, lineHeight);
     }
     
     public void FillRect(Vector2 position, Vector2 size, Color32 background)
     {
-        var tl          = new TuiVector(position.X * xScale, position.Y * yScale);
-        var tuiSize     = new TuiVector(size.X     * xScale, size.Y     * yScale);
-        tuiRects.Add(new TuiRect(tl, tuiSize, background));
+        tuiRects.Add(new TuiRect(position, size, background));
     }
     
     public void Button(ReadOnlySpan<char> text, Vector2 position, Vector2 size, Color32 color, Color32 background)
@@ -303,9 +310,7 @@ public sealed class TuiBatch : TmBatch
         textBuffer.AddRange(text);
         textBuffer.Add(']');
         var textSpan    = new TextSpan { start = textStart, len = textBuffer.Count - textStart };
-        var lf          = new TuiVector(position.X * xScale,        position.Y * yScale);
-        var br          = new TuiVector(size.X     * xScale + lf.x, size.Y     * yScale + lf.y);
-        tuiRects.Add(new TuiRect(textSpan, lf, br, color, background));
+        tuiRects.Add(new TuiRect(textSpan, position, position + size, color, background));
     }
     
     public void Checkbox(bool value, ReadOnlySpan<char> text, Vector2 position, Vector2 size, Color32 color, Color32 background)
@@ -315,9 +320,7 @@ public sealed class TuiBatch : TmBatch
         textBuffer.AddRange(boxText.AsSpan());
         textBuffer.AddRange(text);
         var textSpan    = new TextSpan { start = textStart, len = textBuffer.Count - textStart };
-        var lf          = new TuiVector(position.X * xScale,        position.Y * yScale);
-        var br          = new TuiVector(size.X     * xScale + lf.x, size.Y     * yScale + lf.y);
-        tuiRects.Add(new TuiRect(textSpan, lf, br, color, background));
+        tuiRects.Add(new TuiRect(textSpan, position, position + size, color, background));
     }
 
     public void Slider(ReadOnlySpan<char> name, ref float value, float min, float max, float width, Vector2 position, Vector2 size)
@@ -327,9 +330,7 @@ public sealed class TuiBatch : TmBatch
 
     public void DrawScrollbar(Vector2 position, Vector2 size, Color32 background)
     {
-        var tuiPos      = new TuiVector(position.X * xScale, position.Y * yScale);
-        var tuiSize     = new TuiVector(size.X     * xScale, size.Y     * yScale);
-        tuiRects.Add(new TuiRect(tuiPos, tuiSize, background));
+        tuiRects.Add(new TuiRect(position, size, background));
     }
 #endregion
 }

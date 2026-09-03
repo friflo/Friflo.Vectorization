@@ -57,10 +57,9 @@ public readonly ref partial struct GuiWidget
         } else {
             var rects = CollectionsMarshal.AsSpan(tui.tuiRects);
             rects = rects.Slice(scope.startIndex, rects.Length - scope.startIndex);
-            var charOffset = (int)(offset * tui.XScale); // todo  should not operate on unit char - instead operate on unit float
             foreach (ref var vertex in rects) {
-                vertex.TL.x += charOffset;
-                vertex.BR.x += charOffset;
+                vertex.TL.X += offset;
+                vertex.BR.X += offset;
             }
         }
         guiState.mouseOffsets[scope.centerId] = new Vector2(offset, 0);

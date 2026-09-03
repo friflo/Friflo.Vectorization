@@ -7,7 +7,7 @@
 // ReSharper disable once CheckNamespace
 // ReSharper disable InconsistentNaming
 
-using System;
+using System.Numerics;
 
 namespace Friflo.TmGui.TUI;
 
@@ -18,26 +18,6 @@ public struct TuiColorCell
     public  Color32     background;     //  4 bytes
     
     public override string ToString() => $"'{character}'";
-}
-
-internal struct TuiVector : IEquatable<TuiVector>
-{
-    internal        int x;      //  4 bytes
-    internal        int y;      //  4 bytes
-
-    public override string ToString() => $"({x}, {y})";
-
-    internal TuiVector (float x, float y) {
-        this.x = (int)x;
-        this.y = (int)y;
-    }
-    
-    public static   bool    operator ==(TuiVector left, TuiVector right) => left.x == right.x && left.y == right.y;
-    public static   bool    operator !=(TuiVector left, TuiVector right) => !(left == right);
-    
-    public          bool    Equals(TuiVector other) => x == other.x && y == other.y;
-    public override bool    Equals(object? obj) => obj is TuiVector other && Equals(other);
-    public override int     GetHashCode() => HashCode.Combine(x, y);
 }
 
 internal struct TextSpan
@@ -51,20 +31,20 @@ internal struct TextSpan
 internal struct TuiRect
 {
     public          TextSpan    text;           //  8 bytes
-    public          TuiVector   TL;             //  8 bytes - top / lLeft
-    public          TuiVector   BR;             //  8 bytes - bottom / right
+    public          Vector2     TL;             //  8 bytes - top / lLeft
+    public          Vector2     BR;             //  8 bytes - bottom / right
     public          Color32     color;          //  4 bytes
     public          Color32     background;     //  4 bytes
     
-    public override string      ToString()       => $"[{TL.x}, {TL.y} | {BR.x}, {BR.y}]";
+    public override string      ToString()       => $"[{TL.X}, {TL.Y} | {BR.X}, {BR.Y}]";
     
-    internal TuiRect(TuiVector tl, TuiVector size, Color32 background) {
+    internal TuiRect(Vector2 tl, Vector2 size, Color32 background) {
         this.TL             = tl;
-        this.BR             = new TuiVector(tl.x + size.x, tl.y + size.y);
+        this.BR             = tl + size;
         this.background     = background;
     }
         
-    internal TuiRect(TextSpan text, TuiVector tl, TuiVector br, Color32 color, Color32 background) {
+    internal TuiRect(TextSpan text, Vector2 tl, Vector2 br, Color32 color, Color32 background) {
         this.text           = text;
         this.TL             = tl;
         this.BR             = br;
@@ -91,15 +71,15 @@ internal readonly struct TuiRectCommand
     public  readonly    ulong       zIndex;       //  8 bytes
     public  readonly    int         sequence;     //  4 bytes
     public  readonly    RectView    rectView;     //  8 bytes
-    public  readonly    TuiVector   scissorTL;    //  8 bytes
-    public  readonly    TuiVector   scissorBR;    //  8 bytes
+    public  readonly    Vector2     scissorTL;    //  8 bytes
+    public  readonly    Vector2     scissorBR;    //  8 bytes
 
     public TuiRectCommand(
         ulong           zIndex,
         int             sequence,
         RectView        rectView,
-        TuiVector       scissorTl,
-        TuiVector       scissorBr)
+        Vector2         scissorTl,
+        Vector2         scissorBr)
     {
         this.zIndex     = zIndex;
         this.sequence   = sequence;
