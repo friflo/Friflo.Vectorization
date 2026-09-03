@@ -45,14 +45,13 @@ public class Tests_ImDraw_window1
         }
         batch.DrawRectCommands();
         
-        var sourceFileDir   = GetCurrentFilePath().Replace(".cs", "");
-        Directory.CreateDirectory(sourceFileDir);
-        var tuiFile          = $"{sourceFileDir}/{TestContext.CurrentContext.Test.Name}.tui.txt";
+        var dir     = Path.GetDirectoryName(GetCurrentFilePath())!;
+        var tuiFile = $"{dir}/{TestContext.CurrentContext.Test.Name}.txt";
         
         var cells       = backend.Cells;
         var textBuffer  = new char[30 * 51];
         var text        = textBuffer.AsSpan();
-        var pos     = 0;
+        var pos         = 0;
         
         for (int line = 0; line < 30; line++) {
             for (int col = 0; col < 50; col++) {

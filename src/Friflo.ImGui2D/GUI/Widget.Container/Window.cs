@@ -61,7 +61,7 @@ public readonly ref partial struct GuiWidget
         var headerColor = Colors.ButtonState(titleState);
         var fontHeight  = LineHeight;
         var textPos     = window.Pos + new Vector2(10f, (titleBarHeight - fontHeight) / 2f);
-        var tui = draw.batch.tui;
+        var tui = draw.Tui;
         if (tui != null) {
             tui.FillRect(window.Pos, window.Size, Colors.WindowColor);
             tui.DrawText(title, textPos, Colors.TextColor, headerColor);

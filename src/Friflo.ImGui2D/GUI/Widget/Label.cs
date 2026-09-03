@@ -17,7 +17,7 @@ public readonly ref partial struct GuiWidget
         var window = Window;
         if (textColor.Packed == 0) textColor = Colors.TextColor;
         
-        var tui = draw.batch.tui;
+        var tui = draw.Tui;
         Vector2 size;
         if (tui != null) {
             size = tui.DrawText(name, window.Cursor, textColor, default);

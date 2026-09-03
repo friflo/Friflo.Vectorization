@@ -29,7 +29,7 @@ public readonly ref partial struct GuiWidget
         bool isFocused  = RegisterFocusable(widgetId, pos, finalSize);
         var widgetState = GetWidgetState(isHover, widgetId);
 
-        var tui = draw.batch.tui;
+        var tui = draw.Tui;
         if (tui != null) {
             tui.Button(name, pos, finalSize, Colors.ButtonText, Colors.ButtonState(widgetState));
         } else {

@@ -184,7 +184,7 @@ public readonly ref partial struct GuiWidget
 	                                           : Colors.ScrollThumb;
 
 	    // Render track and thumb
-	    var tui = draw.batch.tui;
+	    var tui = draw.Tui;
 	    if (tui != null) {
 			tui.DrawScrollbar(trackPos, trackSize, background);
 	    } else {

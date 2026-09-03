@@ -14,7 +14,8 @@ namespace Friflo.ImGui2D.TUI;
 
 public sealed class TuiBatch : ImBatch
 {
-    private             float                   lineScale;
+    private             float                   yScale;
+    private             float                   xScale;
     private             float                   lineHeight;
     private             int                     rectStart;
     private readonly    List<TuiRect>           tuiRects        = [];
@@ -30,7 +31,8 @@ public sealed class TuiBatch : ImBatch
     internal void Reset()
     {
         lineHeight  = backendDefaultFont.lineHeight;
-        lineScale   = 1f / lineHeight;
+        yScale      = 1f / lineHeight;
+        xScale      = 2f * yScale;
         rectStart   = 0;   
         tuiRects.Clear();
         rectCommands.Clear();
@@ -141,10 +143,10 @@ public sealed class TuiBatch : ImBatch
         }
     }
 
-    internal Vector2 DrawText(ReadOnlySpan<char> text, Vector2 position, Color32 color, Color32 background)
+    public Vector2 DrawText(ReadOnlySpan<char> text, Vector2 position, Color32 color, Color32 background)
     {
         var textSpan    = new TextSpan { start = textBuffer.Count, len = text.Length };
-        var tuiPos      = new TuiVector(position.X * lineScale, position.Y * lineScale);
+        var tuiPos      = new TuiVector(position.X * xScale, position.Y * yScale);
         tuiRects.Add(new TuiRect(textSpan, tuiPos, color, background));
         textBuffer.AddRange(text);
         return new Vector2(lineHeight * text.Length, lineHeight);
@@ -152,29 +154,29 @@ public sealed class TuiBatch : ImBatch
     
     public void FillRect(Vector2 position, Vector2 size, Color32 background)
     {
-        var tuiPos      = new TuiVector(position.X * lineScale, position.Y * lineScale);
-        var tuiSize     = new TuiVector(size.X     * lineScale, size.Y     * lineScale);
+        var tuiPos      = new TuiVector(position.X * xScale, position.Y * yScale);
+        var tuiSize     = new TuiVector(size.X     * xScale, size.Y     * yScale);
         tuiRects.Add(new TuiRect(tuiPos, tuiSize, background));
     }
     
-    internal void Button(ReadOnlySpan<char> text, Vector2 position, Vector2 size, Color32 color, Color32 background)
+    public void Button(ReadOnlySpan<char> text, Vector2 position, Vector2 size, Color32 color, Color32 background)
     {
         var textStart = textBuffer.Count;
         textBuffer.Add('[');
         textBuffer.AddRange(text);
         textBuffer.Add(']');
         var textSpan    = new TextSpan { start = textStart, len = textBuffer.Count - textStart };
-        var tuiPos      = new TuiVector(position.X * lineScale, position.Y * lineScale);
+        var tuiPos      = new TuiVector(position.X * xScale, position.Y * yScale);
         tuiRects.Add(new TuiRect(textSpan, tuiPos, color, background));
     }
     
-    internal void Checkbox(bool value, ReadOnlySpan<char> text, Vector2 position, Vector2 size, Color32 color, Color32 background)
+    public void Checkbox(bool value, ReadOnlySpan<char> text, Vector2 position, Vector2 size, Color32 color, Color32 background)
     {
         var textStart = textBuffer.Count;
         textBuffer.AddRange(value ? "[x] " : "[ ] ");        
         textBuffer.AddRange(text);
         var textSpan    = new TextSpan { start = textStart, len = textBuffer.Count - textStart };
-        var tuiPos      = new TuiVector(position.X * lineScale, position.Y * lineScale);
+        var tuiPos      = new TuiVector(position.X * xScale, position.Y * yScale);
         tuiRects.Add(new TuiRect(textSpan, tuiPos, color, background));
     }
 
@@ -185,8 +187,8 @@ public sealed class TuiBatch : ImBatch
 
     public void DrawScrollbar(Vector2 position, Vector2 size, Color32 background)
     {
-        var tuiPos      = new TuiVector(position.X * lineScale, position.Y * lineScale);
-        var tuiSize     = new TuiVector(size.X     * lineScale, size.Y     * lineScale);
+        var tuiPos      = new TuiVector(position.X * xScale, position.Y * yScale);
+        var tuiSize     = new TuiVector(size.X     * xScale, size.Y     * yScale);
         tuiRects.Add(new TuiRect(tuiPos, tuiSize, background));
     }
 }

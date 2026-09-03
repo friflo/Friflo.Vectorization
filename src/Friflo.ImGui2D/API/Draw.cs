@@ -4,6 +4,7 @@
 
 using System.Numerics;
 using System.Runtime.InteropServices;
+using Friflo.ImGui2D.TUI;
 
 
 // ReSharper disable SuggestVarOrType_BuiltInTypes
@@ -43,6 +44,7 @@ public readonly ref partial struct ImDraw
     internal readonly   ImBatch     batch;  //  8 bytes
 
     public              ImFont      Font        => batch.currentFont;
+    public              TuiBatch?   Tui         => batch.tui;
     
     internal ImDraw(ImBatch batch)
     {

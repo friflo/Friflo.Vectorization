@@ -33,7 +33,7 @@ public readonly ref partial struct GuiWidget
             value = !value;
         }
         var boxRectSize = new Vector2(boxSize, boxSize);
-        var tui = draw.batch.tui;
+        var tui = draw.Tui;
         if (tui != null) {
             tui.Checkbox(value, name, pos, boxRectSize, Colors.TextColor, Colors.ButtonState(widgetState));
         } else {

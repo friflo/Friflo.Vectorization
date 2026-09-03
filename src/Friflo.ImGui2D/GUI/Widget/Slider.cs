@@ -38,7 +38,7 @@ public readonly ref partial struct GuiWidget
             }
         }
         var labelText = StringBuilder().AppendFloat(value, format.IsEmpty ? "F1" : format, FormatProvider);
-        var tui = draw.batch.tui;
+        var tui = draw.Tui;
         if (tui != null) {
             tui.Slider(labelText.Span(), ref value, min, max, width, pos, totalSize);
         } else {
