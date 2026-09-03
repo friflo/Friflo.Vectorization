@@ -26,8 +26,9 @@ public sealed partial class WgpuBatch : ImBatch
         samplerLinear   = backend.samplerLinear;
         samplerNearest  = backend.samplerNearest;
     }
-    
-    
+
+    protected override void InitBatch() { }
+
     // TextureFormat.BGRA8Unorm / RGBA8Unorm
     /// <summary> Create multiple configs. A single would be sufficient, if not supporting <see cref="GpuBlendState"/>. </summary>
     private static RenderConfig[] CreateRenderConfigs(TextureFormat targetFormat)

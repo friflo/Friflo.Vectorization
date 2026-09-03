@@ -22,7 +22,9 @@ public sealed class TuiBackend : ImGuiBackend
     }
     
     public TuiBatch CreateBatch() {
-        return new TuiBatch(this);
+        var batch = new TuiBatch(this);
+        InitBatch(batch);
+        return batch;
     }
     
     protected internal override ImTexture CreateTexture(string name, int width, int height, ReadOnlySpan<byte> rgbaPixels)

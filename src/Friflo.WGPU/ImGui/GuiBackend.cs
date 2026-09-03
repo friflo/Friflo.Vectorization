@@ -33,7 +33,9 @@ public sealed class WgpuGuiBackend : ImGuiBackend
     }
     
     public WgpuBatch CreateBatch(TextureFormat targetFormat, int maxVertices = 60_000) {
-        return new WgpuBatch(this, targetFormat, maxVertices);
+        var batch = new WgpuBatch(this, targetFormat, maxVertices);
+        InitBatch(batch);
+        return batch;
     }
     
     protected override ImTexture CreateTexture(string name, int width, int height, ReadOnlySpan<byte> rgbaPixels)

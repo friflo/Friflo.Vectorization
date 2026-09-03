@@ -14,6 +14,8 @@ public sealed class HeadlessBatch : ImBatch
     {
     }
     
+    protected internal override void InitBatch() { }
+    
     public void DrawCommandList()
     {
         EndBatch();

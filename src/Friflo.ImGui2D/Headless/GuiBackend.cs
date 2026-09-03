@@ -18,7 +18,9 @@ public sealed class HeadlessBackend : ImGuiBackend
     }
     
     public HeadlessBatch CreateBatch(int maxVertices = 60_000) {
-        return new HeadlessBatch(this, maxVertices);
+        var batch = new HeadlessBatch(this, maxVertices);
+        InitBatch(batch);
+        return batch;
     }
     
     protected internal override ImTexture CreateTexture(string name, int width, int height, ReadOnlySpan<byte> rgbaPixels)

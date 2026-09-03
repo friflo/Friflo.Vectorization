@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Numerics;
 using System.Runtime.InteropServices;
 
+// ReSharper disable ConvertToAutoPropertyWithPrivateSetter
 // ReSharper disable InconsistentNaming
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable once CheckNamespace
@@ -17,22 +18,32 @@ public sealed class TuiBatch : ImBatch
     private             float                   yScale;
     private             float                   xScale;
     private             float                   lineHeight;
+    private             float                   charWidth;
     private             int                     rectStart;
     private readonly    List<TuiRect>           tuiRects        = [];
     private readonly    List<TuiRectCommand>    rectCommands    = [];
     private readonly    List<char>              textBuffer      = [];
     private readonly    TuiBackend              backend;
     
+    public              float                   CharWidth   => charWidth;
+    public              float                   LineHeight  => lineHeight;
 
     public TuiBatch(TuiBackend backend) : base(backend, 0) {
         this.backend = backend;
     }
+
+    private const float CharacterAspectRatio = 0.5f;
+
+    protected internal override void InitBatch()
+    {
+        lineHeight  = backendDefaultFont.lineHeight;
+        charWidth   = lineHeight * CharacterAspectRatio;
+        yScale      = 1f / lineHeight;
+        xScale      = yScale / CharacterAspectRatio;
+    }
     
     internal void Reset()
     {
-        lineHeight  = backendDefaultFont.lineHeight;
-        yScale      = 1f / lineHeight;
-        xScale      = 2f * yScale;
         rectStart   = 0;   
         tuiRects.Clear();
         rectCommands.Clear();

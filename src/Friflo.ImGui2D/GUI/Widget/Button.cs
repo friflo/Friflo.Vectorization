@@ -18,18 +18,19 @@ public readonly ref partial struct GuiWidget
         int parentHash = window.GetCurrentScopeHash();
         int widgetId   = id.Resolve(name, parentHash);
 
-        var pos      = window.Cursor;
-        var textSize = draw.MeasureText(name);
+        var tui         = draw.Tui;
+        var pos         = window.Cursor;
+        var textSize    = draw.MeasureText(name) ;
 
         // Calculate final pixel footprint based on measured text size as content fallback
         var defaultSize = textSize + Sizes.FramePadding.Size;
         var finalSize   = window.WidgetSize(size, defaultSize);
+        if (tui != null) finalSize.X += 2 * tui.CharWidth;  // TUI:  [Button]
 
         var isHover     = window.IsHoverAtCapture(pos, finalSize, draw);
         bool isFocused  = RegisterFocusable(widgetId, pos, finalSize);
         var widgetState = GetWidgetState(isHover, widgetId);
 
-        var tui = draw.Tui;
         if (tui != null) {
             tui.Button(name, pos, finalSize, Colors.ButtonText, Colors.ButtonState(widgetState));
         } else {

@@ -37,6 +37,12 @@ public abstract class ImGuiBackend : IDisposable
         host    = new GuiHost(input);
     }
     
+    protected void InitBatch(ImBatch batch)
+    {
+        batch.InitBatch();
+        batch.guiState.SetDefaultStyle(batch);
+    }
+    
     public void NewFrame()
     {
         foreach (var window in host.windowOrder) {

@@ -4,6 +4,7 @@
 
 using System.Collections.Generic;
 using System.Numerics;
+using Friflo.ImGui2D.TUI;
 
 // ReSharper disable once CheckNamespace
 namespace Friflo.ImGui2D;
@@ -19,7 +20,7 @@ internal struct RevertStyle
 
 internal sealed class GuiState
 {
-    private  readonly   GuiStyle                defaultStyle        = new() { colors = CreateDefaultColors(), sizes = CreateDefaultSizes() };
+    private  readonly   GuiStyle                defaultStyle        = new();
     internal            RevertStyle[]           revertStyles        = [];
     internal            int                     revertStylesCount;
     internal readonly   GuiStyle                currentStyle        = new();
@@ -31,6 +32,30 @@ internal sealed class GuiState
     internal            bool                    IsNewFrame          { get; private set;}
 
     public   override   string                  ToString()          => $"window: {window}";
+    
+    internal void SetDefaultStyle(ImBatch batch)
+    {
+        defaultStyle.colors = CreateDefaultColors();
+        if (batch is TuiBatch tuiBatch) {
+            defaultStyle.sizes = new GuiSizes {
+                WindowPadding   = new Padding2D(tuiBatch.CharWidth, tuiBatch.LineHeight),
+            };
+        } else {
+            defaultStyle.sizes = CreateDefaultSizes();
+        }
+    }
+    
+    private static GuiSizes CreateDefaultSizes()
+    {
+        return new GuiSizes
+        {
+            WindowPadding    	= new Padding2D(horizontal: 20f, vertical: 20f),
+            FramePadding    	= new Padding2D(horizontal: 16f, vertical:  2f),
+            ItemSpacing    		= new Vector2  (x:          12f,        y:  6f),
+            CellPadding      	= new Padding2D(horizontal:  6f, vertical:  4f),
+            ContainerPadding 	= new Padding2D(horizontal:  8f, vertical:  8f)
+        };
+    }
 
     private static GuiColors CreateDefaultColors()
     {
@@ -49,18 +74,6 @@ internal sealed class GuiState
             SliderBg        = 0xd8d8d8ff,
             
             FocusColor      = 0x007affff
-        };
-    }
-    
-    private static GuiSizes CreateDefaultSizes()
-    {
-        return new GuiSizes
-        {
-            WindowPadding    	= new Padding2D(horizontal: 20f, vertical: 20f),
-            FramePadding    	= new Padding2D(horizontal: 16f, vertical:  2f),
-            ItemSpacing    		= new Vector2  (x:          12f,        y:  6f),
-            CellPadding      	= new Padding2D(horizontal:  6f, vertical:  4f),
-            ContainerPadding 	= new Padding2D(horizontal:  8f, vertical:  8f)
         };
     }
     

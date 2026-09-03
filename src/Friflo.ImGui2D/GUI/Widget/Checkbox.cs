@@ -19,12 +19,14 @@ public readonly ref partial struct GuiWidget
         int widgetId    = id.Resolve(name, parentHash);
 
         var padding = Sizes.FramePadding;
+        var tui     = draw.Tui;
         
-        float boxSize   = LineHeight + padding.Vertical; // quadratic box
+        float boxSize   = LineHeight + padding.Vertical;
         var pos         = window.Cursor;
         var textSize    = draw.MeasureText(name);
 
-        var totalSize   = new Vector2(boxSize + padding.Size.X + textSize.X, boxSize);
+        var boxRectSize = tui != null ? new Vector2(4 * tui.CharWidth, LineHeight) : new Vector2(boxSize, boxSize);  // '[x] ' / quadratic box
+        var totalSize   = boxRectSize + new Vector2(padding.Size.X + textSize.X, 0);
         var isHover     = window.IsHoverAtCapture(pos, totalSize, draw);
         bool isFocused  = RegisterFocusable(widgetId, pos, totalSize);
         var widgetState = GetWidgetState(isHover, widgetId);
@@ -32,10 +34,8 @@ public readonly ref partial struct GuiWidget
         if (isToggled) {
             value = !value;
         }
-        var boxRectSize = new Vector2(boxSize, boxSize);
-        var tui = draw.Tui;
         if (tui != null) {
-            tui.Checkbox(value, name, pos, boxRectSize, Colors.TextColor, Colors.ButtonState(widgetState));
+            tui.Checkbox(value, name, pos, totalSize, Colors.TextColor, Colors.ButtonState(widgetState));
         } else {
             draw.FillRectRounded  (pos, boxRectSize, Sizes.CornerRadius, Colors.ButtonState(widgetState), GuiSizes.CornerSegments); // background
             draw.StrokeRectRounded(pos, boxRectSize, Sizes.CornerRadius, 2, Colors.ButtonBorder, GuiSizes.CornerSegments);

@@ -138,6 +138,8 @@ public abstract class ImBatch : IDisposable
 
 
 #region public
+    protected internal abstract void InitBatch();
+    
     public void Dispose()
     {
         gpuVertexBuffer.Dispose();

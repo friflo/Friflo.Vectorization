@@ -59,11 +59,12 @@ public readonly ref partial struct ImDraw
     /// </summary>
     public Vector2 MeasureText(ReadOnlySpan<char> text, ImFont? font = null, float scale = 1.0f)
     {
-        font ??= batch.currentFont;
+        font          ??= batch.currentFont;
+        var charWidth   = Tui?.CharWidth ?? 0; 
 
-        float maxWidth = 0f;
-        float currentLineWidth = 0f;
-        int lineCount = 1;
+        float   maxWidth            = 0f;
+        float   currentLineWidth    = 0f;
+        int     lineCount           = 1;
 
         for (int i = 0; i < text.Length; i++)
         {
@@ -75,6 +76,10 @@ public readonly ref partial struct ImDraw
                 maxWidth = MathF.Max(maxWidth, currentLineWidth);
                 currentLineWidth = 0f;
                 lineCount++;
+                continue;
+            }
+            if (charWidth != 0) {
+                currentLineWidth += charWidth;
                 continue;
             }
             if (!font.TryGetGlyph(c, out var glyph)) {
