@@ -59,16 +59,17 @@ public readonly struct TuiRect
     public override     string      ToString()       => $"[{TL.x}, {TL.y} | {BR.x}, {BR.y}]";
     
     internal TuiRect(TuiVector tl, TuiVector size, Color32 background) {
-        this.TL            = tl;
-        this.BR    = new TuiVector(tl.x + size.x, tl.y + size.y);
+        this.TL             = tl;
+        this.BR             = new TuiVector(tl.x + size.x, tl.y + size.y);
         this.background     = background;
     }
         
-    internal TuiRect(TextSpan text, TuiVector tl, Color32 color, Color32 background) {
-        this.text       = text;
-        this.TL        = tl;
-        this.color      = color;
-        this.background = background;
+    internal TuiRect(TextSpan text, TuiVector tl, TuiVector br, Color32 color, Color32 background) {
+        this.text           = text;
+        this.TL             = tl;
+        this.BR             = br;
+        this.color          = color;
+        this.background     = background;
     }
 }
 

@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Numerics;
 using System.Runtime.InteropServices;
 
+// ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable ConvertToAutoPropertyWithPrivateSetter
 // ReSharper disable InconsistentNaming
 // ReSharper disable ConvertToPrimaryConstructor
@@ -111,12 +112,13 @@ public sealed class TuiBatch : TmBatch
     {
         EndTuiBatch();
         
-        var commands        = rectCommands;
-        var rects           = tuiRects;
-        var texts           = CollectionsMarshal.AsSpan(textBuffer);
-        var terminalWidth   = backend.terminalWidth;
-        var cells           = backend.cells.AsSpan();
-        var clear           = new TuiCell { character = '.' };
+        var commands      = rectCommands;
+        var rects         = tuiRects;
+        var texts         = CollectionsMarshal.AsSpan(textBuffer);
+        var terminalWidth = backend.terminalWidth;
+        var cells         = backend.cells.AsSpan();
+        var clear         = new TuiCell { character = '.' };
+        
         cells.Fill(clear);
         
         foreach (var segment in commandSegments)
@@ -157,17 +159,18 @@ public sealed class TuiBatch : TmBatch
     public Vector2 DrawText(ReadOnlySpan<char> text, Vector2 position, Color32 color, Color32 background)
     {
         var textSpan    = new TextSpan { start = textBuffer.Count, len = text.Length };
-        var tuiPos      = new TuiVector(position.X * xScale, position.Y * yScale);
-        tuiRects.Add(new TuiRect(textSpan, tuiPos, color, background));
+        var tl          = new TuiVector(position.X * xScale, position.Y * yScale);
+        var br          = new TuiVector(tl.x + textSpan.len, tl.y + 1);
+        tuiRects.Add(new TuiRect(textSpan, tl, br, color, background));
         textBuffer.AddRange(text);
         return new Vector2(lineHeight * text.Length, lineHeight);
     }
     
     public void FillRect(Vector2 position, Vector2 size, Color32 background)
     {
-        var tuiPos      = new TuiVector(position.X * xScale, position.Y * yScale);
+        var tl          = new TuiVector(position.X * xScale, position.Y * yScale);
         var tuiSize     = new TuiVector(size.X     * xScale, size.Y     * yScale);
-        tuiRects.Add(new TuiRect(tuiPos, tuiSize, background));
+        tuiRects.Add(new TuiRect(tl, tuiSize, background));
     }
     
     public void Button(ReadOnlySpan<char> text, Vector2 position, Vector2 size, Color32 color, Color32 background)
@@ -177,8 +180,9 @@ public sealed class TuiBatch : TmBatch
         textBuffer.AddRange(text);
         textBuffer.Add(']');
         var textSpan    = new TextSpan { start = textStart, len = textBuffer.Count - textStart };
-        var tuiPos      = new TuiVector(position.X * xScale, position.Y * yScale);
-        tuiRects.Add(new TuiRect(textSpan, tuiPos, color, background));
+        var lf          = new TuiVector(position.X * xScale,        position.Y * yScale);
+        var br          = new TuiVector(size.X     * xScale + lf.x, size.Y     * yScale + lf.y);
+        tuiRects.Add(new TuiRect(textSpan, lf, br, color, background));
     }
     
     public void Checkbox(bool value, ReadOnlySpan<char> text, Vector2 position, Vector2 size, Color32 color, Color32 background)
@@ -187,8 +191,9 @@ public sealed class TuiBatch : TmBatch
         textBuffer.AddRange(value ? "[x] " : "[ ] ");        
         textBuffer.AddRange(text);
         var textSpan    = new TextSpan { start = textStart, len = textBuffer.Count - textStart };
-        var tuiPos      = new TuiVector(position.X * xScale, position.Y * yScale);
-        tuiRects.Add(new TuiRect(textSpan, tuiPos, color, background));
+        var lf          = new TuiVector(position.X * xScale,        position.Y * yScale);
+        var br          = new TuiVector(size.X     * xScale + lf.x, size.Y     * yScale + lf.y);
+        tuiRects.Add(new TuiRect(textSpan, lf, br, color, background));
     }
 
     public void Slider(ReadOnlySpan<char> name, ref float value, float min, float max, float width, Vector2 position, Vector2 size)
