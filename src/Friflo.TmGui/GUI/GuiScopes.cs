@@ -70,13 +70,13 @@ public readonly ref struct HorizontalScope(GuiWidget widget)
     public void Dispose() => widget.EndHorizontal();
 }
 
-public readonly ref struct HorizontalCenterScope(GuiWidget widget, int centerId, float align, int vertexStart, Vector2 oldMouseOffset)
+public readonly ref struct HorizontalCenterScope(GuiWidget widget, int centerId, float align, int startIndex, Vector2 oldMouseOffset)
 {
     private  readonly   GuiWidget  widget           = widget;
     internal readonly   Vector2    oldMouseOffset   = oldMouseOffset;
     internal readonly   int        centerId         = centerId;
     internal readonly   float      align            = align;
-    internal readonly   int        vertexStart      = vertexStart;
+    internal readonly   int        startIndex       = startIndex;
 
     public void Dispose() => widget.EndHorizontalAligned(this);
 }

@@ -21,11 +21,12 @@ public sealed class TuiBatch : TmBatch
     private             float                   lineHeight;
     private             float                   charWidth;
     private             int                     rectStart;
-    private readonly    List<TuiRect>           tuiRects        = [];
-    private readonly    List<TuiRectCommand>    rectCommands    = [];
-    private readonly    List<char>              textBuffer      = [];
-    private readonly    TuiBackend              backend;
+    internal readonly   List<TuiRect>           tuiRects        = [];
+    private  readonly   List<TuiRectCommand>    rectCommands    = [];
+    private  readonly   List<char>              textBuffer      = [];
+    private  readonly   TuiBackend              backend;
     
+    public              float                   XScale      => xScale;
     public              float                   CharWidth   => charWidth;
     public              float                   LineHeight  => lineHeight;
 

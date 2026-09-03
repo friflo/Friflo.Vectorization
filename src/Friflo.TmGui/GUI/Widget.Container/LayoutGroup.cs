@@ -3,6 +3,7 @@
 
 
 using System.Numerics;
+using System.Runtime.InteropServices;
 
 // ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable once CheckNamespace
@@ -35,7 +36,9 @@ public readonly ref partial struct GuiWidget
         guiState.mouseOffsets.TryGetValue(centerId, out input.mouseOffset);
         
         BeginHorizontal(size);
-        return new HorizontalCenterScope(this, centerId, align, draw.batch.vertexCount, oldMouseOffset);
+        var tui = draw.Tui;
+        var startIndex = tui == null ? draw.batch.vertexCount : tui.tuiRects.Count;
+        return new HorizontalCenterScope(this, centerId, align, startIndex, oldMouseOffset);
     }
     
     internal void EndHorizontalAligned(in HorizontalCenterScope scope)
@@ -45,10 +48,20 @@ public readonly ref partial struct GuiWidget
         input.mouseOffset   = scope.oldMouseOffset;
         var availableWidth  = Window.CurrentLayout.boundsSize.X;
         var offset          = (availableWidth - maxSize.X) * scope.align;
-        var vertices        = draw.batch.vertexBuffer.Span.Slice(scope.vertexStart, draw.batch.vertexCount);
-        
-        foreach (ref var vertex in vertices) {
-            vertex.position.X += offset;
+        var tui             = draw.Tui;
+        if (tui == null) {
+            var vertices = draw.batch.vertexBuffer.Span.Slice(scope.startIndex, draw.batch.vertexCount - scope.startIndex);
+            foreach (ref var vertex in vertices) {
+                vertex.position.X += offset;
+            }
+        } else {
+            var rects = CollectionsMarshal.AsSpan(tui.tuiRects);
+            rects = rects.Slice(scope.startIndex, rects.Length - scope.startIndex);
+            var charOffset = (int)(offset * tui.XScale); // todo  should not operate on unit char - instead operate on unit float
+            foreach (ref var vertex in rects) {
+                vertex.TL.x += charOffset;
+                vertex.BR.x += charOffset;
+            }
         }
         guiState.mouseOffsets[scope.centerId] = new Vector2(offset, 0);
     }

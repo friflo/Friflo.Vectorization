@@ -20,10 +20,10 @@ public struct TuiColorCell
     public override string ToString() => $"'{character}'";
 }
 
-internal readonly struct TuiVector : IEquatable<TuiVector>
+internal struct TuiVector : IEquatable<TuiVector>
 {
-    internal readonly   int x;      //  4 bytes
-    internal readonly   int y;      //  4 bytes
+    internal        int x;      //  4 bytes
+    internal        int y;      //  4 bytes
 
     public override string ToString() => $"({x}, {y})";
 
@@ -48,15 +48,15 @@ internal struct TextSpan
     public override string ToString() => $"[{start}..{start + len}]";
 }
 
-internal readonly struct TuiRect
+internal struct TuiRect
 {
-    public readonly     TextSpan    text;           //  8 bytes
-    public readonly     TuiVector   TL;             //  8 bytes - top / lLeft
-    public readonly     TuiVector   BR;             //  8 bytes - bottom / right
-    public readonly     Color32     color;          //  4 bytes
-    public readonly     Color32     background;     //  4 bytes
+    public          TextSpan    text;           //  8 bytes
+    public          TuiVector   TL;             //  8 bytes - top / lLeft
+    public          TuiVector   BR;             //  8 bytes - bottom / right
+    public          Color32     color;          //  4 bytes
+    public          Color32     background;     //  4 bytes
     
-    public override     string      ToString()       => $"[{TL.x}, {TL.y} | {BR.x}, {BR.y}]";
+    public override string      ToString()       => $"[{TL.x}, {TL.y} | {BR.x}, {BR.y}]";
     
     internal TuiRect(TuiVector tl, TuiVector size, Color32 background) {
         this.TL             = tl;

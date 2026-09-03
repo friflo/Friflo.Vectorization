@@ -41,7 +41,7 @@ public class Tests_TmDraw_window1
         {
             var gui = batch.BeginGui(1280, 1000);
             
-            using (gui.BeginWindow("Window 1", new(200, 200), new(500, 950))) {
+            using (gui.BeginWindow("Window 1", new(200, 200), new(600, 950))) {
                 Window1(gui); 
             }
             batch.DrawRectCommandsChar(50, 30);
@@ -71,7 +71,7 @@ public class Tests_TmDraw_window1
         {
             var gui = batch.BeginGui(1280, 1000);
             
-            using (gui.BeginWindow("Window 1", new(200, 200), new(500, 950))) {
+            using (gui.BeginWindow("Window 1", new(200, 200), new(600, 950))) {
                 Window1(gui); 
             }
             batch.DrawRectCommandsColor(50, 30);
@@ -101,7 +101,7 @@ public class Tests_TmDraw_window1
         var         batch   = backend.CreateBatch();
         EnsureBatchApi(batch);
         long        start   = 0;
-        const int   repeat  = 10; // 500_000 - 5.9 sec    bottleneck: FillArc() - GuiSizes.CornerSegments = 3
+        const int   repeat  = 10; // 500_000 - 5.2 sec    bottleneck: FillArc() - GuiSizes.CornerSegments = 3
         
         for (int n = 0; n < repeat; n++)
         {
