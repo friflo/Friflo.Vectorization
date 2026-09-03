@@ -26,7 +26,6 @@ public sealed class TuiBatch : TmBatch
     private  readonly   List<char>              textBuffer      = [];
     private  readonly   TuiBackend              backend;
     
-    public              float                   XScale      => xScale;
     public              float                   CharWidth   => charWidth;
     public              float                   LineHeight  => lineHeight;
 
