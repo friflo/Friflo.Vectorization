@@ -17,7 +17,7 @@ namespace Tests.TmDraw;
 public static class Tests_TmDraw
 {
     [Test]
-    public static void Tests_ImDraw_GuiStyle()
+    public static void Tests_TmDraw_GuiStyle()
     {
         var style = new GuiStyle();
         var repeat = 10; // 1_000_000_000   3.95 sec
@@ -48,7 +48,7 @@ public static class Tests_TmDraw
     }
     
     [Test]
-    public static void Tests_ImDraw_StringBuilderExtensions()
+    public static void Tests_TmDraw_StringBuilderExtensions()
     {
         {
             var sb = new StringBuilder();
@@ -64,7 +64,7 @@ public static class Tests_TmDraw
     
     [Test]
     [Platform(Exclude = "MacOsX", Reason = "Hangs occasionally on macOS (Metal issue)")]
-    public static void Tests_ImDraw_DrawGui()
+    public static void Tests_TmDraw_DrawGui()
     {
         // TODO  hangs occasionally in macOS. Debugging it when in fitting Mood
 

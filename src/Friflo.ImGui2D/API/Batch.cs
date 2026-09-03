@@ -79,7 +79,7 @@ public abstract class TmBatch : IDisposable
     internal            TmFont              currentFont;
     internal            TmTexture           currentFontTexture;
     
-    // --- ImDraw - state
+    // --- TmDraw - state
     internal            IFormatProvider     formatProvider;
     internal            Matrix4x4           defaultOrtho;
     internal            Matrix4x4           currentTransform;

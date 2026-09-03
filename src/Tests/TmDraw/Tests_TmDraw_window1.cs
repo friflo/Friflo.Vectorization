@@ -31,7 +31,7 @@ public class Tests_TmDraw_window1
     }
     
     [Test]
-    public void Tests_ImDraw_window1_TUI()
+    public void Tests_TmDraw_window1_TUI()
     {
         var terminalWidth   = 200;
         var terminalHeight  = 100;
@@ -71,7 +71,7 @@ public class Tests_TmDraw_window1
     }
     
     [Test]
-    public void Tests_ImDraw_window1_headless()
+    public void Tests_TmDraw_window1_headless()
     {
         var         backend = new HeadlessBackend();
         var         batch   = backend.CreateBatch();

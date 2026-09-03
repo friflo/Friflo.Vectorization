@@ -12,7 +12,7 @@ namespace Tests.TmDraw;
 public class Tests_TmDraw_window2
 {
     [Test]
-    public void Tests_ImDraw_window2_headless()
+    public void Tests_TmDraw_window2_headless()
     {
         var         backend = new HeadlessBackend();
         var         batch   = backend.CreateBatch();
