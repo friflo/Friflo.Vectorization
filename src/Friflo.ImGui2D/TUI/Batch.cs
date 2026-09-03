@@ -134,7 +134,7 @@ public sealed class TuiBatch : ImBatch
                     var lastY   = rect.pos.y + rect.size.y;
                     var fill    = new TuiCell { character = ' ', color = rect.color, background = rect.background };
                     for (int y =  rect.pos.y; y < lastY; y++) {
-                        cells.Slice(terminalWidth * y, width).Fill(fill);
+                        cells.Slice(terminalWidth * y + rect.pos.x, width).Fill(fill);
                     }
                 }
             }

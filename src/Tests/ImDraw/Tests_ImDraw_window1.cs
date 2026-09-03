@@ -50,12 +50,12 @@ public class Tests_ImDraw_window1
         var tuiFile          = $"{sourceFileDir}/{TestContext.CurrentContext.Test.Name}.tui.txt";
         
         var cells       = backend.Cells;
-        var textBuffer  = new char[50 * 81];
+        var textBuffer  = new char[30 * 51];
         var text        = textBuffer.AsSpan();
         var pos     = 0;
         
-        for (int line = 0; line < 50; line++) {
-            for (int col = 0; col < 80; col++) {
+        for (int line = 0; line < 30; line++) {
+            for (int col = 0; col < 50; col++) {
                 text[pos++] = cells[line * terminalWidth + col].character;
             }
             text[pos++] = '\n';
