@@ -46,7 +46,7 @@ public class Tests_TmDraw_window1
             batch.DrawRectCommands(50, 30);
             if (n == 0) start = Mem.GetAllocatedBytes();
         }
-        // Mem.AssertNoAlloc(start);
+        Mem.AssertNoAlloc(start);
         
         Assert.That(backend.StridedFrameBuffer.Length, Is.EqualTo(1530));
         var screen  = new string(backend.StridedFrameBuffer);
