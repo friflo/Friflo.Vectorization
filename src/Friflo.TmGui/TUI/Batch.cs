@@ -143,8 +143,8 @@ public sealed class TuiBatch : TmBatch
                         }
                         continue;
                     } 
-                    var width   = rect.size.x;
-                    var lastY   = rect.pos.y + rect.size.y;
+                    var width   = rect.bottomRight.x - rect.pos.x;
+                    var lastY   = rect.bottomRight.y;
                     var fill    = new TuiCell { character = ' ', color = rect.color, background = rect.background };
                     for (int y =  rect.pos.y; y < lastY; y++) {
                         cells.Slice(terminalWidth * y + rect.pos.x, width).Fill(fill);

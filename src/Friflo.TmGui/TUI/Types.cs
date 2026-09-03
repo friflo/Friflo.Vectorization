@@ -3,6 +3,7 @@
 
 
 // ReSharper disable ConvertToPrimaryConstructor
+// ReSharper disable ArrangeThisQualifier
 // ReSharper disable once CheckNamespace
 namespace Friflo.TmGui.TUI;
 
@@ -38,18 +39,18 @@ public struct TextSpan
 
 public readonly struct TuiRect
 {
-    public readonly     TextSpan    text;       //  8 bytes
-    public readonly     TuiVector   pos;        //  8 bytes
-    public readonly     TuiVector   size;       //  8 bytes
-    public readonly     Color32     color;      //  4 bytes
-    public readonly     Color32     background; //  4 bytes
+    public readonly     TextSpan    text;           //  8 bytes
+    public readonly     TuiVector   pos;            //  8 bytes - topLeft
+    public readonly     TuiVector   bottomRight;    //  8 bytes
+    public readonly     Color32     color;          //  4 bytes
+    public readonly     Color32     background;     //  4 bytes
     
-    public override     string      ToString()       => $"[{pos.x}, {pos.y} | {size.x}, {size.y}]";
+    public override     string      ToString()       => $"[{pos.x}, {pos.y} | {bottomRight.x}, {bottomRight.y}]";
     
     internal TuiRect(TuiVector pos, TuiVector size, Color32 background) {
-        this.pos        = pos;
-        this.size       = size;
-        this.background = background;
+        this.pos            = pos;
+        this.bottomRight    = new TuiVector(pos.x + size.x, pos.y + size.y);
+        this.background     = background;
     }
         
     internal TuiRect(TextSpan text, TuiVector pos, Color32 color, Color32 background) {
