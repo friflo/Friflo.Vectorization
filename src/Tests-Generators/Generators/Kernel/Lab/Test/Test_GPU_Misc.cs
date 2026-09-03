@@ -3,7 +3,7 @@ using System.Runtime.CompilerServices;
 using Friflo.GPU;
 using Friflo.GPU.Runtime;
 using Friflo.WGPU;
-using Friflo.ImGui2D;
+using Friflo.TmGui;
 using Friflo.WGPU.Runtime;
 using NUnit.Framework;
 
@@ -86,11 +86,11 @@ MaxComputeInvocationsPerWorkgroup:  {adapterLimits.MaxComputeInvocationsPerWorkg
         
         Assert.AreEqual( 56, Unsafe.SizeOf<RenderTarget>());
         Assert.AreEqual(  8, Unsafe.SizeOf<RenderPass>());
-        Assert.AreEqual(  8, Unsafe.SizeOf<ImDraw>());
+        Assert.AreEqual(  8, Unsafe.SizeOf<TmDraw>());
         Assert.AreEqual( 32, Unsafe.SizeOf<Gui>());
         Assert.AreEqual( 12, Unsafe.SizeOf<Dim>());
         
-        Assert.AreEqual( 32, Unsafe.SizeOf<ImTexture>());
+        Assert.AreEqual( 32, Unsafe.SizeOf<TmTexture>());
         Assert.AreEqual(  8, Unsafe.SizeOf<MemoryView>());
         Assert.AreEqual( 16, Unsafe.SizeOf<RectVector2>());
         Assert.AreEqual(152, Unsafe.SizeOf<DrawCommand>());

@@ -2,9 +2,9 @@
 using System.Globalization;
 using System.IO;
 using System.Text;
-using Friflo.ImGui2D;
+using Friflo.TmGui;
 using Friflo.WGPU;
-using Friflo.WGPU.ImGui2D;
+using Friflo.WGPU.TmGui;
 using NUnit.Framework;
 using StbImageWriteSharp;
 
@@ -12,9 +12,9 @@ using StbImageWriteSharp;
 // ReSharper disable SuggestVarOrType_SimpleTypes
 // ReSharper disable UnusedMember.Local
 // ReSharper disable once InconsistentNaming
-namespace Tests.ImDraw;
+namespace Tests.TmDraw;
 
-public static class Tests_ImDraw
+public static class Tests_TmDraw
 {
     [Test]
     public static void Tests_ImDraw_GuiStyle()
@@ -70,13 +70,13 @@ public static class Tests_ImDraw
 
         using var instance    = WgpuInstance.CreateInstance();
         
-        ImDraw_DrawGui_Offscreen(instance);
+        TmDraw_DrawGui_Offscreen(instance);
     
         var handles = instance.GenerateHandles();
         Assert.IsTrue(handles.IsActiveZero());
     }
     
-    private static void ImDraw_DrawGui_Offscreen(WgpuInstance instance)
+    private static void TmDraw_DrawGui_Offscreen(WgpuInstance instance)
     {
         using var adapter     = instance.RequestAdapter(default); // specific backend: new GpuRequestAdapterOptions { backendType = BackendType.D3D12 }
         using var device      = adapter.CreateDevice("test");

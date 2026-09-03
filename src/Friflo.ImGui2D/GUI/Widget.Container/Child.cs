@@ -4,7 +4,7 @@
 using System.Numerics;
 
 // ReSharper disable once CheckNamespace
-namespace Friflo.ImGui2D;
+namespace Friflo.TmGui;
 
 
 public readonly ref partial struct GuiWidget

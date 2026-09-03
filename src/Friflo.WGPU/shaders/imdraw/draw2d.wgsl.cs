@@ -10,7 +10,7 @@ namespace Shaders.Imdraw;
 
 [Source("~/shaders/imdraw/draw2d.wgsl")]
 [StructLayout(LayoutKind.Explicit, Size = 64)]
-internal struct ImUniforms (in Matrix4x4 projection)
+internal struct TmUniforms (in Matrix4x4 projection)
 {
     [FieldOffset(  0)]  public  Matrix4x4 projection = projection;
 }

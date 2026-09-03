@@ -6,7 +6,7 @@ using System;
 
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable CheckNamespace
-namespace Friflo.ImGui2D.Headless;
+namespace Friflo.TmGui.Headless;
 
 
 public sealed class MemoryBuffer<T> :IDisposable where T : unmanaged
@@ -20,7 +20,7 @@ public sealed class MemoryBuffer<T> :IDisposable where T : unmanaged
     public void Dispose() { }
 }
 
-internal sealed class HeadlessBuffer<T> : ImBuffer<T> where T : unmanaged
+internal sealed class HeadlessBuffer<T> : TmBuffer<T> where T : unmanaged
 {
     private readonly  MemoryBuffer<T> native;
     

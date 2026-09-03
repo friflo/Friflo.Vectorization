@@ -14,7 +14,7 @@ using System.Numerics;
 // ReSharper disable UnusedMember.Global
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable once CheckNamespace
-namespace Friflo.ImGui2D;
+namespace Friflo.TmGui;
 
 /// <summary>
 /// Specifies how a control dimensions itself relative to its content or parent.

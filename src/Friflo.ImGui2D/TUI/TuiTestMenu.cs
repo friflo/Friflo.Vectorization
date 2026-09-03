@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable once CheckNamespace
-namespace Friflo.ImGui2D.TUI;
+namespace Friflo.TmGui.TUI;
 
 
 

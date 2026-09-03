@@ -9,7 +9,7 @@ using System.Runtime.CompilerServices;
 // ReSharper disable InconsistentNaming
 // ReSharper disable UseCollectionExpression
 // ReSharper disable once CheckNamespace
-namespace Friflo.ImGui2D;
+namespace Friflo.TmGui;
 
 public enum ArcCorner
 {

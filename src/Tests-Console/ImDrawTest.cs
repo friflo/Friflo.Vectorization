@@ -1,8 +1,8 @@
 ﻿using System.Diagnostics;
 using System.Numerics;
-using Friflo.ImGui2D;
+using Friflo.TmGui;
 using Friflo.WGPU;
-using Friflo.WGPU.ImGui2D;
+using Friflo.WGPU.TmGui;
 
 
 // ReSharper disable MemberCanBePrivate.Global
@@ -10,11 +10,11 @@ using Friflo.WGPU.ImGui2D;
 // ReSharper disable ConvertToPrimaryConstructor
 namespace TestConsole;
 
-public class ImDrawRenderer : IRenderer
+public class TmDrawRenderer : IRenderer
 {
     private readonly    WgpuBatch               batch;
     private readonly    GpuTexture              myTexture;
-    private readonly    ImTexture               myTextureView;
+    private readonly    TmTexture               myTextureView;
     private readonly    GpuRenderPassDescriptor renderPassDescriptor    = new () { colorAttachments = [ default ] };
     private readonly    Stopwatch               stopwatch               = Stopwatch.StartNew();
     private             float                   lastTime;
@@ -26,7 +26,7 @@ public class ImDrawRenderer : IRenderer
         batch.Dispose();
     }
     
-    public ImDrawRenderer(WgpuHost wgpuHost)
+    public TmDrawRenderer(WgpuHost wgpuHost)
     {
         var guiBackend = wgpuHost.CreateGuiBackend();
         batch = guiBackend.CreateBatch(wgpuHost.SwapChainFormat);
@@ -78,7 +78,7 @@ public class ImDrawRenderer : IRenderer
              * Matrix4x4.CreateTranslation(center.X, center.Y, 0f);
     }
     
-    public void DrawSprites(ImDraw draw, float deltaTime)
+    public void DrawSprites(TmDraw draw, float deltaTime)
     {
         // --- sprites
         draw.DrawSprite(myTextureView, new Vector2( 50, 150), new Vector2(256, 256));
@@ -106,7 +106,7 @@ public class ImDrawRenderer : IRenderer
             sourceRectSize: srcSize, textureSize: texSize, borderThickness: borders);
     }
     
-    public static void DrawShapes(ImDraw draw, int width, int height)
+    public static void DrawShapes(TmDraw draw, int width, int height)
     {
         draw.FillRect(new Vector2(1, 1), new Vector2(99, 99), 0xFFFFFFFF);
         draw.FillRect(new Vector2(width - 100, height - 100), new Vector2(99, 99), 0xFFFFFFFF);
@@ -129,7 +129,7 @@ public class ImDrawRenderer : IRenderer
         draw.FillTriangle(new Vector2(600, 450), new Vector2(650, 420), new Vector2(650, 480), color: 0x0000FFFF);
     }
     
-    public static void DrawText(ImDraw draw)
+    public static void DrawText(TmDraw draw)
     {
         var textSize = draw.MeasureText("wgpu");
         draw.StrokeRect(new Vector2(700, 50), textSize, 2, Color32.Gray);

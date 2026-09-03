@@ -4,18 +4,18 @@ using System.Globalization;
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Text;
-using Friflo.ImGui2D;
-using Friflo.ImGui2D.Headless;
-using Friflo.ImGui2D.TUI;
+using Friflo.TmGui;
+using Friflo.TmGui.Headless;
+using Friflo.TmGui.TUI;
 using NUnit.Framework;
 using Tests.Utils;
 
 
 // ReSharper disable ArrangeObjectCreationWhenTypeNotEvident
 // ReSharper disable once InconsistentNaming
-namespace Tests.ImDraw;
+namespace Tests.TmDraw;
 
-public class Tests_ImDraw_window1
+public class Tests_TmDraw_window1
 {
     private bool    mouseCircle;
     private bool    monocraft;
@@ -24,7 +24,7 @@ public class Tests_ImDraw_window1
     
     
     
-    private static void EnsureBatchApi(ImBatch batch)
+    private static void EnsureBatchApi(TmBatch batch)
     {
         batch.SetFormatProvider(CultureInfo.InvariantCulture);
         

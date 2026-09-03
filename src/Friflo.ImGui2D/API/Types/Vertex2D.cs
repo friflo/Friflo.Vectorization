@@ -7,7 +7,7 @@ using System.Runtime.InteropServices;
 
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable once CheckNamespace
-namespace Friflo.ImGui2D;
+namespace Friflo.TmGui;
 
 
 [StructLayout(LayoutKind.Sequential, Pack = 1, Size = 20)]

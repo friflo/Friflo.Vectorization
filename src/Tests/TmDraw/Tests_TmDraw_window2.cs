@@ -1,15 +1,15 @@
 ﻿
-using Friflo.ImGui2D;
-using Friflo.ImGui2D.Headless;
+using Friflo.TmGui;
+using Friflo.TmGui.Headless;
 using NUnit.Framework;
 using Tests.Utils;
 
 
 // ReSharper disable ArrangeObjectCreationWhenTypeNotEvident
 // ReSharper disable once InconsistentNaming
-namespace Tests.ImDraw;
+namespace Tests.TmDraw;
 
-public class Tests_ImDraw_window2
+public class Tests_TmDraw_window2
 {
     [Test]
     public void Tests_ImDraw_window2_headless()

@@ -6,10 +6,10 @@ using System;
 
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable CheckNamespace
-namespace Friflo.ImGui2D.TUI;
+namespace Friflo.TmGui.TUI;
 
 
-internal sealed class TuiBuffer<T> : ImBuffer<T> where T : unmanaged
+internal sealed class TuiBuffer<T> : TmBuffer<T> where T : unmanaged
 {
     
     public   override Memory<T>     Memory => default;

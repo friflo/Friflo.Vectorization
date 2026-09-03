@@ -2,7 +2,7 @@
 using System.Runtime.ExceptionServices;
 using System.Runtime.InteropServices;
 using Friflo.WGPU;
-using Friflo.ImGui2D;
+using Friflo.TmGui;
 using SDL3;
 
 
@@ -32,7 +32,7 @@ public class SdlWindow(string title, int width, int height, Func<WgpuHost, IRend
     
     // --- fields for SDL3 input handling
     private readonly    Sdl3Input               sdlInput = new();
-    private             ImGuiBackend?           guiBackend;
+    private             TmGuiBackend?           guiBackend;
     
     public static int Run(string title, int width, int height, Func<WgpuHost, IRenderer> createRenderer)
     {
@@ -195,50 +195,50 @@ public class SdlWindow(string title, int width, int height, Func<WgpuHost, IRend
     }
 }
 
-#region Friflo.ImGui2D
+#region Friflo.TmGui
 
-// -------- SDL3 input handling: keyboard, mouse & gamepad - required when using:  Friflo.ImGui2D --------
+// -------- SDL3 input handling: keyboard, mouse & gamepad - required when using:  Friflo.TmGui --------
 internal class Sdl3Input : IDisposable
 {
     private nint gamepad;
 
     /// <summary> Use <c> dpiScale = new Vector2(1, 1) </c> if not available. </summary>
-    internal void HandleGuiInput(ImGuiBackend backend, in SDL.Event ev, Vector2 dpiScale)
+    internal void HandleGuiInput(TmGuiBackend backend, in SDL.Event ev, Vector2 dpiScale)
     {
         var type = (SDL.EventType)ev.Type;
         switch (type)
         {
             case SDL.EventType.MouseMotion:
                 var motionPos = new Vector2(dpiScale.X * ev.Motion.X, dpiScale.Y * ev.Motion.Y);
-                backend.AddEvent(new ImEvent(ImEventType.MouseMotion, motionPos));
+                backend.AddEvent(new TmEvent(TmEventType.MouseMotion, motionPos));
                 break;
             case SDL.EventType.MouseButtonUp:
                 var buttonUpPos = new Vector2(dpiScale.X * ev.Button.X, dpiScale.Y * ev.Button.Y);
-                backend.AddEvent(new ImEvent(ImEventType.MouseButtonUp, buttonUpPos));
+                backend.AddEvent(new TmEvent(TmEventType.MouseButtonUp, buttonUpPos));
                 break;
             case SDL.EventType.MouseButtonDown:
                 var buttonDownPos = new Vector2(dpiScale.X * ev.Button.X, dpiScale.Y * ev.Button.Y);
-                backend.AddEvent(new ImEvent(ImEventType.MouseButtonDown, buttonDownPos));
+                backend.AddEvent(new TmEvent(TmEventType.MouseButtonDown, buttonDownPos));
                 break;
             case SDL.EventType.MouseWheel:
-                backend.AddEvent(new ImEvent(ImEventType.MouseWheel) { wheel = new Vector2(ev.Wheel.X, ev.Wheel.Y) });
+                backend.AddEvent(new TmEvent(TmEventType.MouseWheel) { wheel = new Vector2(ev.Wheel.X, ev.Wheel.Y) });
                 break;
             case SDL.EventType.KeyDown:
                 var key = new KeyEvent { code = (KeyCode)ev.Key.Key, mod = (KeyMod)ev.Key.Mod, isDown = true };
-                backend.AddEvent(new ImEvent(ImEventType.KeyDown, key));
+                backend.AddEvent(new TmEvent(TmEventType.KeyDown, key));
                 break;
             case SDL.EventType.KeyUp:
                 key = new KeyEvent { code = (KeyCode)ev.Key.Key, mod = (KeyMod)ev.Key.Mod, isDown = false };
-                backend.AddEvent(new ImEvent(ImEventType.KeyUp, key));
+                backend.AddEvent(new TmEvent(TmEventType.KeyUp, key));
                 break;
             
             case SDL.EventType.GamepadAdded:        gamepad = SDL.OpenGamepad(ev.JDevice.Which);    break;
             case SDL.EventType.GamepadRemoved:      CloseGamepad();                                 break;
             case SDL.EventType.GamepadButtonUp:
-                backend.AddEvent(new ImEvent(ImEventType.GamepadButtonUp,   (ImGamepadButton)ev.GButton.Button, false));
+                backend.AddEvent(new TmEvent(TmEventType.GamepadButtonUp,   (TmGamepadButton)ev.GButton.Button, false));
                 break;
             case SDL.EventType.GamepadButtonDown:
-                backend.AddEvent(new ImEvent(ImEventType.GamepadButtonDown, (ImGamepadButton)ev.GButton.Button, true));
+                backend.AddEvent(new TmEvent(TmEventType.GamepadButtonDown, (TmGamepadButton)ev.GButton.Button, true));
                 break;
         }
     }
@@ -257,7 +257,7 @@ internal class Sdl3Input : IDisposable
 }
 
 /// <summary>
-/// Only required to visualize window resize indicator with <see cref="Friflo.ImGui2D.GuiInput.CurrentCursor"/> .
+/// Only required to visualize window resize indicator with <see cref="Friflo.TmGui.GuiInput.CurrentCursor"/> .
 /// </summary>
 internal static class Sdl3Cursor
 {

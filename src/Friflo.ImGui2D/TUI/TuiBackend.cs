@@ -5,9 +5,9 @@ using System;
 
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable once CheckNamespace
-namespace Friflo.ImGui2D.TUI;
+namespace Friflo.TmGui.TUI;
 
-public sealed class TuiBackend : ImGuiBackend
+public sealed class TuiBackend : TmGuiBackend
 {
     public   readonly   int         terminalWidth;
     public   readonly   int         terminalHeight;
@@ -27,17 +27,17 @@ public sealed class TuiBackend : ImGuiBackend
         return batch;
     }
     
-    protected internal override ImTexture CreateTexture(string name, int width, int height, ReadOnlySpan<byte> rgbaPixels)
+    protected internal override TmTexture CreateTexture(string name, int width, int height, ReadOnlySpan<byte> rgbaPixels)
     {
         return default;
     }
 
-    protected internal override ImBuffer<Vertex2D> CreateVertexBuffer(int vertexCount)
+    protected internal override TmBuffer<Vertex2D> CreateVertexBuffer(int vertexCount)
     {
         return new TuiBuffer<Vertex2D>();
     }
 
-    protected internal override ImBuffer<uint> CreateIndexBuffer(int indexCount)
+    protected internal override TmBuffer<uint> CreateIndexBuffer(int indexCount)
     {
         return new TuiBuffer<uint>();
     }

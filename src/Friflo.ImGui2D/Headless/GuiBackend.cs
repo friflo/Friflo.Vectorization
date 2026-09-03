@@ -6,9 +6,9 @@ using System;
 // ReSharper disable EmptyConstructor
 // ReSharper disable RedundantOverriddenMember
 // ReSharper disable once CheckNamespace
-namespace Friflo.ImGui2D.Headless;
+namespace Friflo.TmGui.Headless;
 
-public sealed class HeadlessBackend : ImGuiBackend
+public sealed class HeadlessBackend : TmGuiBackend
 {
     public HeadlessBackend() {
     }
@@ -23,19 +23,19 @@ public sealed class HeadlessBackend : ImGuiBackend
         return batch;
     }
     
-    protected internal override ImTexture CreateTexture(string name, int width, int height, ReadOnlySpan<byte> rgbaPixels)
+    protected internal override TmTexture CreateTexture(string name, int width, int height, ReadOnlySpan<byte> rgbaPixels)
     {
         var native = new HeadlessTexture(name, width, height, rgbaPixels);
-        return new ImTexture(native, 0);
+        return new TmTexture(native, 0);
     }
 
-    protected internal override ImBuffer<Vertex2D> CreateVertexBuffer(int vertexCount)
+    protected internal override TmBuffer<Vertex2D> CreateVertexBuffer(int vertexCount)
     {
         var buffer = new MemoryBuffer<Vertex2D>(vertexCount);
         return new HeadlessBuffer<Vertex2D>(buffer);
     }
 
-    protected internal override ImBuffer<uint> CreateIndexBuffer(int indexCount)
+    protected internal override TmBuffer<uint> CreateIndexBuffer(int indexCount)
     {
         var buffer = new MemoryBuffer<uint>(indexCount);
         return new HeadlessBuffer<uint>(buffer);

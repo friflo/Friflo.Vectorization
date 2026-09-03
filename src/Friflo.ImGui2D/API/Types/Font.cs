@@ -14,7 +14,7 @@ using StbTrueTypeSharp;
 // ReSharper disable InconsistentNaming
 // ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable once CheckNamespace
-namespace Friflo.ImGui2D;
+namespace Friflo.TmGui;
 
 public enum TextAlignment
 {
@@ -39,9 +39,9 @@ public struct GlyphInfo
     public float    advance;    // Horizontal advance to the next character
 }
 
-public sealed class ImFont : IDisposable
+public sealed class TmFont : IDisposable
 {
-    internal readonly   ImTexture                           texture;
+    internal readonly   TmTexture                           texture;
     public   readonly   Vector2                             textureSize;
     public   readonly   float                               lineHeight;
     public   readonly   FrozenDictionary<char, GlyphInfo>   glyphs;
@@ -51,8 +51,8 @@ public sealed class ImFont : IDisposable
     
     public  override    string                              ToString()  => name;
 
-    private ImFont (
-        in ImTexture                texture,
+    private TmFont (
+        in TmTexture                texture,
         Vector2                     textureSize,
         float                       lineHeight,
         Dictionary<char, GlyphInfo> glyphs,
@@ -131,7 +131,7 @@ public sealed class ImFont : IDisposable
         return float.TryParse(valueSpan, NumberStyles.Float, CultureInfo.InvariantCulture, out float result) ? result : 0f;
     }
 
-    internal static ImFont CreateBMFont(ImGuiBackend backend, ReadOnlySpan<char> fntContent, Stream fontAtlas, string name, bool disposable)
+    internal static TmFont CreateBMFont(TmGuiBackend backend, ReadOnlySpan<char> fntContent, Stream fontAtlas, string name, bool disposable)
     {
         var glyphs = ReadBmFont(fntContent, out float lineHeight);
         
@@ -144,10 +144,10 @@ public sealed class ImFont : IDisposable
 
         var fontTexture = backend.CreateTexture(name, width, height, image.Data);
         
-        var imTexture   = new ImTexture(fontTexture, whitePixelUv);
+        var imTexture   = new TmTexture(fontTexture, whitePixelUv);
         var textureSize = new Vector2(image.Width, image.Height);
         
-        return new ImFont(imTexture, textureSize, lineHeight, glyphs, name, -1, disposable);
+        return new TmFont(imTexture, textureSize, lineHeight, glyphs, name, -1, disposable);
     }
 #endregion
 
@@ -214,8 +214,8 @@ public sealed class ImFont : IDisposable
         return glyphs;
     }
     
-    internal static ImFont CreateTtfFont(
-        ImGuiBackend backend,
+    internal static TmFont CreateTtfFont(
+        TmGuiBackend backend,
         Stream      ttfStream,
         float       fontSize,
         int         width,
@@ -253,10 +253,10 @@ public sealed class ImFont : IDisposable
 
         var fontTexture = backend.CreateTexture(name, width, height, rgba32);
         
-        var imTexture   = new ImTexture(fontTexture, whitePixelUv);
+        var imTexture   = new TmTexture(fontTexture, whitePixelUv);
         var textureSize = new Vector2(width, height);
         
-        return new ImFont(imTexture, textureSize, fontSize, glyphs, name, maxY, disposable);
+        return new TmFont(imTexture, textureSize, fontSize, glyphs, name, maxY, disposable);
     }
 #endregion
     

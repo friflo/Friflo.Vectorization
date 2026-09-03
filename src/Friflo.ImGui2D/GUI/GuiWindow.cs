@@ -16,7 +16,7 @@ using System.Runtime.InteropServices;
 // ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable ConvertIfStatementToReturnStatement
 // ReSharper disable once CheckNamespace
-namespace Friflo.ImGui2D;
+namespace Friflo.TmGui;
 
 
 public enum LayoutDirection
@@ -268,7 +268,7 @@ public sealed class GuiWindow
         host.SetTopWindow(this);
     }
     
-    public bool IsHoverAt(Vector2 pos, Vector2 size, ImDraw draw)
+    public bool IsHoverAt(Vector2 pos, Vector2 size, TmDraw draw)
     {
         var input       = host.input;
         var widgetRect  = new RectVector2(pos, size);
@@ -285,7 +285,7 @@ public sealed class GuiWindow
         return host.IsTopWindowAt(input.MousePos, this);
     }
     
-    public bool IsHoverAtCapture(Vector2 pos, Vector2 size, ImDraw draw)
+    public bool IsHoverAtCapture(Vector2 pos, Vector2 size, TmDraw draw)
     {
         var input = host.input;
         if (input.actionHoverCaptured) {

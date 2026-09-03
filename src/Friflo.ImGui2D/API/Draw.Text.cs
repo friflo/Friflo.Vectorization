@@ -11,15 +11,15 @@ using System.Text;
 // ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable MergeIntoPattern
 // ReSharper disable once CheckNamespace
-namespace Friflo.ImGui2D;
+namespace Friflo.TmGui;
 
 
-public readonly ref partial struct ImDraw
+public readonly ref partial struct TmDraw
 {
     /// <summary>
     /// Draws a text string using a bitmap font atlas.
     /// </summary>
-    public Vector2 DrawText(ReadOnlySpan<char> text, Vector2 position, Color32 color, ImFont? font = null, float scale = 1.0f)
+    public Vector2 DrawText(ReadOnlySpan<char> text, Vector2 position, Color32 color, TmFont? font = null, float scale = 1.0f)
     {
         font ??= batch.currentFont;
 
@@ -57,7 +57,7 @@ public readonly ref partial struct ImDraw
     /// <summary>
     /// Calculates the bounding box size (width and height) of a text string in pixels.
     /// </summary>
-    public Vector2 MeasureText(ReadOnlySpan<char> text, ImFont? font = null, float scale = 1.0f)
+    public Vector2 MeasureText(ReadOnlySpan<char> text, TmFont? font = null, float scale = 1.0f)
     {
         font          ??= batch.currentFont;
         var charWidth   = Tui?.CharWidth ?? 0; 
@@ -95,7 +95,7 @@ public readonly ref partial struct ImDraw
     /// <summary>
     /// Draws text aligned relative to a bounding position or box.
     /// </summary>
-    public void DrawTextAligned(ReadOnlySpan<char> text, Vector2 position, TextAlignment alignment, Color32 color, ImFont? font = null, float scale = 1.0f)
+    public void DrawTextAligned(ReadOnlySpan<char> text, Vector2 position, TextAlignment alignment, Color32 color, TmFont? font = null, float scale = 1.0f)
     {
         if (alignment == TextAlignment.Left)
         {
@@ -125,7 +125,7 @@ public readonly ref partial struct ImDraw
         TextAlignment       horizontalAlignment, 
         VerticalAlignment   verticalAlignment, 
         Color32             color, 
-        ImFont?             font = null, 
+        TmFont?             font = null, 
         bool                wordWrap = false,
         float               scale = 1.0f)
     {
@@ -178,7 +178,7 @@ public readonly ref partial struct ImDraw
     /// Truncates a string to fit within a maximum pixel width and appends '...'.
     /// Allocates a new string.
     /// </summary>
-    public string TruncateWithEllipsis(ReadOnlySpan<char> text, float maxWidth, ImFont? font = null, float scale = 1.0f)
+    public string TruncateWithEllipsis(ReadOnlySpan<char> text, float maxWidth, TmFont? font = null, float scale = 1.0f)
     {
         font ??= batch.currentFont;
         int visibleLength = GetVisibleLengthWithEllipsis(text, maxWidth, font, scale);
@@ -192,7 +192,7 @@ public readonly ref partial struct ImDraw
     /// <summary>
     /// Draws text at position, automatically truncating with '...' if it exceeds maxWidth.
     /// </summary>
-    public void DrawTextTruncated(ReadOnlySpan<char> text, Vector2 position, float maxWidth, Color32 color, ImFont? font = null, float scale = 1.0f)
+    public void DrawTextTruncated(ReadOnlySpan<char> text, Vector2 position, float maxWidth, Color32 color, TmFont? font = null, float scale = 1.0f)
     {
         font ??= batch.currentFont;
         int visibleLength = GetVisibleLengthWithEllipsis(text, maxWidth, font, scale);
@@ -221,7 +221,7 @@ public readonly ref partial struct ImDraw
     /// <summary>
     /// Internal core logic: Determines how many characters fit before '...' must be appended.
     /// </summary>
-    private static int GetVisibleLengthWithEllipsis(ReadOnlySpan<char> text, float maxWidth, ImFont font, float scale = 1.0f)
+    private static int GetVisibleLengthWithEllipsis(ReadOnlySpan<char> text, float maxWidth, TmFont font, float scale = 1.0f)
     {
         if (!font.TryGetGlyph('.', out var dotGlyph))
             return text.Length;
@@ -249,7 +249,7 @@ public readonly ref partial struct ImDraw
     /// <summary>
     /// Wraps text by inserting line breaks ('\n'). Allocates a new string.
     /// </summary>
-    public string WrapText(ReadOnlySpan<char> text, float maxWidth, ImFont? font = null, float scale = 1.0f)
+    public string WrapText(ReadOnlySpan<char> text, float maxWidth, TmFont? font = null, float scale = 1.0f)
     {
         if (text.IsEmpty || maxWidth <= 0f) return string.Empty;
         font ??= batch.currentFont;
@@ -266,7 +266,7 @@ public readonly ref partial struct ImDraw
     /// <summary>
     /// Draws word-wrapped text directly onto the screen.
     /// </summary>
-    public int DrawTextWrapped(ReadOnlySpan<char> text, Vector2 position, float maxWidth, Color32 color, ImFont? font = null, float scale = 1.0f)
+    public int DrawTextWrapped(ReadOnlySpan<char> text, Vector2 position, float maxWidth, Color32 color, TmFont? font = null, float scale = 1.0f)
     {
         if (text.IsEmpty || maxWidth <= 0f) return 0;
         font ??= batch.currentFont;
@@ -286,7 +286,7 @@ public readonly ref partial struct ImDraw
     /// <summary>
     /// Helper method to create the line enumerator.
     /// </summary>
-    private static WrappedLineEnumerator GetWrappedLines(ReadOnlySpan<char> text, float maxWidth, ImFont font, bool isTui, float scale = 1f)
+    private static WrappedLineEnumerator GetWrappedLines(ReadOnlySpan<char> text, float maxWidth, TmFont font, bool isTui, float scale = 1f)
     {
         return new WrappedLineEnumerator(text, maxWidth, font, isTui, scale);
     }

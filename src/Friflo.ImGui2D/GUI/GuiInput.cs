@@ -18,7 +18,7 @@ using System.Numerics;
 // ReSharper disable once CheckNamespace
 // ReSharper disable ConvertSwitchStatementToSwitchExpression
 // ReSharper disable SwitchStatementMissingSomeEnumCasesNoDefault
-namespace Friflo.ImGui2D;
+namespace Friflo.TmGui;
 
 
 public sealed class GuiInput
@@ -97,33 +97,33 @@ public sealed class GuiInput
         CurrentCursor = cursor;
     }
     
-    internal void AddEvent(in ImEvent ev)
+    internal void AddEvent(in TmEvent ev)
     {
         switch (ev.type)
         {
-            case ImEventType.MouseMotion:
-            case ImEventType.MouseButtonDown:
-            case ImEventType.MouseButtonUp:
+            case TmEventType.MouseMotion:
+            case TmEventType.MouseButtonDown:
+            case TmEventType.MouseButtonUp:
                 mousePos = ev.mouse;
                 break;
-            case  ImEventType.MouseWheel:
+            case  TmEventType.MouseWheel:
                 mouseWheelAccu += ev.wheel;
                 break;
         }
         switch (ev.type)
         {
-            case ImEventType.MouseButtonDown:
+            case TmEventType.MouseButtonDown:
                 isMouseDown = true;
                 break;
-            case ImEventType.MouseButtonUp:
+            case TmEventType.MouseButtonUp:
                 isMouseDown = false;
                 break;
-            case ImEventType.KeyDown:
-            case ImEventType.KeyUp:
+            case TmEventType.KeyDown:
+            case TmEventType.KeyUp:
                 keyEvents.Add(ev.key);
                 break;
-            case ImEventType.GamepadButtonDown:
-            case ImEventType.GamepadButtonUp:
+            case TmEventType.GamepadButtonDown:
+            case TmEventType.GamepadButtonUp:
                 gamepadEvents.Add(ev.gamepad);
                 break;
         }
@@ -348,21 +348,21 @@ public sealed class GuiInput
         {
             if (gamepadEvent.isDown) {
                 switch (gamepadEvent.button) {
-                    case ImGamepadButton.DPadRight: gamepadDirection.X = +1;    continue;
-                    case ImGamepadButton.DPadLeft:  gamepadDirection.X = -1;    continue;
-                    case ImGamepadButton.DPadDown:  gamepadDirection.Y = +1;    continue;
-                    case ImGamepadButton.DPadUp:    gamepadDirection.Y = -1;    continue;
-                    case ImGamepadButton.South:     isGamepadAFired = true;
+                    case TmGamepadButton.DPadRight: gamepadDirection.X = +1;    continue;
+                    case TmGamepadButton.DPadLeft:  gamepadDirection.X = -1;    continue;
+                    case TmGamepadButton.DPadDown:  gamepadDirection.Y = +1;    continue;
+                    case TmGamepadButton.DPadUp:    gamepadDirection.Y = -1;    continue;
+                    case TmGamepadButton.South:     isGamepadAFired = true;
                                                     isGamepadADown = true;      continue;
                 }
                 continue;
             }
             switch (gamepadEvent.button) {
-                case ImGamepadButton.DPadRight: gamepadDirection.X = 0;     continue;
-                case ImGamepadButton.DPadLeft:  gamepadDirection.X = 0;     continue;
-                case ImGamepadButton.DPadUp:    gamepadDirection.Y = 0;     continue;
-                case ImGamepadButton.DPadDown:  gamepadDirection.Y = 0;     continue;
-                case ImGamepadButton.South:     isGamepadADown = false;     continue;
+                case TmGamepadButton.DPadRight: gamepadDirection.X = 0;     continue;
+                case TmGamepadButton.DPadLeft:  gamepadDirection.X = 0;     continue;
+                case TmGamepadButton.DPadUp:    gamepadDirection.Y = 0;     continue;
+                case TmGamepadButton.DPadDown:  gamepadDirection.Y = 0;     continue;
+                case TmGamepadButton.South:     isGamepadADown = false;     continue;
             }
         }
         gamepadEvents.Clear();

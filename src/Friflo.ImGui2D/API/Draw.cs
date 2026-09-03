@@ -4,13 +4,13 @@
 
 using System.Numerics;
 using System.Runtime.InteropServices;
-using Friflo.ImGui2D.TUI;
+using Friflo.TmGui.TUI;
 
 
 // ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable InconsistentNaming
 // ReSharper disable once CheckNamespace
-namespace Friflo.ImGui2D;
+namespace Friflo.TmGui;
 
 
 public enum BlendState
@@ -39,14 +39,14 @@ internal struct ZIndex
 } 
 
 
-public readonly ref partial struct ImDraw
+public readonly ref partial struct TmDraw
 {
-    internal readonly   ImBatch     batch;  //  8 bytes
+    internal readonly   TmBatch     batch;  //  8 bytes
 
-    public              ImFont      Font        => batch.currentFont;
+    public              TmFont      Font        => batch.currentFont;
     public              TuiBatch?   Tui         => batch.tui;
     
-    internal ImDraw(ImBatch batch)
+    internal TmDraw(TmBatch batch)
     {
         this.batch  = batch;
     }

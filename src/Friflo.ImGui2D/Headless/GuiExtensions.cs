@@ -3,17 +3,17 @@
 
 
 // ReSharper disable CheckNamespace
-namespace Friflo.ImGui2D.Headless;
+namespace Friflo.TmGui.Headless;
 
 public static class HeadlessExtensions
 {
-    public static ImTexture AsImTexture(this HeadlessTexture texture)
+    public static TmTexture AsImTexture(this HeadlessTexture texture)
     {
-        return new ImTexture(texture, 0);
+        return new TmTexture(texture, 0);
     }
     
-    public static HeadlessTexture AsGpuTexture(in this ImTexture imTexture)
+    public static HeadlessTexture AsGpuTexture(in this TmTexture tmTexture)
     {
-        return (HeadlessTexture)imTexture.native!;
+        return (HeadlessTexture)tmTexture.native!;
     }
 }

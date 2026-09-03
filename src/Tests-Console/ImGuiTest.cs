@@ -1,8 +1,8 @@
 ﻿using System.Diagnostics;
 using System.Numerics;
-using Friflo.ImGui2D;
+using Friflo.TmGui;
 using Friflo.WGPU;
-using Friflo.WGPU.ImGui2D;
+using Friflo.WGPU.TmGui;
 
 // ReSharper disable ArrangeObjectCreationWhenTypeNotEvident
 // ReSharper disable SuggestVarOrType_BuiltInTypes
@@ -12,16 +12,16 @@ using Friflo.WGPU.ImGui2D;
 // ReSharper disable ConvertToPrimaryConstructor
 namespace TestConsole;
 
-public class ImGuiRenderer : IRenderer
+public class TmGuiRenderer : IRenderer
 {
     private readonly    WgpuBatch               batch;
     private readonly    GpuTexture              myTexture;
-    private readonly    ImTexture               myTextureView;
+    private readonly    TmTexture               myTextureView;
     private readonly    GpuRenderPassDescriptor renderPassDescriptor    = new () { colorAttachments = [ default ] };
     private readonly    PerfLog                 perfLog                 = new();
     private             bool                    mouseCircle;
     private             bool                    monocraft;
-    private readonly    ImFont                  monocraftFont;
+    private readonly    TmFont                  monocraftFont;
     private             bool                    enabled2;
     private             float                   volume;
     
@@ -53,7 +53,7 @@ public class ImGuiRenderer : IRenderer
         batch.Dispose();
     }
     
-    public ImGuiRenderer(WgpuHost wgpuHost)
+    public TmGuiRenderer(WgpuHost wgpuHost)
     {
         var device      = wgpuHost.Device;
         var guiBackend  = wgpuHost.CreateGuiBackend();

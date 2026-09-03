@@ -7,7 +7,7 @@ using System.Numerics;
 
 // ReSharper disable InconsistentNaming
 // ReSharper disable once CheckNamespace
-namespace Friflo.ImGui2D;
+namespace Friflo.TmGui;
 
 public static class HorizontalAlignment  // move const values to UI class
 {
@@ -24,11 +24,11 @@ public readonly ref struct Gui
     
     public ref readonly GuiColors   Colors      { [DebuggerStepThrough] get => ref widget.Colors; }
     public ref readonly GuiSizes    Sizes       { [DebuggerStepThrough] get => ref widget.Sizes; }
-    public              ImDraw      Draw        => widget.draw;
+    public              TmDraw      Draw        => widget.draw;
     public              float       LineHeight  => widget.draw.Font.lineHeight;
     public              GuiInput    Input       => widget.input;
     
-    internal Gui(ImDraw draw, ImBatch batch) {
+    internal Gui(TmDraw draw, TmBatch batch) {
         widget = new GuiWidget(draw, batch);
     }
     

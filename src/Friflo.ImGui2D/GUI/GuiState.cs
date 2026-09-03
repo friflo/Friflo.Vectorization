@@ -4,10 +4,10 @@
 
 using System.Collections.Generic;
 using System.Numerics;
-using Friflo.ImGui2D.TUI;
+using Friflo.TmGui.TUI;
 
 // ReSharper disable once CheckNamespace
-namespace Friflo.ImGui2D;
+namespace Friflo.TmGui;
 
 
 internal struct RevertStyle
@@ -33,7 +33,7 @@ internal sealed class GuiState
 
     public   override   string                  ToString()          => $"window: {window}";
     
-    internal void SetDefaultStyle(ImBatch batch)
+    internal void SetDefaultStyle(TmBatch batch)
     {
         defaultStyle.colors = CreateDefaultColors();
         if (batch is TuiBatch tuiBatch) {

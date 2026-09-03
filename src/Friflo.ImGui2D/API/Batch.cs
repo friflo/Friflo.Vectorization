@@ -7,23 +7,23 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Numerics;
 using System.Text;
-using Friflo.ImGui2D.TUI;
+using Friflo.TmGui.TUI;
 
 // ReSharper disable InconsistentNaming
 // ReSharper disable PrivateFieldCanBeConvertedToLocalVariable
 // ReSharper disable once CheckNamespace
-namespace Friflo.ImGui2D;
+namespace Friflo.TmGui;
 
 /// <summary>
-/// Provides <see cref="ImDraw"/> for low-level geometry drawing and <see cref="Gui"/> for high-level widgets and interaction.<br/>
+/// Provides <see cref="TmDraw"/> for low-level geometry drawing and <see cref="Gui"/> for high-level widgets and interaction.<br/>
 /// Stores vertex/index buffers and sorts draw commands for backend rendering.
 /// </summary>
 /// <remarks>
 /// <para>
 /// <b>Lifecycle &amp; Architecture:</b><br/>
-/// The frame lifecycle - <see cref="ImGuiBackend.NewFrame"/> and <see cref="ImGuiBackend.AddEvent"/> - is owned by the <see cref="ImGuiBackend"/>, 
-/// which can manage one or multiple <see cref="ImBatch"/> instances.<br/>
-/// <see cref="ImDraw"/> and <see cref="Gui"/> operate directly on <see cref="ImBatch"/> with zero memory allocations.
+/// The frame lifecycle - <see cref="TmGuiBackend.NewFrame"/> and <see cref="TmGuiBackend.AddEvent"/> - is owned by the <see cref="TmGuiBackend"/>, 
+/// which can manage one or multiple <see cref="TmBatch"/> instances.<br/>
+/// <see cref="TmDraw"/> and <see cref="Gui"/> operate directly on <see cref="TmBatch"/> with zero memory allocations.
 /// </para>
 /// <br/>
 /// <b>Core Architecture &amp; Data Flow</b>
@@ -35,26 +35,26 @@ namespace Friflo.ImGui2D;
 ///     │ (Mouse, Keys)   │ (Scopes, Pushes)│ (Button, Slider..) │ (Colors, Paddings) │
 ///     └─────────────────┴────────┬────────┴────────────────────┴────────────────────┘
 ///                                │
-///                                ▼ (one-way access: Gui uses ImDraw)
+///                                ▼ (one-way access: Gui uses TmDraw)
 ///     ┌─────────────────────────────────────────────────────────────────────────────┐
-///     │                                ImDraw                                       │
+///     │                                TmDraw                                       │
 ///     ├───────────────────────────────────┬─────────────────────────────────────────┤
-///     │          ImDraw - Draw            │             ImDraw - States             │
+///     │          TmDraw - Draw            │             TmDraw - States             │
 ///     │ (Fill, Stroke, Sprite, Quad, Text)│ (Push/Pop Scissor, Transform, ZIndex)   │
 ///     └───────────────────────────────────┴─────────────────────────────────────────┘
 /// </code>
 /// </remarks>
-public abstract class ImBatch : IDisposable
+public abstract class TmBatch : IDisposable
 {
 #region public
-//  internal readonly   ImGuiBackend        backend;    - intentionally no back reference to its backend. Prevents calling NewFrame() within a Gui scope.
+//  internal readonly   TmGuiBackend        backend;    - intentionally no back reference to its backend. Prevents calling NewFrame() within a Gui scope.
     public ReadOnlySpan<DrawCommand>        DrawList    => new(drawList, 0, drawCommands.Count);
     public ReadOnlySpan<Vertex2D>           Vertices    => vertexBuffer.Span.Slice(0, vertexCount);
 #endregion
 
 #region protected
-    protected readonly  ImBuffer<Vertex2D>  gpuVertexBuffer;
-    protected readonly  ImBuffer<uint>      gpuIndexBuffer;
+    protected readonly  TmBuffer<Vertex2D>  gpuVertexBuffer;
+    protected readonly  TmBuffer<uint>      gpuIndexBuffer;
     protected internal  Vector2             viewport;
 #endregion
 
@@ -74,10 +74,10 @@ public abstract class ImBatch : IDisposable
     // --- resources owned by DrawModule
     internal readonly   GuiHost             host;
     internal readonly   GuiInput            input;
-    internal readonly   ImFont              backendDefaultFont;
+    internal readonly   TmFont              backendDefaultFont;
     internal readonly   TuiBatch?           tui;
-    internal            ImFont              currentFont;
-    internal            ImTexture           currentFontTexture;
+    internal            TmFont              currentFont;
+    internal            TmTexture           currentFontTexture;
     
     // --- ImDraw - state
     internal            IFormatProvider     formatProvider;
@@ -92,10 +92,10 @@ public abstract class ImBatch : IDisposable
     internal            Matrix4x4           projection;
     private             int                 vertexStart;                // start of next Draw()
     internal            int                 vertexCount;
-    internal            ImTexture           currentTexture;
+    internal            TmTexture           currentTexture;
 
     
-    protected ImBatch(ImGuiBackend backend, int maxVertices)
+    protected TmBatch(TmGuiBackend backend, int maxVertices)
     {
         formatProvider  = CultureInfo.InvariantCulture;
         host            = backend.host;
@@ -146,7 +146,7 @@ public abstract class ImBatch : IDisposable
         gpuIndexBuffer.Dispose();
     }
     
-    public void SetFont(ImFont font) {
+    public void SetFont(TmFont font) {
         currentFont         = font;
         currentFontTexture  = font.texture;
     }
@@ -161,7 +161,7 @@ public abstract class ImBatch : IDisposable
         return new Gui(draw, this);
     }
     
-    public ImDraw BeginDraw(int width, int height)
+    public TmDraw BeginDraw(int width, int height)
     {
         // reset batcher state
         /* if (defaultFontTexture.IsDisposed) {    // TODO IM_TEX
@@ -186,7 +186,7 @@ public abstract class ImBatch : IDisposable
         zIndexStack.Clear();
         samplerFilterStack.Clear();
         
-        var draw = new ImDraw(this);
+        var draw = new TmDraw(this);
         draw.SetViewport(width, height);
         return draw;
     }

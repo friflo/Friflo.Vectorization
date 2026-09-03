@@ -11,9 +11,9 @@ using System.Runtime.InteropServices;
 // ReSharper disable InconsistentNaming
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable once CheckNamespace
-namespace Friflo.ImGui2D.TUI;
+namespace Friflo.TmGui.TUI;
 
-public sealed class TuiBatch : ImBatch
+public sealed class TuiBatch : TmBatch
 {
     private             float                   yScale;
     private             float                   xScale;

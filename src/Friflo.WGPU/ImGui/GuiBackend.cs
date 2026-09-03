@@ -4,7 +4,7 @@
 using System;
 using System.IO;
 using Friflo.GPU;
-using Friflo.ImGui2D;
+using Friflo.TmGui;
 using StbImageSharp;
 
 
@@ -12,9 +12,9 @@ using StbImageSharp;
 // ReSharper disable InconsistentNaming
 // ReSharper disable UnusedMember.Global
 // ReSharper disable once CheckNamespace
-namespace Friflo.WGPU.ImGui2D;
+namespace Friflo.WGPU.TmGui;
 
-public sealed class WgpuGuiBackend : ImGuiBackend
+public sealed class WgpuGuiBackend : TmGuiBackend
 {
     private  readonly   GpuDevice       device;
     internal readonly   GpuSampler      samplerLinear;
@@ -38,7 +38,7 @@ public sealed class WgpuGuiBackend : ImGuiBackend
         return batch;
     }
     
-    protected override ImTexture CreateTexture(string name, int width, int height, ReadOnlySpan<byte> rgbaPixels)
+    protected override TmTexture CreateTexture(string name, int width, int height, ReadOnlySpan<byte> rgbaPixels)
     {
         var texture = device.CreateTexture(new GpuTextureDescriptor {
             label   = name,
@@ -49,21 +49,21 @@ public sealed class WgpuGuiBackend : ImGuiBackend
         texture.Write(rgbaPixels, bytesPerRow: width * 4, rowsPerImage: height);
 
         var view = texture.CreateView();
-        return new ImTexture(texture, view.Handle);
+        return new TmTexture(texture, view.Handle);
     }
 
-    protected override ImBuffer<Vertex2D> CreateVertexBuffer(int vertexCount)
+    protected override TmBuffer<Vertex2D> CreateVertexBuffer(int vertexCount)
     {
         var vertices = new Memory<Vertex2D>(new Vertex2D[vertexCount]);
-        var buffer   = device.CreateBuffer(vertices, "ImBatch Vertices", BufferProfile.StaticIn, BufferType.Vertex);
-        return new ImWgpuBuffer<Vertex2D>(buffer);
+        var buffer   = device.CreateBuffer(vertices, "TmBatch Vertices", BufferProfile.StaticIn, BufferType.Vertex);
+        return new TmWgpuBuffer<Vertex2D>(buffer);
     }
 
-    protected override ImBuffer<uint> CreateIndexBuffer(int indexCount)
+    protected override TmBuffer<uint> CreateIndexBuffer(int indexCount)
     {
         var indices = new Memory<uint>(new uint[indexCount]);
-        var buffer  = device.CreateBuffer(indices, "ImBatch Indices", BufferProfile.StaticIn, BufferType.Index);
-        return new ImWgpuBuffer<uint>(buffer);
+        var buffer  = device.CreateBuffer(indices, "TmBatch Indices", BufferProfile.StaticIn, BufferType.Index);
+        return new TmWgpuBuffer<uint>(buffer);
     }
     
     public GpuTexture LoadTexture(Stream stream, string label = null, TextureUsage usage = TextureUsage.TextureBinding | TextureUsage.CopyDst)

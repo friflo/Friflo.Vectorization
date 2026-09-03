@@ -11,12 +11,12 @@ using System.Text;
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable ConvertIfStatementToReturnStatement
 // ReSharper disable once CheckNamespace
-namespace Friflo.ImGui2D;
+namespace Friflo.TmGui;
 
 
 public readonly ref partial struct GuiWidget
 {
-    public  readonly    ImDraw          draw;           //  8 bytes
+    public  readonly    TmDraw          draw;           //  8 bytes
     public  readonly    GuiInput        input;          //  8 bytes
     private readonly    GuiState        guiState;       //  8 bytes
     private readonly    GuiStyle        currentStyle;   //  8 bytes
@@ -72,7 +72,7 @@ public readonly ref partial struct GuiWidget
         return new StyleScope(this);
     }
     
-    internal GuiWidget(ImDraw draw, ImBatch batch) {
+    internal GuiWidget(TmDraw draw, TmBatch batch) {
         this.draw       = draw;
         input           = batch.input;
         guiState        = batch.guiState;

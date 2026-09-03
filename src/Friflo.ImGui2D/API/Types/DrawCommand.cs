@@ -8,7 +8,7 @@ using System.Numerics;
 
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable once CheckNamespace
-namespace Friflo.ImGui2D;
+namespace Friflo.TmGui;
 
 public readonly struct MemoryView
 {
@@ -26,7 +26,7 @@ public readonly struct MemoryView
 public readonly struct DrawCommand(
     ulong           zIndex,
     int             sequence,
-    in ImTexture    texture,
+    in TmTexture    texture,
     MemoryView      vertexView,
     MemoryView      indexView,
     BlendState      blendState,
@@ -36,7 +36,7 @@ public readonly struct DrawCommand(
 {
     public readonly ulong           zIndex          = zIndex;           //  8 bytes
     public readonly int             sequence        = sequence;         //  4 bytes
-    public readonly ImTexture       texture         = texture;          // 32 bytes
+    public readonly TmTexture       texture         = texture;          // 32 bytes
     public readonly MemoryView      vertexView      = vertexView;       //  8 bytes
     public readonly MemoryView      indexView       = indexView;        //  8 bytes
     public readonly BlendState      blendState      = blendState;       //  4 bytes
