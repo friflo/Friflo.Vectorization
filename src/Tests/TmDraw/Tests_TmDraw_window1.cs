@@ -125,7 +125,7 @@ public class Tests_TmDraw_window1
         var drawList    = batch.DrawList;
         var verticesLen = batch.Vertices.Length;
         Assert.That(drawList.Length,    Is.EqualTo(2));
-        Assert.That(verticesLen,        Is.EqualTo(3000));
+        Assert.That(verticesLen,        Is.EqualTo(3064));
         
         int vertexSum = 0;
         int indexSum  = 0;

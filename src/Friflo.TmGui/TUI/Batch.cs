@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Numerics;
 using System.Runtime.InteropServices;
 
+// ReSharper disable InlineTemporaryVariable
 // ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable ConvertToAutoPropertyWithPrivateSetter
 // ReSharper disable InconsistentNaming
@@ -106,19 +107,12 @@ public sealed class TuiBatch : TmBatch
     }
 #endregion
 
-
-    public void DrawRectCommandsColor(int targetWidth, int targetHeight)
+#region DrawCommands
+    private void DrawCommands(int targetWidth, bool drawColor, Span<TuiColorCell> cells, Span<char> chars)
     {
-        EndTuiBatch();
-        
         var commands    = rectCommands;
         var rects       = tuiRects;
         var texts       = CollectionsMarshal.AsSpan(textBuffer);
-        backend.PrepareBuffersColor(targetWidth, targetHeight);
-        
-        var cells         = backend.ColorCells;
-        var clear         = new TuiColorCell { character = '.' };
-        cells.Fill(clear);
         
         foreach (var segment in commandSegments)
         {
@@ -152,7 +146,6 @@ public sealed class TuiBatch : TmBatch
                     // Text rendering branch with two-sided horizontal clipping
                     if (rect.text.len != 0)
                     {
-                        var cell = new TuiColorCell { color = rect.color, background = rect.background };
                         var text = texts.Slice(rect.text.start, rect.text.len);
 
                         // Offset for left-side clipping
@@ -165,29 +158,55 @@ public sealed class TuiBatch : TmBatch
 
                         if (count > 0 && startY == rectT)
                         {
-                            var row = cells.Slice(targetWidth * startY + startX, count);
-                            for (int n = 0; n < count; n++) {
-                                cell.character = text[offsetX + n];
-                                row[n] = cell;
+                            if (drawColor) {
+                                var cell    = new TuiColorCell { color = rect.color, background = rect.background };
+                                var row     = cells.Slice(targetWidth * startY + startX, count);
+                                for (int n = 0; n < count; n++) {
+                                    cell.character = text[offsetX + n];
+                                    row[n] = cell;
+                                }
+                            } else {
+                                var srcSpan = text.Slice(offsetX, count);
+                                var dstSpan = chars.Slice(targetWidth * startY + startX, count);
+                                srcSpan.CopyTo(dstSpan);
                             }
                         }
                         continue;
                     } 
+                    // Fill clipped background area row by row
+                    if (drawColor) {
+                        var width = endX - startX;
+                        var fill  = new TuiColorCell { character = ' ', color = rect.color, background = rect.background };
 
-                    // Fill clipped background area row by row via SIMD Span.Fill
-                    var width = endX - startX;
-                    var fill  = new TuiColorCell { character = ' ', color = rect.color, background = rect.background };
-
-                    for (int y = startY; y < endY; y++) {
-                        cells.Slice(targetWidth * y + startX, width).Fill(fill);
+                        for (int y = startY; y < endY; y++) {
+                            cells.Slice(targetWidth * y + startX, width).Fill(fill);
+                        }
+                    } else
+                    {
+                        var width = endX - startX;
+                        for (int y = startY; y < endY; y++) {
+                            chars.Slice(targetWidth * y + startX, width).Fill(' ');
+                        }
                     }
                 }
             }
         }
+    }
+
+    public void DrawRectCommandsColor(int targetWidth, int targetHeight)
+    {
+        EndTuiBatch();
+        backend.PrepareBuffersColor(targetWidth, targetHeight);
+        
+        var cells         = backend.ColorCells;
+        var clear         = new TuiColorCell { character = '.' };
+        cells.Fill(clear);
+        
+        DrawCommands(targetWidth, true, cells, default);
         
         // fill StridedFrameBuffer
-        var buffer = backend.FrameBufferColor;
-        int stride = targetWidth + 1;
+        var buffer  = backend.FrameBufferColor;
+        int stride  = targetWidth + 1;
 
         for (int line = 0; line < targetHeight; line++) {
             var srcRow = cells.Slice(line * targetWidth, targetWidth);
@@ -202,87 +221,26 @@ public sealed class TuiBatch : TmBatch
     public void DrawRectCommandsChar(int targetWidth, int targetHeight)
     {
         EndTuiBatch();
-        
-        var commands    = rectCommands;
-        var rects       = tuiRects;
-        var texts       = CollectionsMarshal.AsSpan(textBuffer);
         backend.PrepareBuffersChar(targetWidth, targetHeight);
         
-        var cells       = backend.CharCells;
-        cells.Fill('.');
+        var chars = backend.CharCells;
+        chars.Fill('.');
         
-        foreach (var segment in commandSegments)
-        {
-            var lastCmd = segment.index + segment.length;
-            for (int cmdIndex = segment.index; cmdIndex < lastCmd; cmdIndex++)
-            {
-                var cmd       = commands[cmdIndex];
-                var scissorL  = (int)(cmd.scissorTL.X * xScale);
-                var scissorT  = (int)(cmd.scissorTL.Y * yScale);
-                var scissorR  = (int)(cmd.scissorBR.X * xScale);
-                var scissorB  = (int)(cmd.scissorBR.Y * yScale);
-                
-                var lastRect    = cmd.rectView.offset + cmd.rectView.length;
-                for (int index  = cmd.rectView.offset; index < lastRect; index++)
-                {
-                    var rect    = rects[index];
-                    var rectL   = (int)(rect.TL.X * xScale);
-                    var rectT   = (int)(rect.TL.Y * yScale);
-                    var rectR   = (int)(rect.BR.X * xScale);
-                    var rectB   = (int)(rect.BR.Y * yScale);
-
-                    // Fast AABB intersection clipping against scissor bounds
-                    int startX = Math.Max(rectL, scissorL);
-                    int startY = Math.Max(rectT, scissorT);
-                    int endX   = Math.Min(rectR, scissorR);
-                    int endY   = Math.Min(rectB, scissorB);
-
-                    // Early exit for fully clipped rectangles
-                    if (startX >= endX || startY >= endY) continue;
-
-                    // Text rendering branch with two-sided horizontal clipping
-                    if (rect.text.len != 0)
-                    {
-                        var text = texts.Slice(rect.text.start, rect.text.len);
-
-                        // Offset for left-side clipping
-                        int offsetX = startX - rectL;
-
-                        // Clamp character count strictly against right scissor bound (endX)
-                        int maxVisibleWidth = endX - startX;
-                        int availableText   = text.Length - offsetX;
-                        int count           = Math.Min(availableText, maxVisibleWidth);
-
-                        if (count > 0 && startY == rectT)
-                        {
-                            var srcSpan = text.Slice(offsetX, count);
-                            var dstSpan = cells.Slice(targetWidth * startY + startX, count);
-                            srcSpan.CopyTo(dstSpan);
-                        }
-                        continue;
-                    } 
-
-                    var width = endX - startX;
-
-                    for (int y = startY; y < endY; y++) {
-                        cells.Slice(targetWidth * y + startX, width).Fill(' ');
-                    }
-                }
-            }
-        }
+        DrawCommands(targetWidth, false, default, chars);
         
         // Fill StridedFrameBuffer via ultra-fast SIMD Row Copy
         var buffer = backend.FrameBuffer;
         int stride = targetWidth + 1;
 
         for (int line = 0; line < targetHeight; line++) {
-            var srcRow = cells.Slice(line * targetWidth, targetWidth);
+            var srcRow = chars.Slice(line * targetWidth, targetWidth);
             var dstRow = buffer.Slice(line * stride, targetWidth);
 
             srcRow.CopyTo(dstRow);
             buffer[line * stride + targetWidth] = '\n';
         }
     }
+#endregion
 
 
 #region Draw / Widget methods
