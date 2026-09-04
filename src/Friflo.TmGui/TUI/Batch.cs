@@ -194,13 +194,12 @@ public sealed class TuiBatch : TmBatch
     }
 
     /// <summary> Result in <see cref="TuiBackend.ColorCells"/> </summary>
-    public void DrawRectCommandsColor(int targetWidth, int targetHeight)
+    public void DrawRectCommandsColor(int targetWidth, int targetHeight, TuiColorCell clear)
     {
         EndTuiBatch();
         backend.PrepareBuffersColor(targetWidth, targetHeight);
         
-        var cells         = backend.ColorCells;
-        var clear         = new TuiColorCell { character = '.' };
+        var cells       = backend.ColorCells;
         cells.Fill(clear);
         
         DrawRectCommands(targetWidth, true, cells, default);
@@ -208,13 +207,13 @@ public sealed class TuiBatch : TmBatch
     
     
     /// <summary> Result in <see cref="TuiBackend.FrameBuffer"/> </summary>
-    public void DrawRectCommandsChar(int targetWidth, int targetHeight)
+    public void DrawRectCommandsChar(int targetWidth, int targetHeight, char clear)
     {
         EndTuiBatch();
         backend.PrepareBuffersChar(targetWidth, targetHeight);
         
         var chars = backend.CharCells;
-        chars.Fill('.');
+        chars.Fill(clear);
         
         DrawRectCommands(targetWidth, false, default, chars);
         

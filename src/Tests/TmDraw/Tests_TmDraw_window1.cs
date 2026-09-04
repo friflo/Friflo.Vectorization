@@ -45,7 +45,7 @@ public class Tests_TmDraw_window1
             using (gui.BeginWindow("Window 1", new(200, 200), new(600, 950))) {
                 Window1(gui); 
             }
-            batch.DrawRectCommandsChar(50, 30);
+            batch.DrawRectCommandsChar(50, 30, '.');
             if (n == 0) start = Mem.GetAllocatedBytes();
         }
         Mem.AssertNoAlloc(start);
@@ -77,7 +77,7 @@ public class Tests_TmDraw_window1
             using (gui.BeginWindow("Window 1", new(200, 200), new(600, 950))) {
                 Window1(gui); 
             }
-            batch.DrawRectCommandsColor(50, 30);
+            batch.DrawRectCommandsColor(50, 30, new TuiColorCell { character = '.' });
             if (n == 0) start = Mem.GetAllocatedBytes();
         }
         Mem.AssertNoAlloc(start);

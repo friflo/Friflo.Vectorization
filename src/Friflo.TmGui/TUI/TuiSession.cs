@@ -39,7 +39,7 @@ public class TuiSession
         backend.NewFrame();
         var gui = batch.BeginGui(1280, 1000);
         
-        using (gui.BeginWindow("Window 1", new Vector2(50, 50), new Vector2(600, 950))) {
+        using (gui.BeginWindow("Window 1", new Vector2(50, 50), new Vector2(800, 950))) {
             screen.Window1(gui);
         }
         sendBufferCount = 0;
@@ -47,7 +47,7 @@ public class TuiSession
         // clear screen
         AppendSpan(ClearScreen);
         
-        AppendFrameBuffer(50, 25);
+        AppendFrameBuffer(40, 25);
         
         return sendBuffer.AsMemory(0, sendBufferCount);
     }
@@ -59,7 +59,7 @@ public class TuiSession
         
         // ------ Monochrome
         if (colorMode == TuiColorMode.Monochrome) {
-            batch.DrawRectCommandsChar (width, height);
+            batch.DrawRectCommandsChar (width, height, ' ');
             var chars  = backend.FrameBuffer;
             for (int i = 0; i < chars.Length; i++) {
                 buffer[start + i] = (byte)chars[i];
@@ -73,7 +73,7 @@ public class TuiSession
         var color       = new Color32();
         var background  = new Color32();
         
-        batch.DrawRectCommandsColor(width, height);
+        batch.DrawRectCommandsColor(width, height, new TuiColorCell { character = ' '});
         var cells = backend.ColorCells;
 
         for (int y = 0; y < height; y++)
@@ -94,7 +94,7 @@ public class TuiSession
                     AppendByte((byte)'m');
                 }
                 // Check & emit Background Color (48;2;R;G;B)
-                if (cell.background != background) {
+                if (cell.background != background && cell.background.A != 0) {
                     background = cell.background;
                     AppendSpan("\x1b[48;2;"u8);
                     AppendNumber(background.R);
