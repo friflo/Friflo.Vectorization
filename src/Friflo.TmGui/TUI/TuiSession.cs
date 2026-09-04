@@ -60,6 +60,13 @@ public class TuiSession
 
     public Memory<byte> ProcessInput(ReadOnlySpan<byte> input)
     {
+        if (input.Length == 1)
+        {
+            if (input[0] == 0x09) { // Tab Key
+                var key = new KeyEvent { code = KeyCode.Tab, isDown = true };
+                backend.AddEvent(new TmEvent(TmEventType.KeyDown, key));
+            }
+        }
         if (input.Length >= 3 && input[0] == 0x1B && input[1] == 0x5B)
         {
             switch (input[2])
@@ -80,11 +87,8 @@ public class TuiSession
                     backend.AddEvent(new TmEvent(TmEventType.KeyDown, new KeyEvent { code = KeyCode.Left,   isDown = true }));
                     break;
                 }
-                default:
-                    return default;
             }
-            return IterateTui();
         }
-        return default;
+        return IterateTui();
     }
 }
