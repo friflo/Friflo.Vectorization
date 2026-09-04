@@ -257,14 +257,17 @@ public sealed class TuiBatch : TmBatch
         tuiRects.Add(new TuiRect(textSpan, position, size, color, background));
     }
     
-    public void Checkbox(bool value, ReadOnlySpan<char> text, Vector2 position, Vector2 size, Color32 color, Color32 background)
+    public void Checkbox(bool value, ReadOnlySpan<char> text, Vector2 position, Vector2 size, Color32 color, Color32 boxColor, Color32 background)
     {
         var textStart   = textBuffer.Count;
-        var boxText     = value ? "[x] " : "[ ] ";
+        var boxText     = value ? "[x]" : "[ ]";
         textBuffer.AddRange(boxText.AsSpan());
+        var boxSpan     = new TextSpan { start = textStart, len = 3 };
+        tuiRects.Add(new TuiRect(boxSpan, position, new Vector2(3 * charWidth, lineHeight), color, boxColor));
+        
         textBuffer.AddRange(text);
-        var textSpan    = new TextSpan { start = textStart, len = textBuffer.Count - textStart };
-        tuiRects.Add(new TuiRect(textSpan, position, size, color, background));
+        var textSpan    = new TextSpan { start = textStart + 3, len = textBuffer.Count - textStart - 3 };
+        tuiRects.Add(new TuiRect(textSpan, position + new Vector2(4 * charWidth, 0), size, color, background));
     }
 
     public void Slider(ReadOnlySpan<char> name, ref float value, float min, float max, float width, Vector2 position, Vector2 size)

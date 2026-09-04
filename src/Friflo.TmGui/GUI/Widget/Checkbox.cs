@@ -35,7 +35,7 @@ public readonly ref partial struct GuiWidget
             value = !value;
         }
         if (tui != null) {
-            tui.Checkbox(value, name, pos, totalSize, Colors.TextColor, Colors.ButtonState(widgetState));
+            tui.Checkbox(value, name, pos, totalSize, Colors.TextColor, Colors.ButtonState(widgetState), Colors.WindowColor);
         } else {
             draw.FillRectRounded  (pos, boxRectSize, Sizes.CornerRadius, Colors.ButtonState(widgetState), GuiSizes.CornerSegments); // background
             draw.StrokeRectRounded(pos, boxRectSize, Sizes.CornerRadius, 2, Colors.ButtonBorder, GuiSizes.CornerSegments);
