@@ -107,8 +107,8 @@ public sealed class TuiBatch : TmBatch
     }
 #endregion
 
-#region DrawCommands
-    private void DrawCommands(int targetWidth, bool drawColor, Span<TuiColorCell> cells, Span<char> chars)
+#region DrawRectCommands
+    private void DrawRectCommands(int targetWidth, bool drawColor, Span<TuiColorCell> cells, Span<char> chars)
     {
         var commands    = rectCommands;
         var rects       = tuiRects;
@@ -201,7 +201,7 @@ public sealed class TuiBatch : TmBatch
         var clear         = new TuiColorCell { character = '.' };
         cells.Fill(clear);
         
-        DrawCommands(targetWidth, true, cells, default);
+        DrawRectCommands(targetWidth, true, cells, default);
         
         // fill StridedFrameBuffer
         var buffer  = backend.FrameBufferColor;
@@ -225,7 +225,7 @@ public sealed class TuiBatch : TmBatch
         var chars = backend.CharCells;
         chars.Fill('.');
         
-        DrawCommands(targetWidth, false, default, chars);
+        DrawRectCommands(targetWidth, false, default, chars);
         
         // Fill StridedFrameBuffer via ultra-fast SIMD Row Copy
         var buffer = backend.FrameBuffer;
