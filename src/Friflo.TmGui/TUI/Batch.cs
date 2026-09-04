@@ -193,6 +193,7 @@ public sealed class TuiBatch : TmBatch
         }
     }
 
+    /// <summary> Result in <see cref="TuiBackend.ColorCells"/> </summary>
     public void DrawRectCommandsColor(int targetWidth, int targetHeight)
     {
         EndTuiBatch();
@@ -203,22 +204,10 @@ public sealed class TuiBatch : TmBatch
         cells.Fill(clear);
         
         DrawRectCommands(targetWidth, true, cells, default);
-        
-        // fill StridedFrameBuffer
-        var buffer  = backend.FrameBufferColor;
-        int stride  = targetWidth + 2;
-
-        for (int line = 0; line < targetHeight; line++) {
-            var srcRow = cells.Slice(line * targetWidth, targetWidth);
-            var dstRow = buffer.Slice(line * stride, targetWidth);
-
-            srcRow.CopyTo(dstRow);
-            buffer[line * stride + targetWidth]     = new TuiColorCell { character = '\r' };
-            buffer[line * stride + targetWidth + 1] = new TuiColorCell { character = '\n' };
-        }
     }
     
     
+    /// <summary> Result in <see cref="TuiBackend.FrameBuffer"/> </summary>
     public void DrawRectCommandsChar(int targetWidth, int targetHeight)
     {
         EndTuiBatch();

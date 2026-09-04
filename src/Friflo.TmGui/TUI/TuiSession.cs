@@ -3,6 +3,7 @@
 
 using System;
 using System.Numerics;
+// ReSharper disable InconsistentNaming
 
 
 // ReSharper disable ConvertToPrimaryConstructor
@@ -10,13 +11,20 @@ using System.Numerics;
 namespace Friflo.TmGui.TUI;
 
 
+public enum TuiColorMode
+{
+    Monochrome,
+    RGB24
+}
+
 public class TuiSession
 {
-    private readonly    TuiBackend  backend;
-    private readonly    TuiBatch    batch;
-    private readonly    TestScreen  screen = new();
-    private readonly    byte[]      sendBuffer = new byte[10000];
-    private             int         sendBufferCount;
+    private readonly    TuiBackend      backend;
+    private readonly    TuiBatch        batch;
+    private readonly    TestScreen      screen          = new();
+    private readonly    byte[]          sendBuffer      = new byte[10000];
+    private             int             sendBufferCount;
+    private             TuiColorMode    colorMode       = TuiColorMode.Monochrome;
     
     private static readonly byte[] ClearScreen = "\x1b[2J\x1b[H"u8.ToArray();
     
@@ -40,22 +48,40 @@ public class TuiSession
         using (gui.BeginWindow("Window 1", new Vector2(200, 200), new Vector2(600, 950))) {
             screen.Window1(gui);
         }
-        batch.DrawRectCommandsChar(50, 25);
-        
         sendBufferCount = 0;
         
         // clear screen
         AppendSend(ClearScreen);
         
-        // append TUI screen
-        var buffer  = backend.FrameBuffer;
-        var start   = sendBufferCount;
-        for (int i = 0; i < buffer.Length; i++) {
-            sendBuffer[start + i] = (byte)buffer[i];
-        }
-        sendBufferCount += buffer.Length;
+        AppendFrameBuffer(50, 25);
         
         return sendBuffer.AsMemory(0, sendBufferCount);
+    }
+    
+    private void AppendFrameBuffer(int width, int height)
+    {
+        var start   = sendBufferCount;
+        
+        if (colorMode == TuiColorMode.Monochrome) {
+            batch.DrawRectCommandsChar (width, height);
+            var chars  = backend.FrameBuffer;
+            for (int i = 0; i < chars.Length; i++) {
+                sendBuffer[start + i] = (byte)chars[i];
+            }
+            sendBufferCount += chars.Length;
+            return;
+        }
+        // case:  RGB24
+        batch.DrawRectCommandsColor(width, height);
+        var cells = backend.ColorCells;
+        for (int y = 0; y < height; y++)
+        {
+            for (int x = 0; x < width; x++)
+            {
+                var cell = cells[y * width + x];
+                
+            }
+        }
     }
 
     public Memory<byte> ProcessInput(ReadOnlySpan<byte> input)

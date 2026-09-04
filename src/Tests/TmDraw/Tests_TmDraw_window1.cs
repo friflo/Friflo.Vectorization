@@ -59,7 +59,7 @@ public class Tests_TmDraw_window1
     }
     
 
-    /// Result in <see cref="TuiBackend.FrameBufferColor"/>
+    /// Result in <see cref="TuiBackend.ColorCells"/>
     [Test]
     public void Tests_TmDraw_window1_TUI_color()
     {
@@ -67,7 +67,7 @@ public class Tests_TmDraw_window1
         var batch   = backend.CreateBatch();
 
         long        start   = 0;
-        const int   repeat  = 10; // 2_000_000 - 3.8 sec
+        const int   repeat  = 10; // 2_000_000 - 3.5 sec
         
         for (int n = 0; n < repeat; n++)
         {
@@ -81,19 +81,31 @@ public class Tests_TmDraw_window1
             if (n == 0) start = Mem.GetAllocatedBytes();
         }
         Mem.AssertNoAlloc(start);
+        Assert.That(backend.ColorCells.Length, Is.EqualTo(1500));
         
-        var buffer = backend.FrameBufferColor;
-        Assert.That(buffer.Length, Is.EqualTo(1560));
+        var screen = CellsToString(backend.ColorCells, 50, 30);
         
-        var chars = new char[buffer.Length];
-        for (int i = 0; i < buffer.Length; i++) {
-            chars[i] = buffer[i].character;
-        }
-        var screen  = new string(chars);
         var dir     = Path.GetDirectoryName(GetCurrentFilePath())!;
         var tuiFile = $"{dir}/{TestContext.CurrentContext.Test.Name}.txt";
         
         File.WriteAllText(tuiFile, screen, Utf8WithoutBom);
+    }
+    
+    private static string CellsToString(ReadOnlySpan<TuiColorCell> cells, int targetWidth, int targetHeight)
+    {
+        int stride      = targetWidth + 2;
+        int charCount   = stride * targetHeight;
+        var buffer      = new char[charCount].AsSpan();
+
+        for (int line = 0; line < targetHeight; line++) {
+            var start = line * stride;
+            for (int col = 0; col < targetWidth; col++) {
+                buffer[start + col] = cells[line * targetWidth + col].character;
+            }
+            buffer[start + targetWidth]     = '\r';
+            buffer[start + targetWidth + 1] = '\n';
+        }
+        return new string(buffer);
     }
     
     private static readonly UTF8Encoding Utf8WithoutBom = new UTF8Encoding(encoderShouldEmitUTF8Identifier: false);
