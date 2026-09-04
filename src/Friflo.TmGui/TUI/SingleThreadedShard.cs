@@ -1,5 +1,4 @@
-﻿namespace Friflo.TmGui.TUI;
-
+﻿
 using System;
 using System.Collections.Generic;
 using System.Net.Sockets;
@@ -7,7 +6,7 @@ using System.Threading;
 using System.Threading.Channels;
 using System.Threading.Tasks;
 
-
+namespace Friflo.TmGui.TUI;
 
 public enum ClientEventType : byte { Connected, Disconnected, Input }
 
@@ -20,8 +19,8 @@ public readonly struct ClientEvent
 
 public struct PlayerState
 {
-    public int      SelectedIndex;
-    public byte[]   RenderBuffer;
+    public  int         SelectedIndex;
+    public  byte[]      RenderBuffer;
 }
 
 public sealed class SingleThreadedShardEngine
@@ -32,6 +31,8 @@ public sealed class SingleThreadedShardEngine
 
     // Raw non-thread-safe state (accessed exclusively by _shardThread)
     private readonly Dictionary<Socket, PlayerState> _shardState = new();
+    private readonly Dictionary<Socket, TuiSession>  tuiSessions = new();
+    
     private static readonly string[] MenuItems = ["Start Application", "Settings", "Exit"];
 
     public void Start()
@@ -53,12 +54,43 @@ public sealed class SingleThreadedShardEngine
         {
             while (reader.TryRead(out ClientEvent evt))
             {
-                ProcessEvent(evt);
+                _ = ProcessEvent(evt);
             }
         }
     }
+    
 
-    private void ProcessEvent(in ClientEvent evt)
+
+    private async ValueTask ProcessEvent(ClientEvent evt)
+    {
+        switch (evt.Type)
+        {
+            case ClientEventType.Connected: {
+                var newSession = new TuiSession();
+                var socket = evt.Socket;
+                tuiSessions[socket] = newSession;
+                
+                var sendBuffer = newSession.IterateTui();
+                
+                _ = await socket.SendAsync(sendBuffer, SocketFlags.None, CancellationToken.None);
+                break;
+            }
+            case ClientEventType.Disconnected:
+                tuiSessions.Remove(evt.Socket);
+                break;
+
+            case ClientEventType.Input:
+                if (tuiSessions.TryGetValue(evt.Socket, out TuiSession session))
+                {
+                    ReadOnlySpan<byte> input = evt.Payload.Span;
+                    var sendBuffer = session.ProcessInput(input);
+                    _ = await evt.Socket.SendAsync(sendBuffer, SocketFlags.None, CancellationToken.None);
+                }
+                break;
+        }
+    }
+    
+    private void ProcessEventOld(in ClientEvent evt)
     {
         switch (evt.Type)
         {

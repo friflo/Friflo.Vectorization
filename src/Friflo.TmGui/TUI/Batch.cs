@@ -206,14 +206,15 @@ public sealed class TuiBatch : TmBatch
         
         // fill StridedFrameBuffer
         var buffer  = backend.FrameBufferColor;
-        int stride  = targetWidth + 1;
+        int stride  = targetWidth + 2;
 
         for (int line = 0; line < targetHeight; line++) {
             var srcRow = cells.Slice(line * targetWidth, targetWidth);
             var dstRow = buffer.Slice(line * stride, targetWidth);
 
             srcRow.CopyTo(dstRow);
-            buffer[line * stride + targetWidth] = new TuiColorCell { character = '\n' };
+            buffer[line * stride + targetWidth]     = new TuiColorCell { character = '\r' };
+            buffer[line * stride + targetWidth + 1] = new TuiColorCell { character = '\n' };
         }
     }
     
@@ -230,14 +231,15 @@ public sealed class TuiBatch : TmBatch
         
         // Fill StridedFrameBuffer via ultra-fast SIMD Row Copy
         var buffer = backend.FrameBuffer;
-        int stride = targetWidth + 1;
+        int stride = targetWidth + 2;
 
         for (int line = 0; line < targetHeight; line++) {
             var srcRow = chars.Slice(line * targetWidth, targetWidth);
             var dstRow = buffer.Slice(line * stride, targetWidth);
 
             srcRow.CopyTo(dstRow);
-            buffer[line * stride + targetWidth] = '\n';
+            buffer[line * stride + targetWidth]     = '\r';
+            buffer[line * stride + targetWidth + 1] = '\n';
         }
     }
 #endregion

@@ -50,7 +50,7 @@ public class Tests_TmDraw_window1
         }
         Mem.AssertNoAlloc(start);
         
-        Assert.That(backend.FrameBuffer.Length, Is.EqualTo(1530));
+        Assert.That(backend.FrameBuffer.Length, Is.EqualTo(1560));
         var screen  = new string(backend.FrameBuffer);
         var dir     = Path.GetDirectoryName(GetCurrentFilePath())!;
         var tuiFile = $"{dir}/{TestContext.CurrentContext.Test.Name}.txt";
@@ -83,7 +83,7 @@ public class Tests_TmDraw_window1
         Mem.AssertNoAlloc(start);
         
         var buffer = backend.FrameBufferColor;
-        Assert.That(buffer.Length, Is.EqualTo(1530));
+        Assert.That(buffer.Length, Is.EqualTo(1560));
         
         var chars = new char[buffer.Length];
         for (int i = 0; i < buffer.Length; i++) {

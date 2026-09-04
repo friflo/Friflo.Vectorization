@@ -21,8 +21,8 @@ public sealed class TuiBackend : TmGuiBackend
     internal    Span<TuiColorCell>  ColorCells          => colorCells.      AsSpan().Slice(0,  targetWidth      * targetHeight);
     internal    Span<char>          CharCells           => charCells.       AsSpan().Slice(0,  targetWidth      * targetHeight);
     
-    public      Span<TuiColorCell>  FrameBufferColor    => frameBufferColor.AsSpan().Slice(0, (targetWidth + 1) * targetHeight);
-    public      Span<char>          FrameBuffer         => frameBuffer.     AsSpan().Slice(0, (targetWidth + 1) * targetHeight);
+    public      Span<TuiColorCell>  FrameBufferColor    => frameBufferColor.AsSpan().Slice(0, (targetWidth + 2) * targetHeight);
+    public      Span<char>          FrameBuffer         => frameBuffer.     AsSpan().Slice(0, (targetWidth + 2) * targetHeight);
         
     
     internal void PrepareBuffersColor(int width, int height)
@@ -34,7 +34,7 @@ public sealed class TuiBackend : TmGuiBackend
         if (cellCount > colorCells.Length) {
             colorCells = new TuiColorCell[cellCount];
         }
-        int charCount = (width + 1) * height;
+        int charCount = (width + 2) * height;
         if (charCount > frameBufferColor.Length) {
             frameBufferColor  = new TuiColorCell[charCount];
         }
@@ -49,7 +49,7 @@ public sealed class TuiBackend : TmGuiBackend
         if (cellCount > charCells.Length) {
             charCells = new char[cellCount];
         }
-        int charCount = (width + 1) * height;
+        int charCount = (width + 2) * height;
         if (charCount > frameBuffer.Length) {
             frameBuffer  = new char[charCount];
         }
