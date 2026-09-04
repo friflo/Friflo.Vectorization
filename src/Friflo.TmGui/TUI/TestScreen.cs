@@ -11,7 +11,7 @@ public class TestScreen
     
     public void Window1(Gui gui)
     {
-        gui.Label("hello GUI");
+        gui.Button("hello GUI", Dim.Fill_X(0, Fit.Content));
         gui.Spacer();
         using (gui.PushStyle(greenButtonStyle)) {
             if (gui.Button("hello"))                            Console.WriteLine("Clicked: hello");
