@@ -66,8 +66,9 @@ public readonly ref partial struct GuiWidget
             tui.FillRect(window.Pos, window.Size, Colors.WindowColor);
             tui.DrawText(title, textPos, Colors.TextColor, headerColor);
         } else {
-            draw.FillRectRounded(window.Pos, window.Size, Sizes.CornerRadius, Colors.WindowColor, GuiSizes.CornerSegments);
-            draw.FillRectRounded(window.Pos, titleBarSize, Sizes.CornerRadius, headerColor, GuiSizes.CornerSegments);
+            draw.FillRectRounded(window.Pos,   window.Size,  Sizes.CornerRadius, Colors.WindowColor,     GuiSizes.CornerSegments);
+            draw.FillRectRounded(window.Pos,   titleBarSize, Sizes.CornerRadius, headerColor,            GuiSizes.CornerSegments);
+            draw.StrokeRectRounded(window.Pos, window.Size,  Sizes.CornerRadius, 2, Colors.WindowBorder, GuiSizes.CornerSegments);
             draw.DrawText(title, textPos, Colors.TextColor);
         }
         // --- Push content scissor rect (clips everything below titlebar) ---

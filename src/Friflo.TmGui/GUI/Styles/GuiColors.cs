@@ -50,6 +50,9 @@ public struct GuiColors
     public Color32  ScrollThumbHover    => 0xaaaaaaff;
     
     public Color32  ScrollAreaColor     => 0xffffffff;
+    
+    public Color32  WindowBorder        => 0xd0d0d0ff;
+    
      
     
     public  readonly            Bitset64<ColorId>   Overrides                   => overrides;
