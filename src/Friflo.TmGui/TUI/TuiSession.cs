@@ -69,27 +69,66 @@ public class TuiSession
         }
         
         // ------ RGB24
-        // color / background are only send if changed 
+        // color / background are only sent if changed 
         var color       = new Color32();
         var background  = new Color32();
+        
         batch.DrawRectCommandsColor(width, height);
         var cells = backend.ColorCells;
+
         for (int y = 0; y < height; y++)
         {
             for (int x = 0; x < width; x++)
             {
                 var cell = cells[y * width + x];
-                var c = cell.character; // char
-                var r = cell.color.R;   // byte
-                var g = cell.color.G;
-                var b = cell.color.B;
-                var backgroundR = cell.background.R;
-                var backgroundG = cell.background.G;
-                var backgroundB = cell.background.B;
-                // todo implement filling buffer with color background and character
-                AppendByte((byte)c);
+
+                // Check & emit Foreground Color (38;2;R;G;B)
+                if (cell.color != color) {
+                    color = cell.color;
+                    AppendSpan("\x1b[38;2;"u8);
+                    AppendNumber(color.R);
+                    AppendByte((byte)';');
+                    AppendNumber(color.G);
+                    AppendByte((byte)';');
+                    AppendNumber(color.B);
+                    AppendByte((byte)'m');
+                }
+                // Check & emit Background Color (48;2;R;G;B)
+                if (cell.background != background) {
+                    background = cell.background;
+                    AppendSpan("\x1b[48;2;"u8);
+                    AppendNumber(background.R);
+                    AppendByte((byte)';');
+                    AppendNumber(background.G);
+                    AppendByte((byte)';');
+                    AppendNumber(background.B);
+                    AppendByte((byte)'m');
+                }
+                // Append Character
+                AppendByte((byte)cell.character);
             }
-            AppendSpan("\r\n"u8);
+
+            // Send EraseInLine + CRLF at the end of each row
+            AppendSpan("\x1b[K\r\n"u8);
+        }
+    }
+
+    // Allocation-free byte-to-ASCII integer formatting directly into sendBuffer
+    private void AppendNumber(byte value)
+    {
+        if (value >= 100) {
+            int d1 = value / 100;
+            int rem = value % 100;
+            sendBuffer[sendBufferCount++] = (byte)('0' + d1);
+            sendBuffer[sendBufferCount++] = (byte)('0' + (rem / 10));
+            sendBuffer[sendBufferCount++] = (byte)('0' + (rem % 10));
+        }
+        else if (value >= 10) {
+            sendBuffer[sendBufferCount++] = (byte)('0' + (value / 10));
+            sendBuffer[sendBufferCount++] = (byte)('0' + (value % 10));
+        }
+        else {
+            sendBuffer[sendBufferCount++] = (byte)('0' + value);
         }
     }
     
