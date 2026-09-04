@@ -432,8 +432,9 @@ public sealed class GuiInput
             int dir = IsShiftDown ? -1 : 1;
             if (totalFocusablesLastFrame > 0)
             {
-                int start = currentFocusIndex < 0 ? 0 : currentFocusIndex;
-                targetFocusIndex = (start + dir + totalFocusablesLastFrame) % totalFocusablesLastFrame;
+                int start           = currentFocusIndex < 0 ? 0 : currentFocusIndex;
+                targetFocusIndex    = (start + dir + totalFocusablesLastFrame) % totalFocusablesLastFrame;
+                focusedItem         = 0;    // clear focus to prevent outdated drawing in TUI
             }
         }
         // 2D Navigation (Arrow keys)
@@ -443,6 +444,9 @@ public sealed class GuiInput
             if (dir != Vector2.Zero && focusedItem != 0)
             {
                 targetFocusItem = FindBestSpatialCandidate(dir);
+                if (targetFocusItem != 0) {
+                    focusedItem = 0;        // clear focus to prevent outdated drawing in TUI
+                }
             }
         }
     }
