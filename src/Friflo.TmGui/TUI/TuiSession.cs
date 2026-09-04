@@ -39,7 +39,7 @@ public class TuiSession
         backend.NewFrame();
         var gui = batch.BeginGui(1280, 1000);
         
-        using (gui.BeginWindow("Window 1", new Vector2(200, 200), new Vector2(600, 950))) {
+        using (gui.BeginWindow("Window 1", new Vector2(50, 50), new Vector2(600, 950))) {
             screen.Window1(gui);
         }
         sendBufferCount = 0;
@@ -147,9 +147,21 @@ public class TuiSession
     {
         if (input.Length == 1)
         {
-            if (input[0] == 0x09) { // Tab Key
-                var key = new KeyEvent { code = KeyCode.Tab, isDown = true };
-                backend.AddEvent(new TmEvent(TmEventType.KeyDown, key));
+            switch (input[0])
+            {
+                case 0x09: {    // Tab
+                    var key = new KeyEvent { code = KeyCode.Tab, isDown = true };
+                    backend.AddEvent(new TmEvent(TmEventType.KeyDown, key));
+                    break;
+                }
+                case 0x0D: {    // Enter
+                    backend.AddEvent(new TmEvent(TmEventType.KeyDown, new KeyEvent { code = KeyCode.Return, isDown = true }));
+                    break;
+                }
+                case 0x20: {    // Space
+                    backend.AddEvent(new TmEvent(TmEventType.KeyDown, new KeyEvent { code = KeyCode.Space,  isDown = true }));
+                    break;
+                }
             }
         }
         if (input.Length >= 3 && input[0] == 0x1B && input[1] == 0x5B)
