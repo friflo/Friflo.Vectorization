@@ -247,8 +247,7 @@ public sealed class TuiBatch : TmBatch
     public Vector2 DrawText(ReadOnlySpan<char> text, Vector2 position, Color32 color, Color32 background)
     {
         var textSpan    = new TextSpan { start = textBuffer.Count, len = text.Length };
-        var br          = position + new Vector2(textSpan.len * charWidth, lineHeight);
-        tuiRects.Add(new TuiRect(textSpan, position, br, color, background));
+        tuiRects.Add(new TuiRect(textSpan, position, new Vector2(textSpan.len * charWidth, lineHeight), color, background));
         textBuffer.AddRange(text);
         return new Vector2(lineHeight * text.Length, lineHeight);
     }
@@ -265,7 +264,7 @@ public sealed class TuiBatch : TmBatch
         textBuffer.AddRange(text);
         textBuffer.Add(']');
         var textSpan    = new TextSpan { start = textStart, len = textBuffer.Count - textStart };
-        tuiRects.Add(new TuiRect(textSpan, position, position + size, color, background));
+        tuiRects.Add(new TuiRect(textSpan, position, size, color, background));
     }
     
     public void Checkbox(bool value, ReadOnlySpan<char> text, Vector2 position, Vector2 size, Color32 color, Color32 background)
@@ -275,7 +274,7 @@ public sealed class TuiBatch : TmBatch
         textBuffer.AddRange(boxText.AsSpan());
         textBuffer.AddRange(text);
         var textSpan    = new TextSpan { start = textStart, len = textBuffer.Count - textStart };
-        tuiRects.Add(new TuiRect(textSpan, position, position + size, color, background));
+        tuiRects.Add(new TuiRect(textSpan, position, size, color, background));
     }
 
     public void Slider(ReadOnlySpan<char> name, ref float value, float min, float max, float width, Vector2 position, Vector2 size)
@@ -293,15 +292,12 @@ public sealed class TuiBatch : TmBatch
         var textStart   = textBuffer.Count;
         textBuffer.Add('>');
         textBuffer.Add('<');
-        var charSize = new Vector2(charWidth, lineHeight);
-        
+        var charSize    = new Vector2(charWidth, lineHeight);
         var markLeft    = new TextSpan { start = textStart,     len = 1 };
-        var tlLeft      = pos - new Vector2(charWidth, 0);
-        tuiRects.Add(new TuiRect(markLeft,  tlLeft,  tlLeft + charSize, color, default));
-        
         var markRight   = new TextSpan { start = textStart + 1, len = 1 };
-        var tlRight     = pos + new Vector2(size.X, 0);
-        tuiRects.Add(new TuiRect(markRight, tlRight, tlRight + charSize, color, default));
+        
+        tuiRects.Add(new TuiRect(markLeft,  pos - new Vector2(charWidth, 0),  charSize, color, default));
+        tuiRects.Add(new TuiRect(markRight, pos + new Vector2(size.X, 0),     charSize, color, default));
     }
 #endregion
 }
