@@ -25,7 +25,7 @@ public readonly ref partial struct GuiWidget
         var pos         = window.Cursor;
         var textSize    = draw.MeasureText(name);
 
-        var boxRectSize = tui != null ? new Vector2(4 * tui.CharWidth, LineHeight) : new Vector2(boxSize, boxSize);  // '[x] ' / quadratic box
+        var boxRectSize = tui != null ? new Vector2(3 * tui.CharWidth, LineHeight) : new Vector2(boxSize, boxSize);  // '[x] ' / quadratic box
         var totalSize   = boxRectSize + new Vector2(padding.Size.X + textSize.X, 0);
         var isHover     = window.IsHoverAtCapture(pos, totalSize, draw);
         bool isFocused  = RegisterFocusable(widgetId, pos, totalSize);
