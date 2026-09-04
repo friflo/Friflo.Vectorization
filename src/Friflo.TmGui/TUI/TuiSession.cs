@@ -24,7 +24,7 @@ public class TuiSession
     private readonly    TestScreen      screen          = new();
     private readonly    byte[]          sendBuffer      = new byte[10000];
     private             int             sendBufferCount;
-    private             TuiColorMode    colorMode       = TuiColorMode.Monochrome;
+    private             TuiColorMode    colorMode       = TuiColorMode.RGB24;
     
     private static readonly byte[] ClearScreen = "\x1b[2J\x1b[H"u8.ToArray();
     
@@ -32,12 +32,6 @@ public class TuiSession
     {
         backend = new TuiBackend();
         batch   = backend.CreateBatch();
-    }
-    
-    private void AppendSend(ReadOnlySpan<byte> buffer)
-    {
-        buffer.CopyTo(sendBuffer.AsSpan(sendBufferCount, buffer.Length));
-        sendBufferCount += buffer.Length;
     }
     
     public Memory<byte> IterateTui()
@@ -51,7 +45,7 @@ public class TuiSession
         sendBufferCount = 0;
         
         // clear screen
-        AppendSend(ClearScreen);
+        AppendSpan(ClearScreen);
         
         AppendFrameBuffer(50, 25);
         
@@ -61,17 +55,23 @@ public class TuiSession
     private void AppendFrameBuffer(int width, int height)
     {
         var start   = sendBufferCount;
+        var buffer  = sendBuffer;
         
+        // ------ Monochrome
         if (colorMode == TuiColorMode.Monochrome) {
             batch.DrawRectCommandsChar (width, height);
             var chars  = backend.FrameBuffer;
             for (int i = 0; i < chars.Length; i++) {
-                sendBuffer[start + i] = (byte)chars[i];
+                buffer[start + i] = (byte)chars[i];
             }
             sendBufferCount += chars.Length;
             return;
         }
-        // case:  RGB24
+        
+        // ------ RGB24
+        // color / background are only send if changed 
+        var color       = new Color32();
+        var background  = new Color32();
         batch.DrawRectCommandsColor(width, height);
         var cells = backend.ColorCells;
         for (int y = 0; y < height; y++)
@@ -79,9 +79,29 @@ public class TuiSession
             for (int x = 0; x < width; x++)
             {
                 var cell = cells[y * width + x];
-                
+                var c = cell.character; // char
+                var r = cell.color.R;   // byte
+                var g = cell.color.G;
+                var b = cell.color.B;
+                var backgroundR = cell.background.R;
+                var backgroundG = cell.background.G;
+                var backgroundB = cell.background.B;
+                // todo implement filling buffer with color background and character
+                AppendByte((byte)c);
             }
+            AppendSpan("\r\n"u8);
         }
+    }
+    
+    private void AppendByte(byte value)
+    {
+        sendBuffer[sendBufferCount++] = value; 
+    }
+    
+    private void AppendSpan(ReadOnlySpan<byte> buffer)
+    {
+        buffer.CopyTo(sendBuffer.AsSpan(sendBufferCount, buffer.Length));
+        sendBufferCount += buffer.Length;
     }
 
     public Memory<byte> ProcessInput(ReadOnlySpan<byte> input)
