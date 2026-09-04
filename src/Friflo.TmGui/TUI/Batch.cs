@@ -181,8 +181,7 @@ public sealed class TuiBatch : TmBatch
                         for (int y = startY; y < endY; y++) {
                             cells.Slice(targetWidth * y + startX, width).Fill(fill);
                         }
-                    } else
-                    {
+                    } else {
                         var width = endX - startX;
                         for (int y = startY; y < endY; y++) {
                             chars.Slice(targetWidth * y + startX, width).Fill(' ');
