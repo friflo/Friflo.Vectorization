@@ -23,7 +23,7 @@ public readonly ref partial struct GuiWidget
             host.windows.Add(title, guiState.window);
             host.windowOrder.Add(guiState.window);
         }
-        var window      = Window;
+        var window = Window;
         
         // Hit test whole window
         bool isWindowHovered = !input.IsDragActive && window.IsHoverAt(window.Pos, window.Size, draw);
@@ -85,12 +85,14 @@ public readonly ref partial struct GuiWidget
     
     internal void EndWindow(in WindowScope scope)
     {
-        var scrollSize = Window.CurrentLayout.maxSize + Sizes.WindowPadding.Size;
+        var window      = Window;
+        window.state    = WindowState.Visible;
+        var scrollSize  = window.CurrentLayout.maxSize + Sizes.WindowPadding.Size;
         
         PopScrollArea(scope.windowId, scope.startCursor, scope.outerSize, scrollSize, Colors.WindowColor);
         
         draw.PopScissor();
         draw.PopZIndex();
-        Window.ClearScope();
+        window.ClearScope();
     }
 }

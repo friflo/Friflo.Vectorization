@@ -106,12 +106,19 @@ internal struct FocusableEntry {
     internal    Vector2 size;
 }
 
+internal enum WindowState
+{
+    Visible,
+    Created,
+}
+
 
 public sealed class GuiWindow
 {
     private  readonly       string          title;
     private  readonly       GuiHost         host;
     
+    internal                WindowState     state;
     internal                RectVector2     bounds;
     internal                Vector2         Pos                 { [DebuggerHidden] get => bounds.pos; }
     internal                Vector2         Size                { [DebuggerHidden] get => bounds.size; }
@@ -139,6 +146,7 @@ public sealed class GuiWindow
     internal GuiWindow(GuiHost host, string title) {
         this.host   = host;
         this.title  = title;
+        state       = WindowState.Created;
     }
     
     internal void NewFrame()

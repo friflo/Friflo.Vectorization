@@ -74,4 +74,7 @@ public readonly ref struct Gui
     public ScrollAreaScope  BeginScrollArea(int childId, Dim size)  => widget.BeginScrollArea(childId, size);
     public void             EndScrollArea(in ScrollAreaScope scope) => widget.EndScrollArea(scope);
     
+    
+    public void             SetNextDefaultFocus() => widget.SetNextDefaultFocus();
+    
 }

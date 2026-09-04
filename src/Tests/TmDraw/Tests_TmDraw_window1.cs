@@ -39,6 +39,7 @@ public class Tests_TmDraw_window1
         
         for (int n = 0; n < repeat; n++)
         {
+            backend.NewFrame();
             var gui = batch.BeginGui(1280, 1000);
             
             using (gui.BeginWindow("Window 1", new(200, 200), new(600, 950))) {
@@ -70,6 +71,7 @@ public class Tests_TmDraw_window1
         
         for (int n = 0; n < repeat; n++)
         {
+            backend.NewFrame();
             var gui = batch.BeginGui(1280, 1000);
             
             using (gui.BeginWindow("Window 1", new(200, 200), new(600, 950))) {
@@ -174,6 +176,7 @@ public class Tests_TmDraw_window1
         gui.Spacer();
         
         gui.BeginHorizontal();
+            gui.SetNextDefaultFocus();
             if (gui.Button("First"))                            Console.WriteLine("Clicked: First");
             gui.Spacer(10);
             if (gui.Button("Second"))                           Console.WriteLine("Clicked: Second");

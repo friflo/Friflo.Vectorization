@@ -90,6 +90,7 @@ public sealed class GuiInput
     private             int                     currentFocusIndex   = -1;
     private             int                     targetFocusIndex    = -1;
     internal            bool                    JustNavigated       { get; private set; }
+    internal            bool                    setNextFocus;
 #endregion
     
 
@@ -211,8 +212,14 @@ public sealed class GuiInput
     {
         int myIndex = focusableCounter++;
         window.currentFocusables.Add(new FocusableEntry { id = widgetId, pos = pos + mouseOffset, size = size });
-        // gainedFocus = false;
-
+        // gainedFocus = false
+        if (setNextFocus) {
+            focusedItem         = widgetId;
+            currentFocusIndex   = myIndex;
+            targetFocusIndex    = -1;
+            setNextFocus        = false;
+            JustNavigated       = true;
+        }
         // Handle 1D Tab focus
         if (myIndex == targetFocusIndex)
         {

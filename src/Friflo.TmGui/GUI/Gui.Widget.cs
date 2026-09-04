@@ -60,6 +60,13 @@ public readonly ref partial struct GuiWidget
         return WidgetState.None;
     }
     
+    public void SetNextDefaultFocus()
+    {
+        if (Window.state == WindowState.Created) {
+            input.setNextFocus = true;
+        }
+    }
+    
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool IsFired(WidgetState widgetState, bool isFocused) {
         return widgetState == WidgetState.Clicked || (isFocused && input.IsSubmitFired);
@@ -105,9 +112,15 @@ public readonly ref partial struct GuiWidget
 
     public void DrawFocus(Vector2 pos, Vector2 size)
     {
+        var tui = draw.Tui;
+
         var margin = new Vector2(6, 6);
         draw.PushZIndexLocal(draw.ZIndexLocal + 1);
-        draw.StrokeRectRounded(pos - margin, size + 2 * margin, Sizes.FocusRadius, 4, Colors.FocusColor);
+        if (tui != null) {
+            tui.DrawFocus(pos, size, Colors.FocusColor);
+        } else {
+            draw.StrokeRectRounded(pos - margin, size + 2 * margin, Sizes.FocusRadius, 4, Colors.FocusColor);
+        }
         draw.PopZIndex();
     }
     

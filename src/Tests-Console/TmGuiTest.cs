@@ -120,6 +120,7 @@ public class TmGuiRenderer : IRenderer
         gui.Spacer();
         
         gui.BeginHorizontal();
+            gui.SetNextDefaultFocus();
             if (gui.Button("First"))                            Console.WriteLine("Clicked: First");
             if (gui.Button("Second"))                           Console.WriteLine("Clicked: Second");
             if (gui.Button("Red", style: redButtonStyle))       Console.WriteLine("Clicked: Red");

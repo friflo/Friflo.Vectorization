@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Numerics;
 using System.Runtime.InteropServices;
 
+// ReSharper disable UseWithExpressionToCopyStruct
 // ReSharper disable InlineTemporaryVariable
 // ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable ConvertToAutoPropertyWithPrivateSetter
@@ -285,6 +286,22 @@ public sealed class TuiBatch : TmBatch
     public void DrawScrollbar(Vector2 position, Vector2 size, Color32 background)
     {
         tuiRects.Add(new TuiRect(position, size, background));
+    }
+    
+    internal void DrawFocus(Vector2 pos, Vector2 size, Color32 color)
+    {
+        var textStart   = textBuffer.Count;
+        textBuffer.Add('>');
+        textBuffer.Add('<');
+        var charSize = new Vector2(charWidth, lineHeight);
+        
+        var markLeft    = new TextSpan { start = textStart,     len = 1 };
+        var tlLeft      = pos - new Vector2(charWidth, 0);
+        tuiRects.Add(new TuiRect(markLeft,  tlLeft,  tlLeft + charSize, color, default));
+        
+        var markRight   = new TextSpan { start = textStart + 1, len = 1 };
+        var tlRight     = pos + new Vector2(size.X, 0);
+        tuiRects.Add(new TuiRect(markRight, tlRight, tlRight + charSize, color, default));
     }
 #endregion
 }
