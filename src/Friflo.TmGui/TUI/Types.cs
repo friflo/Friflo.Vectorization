@@ -38,16 +38,16 @@ internal struct TuiRect
     
     public override string      ToString()       => $"[{TL.X}, {TL.Y} | {BR.X}, {BR.Y}]";
     
-    internal TuiRect(Vector2 tl, Vector2 size, Color32 background) {
-        this.TL             = tl;
-        this.BR             = tl + size;
+    internal TuiRect(Vector2 pos, Vector2 size, Color32 background) {
+        this.TL             = pos;
+        this.BR             = pos + size;
         this.background     = background;
     }
         
-    internal TuiRect(TextSpan text, Vector2 tl, Vector2 size, Color32 color, Color32 background) {
+    internal TuiRect(TextSpan text, Vector2 pos, Vector2 size, Color32 color, Color32 background) {
         this.text           = text;
-        this.TL             = tl;
-        this.BR             = tl + size;
+        this.TL             = pos;
+        this.BR             = pos + size;
         this.color          = color;
         this.background     = background;
     }
