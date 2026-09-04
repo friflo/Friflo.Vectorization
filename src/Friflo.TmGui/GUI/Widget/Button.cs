@@ -39,7 +39,7 @@ public readonly ref partial struct GuiWidget
             draw.DrawTextInRect(name, pos + Sizes.FramePadding.Min, textSize, TextAlignment.Center, VerticalAlignment.Middle, Colors.ButtonText);
         }
         if (isFocused) {
-            DrawFocus(pos, finalSize);
+            DrawFocus(pos, finalSize, Colors.ButtonState(widgetState));
             window.EnsureVisibleInScrollArea(pos, finalSize);
         }
         

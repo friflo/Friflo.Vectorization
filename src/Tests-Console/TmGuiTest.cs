@@ -244,7 +244,7 @@ public static class GuiExtensions
             draw.DrawTextInRect(name, pos + widget.Sizes.FramePadding.Min, textSize, TextAlignment.Center, VerticalAlignment.Middle, widget.Colors.ButtonText);
         }
         if (isFocused) {
-            widget.DrawFocus(pos, size);
+            widget.DrawFocus(pos, size, widget.Colors.ButtonState(widgetState));
             window.EnsureVisibleInScrollArea(pos, size);
         }
         

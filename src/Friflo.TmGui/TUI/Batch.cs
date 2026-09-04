@@ -250,9 +250,9 @@ public sealed class TuiBatch : TmBatch
     public void Button(ReadOnlySpan<char> text, Vector2 position, Vector2 size, Color32 color, Color32 background)
     {
         var textStart = textBuffer.Count;
-        textBuffer.Add('[');
+        textBuffer.Add(' ');
         textBuffer.AddRange(text);
-        textBuffer.Add(']');
+        textBuffer.Add(' ');
         var textSpan    = new TextSpan { start = textStart, len = textBuffer.Count - textStart };
         tuiRects.Add(new TuiRect(textSpan, position, size, color, background));
     }
@@ -277,17 +277,17 @@ public sealed class TuiBatch : TmBatch
         tuiRects.Add(new TuiRect(position, size, background));
     }
     
-    internal void DrawFocus(Vector2 pos, Vector2 size, Color32 color)
+    internal void DrawFocus(Vector2 pos, Vector2 size, Color32 color, Color32 background)
     {
         var textStart   = textBuffer.Count;
-        textBuffer.Add('>');
-        textBuffer.Add('<');
+        textBuffer.Add('[');
+        textBuffer.Add(']');
         var charSize    = new Vector2(charWidth, lineHeight);
         var markLeft    = new TextSpan { start = textStart,     len = 1 };
         var markRight   = new TextSpan { start = textStart + 1, len = 1 };
         
-        tuiRects.Add(new TuiRect(markLeft,  pos - new Vector2(charWidth, 0),  charSize, color, default));
-        tuiRects.Add(new TuiRect(markRight, pos + new Vector2(size.X, 0),     charSize, color, default));
+        tuiRects.Add(new TuiRect(markLeft,  pos,  charSize, color, background));
+        tuiRects.Add(new TuiRect(markRight, pos + new Vector2(size.X - charWidth, 0),     charSize, color, background));
     }
 #endregion
 }

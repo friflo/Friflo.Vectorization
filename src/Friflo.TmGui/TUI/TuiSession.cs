@@ -47,7 +47,7 @@ public class TuiSession
         // clear screen
         AppendSpan(ClearScreen);
         
-        AppendFrameBuffer(40, 25);
+        AppendFrameBuffer(40, 21);
         
         return sendBuffer.AsMemory(0, sendBufferCount);
     }
@@ -73,7 +73,7 @@ public class TuiSession
         var color       = new Color32();
         var background  = new Color32();
         
-        batch.DrawRectCommandsColor(width, height, new TuiColorCell { character = ' '});
+        batch.DrawRectCommandsColor(width, height, new TuiColorCell { character = ' ', background = 0x888888ff });
         var cells = backend.ColorCells;
 
         for (int y = 0; y < height; y++)
@@ -94,7 +94,7 @@ public class TuiSession
                     AppendByte((byte)'m');
                 }
                 // Check & emit Background Color (48;2;R;G;B)
-                if (cell.background != background && cell.background.A != 0) {
+                if (cell.background != background) {
                     background = cell.background;
                     AppendSpan("\x1b[48;2;"u8);
                     AppendNumber(background.R);

@@ -42,7 +42,7 @@ public readonly ref partial struct GuiWidget
     internal void EndSpace(in SpaceScope space)
     {
         if (!space.isFocused) return;
-        DrawFocus(space.pos, space.size);
+        DrawFocus(space.pos, space.size, Colors.WindowColor);
         Window.EnsureVisibleInScrollArea(space.pos, space.size);
     }
 }

@@ -62,7 +62,7 @@ internal sealed class GuiState
     {
         return new GuiColors
         {
-            WindowColor     = 0xf0f1f2ff, // 0xf7f8f9ff,
+            WindowColor     = 0xe8e9eaff, // 0xf0f1f2ff  0xf7f8f9ff
             TextColor       = 0x000000ff,
             
             ButtonText      = 0x000000ff,

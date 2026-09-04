@@ -110,14 +110,14 @@ public readonly ref partial struct GuiWidget
     }
 #endregion
 
-    public void DrawFocus(Vector2 pos, Vector2 size)
+    public void DrawFocus(Vector2 pos, Vector2 size, Color32 background)
     {
         var tui = draw.Tui;
 
         var margin = new Vector2(6, 6);
         draw.PushZIndexLocal(draw.ZIndexLocal + 1);
         if (tui != null) {
-            tui.DrawFocus(pos, size, Colors.FocusColor);
+            tui.DrawFocus(pos, size, Colors.FocusColor, background);
         } else {
             draw.StrokeRectRounded(pos - margin, size + 2 * margin, Sizes.FocusRadius, 4, Colors.FocusColor);
         }

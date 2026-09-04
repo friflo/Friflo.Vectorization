@@ -52,7 +52,7 @@ public readonly ref partial struct GuiWidget
             draw.DrawTextInRect(labelText.Span(), pos, totalSize, TextAlignment.Center, VerticalAlignment.Middle, Colors.TextColor);
         }
         if (isFocused) {
-            DrawFocus(pos, totalSize);
+            DrawFocus(pos, totalSize, Colors.SliderState(widgetState));
             window.EnsureVisibleInScrollArea(pos, totalSize);
         }
         MoveCursor(totalSize);
