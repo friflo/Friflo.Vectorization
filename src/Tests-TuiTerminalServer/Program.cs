@@ -4,6 +4,9 @@ using Friflo.TmGui.TUI.Terminal;
 using TerminalServer;
 
 
+// connect terminal client
+// plink(PuTTY/Windows)         echo --view logs --theme dark | plink -raw -P 9000 127.0.0.1
+
 Console.WriteLine("TUI Terminal Server");
 
 var port = 9000;

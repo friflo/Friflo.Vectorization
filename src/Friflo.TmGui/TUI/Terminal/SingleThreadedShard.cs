@@ -101,7 +101,7 @@ public sealed class SingleThreadedShardEngine
                 var newSession      = new TuiSession(renderer, frameBuffer, TuiColorMode.RGB24);
                 sessions[socket]    = newSession;
                 
-                var rest        = firstLine == -1 ? default : payload.Slice(firstLine);
+                var rest        = firstLine == -1 ? default : payload.Slice(firstLine + 1);
                 var sendBuffer  = newSession.ProcessInput(rest);
                 
                 _ = await socket.SendAsync(sendBuffer, SocketFlags.None, CancellationToken.None);
@@ -139,13 +139,23 @@ public sealed class SingleThreadedShardEngine
         // Enable raw mode on client terminal
         await socket.SendAsync(EscapeWrite.EnableRawTuiMode.ToArray(), SocketFlags.None, cancellationToken);
 
-        // Notify engine about new client connection
-        await engine.EnqueueEventAsync(socket, ClientEventType.Connected);
-
         byte[] buffer = ArrayPool<byte>.Shared.Rent(256);
 
         try
         {
+            ReadOnlyMemory<byte> initialPayload = default;
+            if (socket.Available > 0) {
+                int initialBytes = await socket.ReceiveAsync(buffer.AsMemory(), SocketFlags.None, cancellationToken);
+                if (initialBytes > 0)
+                {
+                    initialPayload = buffer.AsMemory(0, initialBytes);
+                    Console.WriteLine($"[Handshake] received [{initialBytes}] text: {Encoding.UTF8.GetString(initialPayload.Span)}");
+                }
+            }
+
+            // Notify engine about new client connection, passing initial payload (if any)
+            await engine.EnqueueEventAsync(socket, ClientEventType.Connected, initialPayload);
+
             while (!cancellationToken.IsCancellationRequested)
             {
                 int bytesRead = await socket.ReceiveAsync(buffer.AsMemory(), SocketFlags.None, cancellationToken);
