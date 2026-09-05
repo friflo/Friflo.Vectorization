@@ -17,6 +17,12 @@ public enum TuiColorMode
     RGB24
 }
 
+public static class EscapeSequence
+{
+    public static   ReadOnlySpan<byte>  EnableRawTuiMode    => "\x1b[?1h\x1b[?25l"u8; // (Application Cursor Keys Mode) + (Hide Cursor)
+    public static   ReadOnlySpan<byte>  ClearScreen         => "\x1b[2J\x1b[H"u8;
+}
+
 public class TuiSession
 {
     private readonly    TuiBackend      backend;
@@ -26,7 +32,7 @@ public class TuiSession
     private             int             sendBufferCount;
     private readonly    TuiColorMode    colorMode;
     
-    private static readonly byte[] ClearScreen = "\x1b[2J\x1b[H"u8.ToArray();
+
     
     public TuiSession(TuiColorMode colorMode)
     {
@@ -52,7 +58,7 @@ public class TuiSession
         sendBufferCount = 0;
         
         // clear screen
-        AppendSpan(ClearScreen);
+        AppendSpan(EscapeSequence.ClearScreen);
         
         AppendFrameBuffer(40, 21);
         

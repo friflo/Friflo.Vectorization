@@ -1,7 +1,9 @@
 ﻿
 using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.Net.Sockets;
+using System.Text;
 using System.Threading;
 using System.Threading.Channels;
 using System.Threading.Tasks;
@@ -17,11 +19,6 @@ public readonly struct ClientEvent
     public ReadOnlyMemory<byte> Payload { get; init; }
 }
 
-public struct PlayerState
-{
-    public  int         SelectedIndex;
-    public  byte[]      RenderBuffer;
-}
 
 public sealed class SingleThreadedShardEngine
 {
@@ -30,7 +27,6 @@ public sealed class SingleThreadedShardEngine
         new UnboundedChannelOptions { SingleReader = true, SingleWriter = false });
 
     // Raw non-thread-safe state (accessed exclusively by _shardThread)
-    private readonly Dictionary<Socket, PlayerState> _shardState = new();
     private readonly Dictionary<Socket, TuiSession>  tuiSessions = new();
     
     private static readonly string[] MenuItems = ["Start Application", "Settings", "Exit"];
@@ -90,50 +86,40 @@ public sealed class SingleThreadedShardEngine
         }
     }
     
-    private void ProcessEventOld(in ClientEvent evt)
+    // I/O Loop: Reads raw socket bytes and pushes them into the single-threaded engine queue
+    public static async ValueTask HandleClientSessionAsync(Socket socket, SingleThreadedShardEngine engine, CancellationToken cancellationToken)
     {
-        switch (evt.Type)
+        // Enable raw mode on client terminal
+        await socket.SendAsync(EscapeSequence.EnableRawTuiMode.ToArray(), SocketFlags.None, cancellationToken);
+
+        // Notify engine about new client connection
+        await engine.EnqueueEventAsync(socket, ClientEventType.Connected);
+
+        byte[] buffer = ArrayPool<byte>.Shared.Rent(256);
+
+        try
         {
-            case ClientEventType.Connected:
-                var initialState = new PlayerState { SelectedIndex = 0 };
-                _shardState[evt.Socket] = initialState;
-                
-                // Render full menu for new client
-                _ = TuiTestMenu.RenderFullMenuAsync(evt.Socket, initialState.SelectedIndex);
-                break;
+            while (!cancellationToken.IsCancellationRequested)
+            {
+                int bytesRead = await socket.ReceiveAsync(buffer.AsMemory(), SocketFlags.None, cancellationToken);
+                if (bytesRead == 0) break;
 
-            case ClientEventType.Disconnected:
-                _shardState.Remove(evt.Socket);
-                break;
+                ReadOnlyMemory<byte> payload = buffer.AsMemory(0, bytesRead);
 
-            case ClientEventType.Input:
-                if (_shardState.TryGetValue(evt.Socket, out PlayerState state))
-                {
-                    ReadOnlySpan<byte> input = evt.Payload.Span;
+                Console.WriteLine($"received [{bytesRead}] text: {Encoding.UTF8.GetString(payload.Span)}");
 
-                    if (input.Length >= 3 && input[0] == 0x1B && input[1] == 0x5B)
-                    {
-                        int oldIndex = state.SelectedIndex;
-                        int maxItems = TuiTestMenu.MenuItems.Length;
-
-                        if (input[2] == 0x41) // Arrow Up
-                            state.SelectedIndex = (state.SelectedIndex > 0) ? state.SelectedIndex - 1 : maxItems - 1;
-                        else if (input[2] == 0x42) // Arrow Down
-                            state.SelectedIndex = (state.SelectedIndex < maxItems - 1) ? state.SelectedIndex + 1 : 0;
-
-                        if (oldIndex != state.SelectedIndex)
-                        {
-                            _shardState[evt.Socket] = state;
-                            
-                            // Differential update without full screen clear
-                            _ = TuiTestMenu.UpdateMenuSelectionAsync(evt.Socket, oldIndex, state.SelectedIndex);
-                        }
-                    }
-                }
-                break;
+                // Forward raw input directly to the shard event loop
+                await engine.EnqueueEventAsync(socket, ClientEventType.Input, payload);
+            }
+        }
+        finally
+        {
+            ArrayPool<byte>.Shared.Return(buffer);
+            await engine.EnqueueEventAsync(socket, ClientEventType.Disconnected);
         }
     }
-
+    
+    /*
     // Differential rendering logic without lock overhead
     private static void RenderAndSend(Socket socket, ref PlayerState state, bool isFullRedraw, int oldIndex = 0)
     {
@@ -156,4 +142,5 @@ public sealed class SingleThreadedShardEngine
 
     private static string FormatItem(int index, bool isSelected) =>
         isSelected ? $"\x1b[1;42;30m> {MenuItems[index]} <\x1b[0m\x1b[K\r\n" : $"  {MenuItems[index]}  \x1b[K\r\n";
+    */
 }
