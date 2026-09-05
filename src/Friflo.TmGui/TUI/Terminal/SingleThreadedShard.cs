@@ -8,7 +8,7 @@ using System.Threading;
 using System.Threading.Channels;
 using System.Threading.Tasks;
 
-namespace Friflo.TmGui.TUI;
+namespace Friflo.TmGui.TUI.Terminal;
 
 public enum ClientEventType : byte { Connected, Disconnected, Input }
 

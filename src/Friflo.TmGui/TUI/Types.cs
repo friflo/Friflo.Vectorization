@@ -2,13 +2,12 @@
 // See LICENSE file in the project root for full license information.
 
 
-// ReSharper disable ConvertToPrimaryConstructor
-// ReSharper disable ArrangeThisQualifier
-// ReSharper disable once CheckNamespace
-// ReSharper disable InconsistentNaming
-
 using System.Numerics;
 
+
+// ReSharper disable ConvertToPrimaryConstructor
+// ReSharper disable ArrangeThisQualifier
+// ReSharper disable InconsistentNaming
 namespace Friflo.TmGui.TUI;
 
 public struct TuiColorCell

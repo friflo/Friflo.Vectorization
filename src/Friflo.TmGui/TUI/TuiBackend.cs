@@ -6,7 +6,6 @@ using System;
 // ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable ReplaceSliceWithRangeIndexer
 // ReSharper disable ConvertToPrimaryConstructor
-// ReSharper disable once CheckNamespace
 namespace Friflo.TmGui.TUI;
 
 public sealed class TuiBackend : TmGuiBackend

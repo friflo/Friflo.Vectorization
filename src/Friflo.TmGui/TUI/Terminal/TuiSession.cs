@@ -7,8 +7,7 @@ using System.Numerics;
 
 
 // ReSharper disable ConvertToPrimaryConstructor
-// ReSharper disable once CheckNamespace
-namespace Friflo.TmGui.TUI;
+namespace Friflo.TmGui.TUI.Terminal;
 
 
 public enum TuiColorMode

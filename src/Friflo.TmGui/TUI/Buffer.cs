@@ -5,7 +5,6 @@
 using System;
 
 // ReSharper disable ConvertToPrimaryConstructor
-// ReSharper disable CheckNamespace
 namespace Friflo.TmGui.TUI;
 
 

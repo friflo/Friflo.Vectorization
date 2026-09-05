@@ -8,10 +8,10 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
+using Friflo.TmGui.TUI.Terminal;
 
 // ReSharper disable ConvertToPrimaryConstructor
-// ReSharper disable once CheckNamespace
-namespace Friflo.TmGui.TUI;
+namespace Friflo.TmGui.TUI.attic;
 
 
 public class TuiTerminalServer

@@ -13,7 +13,6 @@ using System.Runtime.InteropServices;
 // ReSharper disable ConvertToAutoPropertyWithPrivateSetter
 // ReSharper disable InconsistentNaming
 // ReSharper disable ConvertToPrimaryConstructor
-// ReSharper disable once CheckNamespace
 namespace Friflo.TmGui.TUI;
 
 public sealed class TuiBatch : TmBatch

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Friflo.TmGui.TUI;
+namespace Friflo.TmGui.TUI.Terminal;
 
 public class TestScreen
 {
