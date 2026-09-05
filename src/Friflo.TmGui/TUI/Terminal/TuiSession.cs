@@ -32,7 +32,10 @@ public sealed class TuiSession
     {
         backend.NewFrame();
         
-        renderer.DrawBatch(batch, (int)(frameWidth * batch.CharWidth), (int)(frameHeight * batch.LineHeight));
+        // renderer unit a in pixel to support GUI & TUI with same application code
+        var pixelWidth  = (int)(frameWidth * batch.CharWidth);
+        var pixelHeight = (int)(frameHeight * batch.LineHeight);
+        renderer.DrawBatch(batch, pixelWidth, pixelHeight);
 
         sendBufferCount = 0;
         
