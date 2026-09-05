@@ -37,7 +37,7 @@ public sealed class TuiBatch : TmBatch
         this.backend = backend;
         if  (colorMode == TuiColorMode.Monochrome) {
             buttonBorder = new TuiBorder('[', ']');
-            focusBorder  = new TuiBorder('»', '«');
+            focusBorder  = new TuiBorder('>', '<');
         } else {
             buttonBorder = new TuiBorder(' ', ' ');
             focusBorder  = new TuiBorder('[', ']');
