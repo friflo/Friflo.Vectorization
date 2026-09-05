@@ -10,6 +10,7 @@ namespace Friflo.TmGui.TUI.Terminal;
 
 public sealed class TuiSession
 {
+    private readonly    FrameBuffer     frameBuffer;
     private readonly    TuiBackend      backend;
     private readonly    TuiBatch        batch;
     private readonly    TestScreen      screen          = new();
@@ -17,11 +18,12 @@ public sealed class TuiSession
     private             int             sendBufferCount;
     private readonly    TuiColorMode    colorMode;
     
-    public TuiSession(TuiColorMode colorMode)
+    public TuiSession(FrameBuffer frameBuffer, TuiColorMode colorMode)
     {
-        this.colorMode  = colorMode;
-        backend         = new TuiBackend();
-        batch           = backend.CreateBatch(colorMode);
+        this.frameBuffer    = frameBuffer;
+        this.colorMode      = colorMode;
+        backend             = new TuiBackend();
+        batch               = backend.CreateBatch(colorMode);
     }
     
     public Memory<byte> IterateTui()
@@ -49,8 +51,8 @@ public sealed class TuiSession
         
         // ------ Monochrome
         if (colorMode == TuiColorMode.Monochrome) {
-            batch.DrawRectCommandsChar (width, height, ' ', "\r\n");
-            var chars  = backend.CharCells;
+            batch.DrawRectCommandsChar (frameBuffer, width, height, ' ', "\r\n");
+            var chars  = frameBuffer.CharCells;
             for (int i = 0; i < chars.Length; i++) {
                 buffer[start + i] = (byte)chars[i];
             }
@@ -63,8 +65,8 @@ public sealed class TuiSession
         var color       = new Color32();
         var background  = new Color32();
         
-        batch.DrawRectCommandsColor(width, height, new TuiColorCell { character = ' ', background = 0x888888ff });
-        var cells = backend.ColorCells;
+        batch.DrawRectCommandsColor(frameBuffer, width, height, new TuiColorCell { character = ' ', background = 0x888888ff });
+        var cells = frameBuffer.ColorCells;
 
         for (int y = 0; y < height; y++)
         {

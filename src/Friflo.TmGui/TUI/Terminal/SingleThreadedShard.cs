@@ -10,6 +10,7 @@ using System.Threading;
 using System.Threading.Channels;
 using System.Threading.Tasks;
 
+// ReSharper disable ConvertConstructorToMemberInitializers
 namespace Friflo.TmGui.TUI.Terminal;
 
 
@@ -30,12 +31,16 @@ public readonly struct ClientEvent
 
 public sealed class SingleThreadedShardEngine
 {
-    // Single reader channel guarantees zero-sync single-thread execution
-    private readonly Channel<ClientEvent> eventChannel = Channel.CreateUnbounded<ClientEvent>(
-        new UnboundedChannelOptions { SingleReader = true, SingleWriter = false });
-
-    // Raw non-thread-safe state (accessed exclusively by _shardThread)
-    private readonly Dictionary<Socket, TuiSession>  tuiSessions = new();
+    private readonly    Channel<ClientEvent>            eventChannel;   // Single reader channel guarantees zero-sync single-thread execution
+    private readonly    Dictionary<Socket, TuiSession>  sessions;       // Raw non-thread-safe state (accessed exclusively by _shardThread)
+    private readonly    FrameBuffer                     frameBuffer;    // shared among all sessions - is accessed single threaded 
+    
+    public SingleThreadedShardEngine()
+    {
+        eventChannel    = Channel.CreateUnbounded<ClientEvent>(new UnboundedChannelOptions { SingleReader = true, SingleWriter = false });
+        sessions        = new Dictionary<Socket, TuiSession>();
+        frameBuffer     = new FrameBuffer();
+    }
     
     public void Start()
     {
@@ -68,9 +73,9 @@ public sealed class SingleThreadedShardEngine
         switch (evt.Type)
         {
             case ClientEventType.Connected: {
-                var newSession = new TuiSession(TuiColorMode.RGB24);
+                var newSession = new TuiSession(frameBuffer, TuiColorMode.RGB24);
                 var socket = evt.Socket;
-                tuiSessions[socket] = newSession;
+                sessions[socket] = newSession;
                 
                 var sendBuffer = newSession.IterateTui();
                 
@@ -78,11 +83,11 @@ public sealed class SingleThreadedShardEngine
                 break;
             }
             case ClientEventType.Disconnected:
-                tuiSessions.Remove(evt.Socket);
+                sessions.Remove(evt.Socket);
                 break;
 
             case ClientEventType.Input:
-                if (tuiSessions.TryGetValue(evt.Socket, out TuiSession? session))
+                if (sessions.TryGetValue(evt.Socket, out TuiSession? session))
                 {
                     ReadOnlySpan<byte> input = evt.Payload.Span;
                     var sendBuffer = session.ProcessInput(input);

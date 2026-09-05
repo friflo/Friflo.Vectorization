@@ -27,14 +27,12 @@ public sealed class TuiBatch : TmBatch
     internal readonly   List<TuiRect>           tuiRects        = [];
     private  readonly   List<TuiRectCommand>    rectCommands    = [];
     private  readonly   List<char>              textBuffer      = [];
-    private  readonly   TuiBackend              backend;
     
     public              float                   CharWidth   => charWidth;
     public              float                   LineHeight  => lineHeight;
 
     public TuiBatch(TuiBackend backend, TuiColorMode colorMode) : base(backend, 0)
     {
-        this.backend = backend;
         if  (colorMode == TuiColorMode.Monochrome) {
             buttonBorder = new TuiBorder('[', ']');
             focusBorder  = new TuiBorder('>', '<');
@@ -202,28 +200,31 @@ public sealed class TuiBatch : TmBatch
         }
     }
 
-    /// <summary> Result in <see cref="TuiBackend.ColorCells"/> </summary>
-    public void DrawRectCommandsColor(int targetWidth, int targetHeight, TuiColorCell clear)
+    /// <summary> Result in <see cref="FrameBuffer.ColorCells"/> </summary>
+    public void DrawRectCommandsColor(FrameBuffer frameBuffer, int targetWidth, int targetHeight, TuiColorCell clear)
     {
         EndTuiBatch();
-        backend.PrepareColorCells(targetWidth, targetHeight);
+        frameBuffer.PrepareColorCells(targetWidth, targetHeight);
         
-        var cells       = backend.ColorCells;
+        var cells = frameBuffer.ColorCells;
         cells.Fill(clear);
         
         DrawRectCommands(targetWidth, true, cells, default);
     }
     
     
-    /// <summary> Result in <see cref="TuiBackend.CharCells"/> </summary>
-    public void DrawRectCommandsChar(int targetWidth, int targetHeight, char clear, ReadOnlySpan<char> lineEnd)
+    /// <summary> Result in <see cref="FrameBuffer.CharCells"/> </summary>
+    /// <remarks>
+    /// lineEnd ("\r\n") is added to each line. Is used when writing a screen to a text file are a terminal. 
+    /// </remarks>
+    public void DrawRectCommandsChar(FrameBuffer frameBuffer, int targetWidth, int targetHeight, char clear, ReadOnlySpan<char> lineEnd)
     {
         EndTuiBatch();
         
         int stride = targetWidth + lineEnd.Length;
-        backend.PrepareCharCells(stride, targetHeight);
+        frameBuffer.PrepareCharCells(stride, targetHeight);
         
-        var chars = backend.CharCells;
+        var chars = frameBuffer.CharCells;
         chars.Fill(clear);
         
         DrawRectCommands(stride, false, default, chars);

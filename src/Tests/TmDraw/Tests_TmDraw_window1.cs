@@ -27,12 +27,13 @@ public class Tests_TmDraw_window1
         batch.SetFormatProvider(CultureInfo.InvariantCulture);
     }
     
-    /// Result in <see cref="TuiBackend.CharCells"/>
+    /// Result in <see cref="FrameBuffer.CharCells"/>
     [Test]
     public void Tests_TmDraw_window1_TUI_char()
     {
-        var backend = new TuiBackend();
-        var batch   = backend.CreateBatch(TuiColorMode.Monochrome);
+        var backend     = new TuiBackend();
+        var frameBuffer = new FrameBuffer();
+        var batch       = backend.CreateBatch(TuiColorMode.Monochrome);
 
         long        start   = 0;
         const int   repeat  = 10; // 2_000_000 - 2.2 sec
@@ -45,13 +46,13 @@ public class Tests_TmDraw_window1
             using (gui.BeginWindow("Window 1", new(200, 200), new(600, 950))) {
                 Window1(gui); 
             }
-            batch.DrawRectCommandsChar(50, 30, '.', "\r\n");
+            batch.DrawRectCommandsChar(frameBuffer, 50, 30, '.', "\r\n");
             if (n == 0) start = Mem.GetAllocatedBytes();
         }
         Mem.AssertNoAlloc(start);
         
-        Assert.That(backend.CharCells.Length, Is.EqualTo(1560));
-        var screen  = new string(backend.CharCells);
+        Assert.That(frameBuffer.CharCells.Length, Is.EqualTo(1560));
+        var screen  = new string(frameBuffer.CharCells);
         var dir     = Path.GetDirectoryName(GetCurrentFilePath())!;
         var tuiFile = $"{dir}/{TestContext.CurrentContext.Test.Name}.txt";
         
@@ -59,12 +60,13 @@ public class Tests_TmDraw_window1
     }
     
 
-    /// Result in <see cref="TuiBackend.ColorCells"/>
+    /// Result in <see cref="FrameBuffer.ColorCells"/>
     [Test]
     public void Tests_TmDraw_window1_TUI_color()
     {
-        var backend = new TuiBackend();
-        var batch   = backend.CreateBatch(TuiColorMode.Monochrome);
+        var backend     = new TuiBackend();
+        var frameBuffer = new FrameBuffer();
+        var batch       = backend.CreateBatch(TuiColorMode.Monochrome);
 
         long        start   = 0;
         const int   repeat  = 10; // 2_000_000 - 3.5 sec
@@ -77,13 +79,13 @@ public class Tests_TmDraw_window1
             using (gui.BeginWindow("Window 1", new(200, 200), new(600, 950))) {
                 Window1(gui); 
             }
-            batch.DrawRectCommandsColor(50, 30, new TuiColorCell { character = '.' });
+            batch.DrawRectCommandsColor(frameBuffer, 50, 30, new TuiColorCell { character = '.' });
             if (n == 0) start = Mem.GetAllocatedBytes();
         }
         Mem.AssertNoAlloc(start);
-        Assert.That(backend.ColorCells.Length, Is.EqualTo(1500));
+        Assert.That(frameBuffer.ColorCells.Length, Is.EqualTo(1500));
         
-        var screen = CellsToString(backend.ColorCells, 50, 30);
+        var screen = CellsToString(frameBuffer.ColorCells, 50, 30);
         
         var dir     = Path.GetDirectoryName(GetCurrentFilePath())!;
         var tuiFile = $"{dir}/{TestContext.CurrentContext.Test.Name}.txt";

@@ -3,45 +3,12 @@
 
 using System;
 
-// ReSharper disable SuggestVarOrType_BuiltInTypes
-// ReSharper disable ReplaceSliceWithRangeIndexer
-// ReSharper disable ConvertToPrimaryConstructor
 namespace Friflo.TmGui.TUI;
 
 public sealed class TuiBackend : TmGuiBackend
 {
-    private     int                 bufferWidth;
-    private     int                 bufferHeight;
-    private     TuiColorCell[]      colorCells      = [];
-    private     char[]              charCells       = [];
-    
-    public      Span<TuiColorCell>  ColorCells      => colorCells. AsSpan().Slice(0,  bufferWidth * bufferHeight);
-    public      Span<char>          CharCells       => charCells.  AsSpan().Slice(0,  bufferWidth * bufferHeight);
-        
-    
-    internal void PrepareColorCells(int width, int height)
+    public TuiBatch CreateBatch(TuiColorMode colorMode)
     {
-        bufferWidth     = width;
-        bufferHeight    = height;
-        int cellCount   = width * height;
-        
-        if (cellCount > colorCells.Length) {
-            colorCells = new TuiColorCell[cellCount];
-        }
-    }
-    
-    internal void PrepareCharCells(int width, int height)
-    {
-        bufferWidth     = width;
-        bufferHeight    = height;
-        int cellCount   = width * height;
-        
-        if (cellCount > charCells.Length) {
-            charCells = new char[cellCount];
-        }
-    }
-    
-    public TuiBatch CreateBatch(TuiColorMode colorMode) {
         var batch = new TuiBatch(this, colorMode);
         InitBatch(batch);
         return batch;
@@ -61,18 +28,4 @@ public sealed class TuiBackend : TmGuiBackend
     {
         return new TuiBuffer<uint>();
     }
-    
-    /* public GpuTexture LoadTexture(Stream stream, string label = null, TextureUsage usage = TextureUsage.TextureBinding | TextureUsage.CopyDst)
-    {
-        var image = ImageResult.FromStream(stream, ColorComponents.RedGreenBlueAlpha);
-
-        var texture = device.CreateTexture(new GpuTextureDescriptor {
-            label  = label,
-            size   = [image.Width, image.Height],
-            format = TextureFormat.RGBA8Unorm,
-            usage  = usage
-        });
-        texture.Write(image.Data, bytesPerRow: image.Width * 4, rowsPerImage: image.Height);
-        return texture;
-    } */
 }

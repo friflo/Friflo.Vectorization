@@ -10,7 +10,6 @@ namespace Friflo.TmGui.TUI;
 
 internal sealed class TuiBuffer<T> : TmBuffer<T> where T : unmanaged
 {
-    
     public   override Memory<T>     Memory => default;
     
     public override void Dispose() {
