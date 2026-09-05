@@ -96,7 +96,7 @@ public sealed class SingleThreadedShardEngine
     public static async ValueTask HandleClientSessionAsync(Socket socket, SingleThreadedShardEngine engine, CancellationToken cancellationToken)
     {
         // Enable raw mode on client terminal
-        await socket.SendAsync(EscapeSequence.EnableRawTuiMode.ToArray(), SocketFlags.None, cancellationToken);
+        await socket.SendAsync(EscapeWrite.EnableRawTuiMode.ToArray(), SocketFlags.None, cancellationToken);
 
         // Notify engine about new client connection
         await engine.EnqueueEventAsync(socket, ClientEventType.Connected);

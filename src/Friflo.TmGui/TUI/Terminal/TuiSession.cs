@@ -3,22 +3,10 @@
 
 using System;
 using System.Numerics;
-// ReSharper disable InconsistentNaming
-
 
 // ReSharper disable ConvertToPrimaryConstructor
 namespace Friflo.TmGui.TUI.Terminal;
 
-
-
-
-public static class EscapeSequence
-{
-    public static   ReadOnlySpan<byte>  EnableRawTuiMode    => "\x1b[?1h\x1b[?25l"u8; // (Application Cursor Keys Mode) + (Hide Cursor)
-    public static   ReadOnlySpan<byte>  ClearScreen         => "\x1b[2J\x1b[H"u8;
-    
-    public static   ReadOnlySpan<byte>  ResetAll            => "\x1b[0m"u8;   // Resets all colors, background, and text formatting (SGR 0)
-}
 
 public sealed class TuiSession
 {
@@ -28,8 +16,6 @@ public sealed class TuiSession
     private readonly    byte[]          sendBuffer      = new byte[10000];
     private             int             sendBufferCount;
     private readonly    TuiColorMode    colorMode;
-    
-
     
     public TuiSession(TuiColorMode colorMode)
     {
@@ -49,7 +35,7 @@ public sealed class TuiSession
         sendBufferCount = 0;
         
         // clear screen
-        AppendSpan(EscapeSequence.ClearScreen);
+        AppendSpan(EscapeWrite.ClearScreen);
         
         AppendFrameBuffer(40, 21);
         
@@ -168,7 +154,7 @@ public sealed class TuiSession
                 }
             }
         }
-        if (input.Length >= 3 && input[0] == 0x1B && input[1] == 0x5B)
+        if (input.Length >= 3 && input[0] == Escape.ESC && input[1] == Escape.CSI)
         {
             switch (input[2])
             {
