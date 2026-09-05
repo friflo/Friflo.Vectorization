@@ -11,6 +11,15 @@ internal static class EscapeWrite
     public static   ReadOnlySpan<byte>  EnableRawApplicationTuiMode => "\x1b[?1h\x1b[?25l"u8; // (Application Cursor Keys Mode) + (Hide Cursor)
     public static   ReadOnlySpan<byte>  EnableRawNormalTuiMode      => "\x1b[?1l\x1b[?25l"u8; // (Normal Cursor Keys Mode) + (Hide Cursor)
     
+    // Extended Init Sequence:
+    // \x1b[?1l   = Normal Cursor Mode
+    // \x1b[?25l  = Hide Cursor
+    // \x1b[0m    = Reset All Colors/Attributes
+    // \x1b[2J    = Clear Screen
+    // \x1b[H     = Home Cursor (0,0)
+    public static ReadOnlySpan<byte> EnableRawTuiMode => "\x1b[?1l\x1b[?25l\x1b[0m\x1b[2J\x1b[H"u8;
+    
+    
     public static   ReadOnlySpan<byte>  ClearScreen         => "\x1b[2J\x1b[H"u8;
     
     public static   ReadOnlySpan<byte>  ResetAll            => "\x1b[0m"u8;   // Resets all colors, background, and text formatting (SGR 0)
