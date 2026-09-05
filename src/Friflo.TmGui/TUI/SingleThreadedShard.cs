@@ -66,7 +66,7 @@ public sealed class SingleThreadedShardEngine
         switch (evt.Type)
         {
             case ClientEventType.Connected: {
-                var newSession = new TuiSession();
+                var newSession = new TuiSession(TuiColorMode.RGB24);
                 var socket = evt.Socket;
                 tuiSessions[socket] = newSession;
                 

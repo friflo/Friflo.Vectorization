@@ -24,14 +24,21 @@ public class TuiSession
     private readonly    TestScreen      screen          = new();
     private readonly    byte[]          sendBuffer      = new byte[10000];
     private             int             sendBufferCount;
-    private             TuiColorMode    colorMode       = TuiColorMode.RGB24;
+    private readonly    TuiColorMode    colorMode;
     
     private static readonly byte[] ClearScreen = "\x1b[2J\x1b[H"u8.ToArray();
     
-    public TuiSession()
+    public TuiSession(TuiColorMode colorMode)
     {
-        backend = new TuiBackend();
-        batch   = backend.CreateBatch();
+        this.colorMode  = colorMode;
+        backend         = new TuiBackend();
+        batch           = backend.CreateBatch();
+        if  (colorMode == TuiColorMode.Monochrome) {
+            batch.buttonBorder = new TuiBorder('[', ']');
+        } else {
+            batch.buttonBorder = new TuiBorder(' ', ' ');
+        }
+        batch.focusBorder  = new TuiBorder('[', ']');
     }
     
     public Memory<byte> IterateTui()

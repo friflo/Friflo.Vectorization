@@ -20,6 +20,19 @@ public struct TuiColorCell
     public override string ToString() => $"'{character}'";
 }
 
+public struct TuiBorder
+{
+    public  char    left;
+    public  char    right;
+    
+    public override string ToString() => $"'{left}'  '{right}'";
+    
+    public TuiBorder(char left, char right) {
+        this.left   = left;
+        this.right  = right;
+    }
+}
+
 internal struct TextSpan
 {
     internal int    start;  //  4 bytes
