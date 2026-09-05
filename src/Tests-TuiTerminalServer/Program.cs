@@ -7,7 +7,9 @@ using TerminalServer;
 Console.WriteLine("TUI Terminal Server");
 
 var port = 9000;
-var engine = new SingleThreadedShardEngine(() => new TestRenderer());
+var engine = new SingleThreadedShardEngine((ConnectInfo info) => {
+    return new TestRenderer();
+});
 
 // 2. IMPORTANT: Start the dedicated single-threaded event loop!
 engine.Start();

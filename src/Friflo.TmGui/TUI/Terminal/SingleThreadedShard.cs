@@ -34,7 +34,14 @@ public interface IGuiView
     public void RenderGui(TmBatch batch, int targetWidth, int targetHeight);
 }
 
-public delegate IGuiView CreateGuiView();
+
+public struct ConnectInfo
+{
+    public string[] args;
+    public Socket   socket;
+}
+
+public delegate IGuiView CreateGuiView(ConnectInfo info);
 
 
 
@@ -84,12 +91,18 @@ public sealed class SingleThreadedShardEngine
         switch (evt.Type)
         {
             case ClientEventType.Connected: {
-                var renderer        = createGuiView();
-                var newSession      = new TuiSession(renderer, frameBuffer, TuiColorMode.RGB24);
+                var payload         = evt.Payload.Span;
+                var firstLine       = payload.IndexOf((byte)'\n');
                 var socket          = evt.Socket;
+                var args            = firstLine == -1 ? [] : GetArgs(payload.Slice(0, firstLine));
+                var connectInfo     = new ConnectInfo{ socket = socket, args = args };
+                var renderer        = createGuiView(connectInfo);
+                
+                var newSession      = new TuiSession(renderer, frameBuffer, TuiColorMode.RGB24);
                 sessions[socket]    = newSession;
                 
-                var sendBuffer = newSession.IterateTui();
+                var rest        = firstLine == -1 ? default : payload.Slice(firstLine);
+                var sendBuffer  = newSession.ProcessInput(rest);
                 
                 _ = await socket.SendAsync(sendBuffer, SocketFlags.None, CancellationToken.None);
                 break;
@@ -101,13 +114,24 @@ public sealed class SingleThreadedShardEngine
             case ClientEventType.Input:
                 if (sessions.TryGetValue(evt.Socket, out TuiSession? session))
                 {
-                    ReadOnlySpan<byte> input = evt.Payload.Span;
-                    var sendBuffer = session.ProcessInput(input);
+                    var payload     = evt.Payload.Span;
+                    var sendBuffer  = session.ProcessInput(payload);
                     _ = await evt.Socket.SendAsync(sendBuffer, SocketFlags.None, CancellationToken.None);
                 }
                 break;
         }
     }
+    
+    private static string[] GetArgs(ReadOnlySpan<byte> payload)
+    {
+        // Convert initial payload to string (e.g. "--view logs --user 42")
+        var commandLine = Encoding.UTF8.GetString(payload).TrimEnd('\r', '\n', '\0');
+        
+        if (string.IsNullOrWhiteSpace(commandLine)) {
+            return [];
+        }
+        return commandLine.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+    } 
     
     // I/O Loop: Reads raw socket bytes and pushes them into the single-threaded engine queue
     public static async ValueTask HandleClientSessionAsync(Socket socket, SingleThreadedShardEngine engine, CancellationToken cancellationToken)
@@ -141,29 +165,4 @@ public sealed class SingleThreadedShardEngine
             await engine.EnqueueEventAsync(socket, ClientEventType.Disconnected);
         }
     }
-    
-    /*
-    // Differential rendering logic without lock overhead
-    private static void RenderAndSend(Socket socket, ref PlayerState state, bool isFullRedraw, int oldIndex = 0)
-    {
-        if (isFullRedraw)
-        {
-            string fullScreen = "\x1b[2J\x1b[H\x1b[1;36m=== TUI SHARD SYSTEM ===\x1b[0m\r\n\r\n";
-            for (int i = 0; i < MenuItems.Length; i++)
-                fullScreen += FormatItem(i, i == state.SelectedIndex);
-
-            _ = socket.SendAsync(System.Text.Encoding.UTF8.GetBytes(fullScreen), SocketFlags.None);
-            return;
-        }
-
-        // Differential update: reposition cursor and update affected lines only
-        string diffUpdate = $"\x1b[{6 + oldIndex};1H{FormatItem(oldIndex, false)}" +
-                            $"\x1b[{6 + state.SelectedIndex};1H{FormatItem(state.SelectedIndex, true)}";
-
-        _ = socket.SendAsync(System.Text.Encoding.UTF8.GetBytes(diffUpdate), SocketFlags.None);
-    }
-
-    private static string FormatItem(int index, bool isSelected) =>
-        isSelected ? $"\x1b[1;42;30m> {MenuItems[index]} <\x1b[0m\x1b[K\r\n" : $"  {MenuItems[index]}  \x1b[K\r\n";
-    */
 }
