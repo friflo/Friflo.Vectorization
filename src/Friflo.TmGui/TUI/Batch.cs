@@ -17,8 +17,8 @@ namespace Friflo.TmGui.TUI;
 
 public sealed class TuiBatch : TmBatch
 {
-    public              TuiBorder               buttonBorder    = new('[', ']');
-    public              TuiBorder               focusBorder     = new('[', ']');
+    public              TuiBorder               buttonBorder;
+    public              TuiBorder               focusBorder;
     private             float                   yScale;
     private             float                   xScale;
     private             float                   lineHeight;

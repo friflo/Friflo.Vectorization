@@ -1,4 +1,6 @@
-﻿
+﻿// Copyright (c) Ullrich Praetz - https://github.com/friflo. All rights reserved.
+// See LICENSE file in the project root for full license information.
+
 using System;
 using System.Buffers;
 using System.Collections.Generic;
@@ -10,42 +12,46 @@ using System.Threading.Tasks;
 
 namespace Friflo.TmGui.TUI.Terminal;
 
-public enum ClientEventType : byte { Connected, Disconnected, Input }
+
+public enum ClientEventType : byte
+{
+    Connected,
+    Disconnected,
+    Input
+}
 
 public readonly struct ClientEvent
 {
-    public required Socket Socket { get; init; }
-    public required ClientEventType Type { get; init; }
-    public ReadOnlyMemory<byte> Payload { get; init; }
+    public required     Socket                  Socket  { get; init; }
+    public required     ClientEventType         Type    { get; init; }
+    public              ReadOnlyMemory<byte>    Payload { get; init; }
 }
 
 
 public sealed class SingleThreadedShardEngine
 {
     // Single reader channel guarantees zero-sync single-thread execution
-    private readonly Channel<ClientEvent> _eventChannel = Channel.CreateUnbounded<ClientEvent>(
+    private readonly Channel<ClientEvent> eventChannel = Channel.CreateUnbounded<ClientEvent>(
         new UnboundedChannelOptions { SingleReader = true, SingleWriter = false });
 
     // Raw non-thread-safe state (accessed exclusively by _shardThread)
     private readonly Dictionary<Socket, TuiSession>  tuiSessions = new();
     
-    private static readonly string[] MenuItems = ["Start Application", "Settings", "Exit"];
-
     public void Start()
     {
         Thread shardThread = new(RunEventLoop) { IsBackground = true, Name = "ShardLoopThread" };
         shardThread.Start();
     }
 
-    public async ValueTask EnqueueEventAsync(Socket socket, ClientEventType type, ReadOnlyMemory<byte> payload = default)
+    private async ValueTask EnqueueEventAsync(Socket socket, ClientEventType type, ReadOnlyMemory<byte> payload = default)
     {
-        await _eventChannel.Writer.WriteAsync(new ClientEvent { Socket = socket, Type = type, Payload = payload });
+        await eventChannel.Writer.WriteAsync(new ClientEvent { Socket = socket, Type = type, Payload = payload });
     }
 
     // Core event loop running strictly on a single thread
     private void RunEventLoop()
     {
-        var reader = _eventChannel.Reader;
+        var reader = eventChannel.Reader;
         while (reader.WaitToReadAsync().AsTask().Result)
         {
             while (reader.TryRead(out ClientEvent evt))
@@ -76,7 +82,7 @@ public sealed class SingleThreadedShardEngine
                 break;
 
             case ClientEventType.Input:
-                if (tuiSessions.TryGetValue(evt.Socket, out TuiSession session))
+                if (tuiSessions.TryGetValue(evt.Socket, out TuiSession? session))
                 {
                     ReadOnlySpan<byte> input = evt.Payload.Span;
                     var sendBuffer = session.ProcessInput(input);

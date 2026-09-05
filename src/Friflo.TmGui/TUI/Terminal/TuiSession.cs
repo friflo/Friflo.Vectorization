@@ -20,7 +20,7 @@ public static class EscapeSequence
     public static   ReadOnlySpan<byte>  ResetAll            => "\x1b[0m"u8;   // Resets all colors, background, and text formatting (SGR 0)
 }
 
-public class TuiSession
+public sealed class TuiSession
 {
     private readonly    TuiBackend      backend;
     private readonly    TuiBatch        batch;
