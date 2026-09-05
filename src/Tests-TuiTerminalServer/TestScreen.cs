@@ -5,14 +5,14 @@ using Friflo.TmGui.TUI.Terminal;
 namespace TerminalServer;
 
 
-public class TestRenderer : IBatchRenderer
+public class TestRenderer : IGuiView
 {
     private bool    mouseCircle;
     private bool    monocraft;
     private bool    enabled2;
     private float   volume;
     
-    public void DrawBatch(TmBatch batch, int targetWidth, int targetHeight)
+    public void RenderGui(TmBatch batch, int targetWidth, int targetHeight)
     {
         var gui = batch.BeginGui(targetWidth, targetHeight);
         

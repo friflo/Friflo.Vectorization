@@ -12,16 +12,16 @@ public sealed class TuiSession
     private readonly    FrameBuffer     frameBuffer;
     private readonly    TuiBackend      backend;
     private readonly    TuiBatch        batch;
-    private readonly    IBatchRenderer  renderer;
+    private readonly    IGuiView        guiView;
     private readonly    byte[]          sendBuffer      = new byte[10000];
     private             int             sendBufferCount;
     private readonly    TuiColorMode    colorMode;
     private             int             frameWidth      = 40;
     private             int             frameHeight     = 20;
     
-    public TuiSession(IBatchRenderer renderer, FrameBuffer frameBuffer, TuiColorMode colorMode)
+    public TuiSession(IGuiView guiView, FrameBuffer frameBuffer, TuiColorMode colorMode)
     {
-        this.renderer       = renderer;
+        this.guiView        = guiView;
         this.frameBuffer    = frameBuffer;
         this.colorMode      = colorMode;
         backend             = new TuiBackend();
@@ -35,7 +35,7 @@ public sealed class TuiSession
         // renderer unit a in pixel to support GUI & TUI with same application code
         var pixelWidth  = (int)(frameWidth * batch.CharWidth);
         var pixelHeight = (int)(frameHeight * batch.LineHeight);
-        renderer.DrawBatch(batch, pixelWidth, pixelHeight);
+        guiView.RenderGui(batch, pixelWidth, pixelHeight);
 
         sendBufferCount = 0;
         

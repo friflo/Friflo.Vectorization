@@ -29,28 +29,28 @@ public readonly struct ClientEvent
     public              ReadOnlyMemory<byte>    Payload { get; init; }
 }
 
-public interface IBatchRenderer
+public interface IGuiView
 {
-    public void DrawBatch(TmBatch batch, int targetWidth, int targetHeight);
+    public void RenderGui(TmBatch batch, int targetWidth, int targetHeight);
 }
 
-public delegate IBatchRenderer CreateBatchRenderer();
+public delegate IGuiView CreateGuiView();
 
 
 
 public sealed class SingleThreadedShardEngine
 {
-    private readonly    Channel<ClientEvent>            eventChannel;           // Single reader channel guarantees zero-sync single-thread execution
-    private readonly    Dictionary<Socket, TuiSession>  sessions;               // Raw non-thread-safe state (accessed exclusively by _shardThread)
-    private readonly    FrameBuffer                     frameBuffer;            // shared among all sessions - is accessed single threaded
-    private readonly    CreateBatchRenderer             createBatchRenderer;    // IBatchRenderer factory
+    private readonly    Channel<ClientEvent>            eventChannel;   // Single reader channel guarantees zero-sync single-thread execution
+    private readonly    Dictionary<Socket, TuiSession>  sessions;       // Raw non-thread-safe state (accessed exclusively by _shardThread)
+    private readonly    FrameBuffer                     frameBuffer;    // shared among all sessions - is accessed single threaded
+    private readonly    CreateGuiView                   createGuiView;  // IBatchRenderer factory
     
-    public SingleThreadedShardEngine(CreateBatchRenderer createBatchRenderer)
+    public SingleThreadedShardEngine(CreateGuiView createGuiView)
     {
-        this.createBatchRenderer = createBatchRenderer;
-        eventChannel    = Channel.CreateUnbounded<ClientEvent>(new UnboundedChannelOptions { SingleReader = true, SingleWriter = false });
-        sessions        = new Dictionary<Socket, TuiSession>();
-        frameBuffer     = new FrameBuffer();
+        this.createGuiView  = createGuiView;
+        eventChannel        = Channel.CreateUnbounded<ClientEvent>(new UnboundedChannelOptions { SingleReader = true, SingleWriter = false });
+        sessions            = new Dictionary<Socket, TuiSession>();
+        frameBuffer         = new FrameBuffer();
     }
     
     public void Start()
@@ -84,7 +84,7 @@ public sealed class SingleThreadedShardEngine
         switch (evt.Type)
         {
             case ClientEventType.Connected: {
-                var renderer        = createBatchRenderer();
+                var renderer        = createGuiView();
                 var newSession      = new TuiSession(renderer, frameBuffer, TuiColorMode.RGB24);
                 var socket          = evt.Socket;
                 sessions[socket]    = newSession;
