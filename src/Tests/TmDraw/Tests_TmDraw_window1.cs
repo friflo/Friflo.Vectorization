@@ -27,7 +27,7 @@ public class Tests_TmDraw_window1
         batch.SetFormatProvider(CultureInfo.InvariantCulture);
     }
     
-    /// Result in <see cref="TuiBackend.FrameBuffer"/>
+    /// Result in <see cref="TuiBackend.CharCells"/>
     [Test]
     public void Tests_TmDraw_window1_TUI_char()
     {
@@ -45,13 +45,13 @@ public class Tests_TmDraw_window1
             using (gui.BeginWindow("Window 1", new(200, 200), new(600, 950))) {
                 Window1(gui); 
             }
-            batch.DrawRectCommandsChar(50, 30, '.');
+            batch.DrawRectCommandsChar(50, 30, '.', "\r\n");
             if (n == 0) start = Mem.GetAllocatedBytes();
         }
         Mem.AssertNoAlloc(start);
         
-        Assert.That(backend.FrameBuffer.Length, Is.EqualTo(1560));
-        var screen  = new string(backend.FrameBuffer);
+        Assert.That(backend.CharCells.Length, Is.EqualTo(1560));
+        var screen  = new string(backend.CharCells);
         var dir     = Path.GetDirectoryName(GetCurrentFilePath())!;
         var tuiFile = $"{dir}/{TestContext.CurrentContext.Test.Name}.txt";
         

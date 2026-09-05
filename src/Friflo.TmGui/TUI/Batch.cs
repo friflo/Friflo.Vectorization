@@ -109,7 +109,7 @@ public sealed class TuiBatch : TmBatch
 #endregion
 
 #region DrawRectCommands
-    private void DrawRectCommands(int targetWidth, bool drawColor, Span<TuiColorCell> cells, Span<char> chars)
+    private void DrawRectCommands(int stride, bool drawColor, Span<TuiColorCell> cells, Span<char> chars)
     {
         var commands    = rectCommands;
         var rects       = tuiRects;
@@ -161,14 +161,14 @@ public sealed class TuiBatch : TmBatch
                         {
                             if (drawColor) {
                                 var cell    = new TuiColorCell { color = rect.color, background = rect.background };
-                                var row     = cells.Slice(targetWidth * startY + startX, count);
+                                var row     = cells.Slice(stride * startY + startX, count);
                                 for (int n = 0; n < count; n++) {
                                     cell.character = text[offsetX + n];
                                     row[n] = cell;
                                 }
                             } else {
                                 var srcSpan = text.Slice(offsetX, count);
-                                var dstSpan = chars.Slice(targetWidth * startY + startX, count);
+                                var dstSpan = chars.Slice(stride * startY + startX, count);
                                 srcSpan.CopyTo(dstSpan);
                             }
                         }
@@ -180,12 +180,12 @@ public sealed class TuiBatch : TmBatch
                         var fill  = new TuiColorCell { character = ' ', color = rect.color, background = rect.background };
 
                         for (int y = startY; y < endY; y++) {
-                            cells.Slice(targetWidth * y + startX, width).Fill(fill);
+                            cells.Slice(stride * y + startX, width).Fill(fill);
                         }
                     } else {
                         var width = endX - startX;
                         for (int y = startY; y < endY; y++) {
-                            chars.Slice(targetWidth * y + startX, width).Fill(' ');
+                            chars.Slice(stride * y + startX, width).Fill(' ');
                         }
                     }
                 }
@@ -197,7 +197,7 @@ public sealed class TuiBatch : TmBatch
     public void DrawRectCommandsColor(int targetWidth, int targetHeight, TuiColorCell clear)
     {
         EndTuiBatch();
-        backend.PrepareBuffersColor(targetWidth, targetHeight);
+        backend.PrepareColorCells(targetWidth, targetHeight);
         
         var cells       = backend.ColorCells;
         cells.Fill(clear);
@@ -206,28 +206,24 @@ public sealed class TuiBatch : TmBatch
     }
     
     
-    /// <summary> Result in <see cref="TuiBackend.FrameBuffer"/> </summary>
-    public void DrawRectCommandsChar(int targetWidth, int targetHeight, char clear)
+    /// <summary> Result in <see cref="TuiBackend.CharCells"/> </summary>
+    public void DrawRectCommandsChar(int targetWidth, int targetHeight, char clear, ReadOnlySpan<char> lineEnd)
     {
         EndTuiBatch();
-        backend.PrepareBuffersChar(targetWidth, targetHeight);
+        
+        int stride = targetWidth + lineEnd.Length;
+        backend.PrepareCharCells(stride, targetHeight);
         
         var chars = backend.CharCells;
         chars.Fill(clear);
         
-        DrawRectCommands(targetWidth, false, default, chars);
+        DrawRectCommands(stride, false, default, chars);
         
-        // Fill StridedFrameBuffer via ultra-fast SIMD Row Copy
-        var buffer = backend.FrameBuffer;
-        int stride = targetWidth + 2;
-
+        if (lineEnd.Length == 0) {
+            return;
+        }
         for (int line = 0; line < targetHeight; line++) {
-            var srcRow = chars.Slice(line * targetWidth, targetWidth);
-            var dstRow = buffer.Slice(line * stride, targetWidth);
-
-            srcRow.CopyTo(dstRow);
-            buffer[line * stride + targetWidth]     = '\r';
-            buffer[line * stride + targetWidth + 1] = '\n';
+            lineEnd.CopyTo(chars.Slice(line * stride + targetWidth, lineEnd.Length));
         }
     }
 #endregion

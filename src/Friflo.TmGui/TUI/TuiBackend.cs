@@ -11,22 +11,19 @@ namespace Friflo.TmGui.TUI;
 
 public sealed class TuiBackend : TmGuiBackend
 {
-    private     int                 targetWidth;
-    private     int                 targetHeight;
-    private     TuiColorCell[]      colorCells          = [];
-    private     char[]              charCells           = [];
-    private     char[]              frameBuffer         = [];
+    private     int                 bufferWidth;
+    private     int                 bufferHeight;
+    private     TuiColorCell[]      colorCells      = [];
+    private     char[]              charCells       = [];
     
-    public      Span<TuiColorCell>  ColorCells          => colorCells.      AsSpan().Slice(0,  targetWidth      * targetHeight);
-    internal    Span<char>          CharCells           => charCells.       AsSpan().Slice(0,  targetWidth      * targetHeight);
-    
-    public      Span<char>          FrameBuffer         => frameBuffer.     AsSpan().Slice(0, (targetWidth + 2) * targetHeight);
+    public      Span<TuiColorCell>  ColorCells      => colorCells. AsSpan().Slice(0,  bufferWidth * bufferHeight);
+    public      Span<char>          CharCells       => charCells.  AsSpan().Slice(0,  bufferWidth * bufferHeight);
         
     
-    internal void PrepareBuffersColor(int width, int height)
+    internal void PrepareColorCells(int width, int height)
     {
-        targetWidth     = width;
-        targetHeight    = height;
+        bufferWidth     = width;
+        bufferHeight    = height;
         int cellCount   = width * height;
         
         if (cellCount > colorCells.Length) {
@@ -34,18 +31,14 @@ public sealed class TuiBackend : TmGuiBackend
         }
     }
     
-    internal void PrepareBuffersChar(int width, int height)
+    internal void PrepareCharCells(int width, int height)
     {
-        targetWidth     = width;
-        targetHeight    = height;
+        bufferWidth     = width;
+        bufferHeight    = height;
         int cellCount   = width * height;
         
         if (cellCount > charCells.Length) {
             charCells = new char[cellCount];
-        }
-        int charCount = (width + 2) * height;
-        if (charCount > frameBuffer.Length) {
-            frameBuffer  = new char[charCount];
         }
     }
     

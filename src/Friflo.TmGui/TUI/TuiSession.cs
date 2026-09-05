@@ -59,8 +59,8 @@ public class TuiSession
         
         // ------ Monochrome
         if (colorMode == TuiColorMode.Monochrome) {
-            batch.DrawRectCommandsChar (width, height, ' ');
-            var chars  = backend.FrameBuffer;
+            batch.DrawRectCommandsChar (width, height, ' ', "\r\n");
+            var chars  = backend.CharCells;
             for (int i = 0; i < chars.Length; i++) {
                 buffer[start + i] = (byte)chars[i];
             }
