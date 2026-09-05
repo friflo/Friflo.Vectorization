@@ -1,13 +1,13 @@
-﻿
-
-using System.Net;
+﻿using System.Net;
 using System.Net.Sockets;
 using Friflo.TmGui.TUI.Terminal;
+using TerminalServer;
+
 
 Console.WriteLine("TUI Terminal Server");
 
 var port = 9000;
-var engine = new SingleThreadedShardEngine();
+var engine = new SingleThreadedShardEngine(() => new TestRenderer());
 
 // 2. IMPORTANT: Start the dedicated single-threaded event loop!
 engine.Start();

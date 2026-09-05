@@ -1,15 +1,27 @@
-﻿using System;
+﻿using System.Numerics;
+using Friflo.TmGui;
+using Friflo.TmGui.TUI.Terminal;
 
-namespace Friflo.TmGui.TUI.Terminal;
+namespace TerminalServer;
 
-public class TestScreen
+
+public class TestRenderer : IBatchRenderer
 {
     private bool    mouseCircle;
     private bool    monocraft;
     private bool    enabled2;
     private float   volume;
     
-    public void Window1(Gui gui)
+    public void DrawBatch(TmBatch batch, int targetWidth, int targetHeight)
+    {
+        var gui = batch.BeginGui(targetWidth, targetHeight);
+        
+        using (gui.BeginWindow("Window 1", new Vector2(50, 50), new Vector2(800, 950))) {
+            Window1(gui);
+        }
+    }
+    
+    private void Window1(Gui gui)
     {
         gui.Button("hello GUI", Dim.Fill_X(0, Fit.Content));
         gui.Spacer();

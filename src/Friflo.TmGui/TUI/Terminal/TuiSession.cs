@@ -2,24 +2,24 @@
 // See LICENSE file in the project root for full license information.
 
 using System;
-using System.Numerics;
+
 
 // ReSharper disable ConvertToPrimaryConstructor
 namespace Friflo.TmGui.TUI.Terminal;
-
 
 public sealed class TuiSession
 {
     private readonly    FrameBuffer     frameBuffer;
     private readonly    TuiBackend      backend;
     private readonly    TuiBatch        batch;
-    private readonly    TestScreen      screen          = new();
+    private readonly    IBatchRenderer  renderer;
     private readonly    byte[]          sendBuffer      = new byte[10000];
     private             int             sendBufferCount;
     private readonly    TuiColorMode    colorMode;
     
-    public TuiSession(FrameBuffer frameBuffer, TuiColorMode colorMode)
+    public TuiSession(IBatchRenderer renderer, FrameBuffer frameBuffer, TuiColorMode colorMode)
     {
+        this.renderer       = renderer;
         this.frameBuffer    = frameBuffer;
         this.colorMode      = colorMode;
         backend             = new TuiBackend();
@@ -29,11 +29,9 @@ public sealed class TuiSession
     public Memory<byte> IterateTui()
     {
         backend.NewFrame();
-        var gui = batch.BeginGui(1280, 1000);
         
-        using (gui.BeginWindow("Window 1", new Vector2(50, 50), new Vector2(800, 950))) {
-            screen.Window1(gui);
-        }
+        renderer.DrawBatch(batch, 1280, 1000);
+
         sendBufferCount = 0;
         
         // clear screen
