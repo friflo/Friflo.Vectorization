@@ -16,6 +16,8 @@ public sealed class TuiSession
     private readonly    byte[]          sendBuffer      = new byte[10000];
     private             int             sendBufferCount;
     private readonly    TuiColorMode    colorMode;
+    private             int             frameWidth      = 40;
+    private             int             frameHeight     = 20;
     
     public TuiSession(IBatchRenderer renderer, FrameBuffer frameBuffer, TuiColorMode colorMode)
     {
@@ -30,14 +32,14 @@ public sealed class TuiSession
     {
         backend.NewFrame();
         
-        renderer.DrawBatch(batch, 1280, 1000);
+        renderer.DrawBatch(batch, (int)(frameWidth * batch.CharWidth), (int)(frameHeight * batch.LineHeight));
 
         sendBufferCount = 0;
         
         // clear screen
         AppendSpan(EscapeWrite.ClearScreen);
         
-        AppendFrameBuffer(40, 21);
+        AppendFrameBuffer(frameWidth, frameHeight);
         
         return sendBuffer.AsMemory(0, sendBufferCount);
     }
