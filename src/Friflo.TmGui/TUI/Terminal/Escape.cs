@@ -8,7 +8,9 @@ namespace Friflo.TmGui.TUI.Terminal;
 
 internal static class EscapeWrite
 {
-    public static   ReadOnlySpan<byte>  EnableRawTuiMode    => "\x1b[?1h\x1b[?25l"u8; // (Application Cursor Keys Mode) + (Hide Cursor)
+    public static   ReadOnlySpan<byte>  EnableRawApplicationTuiMode => "\x1b[?1h\x1b[?25l"u8; // (Application Cursor Keys Mode) + (Hide Cursor)
+    public static   ReadOnlySpan<byte>  EnableRawNormalTuiMode      => "\x1b[?1l\x1b[?25l"u8; // (Normal Cursor Keys Mode) + (Hide Cursor)
+    
     public static   ReadOnlySpan<byte>  ClearScreen         => "\x1b[2J\x1b[H"u8;
     
     public static   ReadOnlySpan<byte>  ResetAll            => "\x1b[0m"u8;   // Resets all colors, background, and text formatting (SGR 0)

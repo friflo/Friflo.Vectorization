@@ -137,7 +137,7 @@ public sealed class SingleThreadedShardEngine
     public static async ValueTask HandleClientSessionAsync(Socket socket, SingleThreadedShardEngine engine, CancellationToken cancellationToken)
     {
         // Enable raw mode on client terminal
-        await socket.SendAsync(EscapeWrite.EnableRawTuiMode.ToArray(), SocketFlags.None, cancellationToken);
+        await socket.SendAsync(EscapeWrite.EnableRawApplicationTuiMode.ToArray(), SocketFlags.None, cancellationToken);
 
         byte[] buffer = ArrayPool<byte>.Shared.Rent(256);
 
