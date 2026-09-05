@@ -10,6 +10,12 @@ using System.Numerics;
 // ReSharper disable InconsistentNaming
 namespace Friflo.TmGui.TUI;
 
+public enum TuiColorMode
+{
+    Monochrome,
+    RGB24
+}
+
 public struct TuiColorCell
 {
     public  char        character;      //  2 bytes

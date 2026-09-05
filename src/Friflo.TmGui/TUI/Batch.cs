@@ -32,8 +32,16 @@ public sealed class TuiBatch : TmBatch
     public              float                   CharWidth   => charWidth;
     public              float                   LineHeight  => lineHeight;
 
-    public TuiBatch(TuiBackend backend) : base(backend, 0) {
+    public TuiBatch(TuiBackend backend, TuiColorMode colorMode) : base(backend, 0)
+    {
         this.backend = backend;
+        if  (colorMode == TuiColorMode.Monochrome) {
+            buttonBorder = new TuiBorder('[', ']');
+            focusBorder  = new TuiBorder('»', '«');
+        } else {
+            buttonBorder = new TuiBorder(' ', ' ');
+            focusBorder  = new TuiBorder('[', ']');
+        }
     }
 
     private const float CharacterAspectRatio = 0.5f;

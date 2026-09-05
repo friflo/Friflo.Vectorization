@@ -41,8 +41,8 @@ public sealed class TuiBackend : TmGuiBackend
         }
     }
     
-    public TuiBatch CreateBatch() {
-        var batch = new TuiBatch(this);
+    public TuiBatch CreateBatch(TuiColorMode colorMode) {
+        var batch = new TuiBatch(this, colorMode);
         InitBatch(batch);
         return batch;
     }

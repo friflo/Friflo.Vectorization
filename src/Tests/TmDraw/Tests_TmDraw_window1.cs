@@ -32,7 +32,7 @@ public class Tests_TmDraw_window1
     public void Tests_TmDraw_window1_TUI_char()
     {
         var backend = new TuiBackend();
-        var batch   = backend.CreateBatch();
+        var batch   = backend.CreateBatch(TuiColorMode.Monochrome);
 
         long        start   = 0;
         const int   repeat  = 10; // 2_000_000 - 2.2 sec
@@ -64,7 +64,7 @@ public class Tests_TmDraw_window1
     public void Tests_TmDraw_window1_TUI_color()
     {
         var backend = new TuiBackend();
-        var batch   = backend.CreateBatch();
+        var batch   = backend.CreateBatch(TuiColorMode.Monochrome);
 
         long        start   = 0;
         const int   repeat  = 10; // 2_000_000 - 3.5 sec

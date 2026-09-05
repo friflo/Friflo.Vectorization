@@ -10,11 +10,7 @@ using System.Numerics;
 namespace Friflo.TmGui.TUI.Terminal;
 
 
-public enum TuiColorMode
-{
-    Monochrome,
-    RGB24
-}
+
 
 public static class EscapeSequence
 {
@@ -37,13 +33,7 @@ public class TuiSession
     {
         this.colorMode  = colorMode;
         backend         = new TuiBackend();
-        batch           = backend.CreateBatch();
-        if  (colorMode == TuiColorMode.Monochrome) {
-            batch.buttonBorder = new TuiBorder('[', ']');
-        } else {
-            batch.buttonBorder = new TuiBorder(' ', ' ');
-        }
-        batch.focusBorder  = new TuiBorder('[', ']');
+        batch           = backend.CreateBatch(colorMode);
     }
     
     public Memory<byte> IterateTui()
