@@ -96,9 +96,9 @@ public sealed class SingleThreadedShardEngine
                 var socket          = evt.Socket;
                 var args            = firstLine == -1 ? [] : GetArgs(payload.Slice(0, firstLine));
                 var connectInfo     = new ConnectInfo{ socket = socket, args = args };
-                var renderer        = createGuiView(connectInfo);
+                var guiView         = createGuiView(connectInfo);
                 
-                var newSession      = new TuiSession(renderer, frameBuffer, TuiColorMode.RGB24);
+                var newSession      = new TuiSession(guiView, frameBuffer, TuiColorMode.RGB24);
                 sessions[socket]    = newSession;
                 
                 var rest        = firstLine == -1 ? default : payload.Slice(firstLine + 1);
