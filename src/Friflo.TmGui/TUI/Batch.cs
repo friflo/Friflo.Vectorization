@@ -8,6 +8,7 @@ using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
+// ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable UseWithExpressionToCopyStruct
 // ReSharper disable InlineTemporaryVariable
 // ReSharper disable SuggestVarOrType_BuiltInTypes
@@ -28,7 +29,6 @@ public sealed class TuiBatch : TmBatch
     internal readonly   List<TuiRect>           tuiRects        = [];
     private  readonly   List<TuiRectCommand>    rectCommands    = [];
     private  readonly   List<char>              textBuffer      = [];
-    private             int                     textBufferStart;
     
     public              ReadOnlySpan<char>      Texts       => CollectionsMarshal.AsSpan(textBuffer);
     public              ReadOnlySpan<TuiRect>   Rects       => CollectionsMarshal.AsSpan(tuiRects);
@@ -63,7 +63,6 @@ public sealed class TuiBatch : TmBatch
         tuiRects.Clear();
         rectCommands.Clear();
         textBuffer.Clear();
-        textBufferStart = 0;
     }
     
     internal void FlushRects()
@@ -255,9 +254,17 @@ public sealed class TuiBatch : TmBatch
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void DrawText(ReadOnlySpan<char> text, Vector2 position, Color32 color)
     {
-        var textSpan    = new TextSpan { start = textBuffer.Count, len = text.Length };
-        tuiRects.Add(new TuiRect(textSpan, position, new Vector2(textSpan.len * charWidth, lineHeight), color));
+        var textSpan = new TextSpan { start = textBuffer.Count, len = text.Length };
+        tuiRects.Add(new TuiRect(textSpan, position, new Vector2(text.Length * charWidth, lineHeight), color));
         textBuffer.AddRange(text);
+    }
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void DrawChar(char character, Vector2 position, Color32 color)
+    {
+        var textSpan = new TextSpan { start = textBuffer.Count, len = 1 };
+        tuiRects.Add(new TuiRect(textSpan, position, new Vector2(charWidth, lineHeight), color));
+        textBuffer.Add(character);
     }
     
     public Vector2 DrawLabel(ReadOnlySpan<char> text, Vector2 position, Color32 color)
@@ -268,28 +275,24 @@ public sealed class TuiBatch : TmBatch
     
     public void Button(ReadOnlySpan<char> text, Vector2 position, Vector2 size, Color32 color, Color32 background)
     {
-        var textStart = textBuffer.Count;
-        textBuffer.Add(buttonBorder.left);
-        textBuffer.AddRange(text);
-        textBuffer.Add(buttonBorder.right);
-        var textSpan    = new TextSpan { start = textStart, len = textBuffer.Count - textStart };
+        var buffer = textBuffer;
+        var textStart = buffer.Count;
+        buffer.Add(buttonBorder.left);
+        buffer.AddRange(text);
+        buffer.Add(buttonBorder.right);
+        var textSpan    = new TextSpan { start = textStart, len = buffer.Count - textStart };
         FillRect(position, size, background);
         tuiRects.Add(new TuiRect(textSpan, position, size, color));
     }
     
     public void Checkbox(bool value, ReadOnlySpan<char> text, Vector2 position, Vector2 size, Color32 color, Color32 boxColor)
     {
-        var textStart   = textBuffer.Count;
-        var boxText     = value ? "[x]" : "[ ]";
-        textBuffer.AddRange(boxText.AsSpan());
-        var boxSpan     = new TextSpan { start = textStart, len = 3 };
-        var boxSize     = new Vector2(3 * charWidth, lineHeight);
+        var boxText = value ? "[x]" : "[ ]";
+        var boxSize = new Vector2(3 * charWidth, lineHeight);
         FillRect(position, boxSize, boxColor);
-        tuiRects.Add(new TuiRect(boxSpan, position, boxSize, color));
+        DrawText(boxText, position, color);
         
-        textBuffer.AddRange(text);
-        var textSpan    = new TextSpan { start = textStart + 3, len = textBuffer.Count - textStart - 3 };
-        tuiRects.Add(new TuiRect(textSpan, position + new Vector2(4 * charWidth, 0), size, color));
+        DrawText(text, position + new Vector2(4 * charWidth, 0), color);
     }
 
     public void Slider(ReadOnlySpan<char> name, Vector2 position, Vector2 size, Vector2 fillSize, Color32 color, Color32 sliderColor, Color32 fillColor)
@@ -312,19 +315,10 @@ public sealed class TuiBatch : TmBatch
     
     internal void DrawFocus(Vector2 pos, Vector2 size, Color32 color)
     {
-        var textStart   = textBuffer.Count;
         var height = Math.Max(1, (int)((size.Y + lineHeight) * yScale));
         if (height == 1) {
-            textBuffer.Add(focusBorder.left);
-            textBuffer.Add(focusBorder.right);
-            var charSize    = new Vector2(charWidth, lineHeight);
-            var markLeft    = new TextSpan { start = textStart,     len = 1 };
-            var markRight   = new TextSpan { start = textStart + 1, len = 1 };
-
-            for (int n = 0; n < height; n++) {
-                tuiRects.Add(new TuiRect(markLeft,  pos,                                      charSize, color));
-                tuiRects.Add(new TuiRect(markRight, pos + new Vector2(size.X - charWidth, 0), charSize, color));
-            }
+            DrawChar(focusBorder.left,  pos,                                      color);
+            DrawChar(focusBorder.right, pos + new Vector2(size.X - charWidth, 0), color);
             return;
         }
         var barSize = new Vector2(charWidth, height * lineHeight);
