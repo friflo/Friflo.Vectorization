@@ -16,7 +16,7 @@ public class TestRenderer : IGuiView
     {
         var gui = batch.BeginGui(targetWidth, targetHeight);
         
-        using (gui.BeginWindow("Window 1", new Vector2(50, 50), new Vector2(800, 950))) {
+        using (gui.BeginWindow("Window 1", new Vector2(50, 50), new Vector2(1000, 850))) {
             Window1(gui);
         }
     }

@@ -16,7 +16,7 @@ public sealed class TuiSession
     private readonly    byte[]          sendBuffer      = new byte[10000];
     private             int             sendBufferCount;
     private readonly    TuiColorMode    colorMode;
-    private             int             frameWidth      = 40;
+    private             int             frameWidth      = 45;
     private             int             frameHeight     = 20;
     
     public TuiSession(IGuiView guiView, FrameBuffer frameBuffer, TuiColorMode colorMode)

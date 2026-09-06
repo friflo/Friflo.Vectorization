@@ -5,6 +5,7 @@
 using System;
 using System.Collections.Generic;
 using System.Numerics;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 // ReSharper disable UseWithExpressionToCopyStruct
@@ -251,6 +252,7 @@ public sealed class TuiBatch : TmBatch
         return new Vector2(lineHeight * text.Length, lineHeight);
     }
     
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void FillRect(Vector2 position, Vector2 size, Color32 background)
     {
         tuiRects.Add(new TuiRect(position, size, background));
@@ -263,7 +265,7 @@ public sealed class TuiBatch : TmBatch
         textBuffer.AddRange(text);
         textBuffer.Add(buttonBorder.right);
         var textSpan    = new TextSpan { start = textStart, len = textBuffer.Count - textStart };
-        tuiRects.Add(new TuiRect(position, size, background));
+        FillRect(position, size, background);
         tuiRects.Add(new TuiRect(textSpan, position, size, color));
     }
     
@@ -274,7 +276,7 @@ public sealed class TuiBatch : TmBatch
         textBuffer.AddRange(boxText.AsSpan());
         var boxSpan     = new TextSpan { start = textStart, len = 3 };
         var boxSize     = new Vector2(3 * charWidth, lineHeight);
-        tuiRects.Add(new TuiRect(position, boxSize, boxColor));
+        FillRect(position, boxSize, boxColor);
         tuiRects.Add(new TuiRect(boxSpan, position, boxSize, color));
         
         textBuffer.AddRange(text);
@@ -284,15 +286,15 @@ public sealed class TuiBatch : TmBatch
 
     public void Slider(ReadOnlySpan<char> name, Vector2 position, Vector2 size, Vector2 fillSize, Color32 color, Color32 sliderColor, Color32 fillColor)
     {
-        tuiRects.Add(new TuiRect(position, size,     sliderColor));
-        tuiRects.Add(new TuiRect(position, fillSize, fillColor));
+        FillRect(position, size,     sliderColor);
+        FillRect(position, fillSize, fillColor);
         var offset = new Vector2((size.X - name.Length * charWidth) * 0.5f, 0);
         DrawText(name, position + offset, color);
     }
 
     public void DrawScrollbar(Vector2 position, Vector2 size, Color32 background)
     {
-        tuiRects.Add(new TuiRect(position, size, background));
+        FillRect(position, size, background);
     }
     
     public void Space(Vector2 pos, Vector2 size)
@@ -318,8 +320,8 @@ public sealed class TuiBatch : TmBatch
             return;
         }
         var barSize = new Vector2(charWidth, height * lineHeight);
-        tuiRects.Add(new TuiRect(pos,                                       barSize, color));
-        tuiRects.Add(new TuiRect(pos + new Vector2(size.X - charWidth, 0),  barSize, color));
+        FillRect(pos,                                       barSize, color);
+        FillRect(pos + new Vector2(size.X - charWidth, 0),  barSize, color);
     }
 #endregion
 }
