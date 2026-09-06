@@ -67,6 +67,7 @@ public sealed class TuiSession
         // color / background are only sent if changed 
         var color       = new Color32();
         var background  = new Color32();
+        var textStyle   = TextStyle.None;
         
         batch.DrawRectCommandsColor(frameBuffer, width, height, new TuiColorCell { character = ' ', background = 0x888888ff });
         var cells = frameBuffer.ColorCells;
@@ -80,6 +81,10 @@ public sealed class TuiSession
                     if (cell.color != color) {
                         SetColor(color = cell.color);
                     }
+                }
+                if (cell.textStyle != textStyle) {
+                    ApplyStyleDiff(textStyle, cell.textStyle);
+                    textStyle = cell.textStyle;
                 }
                 if (cell.background != background) {
                     SetBackground(background = cell.background);
@@ -142,6 +147,26 @@ public sealed class TuiSession
     {
         buffer.CopyTo(sendBuffer.AsSpan(sendBufferCount, buffer.Length));
         sendBufferCount += buffer.Length;
+    }
+    
+    private void ApplyStyleDiff(TextStyle oldStyle, TextStyle newStyle)
+    {
+        var enabled  = newStyle & ~oldStyle;
+        var disabled = oldStyle & ~newStyle;
+
+        if ((enabled & TextStyle.Bold)          != 0) AppendSpan("\x1b[1m"u8);
+        if ((enabled & TextStyle.Dim)           != 0) AppendSpan("\x1b[2m"u8);
+        if ((enabled & TextStyle.Italic)        != 0) AppendSpan("\x1b[3m"u8);
+        if ((enabled & TextStyle.Underline)     != 0) AppendSpan("\x1b[4m"u8);
+        if ((enabled & TextStyle.Inverse)       != 0) AppendSpan("\x1b[7m"u8);
+        if ((enabled & TextStyle.StrikeThrough) != 0) AppendSpan("\x1b[9m"u8);
+
+        if ((disabled & TextStyle.Bold)         != 0) AppendSpan("\x1b[22m"u8);
+        if ((disabled & TextStyle.Dim)          != 0) AppendSpan("\x1b[22m"u8);
+        if ((disabled & TextStyle.Italic)       != 0) AppendSpan("\x1b[23m"u8);
+        if ((disabled & TextStyle.Underline)    != 0) AppendSpan("\x1b[24m"u8);
+        if ((disabled & TextStyle.Inverse)      != 0) AppendSpan("\x1b[27m"u8);
+        if ((disabled & TextStyle.StrikeThrough)!= 0) AppendSpan("\x1b[29m"u8);
     }
 
     public Memory<byte> ProcessInput(ReadOnlySpan<byte> input)

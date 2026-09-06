@@ -171,12 +171,14 @@ public sealed class TuiBatch : TmBatch
                         if (count > 0 && startY == rectT)
                         {
                             if (drawColor) {
-                                var color   = rect.color;
-                                var row     = cells.Slice(stride * startY + startX, count);
+                                var color       = rect.color;
+                                var textStyle   = rect.textStyle;
+                                var row         = cells.Slice(stride * startY + startX, count);
                                 for (int n = 0; n < count; n++) {
                                     ref var dstCell = ref row[n];
                                     dstCell.character   = text[offsetX + n];
                                     dstCell.color       = color;
+                                    dstCell.textStyle   = textStyle;
                                 }
                             } else {
                                 var srcSpan = text.Slice(offsetX, count);
@@ -275,7 +277,7 @@ public sealed class TuiBatch : TmBatch
     
     public static TextStyle GetStyle(bool isFocused)
     {
-        return isFocused ? TextStyle.Underline : TextStyle.None;
+        return isFocused ? TextStyle.Underline | TextStyle.Bold : TextStyle.None;
     }
     
     public void Button(ReadOnlySpan<char> text, Vector2 position, Vector2 size, Color32 color, Color32 background, bool isFocused)
