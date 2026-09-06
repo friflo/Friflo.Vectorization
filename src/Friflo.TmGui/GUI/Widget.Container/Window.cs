@@ -64,7 +64,7 @@ public readonly ref partial struct GuiWidget
         var tui = draw.Tui;
         if (tui != null) {
             tui.FillRect(window.Pos, window.Size, Colors.WindowColor);
-            tui.DrawText(title, textPos, Colors.TextColor, headerColor);
+            tui.DrawText(title, textPos, Colors.TextColor);
         } else {
             draw.FillRectRounded(window.Pos,   window.Size,  Sizes.CornerRadius, Colors.WindowColor,     GuiSizes.CornerSegments);
             draw.FillRectRounded(window.Pos,   titleBarSize, Sizes.CornerRadius, headerColor,            GuiSizes.CornerSegments);

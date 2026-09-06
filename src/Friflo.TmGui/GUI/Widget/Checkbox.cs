@@ -35,7 +35,7 @@ public readonly ref partial struct GuiWidget
             value = !value;
         }
         if (tui != null) {
-            tui.Checkbox(value, name, pos, totalSize, Colors.TextColor, Colors.ButtonState(widgetState), Colors.WindowColor);
+            tui.Checkbox(value, name, pos, totalSize, Colors.TextColor);
         } else {
             draw.FillRectRounded  (pos, boxRectSize, Sizes.CornerRadius, Colors.ButtonState(widgetState), GuiSizes.CornerSegments); // background
             draw.StrokeRectRounded(pos, boxRectSize, Sizes.CornerRadius, 2, Colors.ButtonBorder, GuiSizes.CornerSegments);
@@ -47,7 +47,7 @@ public readonly ref partial struct GuiWidget
             draw.DrawText(name, textPos, Colors.TextColor);
         }
         if (isFocused) {
-            DrawFocus(pos, boxRectSize, Colors.ButtonState(widgetState));
+            DrawFocus(pos, boxRectSize);
             window.EnsureVisibleInScrollArea(pos, boxRectSize);
         }
         MoveCursor(totalSize);

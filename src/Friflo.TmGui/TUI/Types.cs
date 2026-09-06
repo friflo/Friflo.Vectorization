@@ -62,12 +62,11 @@ internal struct TuiRect
         this.background     = background;
     }
         
-    internal TuiRect(TextSpan text, Vector2 pos, Vector2 size, Color32 color, Color32 background) {
+    internal TuiRect(TextSpan text, Vector2 pos, Vector2 size, Color32 color) {
         this.text           = text;
         this.TL             = pos;
         this.BR             = pos + size;
         this.color          = color;
-        this.background     = background;
     }
 }
 
