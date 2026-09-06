@@ -49,7 +49,7 @@ public readonly ref partial struct GuiWidget
         }
         if (isFocused) {
             DrawFocus(pos, boxRectSize);
-            window.EnsureVisibleInScrollArea(pos, boxRectSize);
+            EnsureVisibleInScrollArea(pos, boxRectSize);
         }
         MoveCursor(totalSize);
         return isToggled;

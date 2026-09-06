@@ -44,6 +44,6 @@ public readonly ref partial struct GuiWidget
     {
         if (!space.isFocused) return;
         DrawFocus(space.pos, space.size);
-        Window.EnsureVisibleInScrollArea(space.pos, space.size);
+        EnsureVisibleInScrollArea(space.pos, space.size);
     }
 }

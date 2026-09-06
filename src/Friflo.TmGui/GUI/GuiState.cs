@@ -26,6 +26,8 @@ internal sealed class GuiState
     internal readonly   GuiStyle                currentStyle        = new();
     internal readonly   Dictionary<int,Vector2> mouseOffsets        = new();
     
+    internal            bool                    scrollAreaChanged;
+    
     internal            GuiWindow               window              = null!;
     
     private             int                     frameCount;
@@ -83,6 +85,7 @@ internal sealed class GuiState
         currentStyle.colors     = defaultStyle.colors; // 💪
         currentStyle.sizes    	= defaultStyle.sizes;
         revertStylesCount       = 0;
+        scrollAreaChanged       = false;
     }
 
     internal void SetFrameCount(int inputFrameCount)

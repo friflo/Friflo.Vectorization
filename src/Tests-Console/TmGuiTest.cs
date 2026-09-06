@@ -245,9 +245,8 @@ public static class GuiExtensions
         }
         if (isFocused) {
             widget.DrawFocus(pos, size);
-            window.EnsureVisibleInScrollArea(pos, size);
+            widget.EnsureVisibleInScrollArea(pos, size);
         }
-        
         widget.MoveCursor(size);
         return widget.IsFired(widgetState, isFocused);
     }

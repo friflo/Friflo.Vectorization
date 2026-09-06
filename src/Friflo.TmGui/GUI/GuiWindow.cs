@@ -421,24 +421,24 @@ public sealed class GuiWindow
         }
     }
     
-    public void EnsureVisibleInScrollArea(Vector2 pos, Vector2 size)
+    /// Note:  Must be called only from <see cref="GuiWidget.EnsureVisibleInScrollArea"/>
+    internal bool EnsureVisibleInScrollArea(Vector2 pos, Vector2 size)
     {
-        if (!host.input.JustNavigated) {
-            return;
-        }
         var scrollArea = CurrentScrollArea;
-        if (scrollArea.childId == 0) return; // Not inside an active ScrollArea
-
+        if (scrollArea.childId == 0) {
+            return false; // Not inside an active ScrollArea
+        }
         ref var scrollState = ref GetOrCreateScrollState(scrollArea.childId);
         
         // Generous padding to ensure focused elements have breathing room at the edges
         float padding = 30f;
 
         // Check and adjust vertical scrolling (Y-Axis)
-        float widgetTop = pos.Y;
-        float widgetBottom = pos.Y + size.Y;
-        float areaTop = scrollArea.pos.Y;
-        float areaBottom = scrollArea.pos.Y + scrollArea.size.Y;
+        float widgetTop     = pos.Y;
+        float widgetBottom  = pos.Y + size.Y;
+        float areaTop       = scrollArea.pos.Y;
+        float areaBottom    = scrollArea.pos.Y + scrollArea.size.Y;
+        var   scrollOffset  = scrollState.offset;
 
         if (widgetTop < areaTop + padding) {
             float delta = (areaTop + padding) - widgetTop;
@@ -461,6 +461,7 @@ public sealed class GuiWindow
             float delta = widgetRight - (areaRight - padding);
             scrollState.offset.X += delta;
         }
+        return scrollOffset != scrollState.offset;
     }
 #endregion
 }

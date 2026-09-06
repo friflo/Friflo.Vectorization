@@ -68,6 +68,17 @@ public readonly ref partial struct GuiWidget
     }
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void EnsureVisibleInScrollArea(Vector2 pos, Vector2 size)
+    {
+        if (!input.JustNavigated) {
+            return;
+        }
+        if (Window.EnsureVisibleInScrollArea(pos, size)) {
+            guiState.scrollAreaChanged = true;
+        }
+    }
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool IsFired(WidgetState widgetState, bool isFocused) {
         return widgetState == WidgetState.Clicked || (isFocused && input.IsSubmitFired);
     }

@@ -35,8 +35,13 @@ public sealed class TuiSession
         // renderer gui in pixel units to support GUI & TUI with same application code
         var pixelWidth  = (int)(frameWidth  * batch.CharWidth);
         var pixelHeight = (int)(frameHeight * batch.LineHeight);
+        
         guiView.RenderGui(batch, pixelWidth, pixelHeight);
-
+        
+        if (batch.guiState.scrollAreaChanged) {
+            backend.NewFrame();
+            guiView.RenderGui(batch, pixelWidth, pixelHeight);
+        }
         sendBufferCount = 0;
         
         // clear screen
