@@ -32,8 +32,8 @@ public sealed class TuiSession
     {
         backend.NewFrame();
         
-        // renderer unit a in pixel to support GUI & TUI with same application code
-        var pixelWidth  = (int)(frameWidth * batch.CharWidth);
+        // renderer gui in pixel units to support GUI & TUI with same application code
+        var pixelWidth  = (int)(frameWidth  * batch.CharWidth);
         var pixelHeight = (int)(frameHeight * batch.LineHeight);
         guiView.RenderGui(batch, pixelWidth, pixelHeight);
 
