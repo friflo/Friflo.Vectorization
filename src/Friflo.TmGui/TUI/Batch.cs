@@ -187,7 +187,7 @@ public sealed class TuiBatch : TmBatch
                     // Fill clipped background area row by row
                     if (drawColor) {
                         var width = endX - startX;
-                        var fill  = new TuiColorCell { character = ' ', color = rect.color, background = rect.color };
+                        var fill  = new TuiColorCell { character = ' ', color = 0, background = rect.color };
 
                         for (int y = startY; y < endY; y++) {
                             cells.Slice(stride * y + startX, width).Fill(fill);

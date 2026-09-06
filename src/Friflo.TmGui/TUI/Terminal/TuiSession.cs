@@ -77,8 +77,8 @@ public sealed class TuiSession
             {
                 var cell = cells[y * width + x];
 
-                // Check & emit Foreground Color (38;2;R;G;B)
-                if (cell.color != color) {
+                // Check & emit Foreground Color (38;2;R;G;B) if not transparent
+                if (cell.color.A != 0 && cell.color != color) {
                     color = cell.color;
                     AppendSpan("\x1b[38;2;"u8);
                     AppendNumber(color.R);
