@@ -34,10 +34,11 @@ public readonly ref partial struct GuiWidget
         if (isToggled) {
             value = !value;
         }
+        var boxColor = Colors.ButtonState(widgetState);
         if (tui != null) {
-            tui.Checkbox(value, name, pos, totalSize, Colors.TextColor);
+            tui.Checkbox(value, name, pos, totalSize, Colors.TextColor, boxColor);
         } else {
-            draw.FillRectRounded  (pos, boxRectSize, Sizes.CornerRadius, Colors.ButtonState(widgetState), GuiSizes.CornerSegments); // background
+            draw.FillRectRounded  (pos, boxRectSize, Sizes.CornerRadius, boxColor, GuiSizes.CornerSegments); // background
             draw.StrokeRectRounded(pos, boxRectSize, Sizes.CornerRadius, 2, Colors.ButtonBorder, GuiSizes.CornerSegments);
             if (value) {
                 var fillOffset = new Vector2(8, 8);

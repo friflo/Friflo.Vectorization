@@ -267,13 +267,15 @@ public sealed class TuiBatch : TmBatch
         tuiRects.Add(new TuiRect(textSpan, position, size, color));
     }
     
-    public void Checkbox(bool value, ReadOnlySpan<char> text, Vector2 position, Vector2 size, Color32 color)
+    public void Checkbox(bool value, ReadOnlySpan<char> text, Vector2 position, Vector2 size, Color32 color, Color32 boxColor)
     {
         var textStart   = textBuffer.Count;
         var boxText     = value ? "[x]" : "[ ]";
         textBuffer.AddRange(boxText.AsSpan());
         var boxSpan     = new TextSpan { start = textStart, len = 3 };
-        tuiRects.Add(new TuiRect(boxSpan, position, new Vector2(3 * charWidth, lineHeight), color));
+        var boxSize     = new Vector2(3 * charWidth, lineHeight);
+        tuiRects.Add(new TuiRect(position, boxSize, boxColor));
+        tuiRects.Add(new TuiRect(boxSpan, position, boxSize, color));
         
         textBuffer.AddRange(text);
         var textSpan    = new TextSpan { start = textStart + 3, len = textBuffer.Count - textStart - 3 };
