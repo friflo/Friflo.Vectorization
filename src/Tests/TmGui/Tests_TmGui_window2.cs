@@ -7,9 +7,9 @@ using Tests.Utils;
 
 // ReSharper disable ArrangeObjectCreationWhenTypeNotEvident
 // ReSharper disable once InconsistentNaming
-namespace Tests.TmDraw;
+namespace Tests.TmGui;
 
-public class Tests_TmDraw_window2
+public class Tests_TmGui_window2
 {
     [Test]
     public void Tests_TmDraw_window2_headless()

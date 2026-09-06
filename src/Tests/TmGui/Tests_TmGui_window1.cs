@@ -13,9 +13,9 @@ using Tests.Utils;
 
 // ReSharper disable ArrangeObjectCreationWhenTypeNotEvident
 // ReSharper disable once InconsistentNaming
-namespace Tests.TmDraw;
+namespace Tests.TmGui;
 
-public class Tests_TmDraw_window1
+public class Tests_TmGui_window1
 {
     private bool    mouseCircle;
     private bool    monocraft;
@@ -29,7 +29,7 @@ public class Tests_TmDraw_window1
     
     /// Result in <see cref="FrameBuffer.CharCells"/>
     [Test]
-    public void Tests_TmDraw_window1_TUI_char()
+    public void Tests_TmGui_window1_TUI_char()
     {
         var backend     = new TuiBackend();
         var frameBuffer = new FrameBuffer();
@@ -62,7 +62,7 @@ public class Tests_TmDraw_window1
 
     /// Result in <see cref="FrameBuffer.ColorCells"/>
     [Test]
-    public void Tests_TmDraw_window1_TUI_color()
+    public void Tests_TmGui_window1_TUI_color()
     {
         var backend     = new TuiBackend();
         var frameBuffer = new FrameBuffer();
@@ -120,7 +120,7 @@ public class Tests_TmDraw_window1
     }
     
     [Test]
-    public void Tests_TmDraw_window1_headless()
+    public void Tests_TmGui_window1_headless()
     {
         var         backend = new HeadlessBackend();
         var         batch   = backend.CreateBatch();

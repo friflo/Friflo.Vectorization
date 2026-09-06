@@ -12,12 +12,12 @@ using StbImageWriteSharp;
 // ReSharper disable SuggestVarOrType_SimpleTypes
 // ReSharper disable UnusedMember.Local
 // ReSharper disable once InconsistentNaming
-namespace Tests.TmDraw;
+namespace Tests.TmGui;
 
-public static class Tests_TmDraw
+public static class Tests_TmGui
 {
     [Test]
-    public static void Tests_TmDraw_GuiStyle()
+    public static void Tests_TmGui_GuiStyle()
     {
         var style = new GuiStyle();
         var repeat = 10; // 1_000_000_000   3.95 sec
@@ -48,7 +48,7 @@ public static class Tests_TmDraw
     }
     
     [Test]
-    public static void Tests_TmDraw_StringBuilderExtensions()
+    public static void Tests_TmGui_StringBuilderExtensions()
     {
         {
             var sb = new StringBuilder();
@@ -64,19 +64,19 @@ public static class Tests_TmDraw
     
     [Test]
     [Platform(Exclude = "MacOsX", Reason = "Hangs occasionally on macOS (Metal issue)")]
-    public static void Tests_TmDraw_DrawGui()
+    public static void Tests_TmGui_DrawGui()
     {
         // TODO  hangs occasionally in macOS. Debugging it when in fitting Mood
 
         using var instance    = WgpuInstance.CreateInstance();
         
-        TmDraw_DrawGui_Offscreen(instance);
+        TmGui_DrawGui_Offscreen(instance);
     
         var handles = instance.GenerateHandles();
         Assert.IsTrue(handles.IsActiveZero());
     }
     
-    private static void TmDraw_DrawGui_Offscreen(WgpuInstance instance)
+    private static void TmGui_DrawGui_Offscreen(WgpuInstance instance)
     {
         using var adapter     = instance.RequestAdapter(default); // specific backend: new GpuRequestAdapterOptions { backendType = BackendType.D3D12 }
         using var device      = adapter.CreateDevice("test");
