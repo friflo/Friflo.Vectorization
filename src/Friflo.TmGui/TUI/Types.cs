@@ -49,7 +49,7 @@ public struct TextSpan
 
 /// <summary> A draw command within a <see cref="TuiBatch"/>.</summary>
 /// <remarks>
-/// Either a filled rectangle with a <see cref="background"/> color.<br/>
+/// Either a filled rectangle with passed background <see cref="color"/>.<br/>
 /// Or a horizontal <see cref="text"/> with the passed <see cref="color"/>.
 /// </remarks>
 public struct TuiRect
@@ -58,21 +58,20 @@ public struct TuiRect
     public          Vector2     TL;             //  8 bytes - top / lLeft
     public          Vector2     BR;             //  8 bytes - bottom / right
     public          Color32     color;          //  4 bytes
-    public          Color32     background;     //  4 bytes
     
     public override string      ToString()       => $"[{TL.X}, {TL.Y} | {BR.X}, {BR.Y}]";
     
     internal TuiRect(Vector2 pos, Vector2 size, Color32 background) {
-        this.TL             = pos;
-        this.BR             = pos + size;
-        this.background     = background;
+        this.TL     = pos;
+        this.BR     = pos + size;
+        this.color  = background;
     }
         
     internal TuiRect(TextSpan text, Vector2 pos, Vector2 size, Color32 color) {
-        this.text           = text;
-        this.TL             = pos;
-        this.BR             = pos + size;
-        this.color          = color;
+        this.text   = text;
+        this.TL     = pos;
+        this.BR     = pos + size;
+        this.color  = color;
     }
 }
 
