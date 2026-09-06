@@ -76,36 +76,42 @@ public sealed class TuiSession
             for (int x = 0; x < width; x++)
             {
                 var cell = cells[y * width + x];
-
-                // Check & emit Foreground Color (38;2;R;G;B) if not transparent
-                if (cell.color.A != 0 && cell.color != color) {
-                    color = cell.color;
-                    AppendSpan("\x1b[38;2;"u8);
-                    AppendNumber(color.R);
-                    AppendByte((byte)';');
-                    AppendNumber(color.G);
-                    AppendByte((byte)';');
-                    AppendNumber(color.B);
-                    AppendByte((byte)'m');
+                if (cell.color.A != 0) {
+                    if (cell.color != color) {
+                        SetColor(color = cell.color);
+                    }
                 }
-                // Check & emit Background Color (48;2;R;G;B)
                 if (cell.background != background) {
-                    background = cell.background;
-                    AppendSpan("\x1b[48;2;"u8);
-                    AppendNumber(background.R);
-                    AppendByte((byte)';');
-                    AppendNumber(background.G);
-                    AppendByte((byte)';');
-                    AppendNumber(background.B);
-                    AppendByte((byte)'m');
+                    SetBackground(background = cell.background);
                 }
-                // Append Character
                 AppendByte((byte)cell.character);
             }
 
             // Send EraseInLine + CRLF at the end of each row
             AppendSpan("\x1b[K\r\n"u8);
         }
+    }
+    
+    private void SetColor(Color32 color)
+    {
+        AppendSpan("\x1b[38;2;"u8);
+        AppendNumber(color.R);
+        AppendByte((byte)';');
+        AppendNumber(color.G);
+        AppendByte((byte)';');
+        AppendNumber(color.B);
+        AppendByte((byte)'m');
+    }
+    
+    private void SetBackground(Color32 background)
+    {
+        AppendSpan("\x1b[48;2;"u8);
+        AppendNumber(background.R);
+        AppendByte((byte)';');
+        AppendNumber(background.G);
+        AppendByte((byte)';');
+        AppendNumber(background.B);
+        AppendByte((byte)'m');
     }
 
     // Allocation-free byte-to-ASCII integer formatting directly into sendBuffer
