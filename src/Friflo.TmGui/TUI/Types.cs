@@ -61,7 +61,7 @@ public struct TuiRect
     
     public override string      ToString()       => $"[{TL.X}, {TL.Y} | {BR.X}, {BR.Y}]";
     
-    /// <summary> A filled rectangle with given <see cref="background"/> color. </summary>
+    /// <summary> A filled rectangle with given background <see cref="color"/>. </summary>
     internal TuiRect(Vector2 pos, Vector2 size, Color32 background) {
         this.TL     = pos;
         this.BR     = pos + size;
