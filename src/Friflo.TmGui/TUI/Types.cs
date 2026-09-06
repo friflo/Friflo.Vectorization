@@ -54,10 +54,10 @@ public struct TextSpan
 /// </remarks>
 public struct TuiRect
 {
-    public          TextSpan    text;           //  8 bytes
-    public          Vector2     TL;             //  8 bytes - top / lLeft
-    public          Vector2     BR;             //  8 bytes - bottom / right
-    public          Color32     color;          //  4 bytes
+    public  TextSpan    text;   //  8 bytes
+    public  Vector2     TL;     //  8 bytes - top / lLeft    - Must use floats to enable layout mutations
+    public  Vector2     BR;     //  8 bytes - bottom / right - Must use floats to enable layout mutations
+    public  Color32     color;  //  4 bytes
     
     public override string      ToString()       => $"[{TL.X}, {TL.Y} | {BR.X}, {BR.Y}]";
     
