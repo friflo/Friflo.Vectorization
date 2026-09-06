@@ -297,25 +297,29 @@ public sealed class TuiBatch : TmBatch
     
     public void Space(Vector2 pos, Vector2 size)
     {
-        tuiRects.Add(new TuiRect(pos, size, 0xccccccff));
+        tuiRects.Add(new TuiRect(pos, size, 0xaaaaaaff));
     }
     
     internal void DrawFocus(Vector2 pos, Vector2 size, Color32 color)
     {
         var textStart   = textBuffer.Count;
         var height = Math.Max(1, (int)((size.Y + lineHeight) * yScale));
-        
-        textBuffer.Add(height == 1 ? focusBorder.left  : '|');
-        textBuffer.Add(height == 1 ? focusBorder.right : '|');
-        var charSize    = new Vector2(charWidth, lineHeight);
-        var markLeft    = new TextSpan { start = textStart,     len = 1 };
-        var markRight   = new TextSpan { start = textStart + 1, len = 1 };
+        if (height == 1) {
+            textBuffer.Add(focusBorder.left);
+            textBuffer.Add(focusBorder.right);
+            var charSize    = new Vector2(charWidth, lineHeight);
+            var markLeft    = new TextSpan { start = textStart,     len = 1 };
+            var markRight   = new TextSpan { start = textStart + 1, len = 1 };
 
-        for (int n = 0; n < height; n++) {
-            var offset = new Vector2(0, n * lineHeight);
-            tuiRects.Add(new TuiRect(markLeft,  pos + offset,                                      charSize, color));
-            tuiRects.Add(new TuiRect(markRight, pos + offset + new Vector2(size.X - charWidth, 0), charSize, color));
+            for (int n = 0; n < height; n++) {
+                tuiRects.Add(new TuiRect(markLeft,  pos,                                      charSize, color));
+                tuiRects.Add(new TuiRect(markRight, pos + new Vector2(size.X - charWidth, 0), charSize, color));
+            }
+            return;
         }
+        var barSize = new Vector2(charWidth, height * lineHeight);
+        tuiRects.Add(new TuiRect(pos,                                       barSize, color));
+        tuiRects.Add(new TuiRect(pos + new Vector2(size.X - charWidth, 0),  barSize, color));
     }
 #endregion
 }
