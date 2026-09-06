@@ -324,10 +324,10 @@ public sealed class TuiBatch : TmBatch
     internal void DrawFocus(Vector2 pos, Vector2 size, Color32 color)
     {
         var height = Math.Max(1, (int)((size.Y + lineHeight) * yScale));
-        const TextStyle bold = TextStyle.Bold;
+        const TextStyle none = TextStyle.None;
         if (height == 1) {
-            DrawChar(focusBorder.left,  bold, pos,                                      color);
-            DrawChar(focusBorder.right, bold, pos + new Vector2(size.X - charWidth, 0), color);
+            DrawChar(focusBorder.left,  none, pos,                                      color);
+            DrawChar(focusBorder.right, none, pos + new Vector2(size.X - charWidth, 0), color);
             return;
         }
         var barSize = new Vector2(charWidth, height * lineHeight);
@@ -336,8 +336,8 @@ public sealed class TuiBatch : TmBatch
         FillRect(pos + new Vector2(size.X - charWidth, 0),  barSize, buttonColor);
         
         for (int n = 0; n < height; n++) {
-            DrawChar('|', bold, pos,                                      color);
-            DrawChar('|', bold, pos + new Vector2(size.X - charWidth, 0), color);
+            DrawChar('|', none, pos,                                      color);
+            DrawChar('|', none, pos + new Vector2(size.X - charWidth, 0), color);
             pos.Y += lineHeight;
         }
     }
