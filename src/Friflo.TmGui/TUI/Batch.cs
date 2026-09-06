@@ -278,9 +278,12 @@ public sealed class TuiBatch : TmBatch
         tuiRects.Add(new TuiRect(textSpan, position + new Vector2(4 * charWidth, 0), size, color));
     }
 
-    public void Slider(ReadOnlySpan<char> name, ref float value, float min, float max, float width, Vector2 position, Vector2 size)
+    public void Slider(ReadOnlySpan<char> name, Vector2 position, Vector2 size, Vector2 fillSize, Color32 color, Color32 sliderColor, Color32 fillColor)
     {
-
+        tuiRects.Add(new TuiRect(position, size,     sliderColor));
+        tuiRects.Add(new TuiRect(position, fillSize, fillColor));
+        var offset = new Vector2((size.X - name.Length * charWidth) * 0.5f, 0);
+        DrawText(name, position + offset, color);
     }
 
     public void DrawScrollbar(Vector2 position, Vector2 size, Color32 background)

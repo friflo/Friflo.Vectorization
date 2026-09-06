@@ -10,7 +10,7 @@ public class TestRenderer : IGuiView
     private bool    mouseCircle;
     private bool    monocraft;
     private bool    enabled2;
-    private float   volume;
+    private float   volume = 0.8f;
     
     public void RenderGui(TmBatch batch, int targetWidth, int targetHeight)
     {
@@ -34,7 +34,7 @@ public class TestRenderer : IGuiView
         if(gui.Checkbox("Monocraft", ref monocraft)) {
         }
         gui.Spacer();
-        if (gui.Slider("Volume", ref volume, 0f, 1f, 200)) Console.WriteLine($"Volume: changed");
+        if (gui.Slider("Volume", ref volume, 0f, 1f, 300)) Console.WriteLine($"Volume: changed");
         gui.Spacer();
         
         gui.BeginHorizontal();

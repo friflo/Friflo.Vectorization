@@ -23,7 +23,7 @@ public class TmGuiRenderer : IRenderer
     private             bool                    monocraft;
     private readonly    TmFont                  monocraftFont;
     private             bool                    enabled2;
-    private             float                   volume;
+    private             float                   volume = 0.8f;
     
     private readonly GuiStyle redButtonStyle = new() {
         colors = new GuiColors {
@@ -116,7 +116,7 @@ public class TmGuiRenderer : IRenderer
             }
         }
         gui.Spacer();
-        if (gui.Slider("Volume", ref volume, 0f, 1f, 200)) Console.WriteLine($"Volume: changed");
+        if (gui.Slider("Volume", ref volume, 0f, 1f, 300)) Console.WriteLine($"Volume: changed");
         gui.Spacer();
         
         gui.BeginHorizontal();
