@@ -41,6 +41,7 @@ public sealed class TuiSession
         if (batch.guiState.scrollAreaChanged) {
             backend.NewFrame();
             guiView.RenderGui(batch, pixelWidth, pixelHeight);
+            Console.WriteLine("Scroll Area Changed");
         }
         sendBufferCount = 0;
         

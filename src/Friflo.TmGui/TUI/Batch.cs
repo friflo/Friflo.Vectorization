@@ -34,6 +34,8 @@ public sealed class TuiBatch : TmBatch
     public              ReadOnlySpan<TuiRect>   Rects       => CollectionsMarshal.AsSpan(tuiRects);
     public              float                   CharWidth   => charWidth;
     public              float                   LineHeight  => lineHeight;
+    public              float                   XScale      => xScale;
+    public              float                   YScale      => yScale;
 
     public TuiBatch(TuiBackend backend, TuiColorMode colorMode) : base(backend, 0)
     {

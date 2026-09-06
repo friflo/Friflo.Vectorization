@@ -16,10 +16,10 @@ namespace Friflo.TmGui;
 
 public readonly ref partial struct GuiWidget
 {
-    public  readonly    TmDraw          draw;           //  8 bytes
-    public  readonly    GuiInput        input;          //  8 bytes
-    private readonly    GuiState        guiState;       //  8 bytes
-    private readonly    GuiStyle        currentStyle;   //  8 bytes
+    public   readonly   TmDraw          draw;           //  8 bytes
+    public   readonly   GuiInput        input;          //  8 bytes
+    internal readonly   GuiState        guiState;       //  8 bytes
+    private  readonly   GuiStyle        currentStyle;   //  8 bytes
     
     [DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
     public ref readonly GuiColors       Colors          { [DebuggerStepThrough] get => ref currentStyle.colors; }
@@ -73,9 +73,7 @@ public readonly ref partial struct GuiWidget
         if (!input.JustNavigated) {
             return;
         }
-        if (Window.EnsureVisibleInScrollArea(pos, size)) {
-            guiState.scrollAreaChanged = true;
-        }
+        Window.EnsureVisibleInScrollArea(pos, size, this);
     }
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

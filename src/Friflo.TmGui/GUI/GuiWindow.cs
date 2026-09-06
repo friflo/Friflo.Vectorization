@@ -422,11 +422,11 @@ public sealed class GuiWindow
     }
     
     /// Note:  Must be called only from <see cref="GuiWidget.EnsureVisibleInScrollArea"/>
-    internal bool EnsureVisibleInScrollArea(Vector2 pos, Vector2 size)
+    internal void EnsureVisibleInScrollArea(Vector2 pos, Vector2 size, in GuiWidget widget)
     {
         var scrollArea = CurrentScrollArea;
         if (scrollArea.childId == 0) {
-            return false; // Not inside an active ScrollArea
+            return; // Not inside an active ScrollArea
         }
         ref var scrollState = ref GetOrCreateScrollState(scrollArea.childId);
         
@@ -461,7 +461,15 @@ public sealed class GuiWindow
             float delta = widgetRight - (areaRight - padding);
             scrollState.offset.X += delta;
         }
-        return scrollOffset != scrollState.offset;
+        var tui = widget.draw.Tui; 
+        if (tui != null) {
+            // Snap scroll offset to discrete terminal grid cells (prevents sub-pixel rendering artifacts)
+            scrollState.offset.X = MathF.Floor(scrollState.offset.X * tui.XScale) * tui.CharWidth;
+            scrollState.offset.Y = MathF.Floor(scrollState.offset.Y * tui.YScale) * tui.LineHeight;
+        }
+        if (scrollOffset != scrollState.offset) {
+            widget.guiState.scrollAreaChanged = true;
+        }
     }
 #endregion
 }
