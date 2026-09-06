@@ -114,11 +114,11 @@ public readonly ref partial struct GuiWidget
     {
         var tui = draw.Tui;
 
-        var margin = new Vector2(6, 6);
         draw.PushZIndexLocal(draw.ZIndexLocal + 1);
         if (tui != null) {
             tui.DrawFocus(pos, size, Colors.FocusColor);
         } else {
+            var margin = new Vector2(6, 6);
             draw.StrokeRectRounded(pos - margin, size + 2 * margin, Sizes.FocusRadius, 4, Colors.FocusColor);
         }
         draw.PopZIndex();

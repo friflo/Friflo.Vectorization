@@ -41,6 +41,7 @@ public readonly ref partial struct TmDraw
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void DrawSprite(in TmTexture texture, Vector2 position, Vector2 size, Vector2 uvMin, Vector2 uvMax, Color32 color)
     {
+        if (Tui != null) return;
         var bat = batch;
         if (bat.vertexCount + 4 > bat.vertexBuffer.Length || bat.currentTexture != texture) {
             bat.Flush();
@@ -106,6 +107,7 @@ public readonly ref partial struct TmDraw
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void DrawSpriteRotated(in TmTexture texture, Vector2 position, Vector2 size, float rotation, Vector2 pivot, Vector2 uvMin, Vector2 uvMax, Color32? color = null)
     {
+        if (Tui != null) return;
         var colorVal = color ?? Color32.White;
         if (rotation == 0f) {
             DrawSprite(texture, position - (pivot * size), size, uvMin, uvMax, colorVal);
@@ -163,6 +165,7 @@ public readonly ref partial struct TmDraw
         Vector4 	    borderThickness,
         Color32? 	    color = null)
     {
+        if (Tui != null) return;
         var color32 = color ?? Color32.White;
 
         float L = borderThickness.X;

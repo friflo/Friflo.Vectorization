@@ -295,17 +295,27 @@ public sealed class TuiBatch : TmBatch
         tuiRects.Add(new TuiRect(position, size, background));
     }
     
+    public void Space(Vector2 pos, Vector2 size)
+    {
+        tuiRects.Add(new TuiRect(pos, size, 0xccccccff));
+    }
+    
     internal void DrawFocus(Vector2 pos, Vector2 size, Color32 color)
     {
         var textStart   = textBuffer.Count;
-        textBuffer.Add(focusBorder.left);
-        textBuffer.Add(focusBorder.right);
+        var height = Math.Max(1, (int)((size.Y + lineHeight) * yScale));
+        
+        textBuffer.Add(height == 1 ? focusBorder.left  : '|');
+        textBuffer.Add(height == 1 ? focusBorder.right : '|');
         var charSize    = new Vector2(charWidth, lineHeight);
         var markLeft    = new TextSpan { start = textStart,     len = 1 };
         var markRight   = new TextSpan { start = textStart + 1, len = 1 };
-        
-        tuiRects.Add(new TuiRect(markLeft,  pos,  charSize, color));
-        tuiRects.Add(new TuiRect(markRight, pos + new Vector2(size.X - charWidth, 0),     charSize, color));
+
+        for (int n = 0; n < height; n++) {
+            var offset = new Vector2(0, n * lineHeight);
+            tuiRects.Add(new TuiRect(markLeft,  pos + offset,                                      charSize, color));
+            tuiRects.Add(new TuiRect(markRight, pos + offset + new Vector2(size.X - charWidth, 0), charSize, color));
+        }
     }
 #endregion
 }

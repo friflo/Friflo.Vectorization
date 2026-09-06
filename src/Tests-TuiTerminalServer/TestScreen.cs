@@ -47,8 +47,11 @@ public class TestRenderer : IGuiView
         gui.EndHorizontal();
         
         gui.Label("after horizontal");
-        using (var space = gui.BeginSpace(new(64, 64), "sprite")) {
+        using (var space = gui.BeginSpace(new(128, 64), "sprite")) {
             if (space.isFired) Console.WriteLine("Clicked: Sprite");
+            var srcPos  = new Vector2(3 * 64, 0 * 64);  // tile pos in Sheet (3, 0)        
+            var tint = gui.Colors.ButtonState(space.widgetState);
+            gui.Draw.DrawSpriteRegion(default, space.pos, space.size, srcPos, space.size, new(1024, 1024), tint);
         }
         gui.Spacer();
         gui.Checkbox("checkbox", ref enabled2);
