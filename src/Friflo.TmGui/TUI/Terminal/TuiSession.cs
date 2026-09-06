@@ -28,7 +28,7 @@ public sealed class TuiSession
         batch               = backend.CreateBatch(colorMode);
     }
     
-    public Memory<byte> IterateTui()
+    private Memory<byte> IterateTui()
     {
         backend.NewFrame();
         
