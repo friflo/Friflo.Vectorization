@@ -19,8 +19,8 @@ public class Tests_TmDraw_window1
 {
     private bool    mouseCircle;
     private bool    monocraft;
-    private bool    enabled2;
-    private float   volume;
+    private bool    enabled2    = true;
+    private float   volume      = 0.8f;
     
     private static void EnsureBatchApi(TmBatch batch)
     {
@@ -83,6 +83,8 @@ public class Tests_TmDraw_window1
             if (n == 0) start = Mem.GetAllocatedBytes();
         }
         Mem.AssertNoAlloc(start);
+        Assert.That(batch.Rects.Length, Is.EqualTo(50));
+        Assert.That(batch.Texts.Length, Is.EqualTo(183));
         Assert.That(frameBuffer.ColorCells.Length, Is.EqualTo(1500));
         
         var screen = CellsToString(frameBuffer.ColorCells, 50, 30);
@@ -141,7 +143,7 @@ public class Tests_TmDraw_window1
         var drawList    = batch.DrawList;
         var verticesLen = batch.Vertices.Length;
         Assert.That(drawList.Length,    Is.EqualTo(2));
-        Assert.That(verticesLen,        Is.EqualTo(3064));
+        Assert.That(verticesLen,        Is.EqualTo(3108));
         
         int vertexSum = 0;
         int indexSum  = 0;

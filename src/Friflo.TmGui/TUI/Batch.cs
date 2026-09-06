@@ -28,6 +28,8 @@ public sealed class TuiBatch : TmBatch
     private  readonly   List<TuiRectCommand>    rectCommands    = [];
     private  readonly   List<char>              textBuffer      = [];
     
+    public              ReadOnlySpan<char>      Texts       => CollectionsMarshal.AsSpan(textBuffer);
+    public              ReadOnlySpan<TuiRect>   Rects       => CollectionsMarshal.AsSpan(tuiRects);
     public              float                   CharWidth   => charWidth;
     public              float                   LineHeight  => lineHeight;
 

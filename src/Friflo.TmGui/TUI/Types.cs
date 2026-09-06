@@ -38,15 +38,21 @@ public struct TuiBorder
     }
 }
 
-internal struct TextSpan
+/// <summary> start and length of text within <see cref="TuiBatch.Texts"/> </summary>
+public struct TextSpan
 {
-    internal int    start;  //  4 bytes
-    internal int    len;    //  4 bytes
+    public  int    start;  //  4 bytes
+    public  int    len;    //  4 bytes
     
     public override string ToString() => $"[{start}..{start + len}]";
 }
 
-internal struct TuiRect
+/// <summary> A draw command within a <see cref="TuiBatch"/>.</summary>
+/// <remarks>
+/// Either a filled rectangle with a <see cref="background"/> color.<br/>
+/// Or a horizontal <see cref="text"/> with the passed <see cref="color"/>.
+/// </remarks>
+public struct TuiRect
 {
     public          TextSpan    text;           //  8 bytes
     public          Vector2     TL;             //  8 bytes - top / lLeft
