@@ -2,6 +2,7 @@
 // See LICENSE file in the project root for full license information.
 
 using System.Numerics;
+using Friflo.TmGui.TUI;
 
 
 // ReSharper disable SuggestVarOrType_BuiltInTypes
@@ -64,7 +65,7 @@ public readonly ref partial struct GuiWidget
         var tui = draw.Tui;
         if (tui != null) {
             tui.FillRect(window.Pos, window.Size, Colors.WindowColor);
-            tui.DrawText(title, textPos, Colors.TextColor);
+            tui.DrawText(title, TextStyle.None, textPos, Colors.TextColor);
         } else {
             draw.FillRectRounded(window.Pos,   window.Size,  Sizes.CornerRadius, Colors.WindowColor,     GuiSizes.CornerSegments);
             draw.FillRectRounded(window.Pos,   titleBarSize, Sizes.CornerRadius, headerColor,            GuiSizes.CornerSegments);

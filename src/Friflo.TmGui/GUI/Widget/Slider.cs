@@ -43,7 +43,7 @@ public readonly ref partial struct GuiWidget
         var tui         = draw.Tui;
         
         if (tui != null) {
-            tui.Slider(labelText.Span(), pos, totalSize, fillSize, Colors.TextColor, Colors.SliderState(widgetState), Colors.SliderColor);
+            tui.Slider(labelText.Span(), pos, totalSize, fillSize, Colors.TextColor, Colors.SliderState(widgetState), Colors.SliderColor, isFocused);
         } else {
             draw.FillRectRounded  (pos, totalSize, Sizes.CornerRadius, Colors.SliderState(widgetState), GuiSizes.CornerSegments); // background
             // Fill bar

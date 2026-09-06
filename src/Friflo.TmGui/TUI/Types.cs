@@ -2,6 +2,7 @@
 // See LICENSE file in the project root for full license information.
 
 
+using System;
 using System.Numerics;
 
 
@@ -19,10 +20,23 @@ public enum TuiColorMode
 public struct TuiColorCell
 {
     public  char        character;      //  2 bytes
+    public  TextStyle   textStyle;      //  1 byte
     public  Color32     color;          //  4 bytes
     public  Color32     background;     //  4 bytes
     
     public override string ToString() => $"'{character}'";
+}
+
+[Flags]
+public enum TextStyle : byte
+{
+    None            = 0,
+    Bold            = 1 << 0, // \x1b[1m
+    Dim             = 1 << 1, // \x1b[2m
+    Italic          = 1 << 2, // \x1b[3m
+    Underline       = 1 << 3, // \x1b[4m
+    Inverse         = 1 << 4, // \x1b[7m
+    StrikeThrough   = 1 << 5  // \x1b[9m
 }
 
 public struct TuiBorder
@@ -54,12 +68,13 @@ public struct TextSpan
 /// </remarks>
 public struct TuiRect
 {
-    public  TextSpan    text;   //  8 bytes
-    public  Vector2     TL;     //  8 bytes - top / lLeft    - Must use floats to enable layout mutations
-    public  Vector2     BR;     //  8 bytes - bottom / right - Must use floats to enable layout mutations
-    public  Color32     color;  //  4 bytes
+    public  TextSpan    text;       //  8 bytes
+    public  Vector2     TL;         //  8 bytes - top / lLeft    - Must use floats to enable layout mutations
+    public  Vector2     BR;         //  8 bytes - bottom / right - Must use floats to enable layout mutations
+    public  Color32     color;      //  4 bytes
+    public  TextStyle   textStyle;  //  1 byte
     
-    public override string      ToString()       => $"[{TL.X}, {TL.Y} | {BR.X}, {BR.Y}]";
+    public override string ToString()       => $"[{TL.X}, {TL.Y} | {BR.X}, {BR.Y}]";
     
     /// <summary> A filled rectangle with given background <see cref="color"/>. </summary>
     internal TuiRect(Vector2 pos, Vector2 size, Color32 background) {
@@ -69,11 +84,12 @@ public struct TuiRect
     }
     
     /// <summary> A horizontal text with given text <see cref="color"/>. </summary>
-    internal TuiRect(TextSpan text, Vector2 pos, Vector2 size, Color32 color) {
-        this.text   = text;
-        this.TL     = pos;
-        this.BR     = pos + size;
-        this.color  = color;
+    internal TuiRect(TextSpan text, TextStyle style, Vector2 pos, Vector2 size, Color32 color) {
+        this.text       = text;
+        this.textStyle  = style;
+        this.TL         = pos;
+        this.BR         = pos + size;
+        this.color      = color;
     }
 }
 

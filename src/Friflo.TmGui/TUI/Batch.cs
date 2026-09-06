@@ -252,28 +252,33 @@ public sealed class TuiBatch : TmBatch
     }
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void DrawText(ReadOnlySpan<char> text, Vector2 position, Color32 color)
+    public void DrawText(ReadOnlySpan<char> text, TextStyle style, Vector2 position, Color32 color)
     {
         var textSpan = new TextSpan { start = textBuffer.Count, len = text.Length };
-        tuiRects.Add(new TuiRect(textSpan, position, new Vector2(text.Length * charWidth, lineHeight), color));
+        tuiRects.Add(new TuiRect(textSpan, style, position, new Vector2(text.Length * charWidth, lineHeight), color));
         textBuffer.AddRange(text);
     }
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void DrawChar(char character, Vector2 position, Color32 color)
+    public void DrawChar(char character, TextStyle style, Vector2 position, Color32 color)
     {
         var textSpan = new TextSpan { start = textBuffer.Count, len = 1 };
-        tuiRects.Add(new TuiRect(textSpan, position, new Vector2(charWidth, lineHeight), color));
+        tuiRects.Add(new TuiRect(textSpan, style, position, new Vector2(charWidth, lineHeight), color));
         textBuffer.Add(character);
     }
     
     public Vector2 DrawLabel(ReadOnlySpan<char> text, Vector2 position, Color32 color)
     {
-        DrawText(text, position, color);
+        DrawText(text, TextStyle.None, position, color);
         return new Vector2(lineHeight * text.Length, lineHeight);
     }
     
-    public void Button(ReadOnlySpan<char> text, Vector2 position, Vector2 size, Color32 color, Color32 background)
+    public static TextStyle GetStyle(bool isFocused)
+    {
+        return isFocused ? TextStyle.Underline : TextStyle.None;
+    }
+    
+    public void Button(ReadOnlySpan<char> text, Vector2 position, Vector2 size, Color32 color, Color32 background, bool isFocused)
     {
         var buffer = textBuffer;
         var textStart = buffer.Count;
@@ -282,25 +287,26 @@ public sealed class TuiBatch : TmBatch
         buffer.Add(buttonBorder.right);
         var textSpan    = new TextSpan { start = textStart, len = buffer.Count - textStart };
         FillRect(position, size, background);
-        tuiRects.Add(new TuiRect(textSpan, position, size, color));
+        tuiRects.Add(new TuiRect(textSpan, GetStyle(isFocused), position, size, color));
     }
     
-    public void Checkbox(bool value, ReadOnlySpan<char> text, Vector2 position, Vector2 size, Color32 color, Color32 boxColor)
+    public void Checkbox(bool value, ReadOnlySpan<char> text, Vector2 position, Vector2 size, Color32 color, Color32 boxColor, bool isFocused)
     {
         var boxText = value ? "[x]" : "[ ]";
         var boxSize = new Vector2(3 * charWidth, lineHeight);
+        var style = GetStyle(isFocused);
         FillRect(position, boxSize, boxColor);
-        DrawText(boxText, position, color);
+        DrawText(boxText, style, position, color);
         
-        DrawText(text, position + new Vector2(4 * charWidth, 0), color);
+        DrawText(text, style, position + new Vector2(4 * charWidth, 0), color);
     }
 
-    public void Slider(ReadOnlySpan<char> name, Vector2 position, Vector2 size, Vector2 fillSize, Color32 color, Color32 sliderColor, Color32 fillColor)
+    public void Slider(ReadOnlySpan<char> name, Vector2 position, Vector2 size, Vector2 fillSize, Color32 color, Color32 sliderColor, Color32 fillColor, bool isFocused)
     {
         FillRect(position, size,     sliderColor);
         FillRect(position, fillSize, fillColor);
         var offset = new Vector2((size.X - name.Length * charWidth) * 0.5f, 0);
-        DrawText(name, position + offset, color);
+        DrawText(name, GetStyle(isFocused), position + offset, color);
     }
 
     public void DrawScrollbar(Vector2 position, Vector2 size, Color32 background)
@@ -316,9 +322,10 @@ public sealed class TuiBatch : TmBatch
     internal void DrawFocus(Vector2 pos, Vector2 size, Color32 color)
     {
         var height = Math.Max(1, (int)((size.Y + lineHeight) * yScale));
+        const TextStyle bold = TextStyle.Bold;
         if (height == 1) {
-            DrawChar(focusBorder.left,  pos,                                      color);
-            DrawChar(focusBorder.right, pos + new Vector2(size.X - charWidth, 0), color);
+            DrawChar(focusBorder.left,  bold, pos,                                      color);
+            DrawChar(focusBorder.right, bold, pos + new Vector2(size.X - charWidth, 0), color);
             return;
         }
         var barSize = new Vector2(charWidth, height * lineHeight);
@@ -327,8 +334,8 @@ public sealed class TuiBatch : TmBatch
         FillRect(pos + new Vector2(size.X - charWidth, 0),  barSize, buttonColor);
         
         for (int n = 0; n < height; n++) {
-            DrawChar('|', pos,                                      color);
-            DrawChar('|', pos + new Vector2(size.X - charWidth, 0), color);
+            DrawChar('|', bold, pos,                                      color);
+            DrawChar('|', bold, pos + new Vector2(size.X - charWidth, 0), color);
             pos.Y += lineHeight;
         }
     }

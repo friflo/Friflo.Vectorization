@@ -32,7 +32,7 @@ public readonly ref partial struct GuiWidget
         var widgetState = GetWidgetState(isHover, widgetId);
 
         if (tui != null) {
-            tui.Button(name, pos, finalSize, Colors.ButtonText, Colors.ButtonState(widgetState));
+            tui.Button(name, pos, finalSize, Colors.ButtonText, Colors.ButtonState(widgetState), isFocused);
         } else {
             draw.FillRectRounded  (pos, finalSize, Sizes.CornerRadius, Colors.ButtonState(widgetState), GuiSizes.CornerSegments);
             draw.StrokeRectRounded(pos, finalSize, Sizes.CornerRadius, 2, Colors.ButtonBorder, GuiSizes.CornerSegments);
