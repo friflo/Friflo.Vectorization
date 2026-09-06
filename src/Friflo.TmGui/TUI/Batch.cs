@@ -322,8 +322,15 @@ public sealed class TuiBatch : TmBatch
             return;
         }
         var barSize = new Vector2(charWidth, height * lineHeight);
-        FillRect(pos,                                       barSize, color);
-        FillRect(pos + new Vector2(size.X - charWidth, 0),  barSize, color);
+        var buttonColor = guiState.currentStyle.colors.ButtonColor;
+        FillRect(pos,                                       barSize, buttonColor);
+        FillRect(pos + new Vector2(size.X - charWidth, 0),  barSize, buttonColor);
+        
+        for (int n = 0; n < height; n++) {
+            DrawChar('|', pos,                                      color);
+            DrawChar('|', pos + new Vector2(size.X - charWidth, 0), color);
+            pos.Y += lineHeight;
+        }
     }
 #endregion
 }
