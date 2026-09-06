@@ -28,6 +28,7 @@ public sealed class TuiBatch : TmBatch
     internal readonly   List<TuiRect>           tuiRects        = [];
     private  readonly   List<TuiRectCommand>    rectCommands    = [];
     private  readonly   List<char>              textBuffer      = [];
+    private             int                     textBufferStart;
     
     public              ReadOnlySpan<char>      Texts       => CollectionsMarshal.AsSpan(textBuffer);
     public              ReadOnlySpan<TuiRect>   Rects       => CollectionsMarshal.AsSpan(tuiRects);
@@ -62,6 +63,7 @@ public sealed class TuiBatch : TmBatch
         tuiRects.Clear();
         rectCommands.Clear();
         textBuffer.Clear();
+        textBufferStart = 0;
     }
     
     internal void FlushRects()
@@ -244,18 +246,24 @@ public sealed class TuiBatch : TmBatch
 
 
 #region Draw / Widget methods
-    public Vector2 DrawText(ReadOnlySpan<char> text, Vector2 position, Color32 color)
-    {
-        var textSpan    = new TextSpan { start = textBuffer.Count, len = text.Length };
-        tuiRects.Add(new TuiRect(textSpan, position, new Vector2(textSpan.len * charWidth, lineHeight), color));
-        textBuffer.AddRange(text);
-        return new Vector2(lineHeight * text.Length, lineHeight);
-    }
-    
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void FillRect(Vector2 position, Vector2 size, Color32 background)
     {
         tuiRects.Add(new TuiRect(position, size, background));
+    }
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void DrawText(ReadOnlySpan<char> text, Vector2 position, Color32 color)
+    {
+        var textSpan    = new TextSpan { start = textBuffer.Count, len = text.Length };
+        tuiRects.Add(new TuiRect(textSpan, position, new Vector2(textSpan.len * charWidth, lineHeight), color));
+        textBuffer.AddRange(text);
+    }
+    
+    public Vector2 DrawLabel(ReadOnlySpan<char> text, Vector2 position, Color32 color)
+    {
+        DrawText(text, position, color);
+        return new Vector2(lineHeight * text.Length, lineHeight);
     }
     
     public void Button(ReadOnlySpan<char> text, Vector2 position, Vector2 size, Color32 color, Color32 background)

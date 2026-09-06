@@ -20,7 +20,7 @@ public readonly ref partial struct GuiWidget
         var tui = draw.Tui;
         Vector2 size;
         if (tui != null) {
-            size = tui.DrawText(name, window.Cursor, textColor);
+            size = tui.DrawLabel(name, window.Cursor, textColor);
         } else {
             size = draw.DrawText(name, window.Cursor, textColor);
         }
