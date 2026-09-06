@@ -5,7 +5,7 @@ using Friflo.TmGui.TUI.Terminal;
 namespace TerminalServer;
 
 
-public class TestRenderer : IGuiView
+public class TestGuiView : IGuiView
 {
     private bool    mouseCircle;
     private bool    monocraft;
