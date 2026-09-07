@@ -37,10 +37,8 @@ public class SocketClient : TerminalClient
             ReadOnlyMemory<byte> initialPayload = default;
             if (socket.Available > 0) {
                 int initialBytes = await socket.ReceiveAsync(buffer.AsMemory(), SocketFlags.None, cancellationToken);
-                if (initialBytes > 0)
-                {
+                if (initialBytes > 0) {
                     initialPayload = buffer.AsMemory(0, initialBytes);
-                    Console.WriteLine($"[Handshake] received [{initialBytes}] text: {Encoding.UTF8.GetString(initialPayload.Span)}");
                 }
             }
 
@@ -52,9 +50,7 @@ public class SocketClient : TerminalClient
                 int bytesRead = await socket.ReceiveAsync(buffer.AsMemory(), SocketFlags.None, cancellationToken);
                 if (bytesRead == 0) break;
 
-                ReadOnlyMemory<byte> payload = buffer.AsMemory(0, bytesRead);
-
-                Console.WriteLine($"received [{bytesRead}] text: {Encoding.UTF8.GetString(payload.Span)}");
+                var payload = buffer.AsMemory(0, bytesRead);
 
                 // Forward raw input directly to the shard event loop
                 await engine.EnqueueEventAsync(client, ClientEventType.Input, payload);

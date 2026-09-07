@@ -46,7 +46,6 @@ public class StreamClient : TerminalClient
                 if (bytesRead == 0) break;
 
                 ReadOnlyMemory<byte> payload = buffer.AsMemory(0, bytesRead);
-                Console.WriteLine($"received [{bytesRead}] text: {Encoding.UTF8.GetString(payload.Span)}");
 
                 await engine.EnqueueEventAsync(client, ClientEventType.Input, payload);
             }
