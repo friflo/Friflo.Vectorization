@@ -4,6 +4,7 @@ using Friflo.GPU;
 using Friflo.GPU.Runtime;
 using Friflo.WGPU;
 using Friflo.TmGui;
+using Friflo.TmGui.TUI;
 using Friflo.WGPU.Runtime;
 using NUnit.Framework;
 
@@ -94,5 +95,11 @@ MaxComputeInvocationsPerWorkgroup:  {adapterLimits.MaxComputeInvocationsPerWorkg
         Assert.AreEqual(  8, Unsafe.SizeOf<MemoryView>());
         Assert.AreEqual( 16, Unsafe.SizeOf<RectVector2>());
         Assert.AreEqual(152, Unsafe.SizeOf<DrawCommand>());
+        
+        Assert.AreEqual(  6, Unsafe.SizeOf<Color32Span>());
+        Assert.AreEqual(  8, Unsafe.SizeOf<TextSpan>());
+        Assert.AreEqual( 32, Unsafe.SizeOf<TuiRect>());
+        Assert.AreEqual( 12, Unsafe.SizeOf<TuiColorCell>());
+        
     }
 }
