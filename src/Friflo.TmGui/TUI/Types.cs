@@ -61,7 +61,10 @@ public struct TextSpan
     public override string ToString() => $"[{start}..{start + len}]";
 }
 
-/// <summary> start and length of text within <see cref="TuiBatch.Texts"/> </summary>
+/// <summary>
+/// If <see cref="len"/> == 0 - <see cref="value"/>
+/// If <see cref="len"/>  > 0 - start and length of text within <see cref="TuiBatch.Colors"/>
+/// </summary>
 public readonly struct Color32Span
 {
     public  readonly    int     len;    //  4 bytes     TODO  use [StructLayout(LayoutKind.Explicit, Size = 8)] len == 0  => value 

@@ -67,6 +67,7 @@ public sealed class TuiBatch : TmBatch
         tuiRects.Clear();
         rectCommands.Clear();
         textBuffer.Clear();
+        colorBuffer.Clear();
     }
     
     internal void FlushRects()
@@ -129,6 +130,7 @@ public sealed class TuiBatch : TmBatch
         var commands    = rectCommands;
         var rects       = tuiRects;
         var texts       = CollectionsMarshal.AsSpan(textBuffer);
+        var colors      = CollectionsMarshal.AsSpan(colorBuffer);
         
         foreach (var segment in commandSegments)
         {
@@ -175,14 +177,30 @@ public sealed class TuiBatch : TmBatch
                         if (count > 0 && startY == rectT)
                         {
                             if (drawColor) {
-                                var color       = rect.color;
-                                var textStyle   = rect.textStyle;
-                                var row         = cells.Slice(stride * startY + startX, count);
-                                for (int n = 0; n < count; n++) {
+                                var color     = rect.color;
+                                var textStyle = rect.textStyle;
+                                var row       = cells.Slice(stride * startY + startX, count);
+
+                                // Calculate span boundary; evaluates to 0 for solid colors or full left-clipping
+                                int spanEnd = color.len == 0 ? 0 : Math.Min(count, Math.Max(0, color.len - offsetX));
+
+                                // Phase 1: Direct 1:1 color mapping for available span entries
+                                for (int n = 0; n < spanEnd; n++) {
                                     ref var dstCell = ref row[n];
                                     dstCell.character   = text[offsetX + n];
-                                    dstCell.color       = color.value;
+                                    dstCell.color       = colors[color.start + offsetX + n];
                                     dstCell.textStyle   = textStyle;
+                                }
+
+                                // Phase 2: Tail fill for remaining characters using solid color or the last span color
+                                if (spanEnd < count) {
+                                    var solidColor = color.len == 0 ? color.value : colors[color.start + color.len - 1];
+                                    for (int n = spanEnd; n < count; n++) {
+                                        ref var dstCell     = ref row[n];
+                                        dstCell.character   = text[offsetX + n];
+                                        dstCell.color       = solidColor;
+                                        dstCell.textStyle   = textStyle;
+                                    }
                                 }
                             } else {
                                 var srcSpan = text.Slice(offsetX, count);

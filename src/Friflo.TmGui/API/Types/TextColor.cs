@@ -1,10 +1,10 @@
 ﻿// Copyright (c) Ullrich Praetz - https://github.com/friflo. All rights reserved.
 // See LICENSE file in the project root for full license information.
 
-
-
 using System;
 
+
+// ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable ArrangeThisQualifier
 // ReSharper disable UseIndexFromEndExpression
 // ReSharper disable CheckNamespace
@@ -23,8 +23,10 @@ public readonly ref struct TextColor
     public  readonly    Color32                 value;      //  4 bytes
     public  readonly    TmColorKind             kind;       //  1  byte
 
-    public bool         IsNone  => kind == TmColorKind.None;
-    public bool         IsSpan  => kind == TmColorKind.Span;
+    public              bool                    IsNone      => kind == TmColorKind.None;
+    public              bool                    IsSpan      => kind == TmColorKind.Span;
+
+    public override     string                  ToString()  => kind.ToString();
 
     public TextColor(Color32 color)
     {

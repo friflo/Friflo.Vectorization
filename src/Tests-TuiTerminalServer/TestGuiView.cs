@@ -8,6 +8,7 @@ namespace TerminalServer;
 public class TestGuiView : IGuiView
 {
     private readonly    AppState    appState;
+    private readonly    Color32[]   textColors = [0x0000FFFF, 0xFF0000FF, 0x009900FF, 0xFF00FFFF, 0xCC6600FF, 0x000000ff];
     
     public TestGuiView(AppState appState)
     {
@@ -25,7 +26,7 @@ public class TestGuiView : IGuiView
     
     private void Window1(Gui gui)
     {
-        gui.Button("hello GUI", Dim.Fill_X(0, Fit.Content));
+        gui.Button("hello GUI", Dim.Fill_X(0, Fit.Content), color: textColors);
         gui.Spacer();
         using (gui.PushStyle(greenButtonStyle)) {
             if (gui.Button("hello"))                            Console.WriteLine("Clicked: hello");
