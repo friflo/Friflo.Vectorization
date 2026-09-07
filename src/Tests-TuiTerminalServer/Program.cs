@@ -25,6 +25,15 @@ async ValueTask TcpServer()
 
     // 2. IMPORTANT: Start the dedicated single-threaded event loop!
     engine.Start();
+    
+    
+    /*
+    var localClient = new ClientStream(Console.OpenStandardInput(), Console.OpenStandardOutput());
+    _ = ClientStream.HandleClientSessionAsync(localClient, engine, CancellationToken.None);
+    
+    await Task.Delay(-1);
+    */
+    
 
     // 3. Start TCP listener loop
     using var serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
