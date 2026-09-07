@@ -279,7 +279,7 @@ public sealed class TuiBatch : TmBatch
     
     public static TextStyle GetStyle(bool isFocused)
     {
-        return isFocused ? TextStyle.Underline | TextStyle.Bold : TextStyle.None;
+        return isFocused ? TextStyle.Bold : TextStyle.None;
     }
     
     public void Button(ReadOnlySpan<char> text, Vector2 position, Vector2 size, Color32 color, Color32 background, bool isFocused)
@@ -326,10 +326,10 @@ public sealed class TuiBatch : TmBatch
     internal void DrawFocus(Vector2 pos, Vector2 size, Color32 color)
     {
         var height = Math.Max(1, (int)((size.Y + lineHeight) * yScale));
-        const TextStyle none = TextStyle.None;
+        const TextStyle bold = TextStyle.Bold;
         if (height == 1) {
-            DrawChar(focusBorder.left,  none, pos,                                      color);
-            DrawChar(focusBorder.right, none, pos + new Vector2(size.X - charWidth, 0), color);
+            DrawChar(focusBorder.left,  bold, pos,                                      color);
+            DrawChar(focusBorder.right, bold, pos + new Vector2(size.X - charWidth, 0), color);
             return;
         }
         var barSize = new Vector2(charWidth, height * lineHeight);
@@ -338,8 +338,8 @@ public sealed class TuiBatch : TmBatch
         FillRect(pos + new Vector2(size.X - charWidth, 0),  barSize, buttonColor);
         
         for (int n = 0; n < height; n++) {
-            DrawChar('|', none, pos,                                      color);
-            DrawChar('|', none, pos + new Vector2(size.X - charWidth, 0), color);
+            DrawChar('|', bold, pos,                                      color);
+            DrawChar('|', bold, pos + new Vector2(size.X - charWidth, 0), color);
             pos.Y += lineHeight;
         }
     }
