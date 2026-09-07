@@ -1,6 +1,7 @@
 ﻿using System.Net;
 using System.Net.Sockets;
 using Friflo.TmGui.TUI.Terminal;
+using Friflo.TmGui.TUI.Terminal.Client;
 using TerminalServer;
 
 
@@ -11,23 +12,33 @@ Console.WriteLine("TUI Terminal Server");
 
 var appState = new AppState(); // shared application state among all clients each having its own IGuiView instance
 
-var port = 9000;
-var engine = new SingleThreadedShardEngine((ConnectInfo info) => new TestGuiView(appState));
+var stdout = Console.OpenStandardOutput();
+var stdin  = Console.OpenStandardInput();
 
-// 2. IMPORTANT: Start the dedicated single-threaded event loop!
-engine.Start();
 
-// 3. Start TCP listener loop
-using var serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-serverSocket.Bind(new IPEndPoint(IPAddress.Any, port));
-serverSocket.Listen();
+await TcpServer();
 
-Console.WriteLine("[+] Server & ShardEngine running on port {port}...");
-
-while (true)
+async ValueTask TcpServer()
 {
-    Socket clientSocket = await serverSocket.AcceptAsync();
-    
-    // Pass engine reference to every client I/O session
-    _ = SingleThreadedShardEngine.HandleClientSessionAsync(clientSocket, engine, CancellationToken.None);
+    var port = 9000;
+    var engine = new SingleThreadedShardEngine((ConnectInfo info) => new TestGuiView(appState));
+
+    // 2. IMPORTANT: Start the dedicated single-threaded event loop!
+    engine.Start();
+
+    // 3. Start TCP listener loop
+    using var serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+    serverSocket.Bind(new IPEndPoint(IPAddress.Any, port));
+    serverSocket.Listen();
+
+    Console.WriteLine("[+] Server & ShardEngine running on port {port}...");
+
+    while (true)
+    {
+        Socket clientSocket = await serverSocket.AcceptAsync();
+        
+        // Pass engine reference to every client I/O session
+        var client = new ClientSocket(clientSocket);
+        _ = ClientSocket.HandleClientSessionAsync(client, engine, CancellationToken.None);
+    }
 }

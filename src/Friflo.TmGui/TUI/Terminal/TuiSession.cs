@@ -174,6 +174,12 @@ public sealed class TuiSession
         if ((disabled & TextStyle.Inverse)      != 0) AppendSpan("\x1b[27m"u8);
         if ((disabled & TextStyle.StrikeThrough)!= 0) AppendSpan("\x1b[29m"u8);
     }
+    
+    public void StartSession()
+    {
+        // Enable raw mode on client terminal
+        AppendSpan(EscapeWrite.EnableRawTuiMode);
+    }
 
     public Memory<byte> ProcessInput(ReadOnlySpan<byte> input)
     {
