@@ -14,9 +14,10 @@ public static class TerminalUtils
     private const int STD_INPUT_HANDLE  = -10;
     private const int STD_OUTPUT_HANDLE = -11;
 
-    private const uint ENABLE_LINE_INPUT = 0x0002;
-    private const uint ENABLE_ECHO_INPUT = 0x0004;
-    private const uint ENABLE_VIRTUAL_TERMINAL_PROCESSING = 0x0004;
+    private const uint ENABLE_LINE_INPUT                    = 0x0002;
+    private const uint ENABLE_ECHO_INPUT                    = 0x0004;
+    private const uint ENABLE_VIRTUAL_TERMINAL_INPUT        = 0x0200; // Required for Arrow Keys
+    private const uint ENABLE_VIRTUAL_TERMINAL_PROCESSING   = 0x0004;
 
     /// <summary> Configures the terminal for raw input and VT100 output. </summary>
     public static void EnableRawModeAndVT100()
@@ -37,10 +38,11 @@ public static class TerminalUtils
             SetConsoleMode(outHandle, outMode | ENABLE_VIRTUAL_TERMINAL_PROCESSING);
         }
 
-        // Disable Line Input & Echo for immediate stdin reads
+        // Disable Line Input & Echo, enable VT100 Input for arrow keys
         IntPtr inHandle = GetStdHandle(STD_INPUT_HANDLE);
         if (GetConsoleMode(inHandle, out uint inMode)) {
             inMode &= ~(ENABLE_LINE_INPUT | ENABLE_ECHO_INPUT);
+            inMode |= ENABLE_VIRTUAL_TERMINAL_INPUT; // Pass raw escape sequences to stdin
             SetConsoleMode(inHandle, inMode);
         }
     }
