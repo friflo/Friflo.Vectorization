@@ -13,12 +13,12 @@ using System.Threading.Tasks;
 namespace Friflo.TmGui.TUI.Terminal.Client;
 
 
-public class ClientStream : TerminalClient
+public class StreamClient : TerminalClient
 {
     private readonly Stream inputStream;
     private readonly Stream outputStream;
 
-    public ClientStream(Stream inputStream, Stream outputStream)
+    public StreamClient(Stream inputStream, Stream outputStream)
     {
         this.inputStream = inputStream;
         this.outputStream = outputStream;
@@ -32,7 +32,7 @@ public class ClientStream : TerminalClient
     }
 
     // I/O Loop: Reads raw stream bytes and pushes them into the single-threaded engine queue
-    public static async ValueTask HandleClientSessionAsync(ClientStream client, SingleThreadedShardEngine engine, CancellationToken cancellationToken)
+    public static async ValueTask HandleClientSessionAsync(StreamClient client, SingleThreadedShardEngine engine, CancellationToken cancellationToken)
     {
         byte[] buffer = ArrayPool<byte>.Shared.Rent(256);
 

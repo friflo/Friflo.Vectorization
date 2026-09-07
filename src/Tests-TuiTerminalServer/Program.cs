@@ -27,8 +27,8 @@ async ValueTask TcpServer()
     
     
 
-    var localClient = new ClientStream(Console.OpenStandardInput(), Console.OpenStandardOutput());
-    _ = ClientStream.HandleClientSessionAsync(localClient, engine, CancellationToken.None);
+    var localClient = new StreamClient(Console.OpenStandardInput(), Console.OpenStandardOutput());
+    _ = StreamClient.HandleClientSessionAsync(localClient, engine, CancellationToken.None);
     
     await Task.Delay(-1);
 
@@ -46,7 +46,7 @@ async ValueTask TcpServer()
         Socket clientSocket = await serverSocket.AcceptAsync();
         
         // Pass engine reference to every client I/O session
-        var client = new ClientSocket(clientSocket);
-        _ = ClientSocket.HandleClientSessionAsync(client, engine, CancellationToken.None);
+        var client = new SocketClient(clientSocket);
+        _ = SocketClient.HandleClientSessionAsync(client, engine, CancellationToken.None);
     }
 }

@@ -11,11 +11,11 @@ using System.Threading.Tasks;
 // ReSharper disable ConvertToPrimaryConstructor
 namespace Friflo.TmGui.TUI.Terminal.Client;
 
-public class ClientSocket : TerminalClient  
+public class SocketClient : TerminalClient  
 {
     private readonly Socket socket;
     
-    public ClientSocket(Socket socket)
+    public SocketClient(Socket socket)
     {
         this.socket = socket;
     }
@@ -27,7 +27,7 @@ public class ClientSocket : TerminalClient
     
     
     // I/O Loop: Reads raw socket bytes and pushes them into the single-threaded engine queue
-    public static async ValueTask HandleClientSessionAsync(ClientSocket client, SingleThreadedShardEngine engine, CancellationToken cancellationToken)
+    public static async ValueTask HandleClientSessionAsync(SocketClient client, SingleThreadedShardEngine engine, CancellationToken cancellationToken)
     {
         var socket = client.socket;
         byte[] buffer = ArrayPool<byte>.Shared.Rent(256);
