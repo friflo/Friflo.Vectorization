@@ -8,10 +8,11 @@ using TerminalServer;
 // plink(PuTTY/Windows)         echo --view logs --theme dark | plink -raw -t -P 9000 127.0.0.1
 
 Console.WriteLine("TUI Terminal Server");
-var sharedGuiView = new TestGuiView(); // shared application state among all clients 
+
+var appState = new AppState(); // shared application state among all clients each having its own IGuiView instance
 
 var port = 9000;
-var engine = new SingleThreadedShardEngine((ConnectInfo info) => new TestGuiView());
+var engine = new SingleThreadedShardEngine((ConnectInfo info) => new TestGuiView(appState));
 
 // 2. IMPORTANT: Start the dedicated single-threaded event loop!
 engine.Start();

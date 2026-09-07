@@ -7,10 +7,12 @@ namespace TerminalServer;
 
 public class TestGuiView : IGuiView
 {
-    private bool    mouseCircle;
-    private bool    monocraft;
-    private bool    enabled2;
-    private float   volume = 0.8f;
+    private readonly    AppState    appState;
+    
+    public TestGuiView(AppState appState)
+    {
+        this.appState = appState;
+    }
     
     public void RenderGui(TmBatch batch, int targetWidth, int targetHeight)
     {
@@ -30,11 +32,11 @@ public class TestGuiView : IGuiView
         }
 
         gui.Spacer();
-        gui.Checkbox("mouse circle", ref mouseCircle);
-        if(gui.Checkbox("Monocraft", ref monocraft)) {
+        gui.Checkbox("mouse circle", ref appState.mouseCircle);
+        if(gui.Checkbox("Monocraft", ref appState.monocraft)) {
         }
         gui.Spacer();
-        if (gui.Slider("Volume", ref volume, 0f, 1f, 300)) Console.WriteLine($"Volume: changed");
+        if (gui.Slider("Volume", ref appState.volume, 0f, 1f, 300)) Console.WriteLine($"Volume: changed");
         gui.Spacer();
         
         gui.BeginHorizontal();
@@ -54,7 +56,7 @@ public class TestGuiView : IGuiView
             gui.Draw.DrawSpriteRegion(default, space.pos, space.size, srcPos, space.size, new(1024, 1024), tint);
         }
         gui.Spacer();
-        gui.Checkbox("checkbox", ref enabled2);
+        gui.Checkbox("checkbox", ref appState.enabled2);
         
         gui.Spacer();
         
