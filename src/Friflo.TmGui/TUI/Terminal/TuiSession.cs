@@ -18,6 +18,7 @@ public sealed class TuiSession
     private readonly    TuiColorMode    colorMode;
     private             int             frameWidth      = 45;
     private             int             frameHeight     = 20;
+    private             bool            sessionStart;
     
     public TuiSession(IGuiView guiView, FrameBuffer frameBuffer, TuiColorMode colorMode)
     {
@@ -26,6 +27,13 @@ public sealed class TuiSession
         this.colorMode      = colorMode;
         backend             = new TuiBackend();
         batch               = backend.CreateBatch(colorMode);
+    }
+    
+    internal void StartSession()
+    {
+        // Enable raw mode on client terminal
+        AppendSpan(EscapeWrite.EnableRawTuiMode);
+        sessionStart = true;
     }
     
     private Memory<byte> IterateTui()
@@ -43,8 +51,12 @@ public sealed class TuiSession
             guiView.RenderGui(batch, pixelWidth, pixelHeight);
             Console.WriteLine("Scroll Area Changed");
         }
-        sendBufferCount = 0;
         
+        if (sessionStart) {
+            sessionStart = false;
+        } else {
+            sendBufferCount = 0;
+        }
         // clear screen
         AppendSpan(EscapeWrite.ClearScreen);
         
@@ -175,11 +187,6 @@ public sealed class TuiSession
         if ((disabled & TextStyle.StrikeThrough)!= 0) AppendSpan("\x1b[29m"u8);
     }
     
-    public void StartSession()
-    {
-        // Enable raw mode on client terminal
-        AppendSpan(EscapeWrite.EnableRawTuiMode);
-    }
 
     public Memory<byte> ProcessInput(ReadOnlySpan<byte> input)
     {
