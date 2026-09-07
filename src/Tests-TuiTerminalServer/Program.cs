@@ -12,7 +12,7 @@ Console.WriteLine("TUI Terminal Server");
 
 var appState = new AppState(); // shared application state among all clients each having its own IGuiView instance
 
-TerminalUtils.EnableVT100();
+TerminalUtils.EnableRawModeAndVT100();
 
 
 await TcpServer();
@@ -26,12 +26,12 @@ async ValueTask TcpServer()
     engine.Start();
     
     
-    /*
+
     var localClient = new ClientStream(Console.OpenStandardInput(), Console.OpenStandardOutput());
     _ = ClientStream.HandleClientSessionAsync(localClient, engine, CancellationToken.None);
     
     await Task.Delay(-1);
-    */
+
     
 
     // 3. Start TCP listener loop

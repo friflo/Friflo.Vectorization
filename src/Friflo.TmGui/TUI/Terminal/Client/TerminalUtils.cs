@@ -8,25 +8,40 @@ using System.Runtime.InteropServices;
 // ReSharper disable InconsistentNaming
 namespace Friflo.TmGui.TUI.Terminal.Client;
 
+
 public static class TerminalUtils
 {
-    /// <summary> Only required for Windows. VT100 always enabled on Linux/macOS. </summary>
-    public static void EnableVT100()
+    private const int STD_INPUT_HANDLE  = -10;
+    private const int STD_OUTPUT_HANDLE = -11;
+
+    private const uint ENABLE_LINE_INPUT = 0x0002;
+    private const uint ENABLE_ECHO_INPUT = 0x0004;
+    private const uint ENABLE_VIRTUAL_TERMINAL_PROCESSING = 0x0004;
+
+    /// <summary> Configures the terminal for raw input and VT100 output. </summary>
+    public static void EnableRawModeAndVT100()
     {
         if (OperatingSystem.IsWindows()) {
-            EnableWindowsVt100();
+            EnableWindowsRawAndVt100();
+        } else {
+            // On Unix systems, line buffering is disabled via termios
+            System.Diagnostics.Process.Start("stty", "-echo raw").WaitForExit();
         }
     }
-    
-    private static void EnableWindowsVt100()
-    {
-        const int   STD_OUTPUT_HANDLE = -11;
-        const uint  ENABLE_VIRTUAL_TERMINAL_PROCESSING = 0x0004;
 
-        IntPtr handle = GetStdHandle(STD_OUTPUT_HANDLE);
-        if (GetConsoleMode(handle, out uint mode))
-        {
-            SetConsoleMode(handle, mode | ENABLE_VIRTUAL_TERMINAL_PROCESSING);
+    private static void EnableWindowsRawAndVt100()
+    {
+        // Enable VT100 Output
+        IntPtr outHandle = GetStdHandle(STD_OUTPUT_HANDLE);
+        if (GetConsoleMode(outHandle, out uint outMode)) {
+            SetConsoleMode(outHandle, outMode | ENABLE_VIRTUAL_TERMINAL_PROCESSING);
+        }
+
+        // Disable Line Input & Echo for immediate stdin reads
+        IntPtr inHandle = GetStdHandle(STD_INPUT_HANDLE);
+        if (GetConsoleMode(inHandle, out uint inMode)) {
+            inMode &= ~(ENABLE_LINE_INPUT | ENABLE_ECHO_INPUT);
+            SetConsoleMode(inHandle, inMode);
         }
     }
 
