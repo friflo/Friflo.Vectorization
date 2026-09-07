@@ -12,8 +12,7 @@ Console.WriteLine("TUI Terminal Server");
 
 var appState = new AppState(); // shared application state among all clients each having its own IGuiView instance
 
-var stdout = Console.OpenStandardOutput();
-var stdin  = Console.OpenStandardInput();
+TerminalUtils.EnableVT100();
 
 
 await TcpServer();
