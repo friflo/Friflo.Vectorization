@@ -182,7 +182,8 @@ public sealed class TuiBatch : TmBatch
                                 var row       = cells.Slice(stride * startY + startX, count);
 
                                 // Calculate span boundary; evaluates to 0 for solid colors or full left-clipping
-                                int spanEnd = color.len == 0 ? 0 : Math.Min(count, Math.Max(0, color.len - offsetX));
+                                int remaining   = color.len - offsetX;
+                                int spanEnd     = remaining <= 0 ? 0 : remaining < count ? remaining : count;
 
                                 // Phase 1: Direct 1:1 color mapping for available span entries
                                 for (int n = 0; n < spanEnd; n++) {
