@@ -4,6 +4,7 @@
 
 using System;
 using System.Numerics;
+using System.Runtime.InteropServices;
 
 
 // ReSharper disable ConvertToPrimaryConstructor
@@ -65,11 +66,12 @@ public struct TextSpan
 /// If <see cref="len"/> == 0 - <see cref="value"/>
 /// If <see cref="len"/>  > 0 - start and length of text within <see cref="TuiBatch.Colors"/>
 /// </summary>
+[StructLayout(LayoutKind.Explicit, Size = 8)]
 public readonly struct Color32Span
 {
-    public  readonly    int     len;    //  4 bytes     TODO  use [StructLayout(LayoutKind.Explicit, Size = 8)] len == 0  => value 
-    public  readonly    int     start;  //  4 bytes
-    public  readonly    Color32 value;  //  4 bytes
+    [FieldOffset(0)] public readonly    int     len;    //  4 bytes - case: len == 0   color is .value
+    [FieldOffset(4)] public readonly    int     start;  //  4 bytes
+    [FieldOffset(4)] public readonly    Color32 value;  //  4 bytes (+0)
     
     public override string ToString() => $"[{start}..{start + len}]";
     
@@ -93,7 +95,7 @@ public struct TuiRect
     public  readonly    TextSpan    text;       //  8 bytes
     public              Vector2     TL;         //  8 bytes - top / lLeft    - Must use floats to enable layout mutations
     public              Vector2     BR;         //  8 bytes - bottom / right - Must use floats to enable layout mutations
-    public  readonly    Color32Span color;      // 12 bytes
+    public  readonly    Color32Span color;      //  8 bytes
     public  readonly    TextStyle   textStyle;  //  1 byte
     
     public override string ToString()       => $"[{TL.X}, {TL.Y} | {BR.X}, {BR.Y}]";
