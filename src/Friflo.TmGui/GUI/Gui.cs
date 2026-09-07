@@ -43,8 +43,8 @@ public readonly ref struct Gui
     public void Label(ReadOnlySpan<char> name, Color32 textColor = default)
         => widget.Label(name, textColor);
     
-    public bool Button(ReadOnlySpan<char> name, Dim size = default, GuiStyle? style = null, WidgetID id = default)
-        => widget.Button(name, size, style, id);
+    public bool Button(ReadOnlySpan<char> name, Dim size = default, GuiStyle? style = null, WidgetID id = default, in TextColor color = default)
+        => widget.Button(name, size, style, id, color);
     
     public bool Checkbox(ReadOnlySpan<char> name, ref bool value, GuiStyle? style = null, WidgetID id = default)
         => widget.Checkbox(name, ref value, style, id);

@@ -29,8 +29,10 @@ public sealed class TuiBatch : TmBatch
     internal readonly   List<TuiRect>           tuiRects        = [];
     private  readonly   List<TuiRectCommand>    rectCommands    = [];
     private  readonly   List<char>              textBuffer      = [];
+    private  readonly   List<Color32>           colorBuffer     = [];
     
     public              ReadOnlySpan<char>      Texts       => CollectionsMarshal.AsSpan(textBuffer);
+    public              ReadOnlySpan<Color32>   Colors      => CollectionsMarshal.AsSpan(colorBuffer);
     public              ReadOnlySpan<TuiRect>   Rects       => CollectionsMarshal.AsSpan(tuiRects);
     public              float                   CharWidth   => charWidth;
     public              float                   LineHeight  => lineHeight;
@@ -179,7 +181,7 @@ public sealed class TuiBatch : TmBatch
                                 for (int n = 0; n < count; n++) {
                                     ref var dstCell = ref row[n];
                                     dstCell.character   = text[offsetX + n];
-                                    dstCell.color       = color;
+                                    dstCell.color       = color.value;
                                     dstCell.textStyle   = textStyle;
                                 }
                             } else {
@@ -193,7 +195,7 @@ public sealed class TuiBatch : TmBatch
                     // Fill clipped background area row by row
                     if (drawColor) {
                         var width = endX - startX;
-                        var fill  = new TuiColorCell { character = ' ', color = 0, background = rect.color };
+                        var fill  = new TuiColorCell { character = ' ', color = 0, background = rect.color.value };
 
                         for (int y = startY; y < endY; y++) {
                             cells.Slice(stride * y + startX, width).Fill(fill);
@@ -256,10 +258,22 @@ public sealed class TuiBatch : TmBatch
     }
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void DrawText(ReadOnlySpan<char> text, TextStyle style, Vector2 position, Color32 color)
+    public Color32Span GetColorSpan(in TextColor color)
     {
-        var textSpan = new TextSpan { start = textBuffer.Count, len = text.Length };
-        tuiRects.Add(new TuiRect(textSpan, style, position, new Vector2(text.Length * charWidth, lineHeight), color));
+        if (!color.IsSpan) {
+            return new Color32Span(color.value);
+        }
+        var colorSpan = new Color32Span(colorBuffer.Count, color.colors.Length);
+        colorBuffer.AddRange(color.colors);
+        return colorSpan;
+    }
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void DrawText(ReadOnlySpan<char> text, TextStyle style, Vector2 position, in TextColor color)
+    {
+        var textSpan    = new TextSpan { start = textBuffer.Count, len = text.Length };
+        var colorSpan   = GetColorSpan(color);
+        tuiRects.Add(new TuiRect(textSpan, style, position, new Vector2(text.Length * charWidth, lineHeight), colorSpan));
         textBuffer.AddRange(text);
     }
     
@@ -267,7 +281,7 @@ public sealed class TuiBatch : TmBatch
     public void DrawChar(char character, TextStyle style, Vector2 position, Color32 color)
     {
         var textSpan = new TextSpan { start = textBuffer.Count, len = 1 };
-        tuiRects.Add(new TuiRect(textSpan, style, position, new Vector2(charWidth, lineHeight), color));
+        tuiRects.Add(new TuiRect(textSpan, style, position, new Vector2(charWidth, lineHeight), new Color32Span(color)));
         textBuffer.Add(character);
     }
     
@@ -282,16 +296,10 @@ public sealed class TuiBatch : TmBatch
         return isFocused ? TextStyle.Bold : TextStyle.None;
     }
     
-    public void Button(ReadOnlySpan<char> text, Vector2 position, Vector2 size, Color32 color, Color32 background, bool isFocused)
+    public void Button(ReadOnlySpan<char> text, Vector2 position, Vector2 size, in TextColor color, Color32 background, bool isFocused)
     {
-        var buffer = textBuffer;
-        var textStart = buffer.Count;
-        buffer.Add(buttonBorder.left);
-        buffer.AddRange(text);
-        buffer.Add(buttonBorder.right);
-        var textSpan    = new TextSpan { start = textStart, len = buffer.Count - textStart };
         FillRect(position, size, background);
-        tuiRects.Add(new TuiRect(textSpan, GetStyle(isFocused), position, size, color));
+        DrawText(text, GetStyle(isFocused), position + new Vector2(charWidth, 0), color);
     }
     
     public void Checkbox(bool value, ReadOnlySpan<char> text, Vector2 position, Vector2 size, Color32 color, Color32 boxColor, bool isFocused)

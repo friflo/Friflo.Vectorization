@@ -61,6 +61,25 @@ public struct TextSpan
     public override string ToString() => $"[{start}..{start + len}]";
 }
 
+/// <summary> start and length of text within <see cref="TuiBatch.Texts"/> </summary>
+public readonly struct Color32Span
+{
+    public  readonly    int     len;    //  4 bytes     TODO  use [StructLayout(LayoutKind.Explicit, Size = 8)] len == 0  => value 
+    public  readonly    int     start;  //  4 bytes
+    public  readonly    Color32 value;  //  4 bytes
+    
+    public override string ToString() => $"[{start}..{start + len}]";
+    
+    public Color32Span(int start, int len) {
+        this.start  = start;
+        this.len    = len;
+    }
+    
+    public Color32Span(Color32 value) {
+        this.value  = value;
+    }
+}
+
 /// <summary> A draw command within a <see cref="TuiBatch"/>.</summary>
 /// <remarks>
 /// Either a filled rectangle with passed background <see cref="color"/>.<br/>
@@ -71,7 +90,7 @@ public struct TuiRect
     public  readonly    TextSpan    text;       //  8 bytes
     public              Vector2     TL;         //  8 bytes - top / lLeft    - Must use floats to enable layout mutations
     public              Vector2     BR;         //  8 bytes - bottom / right - Must use floats to enable layout mutations
-    public  readonly    Color32     color;      //  4 bytes
+    public  readonly    Color32Span color;      // 12 bytes
     public  readonly    TextStyle   textStyle;  //  1 byte
     
     public override string ToString()       => $"[{TL.X}, {TL.Y} | {BR.X}, {BR.Y}]";
@@ -80,11 +99,11 @@ public struct TuiRect
     internal TuiRect(Vector2 pos, Vector2 size, Color32 background) {
         this.TL     = pos;
         this.BR     = pos + size;
-        this.color  = background;
+        this.color  = new Color32Span(background);
     }
     
     /// <summary> A horizontal text with given text <see cref="color"/>. </summary>
-    internal TuiRect(TextSpan text, TextStyle style, Vector2 pos, Vector2 size, Color32 color) {
+    internal TuiRect(TextSpan text, TextStyle style, Vector2 pos, Vector2 size, Color32Span color) {
         this.text       = text;
         this.textStyle  = style;
         this.TL         = pos;

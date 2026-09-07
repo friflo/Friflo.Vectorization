@@ -24,6 +24,7 @@ public class TmGuiRenderer : IRenderer
     private readonly    TmFont                  monocraftFont;
     private             bool                    enabled2;
     private             float                   volume = 0.8f;
+    private readonly    Color32[]               textColors = [0x0000FFFF, 0xFF0000FF, 0x009900FF, 0xFF00FFFF, 0xCC6600FF, 0x000000ff];
     
     private readonly GuiStyle redButtonStyle = new() {
         colors = new GuiColors {
@@ -99,7 +100,7 @@ public class TmGuiRenderer : IRenderer
     
     private void Window1(Gui gui)
     {
-        gui.Button("hello GUI", Dim.Fill_X(0, Fit.Content));
+        gui.Button("hello GUI", Dim.Fill_X(0, Fit.Content), color: textColors);
         gui.Spacer();
         using (gui.PushStyle(greenButtonStyle)) {
             if (gui.Button("hello"))                            Console.WriteLine("Clicked: hello");

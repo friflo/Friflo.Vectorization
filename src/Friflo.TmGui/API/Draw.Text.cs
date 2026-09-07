@@ -19,8 +19,11 @@ public readonly ref partial struct TmDraw
     /// <summary>
     /// Draws a text string using a bitmap font atlas.
     /// </summary>
-    public Vector2 DrawText(ReadOnlySpan<char> text, Vector2 position, Color32 color, TmFont? font = null, float scale = 1.0f)
+    public Vector2 DrawText(ReadOnlySpan<char> text, Vector2 position, in TextColor color, TmFont? font = null, float scale = 1.0f)
     {
+        if (color.IsNone) {
+            return MeasureText(text, font, scale);
+        }
         font ??= batch.currentFont;
 
         Vector2 currentPos = position;
@@ -47,7 +50,7 @@ public readonly ref partial struct TmDraw
             if (glyph.sourceSize.X > 0f && glyph.sourceSize.Y > 0f) {
                 Vector2 renderPos = currentPos + (glyph.offset * scale);
                 Vector2 renderSize = glyph.sourceSize * scale;
-                DrawSpriteRegion(font.texture, renderPos, renderSize, glyph.sourcePos, glyph.sourceSize, font.textureSize, color);
+                DrawSpriteRegion(font.texture, renderPos, renderSize, glyph.sourcePos, glyph.sourceSize, font.textureSize, color[i]);
             }
             currentPos.X += glyph.advance * scale;
         }
@@ -124,7 +127,7 @@ public readonly ref partial struct TmDraw
         Vector2             size, 
         TextAlignment       horizontalAlignment, 
         VerticalAlignment   verticalAlignment, 
-        Color32             color, 
+        in TextColor        color,
         TmFont?             font = null, 
         bool                wordWrap = false,
         float               scale = 1.0f)

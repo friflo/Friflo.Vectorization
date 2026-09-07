@@ -10,7 +10,7 @@ namespace Friflo.TmGui;
 
 public readonly ref partial struct GuiWidget
 {
-    internal bool Button(ReadOnlySpan<char> name, Dim size, GuiStyle? style, WidgetID id)
+    internal bool Button(ReadOnlySpan<char> name, Dim size, GuiStyle? style, WidgetID id, in TextColor textColor)
     {
         var window = Window;
         using var _ = UseStyle(style);
@@ -30,13 +30,14 @@ public readonly ref partial struct GuiWidget
         var isHover     = window.IsHoverAtCapture(pos, finalSize, draw);
         bool isFocused  = RegisterFocusable(widgetId, pos, finalSize);
         var widgetState = GetWidgetState(isHover, widgetId);
+        var color       = textColor.IsNone ? Colors.ButtonText : textColor;
 
         if (tui != null) {
-            tui.Button(name, pos, finalSize, Colors.ButtonText, Colors.ButtonState(widgetState), isFocused);
+            tui.Button(name, pos, finalSize, color, Colors.ButtonState(widgetState), isFocused);
         } else {
             draw.FillRectRounded  (pos, finalSize, Sizes.CornerRadius, Colors.ButtonState(widgetState), GuiSizes.CornerSegments);
             draw.StrokeRectRounded(pos, finalSize, Sizes.CornerRadius, 2, Colors.ButtonBorder, GuiSizes.CornerSegments);
-            draw.DrawTextInRect(name, pos + Sizes.FramePadding.Min, textSize, TextAlignment.Center, VerticalAlignment.Middle, Colors.ButtonText);
+            draw.DrawTextInRect(name, pos + Sizes.FramePadding.Min, textSize, TextAlignment.Center, VerticalAlignment.Middle, color);
         }
         if (isFocused) {
             DrawFocus(pos, finalSize);
