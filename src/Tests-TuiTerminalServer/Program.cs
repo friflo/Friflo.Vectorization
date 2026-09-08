@@ -9,6 +9,14 @@ using TerminalServer;
 // Windows WSL              stty raw -echo; nc $(ip route show default | awk '{print $3}') 9000; stty sane
 // macOS / Linux            stty raw -echo; nc localhost 9000; stty sane 
 
+// Or use an SSH Proxy to redirect SSH traffic to the TmGui TCP server:
+// Client: OpenSSH Proxy (All OS)    ssh tmgui@127.0.0.1
+// Server:
+//   Windows:       - Setup                 Add-WindowsCapability -Online -Name OpenSSH.Server~~~~0.0.1.0; Start-Service sshd
+//                  - Config (sshd_config)  Match User tmgui -> ForceCommand powershell -Command "$s=New-Object System.Net.Sockets.TcpClient('127.0.0.1',9000);$st=$s.GetStream();$i=[Console]::OpenStandardInput();$o=[Console]::OpenStandardOutput();Start-ThreadJob{$i.CopyTo($st)};$st.CopyTo($o)"
+//   Linux / macOS: - Setup                 sudo apt install openssh-server (Linux) / brew install openssh (macOS)
+//                  - Config (sshd_config)  Match User tmgui -> ForceCommand nc 127.0.0.1 9000
+
 
 Console.WriteLine("TUI Terminal Server");
 
