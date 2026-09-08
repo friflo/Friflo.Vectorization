@@ -56,10 +56,11 @@ public class TmGuiRenderer : IRenderer
     
     public TmGuiRenderer(WgpuHost wgpuHost)
     {
-        var device      = wgpuHost.Device;
-        var guiBackend  = wgpuHost.CreateGuiBackend();
-        batch           = guiBackend.CreateBatch(wgpuHost.SwapChainFormat);
-        monocraftFont   = guiBackend.CreateMonocraftFont(48, 256, 256, 32, 95, "Monocraft");
+        var device          = wgpuHost.Device;
+        var guiBackend      = wgpuHost.CreateGuiBackend();
+        batch               = guiBackend.CreateBatch(wgpuHost.SwapChainFormat);
+        using var monoTtf   = typeof(TmGuiRenderer).Assembly.GetManifestResourceStream("Tests-Console.Assets.Monocraft.ttf")!;  
+        monocraftFont       = guiBackend.CreateTtfFont(monoTtf, 48, 256, 256, 32, 95, "Monocraft");
         Debug.Assert(monocraftFont.maxY == 244);
         
         // create tile texture

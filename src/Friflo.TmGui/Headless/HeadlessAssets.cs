@@ -1,7 +1,6 @@
 ﻿// Copyright (c) Ullrich Praetz - https://github.com/friflo. All rights reserved.
 // See LICENSE file in the project root for full license information.
 
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Numerics;
@@ -39,13 +38,6 @@ internal class HeadlessAssets : IGuiAssets
         return new TmFont(texture, textureSize, 47, glyphs, "Headless Font", -1, false);
     }
     
-    public TmFont CreateMonocraftFont(TmGuiBackend backend, float fontSize, int width, int height, int firstChar, int charCount, string name)
-    {
-        throw new InvalidOperationException(); // TODO remove
-        var glyphs = new Dictionary<char, GlyphInfo>();
-        return new TmFont(new TmTexture(null!, 0), new Vector2(width, height), fontSize, glyphs, name, 41, true);
-    }
-
     public TmImageAsset LoadImage(Stream stream, TmColorComponents colorComponents)
     {
         return default;

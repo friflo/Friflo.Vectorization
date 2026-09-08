@@ -39,6 +39,7 @@
     </PropertyGroup>
     
     <ItemGroup>
+      <EmbeddedResource Include="Assets/Monocraft.ttf" />  
       <EmbeddedResource Include="Assets/img/*.png" />
       <EmbeddedResource Include="Assets/**/*.bin" />
     </ItemGroup>

@@ -60,18 +60,13 @@ public abstract class TmGuiBackend : IDisposable
         host.Dispose();
     }
     
-    /// <summary> E.g. <c>device.CreateMonocraftFont(48, 256, 256, 32, 95, "Monocraft");</c> </summary>
-    public TmFont CreateMonocraftFont(float fontSize, int width, int height, int firstChar, int charCount, string name)
-    {
-        return assets.CreateMonocraftFont(this, fontSize, width, height, firstChar, charCount, name);
-    }
-    
     public TmFont CreateBMFont(ReadOnlySpan<char> fntContent, Stream fontAtlas, string name)
     {
         var image = assets.LoadImage(fontAtlas, TmColorComponents.RedGreenBlueAlpha);
         return TmFont.CreateBMFont(this, fntContent, image, name, true);
     }
     
+    /// <summary> E.g. <c>backend.CreateTtfFont(ttf, 48, 256, 256, 32, 95, "Monocraft");</c> </summary>
     public TmFont CreateTtfFont(Stream ttfStream, float fontSize, int width, int height, int firstChar, int charCount, string name)
     {
         TmFont.AssertTextureDimension(width, height);

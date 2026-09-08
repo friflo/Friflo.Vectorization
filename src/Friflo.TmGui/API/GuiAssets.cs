@@ -11,8 +11,7 @@ namespace Friflo.TmGui;
 
 public interface IGuiAssets
 {
-    TmFont          CreateDefaultFont  (TmGuiBackend backend);
-    TmFont          CreateMonocraftFont(TmGuiBackend backend, float fontSize, int width, int height, int firstChar, int charCount, string name);
+    TmFont              CreateDefaultFont  (TmGuiBackend backend);
     
     TmImageAsset        LoadImage(Stream stream, TmColorComponents colorComponents);
     TmTrueTypeFontAsset LoadTrueTypeFontAsset(

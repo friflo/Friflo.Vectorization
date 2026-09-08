@@ -26,13 +26,6 @@ public class DefaultGuiAssets : IGuiAssets
         return backend.CreateBMFont(fntContent, fontAtlas!, "Default Font");
     }
     
-    /// <summary> E.g. <c>device.CreateMonocraftFont(48, 256, 256, 32, 95, "Monocraft");</c> </summary>
-    public TmFont CreateMonocraftFont(TmGuiBackend backend, float fontSize, int width, int height, int firstChar, int charCount, string name)
-    {
-        using var ttfFont = typeof(DefaultGuiAssets).Assembly.GetManifestResourceStream("Friflo.TmGui.Assets.fonts.Monocraft.ttf")!;
-        return backend.CreateTtfFont(ttfFont, fontSize, width, height, firstChar, charCount, "Monocraft");
-    }
-    
     public TmImageAsset LoadImage(Stream stream, TmColorComponents colorComponents)
     {
         var result = ImageResult.FromStream(stream, (ColorComponents)colorComponents);
