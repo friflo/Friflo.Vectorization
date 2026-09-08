@@ -68,11 +68,17 @@ public abstract class TmGuiBackend : IDisposable
     
     public TmFont CreateBMFont(ReadOnlySpan<char> fntContent, Stream fontAtlas, string name)
     {
-        return TmFont.CreateBMFont(this, fntContent, fontAtlas, name, true);
+        var image = assets.LoadImage(fontAtlas, TmColorComponents.RedGreenBlueAlpha);
+        return TmFont.CreateBMFont(this, fntContent, image, name, true);
     }
     
     public TmFont CreateTtfFont(Stream ttfStream, float fontSize, int width, int height, int firstChar, int charCount, string name)
     {
-        return TmFont.CreateTtfFont(this, ttfStream, fontSize, width, height, firstChar, charCount, name, true);
+        TmFont.AssertTextureDimension(width, height);
+        
+        var alphaBitmapTarget = new byte[width * height];
+        var asset = assets.LoadTrueTypeFontAsset(ttfStream, fontSize, width, height, alphaBitmapTarget, firstChar, charCount);
+        
+        return TmFont.CreateTtfFont(this, asset, alphaBitmapTarget, fontSize, width, height, name, true);
     }
 }

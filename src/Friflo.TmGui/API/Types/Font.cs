@@ -6,7 +6,6 @@ using System;
 using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.Globalization;
-using System.IO;
 using System.Numerics;
 
 
@@ -130,11 +129,9 @@ public sealed class TmFont : IDisposable
         return float.TryParse(valueSpan, NumberStyles.Float, CultureInfo.InvariantCulture, out float result) ? result : 0f;
     }
 
-    internal static TmFont CreateBMFont(TmGuiBackend backend, ReadOnlySpan<char> fntContent, Stream fontAtlas, string name, bool disposable)
+    internal static TmFont CreateBMFont(TmGuiBackend backend, ReadOnlySpan<char> fntContent, TmImageAsset image, string name, bool disposable)
     {
-        var glyphs = ReadBmFont(fntContent, out float lineHeight);
-        
-        var image   = backend.assets.LoadImage(fontAtlas, TmColorComponents.RedGreenBlueAlpha);
+        var glyphs  = ReadBmFont(fntContent, out float lineHeight);
         var width   = image.width;
         var height  = image.height; 
         AssertTextureDimension(width, height);
@@ -154,21 +151,15 @@ public sealed class TmFont : IDisposable
 
 #region TTF
     internal static TmFont CreateTtfFont(
-        TmGuiBackend backend,
-        Stream      ttfStream,
-        float       fontSize,
-        int         width,
-        int         height,
-        int         firstChar,
-        int         charCount,
-        string      name,
-        bool        disposable)
+        TmGuiBackend        backend,
+        TmTrueTypeFontAsset fontAsset,
+        byte[]              alphaBitmapTarget,
+        float               fontSize,
+        int                 width,
+        int                 height,
+        string              name,
+        bool                disposable)
     {
-        AssertTextureDimension(width, height);
-        
-        var alphaBitmapTarget = new byte[width * height];
-        var asset = backend.assets.LoadTrueTypeFontAsset(ttfStream, fontSize, width, height, alphaBitmapTarget, firstChar, charCount);
-        
         var rgba32 = new byte[width * height * 4];
         
         for (int n = 0; n < alphaBitmapTarget.Length; n++) {
@@ -185,7 +176,7 @@ public sealed class TmFont : IDisposable
         var imTexture   = new TmTexture(fontTexture, whitePixelUv);
         var textureSize = new Vector2(width, height);
         
-        return new TmFont(imTexture, textureSize, fontSize, asset.glyphs, name, asset.maxY, disposable);
+        return new TmFont(imTexture, textureSize, fontSize, fontAsset.glyphs, name, fontAsset.maxY, disposable);
     }
 #endregion
     
@@ -210,7 +201,7 @@ public sealed class TmFont : IDisposable
         return new Vector2((width - 2f) / width, (height - 2f) / height);
     }
     
-    private static void AssertTextureDimension(int width, int height)
+    internal static void AssertTextureDimension(int width, int height)
     {
         // assert: power of two for width & height
         if ((width & (width - 1)) != 0 || (height & (height - 1)) != 0) {
