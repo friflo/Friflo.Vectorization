@@ -21,7 +21,7 @@ public abstract class TmBuffer<T> : IDisposable where T : unmanaged
 public abstract class TmGuiBackend : IDisposable
 {
     private             TmFont?     defaultFont;
-    private  readonly   IGuiAssets  assets;
+    internal readonly   IGuiAssets  assets;
     public   readonly   GuiInput    input;
     internal readonly   GuiHost     host;
     

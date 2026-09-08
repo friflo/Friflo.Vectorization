@@ -4,6 +4,7 @@
 
 using System.Text;
 using System.IO;
+using StbImageSharp;
 
 // ReSharper disable once CheckNamespace
 namespace Friflo.TmGui;
@@ -26,5 +27,15 @@ public class DefaultGuiAssets : IGuiAssets
         using var ttfFont = typeof(TmGuiBackend).Assembly.GetManifestResourceStream("Friflo.TmGui.fonts.Monocraft.ttf")!;
         
         return TmFont.CreateTtfFont(backend, ttfFont, fontSize, width, height, firstChar, charCount, name, true);
+    }
+    
+    public TmImage LoadImage(Stream stream, TmColorComponents colorComponents)
+    {
+        var result = ImageResult.FromStream(stream, (ColorComponents)colorComponents);
+        return new TmImage {
+            width   = result.Width,
+            height  = result.Height,
+            data    = result.Data,
+        };  
     }
 }

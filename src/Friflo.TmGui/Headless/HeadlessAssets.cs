@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Numerics;
 
 // ReSharper disable SuggestVarOrType_BuiltInTypes
@@ -43,5 +44,10 @@ internal class HeadlessAssets : IGuiAssets
         throw new InvalidOperationException(); // TODO remove
         var glyphs = new Dictionary<char, GlyphInfo>();
         return new TmFont(new TmTexture(null!, 0), new Vector2(width, height), fontSize, glyphs, name, 41, true);
+    }
+
+    public TmImage LoadImage(Stream stream, TmColorComponents colorComponents)
+    {
+        return default;
     }
 }

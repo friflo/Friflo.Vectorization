@@ -8,7 +8,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Numerics;
-using StbImageSharp;
 using StbTrueTypeSharp;
 
 // ReSharper disable InconsistentNaming
@@ -135,17 +134,17 @@ public sealed class TmFont : IDisposable
     {
         var glyphs = ReadBmFont(fntContent, out float lineHeight);
         
-        var image   = ImageResult.FromStream(fontAtlas, ColorComponents.RedGreenBlueAlpha);
-        var width   = image.Width;
-        var height  = image.Height; 
+        var image   = backend.assets.LoadImage(fontAtlas, TmColorComponents.RedGreenBlueAlpha);
+        var width   = image.width;
+        var height  = image.height; 
         AssertTextureDimension(width, height);
         
-        var whitePixelUv = SetWhitePixel(width, height, image.Data);
+        var whitePixelUv = SetWhitePixel(width, height, image.data);
 
-        var fontTexture = backend.CreateTexture(name, width, height, image.Data);
+        var fontTexture = backend.CreateTexture(name, width, height, image.data);
         
         var imTexture   = new TmTexture(fontTexture, whitePixelUv);
-        var textureSize = new Vector2(image.Width, image.Height);
+        var textureSize = new Vector2(image.width, image.height);
         
         return new TmFont(imTexture, textureSize, lineHeight, glyphs, name, -1, disposable);
     }
