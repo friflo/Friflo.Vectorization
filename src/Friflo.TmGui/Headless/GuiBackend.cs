@@ -11,7 +11,7 @@ namespace Friflo.TmGui.Headless;
 
 public sealed class HeadlessBackend : TmGuiBackend
 {
-    public HeadlessBackend() : base(new HeadlessResources()) {
+    public HeadlessBackend() : base(new HeadlessAssets()) {
     }
     
     public override void Dispose() {

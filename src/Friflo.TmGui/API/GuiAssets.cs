@@ -4,7 +4,7 @@
 // ReSharper disable once CheckNamespace
 namespace Friflo.TmGui;
 
-public interface IGuiResources
+public interface IGuiAssets
 {
     TmFont CreateDefaultFont  (TmGuiBackend backend);
     TmFont CreateMonocraftFont(TmGuiBackend backend, float fontSize, int width, int height, int firstChar, int charCount, string name);

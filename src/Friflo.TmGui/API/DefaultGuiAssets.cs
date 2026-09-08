@@ -8,7 +8,7 @@ using System.IO;
 // ReSharper disable once CheckNamespace
 namespace Friflo.TmGui;
 
-public class DefaultGuiResources : IGuiResources
+public class DefaultGuiAssets : IGuiAssets
 {
     public TmFont CreateDefaultFont(TmGuiBackend backend)
     {

@@ -13,7 +13,7 @@ using System.Numerics;
 namespace Friflo.TmGui.Headless;
 
 
-internal class HeadlessResources : IGuiResources
+internal class HeadlessAssets : IGuiAssets
 {
     public TmFont CreateDefaultFont(TmGuiBackend backend)
     {

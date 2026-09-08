@@ -20,22 +20,22 @@ public abstract class TmBuffer<T> : IDisposable where T : unmanaged
 
 public abstract class TmGuiBackend : IDisposable
 {
-    private             TmFont?         defaultFont;
-    private  readonly   IGuiResources   resources;
-    public   readonly   GuiInput        input;
-    internal readonly   GuiHost         host;
+    private             TmFont?     defaultFont;
+    private  readonly   IGuiAssets  assets;
+    public   readonly   GuiInput    input;
+    internal readonly   GuiHost     host;
     
-    public              TmFont          DefaultFont => defaultFont ??= resources.CreateDefaultFont(this);
+    public              TmFont      DefaultFont => defaultFont ??= assets.CreateDefaultFont(this);
 
     protected internal abstract  TmTexture           CreateTexture(string name, int width, int height, ReadOnlySpan<byte> rgbaPixels);
     protected internal abstract  TmBuffer<Vertex2D>  CreateVertexBuffer(int vertexCount);
     protected internal abstract  TmBuffer<uint>      CreateIndexBuffer(int indexCount);
     
-    protected TmGuiBackend(IGuiResources resources)
+    protected TmGuiBackend(IGuiAssets assets)
     {
-        this.resources  = resources;
-        input           = new GuiInput();
-        host            = new GuiHost(input);
+        this.assets = assets;
+        input       = new GuiInput();
+        host        = new GuiHost(input);
     }
     
     protected void InitBatch(TmBatch batch)
@@ -63,7 +63,7 @@ public abstract class TmGuiBackend : IDisposable
     /// <summary> E.g. <c>device.CreateMonocraftFont(48, 256, 256, 32, 95, "Monocraft");</c> </summary>
     public TmFont CreateMonocraftFont(float fontSize, int width, int height, int firstChar, int charCount, string name)
     {
-        return resources.CreateMonocraftFont(this, fontSize, width, height, firstChar, charCount, name);
+        return assets.CreateMonocraftFont(this, fontSize, width, height, firstChar, charCount, name);
     }
     
     public TmFont CreateBMFont(ReadOnlySpan<char> fntContent, Stream fontAtlas, string name)
