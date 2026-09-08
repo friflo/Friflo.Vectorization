@@ -51,7 +51,7 @@ public sealed class TmFont : IDisposable
     
     public  override    string                              ToString()  => name;
 
-    private TmFont (
+    internal TmFont (
         in TmTexture                texture,
         Vector2                     textureSize,
         float                       lineHeight,

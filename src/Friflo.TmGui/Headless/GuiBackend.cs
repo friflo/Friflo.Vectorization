@@ -3,6 +3,7 @@
 
 using System;
 
+// ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable EmptyConstructor
 // ReSharper disable RedundantOverriddenMember
 // ReSharper disable once CheckNamespace
@@ -10,7 +11,7 @@ namespace Friflo.TmGui.Headless;
 
 public sealed class HeadlessBackend : TmGuiBackend
 {
-    public HeadlessBackend() {
+    public HeadlessBackend() : base(new HeadlessResources()) {
     }
     
     public override void Dispose() {

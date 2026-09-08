@@ -3,7 +3,6 @@
 
 using System;
 using System.IO;
-using System.Text;
 
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable InconsistentNaming
@@ -21,20 +20,22 @@ public abstract class TmBuffer<T> : IDisposable where T : unmanaged
 
 public abstract class TmGuiBackend : IDisposable
 {
-    private             TmFont?     defaultFont;
-    public   readonly   GuiInput    input;
-    internal readonly   GuiHost     host;
+    private             TmFont?         defaultFont;
+    private  readonly   IGuiResources   resources;
+    public   readonly   GuiInput        input;
+    internal readonly   GuiHost         host;
     
-    public              TmFont      DefaultFont => defaultFont ??= CreateDefaultFont();
+    public              TmFont          DefaultFont => defaultFont ??= resources.CreateDefaultFont(this);
 
     protected internal abstract  TmTexture           CreateTexture(string name, int width, int height, ReadOnlySpan<byte> rgbaPixels);
     protected internal abstract  TmBuffer<Vertex2D>  CreateVertexBuffer(int vertexCount);
     protected internal abstract  TmBuffer<uint>      CreateIndexBuffer(int indexCount);
     
-    protected TmGuiBackend()
+    protected TmGuiBackend(IGuiResources resources)
     {
-        input   = new GuiInput();
-        host    = new GuiHost(input);
+        this.resources  = resources;
+        input           = new GuiInput();
+        host            = new GuiHost(input);
     }
     
     protected void InitBatch(TmBatch batch)
@@ -59,22 +60,10 @@ public abstract class TmGuiBackend : IDisposable
         host.Dispose();
     }
     
-    private TmFont CreateDefaultFont()
-    {
-        using var fontAtlas = typeof(TmGuiBackend).Assembly.GetManifestResourceStream("Friflo.TmGui.fonts.arial-48-latin_0.png");
-        using var fntFile   = typeof(TmGuiBackend).Assembly.GetManifestResourceStream("Friflo.TmGui.fonts.arial-48-latin.fnt");
-        using var reader    = new StreamReader(fntFile!, Encoding.UTF8);
-        var fntContent      = reader.ReadToEnd();
-        
-        return TmFont.CreateBMFont(this, fntContent, fontAtlas!, "Default Font", false);
-    }
-    
     /// <summary> E.g. <c>device.CreateMonocraftFont(48, 256, 256, 32, 95, "Monocraft");</c> </summary>
     public TmFont CreateMonocraftFont(float fontSize, int width, int height, int firstChar, int charCount, string name)
     {
-        using var ttfFont = typeof(TmGuiBackend).Assembly.GetManifestResourceStream("Friflo.TmGui.fonts.Monocraft.ttf")!;
-        
-        return TmFont.CreateTtfFont(this, ttfFont, fontSize, width, height, firstChar, charCount, name, true);
+        return resources.CreateMonocraftFont(this, fontSize, width, height, firstChar, charCount, name);
     }
     
     public TmFont CreateBMFont(ReadOnlySpan<char> fntContent, Stream fontAtlas, string name)

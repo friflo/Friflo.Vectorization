@@ -2,11 +2,15 @@
 // See LICENSE file in the project root for full license information.
 
 using System;
+using Friflo.TmGui.Headless;
 
+// ReSharper disable ConvertToPrimaryConstructor
 namespace Friflo.TmGui.TUI;
 
 public sealed class TuiBackend : TmGuiBackend
 {
+    public TuiBackend() : base(new HeadlessResources()) { }
+
     public TuiBatch CreateBatch(TuiColorMode colorMode)
     {
         var batch = new TuiBatch(this, colorMode);
