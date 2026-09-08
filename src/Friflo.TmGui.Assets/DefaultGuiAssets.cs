@@ -44,7 +44,7 @@ public class DefaultGuiAssets : IGuiAssets
     }
     
     
-    public unsafe TmTrueTypeFontAsset LoadTrueTypeFontAsset(
+    public TmTrueTypeFontAsset LoadTrueTypeFontAsset(
         Stream  ttfStream,
         float   fontSize,
         int     atlasWidth,
@@ -81,14 +81,16 @@ public class DefaultGuiAssets : IGuiAssets
         float ascent = fontSize * 0.75f; // Standard-Fallback
         var fontInfo = new StbTrueType.stbtt_fontinfo();
         
-        fixed(byte* ttfDataPt = ttfData) {
-            if (StbTrueType.stbtt_InitFont(fontInfo, ttfDataPt, 0) != 0) {
-                int rawAscent;
-                int rawDescent;
-                int rawLineGap;
-                StbTrueType.stbtt_GetFontVMetrics(fontInfo, &rawAscent, &rawDescent, &rawLineGap);
-                float scale = StbTrueType.stbtt_ScaleForPixelHeight(fontInfo, fontSize);
-                ascent = MathF.Round(rawAscent * scale);
+        unsafe {
+            fixed(byte* ttfDataPt = ttfData) {
+                if (StbTrueType.stbtt_InitFont(fontInfo, ttfDataPt, 0) != 0) {
+                    int rawAscent;
+                    int rawDescent;
+                    int rawLineGap;
+                    StbTrueType.stbtt_GetFontVMetrics(fontInfo, &rawAscent, &rawDescent, &rawLineGap);
+                    float scale = StbTrueType.stbtt_ScaleForPixelHeight(fontInfo, fontSize);
+                    ascent = MathF.Round(rawAscent * scale);
+                }
             }
         }
 
