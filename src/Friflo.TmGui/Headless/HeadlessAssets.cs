@@ -46,7 +46,7 @@ internal class HeadlessAssets : IGuiAssets
         return new TmFont(new TmTexture(null!, 0), new Vector2(width, height), fontSize, glyphs, name, 41, true);
     }
 
-    public TmImage LoadImage(Stream stream, TmColorComponents colorComponents)
+    public TmImageAsset LoadImage(Stream stream, TmColorComponents colorComponents)
     {
         return default;
     }

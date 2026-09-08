@@ -9,13 +9,13 @@ namespace Friflo.TmGui;
 
 public interface IGuiAssets
 {
-    TmFont      CreateDefaultFont  (TmGuiBackend backend);
-    TmFont      CreateMonocraftFont(TmGuiBackend backend, float fontSize, int width, int height, int firstChar, int charCount, string name);
+    TmFont          CreateDefaultFont  (TmGuiBackend backend);
+    TmFont          CreateMonocraftFont(TmGuiBackend backend, float fontSize, int width, int height, int firstChar, int charCount, string name);
     
-    TmImage     LoadImage(Stream stream, TmColorComponents colorComponents);
+    TmImageAsset    LoadImage(Stream stream, TmColorComponents colorComponents);
 }
 
-public struct TmImage
+public struct TmImageAsset
 {
     public int      width;
     public int      height;
