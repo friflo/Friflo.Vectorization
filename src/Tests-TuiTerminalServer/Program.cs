@@ -5,7 +5,9 @@ using TerminalServer;
 
 
 // connect terminal client
-// plink(PuTTY/Windows)         echo --view logs --theme dark | plink -raw -t -P 9000 127.0.0.1
+// plink(PuTTY/Windows)     echo --view logs --theme dark | plink -raw -t -P 9000 127.0.0.1
+// macOS / Linux            stty raw -echo; nc localhost 9000; stty sane 
+
 
 Console.WriteLine("TUI Terminal Server");
 
