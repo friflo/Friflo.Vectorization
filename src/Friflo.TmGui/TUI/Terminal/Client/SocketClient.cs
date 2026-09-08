@@ -8,7 +8,9 @@ using System.Threading;
 using System.Threading.Tasks;
 
 // ReSharper disable ConvertToPrimaryConstructor
-namespace Friflo.TmGui.TUI.Terminal.Client;
+// ReSharper disable CheckNamespace
+namespace Friflo.TmGui.TUI.Terminal;
+
 
 public class SocketClient : TerminalClient  
 {

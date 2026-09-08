@@ -5,7 +5,8 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Friflo.TmGui.TUI.Terminal.Client;
+// ReSharper disable CheckNamespace
+namespace Friflo.TmGui.TUI.Terminal;
 
 
 public enum ClientEventType : byte

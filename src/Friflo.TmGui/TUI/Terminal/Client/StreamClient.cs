@@ -9,7 +9,9 @@ using System.Threading.Tasks;
 
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable ConvertToPrimaryConstructor
-namespace Friflo.TmGui.TUI.Terminal.Client;
+// ReSharper disable CheckNamespace
+namespace Friflo.TmGui.TUI.Terminal;
+
 
 
 public class StreamClient : TerminalClient
