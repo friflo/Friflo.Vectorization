@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Numerics;
-using StbTrueTypeSharp;
+
 
 // ReSharper disable InconsistentNaming
 // ReSharper disable SuggestVarOrType_BuiltInTypes
@@ -153,66 +153,6 @@ public sealed class TmFont : IDisposable
 
 
 #region TTF
-    private static unsafe Dictionary<char, GlyphInfo> ReadTtf(
-        byte[]  ttfData,
-        float   fontSize,
-        int     atlasWidth,
-        int     atlasHeight,
-        byte[]  alphaBitmapTarget, 	// [atlasWidth * atlasHeight]
-        int     firstChar,    		// ASCII 32 to 126
-        int     charCount,
-        out int maxY)
-    {
-        var bakedChars = new StbTrueType.stbtt_bakedchar[charCount];
-
-        var success = StbTrueType.stbtt_BakeFontBitmap(
-            ttfData, 0,
-            fontSize,
-            alphaBitmapTarget,
-            atlasWidth, atlasHeight,
-            firstChar, charCount,
-            bakedChars
-        );
-
-        if (!success) {
-            throw new InvalidOperationException($"Atlas ({atlasWidth}x{atlasHeight}) too small for fontSize {fontSize}.");
-        }
-
-        // retrieve ascent (Baseline-distance from top edge)
-        float ascent = fontSize * 0.75f; // Standard-Fallback
-        var fontInfo = new StbTrueType.stbtt_fontinfo();
-        
-        fixed(byte* ttfDataPt = ttfData) {
-            if (StbTrueType.stbtt_InitFont(fontInfo, ttfDataPt, 0) != 0) {
-                int rawAscent;
-                int rawDescent;
-                int rawLineGap;
-                StbTrueType.stbtt_GetFontVMetrics(fontInfo, &rawAscent, &rawDescent, &rawLineGap);
-                float scale = StbTrueType.stbtt_ScaleForPixelHeight(fontInfo, fontSize);
-                ascent = MathF.Round(rawAscent * scale);
-            }
-        }
-
-        var glyphs = new Dictionary<char, GlyphInfo>(charCount);
-        maxY = 0;
-
-        for (int i = 0; i < charCount; i++)
-        {
-            var baked = bakedChars[i];
-            char c = (char)(firstChar + i);
-            if (maxY < baked.y1) maxY = baked.y1; 
-
-            glyphs[c] = new GlyphInfo {
-                sourcePos  = new Vector2(baked.x0, baked.y0),
-                sourceSize = new Vector2(baked.x1 - baked.x0, baked.y1 - baked.y0),
-                // Bake ascent directly into yoff -> top-left ready!
-                offset     = new Vector2(baked.xoff, baked.yoff + ascent),
-                advance    = baked.xadvance
-            };
-        }
-        return glyphs;
-    }
-    
     internal static TmFont CreateTtfFont(
         TmGuiBackend backend,
         Stream      ttfStream,
@@ -226,18 +166,8 @@ public sealed class TmFont : IDisposable
     {
         AssertTextureDimension(width, height);
         
-        byte[] ttfData;
-        if (ttfStream is MemoryStream typedMemoryStream) {
-            ttfData = typedMemoryStream.ToArray();
-        } else {
-            using var ms = new MemoryStream();
-            ttfStream.CopyTo(ms);
-            ttfData = ms.ToArray();
-        }
         var alphaBitmapTarget = new byte[width * height];
-        var glyphs = ReadTtf(ttfData, fontSize, width, height, alphaBitmapTarget, firstChar, charCount, out var maxY);
-        
-        
+        var asset = backend.assets.LoadTrueTypeFontAsset(ttfStream, fontSize, width, height, alphaBitmapTarget, firstChar, charCount);
         
         var rgba32 = new byte[width * height * 4];
         
@@ -255,7 +185,7 @@ public sealed class TmFont : IDisposable
         var imTexture   = new TmTexture(fontTexture, whitePixelUv);
         var textureSize = new Vector2(width, height);
         
-        return new TmFont(imTexture, textureSize, fontSize, glyphs, name, maxY, disposable);
+        return new TmFont(imTexture, textureSize, fontSize, asset.glyphs, name, asset.maxY, disposable);
     }
 #endregion
     
