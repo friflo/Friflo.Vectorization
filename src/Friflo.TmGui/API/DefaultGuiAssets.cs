@@ -23,19 +23,14 @@ public class DefaultGuiAssets : IGuiAssets
         using var fntFile   = typeof(TmGuiBackend).Assembly.GetManifestResourceStream("Friflo.TmGui.fonts.arial-48-latin.fnt");
         using var reader    = new StreamReader(fntFile!, Encoding.UTF8);
         var fntContent      = reader.ReadToEnd();
-        var image = backend.assets.LoadImage(fontAtlas!, TmColorComponents.RedGreenBlueAlpha);
-        return TmFont.CreateBMFont(backend, fntContent, image, "Default Font", false);
+        return backend.CreateBMFont(fntContent, fontAtlas!, "Default Font");
     }
     
     /// <summary> E.g. <c>device.CreateMonocraftFont(48, 256, 256, 32, 95, "Monocraft");</c> </summary>
     public TmFont CreateMonocraftFont(TmGuiBackend backend, float fontSize, int width, int height, int firstChar, int charCount, string name)
     {
         using var ttfFont = typeof(TmGuiBackend).Assembly.GetManifestResourceStream("Friflo.TmGui.fonts.Monocraft.ttf")!;
-        
-        var alphaBitmapTarget = new byte[width * height];
-        var asset = backend.assets.LoadTrueTypeFontAsset(ttfFont, fontSize, width, height, alphaBitmapTarget, firstChar, charCount);
-        
-        return TmFont.CreateTtfFont(backend,asset, alphaBitmapTarget, fontSize, width, height, name, true);
+        return backend.CreateTtfFont(ttfFont, fontSize, width, height, firstChar, charCount, "Monocraft");
     }
     
     public TmImageAsset LoadImage(Stream stream, TmColorComponents colorComponents)
