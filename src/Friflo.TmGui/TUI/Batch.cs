@@ -19,7 +19,6 @@ namespace Friflo.TmGui.TUI;
 
 public sealed class TuiBatch : TmBatch
 {
-    public              TuiBorder               buttonBorder;
     public              TuiBorder               focusBorder;
     private             float                   yScale;
     private             float                   xScale;
@@ -42,10 +41,8 @@ public sealed class TuiBatch : TmBatch
     public TuiBatch(TuiBackend backend, TuiColorMode colorMode) : base(backend, 0)
     {
         if  (colorMode == TuiColorMode.Monochrome) {
-            buttonBorder = new TuiBorder('[', ']');
             focusBorder  = new TuiBorder('>', '<');
         } else {
-            buttonBorder = new TuiBorder(' ', ' ');
             focusBorder  = new TuiBorder('[', ']');
         }
     }
