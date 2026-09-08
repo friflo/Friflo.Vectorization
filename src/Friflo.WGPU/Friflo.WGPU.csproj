@@ -66,7 +66,7 @@
   
     <ItemGroup>
       <ProjectReference Include="..\Friflo.GPU\Friflo.GPU.csproj" />
-      <ProjectReference Include="..\Friflo.TmGui\Friflo.TmGui.csproj" />
+      <ProjectReference Include="..\Friflo.TmGui.Assets\Friflo.TmGui.Assets.csproj" />
     </ItemGroup>
 
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">

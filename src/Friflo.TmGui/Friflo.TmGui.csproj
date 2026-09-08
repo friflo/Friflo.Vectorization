@@ -19,7 +19,7 @@
     <AssemblyVersion>0.0.0.0</AssemblyVersion>
     <FileVersion>0.0.0.0</FileVersion>
 
-    <Title>"ImDraw for friflo WGPU</Title>
+    <Title>"TmGui</Title>
     <Authors>Ullrich Praetz</Authors>
     <Description>Immediate Mode API for friflo WGPU - https://github.com/friflo/Friflo.Vectorization</Description>
     <Copyright>Ullrich Praetz</Copyright>
@@ -45,8 +45,6 @@
   <ItemGroup>
     <None Include="README.md" Pack="true" PackagePath="\" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1"    PrivateAssets="All" />
-    <PackageReference Include="StbImageSharp"       Version="2.30.16" />
-    <PackageReference Include="StbTrueTypeSharp"    Version="1.26.13" />
   </ItemGroup>
 
   <ItemGroup>
@@ -60,17 +58,13 @@
   </PropertyGroup>
   <!-- packaging: end -->
   
-  <ItemGroup>
-      <EmbeddedResource Include="fonts/*.*" />
-  </ItemGroup>
-
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
     <DefineConstants>TRACE</DefineConstants>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
   </PropertyGroup>
   
   <ItemGroup>

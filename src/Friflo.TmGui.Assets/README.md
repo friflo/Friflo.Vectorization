@@ -1,4 +1,4 @@
-# Friflo TmGui Assets
+# Friflo TmGui
 
 
 TODO fill content

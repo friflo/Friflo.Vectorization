@@ -19,8 +19,8 @@ public class DefaultGuiAssets : IGuiAssets
 {
     public TmFont CreateDefaultFont(TmGuiBackend backend)
     {
-        using var fontAtlas = typeof(TmGuiBackend).Assembly.GetManifestResourceStream("Friflo.TmGui.fonts.arial-48-latin_0.png");
-        using var fntFile   = typeof(TmGuiBackend).Assembly.GetManifestResourceStream("Friflo.TmGui.fonts.arial-48-latin.fnt");
+        using var fontAtlas = typeof(DefaultGuiAssets).Assembly.GetManifestResourceStream("Friflo.TmGui.Assets.fonts.arial-48-latin_0.png");
+        using var fntFile   = typeof(DefaultGuiAssets).Assembly.GetManifestResourceStream("Friflo.TmGui.Assets.fonts.arial-48-latin.fnt");
         using var reader    = new StreamReader(fntFile!, Encoding.UTF8);
         var fntContent      = reader.ReadToEnd();
         return backend.CreateBMFont(fntContent, fontAtlas!, "Default Font");
@@ -29,7 +29,7 @@ public class DefaultGuiAssets : IGuiAssets
     /// <summary> E.g. <c>device.CreateMonocraftFont(48, 256, 256, 32, 95, "Monocraft");</c> </summary>
     public TmFont CreateMonocraftFont(TmGuiBackend backend, float fontSize, int width, int height, int firstChar, int charCount, string name)
     {
-        using var ttfFont = typeof(TmGuiBackend).Assembly.GetManifestResourceStream("Friflo.TmGui.fonts.Monocraft.ttf")!;
+        using var ttfFont = typeof(DefaultGuiAssets).Assembly.GetManifestResourceStream("Friflo.TmGui.Assets.fonts.Monocraft.ttf")!;
         return backend.CreateTtfFont(ttfFont, fontSize, width, height, firstChar, charCount, "Monocraft");
     }
     
