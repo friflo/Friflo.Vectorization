@@ -7,41 +7,10 @@ using System.Text;
 using System.Threading;
 using System.Threading.Channels;
 using System.Threading.Tasks;
-using Friflo.TmGui.TUI.Terminal.Client;
 
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable ConvertConstructorToMemberInitializers
-namespace Friflo.TmGui.TUI.Terminal;
-
-
-public enum ClientEventType : byte
-{
-    Connected,
-    Disconnected,
-    Input
-}
-
-public readonly struct ClientEvent
-{
-    public required     TerminalClient          Client  { get; init; }
-    public required     ClientEventType         Type    { get; init; }
-    public              ReadOnlyMemory<byte>    Payload { get; init; }
-}
-
-public interface IGuiView
-{
-    public void RenderGui(TmBatch batch, int targetWidth, int targetHeight);
-}
-
-
-public struct ConnectInfo
-{
-    public string[]         args;
-    public TerminalClient   client;
-}
-
-public delegate IGuiView CreateGuiView(ConnectInfo info);
-
+namespace Friflo.TmGui.TUI.Terminal.Client;
 
 
 public sealed class SingleThreadedShardEngine

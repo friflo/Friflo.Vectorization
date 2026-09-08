@@ -3,11 +3,18 @@
 
 using System;
 
-
+// ReSharper disable CanSimplifyStringEscapeSequence
 // ReSharper disable ConvertToPrimaryConstructor
 namespace Friflo.TmGui.TUI.Terminal;
 
-public sealed class TuiSession
+
+public interface IGuiView
+{
+    public void RenderGui(TmBatch batch, int targetWidth, int targetHeight);
+}
+
+
+public sealed partial class TuiSession
 {
     private readonly    FrameBuffer     frameBuffer;
     private readonly    TuiBackend      backend;
@@ -33,6 +40,7 @@ public sealed class TuiSession
     {
         // Enable raw mode on client terminal
         AppendSpan(EscapeWrite.EnableRawTuiMode);
+        AppendSpan("\x1b[?1000h\x1b[?1002h\x1b[?1006h"u8); // Enable mouse input
         sessionStart = true;
     }
     
@@ -185,52 +193,5 @@ public sealed class TuiSession
         if ((disabled & TextStyle.Underline)    != 0) AppendSpan("\x1b[24m"u8);
         if ((disabled & TextStyle.Inverse)      != 0) AppendSpan("\x1b[27m"u8);
         if ((disabled & TextStyle.StrikeThrough)!= 0) AppendSpan("\x1b[29m"u8);
-    }
-    
-
-    public Memory<byte> ProcessInput(ReadOnlySpan<byte> input)
-    {
-        if (input.Length == 1)
-        {
-            switch (input[0])
-            {
-                case 0x09: {    // Tab
-                    var key = new KeyEvent { code = KeyCode.Tab, isDown = true };
-                    backend.AddEvent(new TmEvent(TmEventType.KeyDown, key));
-                    break;
-                }
-                case 0x0D: {    // Enter
-                    backend.AddEvent(new TmEvent(TmEventType.KeyDown, new KeyEvent { code = KeyCode.Return, isDown = true }));
-                    break;
-                }
-                case 0x20: {    // Space
-                    backend.AddEvent(new TmEvent(TmEventType.KeyDown, new KeyEvent { code = KeyCode.Space,  isDown = true }));
-                    break;
-                }
-            }
-        }
-        if (input.Length >= 3 && input[0] == Escape.ESC && input[1] == Escape.CSI)
-        {
-            switch (input[2])
-            {
-                case 0x41: {    // Arrow Up
-                    backend.AddEvent(new TmEvent(TmEventType.KeyDown, new KeyEvent { code = KeyCode.Up,     isDown = true }));
-                    break;
-                }
-                case 0x42: {    // Arrow Down
-                    backend.AddEvent(new TmEvent(TmEventType.KeyDown, new KeyEvent { code = KeyCode.Down,   isDown = true }));
-                    break;
-                }
-                case 0x43: {    // Arrow Right
-                    backend.AddEvent(new TmEvent(TmEventType.KeyDown, new KeyEvent { code = KeyCode.Right,  isDown = true }));
-                    break;
-                }
-                case 0x44: {    // Arrow Left
-                    backend.AddEvent(new TmEvent(TmEventType.KeyDown, new KeyEvent { code = KeyCode.Left,   isDown = true }));
-                    break;
-                }
-            }
-        }
-        return IterateTui();
     }
 }

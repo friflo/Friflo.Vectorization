@@ -7,6 +7,30 @@ using System.Threading.Tasks;
 
 namespace Friflo.TmGui.TUI.Terminal.Client;
 
+
+public enum ClientEventType : byte
+{
+    Connected,
+    Disconnected,
+    Input
+}
+
+public readonly struct ClientEvent
+{
+    public required     TerminalClient          Client  { get; init; }
+    public required     ClientEventType         Type    { get; init; }
+    public              ReadOnlyMemory<byte>    Payload { get; init; }
+}
+
+public struct ConnectInfo
+{
+    public string[]         args;
+    public TerminalClient   client;
+}
+
+public delegate IGuiView CreateGuiView(ConnectInfo info);
+
+
 public abstract class TerminalClient
 {
     protected internal abstract  ValueTask<int> SendAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken);
