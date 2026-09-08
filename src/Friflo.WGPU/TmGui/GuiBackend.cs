@@ -5,7 +5,6 @@ using System;
 using System.IO;
 using Friflo.GPU;
 using Friflo.TmGui;
-using StbImageSharp;
 
 
 // ReSharper disable ConvertToPrimaryConstructor
@@ -68,15 +67,15 @@ public sealed class WgpuGuiBackend : TmGuiBackend
     
     public GpuTexture LoadTexture(Stream stream, string label = null, TextureUsage usage = TextureUsage.TextureBinding | TextureUsage.CopyDst)
     {
-        var image = ImageResult.FromStream(stream, ColorComponents.RedGreenBlueAlpha);
+        var image = assets.LoadImage(stream, TmColorComponents.RedGreenBlueAlpha);
 
         var texture = device.CreateTexture(new GpuTextureDescriptor {
             label  = label,
-            size   = [image.Width, image.Height],
+            size   = [image.width, image.height],
             format = TextureFormat.RGBA8Unorm,
             usage  = usage
         });
-        texture.Write(image.Data, bytesPerRow: image.Width * 4, rowsPerImage: image.Height);
+        texture.Write(image.data, bytesPerRow: image.width * 4, rowsPerImage: image.height);
         return texture;
     }
 }
