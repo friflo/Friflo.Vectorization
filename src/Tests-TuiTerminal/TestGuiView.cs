@@ -1,8 +1,8 @@
 ﻿using System.Numerics;
 using Friflo.TmGui;
-using Friflo.TmGui.TUI.Terminal;
 
-namespace TerminalServer;
+// ReSharper disable ConvertToPrimaryConstructor
+namespace TuiTerminal;
 
 
 public class TestGuiView : IGuiView

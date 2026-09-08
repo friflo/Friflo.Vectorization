@@ -1,4 +1,4 @@
-﻿namespace TerminalServer;
+﻿namespace TuiTerminal;
 
 public class AppState
 {

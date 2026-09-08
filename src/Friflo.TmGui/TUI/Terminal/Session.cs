@@ -8,12 +8,6 @@ using System;
 namespace Friflo.TmGui.TUI.Terminal;
 
 
-public interface IGuiView
-{
-    public void RenderGui(TmBatch batch, int targetWidth, int targetHeight);
-}
-
-
 public sealed partial class TuiSession
 {
     private readonly    FrameBuffer     frameBuffer;

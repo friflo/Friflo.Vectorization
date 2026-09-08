@@ -22,7 +22,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Friflo.Generators.CodeFixes
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Friflo.TmGui", "src\Friflo.TmGui\Friflo.TmGui.csproj", "{C79EDF8C-9DA8-42B1-9C22-35BF1364A398}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests-TuiTerminalServer", "src\Tests-TuiTerminalServer\Tests-TuiTerminalServer.csproj", "{F1063E3C-546B-47DF-B69C-304AB6283E19}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests-TuiTerminal", "src\Tests-TuiTerminal\Tests-TuiTerminal.csproj", "{F1063E3C-546B-47DF-B69C-304AB6283E19}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Friflo.TmGui.Assets", "src\Friflo.TmGui.Assets\Friflo.TmGui.Assets.csproj", "{C6BA8462-C8AF-4250-98C1-F39A6F24EB76}"
 EndProject
