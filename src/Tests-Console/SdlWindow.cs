@@ -268,8 +268,10 @@ internal static class Sdl3Cursor
         CursorCache[MouseCursor.Arrow]      = SDL.CreateSystemCursor(SDL.SystemCursor.Default);
         CursorCache[MouseCursor.ResizeNS]   = SDL.CreateSystemCursor(SDL.SystemCursor.NSResize);
         CursorCache[MouseCursor.ResizeEW]   = SDL.CreateSystemCursor(SDL.SystemCursor.EWResize);
-        CursorCache[MouseCursor.ResizeNWSE] = SDL.CreateSystemCursor(SDL.SystemCursor.NWSEResize);
-        CursorCache[MouseCursor.ResizeNESW] = SDL.CreateSystemCursor(SDL.SystemCursor.NESWResize);
+        CursorCache[MouseCursor.ResizeNW]   = SDL.CreateSystemCursor(SDL.SystemCursor.NWSEResize);
+        CursorCache[MouseCursor.ResizeSE]   = SDL.CreateSystemCursor(SDL.SystemCursor.NWSEResize);
+        CursorCache[MouseCursor.ResizeNE]   = SDL.CreateSystemCursor(SDL.SystemCursor.NESWResize);
+        CursorCache[MouseCursor.ResizeSW]   = SDL.CreateSystemCursor(SDL.SystemCursor.NESWResize);
     }
     
     internal static void Shutdown()

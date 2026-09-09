@@ -246,15 +246,25 @@ public sealed partial class TuiSession
                 buffer.CellRef(x,     y)    = cellBase with { character = ' '}; // ⬍
                 buffer.CellRef(x + 1, y)    = cellBase with { character = '▼'}; // ▼ 
                 break;
-            case MouseCursor.ResizeNWSE:
-                buffer.CellRef(x - 1, y)    = cellBase with { character = '◤'}; // ◤ 
-                buffer.CellRef(x,     y)    = cellBase with { character = ' '}; // ⤡
-                buffer.CellRef(x + 1, y)    = cellBase with { character = '◢'}; // ◢
+            case MouseCursor.ResizeNW:
+                buffer.CellRef(x - 1, y)    = cellBase with { character = ' '}; // ◤ 
+                buffer.CellRef(x,     y)    = cellBase with { character = '◤'}; // ⤡
+                buffer.CellRef(x + 1, y)    = cellBase with { character = ' '}; // ◢
                 break;
-            case MouseCursor.ResizeNESW:
-                buffer.CellRef(x - 1, y)    = cellBase with { character = '◣'}; // ◣ 
-                buffer.CellRef(x,     y)    = cellBase with { character = ' '}; // ⤢
-                buffer.CellRef(x + 1, y)    = cellBase with { character = '◥'}; // ◥ 
+            case MouseCursor.ResizeSE:
+                buffer.CellRef(x - 1, y)    = cellBase with { character = ' '}; // ◤ 
+                buffer.CellRef(x,     y)    = cellBase with { character = '◢'}; // ⤡
+                buffer.CellRef(x + 1, y)    = cellBase with { character = ' '}; // ◢
+                break;
+            case MouseCursor.ResizeNE:
+                buffer.CellRef(x - 1, y)    = cellBase with { character = ' '}; // ◣ 
+                buffer.CellRef(x,     y)    = cellBase with { character = '◥'}; // ⤢
+                buffer.CellRef(x + 1, y)    = cellBase with { character = ' '}; // ◥ 
+                break;
+            case MouseCursor.ResizeSW:
+                buffer.CellRef(x - 1, y)    = cellBase with { character = ' '}; // ◣ 
+                buffer.CellRef(x,     y)    = cellBase with { character = '◣'}; // ⤢
+                buffer.CellRef(x + 1, y)    = cellBase with { character = ' '}; // ◥ 
                 break;
         }
     }

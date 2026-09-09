@@ -341,8 +341,10 @@ public sealed class GuiWindow
         {
             ResizeEdge.Top      or ResizeEdge.Bottom        => MouseCursor.ResizeNS,
             ResizeEdge.Left     or ResizeEdge.Right         => MouseCursor.ResizeEW,
-            ResizeEdge.TopLeft  or ResizeEdge.BottomRight   => MouseCursor.ResizeNWSE,
-            ResizeEdge.TopRight or ResizeEdge.BottomLeft    => MouseCursor.ResizeNESW,
+            ResizeEdge.TopLeft                              => MouseCursor.ResizeNW,  
+            ResizeEdge.BottomRight                          => MouseCursor.ResizeSE,
+            ResizeEdge.TopRight                             => MouseCursor.ResizeNE,
+            ResizeEdge.BottomLeft                           => MouseCursor.ResizeSW,
             _                                               => MouseCursor.Arrow
         };
     }

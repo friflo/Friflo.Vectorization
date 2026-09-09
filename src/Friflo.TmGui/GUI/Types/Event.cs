@@ -168,8 +168,10 @@ public struct GamepadEvent
 public enum MouseCursor
 {
     Arrow,
-    ResizeNS,     // Vertical   (Top / Bottom)
-    ResizeEW,     // Horizontal (Left / Right)
-    ResizeNWSE,   // Diagonal   (TopLeft / BottomRight)
-    ResizeNESW    // Diagonal   (TopRight / BottomLeft)
+    ResizeNS,   // Vertical   (Top / Bottom)
+    ResizeEW,   // Horizontal (Left / Right)
+    ResizeNW,   // Diagonal   TopLeft
+    ResizeSE,   // Diagonal   BottomRight
+    ResizeNE,   // Diagonal   TopRight
+    ResizeSW    // Diagonal   TopRight
 }
