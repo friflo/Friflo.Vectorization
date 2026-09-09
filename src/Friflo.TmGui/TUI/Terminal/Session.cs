@@ -225,8 +225,8 @@ public sealed partial class TuiSession
     private void DrawMouseCursor()
     {
         var mouse   = backend.input.MousePos; 
-        var x       = (int)(mouse.X * batch.XScale) - 1;
-        var y       = (int)(mouse.Y * batch.YScale) - 1;
+        var x       = (int)(mouse.X / batch.CharWidth)  - 1;
+        var y       = (int)(mouse.Y / batch.LineHeight) - 1;
         
         var cellBase =  new TuiColorCell {
             textStyle  = TextStyle.None, 
@@ -242,9 +242,9 @@ public sealed partial class TuiSession
                 buffer.CellRef(x + 1, y)    = cellBase with { character = '▶'}; // ▶
                 break;
             case MouseCursor.ResizeNS:
-                buffer.CellRef(x - 1, y)    = cellBase with { character = ' '}; // ▲ 
-                buffer.CellRef(x,     y)    = cellBase with { character = '⬍'};
-                buffer.CellRef(x + 1, y)    = cellBase with { character = ' '}; // ▼ 
+                buffer.CellRef(x - 1, y)    = cellBase with { character = '▲'}; // ▲ 
+                buffer.CellRef(x,     y)    = cellBase with { character = ' '}; // ⬍
+                buffer.CellRef(x + 1, y)    = cellBase with { character = '▼'}; // ▼ 
                 break;
             case MouseCursor.ResizeNWSE:
                 buffer.CellRef(x - 1, y)    = cellBase with { character = '◤'}; // ◤ 
