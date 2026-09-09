@@ -20,7 +20,8 @@ public sealed class TuiBackend : TmGuiBackend
     
     protected internal override TmTexture CreateTexture(string name, int width, int height, ReadOnlySpan<byte> rgbaPixels)
     {
-        return default;
+        var native = new HeadlessTexture(name, width, height, rgbaPixels);
+        return new TmTexture(native, 0);
     }
 
     protected internal override TmBuffer<Vertex2D> CreateVertexBuffer(int vertexCount)

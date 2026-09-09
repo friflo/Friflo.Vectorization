@@ -31,7 +31,7 @@ internal class HeadlessAssets : IGuiAssets
             glyph.sourcePos = new Vector2(col * 24.0f, row * 35.0f);
             glyphs.Add((char)n, glyph);
         }
-        var fontTexture = new HeadlessTexture("Headless Font Texture", 512, 512, default);
+        var fontTexture = new HeadlessTexture("Default Font", 512, 512, default);
         var texture     = new TmTexture(fontTexture, 0, default);   // use texture with simulated white UV pixel for testing
         var textureSize = new Vector2(fontTexture.width, fontTexture.height);
         
