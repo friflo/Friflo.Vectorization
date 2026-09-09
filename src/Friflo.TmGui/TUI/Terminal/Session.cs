@@ -237,21 +237,24 @@ public sealed partial class TuiSession
         switch (backend.input.CurrentCursor)
         {
             case MouseCursor.ResizeEW:
-                buffer.CellRef(x - 1, y)    = cellBase with { character = '◀'};    // ◀
-                buffer.CellRef(x,     y)    = cellBase with { character = ' '};
-                buffer.CellRef(x + 1, y)    = cellBase with { character = '▶'};    // ▶
+                buffer.CellRef(x - 1, y)    = cellBase with { character = '◀'}; // ◀
+                buffer.CellRef(x,     y)    = cellBase with { character = ' '}; // ⬌
+                buffer.CellRef(x + 1, y)    = cellBase with { character = '▶'}; // ▶
                 break;
             case MouseCursor.ResizeNS:
-                buffer.CellRef(x, y)        = cellBase with { character = '▲'};    // ▲
-                buffer.CellRef(x, y + 1)    = cellBase with { character = '▼'};    // ▼
+                buffer.CellRef(x - 1, y)    = cellBase with { character = ' '}; // ▲ 
+                buffer.CellRef(x,     y)    = cellBase with { character = '⬍'};
+                buffer.CellRef(x + 1, y)    = cellBase with { character = ' '}; // ▼ 
                 break;
             case MouseCursor.ResizeNWSE:
-                buffer.CellRef(x - 1, y - 1)    = cellBase with { character = '◤'};   // ◤
-                buffer.CellRef(x,     y)        = cellBase with { character = '◢'};   // ◢
+                buffer.CellRef(x - 1, y)    = cellBase with { character = '◤'}; // ◤ 
+                buffer.CellRef(x,     y)    = cellBase with { character = ' '}; // ⤡
+                buffer.CellRef(x + 1, y)    = cellBase with { character = '◢'}; // ◢
                 break;
             case MouseCursor.ResizeNESW:
-                buffer.CellRef(x,     y - 1)    = cellBase with { character = '◥'};    // ◥
-                buffer.CellRef(x - 1,     y)    = cellBase with { character = '◣'};    // ◣
+                buffer.CellRef(x - 1, y)    = cellBase with { character = '◣'}; // ◣ 
+                buffer.CellRef(x,     y)    = cellBase with { character = ' '}; // ⤢
+                buffer.CellRef(x + 1, y)    = cellBase with { character = '◥'}; // ◥ 
                 break;
         }
     }
