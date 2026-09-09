@@ -13,7 +13,7 @@ namespace Friflo.TmGui.TUI.Terminal;
 
 internal enum RS
 {
-    New,
+    Ground,
     ESC,
     CSI,
 }
@@ -46,7 +46,7 @@ public sealed partial class TuiSession
                 csi.AppendChar(character);
                 if (0x40 <= character && character <= 0x7E) {
                     HandleCSI();
-                    return RS.New;
+                    return RS.Ground;
                 }
                 break;
             
@@ -56,25 +56,30 @@ public sealed partial class TuiSession
                 }
                 break;
             
-            case RS.New:
-                switch (character)
-                {
-                    case Escape.ESC:    // 0x1B
-                        return RS.ESC;
-                    
-                    case '\t':  // Tab
-                        backend.AddEvent(new TmEvent(TmEventType.KeyDown, new KeyEvent { code = KeyCode.Tab, isDown = true }));
-                        return RS.New;
-                    case '\r':  // Enter
-                        backend.AddEvent(new TmEvent(TmEventType.KeyDown, new KeyEvent { code = KeyCode.Return, isDown = true }));
-                        return RS.New;
-                    case ' ':   // Space
-                        backend.AddEvent(new TmEvent(TmEventType.KeyDown, new KeyEvent { code = KeyCode.Space,  isDown = true }));
-                        return RS.New;
+            case RS.Ground:
+                if (character == Escape.ESC) { // 0x1B
+                    return RS.ESC;
                 }
-                break;
+                HandleCharacter(character);
+                return RS.Ground;
         }
         return rs;
+    }
+    
+    private void HandleCharacter(char character)
+    {
+        switch (character)
+        {
+            case '\t':  // Tab
+                backend.AddEvent(new TmEvent(TmEventType.KeyDown, new KeyEvent { code = KeyCode.Tab, isDown = true }));
+                return;
+            case '\r':  // Enter
+                backend.AddEvent(new TmEvent(TmEventType.KeyDown, new KeyEvent { code = KeyCode.Return, isDown = true }));
+                return;
+            case ' ':   // Space
+                backend.AddEvent(new TmEvent(TmEventType.KeyDown, new KeyEvent { code = KeyCode.Space,  isDown = true }));
+                return;
+        }
     }
     
     private void HandleCSI()
