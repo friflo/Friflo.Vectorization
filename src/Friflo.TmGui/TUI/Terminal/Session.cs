@@ -3,6 +3,7 @@
 
 using System;
 
+// ReSharper disable InlineTemporaryVariable
 // ReSharper disable CanSimplifyStringEscapeSequence
 // ReSharper disable ConvertToPrimaryConstructor
 namespace Friflo.TmGui.TUI.Terminal;
@@ -233,39 +234,11 @@ public sealed partial class TuiSession
             color      = 0xffffffff,
             background = 0x000000ff
         };
-        var buffer = frameBuffer;
-        switch (backend.input.CurrentCursor)
-        {
-            case MouseCursor.ResizeEW:
-                buffer.CellRef(x - 1, y)    = cellBase with { character = '◀'}; // ◀
-                buffer.CellRef(x,     y)    = cellBase with { character = ' '}; // ⬌
-                buffer.CellRef(x + 1, y)    = cellBase with { character = '▶'}; // ▶
-                break;
-            case MouseCursor.ResizeNS:
-                buffer.CellRef(x - 1, y)    = cellBase with { character = '▲'}; // ▲ 
-                buffer.CellRef(x,     y)    = cellBase with { character = ' '}; // ⬍
-                buffer.CellRef(x + 1, y)    = cellBase with { character = '▼'}; // ▼ 
-                break;
-            case MouseCursor.ResizeNW:
-                buffer.CellRef(x - 1, y)    = cellBase with { character = ' '}; // ◤ 
-                buffer.CellRef(x,     y)    = cellBase with { character = '◤'}; // ⤡
-                buffer.CellRef(x + 1, y)    = cellBase with { character = ' '}; // ◢
-                break;
-            case MouseCursor.ResizeSE:
-                buffer.CellRef(x - 1, y)    = cellBase with { character = ' '}; // ◤ 
-                buffer.CellRef(x,     y)    = cellBase with { character = '◢'}; // ⤡
-                buffer.CellRef(x + 1, y)    = cellBase with { character = ' '}; // ◢
-                break;
-            case MouseCursor.ResizeNE:
-                buffer.CellRef(x - 1, y)    = cellBase with { character = ' '}; // ◣ 
-                buffer.CellRef(x,     y)    = cellBase with { character = '◥'}; // ⤢
-                buffer.CellRef(x + 1, y)    = cellBase with { character = ' '}; // ◥ 
-                break;
-            case MouseCursor.ResizeSW:
-                buffer.CellRef(x - 1, y)    = cellBase with { character = ' '}; // ◣ 
-                buffer.CellRef(x,     y)    = cellBase with { character = '◣'}; // ⤢
-                buffer.CellRef(x + 1, y)    = cellBase with { character = ' '}; // ◥ 
-                break;
-        }
+        var buffer  = frameBuffer;
+        var shape   = MouseCursorShape.Cursors[(int)backend.input.CurrentCursor];
+        
+        buffer.CellRef(x - 1, y)    = cellBase with { character = shape.left   };
+        buffer.CellRef(x,     y)    = cellBase with { character = shape.center };
+        buffer.CellRef(x + 1, y)    = cellBase with { character = shape.right  };
     }
 }
