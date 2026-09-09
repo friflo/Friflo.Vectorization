@@ -72,7 +72,7 @@ public abstract class TmGuiBackend : IDisposable
         TmFont.AssertTextureDimension(width, height);
         
         var alphaBitmapTarget = new byte[width * height];
-        var asset = assets.LoadTrueTypeFontAsset(ttfStream, fontSize, width, height, alphaBitmapTarget, firstChar, charCount);
+        var asset = assets.LoadTrueTypeFont(ttfStream, fontSize, width, height, alphaBitmapTarget, firstChar, charCount);
         
         return TmFont.CreateTtfFont(this, asset, alphaBitmapTarget, fontSize, width, height, name, true);
     }

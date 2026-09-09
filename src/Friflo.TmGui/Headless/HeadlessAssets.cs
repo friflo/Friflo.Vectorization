@@ -43,7 +43,7 @@ internal class HeadlessAssets : IGuiAssets
         return default;
     }
     
-    public TmTrueTypeFontAsset LoadTrueTypeFontAsset(
+    public TmTrueTypeFontAsset LoadTrueTypeFont(
         Stream  ttfStream,
         float   fontSize,
         int     atlasWidth,
