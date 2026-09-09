@@ -41,7 +41,8 @@ internal sealed class GuiState
         if (batch is TuiBatch tuiBatch) {
             defaultStyle.sizes = new GuiSizes {
                 WindowPadding   = new Padding2D(tuiBatch.CharWidth, tuiBatch.LineHeight),
-                ItemSpacing     = new Vector2  (tuiBatch.CharWidth, 0)
+                ItemSpacing     = new Vector2  (tuiBatch.CharWidth, 0),
+                TrackThickness  = new Vector2  (tuiBatch.CharWidth, tuiBatch.CharWidth)
             };
         } else {
             defaultStyle.sizes = CreateDefaultSizes();
@@ -56,7 +57,8 @@ internal sealed class GuiState
             FramePadding    	= new Padding2D(horizontal: 16f, vertical:  2f),
             ItemSpacing    		= new Vector2  (x:          12f,        y:  6f),
             CellPadding      	= new Padding2D(horizontal:  6f, vertical:  4f),
-            ContainerPadding 	= new Padding2D(horizontal:  8f, vertical:  8f)
+            ContainerPadding 	= new Padding2D(horizontal:  8f, vertical:  8f),
+            TrackThickness      = new Vector2  (x:          20f,        y: 20f),
         };
     }
 

@@ -16,7 +16,8 @@ public enum SizeId
     FramePadding,
     ItemSpacing,
     CellPadding,
-    ContainerPadding
+    ContainerPadding,
+    TrackThickness
 }
 
 
@@ -26,15 +27,15 @@ public struct GuiSizes
     public  float       CornerRadius            => 8;
     public const int    CornerSegments          =  3; // better than 4. 4 segments have a pixel spike at 45 deg.
     public Padding2D    ChildPadding            => new(6, 6);
-    public float        TrackThickness          => 20;
     public float        FocusRadius             => 14;
     
     
-    public Padding2D    WindowPadding    { readonly get => windowPadding;    set => windowPadding    = Add(SizeId.WindowPadding,    value); }
-    public Padding2D    FramePadding     { readonly get => framePadding;     set => framePadding     = Add(SizeId.FramePadding,     value); }
-    public Vector2      ItemSpacing      { readonly get => itemSpacing;      set => itemSpacing      = Add(SizeId.ItemSpacing,      value); }
-    public Padding2D    CellPadding      { readonly get => cellPadding;      set => cellPadding      = Add(SizeId.CellPadding,      value); }
-    public Padding2D    ContainerPadding { readonly get => containerPadding; set => containerPadding = Add(SizeId.ContainerPadding, value); }
+    public Padding2D    WindowPadding       { readonly get => windowPadding;        set => windowPadding        = Add(SizeId.WindowPadding,    value); }
+    public Padding2D    FramePadding        { readonly get => framePadding;         set => framePadding         = Add(SizeId.FramePadding,     value); }
+    public Vector2      ItemSpacing         { readonly get => itemSpacing;          set => itemSpacing          = Add(SizeId.ItemSpacing,      value); }
+    public Padding2D    CellPadding         { readonly get => cellPadding;          set => cellPadding          = Add(SizeId.CellPadding,      value); }
+    public Padding2D    ContainerPadding    { readonly get => containerPadding;     set => containerPadding     = Add(SizeId.ContainerPadding, value); }
+    public Vector2      TrackThickness      { readonly get => trackThickness;       set => trackThickness       = Add(SizeId.TrackThickness,   value); }
 
     public readonly             Bitset64<SizeId>    Overrides                   => overrides;
     public readonly override    string              ToString()                  => $"overrides: {overrides.Count}";
@@ -49,6 +50,7 @@ public struct GuiSizes
     [Browse(Never)] private     Vector2     itemSpacing;
     [Browse(Never)] private     Padding2D   cellPadding;
     [Browse(Never)] private     Padding2D   containerPadding;
+    [Browse(Never)] private     Vector2     trackThickness;
 
     [Browse(Never)] internal Bitset64<SizeId> overrides;
 
@@ -76,6 +78,7 @@ public struct GuiSizes
                 case SizeId.ItemSpacing:        target.itemSpacing      = source.itemSpacing;       break;
                 case SizeId.CellPadding:        target.cellPadding      = source.cellPadding;       break;
                 case SizeId.ContainerPadding:   target.containerPadding = source.containerPadding;  break;
+                case SizeId.TrackThickness:     target.trackThickness   = source.trackThickness;    break;
             }
         }
     }
@@ -91,6 +94,7 @@ public struct GuiSizes
                 case SizeId.ItemSpacing:        ItemSpacing         = source.itemSpacing;       break;
                 case SizeId.CellPadding:        CellPadding         = source.cellPadding;       break;
                 case SizeId.ContainerPadding:   ContainerPadding    = source.containerPadding;  break;
+                case SizeId.TrackThickness:     TrackThickness      = source.trackThickness;    break;
             }
         }
     }

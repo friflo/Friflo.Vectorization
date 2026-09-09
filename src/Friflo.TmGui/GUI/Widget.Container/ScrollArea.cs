@@ -46,7 +46,7 @@ public readonly ref partial struct GuiWidget
 
 	    // Account for vertical scrollbar visibility based on last frame's content size
 	    bool hasVertScrollbar = scrollState.lastContentSize.Y > outerSize.Y;
-	    float scrollbarWidth  = hasVertScrollbar ? Sizes.TrackThickness : 0f;
+	    float scrollbarWidth  = hasVertScrollbar ? Sizes.TrackThickness.X : 0f;
 
 	    // Provide concrete viewport width for UI.Fill_X elements (accounting for padding, focus clearance, and scrollbar)
 	    float effectiveWidth  = MathF.Max(0f, outerSize.X - padding.Size.X - scrollbarWidth);
@@ -72,8 +72,8 @@ public readonly ref partial struct GuiWidget
 
 	    // Build effective content size without cross-contaminating initial triggers
 	    var contentSize = baseContentSize;
-	    if (showVert)  contentSize.X += Sizes.TrackThickness;
-	    if (showHoriz) contentSize.Y += Sizes.TrackThickness;
+	    if (showVert)  contentSize.X += Sizes.TrackThickness.X;
+	    if (showHoriz) contentSize.Y += Sizes.TrackThickness.X;
 
 	    // Cache current content size for the next frame's layout pass
 	    scrollState.lastContentSize = contentSize;
@@ -101,7 +101,7 @@ public readonly ref partial struct GuiWidget
 	private void DrawScrollbar(Vector2 pos, Vector2 size, float totalContentSize, ref ScrollState scrollState, ScrollAxis axis, Color32 background)
 	{
 	    var window = Window;
-	    float trackThickness	= Sizes.TrackThickness;
+	    float trackThickness	= Sizes.TrackThickness.X;
 	    bool isHorizontal = axis == ScrollAxis.Horizontal;
 
 	    // Axis-parameterized geometry setup
