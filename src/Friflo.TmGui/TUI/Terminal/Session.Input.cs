@@ -4,20 +4,19 @@
 using System;
 using System.Numerics;
 
+// ReSharper disable MergeIntoLogicalPattern
 // ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable SwitchStatementHandlesSomeKnownEnumValuesWithDefault
 // ReSharper disable InconsistentNaming
 // ReSharper disable ConvertToPrimaryConstructor
 namespace Friflo.TmGui.TUI.Terminal;
 
-
 internal enum RS
 {
     New,
     ESC,
     CSI,
-} 
-
+}
 
 
 public sealed partial class TuiSession
@@ -95,20 +94,44 @@ public sealed partial class TuiSession
                 backend.AddEvent(new TmEvent(TmEventType.KeyDown, new KeyEvent { code = KeyCode.Left,   isDown = true }));
                 break;
             
-            case '<':       // 0x3C     mouse
+            case '<':       // 0x3C     Mouse events
                 csi.SkipFirst();
                 csi.TryReadInt(out int type);
-                if (type == 35) {//      move 
-                    csi.TryReadChar(';');
-                    csi.TryReadInt(out int x);
-                    csi.TryReadChar(';');
-                    csi.TryReadInt(out int y);
-                    var motionPos = new Vector2(x * batch.CharWidth, y * batch.LineHeight);
-                    backend.AddEvent(new TmEvent(TmEventType.MouseMotion, motionPos));
+
+                csi.TryReadChar(';');
+                csi.TryReadInt(out int x);
+                csi.TryReadChar(';');
+                csi.TryReadInt(out int y);
+                
+                // Read the final byte ('M' = Press/Down, 'm' = Release/Up)
+                char finalChar  = csi.Current;
+                var mousePos    = new Vector2(x * batch.CharWidth, y * batch.LineHeight);
+
+                if (finalChar == 'M' || finalChar == 'm') // 'M' Mouse Down  'm' mouse up
+                {
+                    switch (type)
+                    {
+                        case 0:     // Left Click
+                        case 1:     // Middle Click
+                        case 2:     // Right Click
+                            var isDown = finalChar == 'M';
+                            var ev = isDown ? TmEventType.MouseButtonDown : TmEventType.MouseButtonUp;
+                            backend.AddEvent(new TmEvent(ev, mousePos));
+                            break;
+                        case 35:    // Mouse Move (Hover) sends 'm' as finalChar
+                            backend.AddEvent(new TmEvent(TmEventType.MouseMotion, mousePos));
+                            break;
+                        case 64:    // Scroll Wheel Up
+                            backend.AddEvent(new TmEvent(TmEventType.MouseWheel, mousePos) { wheel = new Vector2(0, +1) });
+                            break;
+                        case 65:    // Scroll Wheel Down
+                            backend.AddEvent(new TmEvent(TmEventType.MouseWheel, mousePos) { wheel = new Vector2(0, -1) });
+                            break;
+                    }
                 }
                 break;
         }
-        csi.length = 0;
+        csi.Reset();
     }
     
 

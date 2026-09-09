@@ -12,7 +12,7 @@ namespace Friflo.TmGui.TUI.Terminal;
 internal struct CharBuffer
 {
     private  readonly   char[]  array;
-    internal            int     length;
+    private             int     length;
     private             int     current;
 
     public   override   string  ToString()      => $"\"{new string(array, 0, length)}\"  current: {new string(Remaining)}";
@@ -29,6 +29,12 @@ internal struct CharBuffer
 
     public CharBuffer(int length) {
         array = new char[length];
+    }
+    
+    internal void Reset()
+    {
+        length  = 0;
+        current = 0;
     }
     
     internal void AppendChar(char c)    => array[length++] = c;
