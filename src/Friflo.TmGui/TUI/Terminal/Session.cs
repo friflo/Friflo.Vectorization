@@ -93,6 +93,11 @@ public sealed partial class TuiSession
         var textStyle   = TextStyle.None;
         
         batch.DrawRectCommandsColor(frameBuffer, width, height, new TuiColorCell { character = ' ', background = 0x888888ff });
+        
+        if (backend.input.CurrentCursor != MouseCursor.Arrow) {
+            DrawMouseCursor();
+        }
+        
         var cells = frameBuffer.ColorCells;
 
         for (int y = 0; y < height; y++)
@@ -190,5 +195,39 @@ public sealed partial class TuiSession
         if ((disabled & TextStyle.Underline)    != 0) AppendSpan("\x1b[24m"u8);
         if ((disabled & TextStyle.Inverse)      != 0) AppendSpan("\x1b[27m"u8);
         if ((disabled & TextStyle.StrikeThrough)!= 0) AppendSpan("\x1b[29m"u8);
+    }
+    
+    private void DrawMouseCursor()
+    {
+        var mouse   = backend.input.MousePos; 
+        var x       = (int)(mouse.X * batch.XScale);
+        var y       = (int)(mouse.Y * batch.YScale);
+        
+        var cellBase =  new TuiColorCell {
+            textStyle  = TextStyle.None, 
+            color      = 0xffffffff,
+            background = 0x000000ff
+        };
+        var buffer = frameBuffer;
+        switch (backend.input.CurrentCursor)
+        {
+            case MouseCursor.ResizeEW:
+                buffer.CellRef(x - 1, y) = cellBase with { character = '<'};    // ◀   todo
+                buffer.CellRef(x,     y) = cellBase with { character = ' '};
+                buffer.CellRef(x + 1, y) = cellBase with { character = '>'};    // ▶
+                break;
+            case MouseCursor.ResizeNS:
+                buffer.CellRef(x, y - 1) = cellBase with { character = '^'};    // ▲   todo
+                buffer.CellRef(x, y)     = cellBase with { character = 'v'};    // ▼
+                break;
+            case MouseCursor.ResizeNWSE:
+                buffer.CellRef(x - 1, y - 1)    = cellBase with { character = '\\'};   // ◤   todo
+                buffer.CellRef(x,     y)        = cellBase with { character = '\\'};   // ◢
+                break;
+            case MouseCursor.ResizeNESW:
+                buffer.CellRef(x,     y - 1)    = cellBase with { character = '/'};    // ◥   todo
+                buffer.CellRef(x - 1,     y)    = cellBase with { character = '/'};    // ◣
+                break;
+        }
     }
 }

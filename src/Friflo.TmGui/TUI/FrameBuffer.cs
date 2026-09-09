@@ -2,6 +2,7 @@
 // See LICENSE file in the project root for full license information.
 
 using System;
+using System.Diagnostics;
 
 namespace Friflo.TmGui.TUI;
 
@@ -12,11 +13,14 @@ public sealed class FrameBuffer
 {
     private     int                 bufferWidth;
     private     int                 bufferHeight;
-    private     TuiColorCell[]      colorCells      = [];
-    private     char[]              charCells       = [];
+    private     TuiColorCell[]      colorCells              = [];
+    private     char[]              charCells               = [];
     
-    public      Span<TuiColorCell>  ColorCells      => colorCells. AsSpan().Slice(0,  bufferWidth * bufferHeight);
-    public      Span<char>          CharCells       => charCells.  AsSpan().Slice(0,  bufferWidth * bufferHeight);
+    public      Span<TuiColorCell>  ColorCells              => colorCells. AsSpan().Slice(0,  bufferWidth * bufferHeight);
+    public      Span<char>          CharCells               => charCells.  AsSpan().Slice(0,  bufferWidth * bufferHeight);
+    
+    [DebuggerHidden]
+    public      ref TuiColorCell    CellRef(int x, int y)   => ref colorCells[y * bufferWidth + x];
         
     
     internal void PrepareColorCells(int width, int height)
