@@ -337,9 +337,14 @@ public sealed class TuiBatch : TmBatch
         DrawText(name, GetStyle(isFocused), position + offset, color);
     }
 
-    public void DrawScrollbar(Vector2 position, Vector2 size, Color32 background)
+    public void DrawScrollbar(Vector2 position, Vector2 size, Color32 background, Vector2 thumbPosition, Vector2 thumbSize, Color32 thumbColor, bool isHorizontal)
     {
-        FillRect(position, size, background);
+        FillRect(position,           size, background);
+        if (isHorizontal) {
+            FillRect(thumbPosition, thumbSize, thumbColor);
+        } else {
+            FillRect(thumbPosition, thumbSize, thumbColor);
+        }
     }
     
     public void Space(Vector2 pos, Vector2 size)

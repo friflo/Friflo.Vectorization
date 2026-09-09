@@ -185,13 +185,16 @@ public readonly ref partial struct GuiWidget
 
 	    // Render track and thumb
 	    var tui = draw.Tui;
+	    float	offset		= tui != null ? 0 : 2;
+	    Vector2 posOffset	= isHorizontal ? new Vector2(0, offset) : new Vector2(offset, 0);
+	    thumbPos		   += posOffset;
+	    thumbSize		   -= 2 * posOffset;
+	    
 	    if (tui != null) {
-			tui.DrawScrollbar(trackPos, trackSize, background);
+			tui.DrawScrollbar(trackPos, trackSize, background, thumbPos, thumbSize, thumbColor, isHorizontal);
 	    } else {
 		    draw.FillRect       (trackPos, trackSize, background);
-			float offset			= 2;
-		    Vector2 posOffset = isHorizontal ? new Vector2(0, offset) : new Vector2(offset, 0);
-		    draw.FillRectRounded(thumbPos + posOffset, thumbSize - 2 * posOffset, Sizes.CornerRadius, thumbColor, GuiSizes.CornerSegments);
+		    draw.FillRectRounded(thumbPos, thumbSize, Sizes.CornerRadius, thumbColor, GuiSizes.CornerSegments);
 	    }
 	}
 }
