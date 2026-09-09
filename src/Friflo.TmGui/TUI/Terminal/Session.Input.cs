@@ -2,9 +2,10 @@
 // See LICENSE file in the project root for full license information.
 
 using System;
+using System.Numerics;
+
 // ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable SwitchStatementHandlesSomeKnownEnumValuesWithDefault
-
 // ReSharper disable InconsistentNaming
 // ReSharper disable ConvertToPrimaryConstructor
 namespace Friflo.TmGui.TUI.Terminal;
@@ -95,12 +96,16 @@ public sealed partial class TuiSession
                 break;
             
             case '<':       // 0x3C     mouse
-                csi.TryReadChar('<');
+                csi.SkipFirst();
                 csi.TryReadInt(out int type);
-                csi.TryReadChar(';');
-                csi.TryReadInt(out int x);
-                csi.TryReadChar(';');
-                csi.TryReadInt(out int y);
+                if (type == 35) {//      move 
+                    csi.TryReadChar(';');
+                    csi.TryReadInt(out int x);
+                    csi.TryReadChar(';');
+                    csi.TryReadInt(out int y);
+                    var motionPos = new Vector2(x * batch.CharWidth, y * batch.LineHeight);
+                    backend.AddEvent(new TmEvent(TmEventType.MouseMotion, motionPos));
+                }
                 break;
         }
         csi.length = 0;

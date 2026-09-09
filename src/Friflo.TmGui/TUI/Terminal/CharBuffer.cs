@@ -31,7 +31,9 @@ internal struct CharBuffer
         array = new char[length];
     }
     
-    internal void AppendChar(char c) => array[length++] = c;
+    internal void AppendChar(char c)    => array[length++] = c;
+    
+    internal void SkipFirst()           => current++;
     
     internal bool TryReadChar(int c)
     {
