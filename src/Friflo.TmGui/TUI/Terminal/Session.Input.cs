@@ -2,11 +2,9 @@
 // See LICENSE file in the project root for full license information.
 
 using System;
-// ReSharper disable FieldCanBeMadeReadOnly.Local
-
-// ReSharper disable SwitchStatementHandlesSomeKnownEnumValuesWithDefault
-// ReSharper disable MergeIntoPattern
 // ReSharper disable SuggestVarOrType_BuiltInTypes
+// ReSharper disable SwitchStatementHandlesSomeKnownEnumValuesWithDefault
+
 // ReSharper disable InconsistentNaming
 // ReSharper disable ConvertToPrimaryConstructor
 namespace Friflo.TmGui.TUI.Terminal;
@@ -19,20 +17,7 @@ internal enum RS
     CSI,
 } 
 
-internal struct CharBuffer
-{
-    private         char[]  array;
-    internal        int     length;
 
-    public override string  ToString()      => $"\"{new string(array, 0, length)}\"";
-    internal        int     this[int index] => array[index];
-
-    public CharBuffer(int length) {
-        array = new char[length];
-    }
-    
-    internal void AppendChar(char c) => array[length++] = c;
-}
 
 public sealed partial class TuiSession
 {
@@ -108,9 +93,18 @@ public sealed partial class TuiSession
             case 'D':       // 0x44     Arrow Left
                 backend.AddEvent(new TmEvent(TmEventType.KeyDown, new KeyEvent { code = KeyCode.Left,   isDown = true }));
                 break;
-            /* case '<':       // 0x3C     mouse
-                break; */
+            
+            case '<':       // 0x3C     mouse
+                csi.TryReadChar('<');
+                csi.TryReadInt(out int type);
+                csi.TryReadChar(';');
+                csi.TryReadInt(out int x);
+                csi.TryReadChar(';');
+                csi.TryReadInt(out int y);
+                break;
         }
         csi.length = 0;
     }
+    
+
 }
