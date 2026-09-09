@@ -117,7 +117,7 @@ public sealed partial class TuiSession
                 if (cell.background != background) {
                     SetBackground(background = cell.background);
                 }
-                AppendByte((byte)cell.character);
+                AppendChar(cell.character);
             }
 
             // Send EraseInLine + CRLF at the end of each row
@@ -171,6 +171,31 @@ public sealed partial class TuiSession
         sendBuffer[sendBufferCount++] = value; 
     }
     
+    private void AppendChar(char character)
+    {
+        // Fast path: ASCII (1 byte) - 0x0000 to 0x007F
+        if (character <= 0x7F)
+        {
+            sendBuffer[sendBufferCount++] = (byte)character;
+            return;
+        }
+        // UTF-8 (2 bytes) - e.g. umlauts (ä, ö, ü) or guillemets («, »)
+        if (character <= 0x07FF)
+        {
+            sendBuffer[sendBufferCount++] = (byte)(0xC0 | (character >> 6));
+            sendBuffer[sendBufferCount++] = (byte)(0x80 | (character & 0x3F));
+            return;
+        }
+        // Skip isolated UTF-16 surrogates (4-byte characters need Rune / pair handling)
+        if (char.IsSurrogate(character)) {
+            return;
+        }
+        // UTF-8 (3 bytes) - e.g. TUI symbols (◢, ▲, ▼, ◥) and box-drawing chars
+        sendBuffer[sendBufferCount++] = (byte)(0xE0 | (character >> 12));
+        sendBuffer[sendBufferCount++] = (byte)(0x80 | ((character >> 6) & 0x3F));
+        sendBuffer[sendBufferCount++] = (byte)(0x80 | (character & 0x3F));
+    }
+    
     private void AppendSpan(ReadOnlySpan<byte> buffer)
     {
         buffer.CopyTo(sendBuffer.AsSpan(sendBufferCount, buffer.Length));
@@ -200,8 +225,8 @@ public sealed partial class TuiSession
     private void DrawMouseCursor()
     {
         var mouse   = backend.input.MousePos; 
-        var x       = (int)(mouse.X * batch.XScale);
-        var y       = (int)(mouse.Y * batch.YScale);
+        var x       = (int)(mouse.X * batch.XScale) - 1;
+        var y       = (int)(mouse.Y * batch.YScale) - 1;
         
         var cellBase =  new TuiColorCell {
             textStyle  = TextStyle.None, 
@@ -212,21 +237,21 @@ public sealed partial class TuiSession
         switch (backend.input.CurrentCursor)
         {
             case MouseCursor.ResizeEW:
-                buffer.CellRef(x - 1, y) = cellBase with { character = '<'};    // ◀   todo
-                buffer.CellRef(x,     y) = cellBase with { character = ' '};
-                buffer.CellRef(x + 1, y) = cellBase with { character = '>'};    // ▶
+                buffer.CellRef(x - 1, y)    = cellBase with { character = '◀'};    // ◀
+                buffer.CellRef(x,     y)    = cellBase with { character = ' '};
+                buffer.CellRef(x + 1, y)    = cellBase with { character = '▶'};    // ▶
                 break;
             case MouseCursor.ResizeNS:
-                buffer.CellRef(x, y - 1) = cellBase with { character = '^'};    // ▲   todo
-                buffer.CellRef(x, y)     = cellBase with { character = 'v'};    // ▼
+                buffer.CellRef(x, y)        = cellBase with { character = '▲'};    // ▲
+                buffer.CellRef(x, y + 1)    = cellBase with { character = '▼'};    // ▼
                 break;
             case MouseCursor.ResizeNWSE:
-                buffer.CellRef(x - 1, y - 1)    = cellBase with { character = '\\'};   // ◤   todo
-                buffer.CellRef(x,     y)        = cellBase with { character = '\\'};   // ◢
+                buffer.CellRef(x - 1, y - 1)    = cellBase with { character = '◤'};   // ◤
+                buffer.CellRef(x,     y)        = cellBase with { character = '◢'};   // ◢
                 break;
             case MouseCursor.ResizeNESW:
-                buffer.CellRef(x,     y - 1)    = cellBase with { character = '/'};    // ◥   todo
-                buffer.CellRef(x - 1,     y)    = cellBase with { character = '/'};    // ◣
+                buffer.CellRef(x,     y - 1)    = cellBase with { character = '◥'};    // ◥
+                buffer.CellRef(x - 1,     y)    = cellBase with { character = '◣'};    // ◣
                 break;
         }
     }
