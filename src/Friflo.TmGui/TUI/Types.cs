@@ -54,10 +54,12 @@ public struct TuiBorder
 }
 
 /// <summary> start and length of text within <see cref="TuiBatch.Texts"/> </summary>
+[StructLayout(LayoutKind.Explicit, Size = 8)]
 public struct TextSpan
 {
-    public  int    start;  //  4 bytes
-    public  int    len;    //  4 bytes
+    [FieldOffset(0)] public  char   fillChar;   //  2 bytes (+0)
+    [FieldOffset(0)] public  int    start;      //  4 bytes
+    [FieldOffset(4)] public  int    len;        //  4 bytes      case: len == 0   fillChar is used for fill rects
     
     public override string ToString() => $"[{start}..{start + len}]";
 }
@@ -101,10 +103,11 @@ public struct TuiRect
     public override string ToString()       => $"[{TL.X}, {TL.Y} | {BR.X}, {BR.Y}]";
     
     /// <summary> A filled rectangle with given background <see cref="color"/>. </summary>
-    internal TuiRect(Vector2 pos, Vector2 size, Color32 background) {
-        this.TL     = pos;
-        this.BR     = pos + size;
-        this.color  = new Color32Span(background);
+    internal TuiRect(Vector2 pos, Vector2 size, Color32Span background, char fillChar) {
+        text.fillChar   = fillChar;
+        this.TL         = pos;
+        this.BR         = pos + size;
+        this.color      = background;
     }
     
     /// <summary> A horizontal text with given text <see cref="color"/>. </summary>

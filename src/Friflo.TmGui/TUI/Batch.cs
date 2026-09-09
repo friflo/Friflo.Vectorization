@@ -210,16 +210,19 @@ public sealed class TuiBatch : TmBatch
                     } 
                     // Fill clipped background area row by row
                     if (drawColor) {
-                        var width = endX - startX;
-                        var fill  = new TuiColorCell { character = ' ', color = 0, background = rect.color.value };
-
+                        var width   = endX - startX;
+                        var fill    = new TuiColorCell { character = rect.text.fillChar, color = 0, background = rect.color.value };
+                        if (rect.color.len == 2) {
+                            fill.background = colors[rect.color.start];
+                            fill.color      = colors[rect.color.start + 1];
+                        }
                         for (int y = startY; y < endY; y++) {
                             cells.Slice(stride * y + startX, width).Fill(fill);
                         }
                     } else {
                         var width = endX - startX;
                         for (int y = startY; y < endY; y++) {
-                            chars.Slice(stride * y + startX, width).Fill(' ');
+                            chars.Slice(stride * y + startX, width).Fill(rect.text.fillChar);
                         }
                     }
                 }
@@ -270,7 +273,18 @@ public sealed class TuiBatch : TmBatch
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void FillRect(Vector2 position, Vector2 size, Color32 background)
     {
-        tuiRects.Add(new TuiRect(position, size, background));
+        tuiRects.Add(new TuiRect(position, size, new Color32Span(background), ' '));
+    }
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void FillRectChar(Vector2 position, Vector2 size, Color32 background, char fillChar, Color32 textColor)
+    {
+        Span<Color32> colors = stackalloc Color32[2];
+        colors[0] = background;
+        colors[1] = textColor;
+        var colorSpan = new Color32Span(colorBuffer.Count, colors.Length);
+        colorBuffer.AddRange(colors);
+        tuiRects.Add(new TuiRect(position, size, colorSpan, fillChar));
     }
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -341,7 +355,7 @@ public sealed class TuiBatch : TmBatch
     {
         FillRect(position,           size, background);
         if (isHorizontal) {
-            FillRect(thumbPosition, thumbSize, thumbColor);
+            FillRectChar(thumbPosition, thumbSize, background, '▄', thumbColor);
         } else {
             FillRect(thumbPosition, thumbSize, thumbColor);
         }
@@ -349,7 +363,7 @@ public sealed class TuiBatch : TmBatch
     
     public void Space(Vector2 pos, Vector2 size)
     {
-        tuiRects.Add(new TuiRect(pos, size, 0xaaaaaaff));
+        tuiRects.Add(new TuiRect(pos, size, new Color32Span(0xaaaaaaff), ' '));
     }
     
     internal void DrawFocus(Vector2 pos, Vector2 size, Color32 color)
