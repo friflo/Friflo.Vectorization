@@ -129,6 +129,9 @@ public sealed partial class TuiSession
                 var ev = isDown ? TmEventType.MouseButtonDown : TmEventType.MouseButtonUp;
                 backend.AddEvent(new TmEvent(ev, mousePos));
                 break;
+            case 32:    // Drag Left
+            case 33:    // Drag Middle
+            case 34:    // Drag Right
             case 35:    // Mouse Move (Hover) sends 'm' as finalChar
                 backend.AddEvent(new TmEvent(TmEventType.MouseMotion, mousePos));
                 break;
