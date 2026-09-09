@@ -232,7 +232,7 @@ public sealed partial class TuiSession
         var cellBase =  new TuiColorCell {
             textStyle  = TextStyle.None, 
             color      = 0xffffffff,
-            background = 0x000000ff
+            background = 0x606060ff
         };
         var buffer  = frameBuffer;
         var shape   = MouseCursorShape.Cursors[(int)backend.input.CurrentCursor];

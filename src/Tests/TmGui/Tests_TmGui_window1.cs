@@ -83,7 +83,7 @@ public class Tests_TmGui_window1
             if (n == 0) start = Mem.GetAllocatedBytes();
         }
         Mem.AssertNoAlloc(start);
-        Assert.That(batch.Rects.Length, Is.EqualTo(54));
+        Assert.That(batch.Rects.Length, Is.EqualTo(55));
         Assert.That(batch.Texts.Length, Is.EqualTo(149));
         Assert.That(frameBuffer.ColorCells.Length, Is.EqualTo(1500));
         
