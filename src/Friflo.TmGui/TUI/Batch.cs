@@ -353,11 +353,11 @@ public sealed class TuiBatch : TmBatch
 
     public void DrawScrollbar(Vector2 position, Vector2 size, Color32 background, Vector2 thumbPosition, Vector2 thumbSize, Color32 thumbColor, bool isHorizontal)
     {
-        FillRect(position,           size, background);
+        FillRect(position, size, background);
         if (isHorizontal) {
             FillRectChar(thumbPosition, thumbSize, background, '▄', thumbColor);
         } else {
-            FillRect(thumbPosition, thumbSize, thumbColor);
+            FillRectChar(thumbPosition, thumbSize, background, '█', thumbColor);
         }
     }
     
