@@ -28,11 +28,11 @@ internal static class EscapeWrite
 
 internal static class Escape
 {
-    internal const byte     ESC = 0x1B;
+    internal const char     ESC = (char)0x1B;
     
     /// <summary> 0x5B ('['): Control Sequence Introducer.</summary>
     /// <remarks> Follows ESC to initiate ANSI sequences for cursor movement (Up/Down/Left/Right), color formatting (SGR), and mode toggles. </remarks>
-    internal const byte     CSI = 0x5B;
+    internal const char     CSI = (char)0x5B;
     
-    internal const byte     OSC = 0x5D;
+    internal const char     OSC = (char)0x5D;
 }

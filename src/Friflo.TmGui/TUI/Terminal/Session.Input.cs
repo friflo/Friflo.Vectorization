@@ -3,56 +3,96 @@
 
 using System;
 
-
+// ReSharper disable SwitchStatementHandlesSomeKnownEnumValuesWithDefault
+// ReSharper disable MergeIntoPattern
+// ReSharper disable SuggestVarOrType_BuiltInTypes
+// ReSharper disable InconsistentNaming
 // ReSharper disable ConvertToPrimaryConstructor
 namespace Friflo.TmGui.TUI.Terminal;
 
 
+internal enum RS
+{
+    New,
+    ESC,
+    CSI,
+    Mouse,
+} 
+
+
 public sealed partial class TuiSession
 {
+    private RS  readState;
+        
     public Memory<byte> ProcessInput(ReadOnlySpan<byte> input)
     {
-        if (input.Length == 1)
+        int pos = 0;
+        var rs  = readState;
+        
+        while (pos < input.Length)
         {
-            switch (input[0])
-            {
-                case 0x09: {    // Tab
-                    var key = new KeyEvent { code = KeyCode.Tab, isDown = true };
-                    backend.AddEvent(new TmEvent(TmEventType.KeyDown, key));
-                    break;
-                }
-                case 0x0D: {    // Enter
-                    backend.AddEvent(new TmEvent(TmEventType.KeyDown, new KeyEvent { code = KeyCode.Return, isDown = true }));
-                    break;
-                }
-                case 0x20: {    // Space
-                    backend.AddEvent(new TmEvent(TmEventType.KeyDown, new KeyEvent { code = KeyCode.Space,  isDown = true }));
-                    break;
-                }
-            }
+            var character = (char)input[pos++];
+            rs = ReadInput(rs, character);
         }
-        if (input.Length >= 3 && input[0] == Escape.ESC && input[1] == Escape.CSI)
-        {
-            switch (input[2])
-            {
-                case 0x41: {    // Arrow Up
-                    backend.AddEvent(new TmEvent(TmEventType.KeyDown, new KeyEvent { code = KeyCode.Up,     isDown = true }));
-                    break;
-                }
-                case 0x42: {    // Arrow Down
-                    backend.AddEvent(new TmEvent(TmEventType.KeyDown, new KeyEvent { code = KeyCode.Down,   isDown = true }));
-                    break;
-                }
-                case 0x43: {    // Arrow Right
-                    backend.AddEvent(new TmEvent(TmEventType.KeyDown, new KeyEvent { code = KeyCode.Right,  isDown = true }));
-                    break;
-                }
-                case 0x44: {    // Arrow Left
-                    backend.AddEvent(new TmEvent(TmEventType.KeyDown, new KeyEvent { code = KeyCode.Left,   isDown = true }));
-                    break;
-                }
-            }
-        }
+        readState = rs;
         return IterateTui();
+    }
+     
+    private RS ReadInput(RS rs, char character)
+    {
+        switch (rs)
+        {
+            case RS.New:
+                switch (character)
+                {
+                    case Escape.ESC:
+                        return RS.ESC;
+                    
+                    case '\t':  // Tab
+                        backend.AddEvent(new TmEvent(TmEventType.KeyDown, new KeyEvent { code = KeyCode.Tab, isDown = true }));
+                        return RS.New;
+                    case '\r':  // Enter
+                        backend.AddEvent(new TmEvent(TmEventType.KeyDown, new KeyEvent { code = KeyCode.Return, isDown = true }));
+                        return RS.New;
+                    case ' ':   // Space
+                        backend.AddEvent(new TmEvent(TmEventType.KeyDown, new KeyEvent { code = KeyCode.Space,  isDown = true }));
+                        return RS.New;
+                }
+                break;
+            case RS.ESC:
+                if (character == Escape.CSI) {
+                    return RS.CSI;
+                }
+                break;
+            case RS.CSI:
+                switch (character)
+                {
+                    case 'A':       // 0x41     Arrow Up
+                        backend.AddEvent(new TmEvent(TmEventType.KeyDown, new KeyEvent { code = KeyCode.Up,     isDown = true }));
+                        return RS.New;
+                    case 'B':       // 0x42     Arrow Down
+                        backend.AddEvent(new TmEvent(TmEventType.KeyDown, new KeyEvent { code = KeyCode.Down,   isDown = true }));
+                        return RS.New;
+                    case 'C':       // 0x43     Arrow Right
+                        backend.AddEvent(new TmEvent(TmEventType.KeyDown, new KeyEvent { code = KeyCode.Right,  isDown = true }));
+                        return RS.New;
+                    case 'D':       // 0x44     Arrow Left
+                        backend.AddEvent(new TmEvent(TmEventType.KeyDown, new KeyEvent { code = KeyCode.Left,   isDown = true }));
+                        return RS.New;
+                    
+                    /* case '<':       // 0x3C     mouse
+                        return RS.Mouse; */
+                    
+                    default:
+                        if (0x40 <= character && character <= 0x7E) {
+                            return RS.New;
+                        }
+                        break;
+                }
+                break;
+            case RS.Mouse:
+                break;
+        }
+        return rs;
     }
 }

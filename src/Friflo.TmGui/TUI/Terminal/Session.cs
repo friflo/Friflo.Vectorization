@@ -34,7 +34,10 @@ public sealed partial class TuiSession
     {
         // Enable raw mode on client terminal
         AppendSpan(EscapeWrite.EnableRawTuiMode);
-        AppendSpan("\x1b[?1000h\x1b[?1002h\x1b[?1006h"u8); // Enable mouse input
+        
+        AppendSpan("\x1b[?1003h"u8);    // Enable mouse hover (tracks ALL movement, clicks & scrolling)
+        AppendSpan("\x1b[?1006h"u8);    // Enable SGR extended coordinate format (required for modern terminals & high resolutions)
+        
         sessionStart = true;
     }
     
