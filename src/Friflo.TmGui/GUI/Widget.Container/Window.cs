@@ -42,8 +42,10 @@ public readonly ref partial struct GuiWidget
         int parentHash = window.GetCurrentScopeHash();
 
         // Process window resize
+        var tui         = draw.Tui;
         int resizeId 	= WidgetID.CombineHash(parentHash, "__resize".GetHashCode());
-        bool isResizing = window.ProcessResize(this, resizeId);
+        bool isResizing = window.ProcessResize(this, resizeId, tui != null ? LineHeight : LineHeight * 0.5f);
+        
 
         // Process title bar drag (strictly blocked while resizing)
         float titleBarHeight = LineHeight;
@@ -62,7 +64,7 @@ public readonly ref partial struct GuiWidget
         var headerColor = Colors.ButtonState(titleState);
         var fontHeight  = LineHeight;
         var textPos     = window.Pos + new Vector2(10f, (titleBarHeight - fontHeight) / 2f);
-        var tui = draw.Tui;
+
         if (tui != null) {
             tui.FillRect(window.Pos, window.Size, Colors.WindowColor);
             tui.DrawText(title, TextStyle.None, textPos, Colors.TextColor);

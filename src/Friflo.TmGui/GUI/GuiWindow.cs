@@ -309,10 +309,10 @@ public sealed class GuiWindow
     
 #region resize
 
-    internal bool ProcessResize(in GuiWidget drawGui, int resizeId, float border = 15f)
+    internal bool ProcessResize(in GuiWidget drawGui, int resizeId, float margin)
     {
         var input = drawGui.input;
-        var hoverEdge       = GetResizeEdge(input.MousePos, border);
+        var hoverEdge       = GetResizeEdge(input.MousePos, margin);
         var activeEdge      = activeResizeEdge;
         var isHoverOrActive = hoverEdge != ResizeEdge.None || activeEdge != ResizeEdge.None;
         var edgeDragState   = drawGui.GetDragState(isHoverOrActive, resizeId);
