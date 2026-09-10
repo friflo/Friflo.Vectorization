@@ -61,8 +61,12 @@ public readonly ref partial struct GuiWidget
 
 	    // Scroll areas ALWAYS require scissor clipping against their calculated outer size
 	    draw.PushScissor(startCursor, outerSize);
-	    draw.FillRect(startCursor, outerSize, Colors.ScrollAreaColor);
-
+	    var tui = draw.Tui;
+	    if (tui != null) {
+		    tui.FillRect(startCursor, outerSize, Colors.ScrollAreaColor);
+	    } else {
+		    draw.FillRect(startCursor, outerSize, Colors.ScrollAreaColor);
+	    }
 	    var scrollRect = PushScrollArea(childId, startCursor, outerSize, Sizes.ChildPadding);
 
 	    window.SetCursor(scrollRect.pos);
