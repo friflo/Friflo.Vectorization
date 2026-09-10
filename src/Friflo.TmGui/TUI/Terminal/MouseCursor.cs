@@ -12,7 +12,7 @@ internal struct MouseCursorShape
     internal char center;
     internal char right;
     
-    internal static readonly MouseCursorShape[] Cursors = new MouseCursorShape [7];
+    internal static readonly MouseCursorShape[] Cursors = new MouseCursorShape [9];
     
     
     private static void Set(MouseCursor cursor, char left, char center, char right)
@@ -22,8 +22,10 @@ internal struct MouseCursorShape
     
     static MouseCursorShape ()
     {
-        Set(MouseCursor.ResizeEW, '◀', ' ', '▶');
-        Set(MouseCursor.ResizeNS, '▲', ' ', '▼');
+        Set(MouseCursor.ResizeW, ' ', '◀', ' ');
+        Set(MouseCursor.ResizeE, ' ', '▶', ' ');
+        Set(MouseCursor.ResizeN, ' ', '▲', ' ');
+        Set(MouseCursor.ResizeS, ' ', '▼', ' ');
         
         Set(MouseCursor.ResizeNW, ' ', '◤', ' ');
         Set(MouseCursor.ResizeSE, ' ', '◢', ' ');

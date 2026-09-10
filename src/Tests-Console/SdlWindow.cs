@@ -266,8 +266,11 @@ internal static class Sdl3Cursor
 
     internal static void Init() {
         CursorCache[MouseCursor.Arrow]      = SDL.CreateSystemCursor(SDL.SystemCursor.Default);
-        CursorCache[MouseCursor.ResizeNS]   = SDL.CreateSystemCursor(SDL.SystemCursor.NSResize);
-        CursorCache[MouseCursor.ResizeEW]   = SDL.CreateSystemCursor(SDL.SystemCursor.EWResize);
+        CursorCache[MouseCursor.ResizeN]    = SDL.CreateSystemCursor(SDL.SystemCursor.NSResize);
+        CursorCache[MouseCursor.ResizeS]    = SDL.CreateSystemCursor(SDL.SystemCursor.NSResize);
+        CursorCache[MouseCursor.ResizeE]    = SDL.CreateSystemCursor(SDL.SystemCursor.EWResize);
+        CursorCache[MouseCursor.ResizeW]    = SDL.CreateSystemCursor(SDL.SystemCursor.EWResize);
+        
         CursorCache[MouseCursor.ResizeNW]   = SDL.CreateSystemCursor(SDL.SystemCursor.NWSEResize);
         CursorCache[MouseCursor.ResizeSE]   = SDL.CreateSystemCursor(SDL.SystemCursor.NWSEResize);
         CursorCache[MouseCursor.ResizeNE]   = SDL.CreateSystemCursor(SDL.SystemCursor.NESWResize);

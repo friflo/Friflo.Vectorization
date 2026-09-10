@@ -88,11 +88,12 @@ internal struct ScrollAreaInfo
 [Flags]
 internal enum ResizeEdge
 {
-    None   = 0,
-    Top    = 1 << 0,
-    Bottom = 1 << 1,
-    Left   = 1 << 2,
-    Right  = 1 << 3,
+    None        = 0,
+    
+    Top         = 1 << 0,
+    Bottom      = 1 << 1,
+    Left        = 1 << 2,
+    Right       = 1 << 3,
     
     TopLeft     = Top    | Left,
     TopRight    = Top    | Right,
@@ -339,13 +340,17 @@ public sealed class GuiWindow
     {
         return edge switch
         {
-            ResizeEdge.Top      or ResizeEdge.Bottom        => MouseCursor.ResizeNS,
-            ResizeEdge.Left     or ResizeEdge.Right         => MouseCursor.ResizeEW,
-            ResizeEdge.TopLeft                              => MouseCursor.ResizeNW,  
-            ResizeEdge.BottomRight                          => MouseCursor.ResizeSE,
-            ResizeEdge.TopRight                             => MouseCursor.ResizeNE,
-            ResizeEdge.BottomLeft                           => MouseCursor.ResizeSW,
-            _                                               => MouseCursor.Arrow
+            ResizeEdge.Top          => MouseCursor.ResizeN,
+            ResizeEdge.Bottom       => MouseCursor.ResizeS,
+            ResizeEdge.Left         => MouseCursor.ResizeW,
+            ResizeEdge.Right        => MouseCursor.ResizeE,
+            
+            ResizeEdge.TopLeft      => MouseCursor.ResizeNW,  
+            ResizeEdge.BottomRight  => MouseCursor.ResizeSE,
+            ResizeEdge.TopRight     => MouseCursor.ResizeNE,
+            ResizeEdge.BottomLeft   => MouseCursor.ResizeSW,
+            
+            _                       => MouseCursor.Arrow
         };
     }
 
