@@ -141,17 +141,7 @@ public readonly ref partial struct GuiWidget
 	private void DrawScrollbar(Vector2 pos, Vector2 size, float totalContentSize, ref ScrollState scrollState, ScrollAxis axis, Color32 background)
 	{
 	    var window = Window;
-	    float trackThickness	= Sizes.TrackThickness.X;
-	    bool isHorizontal = axis == ScrollAxis.Horizontal;
-
-	    // Axis-parameterized geometry setup
-	    Vector2 trackPos = isHorizontal 
-	        ? new Vector2(pos.X,                           pos.Y + size.Y - trackThickness) 
-	        : new Vector2(pos.X + size.X - trackThickness, pos.Y);
-
-	    Vector2 trackSize = isHorizontal 
-	        ? new Vector2(size.X, trackThickness) 
-	        : new Vector2(trackThickness, size.Y);
+	    bool isHorizontal		= axis == ScrollAxis.Horizontal;
 
 	    // same computation as in ApplyScrollOffset()
 	    float viewLength			= isHorizontal ? size.X : size.Y;
@@ -162,19 +152,24 @@ public readonly ref partial struct GuiWidget
 
 	    float currentOffset	= isHorizontal ? scrollState.offset.X : scrollState.offset.Y;
 	    float thumbOffset	= (currentOffset / scrollableRange) * thumbScrollableRange;
-
-	    Vector2 thumbPos = isHorizontal 
-	        ? new Vector2(trackPos.X + thumbOffset, trackPos.Y) 
-	        : new Vector2(trackPos.X, trackPos.Y + thumbOffset);
-
-	    Vector2 thumbSize = isHorizontal 
-	        ? new Vector2(thumbLength, trackThickness) 
-	        : new Vector2(trackThickness, thumbLength);
+	    
+	    // Axis-parameterized geometry setup
+	    float trackThickness = Sizes.TrackThickness.X;
+	    Vector2 trackPos;	Vector2 trackSize;
+	    Vector2 thumbPos;	Vector2 thumbSize;
 	    
 	    if (isHorizontal) {
-		    scrollState.horizontalBar = new ScrollBar(trackPos, trackSize, thumbPos, thumbSize);
+		    trackPos	= new Vector2(pos.X,  pos.Y + size.Y - trackThickness); 
+			trackSize	= new Vector2(size.X, trackThickness);
+			thumbPos	= new Vector2(trackPos.X + thumbOffset, trackPos.Y);
+			thumbSize	= new Vector2(thumbLength, trackThickness);
+			scrollState.horizontalBar = new ScrollBar(trackPos, trackSize, thumbPos, thumbSize);
 	    } else {
-		    scrollState.verticalBar   = new ScrollBar(trackPos, trackSize, thumbPos, thumbSize);
+		    trackPos	= new Vector2(pos.X + size.X - trackThickness, pos.Y);
+			trackSize	= new Vector2(trackThickness, size.Y);
+			thumbPos	= new Vector2(trackPos.X, trackPos.Y + thumbOffset);
+			thumbSize	= new Vector2(trackThickness, thumbLength);
+			scrollState.verticalBar   = new ScrollBar(trackPos, trackSize, thumbPos, thumbSize);
 	    }
 
 	    // Hit testing
