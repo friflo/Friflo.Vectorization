@@ -19,10 +19,6 @@ public sealed class FrameBuffer
     public      Span<TuiColorCell>  ColorCells              => colorCells. AsSpan().Slice(0,  bufferWidth * bufferHeight);
     public      Span<char>          CharCells               => charCells.  AsSpan().Slice(0,  bufferWidth * bufferHeight);
     
-    [DebuggerHidden]
-    public      ref TuiColorCell    CellRef(int x, int y)   => ref colorCells[y * bufferWidth + x];
-        
-    
     internal void PrepareColorCells(int width, int height)
     {
         bufferWidth     = width;
@@ -42,6 +38,13 @@ public sealed class FrameBuffer
         
         if (cellCount > charCells.Length) {
             charCells = new char[cellCount];
+        }
+    }
+    
+    public void SetCell(int x, int y, TuiColorCell cell)
+    {
+        if (0 <= x && x < bufferWidth && 0 <= y && y < bufferHeight) {
+            colorCells[y * bufferWidth + x] = cell;
         }
     }
 }

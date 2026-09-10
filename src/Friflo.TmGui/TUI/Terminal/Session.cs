@@ -229,7 +229,7 @@ public sealed partial class TuiSession
         var x       = (int)(mouse.X / batch.CharWidth)  - 1;
         var y       = (int)(mouse.Y / batch.LineHeight) - 1;
         
-        var cellBase =  new TuiColorCell {
+        var cell = new TuiColorCell {
             textStyle  = TextStyle.None, 
             color      = 0xffffffff,
             background = 0x606060ff
@@ -237,8 +237,8 @@ public sealed partial class TuiSession
         var buffer  = frameBuffer;
         var shape   = MouseCursorShape.Cursors[(int)backend.input.CurrentCursor];
         
-        buffer.CellRef(x - 1, y)    = cellBase with { character = shape.left   };
-        buffer.CellRef(x,     y)    = cellBase with { character = shape.center };
-        buffer.CellRef(x + 1, y)    = cellBase with { character = shape.right  };
+        buffer.SetCell(x - 1, y, cell with { character = shape.left   });
+        buffer.SetCell(x,     y, cell with { character = shape.center });
+        buffer.SetCell(x + 1, y, cell with { character = shape.right  });
     }
 }
