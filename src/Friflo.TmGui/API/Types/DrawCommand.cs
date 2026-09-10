@@ -63,6 +63,8 @@ public readonly struct RectVector2 (Vector2 pos, Vector2 size) : IEquatable<Rect
 {
     public readonly     Vector2     pos  = pos;     // 8 bytes
     public readonly     Vector2     size = size;    // 8 bytes
+    
+    public              Vector2     BR   => pos + size;
 
     public override string ToString()       => $"[{pos.X}, {pos.Y} | {size.X}, {size.Y}]";
 

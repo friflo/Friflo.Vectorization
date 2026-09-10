@@ -4,7 +4,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -66,6 +65,20 @@ internal enum ScrollAxis
     Horizontal  // 1 = X-Axis
 }
 
+internal struct ScrollBar
+{
+    internal bool           visible;
+    internal RectVector2    track;
+    internal RectVector2    thumb;
+    
+    internal ScrollBar(Vector2 trackPos, Vector2 trackSize, Vector2 thumbPos, Vector2 thumbSize)
+    {
+        visible = true;
+        track   = new RectVector2(trackPos, trackSize);
+        thumb   = new RectVector2(thumbPos, thumbSize);
+    }
+}
+
 internal struct ScrollState
 {
     public Vector2      offset;
@@ -77,6 +90,8 @@ internal struct ScrollState
     public Vector2      dragStartMouse;
     public Vector2      dragStartOffset;
     public Vector2      lastContentSize;    // Cached from previous frame
+    public ScrollBar    horizontalBar;
+    public ScrollBar    verticalBar;
 }
 
 internal struct ScrollAreaInfo
