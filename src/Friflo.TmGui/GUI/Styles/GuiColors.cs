@@ -4,6 +4,7 @@
 using System.Runtime.CompilerServices;
 using static System.Diagnostics.DebuggerBrowsableState;
 using Browse = System.Diagnostics.DebuggerBrowsableAttribute;
+using Hide = System.Diagnostics.DebuggerHiddenAttribute;
 
 // ReSharper disable once CheckNamespace
 namespace Friflo.TmGui;
@@ -29,29 +30,29 @@ public enum ColorId
 
 public struct GuiColors
 {
-    public Color32  WindowColor     { readonly get => windowColor;   set => windowColor  = Add(ColorId.WindowColor,  value); }
+    public Color32  WindowColor     { [Hide] readonly get => windowColor;   set => windowColor  = Add(ColorId.WindowColor,  value); }
     
-    public Color32  TextColor       { readonly get => textColor;     set => textColor    = Add(ColorId.TextColor,    value); }
+    public Color32  TextColor       { [Hide] readonly get => textColor;     set => textColor    = Add(ColorId.TextColor,    value); }
     
-    public Color32  ButtonText      { readonly get => buttonText;    set => buttonText   = Add(ColorId.ButtonText,   value); }
-    public Color32  ButtonColor     { readonly get => buttonColor;   set => buttonColor  = Add(ColorId.ButtonColor,  value); }
-    public Color32  ButtonBorder    { readonly get => buttonBorder;  set => buttonBorder = Add(ColorId.ButtonBorder, value); }
-    public Color32  ButtonHover     { readonly get => buttonHover;   set => buttonHover  = Add(ColorId.ButtonHover,  value); }
-    public Color32  ButtonDown      { readonly get => buttonDown;    set => buttonDown   = Add(ColorId.ButtonDown,   value); }
+    public Color32  ButtonText      { [Hide] readonly get => buttonText;    set => buttonText   = Add(ColorId.ButtonText,   value); }
+    public Color32  ButtonColor     { [Hide] readonly get => buttonColor;   set => buttonColor  = Add(ColorId.ButtonColor,  value); }
+    public Color32  ButtonBorder    { [Hide] readonly get => buttonBorder;  set => buttonBorder = Add(ColorId.ButtonBorder, value); }
+    public Color32  ButtonHover     { [Hide] readonly get => buttonHover;   set => buttonHover  = Add(ColorId.ButtonHover,  value); }
+    public Color32  ButtonDown      { [Hide] readonly get => buttonDown;    set => buttonDown   = Add(ColorId.ButtonDown,   value); }
     
-    public Color32  SliderColor     { readonly get => sliderColor;   set => sliderColor  = Add(ColorId.SliderColor,   value); }
-    public Color32  SliderBg        { readonly get => sliderBg;      set => sliderBg     = Add(ColorId.SliderBg,     value); }
+    public Color32  SliderColor     { [Hide] readonly get => sliderColor;   set => sliderColor  = Add(ColorId.SliderColor,   value); }
+    public Color32  SliderBg        { [Hide] readonly get => sliderBg;      set => sliderBg     = Add(ColorId.SliderBg,     value); }
     
-    public Color32  FocusColor      { readonly get => focusColor;    set => focusColor   = Add(ColorId.FocusColor,   value); }
+    public Color32  FocusColor      { [Hide] readonly get => focusColor;    set => focusColor   = Add(ColorId.FocusColor,   value); }
     
-    public Color32  ScrollTrackBg       => 0xffffff00; // transparent
-    public Color32  ScrollThumb         => 0xd0d0d0ff;
-    public Color32  ScrollThumbActive   => 0x999999ff;
-    public Color32  ScrollThumbHover    => 0xaaaaaaff;
+    [Hide] public Color32  ScrollTrackBg       => 0xffffff00; // transparent
+    [Hide] public Color32  ScrollThumb         => 0xd0d0d0ff;
+    [Hide] public Color32  ScrollThumbActive   => 0x999999ff;
+    [Hide] public Color32  ScrollThumbHover    => 0xaaaaaaff;
     
-    public Color32  ScrollAreaColor     => 0xffffffff;
+    [Hide] public Color32  ScrollAreaColor     => 0xffffffff;
     
-    public Color32  WindowBorder        => 0xd0d0d0ff;
+    [Hide] public Color32  WindowBorder        => 0xd0d0d0ff;
     
      
     

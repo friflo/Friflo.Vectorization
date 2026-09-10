@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Text;
+using Hide = System.Diagnostics.DebuggerHiddenAttribute;
 
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable ConvertIfStatementToReturnStatement
@@ -22,12 +23,12 @@ public readonly ref partial struct GuiWidget
     private  readonly   GuiStyle        currentStyle;   //  8 bytes
     
     [DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
-    public ref readonly GuiColors       Colors          { [DebuggerStepThrough] get => ref currentStyle.colors; }
-    public ref readonly GuiSizes        Sizes           { [DebuggerStepThrough] get => ref currentStyle.sizes; }
-    public              GuiWindow       Window          { [DebuggerStepThrough] get => guiState.window; }
-    public              float           LineHeight      { [DebuggerStepThrough] get => draw.Font.lineHeight; }
-    public              IFormatProvider FormatProvider  { [DebuggerStepThrough] get => draw.batch.formatProvider; }
-    public              bool            IsSet           { [DebuggerStepThrough] get => currentStyle != null; }
+    public ref readonly GuiColors       Colors          { [Hide] get => ref currentStyle.colors; }
+    public ref readonly GuiSizes        Sizes           { [Hide] get => ref currentStyle.sizes; }
+    public              GuiWindow       Window          { [Hide] get => guiState.window; }
+    public              float           LineHeight      { [Hide] get => draw.Font.lineHeight; }
+    public              IFormatProvider FormatProvider  { [Hide] get => draw.batch.formatProvider; }
+    public              bool            IsSet           { [Hide] get => currentStyle != null; }
 
     
     /// <summary> Clears and returns a cached <see cref="System.Text.StringBuilder"/> to prevent allocations. </summary>

@@ -8,6 +8,7 @@ using System.Diagnostics;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using Hide = System.Diagnostics.DebuggerHiddenAttribute;
 
 // ReSharper disable RedundantSwitchExpressionArms
 // ReSharper disable MergeIntoPattern
@@ -121,8 +122,8 @@ public sealed class GuiWindow
     
     internal                WindowState     state;
     internal                RectVector2     bounds;
-    internal                Vector2         Pos                 { [DebuggerHidden] get => bounds.pos; }
-    internal                Vector2         Size                { [DebuggerHidden] get => bounds.size; }
+    internal                Vector2         Pos                 { [Hide] get => bounds.pos; }
+    internal                Vector2         Size                { [Hide] get => bounds.size; }
 
     private  readonly       Vector2         minSize             = new(100f, 100f);
     private                 ResizeEdge      activeResizeEdge;

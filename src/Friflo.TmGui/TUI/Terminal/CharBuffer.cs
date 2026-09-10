@@ -2,10 +2,9 @@
 // See LICENSE file in the project root for full license information.
 
 using System;
-using System.Diagnostics;
+using Hide = System.Diagnostics.DebuggerHiddenAttribute;
+
 // ReSharper disable ConvertToPrimaryConstructor
-
-
 namespace Friflo.TmGui.TUI.Terminal;
 
 
@@ -17,14 +16,9 @@ internal struct CharBuffer
 
     public   override   string  ToString()      => $"\"{new string(array, 0, length)}\"  current: {new string(Remaining)}";
     
-    [DebuggerHidden]
-    internal            int     this[int index] => array[index];
-    
-    [DebuggerHidden]
-    private ReadOnlySpan<char>  Remaining       => array.AsSpan(current,  length - current);
-    
-    [DebuggerHidden]
-    internal char               Current         => array[current];
+    [Hide] internal     int             this[int index] => array[index];
+    [Hide] private ReadOnlySpan<char>   Remaining       => array.AsSpan(current,  length - current);
+    [Hide] internal     char            Current         => array[current];
 
 
     public CharBuffer(int length) {

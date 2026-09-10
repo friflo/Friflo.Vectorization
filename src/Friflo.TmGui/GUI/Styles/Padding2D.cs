@@ -18,6 +18,9 @@ public readonly struct Padding2D : IEquatable<Padding2D>
     public readonly     Vector2     Min;
     public readonly     Vector2     Max;
 
+    public override     string      ToString() => $"Min: {Min}, Max: {Max}";
+    
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Padding2D(float uniform)
     {
