@@ -2,6 +2,8 @@
 // See LICENSE file in the project root for full license information.
 
 using System;
+using System.Diagnostics;
+using System.IO.Hashing;
 
 // ReSharper disable InlineTemporaryVariable
 // ReSharper disable CanSimplifyStringEscapeSequence
@@ -21,6 +23,8 @@ public sealed partial class TuiSession
     private             int             frameWidth      = 100;
     private             int             frameHeight     = 24;
     private             bool            sessionStart;
+    private             ulong           lastSendHash;
+    private             int             sendCounter;
     
     public TuiSession(IGuiView guiView, FrameBuffer frameBuffer, TuiColorMode colorMode)
     {
@@ -68,7 +72,16 @@ public sealed partial class TuiSession
         
         AppendFrameBuffer(frameWidth, frameHeight);
         
-        return sendBuffer.AsMemory(0, sendBufferCount);
+        var sendMemory  = sendBuffer.AsMemory(0, sendBufferCount);
+        var sendHash    = XxHash3.HashToUInt64(sendMemory.Span);
+        if (sendHash == lastSendHash) {
+            return default;
+        }
+        sendCounter++;
+        Debug.Write(sendCounter);
+        Debug.WriteLine(" - send buffer");
+        lastSendHash = sendHash;
+        return sendMemory;
     }
     
     private void AppendFrameBuffer(int width, int height)
