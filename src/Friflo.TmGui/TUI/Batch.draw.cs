@@ -152,7 +152,7 @@ public partial class TuiBatch
         
         // bottom
         var bl = pos + yOffset + vertical - xOffset;
-        FillRectChar(bl, horizontal + yOffset, colors.WindowColor, '─', colors.WindowBorder);
+        FillRectChar(bl, horizontal + yOffset + xOffset, colors.WindowColor, '─', colors.WindowBorder);
         
         // corners
         DrawChar('╰', TextStyle.None, bl,               colors.WindowBorder);
