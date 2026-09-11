@@ -57,6 +57,20 @@ public sealed class TuiBatch : TmBatch
         xScale      = yScale / CharacterAspectRatio;
     }
     
+    // Snap position to center of terminal grid cells for TUI mode
+    internal void SnapPositionToGrid(ref Vector2 position)
+    {
+        position.X = (0.5f + MathF.Floor(position.X * xScale)) * charWidth;
+        position.Y = (0.5f + MathF.Floor(position.Y * yScale)) * lineHeight;
+    }
+    
+    // Snap extent (sizes, bounds, scroll offsets, or relative deltas) to nearest terminal grid cell for TUI mode
+    internal void SnapExtentToGrid(ref Vector2 vector)
+    {
+        vector.X = MathF.Floor((vector.X + charWidth  * 0.5f) * xScale) * charWidth;
+        vector.Y = MathF.Floor((vector.Y + lineHeight * 0.5f) * yScale) * lineHeight;
+    }
+    
 #region internal
     internal void Reset()
     {

@@ -504,12 +504,8 @@ public sealed class GuiWindow
             float delta = widgetRight - (areaRight - padding);
             scrollState.offset.X += delta;
         }
-        var tui = widget.draw.Tui; 
-        if (tui != null) {
-            // Snap scroll offset to discrete terminal grid cells (prevents sub-pixel rendering artifacts)
-            scrollState.offset.X = MathF.Floor(scrollState.offset.X * tui.XScale) * tui.CharWidth;
-            scrollState.offset.Y = MathF.Floor(scrollState.offset.Y * tui.YScale) * tui.LineHeight;
-        }
+        widget.draw.Tui?.SnapExtentToGrid(ref scrollState.offset); // Snap scroll offset to discrete terminal grid cells (prevents sub-pixel rendering artifacts)
+
         if (scrollOffset != scrollState.offset) {
             widget.guiState.scrollAreaChanged = true;
         }

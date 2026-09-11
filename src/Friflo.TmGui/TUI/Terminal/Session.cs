@@ -18,7 +18,7 @@ public sealed partial class TuiSession
     private readonly    byte[]          sendBuffer      = new byte[10000];
     private             int             sendBufferCount;
     private readonly    TuiColorMode    colorMode;
-    private             int             frameWidth      = 70;
+    private             int             frameWidth      = 100;
     private             int             frameHeight     = 24;
     private             bool            sessionStart;
     
@@ -55,7 +55,7 @@ public sealed partial class TuiSession
         if (batch.guiState.scrollAreaChanged) {
             backend.NewFrame();
             guiView.RenderGui(batch, pixelWidth, pixelHeight);
-            Console.WriteLine("Scroll Area Changed");
+            // Console.WriteLine("Scroll Area Changed");
         }
         
         if (sessionStart) {

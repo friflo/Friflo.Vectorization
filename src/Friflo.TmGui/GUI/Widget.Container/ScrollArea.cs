@@ -73,6 +73,7 @@ public readonly ref partial struct GuiWidget
 				else												mouseDelta.X = 0;
 	            var scrollDelta		= (mouseDelta / range.maxThumbTravel) * range.maxScroll;
 	            scrollState.offset	= Vector2.Clamp(scrollState.dragStartOffset + scrollDelta, default, range.maxScroll);
+	            draw.Tui?.SnapExtentToGrid(ref scrollState.offset);
 	        } else {
 	            scrollState.isDragging = false;
 	        }
@@ -90,6 +91,7 @@ public readonly ref partial struct GuiWidget
 		    if (mousePos.Y < scrollState.verticalBar.thumb.pos.Y)	scrollState.offset.Y = MathF.Max(0f,                scrollState.offset.Y - size.Y);
 		    if (mousePos.Y > scrollState.verticalBar.thumb.BR.Y)	scrollState.offset.Y = MathF.Min(range.maxScroll.Y, scrollState.offset.Y + size.Y);
 	    }
+	    draw.Tui?.SnapExtentToGrid(ref scrollState.offset);
     } 
     
     private void PopScrollArea(int childId, Vector2 startCursor, Vector2 outerSize, Vector2 scrollSize, Color32 background)

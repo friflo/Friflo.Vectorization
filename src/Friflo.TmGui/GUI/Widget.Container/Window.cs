@@ -15,11 +15,16 @@ public readonly ref partial struct GuiWidget
     internal WindowScope BeginWindow(string title, Vector2? pos, Vector2? size)
     {
         var host = draw.batch.host;
+        var tui  = draw.Tui;
         if (!host.windows.TryGetValue(title, out guiState.window!)) {
+            var finalPos    = pos  ?? new Vector2( 50,  50);
+            var finalSize   = size ?? new Vector2(300, 200);
+            // Snap initial window size to discrete terminal grid.
+            tui?.SnapPositionToGrid(ref finalPos);
+            tui?.SnapExtentToGrid(ref finalSize);
+            
             guiState.window = new GuiWindow(host, title) {
-                bounds = new RectVector2(
-                    pos  ?? new Vector2( 50,  50),
-                    size ?? new Vector2(300, 200))
+                bounds = new RectVector2(finalPos, finalSize)
             };
             host.windows.Add(title, guiState.window);
             host.windowOrder.Add(guiState.window);
@@ -42,7 +47,6 @@ public readonly ref partial struct GuiWidget
         int parentHash = window.GetCurrentScopeHash();
 
         // Process window resize
-        var tui         = draw.Tui;
         int resizeId 	= WidgetID.CombineHash(parentHash, "__resize".GetHashCode());
         bool isResizing = window.ProcessResize(this, resizeId, tui != null ? LineHeight : LineHeight * 0.5f);
         
