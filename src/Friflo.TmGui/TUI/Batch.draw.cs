@@ -99,7 +99,7 @@ public partial class TuiBatch
     {
         FillRect(position, size, background);
         if (isHorizontal) {
-            FillRectChar(thumbPosition, thumbSize, background, '▄', thumbColor);
+            FillRectChar(thumbPosition, thumbSize, background, '▄', thumbColor);  // ▄ ▀
         } else {
             FillRectChar(thumbPosition, thumbSize, background, '█', thumbColor);
         }
@@ -138,8 +138,8 @@ public partial class TuiBatch
         
         DrawText(title, TextStyle.None, pos + new Vector2(2 * CharWidth, 0), colors.TextColor);
         var yOffset     = new Vector2(0, LineHeight);
-        var vertical    = new Vector2(charWidth, size.Y) - yOffset;
-        var horizontal  = new Vector2(size.X - CharWidth,    LineHeight) - yOffset;
+        var vertical    = new Vector2(charWidth, size.Y - 2 * LineHeight);
+        var horizontal  = new Vector2(size.X - CharWidth, LineHeight)  - yOffset;
         FillRectChar(pos + yOffset,              vertical, colors.WindowColor, '│', colors.WindowBorder);
         FillRectChar(pos + yOffset + horizontal, vertical, colors.WindowColor, '│', colors.WindowBorder);
     }
