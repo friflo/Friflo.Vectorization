@@ -64,15 +64,13 @@ public readonly ref partial struct GuiWidget
         }
 
         // Render background & titlebar
-
         var headerColor = Colors.ButtonState(titleState);
         var fontHeight  = LineHeight;
-        var textPos     = window.Pos + new Vector2(10f, (titleBarHeight - fontHeight) / 2f);
 
         if (tui != null) {
-            tui.FillRect(window.Pos, window.Size, Colors.WindowColor);
-            tui.DrawText(title, TextStyle.None, textPos, Colors.TextColor);
+            tui.DrawWindowBorder(title, window.Pos, window.Size, Colors.TextColor, Colors.WindowColor, headerColor);
         } else {
+            var textPos = window.Pos + new Vector2(10f, (titleBarHeight - fontHeight) / 2f);
             draw.FillRectRounded(window.Pos,   window.Size,  Sizes.CornerRadius, Colors.WindowColor,     GuiSizes.CornerSegments);
             draw.FillRectRounded(window.Pos,   titleBarSize, Sizes.CornerRadius, headerColor,            GuiSizes.CornerSegments);
             draw.StrokeRectRounded(window.Pos, window.Size,  Sizes.CornerRadius, 2, Colors.WindowBorder, GuiSizes.CornerSegments);

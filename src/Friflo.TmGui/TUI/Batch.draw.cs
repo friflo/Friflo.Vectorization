@@ -7,6 +7,7 @@ using System.Numerics;
 using System.Runtime.CompilerServices;
 
 
+// ReSharper disable UseWithExpressionToCopyStruct
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable ConvertIfStatementToConditionalTernaryExpression
 namespace Friflo.TmGui.TUI;
@@ -128,5 +129,12 @@ public partial class TuiBatch
             DrawChar('|', bold, pos + new Vector2(size.X - charWidth, 0), color);
             pos.Y += lineHeight;
         }
+    }
+    
+    internal void DrawWindowBorder(ReadOnlySpan<char> title, Vector2 pos, Vector2 size, Color32 textColor, Color32 background, Color32 headerColor)
+    {
+        FillRect(pos, size, background);
+        FillRect(pos, new Vector2(size.X, LineHeight), headerColor);
+        DrawText(title, TextStyle.None, pos + new Vector2(2 * CharWidth, 0), textColor);
     }
 }
