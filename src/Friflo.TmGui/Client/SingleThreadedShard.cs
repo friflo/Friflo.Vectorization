@@ -17,16 +17,16 @@ namespace Friflo.TmGui.Client;
 
 public sealed class SingleThreadedShardEngine
 {
-    private readonly    Channel<ClientEvent>                    eventChannel;   // Single reader channel guarantees zero-sync single-thread execution
-    private readonly    Dictionary<TerminalClient, TuiSession>  sessions;       // Raw non-thread-safe state (accessed exclusively by _shardThread)
-    private readonly    FrameBuffer                             frameBuffer;    // shared among all sessions - is accessed single threaded
-    private readonly    CreateGuiView                           createGuiView;  // IBatchRenderer factory
+    private readonly    Channel<ClientEvent>                eventChannel;   // Single reader channel guarantees zero-sync single-thread execution
+    private readonly    Dictionary<TmClient, TuiSession>    sessions;       // Raw non-thread-safe state (accessed exclusively by _shardThread)
+    private readonly    FrameBuffer                         frameBuffer;    // shared among all sessions - is accessed single threaded
+    private readonly    CreateGuiView                       createGuiView;  // IBatchRenderer factory
     
     public SingleThreadedShardEngine(CreateGuiView createGuiView)
     {
         this.createGuiView  = createGuiView;
         eventChannel        = Channel.CreateUnbounded<ClientEvent>(new UnboundedChannelOptions { SingleReader = true, SingleWriter = false });
-        sessions            = new Dictionary<TerminalClient, TuiSession>();
+        sessions            = new Dictionary<TmClient, TuiSession>();
         frameBuffer         = new FrameBuffer();
     }
     
@@ -36,7 +36,7 @@ public sealed class SingleThreadedShardEngine
         shardThread.Start();
     }
 
-    internal async ValueTask EnqueueEventAsync(TerminalClient client, ClientEventType type, ReadOnlyMemory<byte> payload = default)
+    internal async ValueTask EnqueueEventAsync(TmClient client, ClientEventType type, ReadOnlyMemory<byte> payload = default)
     {
         await eventChannel.Writer.WriteAsync(new ClientEvent { Client = client, Type = type, Payload = payload });
     }

@@ -17,21 +17,21 @@ public enum ClientEventType : byte
 
 public readonly struct ClientEvent
 {
-    public required     TerminalClient          Client  { get; init; }
+    public required     TmClient                Client  { get; init; }
     public required     ClientEventType         Type    { get; init; }
     public              ReadOnlyMemory<byte>    Payload { get; init; }
 }
 
 public struct ConnectInfo
 {
-    public string[]         args;
-    public TerminalClient   client;
+    public  string[]    args;
+    public  TmClient    client;
 }
 
 public delegate IGuiView CreateGuiView(ConnectInfo info);
 
 
-public abstract class TerminalClient
+public abstract class TmClient
 {
     protected internal abstract  ValueTask<int> SendAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken);
 }

@@ -14,7 +14,7 @@ namespace Friflo.TmGui.Client;
 
 
 
-public class StreamClient : TerminalClient
+public class StreamClient : TmClient
 {
     private readonly Stream inputStream;
     private readonly Stream outputStream;

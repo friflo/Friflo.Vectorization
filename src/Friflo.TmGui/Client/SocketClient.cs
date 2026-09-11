@@ -12,7 +12,7 @@ namespace Friflo.TmGui.Client;
 
 
 
-public class SocketClient : TerminalClient  
+public class SocketClient : TmClient  
 {
     private readonly Socket socket;
     
