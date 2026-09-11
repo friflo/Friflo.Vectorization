@@ -17,9 +17,9 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="SDL3-CS" 			Version="3.4.14.1" />
-      <PackageReference Include="SDL3-CS.Windows" 	Version="3.4.14.1" />
-      <PackageReference Include="SDL3-CS.MacOS" 	Version="3.4.14.1" />
+      <PackageReference Include="SDL3-CS" Version="3.4.16" />
+      <PackageReference Include="SDL3-CS.Windows" Version="3.4.16" />
+      <PackageReference Include="SDL3-CS.MacOS" Version="3.4.16" />
         
       <ProjectReference Include="..\Vectorization.Attributes\Friflo.Vectorization.Attributes.csproj" />
       <ProjectReference Include="..\Friflo.Generators\Friflo.Generators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
