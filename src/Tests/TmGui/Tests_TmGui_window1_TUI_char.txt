@@ -3,22 +3,22 @@
                                                   
                                                   
           Window 1                                
-        │                       █│                
-        │ hello GUI             █│                
-        │  hello                █│                
-        │                       █│                
-        │ [ ] mouse circle      █│                
-        │ [ ] Monocraft         █│                
-        │    0.8                █│                
-        │                       █│                
-        │ >First<   Second     R█│                
-        │ after horizontal      █│                
-        │                       █│                
-        │ [x] checkbox          █│                
-        │                       █│                
-        │ht    A´    B´    C´   █│                
+        │                        █                
+        │ hello GUI              █                
+        │  hello                 █                
+        │                        █                
+        │ [ ] mouse circle       █                
+        │ [ ] Monocraft          █                
+        │    0.8                 █                
+        │                        █                
+        │ >First<   Second     Re█                
+        │ after horizontal       █                
+        │                        █                
+        │ [x] checkbox           █                
+        │                        █                
+        │ght    A´    B´    C´   █                
         │Center    1     2     3 │                
-        │▄▄▄▄▄▄▄▄▄▄▄▄▄           │                
+        ╰▄▄▄▄▄▄▄▄▄▄▄▄▄▄──────────╯                
                                                   
                                                   
                                                   

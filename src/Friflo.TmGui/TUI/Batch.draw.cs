@@ -144,9 +144,18 @@ public partial class TuiBatch
         var yOffset     = new Vector2(0, LineHeight);
         var xOffset     = new Vector2(charWidth, 0);
         var vertical    = new Vector2(charWidth, size.Y - 2 *   LineHeight);
-        var horizontal  = new Vector2(size.X,       LineHeight);
+        var horizontal  = new Vector2(size.X, 0) - xOffset;
+        
+        // left / right
         FillRectChar(pos + yOffset,                      vertical,   colors.WindowColor, '│', colors.WindowBorder);
-        FillRectChar(pos + horizontal - xOffset,         vertical,   colors.WindowColor, '│', colors.WindowBorder);
-        FillRectChar(pos + yOffset + vertical - xOffset, horizontal, colors.WindowColor, '─', colors.WindowBorder);
+        FillRectChar(pos + horizontal + yOffset,         vertical,   colors.WindowColor, '│', colors.WindowBorder);
+        
+        // bottom
+        var bl = pos + yOffset + vertical - xOffset;
+        FillRectChar(bl, horizontal + yOffset, colors.WindowColor, '─', colors.WindowBorder);
+        
+        // corners
+        DrawChar('╰', TextStyle.None, bl,               colors.WindowBorder);
+        DrawChar('╯', TextStyle.None, bl + horizontal,  colors.WindowBorder);
     }
 }

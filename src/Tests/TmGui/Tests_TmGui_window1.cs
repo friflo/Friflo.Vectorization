@@ -50,8 +50,8 @@ public class Tests_TmGui_window1
             if (n == 0) start = Mem.GetAllocatedBytes();
         }
         Mem.AssertNoAlloc(start);
-        Assert.That(batch.Rects.Length, Is.EqualTo(60));
-        Assert.That(batch.Texts.Length, Is.EqualTo(149));
+        Assert.That(batch.Rects.Length, Is.EqualTo(61));
+        Assert.That(batch.Texts.Length, Is.EqualTo(151));
         Assert.That(frameBuffer.CharCells.Length, Is.EqualTo(1560));
         var screen  = new string(frameBuffer.CharCells);
         var dir     = Path.GetDirectoryName(GetCurrentFilePath())!;
@@ -84,8 +84,8 @@ public class Tests_TmGui_window1
             if (n == 0) start = Mem.GetAllocatedBytes();
         }
         Mem.AssertNoAlloc(start);
-        Assert.That(batch.Rects.Length, Is.EqualTo(60));
-        Assert.That(batch.Texts.Length, Is.EqualTo(149));
+        Assert.That(batch.Rects.Length, Is.EqualTo(61));
+        Assert.That(batch.Texts.Length, Is.EqualTo(151));
         Assert.That(frameBuffer.ColorCells.Length, Is.EqualTo(1500));
         
         var screen = CellsToString(frameBuffer.ColorCells, 50, 30);
@@ -143,7 +143,7 @@ public class Tests_TmGui_window1
         Mem.AssertNoAlloc(start);
         var drawList    = batch.DrawList;
         var verticesLen = batch.Vertices.Length;
-        Assert.That(drawList.Length,    Is.EqualTo(2));
+        Assert.That(drawList.Length,    Is.EqualTo(3));
         Assert.That(verticesLen,        Is.EqualTo(3108));
         
         int vertexSum = 0;

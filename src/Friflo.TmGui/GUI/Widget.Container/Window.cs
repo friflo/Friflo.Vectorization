@@ -71,7 +71,7 @@ public readonly ref partial struct GuiWidget
         var titleOffset = new Vector2(0f, titleBarHeight);
         if (tui != null) {
             tui.DrawWindowTitle(title, window.Pos, window.Size, Colors, headerColor);
-            innerSize   = Vector2.Max(Vector2.Zero, window.Size - titleOffset - new  Vector2(2 * tui.CharWidth, 0));
+            innerSize   = Vector2.Max(Vector2.Zero, window.Size - titleOffset - new  Vector2(tui.CharWidth, 0));
             contentPos  = window.Pos + titleOffset + new Vector2(tui.CharWidth, 0);
         } else {
             var textPos = window.Pos + new Vector2(10f, (titleBarHeight - fontHeight) / 2f);
