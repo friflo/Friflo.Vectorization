@@ -87,12 +87,15 @@ internal readonly struct ScrollRange
     /// <summary> Maximum draggable travel distance for the scrollbar thumb in px. </summary>
     internal readonly   Vector2 maxThumbTravel;
     
+    /// <summary> Calculated size of the scrollbar thumb in px. </summary>
+    internal readonly   Vector2 thumbSize;
+    
     internal ScrollRange(Vector2 size, Vector2 contentSize, Vector2 minThumbSize)
     {
 		var visibleRatio	= size / contentSize;
-	    var thumbLength     = Vector2.Max(minThumbSize, size * visibleRatio);
-	    maxScroll   = Vector2.Max(default, contentSize - size);
-	    maxThumbTravel	= size - thumbLength;
+	    thumbSize           = Vector2.Max(minThumbSize, size * visibleRatio);
+	    maxScroll           = Vector2.Max(default, contentSize - size);
+	    maxThumbTravel	    = size - thumbSize;
     }
 }
 
@@ -294,15 +297,15 @@ public sealed class GuiWindow
     
     internal ref ScrollState GetOrCreateScrollState(int id)
     {
-        ref var state = ref CollectionsMarshal.GetValueRefOrAddDefault(scrollStates, id, out bool exists);
+        ref var scrollState = ref CollectionsMarshal.GetValueRefOrAddDefault(scrollStates, id, out bool exists);
         if (!exists) {
             // Initialize default state if first time seen
-            state = new ScrollState {
+            scrollState = new ScrollState {
                 offset       = default,
                 targetOffset = default
             };
         }
-        return ref state;
+        return ref scrollState;
     }
 
     internal void SetTopWindow()

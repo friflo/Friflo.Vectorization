@@ -127,46 +127,40 @@ public readonly ref partial struct GuiWidget
 	    scrollState.isHovered		= false;
 	    scrollState.horizontalBar	= default;
 	    scrollState.verticalBar		= default;
+	    
+	    var range = new ScrollRange(outerSize, contentSize, new Vector2(20, 20));
 	    if (showVert) {
-	        DrawScrollbar(startCursor, outerSize, contentSize.Y, ref scrollState, ScrollAxis.Vertical, background);
+	        DrawScrollbar(startCursor, outerSize, range, ref scrollState, ScrollAxis.Vertical, background);
 	    }
 	    if (showHoriz) {
-	        DrawScrollbar(startCursor, outerSize, contentSize.X, ref scrollState, ScrollAxis.Horizontal, background);
+	        DrawScrollbar(startCursor, outerSize, range, ref scrollState, ScrollAxis.Horizontal, background);
 	    }
     }
     
-	private void DrawScrollbar(Vector2 pos, Vector2 size, float totalContentSize, ref ScrollState scrollState, ScrollAxis axis, Color32 background)
+	private void DrawScrollbar(Vector2 pos, Vector2 size, ScrollRange range, ref ScrollState scrollState, ScrollAxis axis, Color32 background)
 	{
-	    var window = Window;
-	    bool isHorizontal		= axis == ScrollAxis.Horizontal;
+	    var window			= Window;
+	    bool isHorizontal	= axis == ScrollAxis.Horizontal;
 
-	    // same computation as in ApplyScrollOffset()
-	    float viewLength			= isHorizontal ? size.X : size.Y;
-	    float visibleRatio			= viewLength / totalContentSize;
-	    float thumbLength			= MathF.Max(20f, viewLength * visibleRatio);
-	    float scrollableRange		= totalContentSize - viewLength;
-	    float thumbScrollableRange	= viewLength - thumbLength;
-
-	    float currentOffset	= isHorizontal ? scrollState.offset.X : scrollState.offset.Y;
-	    float thumbOffset	= (currentOffset / scrollableRange) * thumbScrollableRange;
-	    
 	    // Axis-parameterized geometry setup
 	    Vector2 trackPos;	Vector2 trackSize;
 	    Vector2 thumbPos;	Vector2 thumbSize;
 	    
 	    if (isHorizontal) {
+		    float thumbOffsetX	= (scrollState.offset.X / range.maxScroll.X) * range.maxThumbTravel.X;
 			var scrollbarHeight = Sizes.TrackThickness.Y;
 		    trackPos	= new Vector2(pos.X,  pos.Y + size.Y - scrollbarHeight); 
 			trackSize	= new Vector2(size.X, scrollbarHeight);
-			thumbPos	= new Vector2(trackPos.X + thumbOffset, trackPos.Y);
-			thumbSize	= new Vector2(thumbLength, scrollbarHeight);
+			thumbPos	= new Vector2(trackPos.X + thumbOffsetX, trackPos.Y);
+			thumbSize	= new Vector2(range.thumbSize.X, scrollbarHeight);
 			scrollState.horizontalBar = new ScrollBar(trackPos, trackSize, thumbPos, thumbSize);
 	    } else {
-		    var scrollbarWidth = Sizes.TrackThickness.X;
+		    float thumbOffsetY	= (scrollState.offset.Y / range.maxScroll.Y) * range.maxThumbTravel.Y;
+		    var scrollbarWidth	= Sizes.TrackThickness.X;
 		    trackPos	= new Vector2(pos.X + size.X - scrollbarWidth, pos.Y);
 			trackSize	= new Vector2(scrollbarWidth, size.Y);
-			thumbPos	= new Vector2(trackPos.X, trackPos.Y + thumbOffset);
-			thumbSize	= new Vector2(scrollbarWidth, thumbLength);
+			thumbPos	= new Vector2(trackPos.X, trackPos.Y + thumbOffsetY);
+			thumbSize	= new Vector2(scrollbarWidth, range.thumbSize.Y);
 			scrollState.verticalBar   = new ScrollBar(trackPos, trackSize, thumbPos, thumbSize);
 	    }
 
