@@ -131,11 +131,16 @@ public partial class TuiBatch
         }
     }
     
-    internal void DrawWindowTitle(ReadOnlySpan<char> title, Vector2 pos, Vector2 size, in GuiColors colors, Color32 headerColor, TmTrait traits)
+    internal void DrawWindowTitle(ReadOnlySpan<char> title, Vector2 pos, Vector2 size, in GuiColors colors, TmTrait traits, DragState titleState)
     {
+        var headerColor = titleState switch {
+            DragState.Down  => colors.ButtonDown,
+            DragState.Hover => colors.ButtonHover,
+            _               => traits.Has(TmTrait.Border) ? colors.WindowColor : colors.ButtonColor
+        };
         FillRect(pos, size, colors.WindowColor);
         if (traits.Has(TmTrait.Border)) {
-            FillRectChar(pos, new Vector2(size.X, lineHeight), headerColor, '─', colors.WindowBorder);
+            FillRectChar(pos, new Vector2(size.X, lineHeight), headerColor, '─',    colors.WindowBorder);
             DrawChar('╭', TextStyle.None, pos,                                      colors.WindowBorder);
             DrawChar('╮', TextStyle.None, pos + new Vector2(size.X - charWidth, 0), colors.WindowBorder);
         } else {
