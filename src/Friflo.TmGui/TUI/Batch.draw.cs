@@ -97,13 +97,11 @@ public partial class TuiBatch
 
     public void DrawScrollbar(Vector2 position, Vector2 size, Color32 background, Vector2 thumbPosition, Vector2 thumbSize, Color32 thumbColor, bool isHorizontal)
     {
+        if (size != default) {
+            FillRect(position, size, background);
+        }
         var thumbChar = isHorizontal ? '▄' : '█';
         FillRectChar(thumbPosition, thumbSize, background, thumbChar, thumbColor); 
-        /*
-        var trackChar = isHorizontal ? '─' : '│';
-        FillRectChar(position, size, background, trackChar, thumbColor);
-        FillRectChar(thumbPosition, thumbSize, background, thumbChar, thumbColor);  // ▄ ▀
-        */
     }
     
     public void Space(Vector2 pos, Vector2 size)

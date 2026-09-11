@@ -86,7 +86,7 @@ public readonly ref partial struct GuiWidget
 	    var rawContent = PopLayout();
 	    var scrollSize = rawContent + padding.Size;
 	    
-	    PopScrollArea(scope.childId, scope.startCursor, scope.outerSize, scrollSize, Colors.ScrollAreaColor);
+	    PopScrollArea(scope.childId, scope.startCursor, scope.outerSize, scrollSize, Colors.ScrollAreaColor, true);
 
 	    window.PopScope();
 	    

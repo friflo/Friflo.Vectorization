@@ -94,7 +94,7 @@ public readonly ref partial struct GuiWidget
 	    draw.Tui?.SnapExtentToGrid(ref scrollState.offset);
     } 
     
-    private void PopScrollArea(int childId, Vector2 startCursor, Vector2 outerSize, Vector2 scrollSize, Color32 background)
+    private void PopScrollArea(int childId, Vector2 startCursor, Vector2 outerSize, Vector2 scrollSize, Color32 background, bool drawTack)
     {
 	    var window = Window;
 	    
@@ -131,15 +131,23 @@ public readonly ref partial struct GuiWidget
 	    
 	    var range = new ScrollRange(outerSize, contentSize, new Vector2(20, 20));
 	    if (showVert) {
-	        DrawScrollbar(startCursor, outerSize, range, ref scrollState, ScrollAxis.Vertical, background, 0);
+	        DrawScrollbar(startCursor, outerSize, range, ref scrollState, ScrollAxis.Vertical, background, 0, drawTack);
 	    }
 	    if (showHoriz) {
 		    var distRight = showVert ? Sizes.TrackThickness.X : 0;	// leave space for vertical scroll bar
-	        DrawScrollbar(startCursor, outerSize, range, ref scrollState, ScrollAxis.Horizontal, background, distRight);
+	        DrawScrollbar(startCursor, outerSize, range, ref scrollState, ScrollAxis.Horizontal, background, distRight, drawTack);
 	    }
     }
     
-	private void DrawScrollbar(Vector2 pos, Vector2 size, ScrollRange range, ref ScrollState scrollState, ScrollAxis axis, Color32 background, float distRight)
+	private void DrawScrollbar(
+        Vector2         pos,
+        Vector2         size,
+        ScrollRange     range,
+        ref ScrollState scrollState,
+        ScrollAxis      axis,
+        Color32         background,
+        float           distRight,
+        bool            drawTack)
 	{
 	    var window			= Window;
 	    bool isHorizontal	= axis == ScrollAxis.Horizontal;
@@ -198,7 +206,7 @@ public readonly ref partial struct GuiWidget
 	    thumbSize		   -= 2 * posOffset;
 	    
 	    if (tui != null) {
-			tui.DrawScrollbar(trackPos, trackSize, background, thumbPos, thumbSize, thumbColor, isHorizontal);
+			tui.DrawScrollbar(trackPos, drawTack ? trackSize : default, background, thumbPos, thumbSize, thumbColor, isHorizontal);
 	    } else {
 		    draw.FillRect       (trackPos, trackSize, background);
 		    draw.FillRectRounded(thumbPos, thumbSize, Sizes.CornerRadius, thumbColor, GuiSizes.CornerSegments);

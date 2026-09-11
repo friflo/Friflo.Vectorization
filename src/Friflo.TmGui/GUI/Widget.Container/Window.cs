@@ -102,7 +102,7 @@ public readonly ref partial struct GuiWidget
             tui.DrawWindowBorder(window.Pos, window.Size, Colors);
         }
         
-        PopScrollArea(scope.windowId, scope.startCursor, scope.outerSize, scrollSize, Colors.WindowColor);
+        PopScrollArea(scope.windowId, scope.startCursor, scope.outerSize, scrollSize, Colors.WindowColor, false);
         
         draw.PopZIndex();
         window.ClearScope();
