@@ -2,6 +2,7 @@
 // See LICENSE file in the project root for full license information.
 
 using System;
+using System.Diagnostics;
 using System.Numerics;
 
 // ReSharper disable SuggestVarOrType_SimpleTypes
@@ -63,20 +64,16 @@ public readonly ref partial struct GuiWidget
     private void ApplyScrollOffset(ref ScrollState scrollState, DragState dragState, Vector2 size)
     {
 		// Handle active mouse dragging for the active axis
-		var visibleRatio			= size / scrollState.lastContentSize;
-	    var thumbLength				= Vector2.Max(new Vector2(20, 20), size * visibleRatio);
-	    var scrollableRange			= scrollState.lastContentSize - size;
-	    var thumbScrollableRange	= size - thumbLength;
-	    
-		var mousePos = input.MousePos;
+		var range		= new ScrollRange(size, scrollState.lastContentSize, new Vector2(20, 20));
+		var mousePos	= input.MousePos;
 			    
 	    if (scrollState.isDragging) {
 	        if (dragState == DragState.Down) {
-	            var mouseDelta				= mousePos - scrollState.dragStartMouse;
+	            var mouseDelta		= mousePos - scrollState.dragStartMouse;
 				if (scrollState.dragAxis == ScrollAxis.Horizontal)	mouseDelta.Y = 0;
 				else												mouseDelta.X = 0;
-	            var scrollDelta				= (mouseDelta / thumbScrollableRange) * scrollableRange;
-	            scrollState.offset			= Vector2.Clamp(scrollState.dragStartOffset + scrollDelta, default, scrollableRange);
+	            var scrollDelta		= (mouseDelta / range.maxThumbTravel) * range.maxScroll;
+	            scrollState.offset	= Vector2.Clamp(scrollState.dragStartOffset + scrollDelta, default, range.maxScroll);
 	        } else {
 	            scrollState.isDragging = false;
 	        }
@@ -88,11 +85,11 @@ public readonly ref partial struct GuiWidget
 	    }
 	    if (scrollState.horizontalBar.visible && scrollState.horizontalBar.track.Contains(mousePos)) {
 		    if (mousePos.X < scrollState.horizontalBar.thumb.pos.X) scrollState.offset.X = MathF.Max(0f,                scrollState.offset.X - size.X);
-		    if (mousePos.X > scrollState.horizontalBar.thumb.BR.X)  scrollState.offset.X = MathF.Min(scrollableRange.X, scrollState.offset.X + size.X);
+		    if (mousePos.X > scrollState.horizontalBar.thumb.BR.X)  scrollState.offset.X = MathF.Min(range.maxScroll.X, scrollState.offset.X + size.X);
 	    }
 	    if (scrollState.verticalBar.visible && scrollState.verticalBar.track.Contains(mousePos)) {
 		    if (mousePos.Y < scrollState.verticalBar.thumb.pos.Y)	scrollState.offset.Y = MathF.Max(0f,                scrollState.offset.Y - size.Y);
-		    if (mousePos.Y > scrollState.verticalBar.thumb.BR.Y)	scrollState.offset.Y = MathF.Min(scrollableRange.Y, scrollState.offset.Y + size.Y);
+		    if (mousePos.Y > scrollState.verticalBar.thumb.BR.Y)	scrollState.offset.Y = MathF.Min(range.maxScroll.Y, scrollState.offset.Y + size.Y);
 	    }
     } 
     
@@ -188,6 +185,7 @@ public readonly ref partial struct GuiWidget
 	        scrollState.dragAxis		= axis;
 	        scrollState.dragStartMouse	= input.MousePos;
 	        scrollState.dragStartOffset = scrollState.offset;
+	        // Debug.WriteLine("Drag Started");
 	    }
 	    
 	    // Visual feedback on hover/drag

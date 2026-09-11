@@ -79,6 +79,23 @@ internal struct ScrollBar
     }
 }
 
+internal readonly struct ScrollRange
+{
+    /// <summary> Maximum scrollable content offset (<c>contentSize - size</c>) in px. </summary>
+    internal readonly   Vector2 maxScroll;
+    
+    /// <summary> Maximum draggable travel distance for the scrollbar thumb in px. </summary>
+    internal readonly   Vector2 maxThumbTravel;
+    
+    internal ScrollRange(Vector2 size, Vector2 contentSize, Vector2 minThumbSize)
+    {
+		var visibleRatio	= size / contentSize;
+	    var thumbLength     = Vector2.Max(minThumbSize, size * visibleRatio);
+	    maxScroll   = Vector2.Max(default, contentSize - size);
+	    maxThumbTravel	= size - thumbLength;
+    }
+}
+
 internal struct ScrollState
 {
     public Vector2      offset;
