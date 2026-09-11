@@ -4,7 +4,7 @@
 using System;
 // ReSharper disable InconsistentNaming
 
-namespace Friflo.TmGui.TUI.Terminal;
+namespace Friflo.TmGui.TUI.VT100;
 
 internal static class EscapeWrite
 {

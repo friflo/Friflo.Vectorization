@@ -8,7 +8,7 @@ using System.Threading;
 using System.Threading.Channels;
 using System.Threading.Tasks;
 using Friflo.TmGui.TUI;
-using Friflo.TmGui.TUI.Terminal;
+using Friflo.TmGui.TUI.VT100;
 
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable ConvertConstructorToMemberInitializers

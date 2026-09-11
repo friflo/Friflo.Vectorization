@@ -9,7 +9,7 @@ using System.Numerics;
 // ReSharper disable SwitchStatementHandlesSomeKnownEnumValuesWithDefault
 // ReSharper disable InconsistentNaming
 // ReSharper disable ConvertToPrimaryConstructor
-namespace Friflo.TmGui.TUI.Terminal;
+namespace Friflo.TmGui.TUI.VT100;
 
 internal enum RS
 {

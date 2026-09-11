@@ -5,7 +5,7 @@ using System;
 using Hide = System.Diagnostics.DebuggerHiddenAttribute;
 
 // ReSharper disable ConvertToPrimaryConstructor
-namespace Friflo.TmGui.TUI.Terminal;
+namespace Friflo.TmGui.TUI.VT100;
 
 
 internal struct CharBuffer

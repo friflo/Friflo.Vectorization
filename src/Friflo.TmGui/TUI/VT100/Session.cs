@@ -8,7 +8,7 @@ using System.IO.Hashing;
 // ReSharper disable InlineTemporaryVariable
 // ReSharper disable CanSimplifyStringEscapeSequence
 // ReSharper disable ConvertToPrimaryConstructor
-namespace Friflo.TmGui.TUI.Terminal;
+namespace Friflo.TmGui.TUI.VT100;
 
 
 public sealed partial class TuiSession
