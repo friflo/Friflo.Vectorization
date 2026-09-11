@@ -11,7 +11,7 @@ using System.IO.Hashing;
 namespace Friflo.TmGui.TUI.VT100;
 
 
-public sealed partial class TuiSession
+internal sealed partial class TuiSession
 {
     private readonly    FrameBuffer     frameBuffer;
     private readonly    TuiBackend      backend;

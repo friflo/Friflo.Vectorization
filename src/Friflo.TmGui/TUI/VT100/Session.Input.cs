@@ -19,7 +19,7 @@ internal enum RS
 }
 
 
-public sealed partial class TuiSession
+internal sealed partial class TuiSession
 {
     private RS          readState;
     private CharBuffer  csi = new(32);
