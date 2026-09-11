@@ -152,7 +152,7 @@ internal enum WindowState
 
 public sealed class GuiWindow
 {
-    private  readonly       string          title;
+    internal readonly       string          title;
     private  readonly       GuiHost         host;
     
     internal                WindowState     state;

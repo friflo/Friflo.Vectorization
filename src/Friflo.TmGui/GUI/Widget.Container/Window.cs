@@ -70,7 +70,7 @@ public readonly ref partial struct GuiWidget
         Vector2 contentPos;
         var titleOffset = new Vector2(0f, titleBarHeight);
         if (tui != null) {
-            tui.DrawWindowBorder(title, window.Pos, window.Size, Colors, headerColor);
+            tui.DrawWindowTitle(title, window.Pos, window.Size, Colors, headerColor);
             innerSize   = Vector2.Max(Vector2.Zero, window.Size - titleOffset - new  Vector2(2 * tui.CharWidth, 0));
             contentPos  = window.Pos + titleOffset + new Vector2(tui.CharWidth, 0);
         } else {
@@ -96,9 +96,14 @@ public readonly ref partial struct GuiWidget
         window.state    = WindowState.Visible;
         var scrollSize  = window.CurrentLayout.maxSize + Sizes.WindowPadding.Size;
         
+        draw.PopScissor();
+        var tui = draw.Tui;
+        if (tui != null) {
+            tui.DrawWindowBorder(window.Pos, window.Size, Colors);
+        }
+        
         PopScrollArea(scope.windowId, scope.startCursor, scope.outerSize, scrollSize, Colors.WindowColor);
         
-        draw.PopScissor();
         draw.PopZIndex();
         window.ClearScope();
     }

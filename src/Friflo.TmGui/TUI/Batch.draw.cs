@@ -97,12 +97,13 @@ public partial class TuiBatch
 
     public void DrawScrollbar(Vector2 position, Vector2 size, Color32 background, Vector2 thumbPosition, Vector2 thumbSize, Color32 thumbColor, bool isHorizontal)
     {
-        FillRect(position, size, background);
-        if (isHorizontal) {
-            FillRectChar(thumbPosition, thumbSize, background, '▄', thumbColor);  // ▄ ▀
-        } else {
-            FillRectChar(thumbPosition, thumbSize, background, '█', thumbColor);
-        }
+        var thumbChar = isHorizontal ? '▄' : '█';
+        FillRectChar(thumbPosition, thumbSize, background, thumbChar, thumbColor); 
+        /*
+        var trackChar = isHorizontal ? '─' : '│';
+        FillRectChar(position, size, background, trackChar, thumbColor);
+        FillRectChar(thumbPosition, thumbSize, background, thumbChar, thumbColor);  // ▄ ▀
+        */
     }
     
     public void Space(Vector2 pos, Vector2 size)
@@ -131,16 +132,21 @@ public partial class TuiBatch
         }
     }
     
-    internal void DrawWindowBorder(ReadOnlySpan<char> title, Vector2 pos, Vector2 size, in GuiColors colors, Color32 headerColor)
+    internal void DrawWindowTitle(ReadOnlySpan<char> title, Vector2 pos, Vector2 size, in GuiColors colors, Color32 headerColor)
     {
         FillRect(pos, size, colors.WindowColor);
         FillRect(pos, new Vector2(size.X, LineHeight), headerColor);
-        
         DrawText(title, TextStyle.None, pos + new Vector2(2 * CharWidth, 0), colors.TextColor);
+    }
+    
+    internal void DrawWindowBorder(Vector2 pos, Vector2 size, in GuiColors colors)
+    {
         var yOffset     = new Vector2(0, LineHeight);
-        var vertical    = new Vector2(charWidth, size.Y - 2 * LineHeight);
-        var horizontal  = new Vector2(size.X - CharWidth, LineHeight)  - yOffset;
-        FillRectChar(pos + yOffset,              vertical, colors.WindowColor, '│', colors.WindowBorder);
-        FillRectChar(pos + yOffset + horizontal, vertical, colors.WindowColor, '│', colors.WindowBorder);
+        var xOffset     = new Vector2(charWidth, 0);
+        var vertical    = new Vector2(charWidth, size.Y - 2 *   LineHeight);
+        var horizontal  = new Vector2(size.X,       LineHeight);
+        FillRectChar(pos + yOffset,                      vertical,   colors.WindowColor, '│', colors.WindowBorder);
+        FillRectChar(pos + horizontal - xOffset,         vertical,   colors.WindowColor, '│', colors.WindowBorder);
+        FillRectChar(pos + yOffset + vertical - xOffset, horizontal, colors.WindowColor, '─', colors.WindowBorder);
     }
 }
