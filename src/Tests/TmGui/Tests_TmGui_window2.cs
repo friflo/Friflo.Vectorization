@@ -34,7 +34,7 @@ public class Tests_TmGui_window2
         Mem.AssertNoAlloc(start);
         var drawList    = batch.DrawList;
         var verticesLen = batch.Vertices.Length;
-        Assert.That(drawList.Length,    Is.EqualTo(10));
+        Assert.That(drawList.Length,    Is.EqualTo(11));
         Assert.That(verticesLen,        Is.EqualTo(5208));
     }
     

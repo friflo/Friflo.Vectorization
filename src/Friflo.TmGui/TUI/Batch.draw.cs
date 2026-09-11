@@ -131,18 +131,24 @@ public partial class TuiBatch
         }
     }
     
-    internal void DrawWindowTitle(ReadOnlySpan<char> title, Vector2 pos, Vector2 size, in GuiColors colors, Color32 headerColor)
+    internal void DrawWindowTitle(ReadOnlySpan<char> title, Vector2 pos, Vector2 size, in GuiColors colors, Color32 headerColor, TmTrait traits)
     {
         FillRect(pos, size, colors.WindowColor);
-        FillRect(pos, new Vector2(size.X, LineHeight), headerColor);
+        if (traits.Has(TmTrait.Border)) {
+            FillRectChar(pos, new Vector2(size.X, lineHeight), headerColor, '─', colors.WindowBorder);
+            DrawChar('╭', TextStyle.None, pos,                                      colors.WindowBorder);
+            DrawChar('╮', TextStyle.None, pos + new Vector2(size.X - charWidth, 0), colors.WindowBorder);
+        } else {
+            FillRect(pos, new Vector2(size.X, lineHeight), headerColor);
+        }
         DrawText(title, TextStyle.None, pos + new Vector2(2 * CharWidth, 0), colors.TextColor);
     }
     
     internal void DrawWindowBorder(Vector2 pos, Vector2 size, in GuiColors colors)
     {
-        var yOffset     = new Vector2(0, LineHeight);
+        var yOffset     = new Vector2(0, lineHeight);
         var xOffset     = new Vector2(charWidth, 0);
-        var vertical    = new Vector2(charWidth, size.Y - 2 *   LineHeight);
+        var vertical    = new Vector2(charWidth, size.Y - 2 * lineHeight);
         var horizontal  = new Vector2(size.X, 0) - xOffset;
         
         // left / right

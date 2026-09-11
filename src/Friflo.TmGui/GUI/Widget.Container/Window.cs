@@ -11,7 +11,7 @@ namespace Friflo.TmGui;
 
 public readonly ref partial struct GuiWidget
 {
-    internal WindowScope BeginWindow(string title, Vector2? pos, Vector2? size)
+    internal WindowScope BeginWindow(string title, Vector2? pos, Vector2? size, TmTrait traits)
     {
         var host = draw.batch.host;
         var tui  = draw.Tui;
@@ -23,7 +23,8 @@ public readonly ref partial struct GuiWidget
             tui?.SnapExtentToGrid(ref finalSize);
             
             guiState.window = new GuiWindow(host, title) {
-                bounds = new RectVector2(finalPos, finalSize)
+                bounds = new RectVector2(finalPos, finalSize),
+                traits = traits                
             };
             host.windows.Add(title, guiState.window);
             host.windowOrder.Add(guiState.window);
@@ -70,9 +71,9 @@ public readonly ref partial struct GuiWidget
         Vector2 contentPos;
         var titleOffset = new Vector2(0f, titleBarHeight);
         if (tui != null) {
-            tui.DrawWindowTitle(title, window.Pos, window.Size, Colors, headerColor);
-            innerSize   = Vector2.Max(Vector2.Zero, window.Size - titleOffset - new  Vector2(tui.CharWidth, 0));
-            contentPos  = window.Pos + titleOffset + new Vector2(tui.CharWidth, 0);
+            tui.DrawWindowTitle(title, window.Pos, window.Size, Colors, headerColor, traits);
+            innerSize   = Vector2.Max(Vector2.Zero, window.Size - titleOffset);
+            contentPos  = window.Pos + titleOffset;
         } else {
             var textPos = window.Pos + new Vector2(10f, (titleBarHeight - fontHeight) / 2f);
             draw.FillRectRounded(window.Pos,   window.Size,  Sizes.CornerRadius, Colors.WindowColor,     GuiSizes.CornerSegments);
@@ -97,11 +98,10 @@ public readonly ref partial struct GuiWidget
         var scrollSize  = window.CurrentLayout.maxSize + Sizes.WindowPadding.Size;
         
         draw.PopScissor();
-        var tui = draw.Tui;
-        if (tui != null) {
-            tui.DrawWindowBorder(window.Pos, window.Size, Colors);
-        }
         
+        if (window.traits.Has(TmTrait.Border)) {
+            draw.Tui?.DrawWindowBorder(window.Pos, window.Size, Colors);
+        }
         PopScrollArea(scope.windowId, scope.startCursor, scope.outerSize, scrollSize, Colors.WindowColor, false);
         
         draw.PopZIndex();

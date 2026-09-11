@@ -2,23 +2,23 @@
                                                   
                                                   
                                                   
-          Window 1                                
+        ╭─Window 1───────────────╮                
         │                        ▉                
-        │ hello GUI              ▉                
-        │  hello                 ▉                
+        │hello GUI               ▉                
+        │ hello                  ▉                
         │                        ▉                
-        │ [ ] mouse circle       ▉                
-        │ [ ] Monocraft          ▉                
-        │    0.8                 ▉                
+        │[ ] mouse circle        ▉                
+        │[ ] Monocraft           ▉                
+        │   0.8                  ▉                
         │                        ▉                
-        │ >First<   Second     Re▉                
-        │ after horizontal       ▉                
+        │>First<   Second     Red▉                
+        │after horizontal        ▉                
         │                        ▉                
-        │ [x] checkbox           ▉                
+        │[x] checkbox            ▉                
         │                        ▉                
         │ght    A´    B´    C´   ▉                
         │Center    1     2     3 │                
-        ╰■■■■■■■■■■■■■■──────────╯                
+        ▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄──────────╯                
                                                   
                                                   
                                                   

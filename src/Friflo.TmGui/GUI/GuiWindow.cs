@@ -157,6 +157,7 @@ public sealed class GuiWindow
     
     internal                WindowState     state;
     internal                RectVector2     bounds;
+    internal                TmTrait         traits;
     internal                Vector2         Pos                 { [Hide] get => bounds.pos; }
     internal                Vector2         Size                { [Hide] get => bounds.size; }
 

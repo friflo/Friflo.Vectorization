@@ -43,15 +43,15 @@ public class Tests_TmGui_window1
             backend.NewFrame();
             var gui = batch.BeginGui(1280, 1000);
             
-            using (gui.BeginWindow("Window 1", new(200, 200), new(600, 800))) {
+            using (gui.BeginWindow("Window 1", new(200, 200), new(600, 800), traits: TmTrait.Border)) {
                 Window1(gui); 
             }
             batch.DrawRectCommandsChar(frameBuffer, 50, 30, ' ', "\r\n");
             if (n == 0) start = Mem.GetAllocatedBytes();
         }
         Mem.AssertNoAlloc(start);
-        Assert.That(batch.Rects.Length, Is.EqualTo(61));
-        Assert.That(batch.Texts.Length, Is.EqualTo(151));
+        Assert.That(batch.Rects.Length, Is.EqualTo(63));
+        Assert.That(batch.Texts.Length, Is.EqualTo(153));
         Assert.That(frameBuffer.CharCells.Length, Is.EqualTo(1560));
         var screen  = new string(frameBuffer.CharCells);
         var dir     = Path.GetDirectoryName(GetCurrentFilePath())!;
@@ -77,15 +77,15 @@ public class Tests_TmGui_window1
             backend.NewFrame();
             var gui = batch.BeginGui(1280, 1000);
             
-            using (gui.BeginWindow("Window 1", new(200, 200), new(600, 800))) {
+            using (gui.BeginWindow("Window 1", new(200, 200), new(600, 800), traits: TmTrait.Border)) {
                 Window1(gui); 
             }
             batch.DrawRectCommandsColor(frameBuffer, 50, 30, new TuiColorCell { character = ' ' });
             if (n == 0) start = Mem.GetAllocatedBytes();
         }
         Mem.AssertNoAlloc(start);
-        Assert.That(batch.Rects.Length, Is.EqualTo(61));
-        Assert.That(batch.Texts.Length, Is.EqualTo(151));
+        Assert.That(batch.Rects.Length, Is.EqualTo(63));
+        Assert.That(batch.Texts.Length, Is.EqualTo(153));
         Assert.That(frameBuffer.ColorCells.Length, Is.EqualTo(1500));
         
         var screen = CellsToString(frameBuffer.ColorCells, 50, 30);
