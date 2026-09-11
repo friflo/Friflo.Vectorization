@@ -8,18 +8,18 @@ using System.Threading.Tasks;
 namespace Friflo.TmGui.Client;
 
 
-public enum ClientEventType : byte
+internal enum ClientEventType : byte
 {
-    Connected,
-    Disconnected,
-    Input
+    TerminalConnected,
+    TerminalDisconnected,
+    TerminalInput
 }
 
-public readonly struct ClientEvent
+internal readonly struct ClientEvent
 {
-    public required     TmClient                Client  { get; init; }
-    public required     ClientEventType         Type    { get; init; }
-    public              ReadOnlyMemory<byte>    Payload { get; init; }
+    internal required   TmClient                Client  { get; init; }
+    internal required   ClientEventType         Type    { get; init; }
+    internal            ReadOnlyMemory<byte>    Payload { get; init; }
 }
 
 public struct ConnectInfo

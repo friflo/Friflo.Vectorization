@@ -44,7 +44,7 @@ public class SocketClient : TmClient
             }
 
             // Notify engine about new client connection, passing initial payload (if any)
-            await engine.EnqueueEventAsync(client, ClientEventType.Connected, initialPayload);
+            await engine.EnqueueEventAsync(client, ClientEventType.TerminalConnected, initialPayload);
 
             while (!cancellationToken.IsCancellationRequested)
             {
@@ -54,13 +54,13 @@ public class SocketClient : TmClient
                 var payload = buffer.AsMemory(0, bytesRead);
 
                 // Forward raw input directly to the shard event loop
-                await engine.EnqueueEventAsync(client, ClientEventType.Input, payload);
+                await engine.EnqueueEventAsync(client, ClientEventType.TerminalInput, payload);
             }
         }
         finally
         {
             ArrayPool<byte>.Shared.Return(buffer);
-            await engine.EnqueueEventAsync(client, ClientEventType.Disconnected);
+            await engine.EnqueueEventAsync(client, ClientEventType.TerminalDisconnected);
         }
     }
 }

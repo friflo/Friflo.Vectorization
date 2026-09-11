@@ -60,7 +60,7 @@ public sealed class SingleThreadedShardEngine
     {
         switch (evt.Type)
         {
-            case ClientEventType.Connected: {
+            case ClientEventType.TerminalConnected: {
                 var payload         = evt.Payload.Span;
                 var firstLine       = payload.IndexOf((byte)'\n');
                 var client          = evt.Client;
@@ -79,11 +79,11 @@ public sealed class SingleThreadedShardEngine
                 _ = await client.SendAsync(sendBuffer, CancellationToken.None);
                 break;
             }
-            case ClientEventType.Disconnected:
+            case ClientEventType.TerminalDisconnected:
                 sessions.Remove(evt.Client);
                 break;
 
-            case ClientEventType.Input:
+            case ClientEventType.TerminalInput:
                 if (sessions.TryGetValue(evt.Client, out TuiSession? session))
                 {
                     var payload     = evt.Payload.Span;

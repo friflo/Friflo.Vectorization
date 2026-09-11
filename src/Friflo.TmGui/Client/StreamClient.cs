@@ -39,7 +39,7 @@ public class StreamClient : TmClient
 
         try
         {
-            await engine.EnqueueEventAsync(client, ClientEventType.Connected, ReadOnlyMemory<byte>.Empty);
+            await engine.EnqueueEventAsync(client, ClientEventType.TerminalConnected, ReadOnlyMemory<byte>.Empty);
 
             while (!cancellationToken.IsCancellationRequested)
             {
@@ -48,13 +48,13 @@ public class StreamClient : TmClient
 
                 ReadOnlyMemory<byte> payload = buffer.AsMemory(0, bytesRead);
 
-                await engine.EnqueueEventAsync(client, ClientEventType.Input, payload);
+                await engine.EnqueueEventAsync(client, ClientEventType.TerminalInput, payload);
             }
         }
         finally
         {
             ArrayPool<byte>.Shared.Return(buffer);
-            await engine.EnqueueEventAsync(client, ClientEventType.Disconnected);
+            await engine.EnqueueEventAsync(client, ClientEventType.TerminalDisconnected);
         }
     }
 }
