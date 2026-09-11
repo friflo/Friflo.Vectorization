@@ -2,7 +2,6 @@
 // See LICENSE file in the project root for full license information.
 
 using System.Numerics;
-using Friflo.TmGui.TUI;
 
 
 // ReSharper disable SuggestVarOrType_BuiltInTypes
@@ -67,24 +66,27 @@ public readonly ref partial struct GuiWidget
         var headerColor = Colors.ButtonState(titleState);
         var fontHeight  = LineHeight;
 
+        Vector2 innerSize;
+        Vector2 contentPos;
+        var titleOffset = new Vector2(0f, titleBarHeight);
         if (tui != null) {
-            tui.DrawWindowBorder(title, window.Pos, window.Size, Colors.TextColor, Colors.WindowColor, headerColor);
+            tui.DrawWindowBorder(title, window.Pos, window.Size, Colors, headerColor);
+            innerSize   = Vector2.Max(Vector2.Zero, window.Size - titleOffset - new  Vector2(2 * tui.CharWidth, 0));
+            contentPos  = window.Pos + titleOffset + new Vector2(tui.CharWidth, 0);
         } else {
             var textPos = window.Pos + new Vector2(10f, (titleBarHeight - fontHeight) / 2f);
             draw.FillRectRounded(window.Pos,   window.Size,  Sizes.CornerRadius, Colors.WindowColor,     GuiSizes.CornerSegments);
             draw.FillRectRounded(window.Pos,   titleBarSize, Sizes.CornerRadius, headerColor,            GuiSizes.CornerSegments);
             draw.StrokeRectRounded(window.Pos, window.Size,  Sizes.CornerRadius, 2, Colors.WindowBorder, GuiSizes.CornerSegments);
             draw.DrawText(title, textPos, Colors.TextColor);
+            innerSize   = Vector2.Max(Vector2.Zero, window.Size - titleOffset);
+            contentPos  = window.Pos + titleOffset; // + Sizes.WindowPadding.Min;
         }
         // --- Push content scissor rect (clips everything below titlebar) ---
-        var titleOffset = new Vector2(0f, titleBarHeight);
-        var innerSize   = Vector2.Max(Vector2.Zero, window.Size - titleOffset);
-        var contentPos  = window.Pos + titleOffset; // + Sizes.WindowPadding.Min;
-        
         var scrollRect = PushScrollArea(parentHash, contentPos, innerSize, Sizes.WindowPadding);
         window.InitLayout(scrollRect.pos, scrollRect.size);
 
-        draw.PushScissor(window.Pos + titleOffset, innerSize);
+        draw.PushScissor(contentPos, innerSize);
         return new WindowScope(this, true, parentHash, contentPos, innerSize);
     }
     

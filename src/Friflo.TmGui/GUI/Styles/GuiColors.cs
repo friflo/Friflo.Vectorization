@@ -52,7 +52,7 @@ public struct GuiColors
     
     [Hide] public Color32  ScrollAreaColor     => 0xffffffff;
     
-    [Hide] public Color32  WindowBorder        => 0xd0d0d0ff;
+    [Hide] public Color32  WindowBorder        => 0xcdcdcdff;
     
      
     

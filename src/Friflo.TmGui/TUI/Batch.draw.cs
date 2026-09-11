@@ -125,16 +125,22 @@ public partial class TuiBatch
         FillRect(pos + new Vector2(size.X - charWidth, 0),  barSize, buttonColor);
         
         for (int n = 0; n < height; n++) {
-            DrawChar('|', bold, pos,                                      color);
-            DrawChar('|', bold, pos + new Vector2(size.X - charWidth, 0), color);
+            DrawChar('│', bold, pos,                                      color);
+            DrawChar('│', bold, pos + new Vector2(size.X - charWidth, 0), color);
             pos.Y += lineHeight;
         }
     }
     
-    internal void DrawWindowBorder(ReadOnlySpan<char> title, Vector2 pos, Vector2 size, Color32 textColor, Color32 background, Color32 headerColor)
+    internal void DrawWindowBorder(ReadOnlySpan<char> title, Vector2 pos, Vector2 size, in GuiColors colors, Color32 headerColor)
     {
-        FillRect(pos, size, background);
+        FillRect(pos, size, colors.WindowColor);
         FillRect(pos, new Vector2(size.X, LineHeight), headerColor);
-        DrawText(title, TextStyle.None, pos + new Vector2(2 * CharWidth, 0), textColor);
+        
+        DrawText(title, TextStyle.None, pos + new Vector2(2 * CharWidth, 0), colors.TextColor);
+        var yOffset     = new Vector2(0, LineHeight);
+        var vertical    = new Vector2(charWidth, size.Y) - yOffset;
+        var horizontal  = new Vector2(size.X - CharWidth,    LineHeight) - yOffset;
+        FillRectChar(pos + yOffset,              vertical, colors.WindowColor, '│', colors.WindowBorder);
+        FillRectChar(pos + yOffset + horizontal, vertical, colors.WindowColor, '│', colors.WindowBorder);
     }
 }

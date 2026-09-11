@@ -46,11 +46,11 @@ public class Tests_TmGui_window1
             using (gui.BeginWindow("Window 1", new(200, 200), new(600, 800))) {
                 Window1(gui); 
             }
-            batch.DrawRectCommandsChar(frameBuffer, 50, 30, '.', "\r\n");
+            batch.DrawRectCommandsChar(frameBuffer, 50, 30, ' ', "\r\n");
             if (n == 0) start = Mem.GetAllocatedBytes();
         }
         Mem.AssertNoAlloc(start);
-        Assert.That(batch.Rects.Length, Is.EqualTo(57));
+        Assert.That(batch.Rects.Length, Is.EqualTo(60));
         Assert.That(batch.Texts.Length, Is.EqualTo(149));
         Assert.That(frameBuffer.CharCells.Length, Is.EqualTo(1560));
         var screen  = new string(frameBuffer.CharCells);
@@ -80,11 +80,11 @@ public class Tests_TmGui_window1
             using (gui.BeginWindow("Window 1", new(200, 200), new(600, 800))) {
                 Window1(gui); 
             }
-            batch.DrawRectCommandsColor(frameBuffer, 50, 30, new TuiColorCell { character = '.' });
+            batch.DrawRectCommandsColor(frameBuffer, 50, 30, new TuiColorCell { character = ' ' });
             if (n == 0) start = Mem.GetAllocatedBytes();
         }
         Mem.AssertNoAlloc(start);
-        Assert.That(batch.Rects.Length, Is.EqualTo(57));
+        Assert.That(batch.Rects.Length, Is.EqualTo(60));
         Assert.That(batch.Texts.Length, Is.EqualTo(149));
         Assert.That(frameBuffer.ColorCells.Length, Is.EqualTo(1500));
         
