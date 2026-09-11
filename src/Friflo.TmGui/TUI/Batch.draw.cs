@@ -7,6 +7,7 @@ using System.Numerics;
 using System.Runtime.CompilerServices;
 
 
+// ReSharper disable ConditionalTernaryEqualBranch
 // ReSharper disable UseWithExpressionToCopyStruct
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable ConvertIfStatementToConditionalTernaryExpression
@@ -100,7 +101,7 @@ public partial class TuiBatch
         if (size != default) {
             FillRect(position, size, background);
         }
-        var thumbChar = isHorizontal ? (size == default ? '■' : '▄') : '▉';  // ▌ - left half block   █ - full block  ▄  ■
+        var thumbChar = isHorizontal ? (size == default ? '▄' : '▄') : '▉';  // ▌ - left half block   █ - full block  ▄  ■
         FillRectChar(thumbPosition, thumbSize, background, thumbChar, thumbColor); 
     }
     
