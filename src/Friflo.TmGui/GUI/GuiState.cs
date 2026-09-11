@@ -42,7 +42,7 @@ internal sealed class GuiState
             defaultStyle.sizes = new GuiSizes {
                 WindowPadding   = new Padding2D(tuiBatch.CharWidth, tuiBatch.LineHeight),
                 ItemSpacing     = new Vector2  (tuiBatch.CharWidth, 0),
-                TrackThickness  = new Vector2  (tuiBatch.CharWidth, tuiBatch.CharWidth)
+                TrackThickness  = new Vector2  (tuiBatch.CharWidth, tuiBatch.LineHeight)
             };
         } else {
             defaultStyle.sizes = CreateDefaultSizes();

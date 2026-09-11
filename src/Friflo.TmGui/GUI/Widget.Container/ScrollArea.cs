@@ -111,7 +111,7 @@ public readonly ref partial struct GuiWidget
 	    // Build effective content size without cross-contaminating initial triggers
 	    var contentSize = baseContentSize;
 	    if (showVert)  contentSize.X += Sizes.TrackThickness.X;
-	    if (showHoriz) contentSize.Y += Sizes.TrackThickness.X;
+	    if (showHoriz) contentSize.Y += Sizes.TrackThickness.Y;
 
 	    // Cache current content size for the next frame's layout pass
 	    scrollState.lastContentSize = contentSize;
@@ -154,21 +154,22 @@ public readonly ref partial struct GuiWidget
 	    float thumbOffset	= (currentOffset / scrollableRange) * thumbScrollableRange;
 	    
 	    // Axis-parameterized geometry setup
-	    float trackThickness = Sizes.TrackThickness.X;
 	    Vector2 trackPos;	Vector2 trackSize;
 	    Vector2 thumbPos;	Vector2 thumbSize;
 	    
 	    if (isHorizontal) {
-		    trackPos	= new Vector2(pos.X,  pos.Y + size.Y - trackThickness); 
-			trackSize	= new Vector2(size.X, trackThickness);
+			var scrollbarHeight = Sizes.TrackThickness.Y;
+		    trackPos	= new Vector2(pos.X,  pos.Y + size.Y - scrollbarHeight); 
+			trackSize	= new Vector2(size.X, scrollbarHeight);
 			thumbPos	= new Vector2(trackPos.X + thumbOffset, trackPos.Y);
-			thumbSize	= new Vector2(thumbLength, trackThickness);
+			thumbSize	= new Vector2(thumbLength, scrollbarHeight);
 			scrollState.horizontalBar = new ScrollBar(trackPos, trackSize, thumbPos, thumbSize);
 	    } else {
-		    trackPos	= new Vector2(pos.X + size.X - trackThickness, pos.Y);
-			trackSize	= new Vector2(trackThickness, size.Y);
+		    var scrollbarWidth = Sizes.TrackThickness.X;
+		    trackPos	= new Vector2(pos.X + size.X - scrollbarWidth, pos.Y);
+			trackSize	= new Vector2(scrollbarWidth, size.Y);
 			thumbPos	= new Vector2(trackPos.X, trackPos.Y + thumbOffset);
-			thumbSize	= new Vector2(trackThickness, thumbLength);
+			thumbSize	= new Vector2(scrollbarWidth, thumbLength);
 			scrollState.verticalBar   = new ScrollBar(trackPos, trackSize, thumbPos, thumbSize);
 	    }
 
