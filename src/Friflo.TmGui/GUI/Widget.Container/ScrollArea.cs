@@ -2,7 +2,6 @@
 // See LICENSE file in the project root for full license information.
 
 using System;
-using System.Diagnostics;
 using System.Numerics;
 
 // ReSharper disable SuggestVarOrType_SimpleTypes
@@ -130,14 +129,15 @@ public readonly ref partial struct GuiWidget
 	    
 	    var range = new ScrollRange(outerSize, contentSize, new Vector2(20, 20));
 	    if (showVert) {
-	        DrawScrollbar(startCursor, outerSize, range, ref scrollState, ScrollAxis.Vertical, background);
+	        DrawScrollbar(startCursor, outerSize, range, ref scrollState, ScrollAxis.Vertical, background, 0);
 	    }
 	    if (showHoriz) {
-	        DrawScrollbar(startCursor, outerSize, range, ref scrollState, ScrollAxis.Horizontal, background);
+		    var distRight = showVert ? Sizes.TrackThickness.X : 0;	// leave space for vertical scroll bar
+	        DrawScrollbar(startCursor, outerSize, range, ref scrollState, ScrollAxis.Horizontal, background, distRight);
 	    }
     }
     
-	private void DrawScrollbar(Vector2 pos, Vector2 size, ScrollRange range, ref ScrollState scrollState, ScrollAxis axis, Color32 background)
+	private void DrawScrollbar(Vector2 pos, Vector2 size, ScrollRange range, ref ScrollState scrollState, ScrollAxis axis, Color32 background, float distRight)
 	{
 	    var window			= Window;
 	    bool isHorizontal	= axis == ScrollAxis.Horizontal;
@@ -150,9 +150,9 @@ public readonly ref partial struct GuiWidget
 		    float thumbOffsetX	= (scrollState.offset.X / range.maxScroll.X) * range.maxThumbTravel.X;
 			var scrollbarHeight = Sizes.TrackThickness.Y;
 		    trackPos	= new Vector2(pos.X,  pos.Y + size.Y - scrollbarHeight); 
-			trackSize	= new Vector2(size.X, scrollbarHeight);
+			trackSize	= new Vector2(size.X - distRight, scrollbarHeight);
 			thumbPos	= new Vector2(trackPos.X + thumbOffsetX, trackPos.Y);
-			thumbSize	= new Vector2(range.thumbSize.X, scrollbarHeight);
+			thumbSize	= new Vector2(range.thumbSize.X - distRight, scrollbarHeight);
 			scrollState.horizontalBar = new ScrollBar(trackPos, trackSize, thumbPos, thumbSize);
 	    } else {
 		    float thumbOffsetY	= (scrollState.offset.Y / range.maxScroll.Y) * range.maxThumbTravel.Y;
