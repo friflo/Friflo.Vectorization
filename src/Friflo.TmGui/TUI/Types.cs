@@ -100,7 +100,9 @@ public struct TuiRect
     public  readonly    Color32Span color;      //  6 bytes
     public  readonly    TextStyle   textStyle;  //  1 byte
     
-    public override string ToString()       => $"[{TL.X}, {TL.Y} | {BR.X}, {BR.Y}]";
+    public  readonly    Vector2     Size        => BR - TL; // only for debugging
+    
+    public override string ToString()       => $"[{TL.X}, {TL.Y} | {Size.X}, {Size.Y}]";
     
     /// <summary> A filled rectangle with given background <see cref="color"/>. </summary>
     internal TuiRect(Vector2 pos, Vector2 size, Color32Span background, char fillChar) {
