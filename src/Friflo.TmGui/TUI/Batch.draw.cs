@@ -100,7 +100,7 @@ public partial class TuiBatch
         if (size != default) {
             FillRect(position, size, background);
         }
-        var thumbChar = isHorizontal ? '▄' : '█';
+        var thumbChar = isHorizontal ? (size == default ? '■' : '▄') : '▉';  // ▌ - left half block   █ - full block  ▄  ■
         FillRectChar(thumbPosition, thumbSize, background, thumbChar, thumbColor); 
     }
     
