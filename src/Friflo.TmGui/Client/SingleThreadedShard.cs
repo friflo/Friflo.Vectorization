@@ -7,11 +7,12 @@ using System.Text;
 using System.Threading;
 using System.Threading.Channels;
 using System.Threading.Tasks;
+using Friflo.TmGui.TUI;
+using Friflo.TmGui.TUI.Terminal;
 
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable ConvertConstructorToMemberInitializers
-// ReSharper disable CheckNamespace
-namespace Friflo.TmGui.TUI.Terminal;
+namespace Friflo.TmGui.Client;
 
 
 public sealed class SingleThreadedShardEngine

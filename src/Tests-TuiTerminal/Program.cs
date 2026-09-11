@@ -1,6 +1,6 @@
 ﻿using System.Net;
 using System.Net.Sockets;
-using Friflo.TmGui.TUI.Terminal;
+using Friflo.TmGui.Client;
 using TuiTerminal;
 
 

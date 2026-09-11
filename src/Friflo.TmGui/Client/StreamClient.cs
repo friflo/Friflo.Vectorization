@@ -9,8 +9,8 @@ using System.Threading.Tasks;
 
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable ConvertToPrimaryConstructor
-// ReSharper disable CheckNamespace
-namespace Friflo.TmGui.TUI.Terminal;
+namespace Friflo.TmGui.Client;
+
 
 
 
