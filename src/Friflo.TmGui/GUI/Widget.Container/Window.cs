@@ -80,6 +80,8 @@ public readonly ref partial struct GuiWidget
         var titleOffset = new Vector2(0f, titleBarHeight);
         var innerSize   = Vector2.Max(Vector2.Zero, window.Size - titleOffset);
         var contentPos  = window.Pos + titleOffset; // + Sizes.WindowPadding.Min;
+        
+        draw.PushScissor(contentPos,  innerSize);
         var scrollRect  = PushScrollArea(parentHash, contentPos, innerSize, Sizes.WindowPadding);
         window.InitLayout(scrollRect.pos, scrollRect.size);
 
@@ -104,6 +106,7 @@ public readonly ref partial struct GuiWidget
         }
         PopScrollArea(scope.windowId, scope.startCursor, scope.outerSize, scrollSize, Colors.WindowColor, false);
         
+        draw.PopScissor();
         draw.PopZIndex();
         window.ClearScope();
     }
