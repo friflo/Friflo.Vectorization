@@ -18,7 +18,8 @@ internal static class Telnet
     internal const byte     SB      = 250; // Subnegotiation Begin
     internal const byte     SE      = 240; // Subnegotiation End
     
-    internal const byte     OptionNAWS = 31; // Window Size Option
+    // options
+    internal const byte     NAWS = 31; // Window Size Option
 }
 
 
@@ -97,17 +98,17 @@ internal sealed partial class TuiSession
     private void HandleOptionNegotiation(byte cmd, byte option)
     {
         // Auto-respond to NAWS request from client
-        if (cmd == Telnet.WILL && option == Telnet.OptionNAWS)
+        if (cmd == Telnet.WILL && option == Telnet.NAWS)
         {
             // Send IAC DO NAWS to enable auto window-size updates
-            AppendSpan([Telnet.IAC, Telnet.DO, Telnet.OptionNAWS]);
+            AppendSpan([Telnet.IAC, Telnet.DO, Telnet.NAWS]);
         }
     }
 
     private void ProcessSubnegotiationPayload(ReadOnlySpan<byte> payload)
     {
         // Parse Telnet NAWS (RFC 1073): [NAWS_OPTION_BYTE] [W1] [W0] [H1] [H0]
-        if (payload.Length >= 5 && payload[0] == Telnet.OptionNAWS)
+        if (payload.Length >= 5 && payload[0] == Telnet.NAWS)
         {
             int width  = (payload[1] << 8) | payload[2];
             int height = (payload[3] << 8) | payload[4];
