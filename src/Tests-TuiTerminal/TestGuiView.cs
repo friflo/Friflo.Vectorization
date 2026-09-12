@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using System.Diagnostics;
+using System.Numerics;
 using Friflo.TmGui;
 using Friflo.TmGui.TUI;
 
@@ -33,7 +34,7 @@ public class TestGuiView : IGuiView
         gui.Button("hello GUI", Dim.Fill_X(0, Fit.Content), color: textColors);
         gui.Spacer();
         using (gui.PushStyle(greenButtonStyle)) {
-            if (gui.Button("hello"))                            Console.WriteLine("Clicked: hello");
+            if (gui.Button("hello"))                            Debug.WriteLine("Clicked: hello");
         }
 
         gui.Spacer();
@@ -41,21 +42,21 @@ public class TestGuiView : IGuiView
         if(gui.Checkbox("Monocraft", ref appState.monocraft)) {
         }
         gui.Spacer();
-        if (gui.Slider("Volume", ref appState.volume, 0f, 1f, 300)) Console.WriteLine($"Volume: changed");
+        if (gui.Slider("Volume", ref appState.volume, 0f, 1f, 300)) { Debug.WriteLine($"Volume: changed"); }
         gui.Spacer();
         
         gui.BeginHorizontal();
             gui.SetNextDefaultFocus();
-            if (gui.Button("First"))                            Console.WriteLine("Clicked: First");
+            if (gui.Button("First"))                            Debug.WriteLine("Clicked: First");
             gui.Spacer(10);
-            if (gui.Button("Second"))                           Console.WriteLine("Clicked: Second");
+            if (gui.Button("Second"))                           Debug.WriteLine("Clicked: Second");
             gui.Spacer(10);
-            if (gui.Button("Red", style: redButtonStyle))       Console.WriteLine("Clicked: Red");
+            if (gui.Button("Red", style: redButtonStyle))       Debug.WriteLine("Clicked: Red");
         gui.EndHorizontal();
         
         gui.Label("after horizontal");
         using (var space = gui.BeginSpace(new(128, 64), "sprite")) {
-            if (space.isFired) Console.WriteLine("Clicked: Sprite");
+            if (space.isFired) Debug.WriteLine("Clicked: Sprite");
             var srcPos  = new Vector2(3 * 64, 0 * 64);  // tile pos in Sheet (3, 0)        
             var tint = gui.Colors.ButtonState(space.widgetState);
             gui.Draw.DrawSpriteRegion(default, space.pos, space.size, srcPos, space.size, new(1024, 1024), tint);
