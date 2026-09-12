@@ -37,7 +37,7 @@ async ValueTask TcpServer()
     engine.Start();
     
     var localClient = new ConsoleClient();
-    _ = StreamClient.HandleClientSessionAsync(localClient, engine, CancellationToken.None);
+    _ = ConsoleClient.HandleClientSessionAsync(localClient, engine, CancellationToken.None);
     
     // await Task.Delay(-1);
 
