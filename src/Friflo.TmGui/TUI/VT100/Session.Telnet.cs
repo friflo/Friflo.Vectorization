@@ -1,14 +1,10 @@
 ﻿// Copyright (c) Ullrich Praetz - https://github.com/friflo. All rights reserved.
 // See LICENSE file in the project root for full license information.
 
-
+using System;
 
 
 // ReSharper disable InconsistentNaming
-
-using System;
-using System.Numerics;
-
 namespace Friflo.TmGui.TUI.VT100;
 
 internal static class Telnet
