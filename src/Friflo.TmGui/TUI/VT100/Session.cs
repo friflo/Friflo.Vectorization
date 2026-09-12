@@ -3,7 +3,6 @@
 
 using System;
 using System.Diagnostics;
-using System.IO.Hashing;
 using Friflo.TmGui.Client;
 
 // ReSharper disable InlineTemporaryVariable
