@@ -175,22 +175,23 @@ internal sealed partial class TuiSession
         AppendByte((byte)'m');
     }
 
-    // Allocation-free byte-to-ASCII integer formatting directly into sendBuffer
+    // Allocation-free byte-to-ASCII integer formatting directly into send buffer
     private void AppendNumber(byte value)
     {
+        var buffer = sendBuffer;
         if (value >= 100) {
             int d1 = value / 100;
             int rem = value % 100;
-            sendBuffer[sendBufferCount++] = (byte)('0' + d1);
-            sendBuffer[sendBufferCount++] = (byte)('0' + (rem / 10));
-            sendBuffer[sendBufferCount++] = (byte)('0' + (rem % 10));
+            buffer[sendBufferCount++] = (byte)('0' + d1);
+            buffer[sendBufferCount++] = (byte)('0' + (rem / 10));
+            buffer[sendBufferCount++] = (byte)('0' + (rem % 10));
         }
         else if (value >= 10) {
-            sendBuffer[sendBufferCount++] = (byte)('0' + (value / 10));
-            sendBuffer[sendBufferCount++] = (byte)('0' + (value % 10));
+            buffer[sendBufferCount++] = (byte)('0' + (value / 10));
+            buffer[sendBufferCount++] = (byte)('0' + (value % 10));
         }
         else {
-            sendBuffer[sendBufferCount++] = (byte)('0' + value);
+            buffer[sendBufferCount++] = (byte)('0' + value);
         }
     }
     
@@ -201,17 +202,16 @@ internal sealed partial class TuiSession
     
     private void AppendChar(char character)
     {
+        var buffer = sendBuffer;
         // Fast path: ASCII (1 byte) - 0x0000 to 0x007F
-        if (character <= 0x7F)
-        {
-            sendBuffer[sendBufferCount++] = (byte)character;
+        if (character <= 0x7F) {
+            buffer[sendBufferCount++] = (byte)character;
             return;
         }
         // UTF-8 (2 bytes) - e.g. umlauts (ä, ö, ü) or guillemets («, »)
-        if (character <= 0x07FF)
-        {
-            sendBuffer[sendBufferCount++] = (byte)(0xC0 | (character >> 6));
-            sendBuffer[sendBufferCount++] = (byte)(0x80 | (character & 0x3F));
+        if (character <= 0x07FF) {
+            buffer[sendBufferCount++] = (byte)(0xC0 | (character >> 6));
+            buffer[sendBufferCount++] = (byte)(0x80 | (character & 0x3F));
             return;
         }
         // Skip isolated UTF-16 surrogates (4-byte characters need Rune / pair handling)
@@ -219,9 +219,9 @@ internal sealed partial class TuiSession
             return;
         }
         // UTF-8 (3 bytes) - e.g. TUI symbols (◢, ▲, ▼, ◥) and box-drawing chars
-        sendBuffer[sendBufferCount++] = (byte)(0xE0 | (character >> 12));
-        sendBuffer[sendBufferCount++] = (byte)(0x80 | ((character >> 6) & 0x3F));
-        sendBuffer[sendBufferCount++] = (byte)(0x80 | (character & 0x3F));
+        buffer[sendBufferCount++] = (byte)(0xE0 | (character >> 12));
+        buffer[sendBufferCount++] = (byte)(0x80 | ((character >> 6) & 0x3F));
+        buffer[sendBufferCount++] = (byte)(0x80 | (character & 0x3F));
     }
     
     private void AppendSpan(ReadOnlySpan<byte> buffer)
