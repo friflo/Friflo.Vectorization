@@ -63,7 +63,7 @@ public readonly ref partial struct GuiWidget
     private void ApplyScrollOffset(ref ScrollState scrollState, DragState dragState, Vector2 size)
     {
 		// Handle active mouse dragging for the active axis
-		var range		= new ScrollRange(size, scrollState.lastContentSize, new Vector2(20, 20));
+		var range		= new ScrollRange(size, scrollState.lastContentSize, Sizes.TrackThickness);
 		var mousePos	= input.MousePos;
 			    
 	    if (scrollState.isDragging) {
@@ -129,7 +129,7 @@ public readonly ref partial struct GuiWidget
 	    scrollState.horizontalBar	= default;
 	    scrollState.verticalBar		= default;
 	    
-	    var range = new ScrollRange(outerSize, contentSize, new Vector2(20, 20));
+	    var range = new ScrollRange(outerSize, contentSize, Sizes.TrackThickness);
 	    if (showVert) {
 	        DrawScrollbar(startCursor, outerSize, range, ref scrollState, ScrollAxis.Vertical, background, 0, drawTack);
 	    }
