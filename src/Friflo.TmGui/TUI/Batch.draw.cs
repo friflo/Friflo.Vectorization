@@ -131,13 +131,11 @@ public partial class TuiBatch
         }
     }
     
-    internal void DrawWindowTitle(ReadOnlySpan<char> title, Vector2 pos, Vector2 size, in GuiColors colors, TmTrait traits, TuiBorder border)
+    internal void DrawWindowTitle(ReadOnlySpan<char> title, Vector2 pos, Vector2 size, in GuiColors colors, TmTrait traits, in TuiBorder tuiBorder)
     {
         FillRect(pos, size, colors.WindowColor);
         if (traits.Has(TmTrait.Border)) {
-            if (!border.isSet) {
-                border = TuiBorder.Outer;
-            }
+            var border = tuiBorder.isSet ? tuiBorder : TuiBorder.Outer;
             var headerColor = border.useTitleBg ? colors.ButtonColor: colors.WindowColor;
             FillRectChar(pos, new Vector2(size.X, lineHeight), headerColor, border.top,   colors.WindowBorder);
             DrawChar(border.TL, TextStyle.None, pos,                                      colors.WindowBorder);
@@ -148,11 +146,10 @@ public partial class TuiBatch
         DrawText(title, TextStyle.None, pos + new Vector2(2 * CharWidth, 0), colors.TextColor);
     }
     
-    internal void DrawWindowBorder(Vector2 pos, Vector2 size, in GuiColors colors, TuiBorder border)
+    internal void DrawWindowBorder(Vector2 pos, Vector2 size, in GuiColors colors, in TuiBorder tuiBorder)
     {
-        if (!border.isSet) {
-            border = TuiBorder.Outer;
-        }
+        var border = tuiBorder.isSet ? tuiBorder : TuiBorder.Outer;
+        
         var yOffset     = new Vector2(0, lineHeight);
         var xOffset     = new Vector2(charWidth, 0);
         var vertical    = new Vector2(charWidth, size.Y - 2 * lineHeight);

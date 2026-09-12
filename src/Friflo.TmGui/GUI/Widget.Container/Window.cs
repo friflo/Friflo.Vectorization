@@ -12,7 +12,7 @@ namespace Friflo.TmGui;
 
 public readonly ref partial struct GuiWidget
 {
-    internal WindowScope BeginWindow(string title, Vector2? pos, Vector2? size, TmTrait traits, TuiBorder tuiBorder)
+    internal WindowScope BeginWindow(string title, Vector2? pos, Vector2? size, TmTrait traits, in TuiBorder tuiBorder)
     {
         var host = draw.batch.host;
         var tui  = draw.Tui;
