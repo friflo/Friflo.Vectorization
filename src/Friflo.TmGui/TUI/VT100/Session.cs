@@ -58,10 +58,6 @@ internal sealed partial class TuiSession
         AppendSpan("\x1b[?1003h"u8);    // Enable mouse hover (tracks ALL movement, clicks & scrolling)
         AppendSpan("\x1b[?1006h"u8);    // Enable SGR extended coordinate format (required for modern terminals & high resolutions)
         AppendSpan("\x1b[18t"u8);       // Request current terminal size from terminal via stdout - answer handled by HandleInBandResize()
-        
-        if (isTelnet) {
-            AppendSpan([Telnet.IAC, Telnet.DO, Telnet.NAWS]); // Active Probe: Send Telnet negotiation request immediately upon connection
-        }
     }
     
     private Memory<byte> IterateTui()
