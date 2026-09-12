@@ -46,7 +46,11 @@ internal sealed partial class TuiSession
         lastSendHash    = 0; // force send frame
     }
     
-    internal void StartSession()
+    internal void StartSession() {
+        sessionStart = true;
+    }
+    
+    private void InitialCommands()
     {
         // Enable raw mode on client terminal
         AppendSpan(EscapeWrite.EnableRawTuiMode);
@@ -55,11 +59,9 @@ internal sealed partial class TuiSession
         AppendSpan("\x1b[?1006h"u8);    // Enable SGR extended coordinate format (required for modern terminals & high resolutions)
         AppendSpan("\x1b[18t"u8);       // Request current terminal size from terminal via stdout - answer handled by HandleInBandResize()
         
-        // Active Probe: Send Telnet negotiation request immediately upon connection
         if (isTelnet) {
-            AppendSpan([Telnet.IAC, Telnet.DO, Telnet.OptionNAWS]);
+            AppendSpan([Telnet.IAC, Telnet.DO, Telnet.OptionNAWS]); // Active Probe: Send Telnet negotiation request immediately upon connection
         }
-        sessionStart = true;
     }
     
     private Memory<byte> IterateTui()
@@ -87,6 +89,7 @@ internal sealed partial class TuiSession
         
         if (sessionStart) {
             sessionStart = false;
+            InitialCommands();
         } else {
             sendBufferCount = 0;
         }

@@ -79,7 +79,8 @@ internal sealed partial class TuiSession
                     if (subNegIndex > 0 && subNegBuffer[subNegIndex - 1] == Telnet.IAC) {
                         subNegIndex--;
                     }
-                    ProcessSubnegotiationPayload(subNegBuffer.AsSpan(0, subNegIndex));
+                    var payload = subNegBuffer.AsSpan(0, subNegIndex);
+                    ProcessSubnegotiationPayload(payload);
                     return RS.Ground;
                 }
                 // Collect payload bytes (skipping byte-stuffed duplicate IACs handled by stream)
