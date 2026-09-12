@@ -4,6 +4,7 @@
 using System;
 using System.Numerics;
 
+// ReSharper disable InvertIf
 // ReSharper disable MergeIntoLogicalPattern
 // ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable SwitchStatementHandlesSomeKnownEnumValuesWithDefault
@@ -102,6 +103,9 @@ internal sealed partial class TuiSession
             case '<':       // 0x3C     Mouse events
                 HandleMouse();
                 break;
+            case '8':       // 0x38     terminal resize
+                HandleInBandResize();
+                break;
         }
         csi.Reset();
     }
@@ -144,5 +148,22 @@ internal sealed partial class TuiSession
         }
     }
     
+    private void HandleInBandResize()
+    {
+        // Sequence format: \x1b[8;<height>;<width>t
+        csi.SkipFirst(); // Skip '8'
+        
+        csi.TryReadChar(';');
+        csi.TryReadInt(out int height);
+        csi.TryReadChar(';');
+        csi.TryReadInt(out int width);
 
+        char finalChar = csi.Current; // Must be 't'
+        
+        if (finalChar == 't' && width > 0 && height > 0) {
+            frameWidth      = width;
+            frameHeight     = height;
+            lastSendHash    = 0; // force send frame
+        }
+    }
 }
