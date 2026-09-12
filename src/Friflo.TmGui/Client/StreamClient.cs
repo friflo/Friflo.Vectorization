@@ -7,19 +7,10 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 
-// ReSharper disable MemberCanBePrivate.Global
+// ReSharper disable MemberCanBeProtected.Global
 // ReSharper disable ConvertToPrimaryConstructor
 namespace Friflo.TmGui.Client;
 
-
-public class ConsoleClient : StreamClient
-{
-    public ConsoleClient() : base(Console.OpenStandardInput(), Console.OpenStandardOutput())
-    {
-        Console.OutputEncoding = System.Text.Encoding.UTF8;
-    }
-}
-    
 
 public class StreamClient : TmClient
 {
