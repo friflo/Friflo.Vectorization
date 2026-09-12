@@ -96,7 +96,7 @@ internal sealed partial class TuiSession
         AppendFrameBuffer(frameWidth, frameHeight);
         
         var sendMemory  = sendBuffer.AsMemory(0, sendBufferCount);
-        var sendHash    = XxHash3.HashToUInt64(sendMemory.Span);
+        var sendHash    = HashUtils.Hash(sendMemory.Span);
         if (sendHash == lastSendHash) {
             return default;
         }
