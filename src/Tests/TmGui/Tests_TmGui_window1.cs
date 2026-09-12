@@ -43,7 +43,7 @@ public class Tests_TmGui_window1
             backend.NewFrame();
             var gui = batch.BeginGui(1280, 1000);
             
-            using (gui.BeginWindow("Window 1", new(200, 200), new(600, 800), traits: TmTrait.Border)) {
+            using (gui.BeginWindow("Window 1", new(200, 200), new(600, 800), tuiBorder: TuiBorder.Center)) {
                 Window1(gui); 
             }
             batch.DrawRectCommandsChar(frameBuffer, 50, 30, ' ', "\r\n");
@@ -77,7 +77,7 @@ public class Tests_TmGui_window1
             backend.NewFrame();
             var gui = batch.BeginGui(1280, 1000);
             
-            using (gui.BeginWindow("Window 1", new(200, 200), new(600, 800), traits: TmTrait.Border)) {
+            using (gui.BeginWindow("Window 1", new(200, 200), new(600, 800), tuiBorder: TuiBorder.Center)) {
                 Window1(gui); 
             }
             batch.DrawRectCommandsColor(frameBuffer, 50, 30, new TuiColorCell { character = ' ' });
