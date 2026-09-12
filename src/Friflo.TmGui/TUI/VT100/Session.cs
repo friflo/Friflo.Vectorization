@@ -4,6 +4,7 @@
 using System;
 using System.Diagnostics;
 using System.IO.Hashing;
+using Friflo.TmGui.Client;
 
 // ReSharper disable InlineTemporaryVariable
 // ReSharper disable CanSimplifyStringEscapeSequence
@@ -13,21 +14,24 @@ namespace Friflo.TmGui.TUI.VT100;
 
 internal sealed partial class TuiSession
 {
+    private readonly    TmClient        client;
     private readonly    FrameBuffer     frameBuffer;
     private readonly    TuiBackend      backend;
     private readonly    TuiBatch        batch;
     private readonly    IGuiView        guiView;
-    private readonly    byte[]          sendBuffer      = new byte[10000];
+    private readonly    byte[]          sendBuffer      = new byte[30000];  // TODO grow if needed
     private             int             sendBufferCount;
     private readonly    TuiColorMode    colorMode;
     private             int             frameWidth      = 100;
     private             int             frameHeight     = 24;
     private             bool            sessionStart;
+    //
     private             ulong           lastSendHash;
     private             int             sendCounter;
     
-    public TuiSession(IGuiView guiView, FrameBuffer frameBuffer, TuiColorMode colorMode)
+    public TuiSession(IGuiView guiView, TmClient client, FrameBuffer frameBuffer, TuiColorMode colorMode)
     {
+        this.client         = client;
         this.guiView        = guiView;
         this.frameBuffer    = frameBuffer;
         this.colorMode      = colorMode;
@@ -48,6 +52,15 @@ internal sealed partial class TuiSession
     
     private Memory<byte> IterateTui()
     {
+        if (client is ConsoleClient) {
+            var width   = Console.WindowWidth;
+            var height  = Console.WindowHeight;
+            if (frameWidth != width || frameHeight != height) {
+                frameWidth      = width;
+                frameHeight     = height;
+                lastSendHash    = 0; // force send frame
+            }
+        }
         backend.NewFrame();
         
         // renderer gui in pixel units to support GUI & TUI with same application code
@@ -133,9 +146,10 @@ internal sealed partial class TuiSession
                 }
                 AppendChar(cell.character);
             }
-
-            // Send EraseInLine + CRLF at the end of each row
-            AppendSpan("\x1b[K\r\n"u8);
+            if (y < height - 1) {
+                // Send EraseInLine + CRLF at the end of each row
+                AppendSpan("\x1b[K\r\n"u8);
+            }
         }
     }
     

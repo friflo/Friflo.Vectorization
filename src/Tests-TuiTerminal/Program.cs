@@ -36,8 +36,7 @@ async ValueTask TcpServer()
     // 2. IMPORTANT: Start the dedicated single-threaded event loop!
     engine.Start();
     
-    Console.OutputEncoding = System.Text.Encoding.UTF8;
-    var localClient = new StreamClient(Console.OpenStandardInput(), Console.OpenStandardOutput());
+    var localClient = new ConsoleClient();
     _ = StreamClient.HandleClientSessionAsync(localClient, engine, CancellationToken.None);
     
     // await Task.Delay(-1);

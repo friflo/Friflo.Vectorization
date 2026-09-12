@@ -12,7 +12,14 @@ using System.Threading.Tasks;
 namespace Friflo.TmGui.Client;
 
 
-
+public class ConsoleClient : StreamClient
+{
+    public ConsoleClient() : base(Console.OpenStandardInput(), Console.OpenStandardOutput())
+    {
+        Console.OutputEncoding = System.Text.Encoding.UTF8;
+    }
+}
+    
 
 public class StreamClient : TmClient
 {
