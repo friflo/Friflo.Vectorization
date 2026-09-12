@@ -71,7 +71,7 @@ public sealed class SingleThreadedShardEngine
                 var newSession      = new TuiSession(guiView, evt.Client, frameBuffer, TuiColorMode.RGB24);
                 sessions[client]    = newSession;
                 
-                var rest            = firstLine == -1 ? default : payload.Slice(firstLine + 1);
+                var rest            = firstLine == -1 ? payload : payload.Slice(firstLine + 1);
                 
                 newSession.StartSession();
                 var sendBuffer  = newSession.ProcessInput(rest);

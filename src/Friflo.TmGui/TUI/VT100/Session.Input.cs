@@ -17,6 +17,10 @@ internal enum RS
     Ground,
     ESC,
     CSI,
+    //
+    Telnet_IAC,
+    Telnet_Negotiation,
+    Telnet_SubNegotiation
 }
 
 
@@ -61,8 +65,18 @@ internal sealed partial class TuiSession
                 if (character == Escape.ESC) { // 0x1B
                     return RS.ESC;
                 }
+                if (character == (char)Telnet.IAC) {
+                    return  RS.Telnet_IAC;
+                }
                 HandleCharacter(character);
                 return RS.Ground;
+            // 
+            case RS.Telnet_IAC:
+                return HandleTelnet((byte)character);
+            
+            case RS.Telnet_Negotiation:
+            case RS.Telnet_SubNegotiation:
+                return ProcessTelnetState(rs, (byte)character);
         }
         return rs;
     }
