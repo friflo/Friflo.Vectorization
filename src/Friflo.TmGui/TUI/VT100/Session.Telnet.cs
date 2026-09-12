@@ -28,11 +28,10 @@ internal sealed partial class TuiSession
     private             byte    pendingTelnetCmd;
     private             int     subNegIndex;
     private readonly    byte[]  subNegBuffer = new byte[16];
-    private             bool    isTelnet;
 
     private RS HandleTelnet(byte data)
     {
-        isTelnet = true;
+        // isTelnet = true;
         switch (data)
         {
             // 1. Escaped 0xFF byte in Telnet stream (Byte Stuffing: IAC IAC -> 0xFF)
