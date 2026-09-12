@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using Friflo.TmGui.TUI;
 using Hide = System.Diagnostics.DebuggerHiddenAttribute;
 
 // ReSharper disable RedundantSwitchExpressionArms
@@ -158,6 +159,7 @@ public sealed class GuiWindow
     internal                WindowState     state;
     internal                RectVector2     bounds;
     internal                TmTrait         traits;
+    internal                TuiBorder       tuiBorder;
     internal                Vector2         Pos                 { [Hide] get => bounds.pos; }
     internal                Vector2         Size                { [Hide] get => bounds.size; }
 

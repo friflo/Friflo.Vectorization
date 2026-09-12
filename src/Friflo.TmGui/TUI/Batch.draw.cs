@@ -131,37 +131,49 @@ public partial class TuiBatch
         }
     }
     
-    internal void DrawWindowTitle(ReadOnlySpan<char> title, Vector2 pos, Vector2 size, in GuiColors colors, TmTrait traits, DragState titleState)
+    internal void DrawWindowTitle(ReadOnlySpan<char> title, Vector2 pos, Vector2 size, in GuiColors colors, TmTrait traits, TuiBorder border)
     {
-        var headerColor = traits.Has(TmTrait.Border) ? colors.WindowColor : colors.ButtonColor;
         FillRect(pos, size, colors.WindowColor);
         if (traits.Has(TmTrait.Border)) {
-            FillRectChar(pos, new Vector2(size.X, lineHeight), headerColor, '─',    colors.WindowBorder);
-            DrawChar('╭', TextStyle.None, pos,                                      colors.WindowBorder);
-            DrawChar('╮', TextStyle.None, pos + new Vector2(size.X - charWidth, 0), colors.WindowBorder);
+            if (!border.isSet) {
+                border = TuiBorder.Outer;
+            }
+            var headerColor = border.useTitleBg ? colors.ButtonColor: colors.WindowColor;
+            FillRectChar(pos, new Vector2(size.X, lineHeight), headerColor, border.top,   colors.WindowBorder);
+            DrawChar(border.TL, TextStyle.None, pos,                                      colors.WindowBorder);
+            DrawChar(border.TR, TextStyle.None, pos + new Vector2(size.X - charWidth, 0), colors.WindowBorder);
         } else {
-            FillRect(pos, new Vector2(size.X, lineHeight), headerColor);
+            FillRect(pos, new Vector2(size.X, lineHeight), colors.WindowColor);
         }
         DrawText(title, TextStyle.None, pos + new Vector2(2 * CharWidth, 0), colors.TextColor);
     }
     
-    internal void DrawWindowBorder(Vector2 pos, Vector2 size, in GuiColors colors)
+    internal void DrawWindowBorder(Vector2 pos, Vector2 size, in GuiColors colors, TuiBorder border)
     {
+        if (!border.isSet) {
+            border = TuiBorder.Outer;
+        }
         var yOffset     = new Vector2(0, lineHeight);
         var xOffset     = new Vector2(charWidth, 0);
         var vertical    = new Vector2(charWidth, size.Y - 2 * lineHeight);
         var horizontal  = new Vector2(size.X, 0) - xOffset;
         
         // left / right
-        FillRectChar(pos + yOffset,                      vertical,   colors.WindowColor, '│', colors.WindowBorder);
-        FillRectChar(pos + horizontal + yOffset,         vertical,   colors.WindowColor, '│', colors.WindowBorder);
+        FillRectChar(pos + yOffset,                      vertical,   colors.WindowColor, border.left, colors.WindowBorder);
+        FillRectChar(pos + horizontal + yOffset,         vertical,   colors.WindowColor, border.right, colors.WindowBorder);
         
         // bottom
         var bl = pos + yOffset + vertical - xOffset;
-        FillRectChar(bl, horizontal + yOffset + xOffset, colors.WindowColor, '─', colors.WindowBorder);
+        FillRectChar(bl, horizontal + yOffset + xOffset, colors.WindowColor, border.bottom, colors.WindowBorder);
         
         // corners
-        DrawChar('╰', TextStyle.None, bl,               colors.WindowBorder);
-        DrawChar('╯', TextStyle.None, bl + horizontal,  colors.WindowBorder);
+        DrawChar(border.BL, TextStyle.None, bl,               colors.WindowBorder);
+        DrawChar(border.BR, TextStyle.None, bl + horizontal,  colors.WindowBorder);
+        
+        // center │     1/8 ▏   left    1/16 ▏  
+        // center │     1/8 ▕   right   1/16 ▕  
+        // center ─     1/8 ▁   bottom  1/16 none        
+        // corners  ╭ ╮ ╰ ╯
     }
 }
+

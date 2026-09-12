@@ -40,14 +40,14 @@ public enum TextStyle : byte
     StrikeThrough   = 1 << 5  // \x1b[9m
 }
 
-public struct TuiBorder
+public struct TuiFocusBorder
 {
     public  char    left;
     public  char    right;
     
     public override string ToString() => $"'{left}'  '{right}'";
     
-    public TuiBorder(char left, char right) {
+    public TuiFocusBorder(char left, char right) {
         this.left   = left;
         this.right  = right;
     }

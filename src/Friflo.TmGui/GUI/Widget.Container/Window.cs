@@ -2,6 +2,7 @@
 // See LICENSE file in the project root for full license information.
 
 using System.Numerics;
+using Friflo.TmGui.TUI;
 
 
 // ReSharper disable SuggestVarOrType_BuiltInTypes
@@ -11,7 +12,7 @@ namespace Friflo.TmGui;
 
 public readonly ref partial struct GuiWidget
 {
-    internal WindowScope BeginWindow(string title, Vector2? pos, Vector2? size, TmTrait traits)
+    internal WindowScope BeginWindow(string title, Vector2? pos, Vector2? size, TmTrait traits, TuiBorder tuiBorder)
     {
         var host = draw.batch.host;
         var tui  = draw.Tui;
@@ -23,8 +24,9 @@ public readonly ref partial struct GuiWidget
             tui?.SnapExtentToGrid(ref finalSize);
             
             guiState.window = new GuiWindow(host, title) {
-                bounds = new RectVector2(finalPos, finalSize),
-                traits = traits                
+                bounds      = new RectVector2(finalPos, finalSize),
+                traits      = traits,
+                tuiBorder   = tuiBorder,
             };
             host.windows.Add(title, guiState.window);
             host.windowOrder.Add(guiState.window);
@@ -71,7 +73,7 @@ public readonly ref partial struct GuiWidget
         Vector2 contentPos;
         var titleOffset = new Vector2(0f, titleBarHeight);
         if (tui != null) {
-            tui.DrawWindowTitle(title, window.Pos, window.Size, Colors, traits, titleState);
+            tui.DrawWindowTitle(title, window.Pos, window.Size, Colors, traits, tuiBorder);
             innerSize   = Vector2.Max(Vector2.Zero, window.Size - titleOffset);
             contentPos  = window.Pos + titleOffset;
         } else {
@@ -101,7 +103,7 @@ public readonly ref partial struct GuiWidget
         draw.PopScissor();
         
         if (window.traits.Has(TmTrait.Border)) {
-            draw.Tui?.DrawWindowBorder(window.Pos, window.Size, Colors);
+            draw.Tui?.DrawWindowBorder(window.Pos, window.Size, Colors, window.tuiBorder);
         }
         PopScrollArea(scope.windowId, scope.startCursor, scope.outerSize, scrollSize, Colors.WindowColor, false);
         

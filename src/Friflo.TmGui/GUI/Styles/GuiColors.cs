@@ -45,14 +45,15 @@ public struct GuiColors
     
     public Color32  FocusColor      { [Hide] readonly get => focusColor;    set => focusColor   = Add(ColorId.FocusColor,   value); }
     
-    [Hide] public Color32  ScrollTrackBg       => 0xffffff00; // transparent
-    [Hide] public Color32  ScrollThumb         => 0xd0d0d0ff;
-    [Hide] public Color32  ScrollThumbActive   => 0x999999ff;
-    [Hide] public Color32  ScrollThumbHover    => 0xaaaaaaff;
+    [Hide] public Color32  ScrollTrackBg        => 0xffffff00; // transparent
+    [Hide] public Color32  ScrollThumb          => 0xd0d0d0ff;
+    [Hide] public Color32  ScrollThumbActive    => 0x999999ff;
+    [Hide] public Color32  ScrollThumbHover     => 0xaaaaaaff;
     
-    [Hide] public Color32  ScrollAreaColor     => 0xffffffff;
+    [Hide] public Color32  ScrollAreaColor      => 0xffffffff;
     
-    [Hide] public Color32  WindowBorder        => 0xcdcdcdff;
+    [Hide] public Color32  WindowBorder         => 0xcdcdcdff;
+    [Hide] public Color32  TitleBg              => 0xffffffff;
     
      
     

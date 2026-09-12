@@ -4,6 +4,7 @@
 using System;
 using System.Diagnostics;
 using System.Numerics;
+using Friflo.TmGui.TUI;
 
 // ReSharper disable InconsistentNaming
 // ReSharper disable once CheckNamespace
@@ -32,8 +33,8 @@ public readonly ref struct Gui
         widget = new GuiWidget(draw, batch);
     }
     
-    public WindowScope  BeginWindow(string title, Vector2? pos = null, Vector2? size = null, TmTrait traits = 0)
-                            => widget.BeginWindow(title, pos, size, traits);
+    public WindowScope  BeginWindow(string title, Vector2? pos = null, Vector2? size = null, TmTrait traits = TmTrait.Border, TuiBorder tuiBorder = default)
+                            => widget.BeginWindow(title, pos, size, traits, tuiBorder);
     public void         EndWindow(in WindowScope scope) 
                             => widget.EndWindow(scope);
     
