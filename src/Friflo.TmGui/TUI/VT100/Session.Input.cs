@@ -175,9 +175,7 @@ internal sealed partial class TuiSession
         char finalChar = csi.Current; // Must be 't'
         
         if (finalChar == 't' && width > 0 && height > 0) {
-            frameWidth      = width;
-            frameHeight     = height;
-            lastSendHash    = 0; // force send frame
+            SetFrameSize(width, height);
         }
     }
 }

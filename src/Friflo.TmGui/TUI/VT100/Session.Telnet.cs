@@ -106,11 +106,8 @@ internal sealed partial class TuiSession
             int width  = (payload[1] << 8) | payload[2];
             int height = (payload[3] << 8) | payload[4];
 
-            if (width > 0 && height > 0)
-            {
-                frameWidth      = width;
-                frameHeight     = height;
-                lastSendHash    = 0; // force send frame
+            if (width > 0 && height > 0) {
+                SetFrameSize(width, height);
             }
         }
     }

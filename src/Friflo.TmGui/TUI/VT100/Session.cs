@@ -38,6 +38,13 @@ internal sealed partial class TuiSession
         backend             = new TuiBackend();
         batch               = backend.CreateBatch(colorMode);
     }
+
+    private void SetFrameSize(int width, int height)
+    {
+        frameWidth      = width;
+        frameHeight     = height;
+        lastSendHash    = 0; // force send frame
+    }
     
     internal void StartSession()
     {
@@ -57,9 +64,7 @@ internal sealed partial class TuiSession
             var width   = Console.WindowWidth;
             var height  = Console.WindowHeight;
             if (frameWidth != width || frameHeight != height) {
-                frameWidth      = width;
-                frameHeight     = height;
-                lastSendHash    = 0; // force send frame
+                SetFrameSize(width, height);
             }
         }
         backend.NewFrame();
