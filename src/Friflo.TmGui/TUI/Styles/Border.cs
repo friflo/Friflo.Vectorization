@@ -43,4 +43,10 @@ public struct TuiBorder
         left = '║', right = '║', top = '═', bottom = '═',
         TL = '╔', TR = '╗', BL = '╚', BR = '╝'
     };
+    
+    public static readonly TuiBorder Ascii = new() {
+        isSet = true, useTitleBg = false,
+        left = '|', right = '|', top = '-', bottom = '-',
+        TL   = '+', TR    = '+', BL  = '+', BR = '+'
+    };
 }
