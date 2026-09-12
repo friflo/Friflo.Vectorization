@@ -22,8 +22,8 @@ internal sealed partial class TuiSession
     private readonly    byte[]          sendBuffer      = new byte[30000];  // TODO grow if needed
     private             int             sendBufferCount;
     private readonly    TuiColorMode    colorMode;
-    private             int             frameWidth      = 100;
-    private             int             frameHeight     = 24;
+    private             int             frameWidth      = 50;
+    private             int             frameHeight     = 20;
     private             bool            sessionStart;
     //
     private             ulong           lastSendHash;
@@ -46,8 +46,10 @@ internal sealed partial class TuiSession
         lastSendHash    = 0; // force send frame
     }
     
-    internal void StartSession() {
+    internal ReadOnlyMemory<byte> StartSession() {
         sessionStart = true;
+        InitialCommands();
+        return sendBuffer.AsMemory(0, sendBufferCount);
     }
     
     private void InitialCommands()
@@ -85,7 +87,6 @@ internal sealed partial class TuiSession
         
         if (sessionStart) {
             sessionStart = false;
-            InitialCommands();
         } else {
             sendBufferCount = 0;
         }
