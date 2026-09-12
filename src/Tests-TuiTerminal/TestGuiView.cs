@@ -105,7 +105,7 @@ public class TestGuiView : IGuiView
         }
     };
     
-    private static void Window2(Gui gui)
+    private void Window2(Gui gui)
     {
         gui.Label("fixed child");
         using (gui.BeginChild(1, Dim.Fill_X(0, 90))) {
@@ -119,7 +119,18 @@ public class TestGuiView : IGuiView
             gui.Button("Button 2 unclipped");
         }
         gui.Spacer();
-        gui.Label("scroll area");
+        using (gui.BeginHorizontal()) {
+            gui.Label("scroll area");
+            if (gui.Button("Add 10")) {
+                var buttons = appState.scrollAreaButtons; 
+                for (int n = 0; n < 10; n++) {
+                    buttons.Add($"Added {buttons.Count}");    
+                }
+            }
+            if (gui.Button("Clear")) {
+                appState.scrollAreaButtons.Clear();
+            }
+        }
         var scrollArea = gui.BeginScrollArea(3, Dim.Fill(0, 60));
             gui.Button("Button 1 - more to to enable horizontal scrolling");
             gui.Button("Button 2 -  Dim.Fill_X(0, Fit.Content)",  Dim.Fill_X(0, Fit.Content));
@@ -155,6 +166,10 @@ public class TestGuiView : IGuiView
                 gui.Button("Center");
             }
             gui.Button("Button last");
+
+            foreach (var button in appState.scrollAreaButtons) {
+                gui.Button(button);
+            }
         
         gui.EndScrollArea(scrollArea);
         gui.Button("after scroll area");

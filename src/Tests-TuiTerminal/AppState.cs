@@ -6,4 +6,6 @@ public class AppState
     internal    bool    monocraft;
     internal    bool    enabled2;
     internal    float   volume = 0.8f;
+    
+    internal    List<string>  scrollAreaButtons = [];
 }
