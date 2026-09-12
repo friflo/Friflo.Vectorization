@@ -20,7 +20,7 @@ public class TestGuiView : IGuiView
     {
         var gui = batch.BeginGui(targetWidth, targetHeight);
         
-        using (gui.BeginWindow("Window 1", new Vector2(0, 0), new Vector2(1000, 850), tuiBorder: TuiBorder.Center)) { // (500, 450) (1000, 850)
+        using (gui.BeginWindow("Window 1", new Vector2(0, 0), new Vector2(1000, 850), tuiBorder: TuiBorder.Rounded)) { // (500, 450) (1000, 850)
             Window1(gui);
         }
         using (gui.BeginWindow("Window 2", new(550, 50), new(500, 900))) {

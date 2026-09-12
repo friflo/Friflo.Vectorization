@@ -3,6 +3,7 @@
 
 // ReSharper disable InconsistentNaming
 // ReSharper disable CheckNamespace
+// ReSharper disable UnusedMember.Global
 namespace Friflo.TmGui.TUI;
 
 
@@ -25,9 +26,21 @@ public struct TuiBorder
         TL   = ' ', TR =    ' ',    BL= '▏',    BR = '▕'
     };
     
-    public static readonly TuiBorder Center = new() {
+    public static readonly TuiBorder Rounded = new() {
         isSet = true, useTitleBg = false,
         left = '│', right = '│',    top = '─',  bottom = '─',
         TL   = '╭', TR =    '╮',    BL= '╰',    BR = '╯'
+    };
+    
+    public static readonly TuiBorder Light = new() {
+        isSet = true, useTitleBg = false,
+        left = '│', right = '│', top = '─', bottom = '─',
+        TL = '┌', TR = '┐', BL = '└', BR = '┘'
+    };
+    
+    public static readonly TuiBorder Double = new() {
+        isSet = true, useTitleBg = false,
+        left = '║', right = '║', top = '═', bottom = '═',
+        TL = '╔', TR = '╗', BL = '╚', BR = '╝'
     };
 }
