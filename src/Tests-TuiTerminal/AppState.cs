@@ -7,5 +7,5 @@ public class AppState
     internal    bool    enabled2;
     internal    float   volume = 0.8f;
     
-    internal    List<string>  scrollAreaButtons = [];
+    internal readonly List<string>  scrollAreaButtons = [];
 }
