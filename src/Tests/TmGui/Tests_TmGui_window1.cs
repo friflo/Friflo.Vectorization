@@ -143,7 +143,7 @@ public class Tests_TmGui_window1
         Mem.AssertNoAlloc(start);
         var drawList    = batch.DrawList;
         var verticesLen = batch.Vertices.Length;
-        Assert.That(drawList.Length,    Is.EqualTo(3));
+        Assert.That(drawList.Length,    Is.EqualTo(2));
         Assert.That(verticesLen,        Is.EqualTo(3108));
         
         int vertexSum = 0;

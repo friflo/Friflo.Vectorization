@@ -51,7 +51,6 @@ public readonly ref partial struct GuiWidget
         // Process window resize
         int resizeId 	= WidgetID.CombineHash(parentHash, "__resize".GetHashCode());
         bool isResizing = window.ProcessResize(this, resizeId, tui != null ? LineHeight : LineHeight * 0.5f);
-        
 
         // Process title bar drag (strictly blocked while resizing)
         float titleBarHeight = LineHeight;
@@ -64,33 +63,26 @@ public readonly ref partial struct GuiWidget
         if (titleState == DragState.Down) {
             window.bounds = new RectVector2(window.Pos + input.MousePosDelta, window.Size);
         }
-
-        // Render background & titlebar
         
-        var fontHeight  = LineHeight;
-
-        Vector2 innerSize;
-        Vector2 contentPos;
-        var titleOffset = new Vector2(0f, titleBarHeight);
+        // ensure every drawing is clipped
+        draw.PushScissor(window.Pos,  window.Size);
+        
+        // Render background & titlebar
         if (tui != null) {
             tui.DrawWindowTitle(title, window.Pos, window.Size, Colors, traits, tuiBorder);
-            innerSize   = Vector2.Max(Vector2.Zero, window.Size - titleOffset);
-            contentPos  = window.Pos + titleOffset;
         } else {
-            var textPos = window.Pos + new Vector2(10f, (titleBarHeight - fontHeight) / 2f);
+            var textPos = window.Pos + new Vector2(10f, (titleBarHeight - LineHeight) / 2f);
             var headerColor = Colors.ButtonState(titleState);
             draw.FillRectRounded(window.Pos,   window.Size,  Sizes.CornerRadius, Colors.WindowColor,     GuiSizes.CornerSegments);
             draw.FillRectRounded(window.Pos,   titleBarSize, Sizes.CornerRadius, headerColor,            GuiSizes.CornerSegments);
-            draw.StrokeRectRounded(window.Pos, window.Size,  Sizes.CornerRadius, 2, Colors.WindowBorder, GuiSizes.CornerSegments);
             draw.DrawText(title, textPos, Colors.TextColor);
-            innerSize   = Vector2.Max(Vector2.Zero, window.Size - titleOffset);
-            contentPos  = window.Pos + titleOffset; // + Sizes.WindowPadding.Min;
         }
-        // --- Push content scissor rect (clips everything below titlebar) ---
-        var scrollRect = PushScrollArea(parentHash, contentPos, innerSize, Sizes.WindowPadding);
+        var titleOffset = new Vector2(0f, titleBarHeight);
+        var innerSize   = Vector2.Max(Vector2.Zero, window.Size - titleOffset);
+        var contentPos  = window.Pos + titleOffset; // + Sizes.WindowPadding.Min;
+        var scrollRect  = PushScrollArea(parentHash, contentPos, innerSize, Sizes.WindowPadding);
         window.InitLayout(scrollRect.pos, scrollRect.size);
 
-        draw.PushScissor(contentPos, innerSize);
         return new WindowScope(this, true, parentHash, contentPos, innerSize);
     }
     
@@ -103,7 +95,12 @@ public readonly ref partial struct GuiWidget
         draw.PopScissor();
         
         if (window.traits.Has(TmTrait.Border)) {
-            draw.Tui?.DrawWindowBorder(window.Pos, window.Size, Colors, window.tuiBorder);
+            var tui = draw.Tui;
+            if (tui != null) {
+                tui.DrawWindowBorder(window.Pos, window.Size, Colors, window.tuiBorder);
+            } else {
+                draw.StrokeRectRounded(window.Pos, window.Size,  Sizes.CornerRadius, 2, Colors.WindowBorder, GuiSizes.CornerSegments);
+            }
         }
         PopScrollArea(scope.windowId, scope.startCursor, scope.outerSize, scrollSize, Colors.WindowColor, false);
         
