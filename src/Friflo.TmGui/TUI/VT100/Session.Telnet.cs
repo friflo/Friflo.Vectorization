@@ -27,9 +27,11 @@ internal sealed partial class TuiSession
     private             byte    pendingTelnetCmd;
     private             int     subNegIndex;
     private readonly    byte[]  subNegBuffer = new byte[16];
+    private             bool    isTelnet;
 
     private RS HandleTelnet(byte data)
     {
+        isTelnet = true;
         switch (data)
         {
             // 1. Escaped 0xFF byte in Telnet stream (Byte Stuffing: IAC IAC -> 0xFF)
@@ -66,17 +68,21 @@ internal sealed partial class TuiSession
                 return HandleTelnet(data);
 
             case RS.Telnet_Negotiation:
-                // Process option byte (e.g., Telnet.OptionNaws)
                 HandleOptionNegotiation(pendingTelnetCmd, data);
                 return RS.Ground;
 
             case RS.Telnet_SubNegotiation:
-                if (data == Telnet.SE) {
-                    // End of subnegotiation payload reached
+                // Check for closing IAC SE sequence
+                if (data == Telnet.SE)
+                {
+                    // If previous byte stored was IAC (255), remove it from payload before processing
+                    if (subNegIndex > 0 && subNegBuffer[subNegIndex - 1] == Telnet.IAC) {
+                        subNegIndex--;
+                    }
                     ProcessSubnegotiationPayload(subNegBuffer.AsSpan(0, subNegIndex));
                     return RS.Ground;
                 }
-                // Collect subnegotiation payload bytes (prevent overflow)
+                // Collect payload bytes (skipping byte-stuffed duplicate IACs handled by stream)
                 if (subNegIndex < subNegBuffer.Length) {
                     subNegBuffer[subNegIndex++] = data;
                 }

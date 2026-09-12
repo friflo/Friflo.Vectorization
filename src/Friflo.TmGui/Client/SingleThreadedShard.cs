@@ -73,8 +73,9 @@ public sealed class SingleThreadedShardEngine
                 
                 var rest            = firstLine == -1 ? payload : payload.Slice(firstLine + 1);
                 
-                newSession.StartSession();
                 var sendBuffer  = newSession.ProcessInput(rest);
+                
+                newSession.StartSession(); // after ProcessInput() to enable telnet detection
                 
                 _ = await client.SendAsync(sendBuffer, CancellationToken.None);
                 break;
