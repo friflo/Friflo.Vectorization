@@ -2,6 +2,7 @@
 // See LICENSE file in the project root for full license information.
 
 
+using System;
 using System.Collections.Generic;
 using System.Numerics;
 using Friflo.TmGui.TUI;
@@ -45,21 +46,24 @@ internal sealed class GuiState
                 TrackThickness  = new Vector2  (tuiBatch.CharWidth, tuiBatch.LineHeight)
             };
         } else {
-            defaultStyle.sizes = CreateDefaultSizes();
+            defaultStyle.sizes = CreateDefaultSizes(batch);
         }
     }
     
-    private static GuiSizes CreateDefaultSizes()
+    private static GuiSizes CreateDefaultSizes(TmBatch batch)
     {
-        return new GuiSizes
-        {
-            WindowPadding    	= new Padding2D(horizontal: 20f, vertical: 20f),
-            FramePadding    	= new Padding2D(horizontal: 16f, vertical:  2f),
-            ItemSpacing    		= new Vector2  (x:          12f,        y:  6f),
-            CellPadding      	= new Padding2D(horizontal:  6f, vertical:  4f),
-            ContainerPadding 	= new Padding2D(horizontal:  8f, vertical:  8f),
-            TrackThickness      = new Vector2  (x:          20f,        y: 20f),
+        // Snap sizes to integral values to ensure pixel accuracy
+        var pt = MathF.Floor(batch.currentFont.lineHeight / 20f);
+        pt = pt < 1 ? 1: pt;
+        var sizes = new GuiSizes {
+            WindowPadding    	= new Padding2D(horizontal: 10 * pt, vertical: 10 * pt),
+            FramePadding    	= new Padding2D(horizontal:  8 * pt, vertical:  1 * pt),
+            ItemSpacing    		= new Vector2  (x:           6 * pt,        y:  3 * pt),
+            CellPadding      	= new Padding2D(horizontal:  3 * pt, vertical:  2 * pt),
+            ContainerPadding 	= new Padding2D(horizontal:  4 * pt, vertical:  4 * pt),
+            TrackThickness      = new Vector2  (x:          10 * pt,        y: 10 * pt),
         };
+        return sizes;
     }
 
     private static GuiColors CreateDefaultColors()
