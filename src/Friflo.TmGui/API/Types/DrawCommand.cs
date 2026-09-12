@@ -5,7 +5,7 @@
 using System;
 using System.Numerics;
 
-
+// ReSharper disable InconsistentNaming
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable once CheckNamespace
 namespace Friflo.TmGui;

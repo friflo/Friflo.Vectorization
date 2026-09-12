@@ -95,7 +95,6 @@ public readonly ref partial struct GuiWidget
         var scrollSize  = window.CurrentLayout.maxSize + Sizes.WindowPadding.Size;
         
         draw.PopScissor();
-        draw.PushZIndexLocal(draw.ZIndexLocal + 1); // ensure drawing above focus rect
         
         if (window.traits.Has(TmTrait.Border)) {
             var tui = draw.Tui;
@@ -107,7 +106,6 @@ public readonly ref partial struct GuiWidget
         }
         PopScrollArea(scope.windowId, scope.startCursor, scope.outerSize, scrollSize, Colors.WindowColor, false);
         
-        draw.PopZIndex();
         draw.PopScissor();
         draw.PopZIndex();
         window.ClearScope();

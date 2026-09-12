@@ -129,7 +129,9 @@ public readonly ref partial struct GuiWidget
 	    scrollState.horizontalBar	= default;
 	    scrollState.verticalBar		= default;
 	    
-	    var range = new ScrollRange(outerSize, contentSize, Sizes.TrackThickness);
+        draw.PushZIndexLocal(draw.ZIndexLocal + 1); // ensure drawing above focus rect (increases number of DrawCommand's)
+
+        var range = new ScrollRange(outerSize, contentSize, Sizes.TrackThickness);
 	    if (showVert) {
 	        DrawScrollbar(startCursor, outerSize, range, ref scrollState, ScrollAxis.Vertical, background, 0, drawTack);
 	    }
@@ -137,6 +139,8 @@ public readonly ref partial struct GuiWidget
 		    var distRight = showVert ? Sizes.TrackThickness.X : 0;	// leave space for vertical scroll bar
 	        DrawScrollbar(startCursor, outerSize, range, ref scrollState, ScrollAxis.Horizontal, background, distRight, drawTack);
 	    }
+        
+        draw.PopZIndex();
     }
     
 	private void DrawScrollbar(
