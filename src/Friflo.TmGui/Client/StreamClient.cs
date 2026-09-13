@@ -13,25 +13,6 @@ using System.Threading.Tasks;
 namespace Friflo.TmGui.Client;
 
 
-internal readonly struct Payload
-{
-    private readonly     byte[]  buffer;
-    private readonly     int     length;
-    
-    public ReadOnlySpan<byte>   Span    => new (buffer, 0, length);
-
-    public Payload(byte[] buffer, int length) {
-        this.buffer = buffer;
-        this.length = length;
-    }
-    
-    public void Return()
-    {
-        if (buffer == null) return;
-        ArrayPool<byte>.Shared.Return(buffer);
-    }
-}
-
 public class StreamClient : TmClient
 {
     private readonly Stream inputStream;
