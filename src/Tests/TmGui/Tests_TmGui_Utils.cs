@@ -1,5 +1,7 @@
 using System;
 using System.IO.Hashing;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using Friflo.TmGui;
 using NUnit.Framework;
 
@@ -62,24 +64,43 @@ public static class Tests_TmGui_Utils
     {
         var array = CreateByteArray(3200);
        
-        int repeat = 10;   // 1_000_000 - 2.5 sec  length: 3200
+        int repeat = 10_000_000;   // 1_000_000 - 2.5 sec  length: 3200
         ulong accu = 0;
         
         for (int n = 0; n < repeat; n++) {
-            accu ^= HashFNV_1a(array);
+            accu ^= HashFNV_1a_scalar(array);
         }
         Console.WriteLine(accu);
     }
     
-    
-    private static ulong HashFNV_1a(ReadOnlySpan<byte> data)
+    private static ulong HashFNV_1a_scalar(ReadOnlySpan<byte> data)
     {
-        ulong h = (ulong)data.Length * 0x9e3779b97f4a7c15UL;
-        foreach (byte b in data)
-        {
-            h = (h ^ b) * 0xbf58476d1ce4e5b9UL;
+        var length = data.Length;
+        ulong h = (ulong)length * 0x9e3779b97f4a7c15UL;
+        
+        var length_div_8 = length / 8;
+        int n;
+        for (n = 0; n < length_div_8; n += 8) {
+            var l = Unsafe.As<byte, ulong>(ref MemoryMarshal.GetReference(data.Slice(n, 8)));
+            h = (h ^ l) * 0xbf58476d1ce4e5b9UL;
         }
+        // remaining
+        ulong rest = 0;
+        for (; n < length; n++) {
+            rest = (rest << 8) | data[n];
+        }
+        h = (h ^ rest) * 0xbf58476d1ce4e5b9UL;
         return h;
+    }
+    
+    [Test]
+    public static void Tests_TmGui_Utils_HashFNV_1a()
+    {
+        var array = CreateByteArray(10);
+
+        HashFNV_1a_scalar(array.AsSpan(0, 1));
+        HashFNV_1a_scalar(array.AsSpan(0, 8));
+        HashFNV_1a_scalar(array.AsSpan(0, 10));
     }
     
     private static byte[] CreateByteArray(int length)
