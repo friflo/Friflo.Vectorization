@@ -140,10 +140,7 @@ internal sealed class Win32ConsoleInputStream : Stream
         }
         finally
         {
-            // Return unused rented buffer on loop exit
-            if (buffer != null) {
-                ArrayPool<byte>.Shared.Return(buffer);
-            }
+            ArrayPool<byte>.Shared.Return(buffer);
             writer.TryComplete();
         }
     }
