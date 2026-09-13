@@ -16,7 +16,7 @@ using Friflo.TmGui.TUI.VT100;
 namespace Friflo.TmGui.Client;
 
 
-public sealed class SingleThreadedShardEngine
+public sealed class SingleThreadedShardEngine : IDisposable
 {
     private readonly    Channel<ClientEvent>                eventChannel;   // Single reader channel guarantees zero-sync single-thread execution
     private readonly    Dictionary<TmClient, TuiSession>    sessions;       // Raw non-thread-safe state (accessed exclusively by _shardThread)
@@ -24,6 +24,7 @@ public sealed class SingleThreadedShardEngine
     private readonly    CreateGuiView                       createGuiView;  // IBatchRenderer factory
     private readonly    CancellationTokenSource             cts = new();
     private             Thread?                             shardThread;
+    private             bool                                isDisposed;
 
     
     public SingleThreadedShardEngine(CreateGuiView createGuiView)
@@ -36,12 +37,17 @@ public sealed class SingleThreadedShardEngine
     
     internal async ValueTask EnqueueEventAsync(TmClient client, ClientEventType type, Payload payload)
     {
+        ObjectDisposedException.ThrowIf(isDisposed, this);
         await eventChannel.Writer.WriteAsync(new ClientEvent { Client = client, Type = type, Payload = payload });
     }
     
     public void Dispose()
     {
+        if (isDisposed) return;
+        isDisposed = true;
+
         // signal all loops to stop
+        eventChannel.Writer.TryComplete();
         cts.Cancel();
         
         // wait until ShardLoopThread thread has finished
@@ -52,6 +58,10 @@ public sealed class SingleThreadedShardEngine
 
     public void Start()
     {
+        ObjectDisposedException.ThrowIf(isDisposed, this);
+        if (shardThread != null)        {
+            throw new InvalidOperationException("Engine is already running.");
+        }
         shardThread = new Thread(RunThreadLoop) {
             IsBackground = true,
             Name = "ShardLoopThread"
@@ -89,50 +99,49 @@ public sealed class SingleThreadedShardEngine
 
     private async ValueTask ProcessEventAsync(ClientEvent evt)
     {
-        switch (evt.Type)
-        {
-            case ClientEventType.TerminalConnected: {
-                var payload         = evt.Payload;
-                var firstLine       = payload.Span.IndexOf((byte)'\n');
-                var client          = evt.Client;
-                var args            = firstLine == -1 ? [] : GetArgs(payload.Span.Slice(0, firstLine));
-                var connectInfo     = new ConnectInfo{ client = client, args = args };
-                var guiView         = createGuiView(connectInfo);
-                
-                var newSession      = new TuiSession(guiView, evt.Client, frameBuffer, TuiColorMode.RGB24);
-                sessions[client]    = newSession;
-                
+        try {
+            switch (evt.Type)
+            {
+                case ClientEventType.TerminalConnected: {
+                    var payload         = evt.Payload;
+                    var firstLine       = payload.Span.IndexOf((byte)'\n');
+                    var client          = evt.Client;
+                    var args            = firstLine == -1 ? [] : GetArgs(payload.Span.Slice(0, firstLine));
+                    var connectInfo     = new ConnectInfo{ client = client, args = args };
+                    var guiView         = createGuiView(connectInfo);
+                    
+                    var newSession      = new TuiSession(guiView, evt.Client, frameBuffer, TuiColorMode.RGB24);
+                    sessions[client]    = newSession;
+                    
 
-                var initialMessage = newSession.StartSession();
-                await client.SendAsync(initialMessage, CancellationToken.None);
-                
-                var rest            = firstLine == -1 ? payload.Span : payload.Span.Slice(firstLine + 1);
-                var sendBuffer  = newSession.ProcessInput(rest);
-                
-                await client.SendAsync(sendBuffer, CancellationToken.None);
-                evt.Payload.Return();
-                break;
-            }
-            case ClientEventType.TerminalDisconnected:
-                sessions.Remove(evt.Client);
-                break;
+                    var initialMessage = newSession.StartSession();
+                    await client.SendAsync(initialMessage, CancellationToken.None);
+                    
+                    var rest            = firstLine == -1 ? payload.Span : payload.Span.Slice(firstLine + 1);
+                    var sendBuffer  = newSession.ProcessInput(rest);
+                    
+                    await client.SendAsync(sendBuffer, CancellationToken.None);
+                    break;
+                }
+                case ClientEventType.TerminalDisconnected:
+                    sessions.Remove(evt.Client);
+                    break;
 
-            case ClientEventType.TerminalInput:
-                try { 
+                case ClientEventType.TerminalInput:
                     if (sessions.TryGetValue(evt.Client, out TuiSession? session))
                     {
                         var payload     = evt.Payload.Span;
                         var sendBuffer  = session.ProcessInput(payload);
                         await evt.Client.SendAsync(sendBuffer, CancellationToken.None);
                     }
-                } catch (Exception e) {
-                    Debug.Fail(e.ToString());
-                }
-                evt.Payload.Return();
-                break;
+                    break;
+            }
+        } catch (Exception e) {
+            Debug.Fail(e.ToString());
+        } finally {
+            evt.Payload.Return();
         }
     }
-    
     private static string[] GetArgs(ReadOnlySpan<byte> payload)
     {
         // Convert initial payload to string (e.g. "--view logs --user 42")
