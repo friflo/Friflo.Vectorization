@@ -19,29 +19,10 @@ namespace Friflo.TmGui.Client;
 
 internal sealed class Win32ConsoleInputStream : Stream
 {
-#region Win32 Console Input
-    private const int       STD_INPUT_HANDLE    = -10;
-    private const int       STD_OUTPUT_HANDLE   = -11;
-
-    private const uint      ENABLE_LINE_INPUT                   = 0x0002;
-    private const uint      ENABLE_ECHO_INPUT                   = 0x0004;
-    private const uint      ENABLE_MOUSE_INPUT                  = 0x0010;
-    private const uint      ENABLE_WINDOW_INPUT                 = 0x0008;
-    private const uint      ENABLE_VIRTUAL_TERMINAL_INPUT       = 0x0200;
-    private const uint      ENABLE_VIRTUAL_TERMINAL_PROCESSING  = 0x0004;
-
-    private enum EventType : ushort {
-        KEY_EVENT                   = 0x0001,
-        MOUSE_EVENT                 = 0x0002,
-        WINDOW_BUFFER_SIZE_EVENT    = 0x0004,
-        MENU_EVENT                  = 0x0008,
-        FOCUS_EVENT                 = 0x0010,
-    }
-
     private readonly struct Chunk
     {
-        public readonly byte[] Buffer;
-        public readonly int Length;
+        public readonly     byte[]  Buffer;
+        public readonly     int     Length;
 
         public Chunk(byte[] buffer, int length) {
             Buffer = buffer;
@@ -55,22 +36,6 @@ internal sealed class Win32ConsoleInputStream : Stream
     private             Chunk                   _pendingChunk;
     private             int                     _pendingOffset;
     private             bool                    _isDisposed;
-
-    private static void EnableWindowsRawAndVt100()
-    {
-        IntPtr outHandle = GetStdHandle(STD_OUTPUT_HANDLE);
-        if (GetConsoleMode(outHandle, out uint outMode)) {
-            SetConsoleMode(outHandle, outMode | ENABLE_VIRTUAL_TERMINAL_PROCESSING);
-        }
-
-        IntPtr inHandle = GetStdHandle(STD_INPUT_HANDLE);
-        if (GetConsoleMode(inHandle, out uint inMode)) {
-            inMode &= ~(ENABLE_LINE_INPUT | ENABLE_ECHO_INPUT);
-            inMode |= ENABLE_VIRTUAL_TERMINAL_INPUT | ENABLE_MOUSE_INPUT | ENABLE_WINDOW_INPUT;
-            SetConsoleMode(inHandle, inMode);
-        }
-    }
-#endregion
 
     internal Win32ConsoleInputStream()
     {
@@ -284,7 +249,44 @@ internal sealed class Win32ConsoleInputStream : Stream
 
 #endregion
 
-#region P/Invoke Definitions
+
+#region Win32 Console setup
+    private static void EnableWindowsRawAndVt100()
+    {
+        IntPtr outHandle = GetStdHandle(STD_OUTPUT_HANDLE);
+        if (GetConsoleMode(outHandle, out uint outMode)) {
+            SetConsoleMode(outHandle, outMode | ENABLE_VIRTUAL_TERMINAL_PROCESSING);
+        }
+
+        IntPtr inHandle = GetStdHandle(STD_INPUT_HANDLE);
+        if (GetConsoleMode(inHandle, out uint inMode)) {
+            inMode &= ~(ENABLE_LINE_INPUT | ENABLE_ECHO_INPUT);
+            inMode |= ENABLE_VIRTUAL_TERMINAL_INPUT | ENABLE_MOUSE_INPUT | ENABLE_WINDOW_INPUT;
+            SetConsoleMode(inHandle, inMode);
+        }
+    }
+#endregion
+
+#region P/Invoke Definitions / Win32 API
+
+    private const int       STD_INPUT_HANDLE    = -10;
+    private const int       STD_OUTPUT_HANDLE   = -11;
+
+    private const uint      ENABLE_LINE_INPUT                   = 0x0002;
+    private const uint      ENABLE_ECHO_INPUT                   = 0x0004;
+    private const uint      ENABLE_MOUSE_INPUT                  = 0x0010;
+    private const uint      ENABLE_WINDOW_INPUT                 = 0x0008;
+    private const uint      ENABLE_VIRTUAL_TERMINAL_INPUT       = 0x0200;
+    private const uint      ENABLE_VIRTUAL_TERMINAL_PROCESSING  = 0x0004;
+
+    
+    private enum EventType : ushort {
+        KEY_EVENT                   = 0x0001,
+        MOUSE_EVENT                 = 0x0002,
+        WINDOW_BUFFER_SIZE_EVENT    = 0x0004,
+        MENU_EVENT                  = 0x0008,
+        FOCUS_EVENT                 = 0x0010,
+    }
 
     [DllImport("kernel32.dll", SetLastError = true)]
     private static extern IntPtr GetStdHandle(int nStdHandle);
@@ -301,43 +303,43 @@ internal sealed class Win32ConsoleInputStream : Stream
     [StructLayout(LayoutKind.Sequential)]
     private struct COORD
     {
-        public short X;
-        public short Y;
+        public  short   X;
+        public  short   Y;
     }
 
     [StructLayout(LayoutKind.Explicit, Size = 20)]
     private struct INPUT_RECORD
     {
-        [FieldOffset(0)] public EventType EventType;
-        [FieldOffset(4)] public KEY_EVENT_RECORD KeyEvent;
-        [FieldOffset(4)] public MOUSE_EVENT_RECORD MouseEvent;
-        [FieldOffset(4)] public WINDOW_BUFFER_SIZE_RECORD WindowBufferSizeEvent;
+        [FieldOffset(0)] public EventType                   EventType;
+        [FieldOffset(4)] public KEY_EVENT_RECORD            KeyEvent;
+        [FieldOffset(4)] public MOUSE_EVENT_RECORD          MouseEvent;
+        [FieldOffset(4)] public WINDOW_BUFFER_SIZE_RECORD   WindowBufferSizeEvent;
     }
 
     [StructLayout(LayoutKind.Sequential)]
     private struct KEY_EVENT_RECORD
     {
-        public int bKeyDown;
-        public ushort wRepeatCount;
-        public ushort wVirtualKeyCode;
-        public ushort wVirtualScanCode;
-        public char UnicodeChar;
-        public uint dwControlKeyState;
+        public  int     bKeyDown;
+        public  ushort  wRepeatCount;
+        public  ushort  wVirtualKeyCode;
+        public  ushort  wVirtualScanCode;
+        public  char    UnicodeChar;
+        public  uint    dwControlKeyState;
     }
 
     [StructLayout(LayoutKind.Sequential)]
     private struct MOUSE_EVENT_RECORD
     {
-        public COORD dwMousePosition;
-        public uint dwButtonState;
-        public uint dwControlKeyState;
-        public uint dwEventFlags;
+        public  COORD   dwMousePosition;
+        public  uint    dwButtonState;
+        public  uint    dwControlKeyState;
+        public  uint    dwEventFlags;
     }
 
     [StructLayout(LayoutKind.Sequential)]
     private struct WINDOW_BUFFER_SIZE_RECORD
     {
-        public COORD dwSize;
+        public  COORD   dwSize;
     }
 
 #endregion
