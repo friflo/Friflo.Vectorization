@@ -23,7 +23,7 @@ Console.WriteLine("TUI Terminal Server");
 
 var appState = new AppState(); // shared application state among all clients each having its own IGuiView instance
 
-TerminalUtils.EnableRawModeAndVT100();
+// TerminalUtils.EnableRawModeAndVT100();
 
 
 await TcpServer();

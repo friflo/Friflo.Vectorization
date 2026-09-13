@@ -72,7 +72,7 @@ internal sealed class Win32ConsoleInputStream : Stream
     }
 #endregion
 
-    public Win32ConsoleInputStream()
+    internal Win32ConsoleInputStream()
     {
         _inHandle = GetStdHandle(STD_INPUT_HANDLE);
         EnableWindowsRawAndVt100();

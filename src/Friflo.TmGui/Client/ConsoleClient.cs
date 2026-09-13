@@ -7,6 +7,7 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 
+// ReSharper disable InconsistentNaming
 // ReSharper disable ConvertConstructorToMemberInitializers
 namespace Friflo.TmGui.Client;
 
@@ -19,8 +20,12 @@ public class ConsoleClient : TmClient
     public ConsoleClient()
     {
         Console.OutputEncoding = System.Text.Encoding.UTF8;
-        inputStream     = Console.OpenStandardInput();
-        outputStream    = Console.OpenStandardOutput();
+        outputStream = Console.OpenStandardOutput();
+
+        // Use native Win32 input stream on Windows, fall back to StandardInput on Unix
+        inputStream = OperatingSystem.IsWindows() 
+            ? new Win32ConsoleInputStream() 
+            : Console.OpenStandardInput();
     }
     
     protected internal override async ValueTask<int> SendAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken)
