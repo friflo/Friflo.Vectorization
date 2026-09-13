@@ -38,7 +38,6 @@ internal sealed class Win32ConsoleInputStream : Stream
         FOCUS_EVENT                 = 0x0010,
     }
 
-    // Struct payload carrying pooled array reference
     private readonly struct Chunk
     {
         public readonly byte[] Buffer;
@@ -50,10 +49,12 @@ internal sealed class Win32ConsoleInputStream : Stream
         }
     }
 
-    private readonly IntPtr _inHandle;
-    private readonly Channel<Chunk> _chunkChannel;
-    private Chunk _pendingChunk;
-    private int _pendingOffset;
+    private readonly    IntPtr                  _inHandle;
+    private readonly    Channel<Chunk>          _chunkChannel;
+    private readonly    CancellationTokenSource _cts;
+    private             Chunk                   _pendingChunk;
+    private             int                     _pendingOffset;
+    private             bool                    _isDisposed;
 
     private static void EnableWindowsRawAndVt100()
     {
@@ -76,6 +77,7 @@ internal sealed class Win32ConsoleInputStream : Stream
         _inHandle = GetStdHandle(STD_INPUT_HANDLE);
         EnableWindowsRawAndVt100();
 
+        _cts = new CancellationTokenSource();
         var options = new UnboundedChannelOptions {
             SingleWriter = true,
             SingleReader = true
@@ -94,52 +96,61 @@ internal sealed class Win32ConsoleInputStream : Stream
         var records = new INPUT_RECORD[16];
         var writer = _chunkChannel.Writer;
 
-        // Rent initial buffer from ArrayPool to eliminate runtime allocation
         byte[] buffer = ArrayPool<byte>.Shared.Rent(256);
         int writePos = 0;
 
-        while (true)
+        try
         {
-            if (!ReadConsoleInput(_inHandle, records, (uint)records.Length, out uint numRead) || numRead == 0) {
-                continue;
-            }
-
-            for (int i = 0; i < numRead; i++)
+            while (!_cts.IsCancellationRequested)
             {
-                ref readonly var record = ref records[i];
+                if (!ReadConsoleInput(_inHandle, records, (uint)records.Length, out uint numRead) || numRead == 0) {
+                    continue;
+                }
 
-                switch (record.EventType) {
-                    case EventType.KEY_EVENT when record.KeyEvent.bKeyDown != 0: {
-                        char ch = record.KeyEvent.UnicodeChar;
-                        if (ch != '\0') {
-                            EnsureCapacity(ref buffer, writePos, 1);
-                            buffer[writePos++] = (byte)ch;
+                for (int i = 0; i < numRead; i++)
+                {
+                    ref readonly var record = ref records[i];
+
+                    switch (record.EventType) {
+                        case EventType.KEY_EVENT when record.KeyEvent.bKeyDown != 0: {
+                            char ch = record.KeyEvent.UnicodeChar;
+                            if (ch != '\0') {
+                                EnsureCapacity(ref buffer, writePos, 1);
+                                buffer[writePos++] = (byte)ch;
+                            }
+                            break;
                         }
-                        break;
+                        case EventType.WINDOW_BUFFER_SIZE_EVENT: {
+                            var size = record.WindowBufferSizeEvent.dwSize;
+                            EnsureCapacity(ref buffer, writePos, 16);
+                            writePos += WriteVt100WindowSizeReport(buffer.AsSpan(writePos), size.X, size.Y);
+                            break;
+                        }
+                        // mouse events are already handled by ENABLE_MOUSE_INPUT.
+                        // case EventType.MOUSE_EVENT: { ... }  
                     }
-                    case EventType.WINDOW_BUFFER_SIZE_EVENT: {
-                        var size = record.WindowBufferSizeEvent.dwSize;
-                        EnsureCapacity(ref buffer, writePos, 16);
-                        writePos += WriteVt100WindowSizeReport(buffer.AsSpan(writePos), size.X, size.Y);
-                        break;
-                    }
-                    // mouse events are already handled by ENABLE_MOUSE_INPUT.
-                    // case EventType.MOUSE_EVENT: { ... }  
+                }
+
+                if (writePos > 0) {
+                    writer.TryWrite(new Chunk(buffer, writePos));
+                    buffer = ArrayPool<byte>.Shared.Rent(256);
+                    writePos = 0;
                 }
             }
-
-            if (writePos > 0) {
-                writer.TryWrite(new Chunk(buffer, writePos));
-                buffer = ArrayPool<byte>.Shared.Rent(256);
-                writePos = 0;
+        }
+        finally
+        {
+            // Return unused rented buffer on loop exit
+            if (buffer != null) {
+                ArrayPool<byte>.Shared.Return(buffer);
             }
+            writer.TryComplete();
         }
     }
 
     private static void EnsureCapacity(ref byte[] buffer, int currentPos, int required)
     {
         if (currentPos + required > buffer.Length) {
-            // Reallocate buffer using ArrayPool when capacity is exceeded
             byte[] newBuffer = ArrayPool<byte>.Shared.Rent((currentPos + required) * 2);
             buffer.AsSpan(0, currentPos).CopyTo(newBuffer);
             ArrayPool<byte>.Shared.Return(buffer);
@@ -150,9 +161,14 @@ internal sealed class Win32ConsoleInputStream : Stream
 #region Stream
     public override async ValueTask<int> ReadAsync(Memory<byte> buffer, CancellationToken cancellationToken = default)
     {
+        ObjectDisposedException.ThrowIf(_isDisposed, this);
+
         if (buffer.IsEmpty) {
             return 0;
         }
+
+        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _cts.Token);
+        var token = linkedCts.Token;
 
         var target = buffer;
         int bytesWritten = 0;
@@ -179,26 +195,54 @@ internal sealed class Win32ConsoleInputStream : Stream
 
         var reader = _chunkChannel.Reader;
 
-        if (!await reader.WaitToReadAsync(cancellationToken).ConfigureAwait(false)) {
+        try
+        {
+            if (!await reader.WaitToReadAsync(token).ConfigureAwait(false)) {
+                return bytesWritten;
+            }
+
+            while (bytesWritten < target.Length && reader.TryRead(out var chunk)) {
+                int toCopy = Math.Min(target.Length - bytesWritten, chunk.Length);
+                chunk.Buffer.AsSpan(0, toCopy).CopyTo(target.Span.Slice(bytesWritten));
+                bytesWritten += toCopy;
+
+                if (toCopy < chunk.Length) {
+                    _pendingChunk = chunk;
+                    _pendingOffset = toCopy;
+                    break;
+                }
+
+                // return fully consumed chunk buffer back to pool
+                ArrayPool<byte>.Shared.Return(chunk.Buffer);
+            }
+        }
+        catch (OperationCanceledException) when (_cts.IsCancellationRequested)
+        {
             return bytesWritten;
         }
 
-        while (bytesWritten < target.Length && reader.TryRead(out var chunk)) {
-            int toCopy = Math.Min(target.Length - bytesWritten, chunk.Length);
-            chunk.Buffer.AsSpan(0, toCopy).CopyTo(target.Span.Slice(bytesWritten));
-            bytesWritten += toCopy;
+        return bytesWritten;
+    }
 
-            if (toCopy < chunk.Length) {
-                _pendingChunk = chunk;
-                _pendingOffset = toCopy;
-                break;
-            }
+    protected override void Dispose(bool disposing)
+    {
+        if (_isDisposed) return;
+        _isDisposed = true;
 
-            // eturn fully consumed chunk buffer back to pool
+        _cts.Cancel();
+        _cts.Dispose();
+
+        // ain remaining unread chunks to avoid leaking ArrayPool buffers
+        if (_pendingChunk.Buffer != null) {
+            ArrayPool<byte>.Shared.Return(_pendingChunk.Buffer);
+            _pendingChunk = default;
+        }
+
+        while (_chunkChannel.Reader.TryRead(out var chunk)) {
             ArrayPool<byte>.Shared.Return(chunk.Buffer);
         }
 
-        return bytesWritten;
+        base.Dispose(disposing);
     }
 
     private static int WriteVt100WindowSizeReport(Span<byte> span, short width, short height)
@@ -230,7 +274,7 @@ internal sealed class Win32ConsoleInputStream : Stream
     }
 
     // Stream base boilerplate overrides
-    public override     bool    CanRead => true;
+    public override     bool    CanRead => !_isDisposed;
     public override     bool    CanSeek => false;
     public override     bool    CanWrite => false;
     public override     long    Length => throw new NotSupportedException();
