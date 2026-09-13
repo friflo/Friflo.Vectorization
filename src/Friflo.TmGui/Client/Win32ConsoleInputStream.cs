@@ -75,30 +75,34 @@ internal sealed class Win32ConsoleInputStream : Stream
 
         while (true)
         {
-            if (ReadConsoleInput(_inHandle, records, (uint)records.Length, out uint numRead) && numRead > 0) {
-                for (int i = 0; i < numRead; i++) {
-                    ref readonly var record = ref records[i];
+            if (!ReadConsoleInput(_inHandle, records, (uint)records.Length, out uint numRead) || numRead == 0) {
+                continue;
+            }
+            
+            for (int i = 0; i < numRead; i++)
+            {
+                ref readonly var record = ref records[i];
 
-                    switch (record.EventType) {
-                        case KEY_EVENT when record.KeyEvent.bKeyDown != 0: {
-                            char ch = record.KeyEvent.UnicodeChar;
-                            if (ch != '\0') {
-                                writer.TryWrite((byte)ch);
-                            }
-                            break;
+                switch (record.EventType) {
+                    case KEY_EVENT when record.KeyEvent.bKeyDown != 0: {
+                        char ch = record.KeyEvent.UnicodeChar;
+                        if (ch != '\0') {
+                            writer.TryWrite((byte)ch);
                         }
-                        case MOUSE_EVENT: {
-                            var mouse = record.MouseEvent;
-                            writer.TryWrite((byte)'\x1b');
-                            writer.TryWrite((byte)'[');
-                            writer.TryWrite((byte)'M');
-                            writer.TryWrite((byte)(mouse.dwButtonState & 0xFF));
-                            break;
-                        }
-                        case WINDOW_BUFFER_SIZE_EVENT: {
-                            OnWindowBufferSizeEvent(record.WindowBufferSizeEvent.dwSize);
-                            break;
-                        }
+                        break;
+                    }
+                    case MOUSE_EVENT: {
+                        var mouse = record.MouseEvent;
+                        writer.TryWrite((byte)'\x1b');
+                        writer.TryWrite((byte)'[');
+                        writer.TryWrite((byte)'M');
+                        writer.TryWrite((byte)(mouse.dwButtonState & 0xFF));
+                        break;
+                    }
+                    case WINDOW_BUFFER_SIZE_EVENT: {
+                        var size = record.WindowBufferSizeEvent.dwSize;
+                        WriteVt100WindowSizeReport(writer, size.X, size.Y);
+                        break;
                     }
                 }
             }
@@ -128,9 +132,27 @@ internal sealed class Win32ConsoleInputStream : Stream
         return bytesWritten;
     }
 
-    private void OnWindowBufferSizeEvent(COORD newSize)
+    private static void WriteVt100WindowSizeReport(ChannelWriter<byte> writer, short width, short height)
     {
-        // English comment: Dummy handler for window resize events
+        writer.TryWrite((byte)'\x1b');
+        writer.TryWrite((byte)'[');
+        writer.TryWrite((byte)'8');
+        writer.TryWrite((byte)';');
+        
+        WriteDecimalBytes(writer, height);
+        writer.TryWrite((byte)';');
+        
+        WriteDecimalBytes(writer, width);
+        writer.TryWrite((byte)'t');
+    }
+
+    private static void WriteDecimalBytes(ChannelWriter<byte> writer, short value)
+    {
+        if (value >= 10000) writer.TryWrite((byte)('0' + (value / 10000 % 10)));
+        if (value >= 1000)  writer.TryWrite((byte)('0' + (value / 1000 % 10)));
+        if (value >= 100)   writer.TryWrite((byte)('0' + (value / 100 % 10)));
+        if (value >= 10)    writer.TryWrite((byte)('0' + (value / 10 % 10)));
+        writer.TryWrite((byte)('0' + (value % 10)));
     }
 
     // Stream base boilerplate overrides
