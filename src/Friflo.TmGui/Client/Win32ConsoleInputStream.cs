@@ -3,16 +3,19 @@
 
 
 using System;
+using System.Buffers;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Channels;
 using System.Threading.Tasks;
 
+// ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable UnusedMember.Local
 // ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable InconsistentNaming
 namespace Friflo.TmGui.Client;
+
 
 internal sealed class Win32ConsoleInputStream : Stream
 {
@@ -35,8 +38,22 @@ internal sealed class Win32ConsoleInputStream : Stream
         FOCUS_EVENT                 = 0x0010,
     }
 
+    // Struct payload carrying pooled array reference
+    private readonly struct Chunk
+    {
+        public readonly byte[] Buffer;
+        public readonly int Length;
+
+        public Chunk(byte[] buffer, int length) {
+            Buffer = buffer;
+            Length = length;
+        }
+    }
+
     private readonly IntPtr _inHandle;
-    private readonly Channel<byte> _byteChannel;
+    private readonly Channel<Chunk> _chunkChannel;
+    private Chunk _pendingChunk;
+    private int _pendingOffset;
 
     private static void EnableWindowsRawAndVt100()
     {
@@ -63,7 +80,7 @@ internal sealed class Win32ConsoleInputStream : Stream
             SingleWriter = true,
             SingleReader = true
         };
-        _byteChannel = Channel.CreateUnbounded<byte>(options);
+        _chunkChannel = Channel.CreateUnbounded<Chunk>(options);
 
         var thread = new Thread(InputLoop) {
             IsBackground = true,
@@ -74,15 +91,19 @@ internal sealed class Win32ConsoleInputStream : Stream
 
     private void InputLoop()
     {
-        INPUT_RECORD[] records = new INPUT_RECORD[16];
-        var writer = _byteChannel.Writer;
+        var records = new INPUT_RECORD[16];
+        var writer = _chunkChannel.Writer;
+
+        // Rent initial buffer from ArrayPool to eliminate runtime allocation
+        byte[] buffer = ArrayPool<byte>.Shared.Rent(256);
+        int writePos = 0;
 
         while (true)
         {
             if (!ReadConsoleInput(_inHandle, records, (uint)records.Length, out uint numRead) || numRead == 0) {
                 continue;
             }
-            
+
             for (int i = 0; i < numRead; i++)
             {
                 ref readonly var record = ref records[i];
@@ -91,26 +112,38 @@ internal sealed class Win32ConsoleInputStream : Stream
                     case EventType.KEY_EVENT when record.KeyEvent.bKeyDown != 0: {
                         char ch = record.KeyEvent.UnicodeChar;
                         if (ch != '\0') {
-                            writer.TryWrite((byte)ch);
+                            EnsureCapacity(ref buffer, writePos, 1);
+                            buffer[writePos++] = (byte)ch;
                         }
                         break;
                     }
-                    /* already transformed by ENABLE_MOUSE_INPUT
-                    case EventType.MOUSE_EVENT: {
-                        var mouse = record.MouseEvent;
-                        writer.TryWrite((byte)'\x1b');
-                        writer.TryWrite((byte)'[');
-                        writer.TryWrite((byte)'M');
-                        writer.TryWrite((byte)(mouse.dwButtonState & 0xFF));
-                        break;
-                    } */
                     case EventType.WINDOW_BUFFER_SIZE_EVENT: {
                         var size = record.WindowBufferSizeEvent.dwSize;
-                        WriteVt100WindowSizeReport(writer, size.X, size.Y);
+                        EnsureCapacity(ref buffer, writePos, 16);
+                        writePos += WriteVt100WindowSizeReport(buffer.AsSpan(writePos), size.X, size.Y);
                         break;
                     }
+                    // mouse events are already handled by ENABLE_MOUSE_INPUT.
+                    // case EventType.MOUSE_EVENT: { ... }  
                 }
             }
+
+            if (writePos > 0) {
+                writer.TryWrite(new Chunk(buffer, writePos));
+                buffer = ArrayPool<byte>.Shared.Rent(256);
+                writePos = 0;
+            }
+        }
+    }
+
+    private static void EnsureCapacity(ref byte[] buffer, int currentPos, int required)
+    {
+        if (currentPos + required > buffer.Length) {
+            // Reallocate buffer using ArrayPool when capacity is exceeded
+            byte[] newBuffer = ArrayPool<byte>.Shared.Rent((currentPos + required) * 2);
+            buffer.AsSpan(0, currentPos).CopyTo(newBuffer);
+            ArrayPool<byte>.Shared.Return(buffer);
+            buffer = newBuffer;
         }
     }
 
@@ -121,43 +154,79 @@ internal sealed class Win32ConsoleInputStream : Stream
             return 0;
         }
 
-        var reader = _byteChannel.Reader;
-
-        if (!await reader.WaitToReadAsync(cancellationToken).ConfigureAwait(false)) {
-            return 0;
-        }
-
-        Span<byte> target = buffer.Span;
+        var target = buffer;
         int bytesWritten = 0;
 
-        while (bytesWritten < target.Length && reader.TryRead(out byte b)) {
-            target[bytesWritten++] = b;
+        // Drain pending chunk left over from previous read
+        if (_pendingChunk.Buffer != null) {
+            int remaining = _pendingChunk.Length - _pendingOffset;
+            int toCopy = Math.Min(target.Length, remaining);
+
+            _pendingChunk.Buffer.AsSpan(_pendingOffset, toCopy).CopyTo(target.Span);
+            _pendingOffset += toCopy;
+            bytesWritten += toCopy;
+
+            if (_pendingOffset >= _pendingChunk.Length) {
+                ArrayPool<byte>.Shared.Return(_pendingChunk.Buffer);
+                _pendingChunk = default;
+                _pendingOffset = 0;
+            }
+
+            if (bytesWritten == target.Length) {
+                return bytesWritten;
+            }
+        }
+
+        var reader = _chunkChannel.Reader;
+
+        if (!await reader.WaitToReadAsync(cancellationToken).ConfigureAwait(false)) {
+            return bytesWritten;
+        }
+
+        while (bytesWritten < target.Length && reader.TryRead(out var chunk)) {
+            int toCopy = Math.Min(target.Length - bytesWritten, chunk.Length);
+            chunk.Buffer.AsSpan(0, toCopy).CopyTo(target.Span.Slice(bytesWritten));
+            bytesWritten += toCopy;
+
+            if (toCopy < chunk.Length) {
+                _pendingChunk = chunk;
+                _pendingOffset = toCopy;
+                break;
+            }
+
+            // eturn fully consumed chunk buffer back to pool
+            ArrayPool<byte>.Shared.Return(chunk.Buffer);
         }
 
         return bytesWritten;
     }
 
-    private static void WriteVt100WindowSizeReport(ChannelWriter<byte> writer, short width, short height)
+    private static int WriteVt100WindowSizeReport(Span<byte> span, short width, short height)
     {
-        writer.TryWrite((byte)'\x1b');
-        writer.TryWrite((byte)'[');
-        writer.TryWrite((byte)'8');
-        writer.TryWrite((byte)';');
+        int pos = 0;
+        span[pos++] = (byte)'\x1b';
+        span[pos++] = (byte)'[';
+        span[pos++] = (byte)'8';
+        span[pos++] = (byte)';';
         
-        WriteDecimalBytes(writer, height);
-        writer.TryWrite((byte)';');
+        pos += WriteDecimalBytes(span.Slice(pos), height);
+        span[pos++] = (byte)';';
         
-        WriteDecimalBytes(writer, width);
-        writer.TryWrite((byte)'t');
+        pos += WriteDecimalBytes(span.Slice(pos), width);
+        span[pos++] = (byte)'t';
+        
+        return pos;
     }
 
-    private static void WriteDecimalBytes(ChannelWriter<byte> writer, short value)
+    private static int WriteDecimalBytes(Span<byte> span, short value)
     {
-        if (value >= 10000) writer.TryWrite((byte)('0' + (value / 10000 % 10)));
-        if (value >= 1000)  writer.TryWrite((byte)('0' + (value / 1000 % 10)));
-        if (value >= 100)   writer.TryWrite((byte)('0' + (value / 100 % 10)));
-        if (value >= 10)    writer.TryWrite((byte)('0' + (value / 10 % 10)));
-        writer.TryWrite((byte)('0' + (value % 10)));
+        int pos = 0;
+        if (value >= 10000) span[pos++] = (byte)('0' + (value / 10000 % 10));
+        if (value >= 1000)  span[pos++] = (byte)('0' + (value / 1000 % 10));
+        if (value >= 100)   span[pos++] = (byte)('0' + (value / 100 % 10));
+        if (value >= 10)    span[pos++] = (byte)('0' + (value / 10 % 10));
+        span[pos++] = (byte)('0' + (value % 10));
+        return pos;
     }
 
     // Stream base boilerplate overrides
