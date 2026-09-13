@@ -28,6 +28,11 @@ internal sealed class Win32ConsoleInputStream : Stream
             Buffer = buffer;
             Length = length;
         }
+        
+        public void Return()
+        {
+            ArrayPool<byte>.Shared.Return(Buffer);
+        }
     }
 
     private readonly    IntPtr                  _inHandle;
@@ -145,7 +150,7 @@ internal sealed class Win32ConsoleInputStream : Stream
             bytesWritten += toCopy;
 
             if (_pendingOffset >= _pendingChunk.Length) {
-                ArrayPool<byte>.Shared.Return(_pendingChunk.Buffer);
+                _pendingChunk.Return();
                 _pendingChunk = default;
                 _pendingOffset = 0;
             }
@@ -175,7 +180,7 @@ internal sealed class Win32ConsoleInputStream : Stream
                 }
 
                 // return fully consumed chunk buffer back to pool
-                ArrayPool<byte>.Shared.Return(chunk.Buffer);
+                chunk.Return();
             }
         }
         catch (OperationCanceledException) when (_cts.IsCancellationRequested)
@@ -196,12 +201,12 @@ internal sealed class Win32ConsoleInputStream : Stream
 
         // ain remaining unread chunks to avoid leaking ArrayPool buffers
         if (_pendingChunk.Buffer != null) {
-            ArrayPool<byte>.Shared.Return(_pendingChunk.Buffer);
+            _pendingChunk.Return();
             _pendingChunk = default;
         }
 
         while (_chunkChannel.Reader.TryRead(out var chunk)) {
-            ArrayPool<byte>.Shared.Return(chunk.Buffer);
+            chunk.Return();
         }
 
         base.Dispose(disposing);

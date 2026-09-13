@@ -7,6 +7,7 @@ using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 
+// ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable ConvertToPrimaryConstructor
 namespace Friflo.TmGui.Client;
 
@@ -31,15 +32,16 @@ public class SocketClient : TmClient
     public static async ValueTask HandleClientSessionAsync(SocketClient client, SingleThreadedShardEngine engine, CancellationToken cancellationToken)
     {
         var socket = client.socket;
-        byte[] buffer = ArrayPool<byte>.Shared.Rent(256);
+        
 
         try
         {
-            ReadOnlyMemory<byte> initialPayload = default;
+            Payload initialPayload = default;
             if (socket.Available > 0) {
+                byte[] buffer = ArrayPool<byte>.Shared.Rent(256);
                 int initialBytes = await socket.ReceiveAsync(buffer.AsMemory(), SocketFlags.None, cancellationToken);
                 if (initialBytes > 0) {
-                    initialPayload = buffer.AsMemory(0, initialBytes);
+                    initialPayload = new Payload(buffer, initialBytes);
                 }
             }
 
@@ -48,10 +50,11 @@ public class SocketClient : TmClient
 
             while (!cancellationToken.IsCancellationRequested)
             {
+                byte[] buffer = ArrayPool<byte>.Shared.Rent(256);
                 int bytesRead = await socket.ReceiveAsync(buffer.AsMemory(), SocketFlags.None, cancellationToken);
                 if (bytesRead == 0) break;
 
-                var payload = buffer.AsMemory(0, bytesRead);
+                var payload = new Payload(buffer, bytesRead);
 
                 // Forward raw input directly to the shard event loop
                 await engine.EnqueueEventAsync(client, ClientEventType.TerminalInput, payload);
@@ -59,8 +62,8 @@ public class SocketClient : TmClient
         }
         finally
         {
-            ArrayPool<byte>.Shared.Return(buffer);
-            await engine.EnqueueEventAsync(client, ClientEventType.TerminalDisconnected);
+            // ArrayPool<byte>.Shared.Return(buffer);
+            await engine.EnqueueEventAsync(client, ClientEventType.TerminalDisconnected, default);
         }
     }
 }

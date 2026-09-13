@@ -17,9 +17,9 @@ internal enum ClientEventType : byte
 
 internal readonly struct ClientEvent
 {
-    internal required   TmClient                Client  { get; init; }
-    internal required   ClientEventType         Type    { get; init; }
-    internal            ReadOnlyMemory<byte>    Payload { get; init; }
+    internal required   TmClient            Client  { get; init; }
+    internal required   ClientEventType     Type    { get; init; }
+    internal            Payload             Payload { get; init; }
 }
 
 public struct ConnectInfo

@@ -36,7 +36,7 @@ public sealed class SingleThreadedShardEngine
         shardThread.Start();
     }
 
-    internal async ValueTask EnqueueEventAsync(TmClient client, ClientEventType type, ReadOnlyMemory<byte> payload = default)
+    internal async ValueTask EnqueueEventAsync(TmClient client, ClientEventType type, Payload payload)
     {
         await eventChannel.Writer.WriteAsync(new ClientEvent { Client = client, Type = type, Payload = payload });
     }
@@ -79,6 +79,7 @@ public sealed class SingleThreadedShardEngine
                 var sendBuffer  = newSession.ProcessInput(rest);
                 
                 _ = await client.SendAsync(sendBuffer, CancellationToken.None);
+                evt.Payload.Return();
                 break;
             }
             case ClientEventType.TerminalDisconnected:
@@ -92,6 +93,7 @@ public sealed class SingleThreadedShardEngine
                     var sendBuffer  = session.ProcessInput(payload);
                     _ = await evt.Client.SendAsync(sendBuffer, CancellationToken.None);
                 }
+                evt.Payload.Return();
                 break;
         }
     }

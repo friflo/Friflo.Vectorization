@@ -7,6 +7,7 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 
+// ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable InconsistentNaming
 // ReSharper disable ConvertConstructorToMemberInitializers
 namespace Friflo.TmGui.Client;
@@ -41,26 +42,25 @@ public class ConsoleClient : TmClient
     // I/O Loop: Reads raw stream bytes and pushes them into the single-threaded engine queue
     public static async ValueTask HandleClientSessionAsync(ConsoleClient client, SingleThreadedShardEngine engine, CancellationToken cancellationToken)
     {
-        byte[] buffer = ArrayPool<byte>.Shared.Rent(256);
 
         try
         {
-            await engine.EnqueueEventAsync(client, ClientEventType.TerminalConnected, ReadOnlyMemory<byte>.Empty);
+            await engine.EnqueueEventAsync(client, ClientEventType.TerminalConnected, default);
 
             while (!cancellationToken.IsCancellationRequested)
             {
+                byte[] buffer = ArrayPool<byte>.Shared.Rent(256);
                 int bytesRead = await client.inputStream.ReadAsync(buffer.AsMemory(), cancellationToken);
                 if (bytesRead == 0) break;
 
-                ReadOnlyMemory<byte> payload = buffer.AsMemory(0, bytesRead);
+                var payload = new Payload(buffer, bytesRead);
 
                 await engine.EnqueueEventAsync(client, ClientEventType.TerminalInput, payload);
             }
         }
         finally
         {
-            ArrayPool<byte>.Shared.Return(buffer);
-            await engine.EnqueueEventAsync(client, ClientEventType.TerminalDisconnected);
+            await engine.EnqueueEventAsync(client, ClientEventType.TerminalDisconnected, default);
         }
     }
 }
