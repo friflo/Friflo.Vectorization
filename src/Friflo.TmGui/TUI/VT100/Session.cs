@@ -53,8 +53,16 @@ internal sealed partial class TuiSession
     
     private void InitialCommands()
     {
-        // Enable raw mode on client terminal
-        AppendSpan(EscapeWrite.EnableRawTuiMode);
+        // Extended Init Sequence:
+        // \x1b[?1l     = Normal Cursor Mode
+        // \x1b[?25l    = Hide Cursor
+        // \x1b[0m      = Reset All Colors/Attributes
+        // \x1b[?1049h  = Switch to Alternate Screen-Buffer - Only reliable way to avoid flickering when resize to smaller screen
+        // \x1b[2J      = Clear Screen
+        // \x1b[3J      = Clear Scrollback-Buffer           - prevents Alternate Screen-Buffer Reflow-Ghosting
+        // \x1b[?7l     = Disable Auto-Wrap
+        // \x1b[H       = Home Cursor (0,0)
+        AppendSpan("\x1b[?1l\x1b[?25l\x1b[0m\x1b[?1049h\x1b[2J\x1b[3J\x1b[?7l\x1b[H"u8);
         
         AppendSpan("\x1b[?1003h"u8);    // Enable mouse hover (tracks ALL movement, clicks & scrolling)
         AppendSpan("\x1b[?1006h"u8);    // Enable SGR extended coordinate format (required for modern terminals & high resolutions)
@@ -89,12 +97,16 @@ internal sealed partial class TuiSession
         } else {
             sendBufferCount = 0;
         }
-        // clear screen
-        AppendSpan(EscapeWrite.ClearScreen);
+        
+        // \x1b[?2026h      Sync Start (atomic frame)
+        // \x1b[H           Cursor Home
+        AppendSpan("\x1b[?2026h\x1b[H"u8);  // NOTE: don't use  \x1b[2J  (Clear screen)
         
         AppendFrameBuffer(frameWidth, frameHeight);
         
-        AppendSpan("\x1b[H"u8); // Set Cursor Home Report - prevents flickering when resizing window
+        AppendSpan("\x1b[?2026l"u8);        // Sync Start (atomic frame)
+        
+        AppendSpan("\x1b[H"u8);             // Set Cursor Home Report - if user writes to console e.g. Console.WriteLine()
         
         var sendMemory  = sendBuffer.AsMemory(0, sendBufferCount);
         var sendHash    = HashUtils.XxHash3(sendMemory.Span);
@@ -130,7 +142,8 @@ internal sealed partial class TuiSession
         var background  = new Color32();
         var textStyle   = TextStyle.None;
         
-        batch.DrawRectCommandsColor(frameBuffer, width, height, new TuiColorCell { character = ' ', background = 0x888888ff });
+        var clear =  new TuiColorCell { character = '.', color = 0x000000ff, background = 0x888888ff };
+        batch.DrawRectCommandsColor(frameBuffer, width, height, clear);
         
         if (backend.input.CurrentCursor != MouseCursor.Arrow) {
             DrawMouseCursor();
@@ -140,8 +153,7 @@ internal sealed partial class TuiSession
 
         for (int y = 0; y < height; y++)
         {
-            // SetCursor(y + 1);
-            
+            SetCursor(y + 1);
             for (int x = 0; x < width; x++)
             {
                 var cell = cells[y * width + x];
@@ -159,10 +171,10 @@ internal sealed partial class TuiSession
                 }
                 AppendChar(cell.character);
             }
+            /* AppendSpan("\x1b[K"u8); // EraseInLine - erase everything right from current cursor
             if (y < height - 1) {
-                 AppendSpan("\r\n"u8);
-                // AppendSpan("\x1b[K\r\n"u8); // Send EraseInLine + CRLF at the end of each row
-            }
+                AppendSpan("\r\n"u8);
+            } */
         }
     }
     
