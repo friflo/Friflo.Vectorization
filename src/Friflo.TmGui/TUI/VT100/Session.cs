@@ -142,7 +142,7 @@ internal sealed partial class TuiSession
         var background  = new Color32();
         var textStyle   = TextStyle.None;
         
-        var clear =  new TuiColorCell { character = '.', color = 0x000000ff, background = 0x888888ff };
+        var clear =  new TuiColorCell { character = ' ', color = 0x000000ff, background = 0x888888ff };
         batch.DrawRectCommandsColor(frameBuffer, width, height, clear);
         
         if (backend.input.CurrentCursor != MouseCursor.Arrow) {
