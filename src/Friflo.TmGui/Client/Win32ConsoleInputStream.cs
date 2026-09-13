@@ -9,7 +9,7 @@ using System.Threading;
 using System.Threading.Channels;
 using System.Threading.Tasks;
 
-
+// ReSharper disable UnusedMember.Local
 // ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable InconsistentNaming
 namespace Friflo.TmGui.Client;
@@ -27,9 +27,13 @@ internal sealed class Win32ConsoleInputStream : Stream
     private const uint      ENABLE_VIRTUAL_TERMINAL_INPUT       = 0x0200;
     private const uint      ENABLE_VIRTUAL_TERMINAL_PROCESSING  = 0x0004;
 
-    private const ushort    KEY_EVENT                   = 0x0001;
-    private const ushort    MOUSE_EVENT                 = 0x0002;
-    private const ushort    WINDOW_BUFFER_SIZE_EVENT    = 0x0004;
+    private enum EventType : ushort {
+        KEY_EVENT                   = 0x0001,
+        MOUSE_EVENT                 = 0x0002,
+        WINDOW_BUFFER_SIZE_EVENT    = 0x0004,
+        MENU_EVENT                  = 0x0008,
+        FOCUS_EVENT                 = 0x0010,
+    }
 
     private readonly IntPtr _inHandle;
     private readonly Channel<byte> _byteChannel;
@@ -84,22 +88,23 @@ internal sealed class Win32ConsoleInputStream : Stream
                 ref readonly var record = ref records[i];
 
                 switch (record.EventType) {
-                    case KEY_EVENT when record.KeyEvent.bKeyDown != 0: {
+                    case EventType.KEY_EVENT when record.KeyEvent.bKeyDown != 0: {
                         char ch = record.KeyEvent.UnicodeChar;
                         if (ch != '\0') {
                             writer.TryWrite((byte)ch);
                         }
                         break;
                     }
-                    case MOUSE_EVENT: {
+                    /* already transformed by ENABLE_MOUSE_INPUT
+                    case EventType.MOUSE_EVENT: {
                         var mouse = record.MouseEvent;
                         writer.TryWrite((byte)'\x1b');
                         writer.TryWrite((byte)'[');
                         writer.TryWrite((byte)'M');
                         writer.TryWrite((byte)(mouse.dwButtonState & 0xFF));
                         break;
-                    }
-                    case WINDOW_BUFFER_SIZE_EVENT: {
+                    } */
+                    case EventType.WINDOW_BUFFER_SIZE_EVENT: {
                         var size = record.WindowBufferSizeEvent.dwSize;
                         WriteVt100WindowSizeReport(writer, size.X, size.Y);
                         break;
@@ -193,7 +198,7 @@ internal sealed class Win32ConsoleInputStream : Stream
     [StructLayout(LayoutKind.Explicit, Size = 20)]
     private struct INPUT_RECORD
     {
-        [FieldOffset(0)] public ushort EventType;
+        [FieldOffset(0)] public EventType EventType;
         [FieldOffset(4)] public KEY_EVENT_RECORD KeyEvent;
         [FieldOffset(4)] public MOUSE_EVENT_RECORD MouseEvent;
         [FieldOffset(4)] public WINDOW_BUFFER_SIZE_RECORD WindowBufferSizeEvent;
