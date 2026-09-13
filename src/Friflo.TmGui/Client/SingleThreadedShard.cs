@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Text;
 using System.Threading;
 using System.Threading.Channels;
@@ -21,6 +22,9 @@ public sealed class SingleThreadedShardEngine
     private readonly    Dictionary<TmClient, TuiSession>    sessions;       // Raw non-thread-safe state (accessed exclusively by _shardThread)
     private readonly    FrameBuffer                         frameBuffer;    // shared among all sessions - is accessed single threaded
     private readonly    CreateGuiView                       createGuiView;  // IBatchRenderer factory
+    private readonly    CancellationTokenSource             cts = new();
+    private             Thread?                             shardThread;
+
     
     public SingleThreadedShardEngine(CreateGuiView createGuiView)
     {
@@ -30,33 +34,60 @@ public sealed class SingleThreadedShardEngine
         frameBuffer         = new FrameBuffer();
     }
     
-    public void Start()
-    {
-        Thread shardThread = new(RunEventLoop) { IsBackground = true, Name = "ShardLoopThread" };
-        shardThread.Start();
-    }
-
     internal async ValueTask EnqueueEventAsync(TmClient client, ClientEventType type, Payload payload)
     {
         await eventChannel.Writer.WriteAsync(new ClientEvent { Client = client, Type = type, Payload = payload });
     }
+    
+    public void Dispose()
+    {
+        // signal all loops to stop
+        cts.Cancel();
+        
+        // wait until ShardLoopThread thread has finished
+        shardThread?.Join(timeout: TimeSpan.FromMilliseconds(500));
 
-    // Core event loop running strictly on a single thread
-    private void RunEventLoop()
+        cts.Dispose();
+    }
+
+    public void Start()
+    {
+        shardThread = new Thread(RunThreadLoop) {
+            IsBackground = true,
+            Name = "ShardLoopThread"
+        };
+        shardThread.Start();
+    }
+
+    private void RunThreadLoop()
+    {
+        try {
+            RunEventLoopAsync(cts.Token).GetAwaiter().GetResult();
+        }
+        catch (OperationCanceledException)
+        {
+            // Expected behavior if canceled
+        }
+        catch (Exception ex)
+        {
+            Debug.Fail($"Critical failure in ShardLoopThread: {ex}");
+        }
+    }
+
+    private async Task RunEventLoopAsync(CancellationToken cancellationToken)
     {
         var reader = eventChannel.Reader;
-        while (reader.WaitToReadAsync().AsTask().Result)
+
+        while (await reader.WaitToReadAsync(cancellationToken))
         {
             while (reader.TryRead(out ClientEvent evt))
             {
-                _ = ProcessEvent(evt);
+                await ProcessEventAsync(evt);
             }
         }
     }
-    
 
-
-    private async ValueTask ProcessEvent(ClientEvent evt)
+    private async ValueTask ProcessEventAsync(ClientEvent evt)
     {
         switch (evt.Type)
         {
@@ -73,12 +104,12 @@ public sealed class SingleThreadedShardEngine
                 
 
                 var initialMessage = newSession.StartSession();
-                _ = await client.SendAsync(initialMessage, CancellationToken.None);
+                await client.SendAsync(initialMessage, CancellationToken.None);
                 
                 var rest            = firstLine == -1 ? payload.Span : payload.Span.Slice(firstLine + 1);
                 var sendBuffer  = newSession.ProcessInput(rest);
                 
-                _ = await client.SendAsync(sendBuffer, CancellationToken.None);
+                await client.SendAsync(sendBuffer, CancellationToken.None);
                 evt.Payload.Return();
                 break;
             }
@@ -87,11 +118,15 @@ public sealed class SingleThreadedShardEngine
                 break;
 
             case ClientEventType.TerminalInput:
-                if (sessions.TryGetValue(evt.Client, out TuiSession? session))
-                {
-                    var payload     = evt.Payload.Span;
-                    var sendBuffer  = session.ProcessInput(payload);
-                    _ = await evt.Client.SendAsync(sendBuffer, CancellationToken.None);
+                try { 
+                    if (sessions.TryGetValue(evt.Client, out TuiSession? session))
+                    {
+                        var payload     = evt.Payload.Span;
+                        var sendBuffer  = session.ProcessInput(payload);
+                        await evt.Client.SendAsync(sendBuffer, CancellationToken.None);
+                    }
+                } catch (Exception e) {
+                    Debug.Fail(e.ToString());
                 }
                 evt.Payload.Return();
                 break;
