@@ -140,6 +140,8 @@ internal sealed partial class TuiSession
 
         for (int y = 0; y < height; y++)
         {
+            // SetCursor(y + 1);
+            
             for (int x = 0; x < width; x++)
             {
                 var cell = cells[y * width + x];
@@ -158,10 +160,17 @@ internal sealed partial class TuiSession
                 AppendChar(cell.character);
             }
             if (y < height - 1) {
-                // Send EraseInLine + CRLF at the end of each row
-                AppendSpan("\x1b[K\r\n"u8);
+                 AppendSpan("\r\n"u8);
+                // AppendSpan("\x1b[K\r\n"u8); // Send EraseInLine + CRLF at the end of each row
             }
         }
+    }
+    
+    private void SetCursor(int row)
+    {
+        AppendSpan("\x1b["u8);
+        AppendNumber((byte)row);
+        AppendSpan(";1H"u8);
     }
     
     private void SetColor(Color32 color)
