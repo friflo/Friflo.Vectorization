@@ -64,7 +64,7 @@ public static class Tests_TmGui_Utils
     {
         var array = CreateByteArray(3200);
        
-        int repeat = 10_000_000;   // 1_000_000 - 2.5 sec  length: 3200
+        int repeat = 10;   // 10_000_000 - 12.2 sec  length: 3200
         ulong accu = 0;
         
         for (int n = 0; n < repeat; n++) {
@@ -98,9 +98,10 @@ public static class Tests_TmGui_Utils
     {
         var array = CreateByteArray(10);
 
-        HashFNV_1a_scalar(array.AsSpan(0, 1));
-        HashFNV_1a_scalar(array.AsSpan(0, 8));
-        HashFNV_1a_scalar(array.AsSpan(0, 10));
+        Assert.That(HashFNV_1a_scalar(array.AsSpan(0, 0)),  Is.EqualTo(0));
+        Assert.That(HashFNV_1a_scalar(array.AsSpan(0, 1)),  Is.EqualTo(15452995756747027501));
+        Assert.That(HashFNV_1a_scalar(array.AsSpan(0, 8)),  Is.EqualTo(466183600257064232));
+        Assert.That(HashFNV_1a_scalar(array.AsSpan(0, 10)), Is.EqualTo(13844614674567504819));
     }
     
     private static byte[] CreateByteArray(int length)
