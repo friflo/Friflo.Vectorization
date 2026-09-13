@@ -25,6 +25,7 @@ public sealed class SingleThreadedShardEngine : IDisposable
     private readonly    CancellationTokenSource             cts = new();
     private             Thread?                             shardThread;
     private             bool                                isDisposed;
+    private readonly    Action                              exitHandler;
 
     
     public SingleThreadedShardEngine(CreateGuiView createGuiView)
@@ -33,6 +34,23 @@ public sealed class SingleThreadedShardEngine : IDisposable
         eventChannel        = Channel.CreateUnbounded<ClientEvent>(new UnboundedChannelOptions { SingleReader = true, SingleWriter = false });
         sessions            = new Dictionary<TmClient, TuiSession>();
         frameBuffer         = new FrameBuffer();
+        exitHandler         = ExitHandler;
+        PosixSignalUtils.AddExitHandler(exitHandler);
+    }
+    
+    private void ExitHandler()
+    {
+        PosixSignalUtils.RemoveExitHandler(exitHandler);
+        
+        foreach (var client in sessions.Keys) {
+            try {
+                client.RestoreTerminal();
+            }
+            // ReSharper disable once EmptyGeneralCatchClause
+            catch {
+                // nothing useful can be done here
+            }
+        }
     }
     
     internal async ValueTask EnqueueEventAsync(TmClient client, ClientEventType type, Payload payload)

@@ -27,6 +27,11 @@ public class SocketClient : TmClient
         return await socket.SendAsync(buffer, SocketFlags.None, cancellationToken);
     }
     
+    protected internal override void RestoreTerminal()
+    {
+        socket.Send(TerminalReset.AsMemory().Span);
+    }
+    
     
     // I/O Loop: Reads raw socket bytes and pushes them into the single-threaded engine queue
     public static async ValueTask HandleClientSessionAsync(SocketClient client, SingleThreadedShardEngine engine, CancellationToken cancellationToken)

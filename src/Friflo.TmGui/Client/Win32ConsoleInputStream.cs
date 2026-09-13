@@ -256,19 +256,37 @@ internal sealed class Win32ConsoleInputStream : Stream
 
 
 #region Win32 Console setup
+    private static uint _originalInMode;
+    private static uint _originalOutMode;
+    private static bool _modesSaved;
+    
     private static void EnableWindowsRawAndVt100()
     {
         IntPtr outHandle = GetStdHandle(STD_OUTPUT_HANDLE);
         if (GetConsoleMode(outHandle, out uint outMode)) {
+            _originalOutMode = outMode;
             SetConsoleMode(outHandle, outMode | ENABLE_VIRTUAL_TERMINAL_PROCESSING);
         }
 
         IntPtr inHandle = GetStdHandle(STD_INPUT_HANDLE);
         if (GetConsoleMode(inHandle, out uint inMode)) {
+            _originalInMode = inMode;
             inMode &= ~(ENABLE_LINE_INPUT | ENABLE_ECHO_INPUT);
             inMode |= ENABLE_VIRTUAL_TERMINAL_INPUT | ENABLE_MOUSE_INPUT | ENABLE_WINDOW_INPUT;
             SetConsoleMode(inHandle, inMode);
         }
+        _modesSaved = true;
+    }
+    
+    internal static void RestoreConsoleMode()
+    {
+        if (!_modesSaved) return;
+
+        IntPtr outHandle = GetStdHandle(STD_OUTPUT_HANDLE);
+        SetConsoleMode(outHandle, _originalOutMode);
+
+        IntPtr inHandle = GetStdHandle(STD_INPUT_HANDLE);
+        SetConsoleMode(inHandle, _originalInMode);
     }
 #endregion
 

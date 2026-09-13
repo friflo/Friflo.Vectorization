@@ -30,6 +30,12 @@ public class StreamClient : TmClient
         await outputStream.FlushAsync(cancellationToken);
         return buffer.Length;
     }
+    
+    protected internal override void RestoreTerminal()
+    {
+        outputStream.Write(TerminalReset.AsMemory().Span);
+        outputStream.Flush();
+    }
 
     // I/O Loop: Reads raw stream bytes and pushes them into the single-threaded engine queue
     public static async ValueTask HandleClientSessionAsync(StreamClient client, SingleThreadedShardEngine engine, CancellationToken cancellationToken)

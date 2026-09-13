@@ -38,6 +38,14 @@ public class ConsoleClient : TmClient
         await outputStream.FlushAsync(cancellationToken);
         return buffer.Length;
     }
+    
+    protected internal override void RestoreTerminal()
+    {
+        Win32ConsoleInputStream.RestoreConsoleMode();
+        
+        outputStream.Write(TerminalReset.AsMemory().Span);
+        outputStream.Flush();
+    }
 
     // I/O Loop: Reads raw stream bytes and pushes them into the single-threaded engine queue
     public static async ValueTask HandleClientSessionAsync(ConsoleClient client, SingleThreadedShardEngine engine, CancellationToken cancellationToken)
