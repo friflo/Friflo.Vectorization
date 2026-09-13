@@ -15,7 +15,7 @@ using System.Runtime.Intrinsics.X86;
 namespace Friflo.TmGui;
 
 
-internal static class HashUtils
+public static class HashUtils
 {
     private static readonly ulong[] SecretKey =
     [
@@ -25,7 +25,7 @@ internal static class HashUtils
 
     // Alternative to:  System.IO.Hashing.XxHash3.HashToUInt64()
     // data.Length should be >= 64
-    internal static ulong Hash(ReadOnlySpan<byte> data)
+    public static ulong XxHash3(ReadOnlySpan<byte> data)
     {
         int length = data.Length;
         int index = 0;
