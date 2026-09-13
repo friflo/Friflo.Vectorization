@@ -104,7 +104,7 @@ internal sealed partial class TuiSession
         
         AppendFrameBuffer(frameWidth, frameHeight);
         
-        AppendSpan("\x1b[?2026l"u8);        // Sync Start (atomic frame)
+        AppendSpan("\x1b[?2026l"u8);        // Sync Stop (atomic frame)
         
         AppendSpan("\x1b[H"u8);             // Set Cursor Home Report - if user writes to console e.g. Console.WriteLine()
         
