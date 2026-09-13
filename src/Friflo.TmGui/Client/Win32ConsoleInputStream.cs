@@ -6,6 +6,7 @@ using System;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading;
+using System.Threading.Channels;
 using System.Threading.Tasks;
 
 
@@ -31,6 +32,7 @@ internal sealed class Win32ConsoleInputStream : Stream
     private const ushort    WINDOW_BUFFER_SIZE_EVENT    = 0x0004;
 
     private readonly IntPtr _inHandle;
+    private readonly Channel<byte> _byteChannel;
 
     private static void EnableWindowsRawAndVt100()
     {
@@ -52,59 +54,84 @@ internal sealed class Win32ConsoleInputStream : Stream
     {
         _inHandle = GetStdHandle(STD_INPUT_HANDLE);
         EnableWindowsRawAndVt100();
+
+        var options = new UnboundedChannelOptions {
+            SingleWriter = true,
+            SingleReader = true
+        };
+        _byteChannel = Channel.CreateUnbounded<byte>(options);
+
+        var thread = new Thread(InputLoop) {
+            IsBackground = true,
+            Name = "Win32ConsoleInputWorker"
+        };
+        thread.Start();
+    }
+
+    private void InputLoop()
+    {
+        INPUT_RECORD[] records = new INPUT_RECORD[16];
+        var writer = _byteChannel.Writer;
+
+        while (true)
+        {
+            if (ReadConsoleInput(_inHandle, records, (uint)records.Length, out uint numRead) && numRead > 0) {
+                for (int i = 0; i < numRead; i++) {
+                    ref readonly var record = ref records[i];
+
+                    switch (record.EventType) {
+                        case KEY_EVENT when record.KeyEvent.bKeyDown != 0: {
+                            char ch = record.KeyEvent.UnicodeChar;
+                            if (ch != '\0') {
+                                writer.TryWrite((byte)ch);
+                            }
+                            break;
+                        }
+                        case MOUSE_EVENT: {
+                            var mouse = record.MouseEvent;
+                            writer.TryWrite((byte)'\x1b');
+                            writer.TryWrite((byte)'[');
+                            writer.TryWrite((byte)'M');
+                            writer.TryWrite((byte)(mouse.dwButtonState & 0xFF));
+                            break;
+                        }
+                        case WINDOW_BUFFER_SIZE_EVENT: {
+                            OnWindowBufferSizeEvent(record.WindowBufferSizeEvent.dwSize);
+                            break;
+                        }
+                    }
+                }
+            }
+        }
     }
 
 #region Stream
-    public override ValueTask<int> ReadAsync(Memory<byte> buffer, CancellationToken cancellationToken = default)
+    public override async ValueTask<int> ReadAsync(Memory<byte> buffer, CancellationToken cancellationToken = default)
     {
         if (buffer.IsEmpty) {
-            return ValueTask.FromResult(0);
+            return 0;
         }
 
-        Span<INPUT_RECORD> records = stackalloc INPUT_RECORD[16];
-        if (!ReadConsoleInput(_inHandle, ref records[0], (uint)records.Length, out uint numRead) || numRead == 0) {
-            return ValueTask.FromResult(0);
+        var reader = _byteChannel.Reader;
+
+        if (!await reader.WaitToReadAsync(cancellationToken).ConfigureAwait(false)) {
+            return 0;
         }
 
         Span<byte> target = buffer.Span;
         int bytesWritten = 0;
 
-        for (int i = 0; i < numRead; i++) {
-            ref readonly var record = ref records[i];
-
-            switch (record.EventType) {
-                case KEY_EVENT when record.KeyEvent.bKeyDown != 0: {
-                    char ch = record.KeyEvent.UnicodeChar;
-                    if (ch != '\0' && bytesWritten < target.Length) {
-                        target[bytesWritten++] = (byte)ch;
-                    }
-                    break;
-                }
-                case MOUSE_EVENT: {
-                    // Encode Mouse Event data into buffer stream
-                    var mouse = record.MouseEvent;
-                    if (bytesWritten + 4 <= target.Length) {
-                        target[bytesWritten++] = (byte)'\x1b';
-                        target[bytesWritten++] = (byte)'[';
-                        target[bytesWritten++] = (byte)'M';
-                        target[bytesWritten++] = (byte)(mouse.dwButtonState & 0xFF);
-                    }
-                    break;
-                }
-                case WINDOW_BUFFER_SIZE_EVENT: {
-                    OnWindowBufferSizeEvent(record.WindowBufferSizeEvent.dwSize);
-                    break;
-                }
-            }
+        while (bytesWritten < target.Length && reader.TryRead(out byte b)) {
+            target[bytesWritten++] = b;
         }
-        return ValueTask.FromResult(bytesWritten);
+
+        return bytesWritten;
     }
 
     private void OnWindowBufferSizeEvent(COORD newSize)
     {
-        // Dummy handler for window resize events
+        // English comment: Dummy handler for window resize events
     }
-    
 
     // Stream base boilerplate overrides
     public override     bool    CanRead => true;
@@ -118,9 +145,8 @@ internal sealed class Win32ConsoleInputStream : Stream
     public override     void    SetLength(long value) => throw new NotSupportedException();
     public override     void    Write(byte[] buffer, int offset, int count) => throw new NotSupportedException();
 
-    #endregion
-    
-    
+#endregion
+
 #region P/Invoke Definitions
 
     [DllImport("kernel32.dll", SetLastError = true)]
@@ -133,7 +159,7 @@ internal sealed class Win32ConsoleInputStream : Stream
     private static extern bool SetConsoleMode(IntPtr hConsoleHandle, uint dwMode);
 
     [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
-    private static extern bool ReadConsoleInput(IntPtr hConsoleInput, ref INPUT_RECORD lpBuffer, uint nLength, out uint lpNumberOfEventsRead);
+    private static extern bool ReadConsoleInput(IntPtr hConsoleInput, [Out] INPUT_RECORD[] lpBuffer, uint nLength, out uint lpNumberOfEventsRead);
 
     [StructLayout(LayoutKind.Sequential)]
     private struct COORD
@@ -142,7 +168,7 @@ internal sealed class Win32ConsoleInputStream : Stream
         public short Y;
     }
 
-    [StructLayout(LayoutKind.Explicit)]
+    [StructLayout(LayoutKind.Explicit, Size = 20)]
     private struct INPUT_RECORD
     {
         [FieldOffset(0)] public ushort EventType;
