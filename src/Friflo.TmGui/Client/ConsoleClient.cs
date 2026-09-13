@@ -23,9 +23,12 @@ public class ConsoleClient : TmClient
         outputStream = Console.OpenStandardOutput();
 
         // Use native Win32 input stream on Windows, fall back to StandardInput on Unix
-        inputStream = OperatingSystem.IsWindows() 
-            ? new Win32ConsoleInputStream() 
-            : Console.OpenStandardInput();
+        if (OperatingSystem.IsWindows()) {
+            // TerminalUtils.EnableRawModeAndVT100(); inputStream = Console.OpenStandardInput();
+            inputStream = new Win32ConsoleInputStream();
+        } else {
+            inputStream = Console.OpenStandardInput();
+        }
     }
     
     protected internal override async ValueTask<int> SendAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken)

@@ -9,8 +9,7 @@ using System.Runtime.InteropServices;
 namespace Friflo.TmGui.Client;
 
 
-
-public static class TerminalUtils
+internal static class TerminalUtils
 {
     private const int STD_INPUT_HANDLE  = -10;
     private const int STD_OUTPUT_HANDLE = -11;
@@ -21,7 +20,7 @@ public static class TerminalUtils
     private const uint ENABLE_VIRTUAL_TERMINAL_PROCESSING   = 0x0004;
 
     /// <summary> Configures the terminal for raw input and VT100 output. </summary>
-    public static void EnableRawModeAndVT100()
+    internal static void EnableRawModeAndVT100()
     {
         if (OperatingSystem.IsWindows()) {
             EnableWindowsRawAndVt100();
