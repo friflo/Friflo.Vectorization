@@ -94,6 +94,8 @@ internal sealed partial class TuiSession
         
         AppendFrameBuffer(frameWidth, frameHeight);
         
+        AppendSpan("\x1b[H"u8); // Set Cursor Home Report - prevents flickering when resizing window
+        
         var sendMemory  = sendBuffer.AsMemory(0, sendBufferCount);
         var sendHash    = HashUtils.XxHash3(sendMemory.Span);
         if (sendHash == lastSendHash) {
