@@ -136,7 +136,7 @@ public sealed partial class TuiBatch : TmBatch
 #endregion
 
 #region DrawRectCommands
-    private void DrawRectCommands(int stride, bool drawColor, Span<TuiColorCell> cells, Span<char> chars)
+    private void DrawRectCommands(int stride, bool drawColor, Span<TuiColorCell> cells, Span<Rune> runes)
     {
         var commands    = rectCommands;
         var rects       = tuiRects;
@@ -175,7 +175,7 @@ public sealed partial class TuiBatch : TmBatch
                     // Text rendering branch with two-sided horizontal clipping
                     if (rect.text.len != 0)
                     {
-                        var text = texts.Slice(rect.text.start, rect.text.len);
+                        Span<char> text = texts.Slice(rect.text.start, rect.text.len);
 
                         // Offset for left-side clipping
                         int offsetX = startX - rectL;
@@ -199,7 +199,7 @@ public sealed partial class TuiBatch : TmBatch
                                 // Phase 1: Direct 1:1 color mapping for available span entries
                                 for (int n = 0; n < spanEnd; n++) {
                                     ref var dstCell = ref row[n];
-                                    dstCell.rune        = new Rune(text[offsetX + n]);
+                                    Rune.DecodeFromUtf16(text.Slice(offsetX + n), out dstCell.rune, out _);
                                     dstCell.color       = colors[color.start + offsetX + n];
                                     dstCell.textStyle   = textStyle;
                                 }
@@ -209,19 +209,21 @@ public sealed partial class TuiBatch : TmBatch
                                     var solidColor = color.len == 0 ? color.value : colors[color.start + color.len - 1];
                                     for (int n = spanEnd; n < count; n++) {
                                         ref var dstCell     = ref row[n];
-                                        dstCell.rune        = new Rune(text[offsetX + n]);
+                                        Rune.DecodeFromUtf16(text.Slice(offsetX + n), out dstCell.rune, out _);
                                         dstCell.color       = solidColor;
                                         dstCell.textStyle   = textStyle;
                                     }
                                 }
                             } else {
                                 var srcSpan = text.Slice(offsetX, count);
-                                var dstSpan = chars.Slice(stride * startY + startX, count);
-                                srcSpan.CopyTo(dstSpan);
+                                var dstSpan = runes.Slice(stride * startY + startX, count);
+                                for (int n = 0; n < count; n++) {
+                                    Rune.DecodeFromUtf16(srcSpan.Slice(n), out dstSpan[n], out _);
+                                }
                             }
                         }
                         continue;
-                    } 
+                    }
                     // Fill clipped background area row by row
                     if (drawColor) {
                         var width   = endX - startX;
@@ -236,7 +238,7 @@ public sealed partial class TuiBatch : TmBatch
                     } else {
                         var width = endX - startX;
                         for (int y = startY; y < endY; y++) {
-                            chars.Slice(stride * y + startX, width).Fill(rect.text.fillChar);
+                            runes.Slice(stride * y + startX, width).Fill(new Rune(rect.text.fillChar));
                         }
                     }
                 }
@@ -257,7 +259,7 @@ public sealed partial class TuiBatch : TmBatch
     }
     
     
-    /// <summary> Result in <see cref="FrameBuffer.CharCells"/> </summary>
+    /// <summary> Result in <see cref="FrameBuffer.RuneCells"/> </summary>
     /// <remarks>
     /// lineEnd ("\r\n") is added to each line. Is used when writing a screen to a text file are a terminal. 
     /// </remarks>
@@ -268,16 +270,19 @@ public sealed partial class TuiBatch : TmBatch
         int stride = targetWidth + lineEnd.Length;
         frameBuffer.PrepareCharCells(stride, targetHeight);
         
-        var chars = frameBuffer.CharCells;
-        chars.Fill(clear);
+        var runes = frameBuffer.RuneCells;
+        runes.Fill(new Rune(clear));
         
-        DrawRectCommands(stride, false, default, chars);
+        DrawRectCommands(stride, false, default, runes);
         
         if (lineEnd.Length == 0) {
             return;
         }
         for (int line = 0; line < targetHeight; line++) {
-            lineEnd.CopyTo(chars.Slice(line * stride + targetWidth, lineEnd.Length));
+            // lineEnd.CopyTo(runes.Slice(line * stride + targetWidth, lineEnd.Length));
+            for (int n = 0; n < lineEnd.Length; n++) {
+                runes[line * stride + targetWidth + n] = new Rune(lineEnd[n]);
+            }
         }
     }
 #endregion

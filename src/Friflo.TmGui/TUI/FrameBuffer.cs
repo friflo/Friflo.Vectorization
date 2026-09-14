@@ -14,10 +14,10 @@ public sealed class FrameBuffer
     private     int                 bufferWidth;
     private     int                 bufferHeight;
     private     TuiColorCell[]      colorCells              = [];
-    private     char[]              charCells               = [];
+    private     Rune[]              runeCells               = [];
     
     public      Span<TuiColorCell>  ColorCells              => colorCells. AsSpan().Slice(0,  bufferWidth * bufferHeight);
-    public      Span<char>          CharCells               => charCells.  AsSpan().Slice(0,  bufferWidth * bufferHeight);
+    public      Span<Rune>          RuneCells               => runeCells.  AsSpan().Slice(0,  bufferWidth * bufferHeight);
     
     internal void PrepareColorCells(int width, int height)
     {
@@ -36,8 +36,8 @@ public sealed class FrameBuffer
         bufferHeight    = height;
         var cellCount   = width * height;
         
-        if (cellCount > charCells.Length) {
-            charCells = new char[cellCount];
+        if (cellCount > runeCells.Length) {
+            runeCells = new Rune[cellCount];
         }
     }
     

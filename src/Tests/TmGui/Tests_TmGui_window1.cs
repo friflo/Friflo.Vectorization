@@ -27,7 +27,7 @@ public class Tests_TmGui_window1
         batch.SetFormatProvider(CultureInfo.InvariantCulture);
     }
     
-    /// Result in <see cref="FrameBuffer.CharCells"/>
+    /// Result in <see cref="FrameBuffer.RuneCells"/>
     [Test]
     public void Tests_TmGui_window1_TUI_char()
     {
@@ -52,8 +52,11 @@ public class Tests_TmGui_window1
         Mem.AssertNoAlloc(start);
         Assert.That(batch.Rects.Length, Is.EqualTo(63));
         Assert.That(batch.Texts.Length, Is.EqualTo(153));
-        Assert.That(frameBuffer.CharCells.Length, Is.EqualTo(1560));
-        var screen  = new string(frameBuffer.CharCells);
+        Assert.That(frameBuffer.RuneCells.Length, Is.EqualTo(1560));
+        
+        var sb = new StringBuilder();
+        foreach (var r in frameBuffer.RuneCells) sb.Append(r);
+        var screen  = sb.ToString();
         var dir     = Path.GetDirectoryName(GetCurrentFilePath())!;
         var tuiFile = $"{dir}/{TestContext.CurrentContext.Test.Name}.txt";
         

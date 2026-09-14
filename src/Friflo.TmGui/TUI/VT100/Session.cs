@@ -129,11 +129,11 @@ internal sealed partial class TuiSession
         // ------ Monochrome
         if (colorMode == TuiColorMode.Monochrome) {
             batch.DrawRectCommandsChar (frameBuffer, width, height, ' ', "\r\n");
-            var chars  = frameBuffer.CharCells;
-            for (int i = 0; i < chars.Length; i++) {
-                buffer[start + i] = (byte)chars[i];
+            var runes  = frameBuffer.RuneCells;
+            for (int i = 0; i < runes.Length; i++) {
+                buffer[start + i] = (byte)runes[i].Value;
             }
-            sendBufferCount += chars.Length;
+            sendBufferCount += runes.Length;
             return;
         }
         
