@@ -66,10 +66,17 @@ public readonly ref partial struct GuiWidget
         
         // ensure every drawing is clipped
         draw.PushScissor(window.Pos,  window.Size);
+        var titleOffset = new Vector2(0f, titleBarHeight);
+        var innerSize   = Vector2.Max(Vector2.Zero, window.Size - titleOffset);
+        var contentPos  = window.Pos + titleOffset; // + Sizes.WindowPadding.Min;
+        var scissorPos  = contentPos;
+        var scissorSize = innerSize;
         
         // Render background & titlebar
         if (tui != null) {
             tui.DrawWindowTitle(title, window.Pos, window.Size, Colors, traits, tuiBorder);
+            scissorPos  += new Vector2(tui.CharWidth,     0);
+            scissorSize -= new Vector2(tui.CharWidth * 2, 0);
         } else {
             var textPos = window.Pos + new Vector2(10f, (titleBarHeight - LineHeight) / 2f);
             var headerColor = Colors.ButtonState(titleState);
@@ -77,11 +84,7 @@ public readonly ref partial struct GuiWidget
             draw.FillRectRounded(window.Pos,   titleBarSize, Sizes.CornerRadius, headerColor,            GuiSizes.CornerSegments);
             draw.DrawText(title, textPos, Colors.TextColor);
         }
-        var titleOffset = new Vector2(0f, titleBarHeight);
-        var innerSize   = Vector2.Max(Vector2.Zero, window.Size - titleOffset);
-        var contentPos  = window.Pos + titleOffset; // + Sizes.WindowPadding.Min;
-        
-        draw.PushScissor(contentPos,  innerSize);
+        draw.PushScissor(scissorPos,  scissorSize);
         var scrollRect  = PushScrollArea(parentHash, contentPos, innerSize, Sizes.WindowPadding);
         window.InitLayout(scrollRect.pos, scrollRect.size);
 
