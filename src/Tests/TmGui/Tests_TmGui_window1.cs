@@ -101,11 +101,9 @@ public class Tests_TmGui_window1
     
     private static string CellsToString(ReadOnlySpan<TuiColorCell> cells, int targetWidth, int targetHeight)
     {
-        int stride      = targetWidth + 2;
-        var sb          = new StringBuilder();
+        var sb = new StringBuilder();
 
         for (int line = 0; line < targetHeight; line++) {
-            var start = line * stride;
             for (int col = 0; col < targetWidth; col++) {
                 sb.Append(cells[line * targetWidth + col].rune);
             }
