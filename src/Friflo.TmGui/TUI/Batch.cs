@@ -188,6 +188,13 @@ public sealed partial class TuiBatch : TmBatch
                     }
                     
                     // case:  Text rendering branch with two-sided horizontal clipping
+                    int maxVisibleWidth = endX - startX;
+
+                    // Guard clause: Skip rendering if out of vertical bounds or horizontally collapsed
+                    if (maxVisibleWidth <= 0 || startY != rectT) {
+                        continue;
+                    }
+                    
                     Span<char> text = texts.Slice(rect.text.start, rect.text.len);
 
                     // Offset for left-side clipping
@@ -199,48 +206,46 @@ public sealed partial class TuiBatch : TmBatch
                         Rune.DecodeFromUtf16(text.Slice(textPos), out _, out int charsConsumed);
                         textPos += charsConsumed;
                     }
+                    var color     = rect.color;
+                    var textStyle = rect.textStyle;
+                    var row       = cells.Slice(stride * startY + startX, maxVisibleWidth);
 
-                    // Clamp column count strictly against right scissor bound (endX)
-                    int maxVisibleWidth = endX - startX;
+                    // Pre-calculate fallback color for tail entries
+                    var solidColor = color.len == 0 ? color.value : colors[color.start + color.len - 1];
 
-                    if (maxVisibleWidth > 0 && startY == rectT)
+                    int runeIndex = 0;
+                    int n = 0;
+
+                    // Single pass handling text decoding, dynamic column advancing and color lookup
+                    while (n < row.Length && textPos < text.Length)
                     {
-                        var color     = rect.color;
-                        var textStyle = rect.textStyle;
-                        var row       = cells.Slice(stride * startY + startX, maxVisibleWidth);
+                        ref var dstCell = ref row[n];
+                        Rune.DecodeFromUtf16(text.Slice(textPos), out dstCell.rune, out int charsConsumed);
+                        textPos += charsConsumed;
 
-                        // Pre-calculate fallback color for tail entries
-                        var solidColor = color.len == 0 ? color.value : colors[color.start + color.len - 1];
+                        // Branchless/inline color lookup based on active span bounds
+                        int colorOffset     = offsetX + runeIndex;
+                        dstCell.color       = colorOffset < color.len ? colors[color.start + colorOffset] : solidColor;
+                        dstCell.textStyle   = textStyle;
 
-                        int runeIndex = 0;
-                        int n = 0;
-
-                        // Single pass handling text decoding, dynamic column advancing and color lookup
-                        while (n < row.Length && textPos < text.Length)
-                        {
-                            ref var dstCell = ref row[n];
-                            Rune.DecodeFromUtf16(text.Slice(textPos), out dstCell.rune, out int charsConsumed);
-                            textPos += charsConsumed;
-
-                            bool isWide = dstCell.IsWideRune;
-
-                            // Branchless/inline color lookup based on active span bounds
-                            int colorOffset     = offsetX + runeIndex;
-                            dstCell.color       = colorOffset < color.len ? colors[color.start + colorOffset] : solidColor;
-                            dstCell.textStyle   = textStyle;
-
-                            // Set subsequent cell as ghost cell for wide characters (e.g. Emojis)
-                            if (isWide && n + 1 < row.Length) {
+                        if (dstCell.IsWideRune) {
+                            // Handle wide characters near the right scissor edge
+                            if (n + 1 < row.Length) {
+                                // Set subsequent cell as ghost cell
                                 ref var ghostCell   = ref row[n + 1];
                                 ghostCell.rune      = default;
                                 ghostCell.color     = dstCell.color;
                                 ghostCell.textStyle = textStyle;
                                 n += 2;
                             } else {
+                                // Right border clip: Replace clipped wide character with ellipsis
+                                dstCell.rune = new Rune('…');
                                 n += 1;
                             }
-                            runeIndex++;
+                        } else {
+                            n += 1;
                         }
+                        runeIndex++;
                     }
                     // end:  Text rendering branch
                 }
