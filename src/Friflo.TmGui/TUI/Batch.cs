@@ -174,7 +174,8 @@ public sealed partial class TuiBatch : TmBatch
 
                     if (rect.text.len == 0)
                     {
-                        // case:  Fill clipped background area row by row
+                        // -----------------------------------------------------------
+                        // case:   Fill clipped background area row by row 
                         var width   = endX - startX;
                         var fill    = new TuiColorCell { rune = new Rune(rect.text.fillChar), color = 0, background = rect.color.value };
                         if (rect.color.len == 2) {
@@ -186,7 +187,7 @@ public sealed partial class TuiBatch : TmBatch
                         }
                         continue;
                     }
-                    
+                    // ---------------------------------------------------------------
                     // case:  Text rendering branch with two-sided horizontal clipping
                     int maxVisibleWidth = endX - startX;
 
