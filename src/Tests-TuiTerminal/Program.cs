@@ -32,7 +32,7 @@ async ValueTask TcpServer()
     var loop = new TmSessionLoop((ConnectInfo info) => new TestGuiView(appState));
 
     // 2. IMPORTANT: Start the dedicated single-threaded event loop!
-    loop.Start();
+    loop.StartAsync();
     
     var localClient = new ConsoleClient();
     _ = ConsoleClient.HandleClientSessionAsync(localClient, loop, CancellationToken.None);

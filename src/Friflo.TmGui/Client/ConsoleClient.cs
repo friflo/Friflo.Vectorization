@@ -39,6 +39,13 @@ public class ConsoleClient : TmClient
         return buffer.Length;
     }
     
+    protected internal override  int Send(ReadOnlyMemory<byte> buffer)
+    {
+        outputStream.Write(buffer.Span);
+        outputStream.Flush();
+        return buffer.Length;
+    }
+    
     protected internal override void RestoreTerminal()
     {
         Win32ConsoleInputStream.RestoreConsoleMode();

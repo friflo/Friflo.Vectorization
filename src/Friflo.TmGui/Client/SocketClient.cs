@@ -27,6 +27,11 @@ public class SocketClient : TmClient
         return await socket.SendAsync(buffer, SocketFlags.None, cancellationToken);
     }
     
+    protected internal override  int Send(ReadOnlyMemory<byte> buffer)
+    {
+        return socket.Send(buffer.Span, SocketFlags.None);
+    }
+    
     protected internal override void RestoreTerminal()
     {
         socket.Send(TerminalReset.AsMemory().Span);

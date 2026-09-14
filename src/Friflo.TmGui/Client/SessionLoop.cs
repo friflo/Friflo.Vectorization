@@ -74,20 +74,24 @@ public sealed partial class TmSessionLoop : IDisposable
         cts.Dispose();
     }
 
-    public void Start()
+    // -------------------------------------- similar sync / async code --------------------------------------
+    // start
+    public void StartAsync()
     {
         ObjectDisposedException.ThrowIf(isDisposed, this);
         if (shardThread != null)        {
             throw new InvalidOperationException("Engine is already running.");
         }
-        shardThread = new Thread(RunThreadLoop) {
+        shardThread = new Thread(RunAsyncThreadLoop) {
             IsBackground = true,
             Name = "ShardLoopThread"
         };
         shardThread.Start();
     }
 
-    private void RunThreadLoop()
+
+    // run loop
+    private void RunAsyncThreadLoop()
     {
         try {
             RunEventLoopAsync(cts.Token).GetAwaiter().GetResult();
@@ -102,9 +106,12 @@ public sealed partial class TmSessionLoop : IDisposable
         }
     }
 
+    // run event loop
     private async Task RunEventLoopAsync(CancellationToken cancellationToken)
     {
         var reader = eventChannel.Reader;
+
+
 
         while (await reader.WaitToReadAsync(cancellationToken))
         {
@@ -114,7 +121,8 @@ public sealed partial class TmSessionLoop : IDisposable
             }
         }
     }
-
+    
+    // process event
     private async ValueTask ProcessEventAsync(ClientEvent evt)
     {
         try {
@@ -131,7 +139,6 @@ public sealed partial class TmSessionLoop : IDisposable
                     var newSession      = new TuiSession(guiView, evt.Client, frameBuffer, TuiColorMode.RGB24);
                     sessions[client]    = newSession;
                     
-
                     var initialMessage = newSession.StartSession();
                     await client.SendAsync(initialMessage, CancellationToken.None);
                     
