@@ -27,7 +27,7 @@ public class Tests_TmGui_window1
         batch.SetFormatProvider(CultureInfo.InvariantCulture);
     }
     
-    /// Result in <see cref="FrameBuffer.RuneCells"/>
+    /// Result in FrameBuffer.RuneCells - Note: not supported anymore
     [Test]
     public void Tests_TmGui_window1_TUI_char()
     {
@@ -46,17 +46,15 @@ public class Tests_TmGui_window1
             using (gui.BeginWindow("Window 1", new(200, 200), new(600, 800), tuiBorder: TuiBorder.Rounded)) {
                 Window1(gui); 
             }
-            batch.DrawRectCommandsChar(frameBuffer, 50, 30, ' ', "\r\n");
+            batch.DrawRectCommands(frameBuffer, 50, 30, new TuiColorCell { Character = ' ' });
             if (n == 0) start = Mem.GetAllocatedBytes();
         }
         Mem.AssertNoAlloc(start);
         Assert.That(batch.Rects.Length, Is.EqualTo(63));
         Assert.That(batch.Texts.Length, Is.EqualTo(157));
-        Assert.That(frameBuffer.RuneCells.Length, Is.EqualTo(1560));
+        Assert.That(frameBuffer.ColorCells.Length, Is.EqualTo(1500));
         
-        var sb = new StringBuilder();
-        foreach (var r in frameBuffer.RuneCells) sb.Append(r);
-        var screen  = sb.ToString();
+        var screen = CellsToString(frameBuffer.ColorCells, 50, 30);
         var dir     = Path.GetDirectoryName(GetCurrentFilePath())!;
         var tuiFile = $"{dir}/{TestContext.CurrentContext.Test.Name}.txt";
         
@@ -83,7 +81,7 @@ public class Tests_TmGui_window1
             using (gui.BeginWindow("Window 1", new(200, 200), new(600, 800), tuiBorder: TuiBorder.Rounded)) {
                 Window1(gui); 
             }
-            batch.DrawRectCommandsColor(frameBuffer, 50, 30, new TuiColorCell { Character = ' ' });
+            batch.DrawRectCommands(frameBuffer, 50, 30, new TuiColorCell { Character = ' ' });
             if (n == 0) start = Mem.GetAllocatedBytes();
         }
         Mem.AssertNoAlloc(start);

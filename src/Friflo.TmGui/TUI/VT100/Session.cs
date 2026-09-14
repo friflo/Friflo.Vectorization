@@ -126,16 +126,16 @@ internal sealed partial class TuiSession
         var start   = sendBufferCount;
         var buffer  = sendBuffer;
         
-        // ------ Monochrome
+        /* // ------ Monochrome
         if (colorMode == TuiColorMode.Monochrome) {
-            batch.DrawRectCommandsChar (frameBuffer, width, height, ' ', "\r\n");
+            batch.DrawRectCommandsColor (frameBuffer, width, height, ' ', "\r\n");
             var runes  = frameBuffer.RuneCells;
             for (int i = 0; i < runes.Length; i++) {
                 buffer[start + i] = (byte)runes[i].Value;
             }
             sendBufferCount += runes.Length;
             return;
-        }
+        } */
         
         // ------ RGB24
         // color / background are only sent if changed 
@@ -144,7 +144,7 @@ internal sealed partial class TuiSession
         var textStyle   = TextStyle.None;
         
         var clear =  new TuiColorCell { Character = ' ', color = 0x000000ff, background = 0x888888ff };
-        batch.DrawRectCommandsColor(frameBuffer, width, height, clear);
+        batch.DrawRectCommands(frameBuffer, width, height, clear);
         
         if (backend.input.CurrentCursor != MouseCursor.Arrow) {
             DrawMouseCursor();
