@@ -4,7 +4,6 @@
 using System;
 using System.Diagnostics;
 using System.Threading;
-using Friflo.TmGui.TUI;
 using Friflo.TmGui.TUI.VT100;
 
 
