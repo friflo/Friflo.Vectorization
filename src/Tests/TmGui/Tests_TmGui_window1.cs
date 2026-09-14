@@ -36,7 +36,7 @@ public class Tests_TmGui_window1
         var batch       = backend.CreateBatch(TuiColorMode.Monochrome);
 
         long        start   = 0;
-        const int   repeat  = 10; // 2_000_000 - 2.2 sec
+        const int   repeat  = 10; // 2_000_000 - 4.9 sec - now same as Tests_TmGui_window1_TUI_color
         
         for (int n = 0; n < repeat; n++)
         {
@@ -71,7 +71,7 @@ public class Tests_TmGui_window1
         var batch       = backend.CreateBatch(TuiColorMode.Monochrome);
 
         long        start   = 0;
-        const int   repeat  = 10; // 2_000_000 - 3.5 sec
+        const int   repeat  = 10; // 2_000_000 - 4.9 sec
         
         for (int n = 0; n < repeat; n++)
         {
