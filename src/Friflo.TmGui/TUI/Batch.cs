@@ -175,15 +175,34 @@ public sealed partial class TuiBatch : TmBatch
                     if (rect.text.len == 0)
                     {
                         // -----------------------------------------------------------
-                        // case:   Fill clipped background area row by row 
-                        var width   = endX - startX;
-                        var fill    = new TuiColorCell { rune = new Rune(rect.text.fillChar), color = 0, background = rect.color.value };
+                        // case: Fill clipped background area row by row with split-wide cell repairs
+                        int width = endX - startX;
+                        var fill  = new TuiColorCell { 
+                            rune       = new Rune(rect.text.fillChar), 
+                            width      = 1, 
+                            color      = 0, 
+                            background = rect.color.value 
+                        };
                         if (rect.color.len == 2) {
                             fill.background = colors[rect.color.start];
                             fill.color      = colors[rect.color.start + 1];
                         }
                         for (int y = startY; y < endY; y++) {
-                            cells.Slice(stride * y + startX, width).Fill(fill);
+                            var fillRow = cells.Slice(stride * y, stride);
+
+                            // Fix orphan wide rune on the left edge
+                            if (startX > 0 && fillRow[startX].width == 0) {
+                                ref var left    = ref fillRow[startX - 1];
+                                left.rune       = new Rune('…');
+                                left.width      = 1;
+                            }
+                            // Fix orphan ghost cell on the right edge
+                            if (endX < stride && fillRow[endX - 1].width == 2) {
+                                ref var right   = ref fillRow[endX];
+                                right.rune      = new Rune('…');
+                                right.width     = 1;
+                            }
+                            fillRow.Slice(startX, width).Fill(fill);
                         }
                         continue;
                     }
