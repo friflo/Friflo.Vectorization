@@ -228,8 +228,10 @@ public sealed partial class TuiBatch : TmBatch
                         int colorOffset     = offsetX + runeIndex;
                         dstCell.color       = colorOffset < color.len ? colors[color.start + colorOffset] : solidColor;
                         dstCell.textStyle   = textStyle;
+                        dstCell.width       = 1;
 
                         if (dstCell.IsWideRune) {
+                            dstCell.width = 2;
                             // Handle wide characters near the right scissor edge
                             if (n + 1 < row.Length) {
                                 // Set subsequent cell as ghost cell
@@ -237,10 +239,11 @@ public sealed partial class TuiBatch : TmBatch
                                 ghostCell.rune      = default;
                                 ghostCell.color     = dstCell.color;
                                 ghostCell.textStyle = textStyle;
+                                ghostCell.width     = 0;
                                 n += 2;
                             } else {
                                 // Right border clip: Replace clipped wide character with ellipsis
-                                dstCell.rune = new Rune('…');
+                                dstCell.rune        = new Rune('…');
                                 n += 1;
                             }
                         } else {
@@ -261,6 +264,7 @@ public sealed partial class TuiBatch : TmBatch
         frameBuffer.PrepareColorCells(targetWidth, targetHeight);
         
         var cells = frameBuffer.ColorCells;
+        clear.width = 1;
         cells.Fill(clear);
         
         DrawRectCommandsInternal(targetWidth, cells);

@@ -24,6 +24,7 @@ public struct TuiColorCell
 {
     public  Rune        rune;       //  4 bytes
     public  TextStyle   textStyle;  //  1 byte
+    public  byte        width;      //  1 byte      1 or 2: rune width in terminal. 0: ghost cells
     public  Color32     color;      //  4 bytes
     public  Color32     background; //  4 bytes
     
