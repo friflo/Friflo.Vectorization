@@ -6,6 +6,7 @@ using System;
 using System.Globalization;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Text;
 
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable ConvertToPrimaryConstructor
@@ -96,7 +97,7 @@ public struct Color32 : IEquatable<Color32>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator Color32(uint rgbaHex) => FromRgbaHex(rgbaHex);
 
-    public readonly override string ToString() => $"RGBA({R}, {G}, {B}, {A})";
+    public readonly override string ToString() => $"RGBA({R}, {G}, {B}, {A}) {GetClosestUnicodeCircle(this)}";
 
 
     // Presets
@@ -128,4 +129,45 @@ public struct Color32 : IEquatable<Color32>
     public static readonly  Color32 Teal             = new(  0, 128, 128);
     public static readonly  Color32 Navy             = new(  0,   0, 128);
     public static readonly  Color32 Crimson          = new(220,  20,  60);
+    
+    
+    private static string GetClosestUnicodeCircle(Color32 color)
+    {
+        byte r = color.R;
+        byte g = color.G;
+        byte b = color.B;
+
+        byte max = Math.Max(r, Math.Max(g, b));
+        byte min = Math.Min(r, Math.Min(g, b));
+        int delta = max - min;
+
+        // 1. Grayscale detection via low saturation variance (delta < 24)
+        if (delta < 24)
+        {
+            if (max < 45)           return "⚫"; // Black
+            if (max > 210)          return "⚪"; // White
+                                    return "🔘"; // Gray / Radio Button
+        }
+
+        // 2. Chromatic color classification based on dominant channels
+        if (r >= g && r >= b) // Red is dominant
+        {
+            if (g > 160 && b < 100) return "🟡"; // Yellow
+            if (g > 80  && b < 80)  return "🟠"; // Orange
+            if (b > 120 && g < 120) return "🟣"; // Purple
+                                    return "🔴"; // Red
+        }
+
+        if (g >= r && g >= b) // Green is dominant
+        {
+            if (r > 160 && b < 100) return "🟡"; // Yellow-Green -> Yellow
+            if (b > 160 && r < 100) return "🔵"; // Cyan / Teal -> Blue
+                                    return "🟢"; // Green
+        }
+
+        // Blue is dominant (b >= r && b >= g)
+        if (r > 120 && g < 120)     return "🟣"; // Purple
+        if (g > 140 && r < 100)     return "🔵"; // Cyan / Sky Blue -> Blue
+                                    return "🔵"; // Blue
+    }
 }
