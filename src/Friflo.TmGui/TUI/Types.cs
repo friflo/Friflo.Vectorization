@@ -4,6 +4,7 @@
 
 using System;
 using System.Numerics;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
 
@@ -32,6 +33,7 @@ public struct TuiColorCell
     
     /// <summary> Evaluates terminal column width (1 for standard/BMP, 2 for Wide/CJK/Plane-1 Emojis) </summary>
     public readonly bool IsWideRune {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         get {
             uint val = (uint)rune.Value;
 
