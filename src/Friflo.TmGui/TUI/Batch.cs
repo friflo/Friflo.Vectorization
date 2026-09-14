@@ -209,7 +209,7 @@ public sealed partial class TuiBatch : TmBatch
                                 Rune.DecodeFromUtf16(text.Slice(textPos), out dstCell.rune, out int charsConsumed);
                                 textPos += charsConsumed;
 
-                                bool isWide = dstCell.rune.Value > 0xFFFF;
+                                bool isWide = dstCell.IsWideRune;
 
                                 // Branchless/inline color lookup based on active span bounds
                                 int colorOffset     = offsetX + runeIndex;

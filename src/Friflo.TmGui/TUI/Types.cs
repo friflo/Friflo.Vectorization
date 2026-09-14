@@ -7,7 +7,7 @@ using System.Numerics;
 using System.Runtime.InteropServices;
 using System.Text;
 
-
+// ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable ArrangeThisQualifier
 // ReSharper disable InconsistentNaming
@@ -29,6 +29,25 @@ public struct TuiColorCell
     public  char        Character   { get => throw new InvalidOperationException(); set => rune = new Rune(value); }
     
     public override string ToString() => $"'{rune}'";
+    
+    /// <summary> Evaluates terminal column width (1 for standard/BMP, 2 for Wide/CJK/Plane-1 Emojis) </summary>
+    public readonly bool IsWideRune {
+        get {
+            uint val = (uint)rune.Value;
+
+            // Fast path for standard ASCII and Latin characters (< 0x2E80)
+            if (val < 0x2E80) return false;
+
+            // Plane-1 Emojis and higher Unicode planes (> 0xFFFF)
+            if (val > 0xFFFF) return true;
+
+            // CJK Radicals, Kanji & CJK Unified Ideographs (0x2E80 to 0x9FFF)
+            if (val - 0x2E80 <= (0x9FFF - 0x2E80)) return true;
+
+            // Hangul Syllables (0xAC00 to 0xD7AF)
+            return val - 0xAC00 <= (0xD7AF - 0xAC00);
+        }
+    }
 }
 
 [Flags]
