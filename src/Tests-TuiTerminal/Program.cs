@@ -21,38 +21,43 @@ using TuiTerminal;
 
 Console.WriteLine("TUI Terminal Server");
 
-var appState = new AppState(); // shared application state among all clients each having its own IGuiView instance
+var appState = new AppState();
+var loop     = new TmSessionLoop(_ => new TestGuiView(appState));
 
 
-await TcpServer();
+// Flag toggles execution mode:
+// true  => UI Loop runs in dedicated background Thread, Main-Thread runs TCP server.
+// false => TCP server runs on ThreadPool, Main-Thread is blocked by UI Loop.
+bool runAsync = false;
 
-async ValueTask TcpServer()
-{
-    var port = 9000;
-    var loop = new TmSessionLoop((ConnectInfo info) => new TestGuiView(appState));
-
-    // 2. IMPORTANT: Start the dedicated single-threaded event loop!
-    loop.StartAsync();
+if (runAsync) {
+    loop.StartAsync(); // Spawns dedicated "ShardLoopThread"
+    await RunTcpServerAsync(loop, port: 9000);
+}
+else {
+    // Run TCP accept loop in background and lock Main-Thread for engine execution
+    _ = Task.Run(() => RunTcpServerAsync(loop, port: 9000));
     
+    loop.StartSync(); // Blocks Main-Thread directly
+}
+
+
+static async Task RunTcpServerAsync(TmSessionLoop loop, int port)
+{
+    // Start local console I/O session
     var localClient = new ConsoleClient();
     _ = ConsoleClient.HandleClientSessionAsync(localClient, loop, CancellationToken.None);
-    
-    // await Task.Delay(-1);
 
-    
-
-    // 3. Start TCP listener loop
     using var serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
     serverSocket.Bind(new IPEndPoint(IPAddress.Any, port));
     serverSocket.Listen();
 
-    Console.WriteLine("[+] Server & ShardEngine running on port {port}...");
+    Console.WriteLine($"[+] TCP Listener active on port {port}...");
 
     while (true)
     {
         Socket clientSocket = await serverSocket.AcceptAsync();
         
-        // Pass engine reference to every client I/O session
         var client = new SocketClient(clientSocket);
         _ = SocketClient.HandleClientSessionAsync(client, loop, CancellationToken.None);
     }
