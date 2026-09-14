@@ -5,7 +5,7 @@
         ╭─Window 1───────────────╮                
         │                        ▉                
         │hello GUI               ▉                
-        │ hello 🙂�               ▉                
+        │ hello 🙂               ▉                
         │                        ▉                
         │[ ] mouse circle        ▉                
         │[ ] Monocraft           ▉                

@@ -180,38 +180,53 @@ public sealed partial class TuiBatch : TmBatch
                         // Offset for left-side clipping
                         int offsetX = startX - rectL;
 
-                        // Clamp character count strictly against right scissor bound (endX)
-                        int maxVisibleWidth = endX - startX;
-                        int availableText   = text.Length - offsetX;
-                        int count           = Math.Min(availableText, maxVisibleWidth);
+                        // Fast-forward textPos past left-clipped characters
+                        int textPos = 0;
+                        for (int i = 0; i < offsetX && textPos < text.Length; i++) {
+                            Rune.DecodeFromUtf16(text.Slice(textPos), out _, out int charsConsumed);
+                            textPos += charsConsumed;
+                        }
 
-                        if (count > 0 && startY == rectT)
+                        // Clamp column count strictly against right scissor bound (endX)
+                        int maxVisibleWidth = endX - startX;
+
+                        if (maxVisibleWidth > 0 && startY == rectT)
                         {
                             var color     = rect.color;
                             var textStyle = rect.textStyle;
-                            var row       = cells.Slice(stride * startY + startX, count);
+                            var row       = cells.Slice(stride * startY + startX, maxVisibleWidth);
 
-                            // Calculate span boundary; evaluates to 0 for solid colors or full left-clipping
-                            int remaining   = color.len - offsetX;
-                            int spanEnd     = remaining <= 0 ? 0 : remaining < count ? remaining : count;
+                            // Pre-calculate fallback color for tail entries
+                            var solidColor = color.len == 0 ? color.value : colors[color.start + color.len - 1];
 
-                            // Phase 1: Direct 1:1 color mapping for available span entries
-                            for (int n = 0; n < spanEnd; n++) {
+                            int runeIndex = 0;
+                            int n = 0;
+
+                            // Single pass handling text decoding, dynamic column advancing and color lookup
+                            while (n < row.Length && textPos < text.Length)
+                            {
                                 ref var dstCell = ref row[n];
-                                Rune.DecodeFromUtf16(text.Slice(offsetX + n), out dstCell.rune, out _);
-                                dstCell.color       = colors[color.start + offsetX + n];
-                                dstCell.textStyle   = textStyle;
-                            }
+                                Rune.DecodeFromUtf16(text.Slice(textPos), out dstCell.rune, out int charsConsumed);
+                                textPos += charsConsumed;
 
-                            // Phase 2: Tail fill for remaining characters using solid color or the last span color
-                            if (spanEnd < count) {
-                                var solidColor = color.len == 0 ? color.value : colors[color.start + color.len - 1];
-                                for (int n = spanEnd; n < count; n++) {
-                                    ref var dstCell     = ref row[n];
-                                    Rune.DecodeFromUtf16(text.Slice(offsetX + n), out dstCell.rune, out _);
-                                    dstCell.color       = solidColor;
-                                    dstCell.textStyle   = textStyle;
+                                bool isWide = dstCell.rune.Value > 0xFFFF;
+
+                                // Branchless/inline color lookup based on active span bounds
+                                int colorOffset     = offsetX + runeIndex;
+                                dstCell.color       = colorOffset < color.len ? colors[color.start + colorOffset] : solidColor;
+                                dstCell.textStyle   = textStyle;
+
+                                // Set subsequent cell as ghost cell for wide characters (e.g. Emojis)
+                                if (isWide && n + 1 < row.Length) {
+                                    ref var ghostCell   = ref row[n + 1];
+                                    ghostCell.rune      = default;
+                                    ghostCell.color     = dstCell.color;
+                                    ghostCell.textStyle = textStyle;
+                                    n += 2;
+                                } else {
+                                    n += 1;
                                 }
+                                runeIndex++;
                             }
                         }
                         continue;

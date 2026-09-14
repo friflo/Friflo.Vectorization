@@ -235,6 +235,9 @@ internal sealed partial class TuiSession
     
     private void AppendRune(Rune character)
     {
+        if (character.Value == 0) {
+            return; // Skip ghost cells. They follow runes which are two cells wide like 🙂
+        }
         var destination = sendBuffer.AsSpan(sendBufferCount);
         int bytesWritten = character.EncodeToUtf8(destination);
         sendBufferCount += bytesWritten;

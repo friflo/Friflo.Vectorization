@@ -54,7 +54,7 @@ public class Tests_TmGui_window1
         Assert.That(batch.Texts.Length, Is.EqualTo(157));
         Assert.That(frameBuffer.ColorCells.Length, Is.EqualTo(1500));
         
-        var screen = CellsToString(frameBuffer.ColorCells, 50, 30);
+        var screen  = frameBuffer.CellsToString("\r\n");
         var dir     = Path.GetDirectoryName(GetCurrentFilePath())!;
         var tuiFile = $"{dir}/{TestContext.CurrentContext.Test.Name}.txt";
         
@@ -89,25 +89,11 @@ public class Tests_TmGui_window1
         Assert.That(batch.Texts.Length, Is.EqualTo(157));
         Assert.That(frameBuffer.ColorCells.Length, Is.EqualTo(1500));
         
-        var screen = CellsToString(frameBuffer.ColorCells, 50, 30);
-        
+        var screen  = frameBuffer.CellsToString("\r\n");
         var dir     = Path.GetDirectoryName(GetCurrentFilePath())!;
         var tuiFile = $"{dir}/{TestContext.CurrentContext.Test.Name}.txt";
         
         File.WriteAllText(tuiFile, screen, Utf8WithoutBom);
-    }
-    
-    private static string CellsToString(ReadOnlySpan<TuiColorCell> cells, int targetWidth, int targetHeight)
-    {
-        var sb = new StringBuilder();
-
-        for (int line = 0; line < targetHeight; line++) {
-            for (int col = 0; col < targetWidth; col++) {
-                sb.Append(cells[line * targetWidth + col].rune);
-            }
-            sb.Append("\r\n");
-        }
-        return sb.ToString();
     }
     
     private static readonly UTF8Encoding Utf8WithoutBom = new UTF8Encoding(encoderShouldEmitUTF8Identifier: false);

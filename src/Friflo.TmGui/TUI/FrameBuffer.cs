@@ -34,4 +34,24 @@ public sealed class FrameBuffer
             colorCells[y * bufferWidth + x] = cell;
         }
     }
+    
+    public string CellsToString(ReadOnlySpan<char> lineEnd)
+    {
+        var sb = new StringBuilder();
+        var width   = bufferWidth;
+        var height  = bufferHeight;
+        var cells   = ColorCells;
+
+        for (int line = 0; line < height; line++) {
+            for (int col = 0; col < width; col++) {
+                var rune = cells[line * width + col].rune;
+                if (rune.Value == 0) {
+                    continue; // Skip ghost cells following runes which cover two cells
+                }
+                sb.Append(cells[line * width + col].rune);
+            }
+            sb.Append(lineEnd);
+        }
+        return sb.ToString();
+    }
 }
