@@ -76,7 +76,7 @@ public readonly ref partial struct GuiWidget
         if (tui != null) {
             tui.DrawWindowTitle(title, window.Pos, window.Size, Colors, traits, tuiBorder);
             scissorPos  += new Vector2(tui.CharWidth,     0);
-            scissorSize -= new Vector2(tui.CharWidth * 2, 0);
+            scissorSize -= new Vector2(tui.CharWidth * 2, tui.LineHeight);
         } else {
             var textPos = window.Pos + new Vector2(10f, (titleBarHeight - LineHeight) / 2f);
             var headerColor = Colors.ButtonState(titleState);
