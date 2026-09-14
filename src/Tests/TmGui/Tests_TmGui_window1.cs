@@ -51,7 +51,7 @@ public class Tests_TmGui_window1
         }
         Mem.AssertNoAlloc(start);
         Assert.That(batch.Rects.Length, Is.EqualTo(63));
-        Assert.That(batch.Texts.Length, Is.EqualTo(153));
+        Assert.That(batch.Texts.Length, Is.EqualTo(157));
         Assert.That(frameBuffer.RuneCells.Length, Is.EqualTo(1560));
         
         var sb = new StringBuilder();
@@ -88,7 +88,7 @@ public class Tests_TmGui_window1
         }
         Mem.AssertNoAlloc(start);
         Assert.That(batch.Rects.Length, Is.EqualTo(63));
-        Assert.That(batch.Texts.Length, Is.EqualTo(153));
+        Assert.That(batch.Texts.Length, Is.EqualTo(157));
         Assert.That(frameBuffer.ColorCells.Length, Is.EqualTo(1500));
         
         var screen = CellsToString(frameBuffer.ColorCells, 50, 30);
@@ -102,18 +102,16 @@ public class Tests_TmGui_window1
     private static string CellsToString(ReadOnlySpan<TuiColorCell> cells, int targetWidth, int targetHeight)
     {
         int stride      = targetWidth + 2;
-        int charCount   = stride * targetHeight;
-        var buffer      = new char[charCount].AsSpan();
+        var sb          = new StringBuilder();
 
         for (int line = 0; line < targetHeight; line++) {
             var start = line * stride;
             for (int col = 0; col < targetWidth; col++) {
-                buffer[start + col] = (char)cells[line * targetWidth + col].rune.Value;
+                sb.Append(cells[line * targetWidth + col].rune);
             }
-            buffer[start + targetWidth]     = '\r';
-            buffer[start + targetWidth + 1] = '\n';
+            sb.Append("\r\n");
         }
-        return new string(buffer);
+        return sb.ToString();
     }
     
     private static readonly UTF8Encoding Utf8WithoutBom = new UTF8Encoding(encoderShouldEmitUTF8Identifier: false);
@@ -147,7 +145,7 @@ public class Tests_TmGui_window1
         var drawList    = batch.DrawList;
         var verticesLen = batch.Vertices.Length;
         Assert.That(drawList.Length,    Is.EqualTo(4));
-        Assert.That(verticesLen,        Is.EqualTo(3108));
+        Assert.That(verticesLen,        Is.EqualTo(3124));
         
         int vertexSum = 0;
         int indexSum  = 0;
@@ -181,10 +179,10 @@ public class Tests_TmGui_window1
     
     private void Window1(Gui gui)
     {
-        gui.Label("hello GUI");
+        gui.Label("hello GUI ");
         gui.Spacer();
         using (gui.PushStyle(greenButtonStyle)) {
-            if (gui.Button("hello"))                            Console.WriteLine("Clicked: hello");
+            if (gui.Button("hello 🙂"))                            Console.WriteLine("Clicked: hello");
         }
 
         gui.Spacer();

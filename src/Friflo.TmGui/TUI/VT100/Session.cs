@@ -170,7 +170,7 @@ internal sealed partial class TuiSession
                 if (cell.background != background) {
                     SetBackground(background = cell.background);
                 }
-                AppendChar((char)cell.rune.Value);
+                AppendRune(cell.rune);
             }
             /* AppendSpan("\x1b[K"u8); // EraseInLine - erase everything right from current cursor
             if (y < height - 1) {
@@ -233,29 +233,37 @@ internal sealed partial class TuiSession
         sendBuffer[sendBufferCount++] = value; 
     }
     
-    private void AppendChar(char character)
+    private void AppendRune(Rune character)
+    {
+        var destination = sendBuffer.AsSpan(sendBufferCount);
+        int bytesWritten = character.EncodeToUtf8(destination);
+        sendBufferCount += bytesWritten;
+    }
+    
+    /* private void AppendRune(Rune character)
     {
         var buffer = sendBuffer;
+        var runeValue = character.Value;
         // Fast path: ASCII (1 byte) - 0x0000 to 0x007F
-        if (character <= 0x7F) {
-            buffer[sendBufferCount++] = (byte)character;
+        if (runeValue <= 0x7F) {
+            buffer[sendBufferCount++] = (byte)runeValue;
             return;
         }
         // UTF-8 (2 bytes) - e.g. umlauts (ä, ö, ü) or guillemets («, »)
-        if (character <= 0x07FF) {
-            buffer[sendBufferCount++] = (byte)(0xC0 | (character >> 6));
-            buffer[sendBufferCount++] = (byte)(0x80 | (character & 0x3F));
+        if (runeValue <= 0x07FF) {
+            buffer[sendBufferCount++] = (byte)(0xC0 | (runeValue >> 6));
+            buffer[sendBufferCount++] = (byte)(0x80 | (runeValue & 0x3F));
             return;
         }
         // Skip isolated UTF-16 surrogates (4-byte characters need Rune / pair handling)
-        if (char.IsSurrogate(character)) {
+        if (char.IsSurrogate(character)) {  // TODO implement rune
             return;
         }
         // UTF-8 (3 bytes) - e.g. TUI symbols (◢, ▲, ▼, ◥) and box-drawing chars
-        buffer[sendBufferCount++] = (byte)(0xE0 | (character >> 12));
-        buffer[sendBufferCount++] = (byte)(0x80 | ((character >> 6) & 0x3F));
-        buffer[sendBufferCount++] = (byte)(0x80 | (character & 0x3F));
-    }
+        buffer[sendBufferCount++] = (byte)(0xE0 | (runeValue >> 12));
+        buffer[sendBufferCount++] = (byte)(0x80 | ((runeValue >> 6) & 0x3F));
+        buffer[sendBufferCount++] = (byte)(0x80 | (runeValue & 0x3F));
+    } */
     
     private void AppendSpan(ReadOnlySpan<byte> buffer)
     {
