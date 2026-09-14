@@ -172,75 +172,77 @@ public sealed partial class TuiBatch : TmBatch
                     // Early exit for fully clipped rectangles
                     if (startX >= endX || startY >= endY) continue;
 
-                    // Text rendering branch with two-sided horizontal clipping
-                    if (rect.text.len != 0)
+                    if (rect.text.len == 0)
                     {
-                        Span<char> text = texts.Slice(rect.text.start, rect.text.len);
-
-                        // Offset for left-side clipping
-                        int offsetX = startX - rectL;
-
-                        // Fast-forward textPos past left-clipped characters
-                        int textPos = 0;
-                        for (int i = 0; i < offsetX && textPos < text.Length; i++) {
-                            Rune.DecodeFromUtf16(text.Slice(textPos), out _, out int charsConsumed);
-                            textPos += charsConsumed;
+                        // case:  Fill clipped background area row by row
+                        var width   = endX - startX;
+                        var fill    = new TuiColorCell { rune = new Rune(rect.text.fillChar), color = 0, background = rect.color.value };
+                        if (rect.color.len == 2) {
+                            fill.background = colors[rect.color.start];
+                            fill.color      = colors[rect.color.start + 1];
                         }
-
-                        // Clamp column count strictly against right scissor bound (endX)
-                        int maxVisibleWidth = endX - startX;
-
-                        if (maxVisibleWidth > 0 && startY == rectT)
-                        {
-                            var color     = rect.color;
-                            var textStyle = rect.textStyle;
-                            var row       = cells.Slice(stride * startY + startX, maxVisibleWidth);
-
-                            // Pre-calculate fallback color for tail entries
-                            var solidColor = color.len == 0 ? color.value : colors[color.start + color.len - 1];
-
-                            int runeIndex = 0;
-                            int n = 0;
-
-                            // Single pass handling text decoding, dynamic column advancing and color lookup
-                            while (n < row.Length && textPos < text.Length)
-                            {
-                                ref var dstCell = ref row[n];
-                                Rune.DecodeFromUtf16(text.Slice(textPos), out dstCell.rune, out int charsConsumed);
-                                textPos += charsConsumed;
-
-                                bool isWide = dstCell.IsWideRune;
-
-                                // Branchless/inline color lookup based on active span bounds
-                                int colorOffset     = offsetX + runeIndex;
-                                dstCell.color       = colorOffset < color.len ? colors[color.start + colorOffset] : solidColor;
-                                dstCell.textStyle   = textStyle;
-
-                                // Set subsequent cell as ghost cell for wide characters (e.g. Emojis)
-                                if (isWide && n + 1 < row.Length) {
-                                    ref var ghostCell   = ref row[n + 1];
-                                    ghostCell.rune      = default;
-                                    ghostCell.color     = dstCell.color;
-                                    ghostCell.textStyle = textStyle;
-                                    n += 2;
-                                } else {
-                                    n += 1;
-                                }
-                                runeIndex++;
-                            }
+                        for (int y = startY; y < endY; y++) {
+                            cells.Slice(stride * y + startX, width).Fill(fill);
                         }
                         continue;
                     }
-                    // Fill clipped background area row by row
-                    var width   = endX - startX;
-                    var fill    = new TuiColorCell { rune = new Rune(rect.text.fillChar), color = 0, background = rect.color.value };
-                    if (rect.color.len == 2) {
-                        fill.background = colors[rect.color.start];
-                        fill.color      = colors[rect.color.start + 1];
+                    
+                    // case:  Text rendering branch with two-sided horizontal clipping
+                    Span<char> text = texts.Slice(rect.text.start, rect.text.len);
+
+                    // Offset for left-side clipping
+                    int offsetX = startX - rectL;
+
+                    // Fast-forward textPos past left-clipped characters
+                    int textPos = 0;
+                    for (int i = 0; i < offsetX && textPos < text.Length; i++) {
+                        Rune.DecodeFromUtf16(text.Slice(textPos), out _, out int charsConsumed);
+                        textPos += charsConsumed;
                     }
-                    for (int y = startY; y < endY; y++) {
-                        cells.Slice(stride * y + startX, width).Fill(fill);
+
+                    // Clamp column count strictly against right scissor bound (endX)
+                    int maxVisibleWidth = endX - startX;
+
+                    if (maxVisibleWidth > 0 && startY == rectT)
+                    {
+                        var color     = rect.color;
+                        var textStyle = rect.textStyle;
+                        var row       = cells.Slice(stride * startY + startX, maxVisibleWidth);
+
+                        // Pre-calculate fallback color for tail entries
+                        var solidColor = color.len == 0 ? color.value : colors[color.start + color.len - 1];
+
+                        int runeIndex = 0;
+                        int n = 0;
+
+                        // Single pass handling text decoding, dynamic column advancing and color lookup
+                        while (n < row.Length && textPos < text.Length)
+                        {
+                            ref var dstCell = ref row[n];
+                            Rune.DecodeFromUtf16(text.Slice(textPos), out dstCell.rune, out int charsConsumed);
+                            textPos += charsConsumed;
+
+                            bool isWide = dstCell.IsWideRune;
+
+                            // Branchless/inline color lookup based on active span bounds
+                            int colorOffset     = offsetX + runeIndex;
+                            dstCell.color       = colorOffset < color.len ? colors[color.start + colorOffset] : solidColor;
+                            dstCell.textStyle   = textStyle;
+
+                            // Set subsequent cell as ghost cell for wide characters (e.g. Emojis)
+                            if (isWide && n + 1 < row.Length) {
+                                ref var ghostCell   = ref row[n + 1];
+                                ghostCell.rune      = default;
+                                ghostCell.color     = dstCell.color;
+                                ghostCell.textStyle = textStyle;
+                                n += 2;
+                            } else {
+                                n += 1;
+                            }
+                            runeIndex++;
+                        }
                     }
+                    // end:  Text rendering branch
                 }
             }
         }
