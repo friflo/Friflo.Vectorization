@@ -29,13 +29,13 @@ await TcpServer();
 async ValueTask TcpServer()
 {
     var port = 9000;
-    var engine = new SingleThreadedShardEngine((ConnectInfo info) => new TestGuiView(appState));
+    var loop = new TmSessionLoop((ConnectInfo info) => new TestGuiView(appState));
 
     // 2. IMPORTANT: Start the dedicated single-threaded event loop!
-    engine.Start();
+    loop.Start();
     
     var localClient = new ConsoleClient();
-    _ = ConsoleClient.HandleClientSessionAsync(localClient, engine, CancellationToken.None);
+    _ = ConsoleClient.HandleClientSessionAsync(localClient, loop, CancellationToken.None);
     
     // await Task.Delay(-1);
 
@@ -54,6 +54,6 @@ async ValueTask TcpServer()
         
         // Pass engine reference to every client I/O session
         var client = new SocketClient(clientSocket);
-        _ = SocketClient.HandleClientSessionAsync(client, engine, CancellationToken.None);
+        _ = SocketClient.HandleClientSessionAsync(client, loop, CancellationToken.None);
     }
 }

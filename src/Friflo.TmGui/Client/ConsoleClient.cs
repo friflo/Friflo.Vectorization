@@ -47,13 +47,13 @@ public class ConsoleClient : TmClient
         outputStream.Flush();
     }
 
-    // I/O Loop: Reads raw stream bytes and pushes them into the single-threaded engine queue
-    public static async ValueTask HandleClientSessionAsync(ConsoleClient client, SingleThreadedShardEngine engine, CancellationToken cancellationToken)
+    // I/O Loop: Reads raw stream bytes and pushes them into the session loop queue
+    public static async ValueTask HandleClientSessionAsync(ConsoleClient client, TmSessionLoop loop, CancellationToken cancellationToken)
     {
 
         try
         {
-            await engine.EnqueueEventAsync(client, ClientEventType.TerminalConnected, default);
+            await loop.EnqueueEventAsync(client, ClientEventType.TerminalConnected, default);
 
             while (!cancellationToken.IsCancellationRequested)
             {
@@ -63,12 +63,12 @@ public class ConsoleClient : TmClient
 
                 var payload = new Payload(buffer, bytesRead);
 
-                await engine.EnqueueEventAsync(client, ClientEventType.TerminalInput, payload);
+                await loop.EnqueueEventAsync(client, ClientEventType.TerminalInput, payload);
             }
         }
         finally
         {
-            await engine.EnqueueEventAsync(client, ClientEventType.TerminalDisconnected, default);
+            await loop.EnqueueEventAsync(client, ClientEventType.TerminalDisconnected, default);
         }
     }
 }

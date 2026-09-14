@@ -33,8 +33,8 @@ public class SocketClient : TmClient
     }
     
     
-    // I/O Loop: Reads raw socket bytes and pushes them into the single-threaded engine queue
-    public static async ValueTask HandleClientSessionAsync(SocketClient client, SingleThreadedShardEngine engine, CancellationToken cancellationToken)
+    // I/O Loop: Reads raw socket bytes and pushes them into the session loop queue
+    public static async ValueTask HandleClientSessionAsync(SocketClient client, TmSessionLoop loop, CancellationToken cancellationToken)
     {
         var socket = client.socket;
         
@@ -50,8 +50,8 @@ public class SocketClient : TmClient
                 }
             }
 
-            // Notify engine about new client connection, passing initial payload (if any)
-            await engine.EnqueueEventAsync(client, ClientEventType.TerminalConnected, initialPayload);
+            // Notify loop about new client connection, passing initial payload (if any)
+            await loop.EnqueueEventAsync(client, ClientEventType.TerminalConnected, initialPayload);
 
             while (!cancellationToken.IsCancellationRequested)
             {
@@ -62,13 +62,13 @@ public class SocketClient : TmClient
                 var payload = new Payload(buffer, bytesRead);
 
                 // Forward raw input directly to the shard event loop
-                await engine.EnqueueEventAsync(client, ClientEventType.TerminalInput, payload);
+                await loop.EnqueueEventAsync(client, ClientEventType.TerminalInput, payload);
             }
         }
         finally
         {
             // ArrayPool<byte>.Shared.Return(buffer);
-            await engine.EnqueueEventAsync(client, ClientEventType.TerminalDisconnected, default);
+            await loop.EnqueueEventAsync(client, ClientEventType.TerminalDisconnected, default);
         }
     }
 }

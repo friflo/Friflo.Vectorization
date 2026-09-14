@@ -16,7 +16,7 @@ using Friflo.TmGui.TUI.VT100;
 namespace Friflo.TmGui.Client;
 
 
-public sealed class SingleThreadedShardEngine : IDisposable
+public sealed class TmSessionLoop : IDisposable
 {
     private readonly    Channel<ClientEvent>                eventChannel;   // Single reader channel guarantees zero-sync single-thread execution
     private readonly    Dictionary<TmClient, TuiSession>    sessions;       // Raw non-thread-safe state (accessed exclusively by _shardThread)
@@ -28,7 +28,7 @@ public sealed class SingleThreadedShardEngine : IDisposable
     private readonly    Action                              exitHandler;
 
     
-    public SingleThreadedShardEngine(CreateGuiView createGuiView)
+    public TmSessionLoop(CreateGuiView createGuiView)
     {
         this.createGuiView  = createGuiView;
         eventChannel        = Channel.CreateUnbounded<ClientEvent>(new UnboundedChannelOptions { SingleReader = true, SingleWriter = false });
