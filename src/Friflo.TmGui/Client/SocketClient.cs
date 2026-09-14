@@ -13,7 +13,7 @@ namespace Friflo.TmGui.Client;
 
 
 
-public class SocketClient : TmClient  
+public class SocketClient : TmClient
 {
     private readonly Socket socket;
     
@@ -29,7 +29,11 @@ public class SocketClient : TmClient
     
     protected internal override  int Send(ReadOnlyMemory<byte> buffer)
     {
-        return socket.Send(buffer.Span, SocketFlags.None);
+        // Check if the OS send buffer can accept data immediately (0 microseconds wait time)
+        if (!socket.Poll(0, SelectMode.SelectWrite)) {
+            return 0;                                       // OS buffer is full -> drop frame instantly to prevent blocking the single thread loop
+        }
+        return socket.Send(buffer.Span, SocketFlags.None);  // Buffer has space -> transmit frame synchronously without blocking
     }
     
     protected internal override void RestoreTerminal()
