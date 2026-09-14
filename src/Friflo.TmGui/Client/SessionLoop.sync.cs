@@ -65,23 +65,14 @@ public partial class TmSessionLoop
             switch (evt.Type)
             {
                 case ClientEventType.TerminalConnected: {
-                    var payload         = evt.Payload;
-                    var firstLine       = payload.Span.IndexOf((byte)'\n');
-                    var client          = evt.Client;
-                    var args            = firstLine == -1 ? [] : GetArgs(payload.Span.Slice(0, firstLine));
-                    var connectInfo     = new ConnectInfo{ client = client, args = args };
-                    var guiView         = createGuiView(connectInfo);
-                    
-                    var newSession      = new TuiSession(guiView, evt.Client, frameBuffer, TuiColorMode.RGB24);
-                    sessions[client]    = newSession;
-                    
+                    var newSession      = CreateSession(evt, out var payload);
                     var initialMessage  = newSession.StartSession();
-                    client.Send(initialMessage);
                     
-                    var rest            = firstLine == -1 ? payload.Span : payload.Span.Slice(firstLine + 1);
-                    var sendBuffer      = newSession.ProcessInput(rest);
+                    evt.Client.Send(initialMessage);
                     
-                    client.Send(sendBuffer);
+                    var sendBuffer      = newSession.ProcessInput(payload.Span);
+                    
+                    evt.Client.Send(sendBuffer);
                     break;
                 }
                 case ClientEventType.TerminalDisconnected:

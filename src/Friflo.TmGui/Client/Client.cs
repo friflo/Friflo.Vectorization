@@ -30,7 +30,8 @@ internal readonly struct Payload
     private readonly     byte[] buffer;
     private readonly     int    length;
     
-    public ReadOnlySpan<byte>   Span => new(buffer, 0, length);
+    public ReadOnlySpan<byte>   Span                    => new(buffer, 0,     length);
+    public Memory<byte>         GetMemory(int start)    => new(buffer, start, length - start);
 
     public Payload(byte[] buffer, int length) {
         this.buffer = buffer;
