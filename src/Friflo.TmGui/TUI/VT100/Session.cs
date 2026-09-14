@@ -3,6 +3,7 @@
 
 using System;
 using System.Diagnostics;
+using System.Text;
 using Friflo.TmGui.Client;
 
 // ReSharper disable InlineTemporaryVariable
@@ -142,7 +143,7 @@ internal sealed partial class TuiSession
         var background  = new Color32();
         var textStyle   = TextStyle.None;
         
-        var clear =  new TuiColorCell { character = ' ', color = 0x000000ff, background = 0x888888ff };
+        var clear =  new TuiColorCell { Character = ' ', color = 0x000000ff, background = 0x888888ff };
         batch.DrawRectCommandsColor(frameBuffer, width, height, clear);
         
         if (backend.input.CurrentCursor != MouseCursor.Arrow) {
@@ -169,7 +170,7 @@ internal sealed partial class TuiSession
                 if (cell.background != background) {
                     SetBackground(background = cell.background);
                 }
-                AppendChar(cell.character);
+                AppendChar((char)cell.rune.Value);
             }
             /* AppendSpan("\x1b[K"u8); // EraseInLine - erase everything right from current cursor
             if (y < height - 1) {
@@ -296,8 +297,8 @@ internal sealed partial class TuiSession
         var buffer  = frameBuffer;
         var shape   = MouseCursorShape.Cursors[(int)backend.input.CurrentCursor];
         
-        buffer.SetCell(x - 1, y, cell with { character = shape.left   });
-        buffer.SetCell(x,     y, cell with { character = shape.center });
-        buffer.SetCell(x + 1, y, cell with { character = shape.right  });
+        buffer.SetCell(x - 1, y, cell with { rune = new Rune(shape.left)   });
+        buffer.SetCell(x,     y, cell with { rune = new Rune(shape.center) });
+        buffer.SetCell(x + 1, y, cell with { rune = new Rune(shape.right)  });
     }
 }

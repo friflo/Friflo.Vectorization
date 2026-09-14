@@ -5,6 +5,7 @@
 using System;
 using System.Numerics;
 using System.Runtime.InteropServices;
+using System.Text;
 
 
 // ReSharper disable ConvertToPrimaryConstructor
@@ -20,12 +21,14 @@ public enum TuiColorMode
 
 public struct TuiColorCell
 {
-    public  char        character;      //  2 bytes
-    public  TextStyle   textStyle;      //  1 byte
-    public  Color32     color;          //  4 bytes
-    public  Color32     background;     //  4 bytes
+    public  Rune        rune;       //  4 bytes
+    public  TextStyle   textStyle;  //  1 byte
+    public  Color32     color;      //  4 bytes
+    public  Color32     background; //  4 bytes
     
-    public override string ToString() => $"'{character}'";
+    public  char        Character   { get => throw new InvalidOperationException(); set => rune = new Rune(value); }
+    
+    public override string ToString() => $"'{rune}'";
 }
 
 [Flags]

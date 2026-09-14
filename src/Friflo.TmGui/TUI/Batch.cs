@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Numerics;
 using System.Runtime.InteropServices;
+using System.Text;
 
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable UseWithExpressionToCopyStruct
@@ -198,7 +199,7 @@ public sealed partial class TuiBatch : TmBatch
                                 // Phase 1: Direct 1:1 color mapping for available span entries
                                 for (int n = 0; n < spanEnd; n++) {
                                     ref var dstCell = ref row[n];
-                                    dstCell.character   = text[offsetX + n];
+                                    dstCell.rune        = new Rune(text[offsetX + n]);
                                     dstCell.color       = colors[color.start + offsetX + n];
                                     dstCell.textStyle   = textStyle;
                                 }
@@ -208,7 +209,7 @@ public sealed partial class TuiBatch : TmBatch
                                     var solidColor = color.len == 0 ? color.value : colors[color.start + color.len - 1];
                                     for (int n = spanEnd; n < count; n++) {
                                         ref var dstCell     = ref row[n];
-                                        dstCell.character   = text[offsetX + n];
+                                        dstCell.rune        = new Rune(text[offsetX + n]);
                                         dstCell.color       = solidColor;
                                         dstCell.textStyle   = textStyle;
                                     }
@@ -224,7 +225,7 @@ public sealed partial class TuiBatch : TmBatch
                     // Fill clipped background area row by row
                     if (drawColor) {
                         var width   = endX - startX;
-                        var fill    = new TuiColorCell { character = rect.text.fillChar, color = 0, background = rect.color.value };
+                        var fill    = new TuiColorCell { rune = new Rune(rect.text.fillChar), color = 0, background = rect.color.value };
                         if (rect.color.len == 2) {
                             fill.background = colors[rect.color.start];
                             fill.color      = colors[rect.color.start + 1];

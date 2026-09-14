@@ -80,7 +80,7 @@ public class Tests_TmGui_window1
             using (gui.BeginWindow("Window 1", new(200, 200), new(600, 800), tuiBorder: TuiBorder.Rounded)) {
                 Window1(gui); 
             }
-            batch.DrawRectCommandsColor(frameBuffer, 50, 30, new TuiColorCell { character = ' ' });
+            batch.DrawRectCommandsColor(frameBuffer, 50, 30, new TuiColorCell { Character = ' ' });
             if (n == 0) start = Mem.GetAllocatedBytes();
         }
         Mem.AssertNoAlloc(start);
@@ -105,7 +105,7 @@ public class Tests_TmGui_window1
         for (int line = 0; line < targetHeight; line++) {
             var start = line * stride;
             for (int col = 0; col < targetWidth; col++) {
-                buffer[start + col] = cells[line * targetWidth + col].character;
+                buffer[start + col] = (char)cells[line * targetWidth + col].rune.Value;
             }
             buffer[start + targetWidth]     = '\r';
             buffer[start + targetWidth + 1] = '\n';

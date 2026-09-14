@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
+using System.Text;
 using Friflo.GPU;
 using Friflo.GPU.Runtime;
 using Friflo.WGPU;
@@ -99,7 +100,11 @@ MaxComputeInvocationsPerWorkgroup:  {adapterLimits.MaxComputeInvocationsPerWorkg
         Assert.AreEqual(  6, Unsafe.SizeOf<Color32Span>());
         Assert.AreEqual(  8, Unsafe.SizeOf<TextSpan>());
         Assert.AreEqual( 32, Unsafe.SizeOf<TuiRect>());
-        Assert.AreEqual( 12, Unsafe.SizeOf<TuiColorCell>());
+        Assert.AreEqual( 16, Unsafe.SizeOf<TuiColorCell>());
+        
+        Assert.AreEqual( 4,  Unsafe.SizeOf<Rune>());
+        
+        
         
     }
 }
