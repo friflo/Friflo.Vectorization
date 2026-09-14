@@ -31,27 +31,34 @@ public struct TuiColorCell
     public  char        Character   { get => throw new InvalidOperationException(); set => rune = new Rune(value); }
     
     public override string ToString() => $"'{rune}'";
-    
-    /// <summary> Evaluates terminal column width (1 for standard/BMP, 2 for Wide/CJK/Plane-1 Emojis) </summary>
-    public readonly bool IsWideRune {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get {
-            uint val = (uint)rune.Value;
+}
 
-            // Fast path for standard ASCII and Latin characters (< 0x2E80)
-            if (val < 0x2E80) return false;
+public static class RuneExtensions
+{
+    extension (Rune rune)
+    {
+        /// <summary> Evaluates terminal column width (1 for standard/BMP, 2 for Wide/CJK/Plane-1 Emojis) </summary>
+        public bool IsWideRune {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get {
+                uint val = (uint)rune.Value;
 
-            // Plane-1 Emojis and higher Unicode planes (> 0xFFFF)
-            if (val > 0xFFFF) return true;
+                // Fast path for standard ASCII and Latin characters (< 0x2E80)
+                if (val < 0x2E80) return false;
 
-            // CJK Radicals, Kanji & CJK Unified Ideographs (0x2E80 to 0x9FFF)
-            if (val - 0x2E80 <= (0x9FFF - 0x2E80)) return true;
+                // Plane-1 Emojis and higher Unicode planes (> 0xFFFF)
+                if (val > 0xFFFF) return true;
 
-            // Hangul Syllables (0xAC00 to 0xD7AF)
-            return val - 0xAC00 <= (0xD7AF - 0xAC00);
+                // CJK Radicals, Kanji & CJK Unified Ideographs (0x2E80 to 0x9FFF)
+                if (val - 0x2E80 <= (0x9FFF - 0x2E80)) return true;
+
+                // Hangul Syllables (0xAC00 to 0xD7AF)
+                return val - 0xAC00 <= (0xD7AF - 0xAC00);
+            }
         }
     }
 }
+
 
 [Flags]
 public enum TextStyle : byte

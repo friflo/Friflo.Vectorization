@@ -249,7 +249,7 @@ public sealed partial class TuiBatch : TmBatch
                         dstCell.textStyle   = textStyle;
                         dstCell.width       = 1;
 
-                        if (dstCell.IsWideRune) {
+                        if (dstCell.rune.IsWideRune) {
                             dstCell.width = 2;
                             // Handle wide characters near the right scissor edge
                             if (n + 1 < row.Length) {
