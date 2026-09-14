@@ -136,6 +136,8 @@ public sealed partial class TuiBatch : TmBatch
 #endregion
 
 #region DrawRectCommands
+    private static readonly Rune Ellipsis = new('…');
+    
     private void DrawRectCommandsInternal(int stride, Span<TuiColorCell> cells)
     {
         var commands    = rectCommands;
@@ -193,13 +195,13 @@ public sealed partial class TuiBatch : TmBatch
                             // Fix orphan wide rune on the left edge
                             if (startX > 0 && fillRow[startX].width == 0) {
                                 ref var left    = ref fillRow[startX - 1];
-                                left.rune       = new Rune('…');
+                                left.rune       = Ellipsis;
                                 left.width      = 1;
                             }
                             // Fix orphan ghost cell on the right edge
                             if (endX < stride && fillRow[endX - 1].width == 2) {
                                 ref var right   = ref fillRow[endX];
-                                right.rune      = new Rune('…');
+                                right.rune      = Ellipsis;
                                 right.width     = 1;
                             }
                             fillRow.Slice(startX, width).Fill(fill);
@@ -262,7 +264,7 @@ public sealed partial class TuiBatch : TmBatch
                                 n += 2;
                             } else {
                                 // Right border clip: Replace clipped wide character with ellipsis
-                                dstCell.rune        = new Rune('…');
+                                dstCell.rune        = Ellipsis;
                                 n += 1;
                             }
                         } else {
