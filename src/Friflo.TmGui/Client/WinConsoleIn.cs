@@ -17,7 +17,7 @@ using System.Threading.Tasks;
 namespace Friflo.TmGui.Client;
 
 
-internal sealed class Win32ConsoleInputStream : Stream
+internal sealed class WinConsoleIn : Stream
 {
     private readonly struct Chunk
     {
@@ -42,7 +42,7 @@ internal sealed class Win32ConsoleInputStream : Stream
     private             int                     _pendingOffset;
     private             bool                    _isDisposed;
 
-    internal Win32ConsoleInputStream()
+    internal WinConsoleIn()
     {
         _inHandle = GetStdHandle(STD_INPUT_HANDLE);
         EnableWindowsRawAndVt100();

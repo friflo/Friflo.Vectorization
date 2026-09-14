@@ -26,7 +26,7 @@ public class ConsoleClient : TmClient
         // Use native Win32 input stream on Windows, fall back to StandardInput on Unix
         if (OperatingSystem.IsWindows()) {
             // TerminalUtils.EnableRawModeAndVT100(); inputStream = Console.OpenStandardInput();
-            inputStream = new Win32ConsoleInputStream();
+            inputStream = new WinConsoleIn();
         } else {
             inputStream = Console.OpenStandardInput();
         }
@@ -48,7 +48,7 @@ public class ConsoleClient : TmClient
     
     protected internal override void RestoreTerminal()
     {
-        Win32ConsoleInputStream.RestoreConsoleMode();
+        WinConsoleIn.RestoreConsoleMode();
         
         outputStream.Write(TerminalReset.AsMemory().Span);
         outputStream.Flush();
