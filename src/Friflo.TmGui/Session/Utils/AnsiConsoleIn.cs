@@ -2,7 +2,8 @@
 // See LICENSE file in the project root for full license information.
 
 
-// ReSharper disable once CheckNamespace
+// ReSharper disable UseCollectionExpression
+// ReSharper disable CheckNamespace
 namespace Friflo.TmGui.Session;
 
 using System;
@@ -49,7 +50,7 @@ internal sealed class AnsiConsoleIn : Stream
 
         var thread = new Thread(InputLoop) {
             IsBackground = true,
-            Name = "MacOsConsoleInputWorker"
+            Name = "AnsiConsoleInputWorker"
         };
         thread.Start();
     }
@@ -58,53 +59,83 @@ internal sealed class AnsiConsoleIn : Stream
     {
         var writer = chunkChannel.Writer;
 
+        byte[] buffer = ArrayPool<byte>.Shared.Rent(256);
+        int writePos = 0;
+
         try
         {
+            Span<byte> scratch = stackalloc byte[4];
+            
             while (!cts.IsCancellationRequested)
             {
-                // Read single key without echoing it to console (blocks until a key is pressed)
-                ConsoleKeyInfo keyInfo = Console.ReadKey(intercept: true);
-
-                byte[] bytes = MapKeyToBytes(keyInfo);
-                if (bytes.Length > 0)
+                ConsoleKeyInfo keyInfo;
+                try
                 {
-                    byte[] buffer = ArrayPool<byte>.Shared.Rent(bytes.Length);
-                    bytes.CopyTo(buffer, 0);
-                    writer.TryWrite(new Chunk(buffer, bytes.Length));
+                    // Blocking read on Console.ReadKey() avoids high-CPU polling
+                    keyInfo = Console.ReadKey(intercept: true);
+                }
+                catch (InvalidOperationException)
+                {
+                    // Handle stdin closure or redirection
+                    break;
+                }
+                ReadOnlySpan<byte> keyBytes = MapKeyToBytes(keyInfo, scratch);
+                if (!keyBytes.IsEmpty)
+                {
+                    EnsureCapacity(ref buffer, writePos, keyBytes.Length);
+                    keyBytes.CopyTo(buffer.AsSpan(writePos));
+                    writePos += keyBytes.Length;
+                }
+
+                if (writePos > 0)
+                {
+                    writer.TryWrite(new Chunk(buffer, writePos));
+                    buffer = ArrayPool<byte>.Shared.Rent(256);
+                    writePos = 0;
                 }
             }
         }
-        catch (InvalidOperationException)
-        {
-            // Thrown if stdin is redirected or closed
-        }
         finally
         {
+            ArrayPool<byte>.Shared.Return(buffer);
             writer.TryComplete();
         }
     }
 
-    private static byte[] MapKeyToBytes(ConsoleKeyInfo keyInfo)
+    private static void EnsureCapacity(ref byte[] buffer, int currentPos, int required)
     {
-        // Handle VT100 escape sequences for arrow keys and special keys
+        if (currentPos + required > buffer.Length)
+        {
+            byte[] newBuffer = ArrayPool<byte>.Shared.Rent((currentPos + required) * 2);
+            buffer.AsSpan(0, currentPos).CopyTo(newBuffer);
+            ArrayPool<byte>.Shared.Return(buffer);
+            buffer = newBuffer;
+        }
+    }
+
+    private static ReadOnlySpan<byte> MapKeyToBytes(ConsoleKeyInfo keyInfo, Span<byte> scratch)
+    {
+        // Convert special keys directly to UTF-8 ReadOnlySpan<byte> ANSI / VT100 sequence
         switch (keyInfo.Key)
         {
-            case ConsoleKey.UpArrow:    return "\x1b[A"u8.ToArray();
-            case ConsoleKey.DownArrow:  return "\x1b[B"u8.ToArray();
-            case ConsoleKey.RightArrow: return "\x1b[C"u8.ToArray();
-            case ConsoleKey.LeftArrow:  return "\x1b[D"u8.ToArray();
-            case ConsoleKey.Home:       return "\x1b[H"u8.ToArray();
-            case ConsoleKey.End:        return "\x1b[F"u8.ToArray();
-            case ConsoleKey.Tab:        return "\t"u8.ToArray();
-            case ConsoleKey.Enter:      return "\r"u8.ToArray();
-            case ConsoleKey.Backspace:  return "\x7f"u8.ToArray();
-            case ConsoleKey.Escape:     return "\x1b"u8.ToArray();
+            case ConsoleKey.UpArrow:    return "\x1b[A"u8;
+            case ConsoleKey.DownArrow:  return "\x1b[B"u8;
+            case ConsoleKey.RightArrow: return "\x1b[C"u8;
+            case ConsoleKey.LeftArrow:  return "\x1b[D"u8;
+            case ConsoleKey.Home:       return "\x1b[H"u8;
+            case ConsoleKey.End:        return "\x1b[F"u8;
+            case ConsoleKey.Tab:        return "\t"u8;
+            case ConsoleKey.Enter:      return "\r"u8;
+            case ConsoleKey.Backspace:  return "\x7f"u8;
+            case ConsoleKey.Escape:     return "\x1b"u8;
             default:
                 if (keyInfo.KeyChar != '\0')
                 {
-                    return Encoding.UTF8.GetBytes(new[] { keyInfo.KeyChar });
+                    Span<char> charSpan = stackalloc char[1] { keyInfo.KeyChar };
+                    int written = Encoding.UTF8.GetBytes(charSpan, scratch);
+                    return scratch.Slice(0, written);
                 }
-                return Array.Empty<byte>();
+                return ReadOnlySpan<byte>.Empty;
         }
     }
 
@@ -123,6 +154,7 @@ internal sealed class AnsiConsoleIn : Stream
         var target = buffer;
         int bytesWritten = 0;
 
+        // Drain pending chunk left over from previous read
         if (pendingChunk.Buffer != null) {
             int remaining = pendingChunk.Length - pendingOffset;
             int toCopy = Math.Min(target.Length, remaining);
@@ -161,6 +193,7 @@ internal sealed class AnsiConsoleIn : Stream
                     break;
                 }
 
+                // Return fully consumed chunk buffer back to pool
                 chunk.Return();
             }
         }
@@ -180,10 +213,7 @@ internal sealed class AnsiConsoleIn : Stream
         cts.Cancel();
         cts.Dispose();
 
-        // Restore main screen buffer
-        Console.Write("\x1b[?1049l");
-        Console.Out.Flush();
-
+        // Drain remaining unread chunks to avoid leaking ArrayPool buffers
         if (pendingChunk.Buffer != null) {
             pendingChunk.Return();
             pendingChunk = default;
@@ -196,6 +226,7 @@ internal sealed class AnsiConsoleIn : Stream
         base.Dispose(disposing);
     }
 
+    // Stream base boilerplate overrides
     public override bool CanRead => !isDisposed;
     public override bool CanSeek => false;
     public override bool CanWrite => false;
