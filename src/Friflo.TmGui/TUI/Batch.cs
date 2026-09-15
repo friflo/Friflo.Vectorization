@@ -209,69 +209,87 @@ public sealed partial class TuiBatch : TmBatch
                         continue;
                     }
                     // ---------------------------------------------------------------
-                    // case:  Text rendering branch with two-sided horizontal clipping
+                    // case: Text rendering branch with two-sided horizontal clipping
                     int maxVisibleWidth = endX - startX;
 
                     // Guard clause: Skip rendering if out of vertical bounds or horizontally collapsed
                     if (maxVisibleWidth <= 0 || startY != rectT) {
                         continue;
                     }
-                    
+
                     Span<char> text = texts.Slice(rect.text.start, rect.text.len);
 
                     // Offset for left-side clipping
-                    int offsetX = startX - rectL;
+                    int offsetX     = startX - rectL;
 
                     // Fast-forward textPos past left-clipped characters
-                    int textPos = 0;
-                    for (int i = 0; i < offsetX && textPos < text.Length; i++) {
-                        Rune.DecodeFromUtf16(text.Slice(textPos), out _, out int charsConsumed);
-                        textPos += charsConsumed;
-                    }
-                    var color     = rect.color;
-                    var textStyle = rect.textStyle;
-                    var row       = cells.Slice(stride * startY + startX, maxVisibleWidth);
+                    int textPos     = 0;
+                    int skippedCols = 0;
 
+                    while (skippedCols < offsetX && textPos < text.Length) {
+                        Rune.DecodeFromUtf16(text.Slice(textPos), out var r, out int consumed);
+                        int w = r.RuneWidth;
+                        if (skippedCols + w > offsetX) break; // Straddle hit! Stop fast-forwarding
+
+                        skippedCols += w;
+                        textPos += consumed;
+                    }
+                    var row        = cells.Slice(stride * startY + startX, maxVisibleWidth);
+                    var color      = rect.color;
+                    var textStyle  = rect.textStyle;
                     // Pre-calculate fallback color for tail entries
                     var solidColor = color.len == 0 ? color.value : colors[color.start + color.len - 1];
 
-                    int runeIndex = 0;
                     int n = 0;
 
-                    // Single pass handling text decoding, dynamic column advancing and color lookup
-                    while (n < row.Length && textPos < text.Length)
-                    {
+                    // Handle left-edge straddle before main loop: Wide char cut in half on left border
+                    if (skippedCols < offsetX && textPos < text.Length) {
+                        Rune.DecodeFromUtf16(text.Slice(textPos), out _, out int consumed);
+                        textPos += consumed;
+
+                        ref var cell   = ref row[0];
+                        cell.rune      = Ellipsis;
+                        cell.color     = offsetX < color.len ? colors[color.start + offsetX] : solidColor;
+                        cell.textStyle = textStyle;
+                        cell.width     = 1;
+
+                        n = 1;
+                    }
+
+                    // Single pass rendering loop (Handles visible text & right clipping)
+                    while (n < row.Length && textPos < text.Length) {
                         ref var dstCell = ref row[n];
                         Rune.DecodeFromUtf16(text.Slice(textPos), out dstCell.rune, out int charsConsumed);
                         textPos += charsConsumed;
 
-                        // Branchless/inline color lookup based on active span bounds
-                        int colorOffset     = offsetX + runeIndex;
-                        dstCell.color       = colorOffset < color.len ? colors[color.start + colorOffset] : solidColor;
-                        dstCell.textStyle   = textStyle;
-                        dstCell.width       = (byte)dstCell.rune.RuneWidth;
+                        int col           = offsetX + n;
+                        dstCell.color     = col < color.len ? colors[color.start + col] : solidColor;
+                        dstCell.textStyle = textStyle;
 
-                        if (dstCell.width == 2) {
-                            // Handle wide characters near the right scissor edge
+                        int runeWidth = dstCell.rune.RuneWidth;
+
+                        if (runeWidth == 2) {
                             if (n + 1 < row.Length) {
-                                // Set subsequent cell as ghost cell
-                                ref var ghostCell   = ref row[n + 1];
-                                ghostCell.rune      = default;
-                                ghostCell.color     = dstCell.color;
-                                ghostCell.textStyle = textStyle;
-                                ghostCell.width     = 0;
+                                dstCell.width = 2;
+
+                                ref var ghost   = ref row[n + 1];
+                                ghost.rune      = default;
+                                ghost.color     = dstCell.color;
+                                ghost.textStyle = textStyle;
+                                ghost.width     = 0;
                                 n += 2;
                             } else {
-                                // Right border clip: Replace clipped wide character with ellipsis
-                                dstCell.rune        = Ellipsis;
+                                // Right border clip: Replace partially visible wide character with Ellipsis
+                                dstCell.rune  = Ellipsis;
+                                dstCell.width = 1;
                                 n += 1;
                             }
                         } else {
+                            dstCell.width = (byte)runeWidth;
                             n += 1;
                         }
-                        runeIndex++;
                     }
-                    // end:  Text rendering branch
+                    // end: Text rendering branch
                 }
             }
         }
