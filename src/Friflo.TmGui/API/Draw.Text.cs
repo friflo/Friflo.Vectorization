@@ -6,6 +6,7 @@ using System;
 using System.Numerics;
 using System.Text;
 
+// ReSharper disable MergeIntoLogicalPattern
 // ReSharper disable ForCanBeConvertedToForeach
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable SuggestVarOrType_BuiltInTypes
@@ -28,21 +29,20 @@ public readonly ref partial struct TmDraw
 
         Vector2 currentPos = position;
 
-        for (int i = 0; i < text.Length; i++)
+        foreach (Rune rune in text.EnumerateRunes())
         {
-            char c = text[i];
-
+            var runeValue = rune.Value;
             // Ignore carriage return (\r\n Windows line endings)
-            if (c == '\r') {
+            if (runeValue == '\r') {
                 continue;
             }
             // Handle line breaks
-            if (c == '\n') {
+            if (runeValue == '\n') {
                 currentPos.X = position.X;
                 currentPos.Y += font.lineHeight * scale;
                 continue;
             }
-            if (!font.TryGetGlyph(c, out var glyph)) {
+            if (!font.TryGetGlyph(runeValue, out var glyph)) {
                 // Fallback for missing characters
                 if (!font.TryGetGlyph('?', out glyph)) continue;
             }
@@ -50,7 +50,7 @@ public readonly ref partial struct TmDraw
             if (glyph.sourceSize.X > 0f && glyph.sourceSize.Y > 0f) {
                 Vector2 renderPos = currentPos + (glyph.offset * scale);
                 Vector2 renderSize = glyph.sourceSize * scale;
-                DrawSpriteRegion(font.texture, renderPos, renderSize, glyph.sourcePos, glyph.sourceSize, font.textureSize, color[i]);
+                DrawSpriteRegion(font.texture, renderPos, renderSize, glyph.sourcePos, glyph.sourceSize, font.textureSize, color[runeValue]);
             }
             currentPos.X += glyph.advance * scale;
         }
@@ -69,13 +69,13 @@ public readonly ref partial struct TmDraw
         float   currentLineWidth    = 0f;
         int     lineCount           = 1;
 
-        for (int i = 0; i < text.Length; i++)
+        foreach (Rune rune in text.EnumerateRunes())
         {
-            char c = text[i];
-            if (c == '\r') {
+            var runeValue = rune.Value;
+            if (runeValue == '\r') {
                 continue;
             }
-            if (c == '\n') {
+            if (runeValue == '\n') {
                 maxWidth = MathF.Max(maxWidth, currentLineWidth);
                 currentLineWidth = 0f;
                 lineCount++;
@@ -85,7 +85,7 @@ public readonly ref partial struct TmDraw
                 currentLineWidth += charWidth;
                 continue;
             }
-            if (!font.TryGetGlyph(c, out var glyph)) {
+            if (!font.TryGetGlyph(runeValue, out var glyph)) {
                 if (!font.TryGetGlyph('?', out glyph)) continue;
             }
             currentLineWidth += glyph.advance * scale;
@@ -233,11 +233,11 @@ public readonly ref partial struct TmDraw
         float currentWidth = ellipsisWidth;
         int visibleLength = 0;
 
-        for (int i = 0; i < text.Length; i++)
+        foreach (Rune rune in text.EnumerateRunes())
         {
-            char c = text[i];
-            if (c == '\r' || c == '\n') break;
-            if (!font.TryGetGlyph(c, out var glyph)) continue;
+            var runeValue = rune.Value;
+            if (runeValue == '\r' || runeValue == '\n') break;
+            if (!font.TryGetGlyph(runeValue, out var glyph)) continue;
 
             float advance = glyph.advance * scale;
             if (currentWidth + advance > maxWidth) break;

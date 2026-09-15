@@ -5,7 +5,6 @@
 using System;
 using System.Collections.Frozen;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Numerics;
 using System.Text;
 
@@ -95,13 +94,13 @@ public sealed class TmFont : IDisposable
     }
 
 
-    public bool TryGetGlyph(char c, out GlyphInfo glyph)
+    public bool TryGetGlyph(int rune, out GlyphInfo glyph)
     {
-        if (c < fastGlyphsMax) {
-            glyph = fastGlyphs[c];
+        if (rune < fastGlyphsMax) {
+            glyph = fastGlyphs[rune];
             return glyph.sourceSize != Vector2.Zero;
         }
-        return glyphs.TryGetValue(c, out glyph);
+        return glyphs.TryGetValue(rune, out glyph);
     }
 
 
