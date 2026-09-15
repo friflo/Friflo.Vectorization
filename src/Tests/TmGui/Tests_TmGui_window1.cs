@@ -50,8 +50,8 @@ public class Tests_TmGui_window1
             if (n == 0) start = Mem.GetAllocatedBytes();
         }
         Mem.AssertNoAlloc(start);
-        Assert.That(batch.Rects.Length, Is.EqualTo(63));
-        Assert.That(batch.Texts.Length, Is.EqualTo(157));
+        Assert.That(batch.Rects.Length, Is.EqualTo(59));
+        Assert.That(batch.Texts.Length, Is.EqualTo(151));
         Assert.That(frameBuffer.ColorCells.Length, Is.EqualTo(1500));
         
         var screen  = frameBuffer.CellsToString("\r\n");
@@ -85,8 +85,8 @@ public class Tests_TmGui_window1
             if (n == 0) start = Mem.GetAllocatedBytes();
         }
         Mem.AssertNoAlloc(start);
-        Assert.That(batch.Rects.Length, Is.EqualTo(63));
-        Assert.That(batch.Texts.Length, Is.EqualTo(157));
+        Assert.That(batch.Rects.Length, Is.EqualTo(59));
+        Assert.That(batch.Texts.Length, Is.EqualTo(151));
         Assert.That(frameBuffer.ColorCells.Length, Is.EqualTo(1500));
         
         var screen  = frameBuffer.CellsToString("\r\n");
@@ -110,7 +110,7 @@ public class Tests_TmGui_window1
         var         batch   = backend.CreateBatch();
         EnsureBatchApi(batch);
         long        start   = 0;
-        const int   repeat  = 10; // 500_000 - 5.2 sec    bottleneck: FillArc() - GuiSizes.CornerSegments = 3
+        const int   repeat  = 10; // 500_000 - 3.8 sec    bottleneck: FillArc() - GuiSizes.CornerSegments = 3
         
         for (int n = 0; n < repeat; n++)
         {
@@ -127,7 +127,7 @@ public class Tests_TmGui_window1
         var drawList    = batch.DrawList;
         var verticesLen = batch.Vertices.Length;
         Assert.That(drawList.Length,    Is.EqualTo(4));
-        Assert.That(verticesLen,        Is.EqualTo(3124));
+        Assert.That(verticesLen,        Is.EqualTo(2400));
         
         int vertexSum = 0;
         int indexSum  = 0;
