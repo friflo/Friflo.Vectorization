@@ -56,7 +56,6 @@ public class ConsoleClient : TmClient
     // I/O Loop: Reads raw stream bytes and pushes them into the session loop queue
     public static async ValueTask HandleClientSessionAsync(ConsoleClient client, TmSessionLoop loop, CancellationToken cancellationToken)
     {
-
         try
         {
             await loop.EnqueueEventAsync(client, ClientEventType.TerminalConnected, default);

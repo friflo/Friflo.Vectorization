@@ -14,6 +14,7 @@ using System.Threading.Tasks;
 // ReSharper disable UnusedMember.Local
 // ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable InconsistentNaming
+// ReSharper disable CheckNamespace
 namespace Friflo.TmGui.Client;
 
 

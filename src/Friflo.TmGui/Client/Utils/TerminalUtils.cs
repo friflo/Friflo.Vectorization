@@ -6,6 +6,7 @@ using System;
 using System.Runtime.InteropServices;
 
 // ReSharper disable InconsistentNaming
+// ReSharper disable CheckNamespace
 namespace Friflo.TmGui.Client;
 
 

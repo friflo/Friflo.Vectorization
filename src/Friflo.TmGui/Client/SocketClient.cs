@@ -46,8 +46,6 @@ public class SocketClient : TmClient
     public static async ValueTask HandleClientSessionAsync(SocketClient client, TmSessionLoop loop, CancellationToken cancellationToken)
     {
         var socket = client.socket;
-        
-
         try
         {
             Payload initialPayload = default;

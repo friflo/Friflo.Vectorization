@@ -12,6 +12,7 @@ using Friflo.TmGui.TUI.VT100;
 
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable ConvertConstructorToMemberInitializers
+// ReSharper disable CheckNamespace
 namespace Friflo.TmGui.Client;
 
 

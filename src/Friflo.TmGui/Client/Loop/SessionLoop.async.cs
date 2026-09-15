@@ -4,32 +4,35 @@
 using System;
 using System.Diagnostics;
 using System.Threading;
+using System.Threading.Tasks;
 using Friflo.TmGui.TUI.VT100;
 
-
+// ReSharper disable CheckNamespace
 namespace Friflo.TmGui.Client;
 
-//                                  --- sync session loop ---
+//                                  --- async session loop ---
 public partial class TmSessionLoop
 {
     // start
-    public void StartSync()
+    public void StartAsync()
     {
         ObjectDisposedException.ThrowIf(isDisposed, this);
-        if (shardThread != null) {
+        if (shardThread != null)        {
             throw new InvalidOperationException("Engine is already running.");
         }
-        
-        // Block main caller thread directly or start dedicated loop thread
-        RunSyncThreadLoop();
-    }    
+        shardThread = new Thread(RunAsyncThreadLoop) {
+            IsBackground = true,
+            Name = "ShardLoopThread"
+        };
+        shardThread.Start();
+    }
 
 
     // run loop
-    private void RunSyncThreadLoop()
+    private void RunAsyncThreadLoop()
     {
         try {
-            RunEventLoopSync(cts.Token);
+            RunEventLoopAsync(cts.Token).GetAwaiter().GetResult();
         }
         catch (OperationCanceledException)
         {
@@ -42,23 +45,23 @@ public partial class TmSessionLoop
     }
 
     // run event loop
-    private void RunEventLoopSync(CancellationToken cancellationToken)
+    private async Task RunEventLoopAsync(CancellationToken cancellationToken)
     {
         var reader = eventChannel.Reader;
 
-        // Synchronous waiting via WaitToReadAsync + GetAwaiter().GetResult()
-        // keeps execution tied strictly to this thread without ThreadPool switching
-        while (reader.WaitToReadAsync(cancellationToken).AsTask().GetAwaiter().GetResult())
+
+
+        while (await reader.WaitToReadAsync(cancellationToken))
         {
             while (reader.TryRead(out ClientEvent evt))
             {
-                ProcessEventSync(evt);
+                await ProcessEventAsync(evt);
             }
         }
     }
-
+    
     // process event
-    private void ProcessEventSync(ClientEvent evt)
+    private async ValueTask ProcessEventAsync(ClientEvent evt)
     {
         try {
             switch (evt.Type)
@@ -67,11 +70,11 @@ public partial class TmSessionLoop
                     var newSession      = CreateSession(evt, out var payload);
                     var initialMessage  = newSession.StartSession();
                     
-                    evt.Client.Send(initialMessage);
+                    await evt.Client.SendAsync(initialMessage, CancellationToken.None);
                     
-                    var sendBuffer      = newSession.ProcessInput(payload.Span);
+                    var sendBuffer = newSession.ProcessInput(payload.Span);
                     
-                    evt.Client.Send(sendBuffer);
+                    await evt.Client.SendAsync(sendBuffer, CancellationToken.None);
                     break;
                 }
                 case ClientEventType.TerminalDisconnected:
@@ -83,7 +86,7 @@ public partial class TmSessionLoop
                     {
                         var payload     = evt.Payload.Span;
                         var sendBuffer  = session.ProcessInput(payload);
-                        evt.Client.Send(sendBuffer);
+                        await evt.Client.SendAsync(sendBuffer, CancellationToken.None);
                     }
                     break;
             }

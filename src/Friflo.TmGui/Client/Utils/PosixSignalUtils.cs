@@ -4,6 +4,7 @@
 using System;
 using System.Runtime.InteropServices;
 
+// ReSharper disable CheckNamespace
 namespace Friflo.TmGui.Client;
 
 
