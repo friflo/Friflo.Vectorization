@@ -9,6 +9,7 @@ using System.Globalization;
 using System.Numerics;
 
 
+// ReSharper disable InvertIf
 // ReSharper disable InconsistentNaming
 // ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable once CheckNamespace
@@ -35,6 +36,8 @@ public struct GlyphInfo
     public Vector2  sourceSize; // Pixel dimensions in the atlas (Width, Height)
     public Vector2  offset;     // Rendering offset relative to the cursor (bearingX, bearingY)
     public float    advance;    // Horizontal advance to the next character
+
+    public override string ToString() => sourceSize == Vector2.Zero ? "null" : $"{sourceSize}";
 }
 
 public sealed class TmFont : IDisposable
@@ -43,11 +46,14 @@ public sealed class TmFont : IDisposable
     public   readonly   Vector2                             textureSize;
     public   readonly   float                               lineHeight;
     public   readonly   FrozenDictionary<char, GlyphInfo>   glyphs;
+    private  readonly   GlyphInfo[]                         fastGlyphs = new GlyphInfo[fastGlyphsMax];
     public   readonly   string                              name;
     public   readonly   int                                 maxY;
     private  readonly   bool                                disposable;
     
     public  override    string                              ToString()  => name;
+    
+    private const int fastGlyphsMax = 256;
 
     internal TmFont (
         in TmTexture                texture,
@@ -65,6 +71,9 @@ public sealed class TmFont : IDisposable
         this.name           = name;
         this.maxY           = maxY;
         this.disposable     = disposable;
+        for (int n = 0; n < fastGlyphsMax; n++) {
+            this.glyphs.TryGetValue((char)n, out fastGlyphs[n]);
+        }
     }
 
     public void Dispose()
@@ -85,10 +94,17 @@ public sealed class TmFont : IDisposable
     }
 
 
-    public bool TryGetGlyph(char c, out GlyphInfo glyph) => glyphs.TryGetValue(c, out glyph);
+    public bool TryGetGlyph(char c, out GlyphInfo glyph)
+    {
+        if (c < fastGlyphsMax) {
+            glyph = fastGlyphs[c];
+            return glyph.sourceSize != Vector2.Zero;
+        }
+        return glyphs.TryGetValue(c, out glyph);
+    }
 
-    
-#region BM Font
+
+    #region BM Font
     /// <summary>
     /// Parses a BMFont (.fnt text format) string and pairs it with the atlas texture.
     /// </summary>
