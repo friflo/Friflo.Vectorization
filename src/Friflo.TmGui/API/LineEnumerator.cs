@@ -4,6 +4,7 @@
 using System;
 
 
+// ReSharper disable ConvertIfStatementToSwitchStatement
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable ConvertToPrimaryConstructor
@@ -54,17 +55,22 @@ internal ref struct WrappedLineEnumerator
         
         float scaledAdvance = lineHeight;
 
-        for (; index < text.Length; index++)
+        foreach (var rune in text.Slice(index).EnumerateRunes())
         {
-            char c = text[index];
+            int charLen     = rune.Utf16SequenceLength;
+            var runeValue   = rune.Value;
 
-            if (c == '\r') continue;
+            if (runeValue == '\r')
+            {
+                index += charLen;
+                continue;
+            }
 
             // Explicit newline
-            if (c == '\n')
+            if (runeValue == '\n')
             {
                 Current          = text[lineStart..index];
-                index++;
+                index           += charLen;
                 lineStart        = index;
                 lastSpace        = -1;
                 currentLineWidth = 0f;
@@ -73,13 +79,18 @@ internal ref struct WrappedLineEnumerator
             }
 
             if (lineHeight == 0) {
-                if (!font.TryGetGlyph(c, out var glyph))
+                if (!font.TryGetGlyph(runeValue, out var glyph))
                 {
-                    if (!font.TryGetGlyph('?', out glyph)) continue;
+                    if (!font.TryGetGlyph('?', out glyph)) 
+                    {
+                        index += charLen;
+                        continue;
+                    }
                 }
                 scaledAdvance = glyph.advance * scale;
             }
-            if (c == ' ')
+            
+            if (runeValue == ' ')
             {
                 lastSpace        = index;
                 widthAtLastSpace = currentLineWidth + scaledAdvance;
@@ -100,10 +111,11 @@ internal ref struct WrappedLineEnumerator
                     lineStart        = index;
                     currentLineWidth = scaledAdvance;
                 }
-                index++;
+                index += charLen;
                 return true;
             }
             currentLineWidth += scaledAdvance;
+            index += charLen;
         }
         // Return trailing line
         Current  = text[lineStart..];
