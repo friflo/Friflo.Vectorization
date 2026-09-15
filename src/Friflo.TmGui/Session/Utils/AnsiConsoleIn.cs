@@ -9,6 +9,7 @@ namespace Friflo.TmGui.Session;
 using System;
 using System.Buffers;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Channels;
@@ -43,7 +44,7 @@ internal sealed class AnsiConsoleIn : Stream
     {
         cts = new CancellationTokenSource();
         var options = new UnboundedChannelOptions {
-            SingleWriter = true,
+            SingleWriter = false,
             SingleReader = true
         };
         chunkChannel = Channel.CreateUnbounded<Chunk>(options);
@@ -55,6 +56,26 @@ internal sealed class AnsiConsoleIn : Stream
         thread.Start();
     }
 
+    private void OnSigWinch()
+    {
+        if (isDisposed) return;
+
+        try
+        {
+            int width  = Console.WindowWidth;
+            int height = Console.WindowHeight;
+
+            byte[] buffer = ArrayPool<byte>.Shared.Rent(256);
+            int length = WriteVt100WindowSizeReport(buffer.AsSpan(), (short)width, (short)height);
+
+            chunkChannel.Writer.TryWrite(new Chunk(buffer, length));
+        }
+        catch
+        {
+            // Ignore potential race conditions during shutdown
+        }
+    }
+
     private void InputLoop()
     {
         var writer = chunkChannel.Writer;
@@ -62,16 +83,17 @@ internal sealed class AnsiConsoleIn : Stream
         byte[] buffer = ArrayPool<byte>.Shared.Rent(256);
         int writePos = 0;
 
+        RegisterSigWinch(this);
+
         try
         {
             Span<byte> scratch = stackalloc byte[4];
-            
+
             while (!cts.IsCancellationRequested)
             {
                 ConsoleKeyInfo keyInfo;
                 try
                 {
-                    // Blocking read on Console.ReadKey() avoids high-CPU polling
                     keyInfo = Console.ReadKey(intercept: true);
                 }
                 catch (InvalidOperationException)
@@ -79,6 +101,7 @@ internal sealed class AnsiConsoleIn : Stream
                     // Handle stdin closure or redirection
                     break;
                 }
+
                 ReadOnlySpan<byte> keyBytes = MapKeyToBytes(keyInfo, scratch);
                 if (!keyBytes.IsEmpty)
                 {
@@ -137,6 +160,34 @@ internal sealed class AnsiConsoleIn : Stream
                 }
                 return ReadOnlySpan<byte>.Empty;
         }
+    }
+
+    private static int WriteVt100WindowSizeReport(Span<byte> span, short width, short height)
+    {
+        int pos = 0;
+        span[pos++] = (byte)'\x1b';
+        span[pos++] = (byte)'[';
+        span[pos++] = (byte)'8';
+        span[pos++] = (byte)';';
+
+        pos += WriteDecimalBytes(span.Slice(pos), height);
+        span[pos++] = (byte)';';
+
+        pos += WriteDecimalBytes(span.Slice(pos), width);
+        span[pos++] = (byte)'t';
+
+        return pos;
+    }
+
+    private static int WriteDecimalBytes(Span<byte> span, short value)
+    {
+        int pos = 0;
+        if (value >= 10000) span[pos++] = (byte)('0' + (value / 10000 % 10));
+        if (value >= 1000)  span[pos++] = (byte)('0' + (value / 1000 % 10));
+        if (value >= 100)   span[pos++] = (byte)('0' + (value / 100 % 10));
+        if (value >= 10)    span[pos++] = (byte)('0' + (value / 10 % 10));
+        span[pos++] = (byte)('0' + (value % 10));
+        return pos;
     }
 
 #region Stream
@@ -237,5 +288,29 @@ internal sealed class AnsiConsoleIn : Stream
     public override long Seek(long offset, SeekOrigin origin) => throw new NotSupportedException();
     public override void SetLength(long value) => throw new NotSupportedException();
     public override void Write(byte[] buffer, int offset, int count) => throw new NotSupportedException();
+#endregion
+
+#region POSIX Native Imports
+    private const int SIGWINCH = 28;
+
+    private delegate void SigHandler(int signal);
+
+    private static SigHandler? sigHandlerDelegate;
+
+    private static void RegisterSigWinch(AnsiConsoleIn consoleIn)
+    {
+        try
+        {
+            sigHandlerDelegate = _ => consoleIn.OnSigWinch();
+            signal(SIGWINCH, sigHandlerDelegate);
+        }
+        catch
+        {
+            // Ignore if OS does not support POSIX signals
+        }
+    }
+
+    [DllImport("libc", SetLastError = true)]
+    private static extern IntPtr signal(int signum, SigHandler handler);
 #endregion
 }
