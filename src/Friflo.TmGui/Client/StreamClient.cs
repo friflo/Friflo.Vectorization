@@ -40,8 +40,7 @@ public class StreamClient : TmClient
     
     protected internal override void RestoreTerminal()
     {
-        outputStream.Write(TerminalReset.AsMemory().Span);
-        outputStream.Flush();
+        Send(TerminalReset);
     }
 
     // I/O Loop: Reads raw stream bytes and pushes them into the session loop queue

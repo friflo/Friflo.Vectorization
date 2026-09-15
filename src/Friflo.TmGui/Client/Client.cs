@@ -65,8 +65,8 @@ public abstract class TmClient
     // \x1b[?1049l  Leave alternate screen buffer
     // \x1b[?25h    Show cursor
     // \x1bc        VT100 RIS (Reset to Initial State)
-    internal static readonly byte[] TerminalReset = 
-        "\x1b[?1006l\x1b[?1003l\x1b[?1002l\x1b[?1000l\x1b[?2004l\x1b[?1h\x1b[?1049l\x1b[?25h\x1bc"u8.ToArray();
+    protected static readonly ReadOnlyMemory<byte> TerminalReset =
+        "\x1b[?1006l\x1b[?1003l\x1b[?1002l\x1b[?1000l\x1b[?2004l\x1b[?1h\x1b[?1049l\x1b[?25h\x1bc"u8.ToArray().AsMemory();
     
     protected internal abstract  ValueTask<int> SendAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken);
     protected internal abstract  int            Send(ReadOnlyMemory<byte> buffer);

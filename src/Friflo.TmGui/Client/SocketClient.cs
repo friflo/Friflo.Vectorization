@@ -38,7 +38,7 @@ public class SocketClient : TmClient
     
     protected internal override void RestoreTerminal()
     {
-        socket.Send(TerminalReset.AsMemory().Span);
+        Send(TerminalReset);
     }
     
     

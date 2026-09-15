@@ -50,8 +50,7 @@ public class ConsoleClient : TmClient
     {
         WinConsoleIn.RestoreConsoleMode();
         
-        outputStream.Write(TerminalReset.AsMemory().Span);
-        outputStream.Flush();
+        Send(TerminalReset);
     }
 
     // I/O Loop: Reads raw stream bytes and pushes them into the session loop queue
