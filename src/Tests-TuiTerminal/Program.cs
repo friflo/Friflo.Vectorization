@@ -9,6 +9,14 @@ using TuiTerminal;
 // Windows WSL              stty raw -echo; nc $(ip route show default | awk '{print $3}') 9000; stty sane
 // macOS / Linux            stty raw -echo; nc localhost 9000; stty sane
 
+// PuTTY - Session                  Host Name: localhost    Port: 9000    Connection type: Other - Telnet
+//       - Terminal                 Local echo: Force off   Local line editing: Force off  
+//                  > Keyboard      The Function keys and keypad:           VT100+
+//                  > Features      Disable application cursor keys mode:   Enabled
+//       - Window   > Appearance    Font:                                   Cascadia Code, Regular, 12 px
+//                  > Translation   Remote character set:                   UTF-8
+
+
 // Or use an SSH Proxy to redirect SSH client connections to the TmGui TCP server:
 // Client (All OS):         ssh tmgui@127.0.0.1
 // Server Windows:
