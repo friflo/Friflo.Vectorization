@@ -10,7 +10,7 @@ using TuiTerminal;
 // macOS / Linux            stty raw -echo; nc localhost 9000; stty sane
 
 // PuTTY - Session                  Host Name: localhost    Port: 9000    Connection type: Other - Telnet
-//       - Terminal                 Local echo: Force off   Local line editing: Force off  
+//       - Terminal                 Local echo: Force off   Local line editing: Force off
 //                  > Keyboard      The Function keys and keypad:           VT100+
 //                  > Features      Disable application cursor keys mode:   Enabled
 //       - Window   > Appearance    Font:                                   Cascadia Code, Regular, 12 px
