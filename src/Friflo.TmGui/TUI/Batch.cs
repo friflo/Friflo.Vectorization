@@ -160,10 +160,10 @@ public sealed partial class TuiBatch : TmBatch
                 for (int index  = cmd.rectView.offset; index < lastRect; index++)
                 {
                     var rect    = rects[index];
-                    var rectL   = (int)(rect.TL.X * xScale);
-                    var rectT   = (int)(rect.TL.Y * yScale);
-                    var rectR   = (int)(rect.BR.X * xScale);
-                    var rectB   = (int)(rect.BR.Y * yScale);
+                    var rectL   = (int)MathF.Floor(rect.TL.X * xScale);
+                    var rectT   = (int)MathF.Floor(rect.TL.Y * yScale);
+                    var rectR   = (int)MathF.Floor(rect.BR.X * xScale);
+                    var rectB   = (int)MathF.Floor(rect.BR.Y * yScale);
 
                     // Fast AABB intersection clipping against scissor bounds
                     int startX = Math.Max(rectL, scissorL);

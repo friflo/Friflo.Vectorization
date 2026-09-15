@@ -143,7 +143,7 @@ public partial class TuiBatch
         } else {
             FillRect(pos, new Vector2(size.X, lineHeight), colors.WindowColor);
         }
-        DrawText(title, TextStyle.None, pos + new Vector2(2 * CharWidth, 0), colors.TextColor);
+        DrawText(title, TextStyle.None, pos + new Vector2(2 * charWidth, 0), colors.TextColor);
     }
     
     internal void DrawWindowBorder(Vector2 pos, Vector2 size, in GuiColors colors, in TuiBorder tuiBorder)
