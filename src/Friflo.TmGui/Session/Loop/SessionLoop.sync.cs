@@ -17,7 +17,7 @@ public partial class TmSessionLoop
     {
         ObjectDisposedException.ThrowIf(isDisposed, this);
         if (shardThread != null) {
-            throw new InvalidOperationException("Engine is already running.");
+            throw new InvalidOperationException("session loop is already running.");
         }
         
         // Block main caller thread directly or start dedicated loop thread
