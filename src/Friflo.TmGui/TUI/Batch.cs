@@ -249,10 +249,9 @@ public sealed partial class TuiBatch : TmBatch
                         int colorOffset     = offsetX + runeIndex;
                         dstCell.color       = colorOffset < color.len ? colors[color.start + colorOffset] : solidColor;
                         dstCell.textStyle   = textStyle;
-                        dstCell.width       = 1;
+                        dstCell.width       = (byte)dstCell.rune.RuneWidth;
 
-                        if (dstCell.rune.IsWideRune) {
-                            dstCell.width = 2;
+                        if (dstCell.width == 2) {
                             // Handle wide characters near the right scissor edge
                             if (n + 1 < row.Length) {
                                 // Set subsequent cell as ghost cell
