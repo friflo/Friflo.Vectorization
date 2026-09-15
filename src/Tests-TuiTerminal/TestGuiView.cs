@@ -31,10 +31,10 @@ public class TestGuiView : IGuiView
     
     private void Window1(Gui gui)
     {
-        gui.Button("hello GUI", Dim.Fill_X(0, Fit.Content), color: textColors);
+        gui.Button("hello TUI 💻 🙂", Dim.Fill_X(0, Fit.Content), color: textColors);
         gui.Spacer();
         using (gui.PushStyle(greenButtonStyle)) {
-            if (gui.Button("hello 🙂!"))                            Debug.WriteLine("Clicked: hello");
+            if (gui.Button("green"))                            Debug.WriteLine("Clicked: hello");
         }
 
         gui.Spacer();
