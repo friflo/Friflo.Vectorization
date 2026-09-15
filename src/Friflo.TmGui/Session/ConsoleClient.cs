@@ -23,13 +23,15 @@ public class ConsoleClient : TmClient
         Console.OutputEncoding = System.Text.Encoding.UTF8;
         outputStream = Console.OpenStandardOutput();
 
-        // Use native Win32 input stream on Windows, fall back to StandardInput on Unix
         if (OperatingSystem.IsWindows()) {
             // TerminalUtils.EnableRawModeAndVT100(); inputStream = Console.OpenStandardInput();
             inputStream = new WinConsoleIn();
+        } else if (OperatingSystem.IsMacOS()) {
+            inputStream = new MacOsConsoleIn();
         } else {
             inputStream = Console.OpenStandardInput();
         }
+            
     }
     
     protected internal override async ValueTask<int> SendAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken)
@@ -48,7 +50,9 @@ public class ConsoleClient : TmClient
     
     protected internal override void RestoreTerminal()
     {
-        WinConsoleIn.RestoreConsoleMode();
+        if (OperatingSystem.IsWindows()) {
+            WinConsoleIn.RestoreConsoleMode();
+        }
         
         Send(TerminalReset);
     }
