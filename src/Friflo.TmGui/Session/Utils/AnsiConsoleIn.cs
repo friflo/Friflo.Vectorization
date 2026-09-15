@@ -13,7 +13,7 @@ using System.Threading;
 using System.Threading.Channels;
 using System.Threading.Tasks;
 
-internal sealed class MacOsConsoleIn : Stream
+internal sealed class AnsiConsoleIn : Stream
 {
     private readonly struct Chunk
     {
@@ -38,7 +38,7 @@ internal sealed class MacOsConsoleIn : Stream
     private          int                     pendingOffset;
     private          bool                    isDisposed;
 
-    internal MacOsConsoleIn()
+    internal AnsiConsoleIn()
     {
         cts = new CancellationTokenSource();
         var options = new UnboundedChannelOptions {

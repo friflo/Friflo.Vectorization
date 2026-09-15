@@ -26,12 +26,9 @@ public class ConsoleClient : TmClient
         if (OperatingSystem.IsWindows()) {
             // TerminalUtils.EnableRawModeAndVT100(); inputStream = Console.OpenStandardInput();
             inputStream = new WinConsoleIn();
-        } else if (OperatingSystem.IsMacOS()) {
-            inputStream = new MacOsConsoleIn();
         } else {
-            inputStream = Console.OpenStandardInput();
+            inputStream = new AnsiConsoleIn();
         }
-            
     }
     
     protected internal override async ValueTask<int> SendAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken)
