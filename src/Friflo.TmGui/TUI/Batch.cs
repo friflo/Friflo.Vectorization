@@ -138,6 +138,12 @@ public sealed partial class TuiBatch : TmBatch
 #region DrawRectCommands
     private static readonly Rune Ellipsis = new('…');
     
+    /// Fast alternative for <see cref="MathF.Floor"/> especially in DEBUG
+    private static int FastFloor(float x) {
+        int i = (int)x;
+        return i > x ? i - 1 : i;
+    }
+    
     private void DrawRectCommandsInternal(int stride, Span<TuiColorCell> cells)
     {
         var commands    = rectCommands;
@@ -160,16 +166,17 @@ public sealed partial class TuiBatch : TmBatch
                 for (int index  = cmd.rectView.offset; index < lastRect; index++)
                 {
                     var rect    = rects[index];
-                    var rectL   = (int)MathF.Floor(rect.TL.X * xScale);
-                    var rectT   = (int)MathF.Floor(rect.TL.Y * yScale);
-                    var rectR   = (int)MathF.Floor(rect.BR.X * xScale);
-                    var rectB   = (int)MathF.Floor(rect.BR.Y * yScale);
+                    // Note! MathF.Floor() is slow especially in DEBUG
+                    var rectL   = FastFloor(rect.TL.X * xScale);
+                    var rectT   = FastFloor(rect.TL.Y * yScale);
+                    var rectR   = FastFloor(rect.BR.X * xScale);
+                    var rectB   = FastFloor(rect.BR.Y * yScale);
 
                     // Fast AABB intersection clipping against scissor bounds
-                    int startX = Math.Max(rectL, scissorL);
-                    int startY = Math.Max(rectT, scissorT);
-                    int endX   = Math.Min(rectR, scissorR);
-                    int endY   = Math.Min(rectB, scissorB);
+                    int startX  = Math.Max(rectL, scissorL);
+                    int startY  = Math.Max(rectT, scissorT);
+                    int endX    = Math.Min(rectR, scissorR);
+                    int endY    = Math.Min(rectB, scissorB);
 
                     // Early exit for fully clipped rectangles
                     if (startX >= endX || startY >= endY) continue;
