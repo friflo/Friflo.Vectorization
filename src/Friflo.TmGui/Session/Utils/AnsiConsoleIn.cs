@@ -62,13 +62,7 @@ internal sealed class AnsiConsoleIn : Stream
         {
             while (!cts.IsCancellationRequested)
             {
-                if (!Console.KeyAvailable)
-                {
-                    Thread.Sleep(10);
-                    continue;
-                }
-
-                // Read single key without echoing it to console
+                // Read single key without echoing it to console (blocks until a key is pressed)
                 ConsoleKeyInfo keyInfo = Console.ReadKey(intercept: true);
 
                 byte[] bytes = MapKeyToBytes(keyInfo);
@@ -79,6 +73,10 @@ internal sealed class AnsiConsoleIn : Stream
                     writer.TryWrite(new Chunk(buffer, bytes.Length));
                 }
             }
+        }
+        catch (InvalidOperationException)
+        {
+            // Thrown if stdin is redirected or closed
         }
         finally
         {
