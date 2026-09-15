@@ -71,7 +71,12 @@ public readonly ref partial struct GuiWidget
 	            var mouseDelta		= mousePos - scrollState.dragStartMouse;
 				if (scrollState.dragAxis == ScrollAxis.Horizontal)	mouseDelta.Y = 0;
 				else												mouseDelta.X = 0;
-	            var scrollDelta		= (mouseDelta / range.maxThumbTravel) * range.maxScroll;
+
+				var scrollDelta	= Vector2.Zero;
+				// Prevent NaN by:  maxThumbTravel.X / .Y
+				if (range.maxThumbTravel.X > 0.5f) scrollDelta.X = (mouseDelta.X / range.maxThumbTravel.X) * range.maxScroll.X;
+				if (range.maxThumbTravel.Y > 0.5f) scrollDelta.Y = (mouseDelta.Y / range.maxThumbTravel.Y) * range.maxScroll.Y;
+	            
 	            scrollState.offset	= Vector2.Clamp(scrollState.dragStartOffset + scrollDelta, default, range.maxScroll);
 	            draw.Tui?.SnapExtentToGrid(ref scrollState.offset);
 	        } else {
