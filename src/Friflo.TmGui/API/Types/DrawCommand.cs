@@ -4,6 +4,7 @@
 
 using System;
 using System.Numerics;
+using System.Runtime.CompilerServices;
 
 // ReSharper disable InconsistentNaming
 // ReSharper disable ConvertToPrimaryConstructor
@@ -68,9 +69,11 @@ public readonly struct RectVector2 (Vector2 pos, Vector2 size) : IEquatable<Rect
 
     public override string ToString()       => $"[{pos.X}, {pos.Y} | {size.X}, {size.Y}]";
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool Equals(RectVector2 other)   => pos == other.pos && size == other.size;
     
     /// <summary> Checks if a point lies within the rectangle bounds. </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool Contains(Vector2 point)
     {
         return point.X >= pos.X && point.X <= pos.X + size.X &&
@@ -89,6 +92,13 @@ public readonly struct RectVector2 (Vector2 pos, Vector2 size) : IEquatable<Rect
         float h = MathF.Max(0f, y2 - y1);
 
         return new RectVector2(new Vector2(x1, y1), new Vector2(w, h));
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public bool IntersectsRect(Vector2 otherPos, Vector2 otherSize)
+    {
+        return pos.X < otherPos.X + otherSize.X && pos.X + size.X > otherPos.X &&
+               pos.Y < otherPos.Y + otherSize.Y && pos.Y + size.Y > otherPos.Y;
     }
 }
 
