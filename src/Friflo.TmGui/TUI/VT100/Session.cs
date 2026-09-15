@@ -21,7 +21,6 @@ internal sealed partial class TuiSession
     private readonly    IGuiView        guiView;
     private readonly    byte[]          sendBuffer      = new byte[30000];  // TODO grow if needed
     private             int             sendBufferCount;
-    private readonly    TuiColorMode    colorMode;
     private             int             frameWidth      = 50;
     private             int             frameHeight     = 20;
     private             bool            sessionStart;
@@ -34,7 +33,6 @@ internal sealed partial class TuiSession
         this.client         = client;
         this.guiView        = guiView;
         this.frameBuffer    = frameBuffer;
-        this.colorMode      = colorMode;
         backend             = new TuiBackend();
         batch               = backend.CreateBatch(colorMode);
     }
@@ -123,21 +121,6 @@ internal sealed partial class TuiSession
     
     private void AppendFrameBuffer(int width, int height)
     {
-        var start   = sendBufferCount;
-        var buffer  = sendBuffer;
-        
-        /* // ------ Monochrome
-        if (colorMode == TuiColorMode.Monochrome) {
-            batch.DrawRectCommandsColor (frameBuffer, width, height, ' ', "\r\n");
-            var runes  = frameBuffer.RuneCells;
-            for (int i = 0; i < runes.Length; i++) {
-                buffer[start + i] = (byte)runes[i].Value;
-            }
-            sendBufferCount += runes.Length;
-            return;
-        } */
-        
-        // ------ RGB24
         // color / background are only sent if changed 
         var color       = new Color32();
         var background  = new Color32();
@@ -233,40 +216,15 @@ internal sealed partial class TuiSession
         sendBuffer[sendBufferCount++] = value; 
     }
     
-    private void AppendRune(Rune character)
+    private void AppendRune(Rune rune)
     {
-        if (character.Value == 0) {
+        if (rune.Value == 0) {
             return; // Skip ghost cells. They follow runes which are two cells wide like 🙂
         }
         var destination = sendBuffer.AsSpan(sendBufferCount);
-        int bytesWritten = character.EncodeToUtf8(destination);
+        int bytesWritten = rune.EncodeToUtf8(destination);
         sendBufferCount += bytesWritten;
     }
-    
-    /* private void AppendRune(Rune character)
-    {
-        var buffer = sendBuffer;
-        var runeValue = character.Value;
-        // Fast path: ASCII (1 byte) - 0x0000 to 0x007F
-        if (runeValue <= 0x7F) {
-            buffer[sendBufferCount++] = (byte)runeValue;
-            return;
-        }
-        // UTF-8 (2 bytes) - e.g. umlauts (ä, ö, ü) or guillemets («, »)
-        if (runeValue <= 0x07FF) {
-            buffer[sendBufferCount++] = (byte)(0xC0 | (runeValue >> 6));
-            buffer[sendBufferCount++] = (byte)(0x80 | (runeValue & 0x3F));
-            return;
-        }
-        // Skip isolated UTF-16 surrogates (4-byte characters need Rune / pair handling)
-        if (char.IsSurrogate(character)) {  // TODO implement rune
-            return;
-        }
-        // UTF-8 (3 bytes) - e.g. TUI symbols (◢, ▲, ▼, ◥) and box-drawing chars
-        buffer[sendBufferCount++] = (byte)(0xE0 | (runeValue >> 12));
-        buffer[sendBufferCount++] = (byte)(0x80 | ((runeValue >> 6) & 0x3F));
-        buffer[sendBufferCount++] = (byte)(0x80 | (runeValue & 0x3F));
-    } */
     
     private void AppendSpan(ReadOnlySpan<byte> buffer)
     {
