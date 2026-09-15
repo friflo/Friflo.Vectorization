@@ -7,7 +7,7 @@ using System.Runtime.InteropServices;
 
 // ReSharper disable InconsistentNaming
 // ReSharper disable CheckNamespace
-namespace Friflo.TmGui.Client;
+namespace Friflo.TmGui.Session;
 
 
 internal static class TerminalUtils

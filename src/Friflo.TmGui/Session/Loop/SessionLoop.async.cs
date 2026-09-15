@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using Friflo.TmGui.TUI.VT100;
 
 // ReSharper disable CheckNamespace
-namespace Friflo.TmGui.Client;
+namespace Friflo.TmGui.Session;
 
 //                                  --- async session loop ---
 public partial class TmSessionLoop

@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 // ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable ConvertToPrimaryConstructor
-namespace Friflo.TmGui.Client;
+namespace Friflo.TmGui.Session;
 
 
 

@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 // ReSharper disable CanSimplifyStringEscapeSequence
 // ReSharper disable ConvertToPrimaryConstructor
-namespace Friflo.TmGui.Client;
+namespace Friflo.TmGui.Session;
 
 
 internal enum ClientEventType : byte
@@ -22,7 +22,7 @@ internal readonly struct ClientEvent
 {
     internal required   TmClient            Client  { get; init; }
     internal required   ClientEventType     Type    { get; init; }
-    internal            Payload             Payload { get; init; }
+    internal required   Payload             Payload { get; init; }
 }
 
 internal readonly struct Payload

@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 // ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable MemberCanBeProtected.Global
 // ReSharper disable ConvertToPrimaryConstructor
-namespace Friflo.TmGui.Client;
+namespace Friflo.TmGui.Session;
 
 
 public class StreamClient : TmClient

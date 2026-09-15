@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 // ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable InconsistentNaming
 // ReSharper disable ConvertConstructorToMemberInitializers
-namespace Friflo.TmGui.Client;
+namespace Friflo.TmGui.Session;
 
 
 public class ConsoleClient : TmClient
