@@ -36,6 +36,7 @@ internal sealed class AnsiConsoleIn : Stream
 
     private readonly Channel<Chunk>          chunkChannel;
     private readonly CancellationTokenSource cts;
+    private          PosixSignalRegistration? posixSignalRegistration;
     private          Chunk                   pendingChunk;
     private          int                     pendingOffset;
     private          bool                    isDisposed;
@@ -49,11 +50,27 @@ internal sealed class AnsiConsoleIn : Stream
         };
         chunkChannel = Channel.CreateUnbounded<Chunk>(options);
 
+        RegisterSigWinch();
+
         var thread = new Thread(InputLoop) {
             IsBackground = true,
             Name = "AnsiConsoleInputWorker"
         };
         thread.Start();
+    }
+
+    private void RegisterSigWinch()
+    {
+        if (OperatingSystem.IsWindows()) return;
+
+        try
+        {
+            posixSignalRegistration = PosixSignalRegistration.Create(PosixSignal.SIGWINCH, _ => OnSigWinch());
+        }
+        catch
+        {
+            // Ignore if OS or platform environment does not support POSIX signals
+        }
     }
 
     private void OnSigWinch()
@@ -82,8 +99,6 @@ internal sealed class AnsiConsoleIn : Stream
 
         byte[] buffer = ArrayPool<byte>.Shared.Rent(256);
         int writePos = 0;
-
-        RegisterSigWinch(this);
 
         try
         {
@@ -261,6 +276,9 @@ internal sealed class AnsiConsoleIn : Stream
         if (isDisposed) return;
         isDisposed = true;
 
+        posixSignalRegistration?.Dispose();
+        posixSignalRegistration = null;
+
         cts.Cancel();
         cts.Dispose();
 
@@ -288,29 +306,5 @@ internal sealed class AnsiConsoleIn : Stream
     public override long Seek(long offset, SeekOrigin origin) => throw new NotSupportedException();
     public override void SetLength(long value) => throw new NotSupportedException();
     public override void Write(byte[] buffer, int offset, int count) => throw new NotSupportedException();
-#endregion
-
-#region POSIX Native Imports
-    private const int SIGWINCH = 28;
-
-    private delegate void SigHandler(int signal);
-
-    private static SigHandler? sigHandlerDelegate;
-
-    private static void RegisterSigWinch(AnsiConsoleIn consoleIn)
-    {
-        try
-        {
-            sigHandlerDelegate = _ => consoleIn.OnSigWinch();
-            signal(SIGWINCH, sigHandlerDelegate);
-        }
-        catch
-        {
-            // Ignore if OS does not support POSIX signals
-        }
-    }
-
-    [DllImport("libc", SetLastError = true)]
-    private static extern IntPtr signal(int signum, SigHandler handler);
 #endregion
 }
