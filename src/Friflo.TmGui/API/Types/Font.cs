@@ -7,6 +7,7 @@ using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Numerics;
+using System.Text;
 
 
 // ReSharper disable InvertIf
@@ -45,7 +46,7 @@ public sealed class TmFont : IDisposable
     internal readonly   TmTexture                           texture;
     public   readonly   Vector2                             textureSize;
     public   readonly   float                               lineHeight;
-    public   readonly   FrozenDictionary<char, GlyphInfo>   glyphs;
+    public   readonly   FrozenDictionary<int, GlyphInfo>    glyphs;
     private  readonly   GlyphInfo[]                         fastGlyphs = new GlyphInfo[fastGlyphsMax];
     public   readonly   string                              name;
     public   readonly   int                                 maxY;
@@ -59,7 +60,7 @@ public sealed class TmFont : IDisposable
         in TmTexture                texture,
         Vector2                     textureSize,
         float                       lineHeight,
-        Dictionary<char, GlyphInfo> glyphs,
+        Dictionary<int, GlyphInfo>  glyphs,
         string                      name,
         int                         maxY,
         bool                        disposable)
@@ -108,9 +109,9 @@ public sealed class TmFont : IDisposable
     /// <summary>
     /// Parses a BMFont (.fnt text format) string and pairs it with the atlas texture.
     /// </summary>
-    private static Dictionary<char, GlyphInfo> ReadBmFont(ReadOnlySpan<char> fntContent, out float lineHeight)
+    private static Dictionary<int, GlyphInfo> ReadBmFont(ReadOnlySpan<char> fntContent, out float lineHeight)
     {
-        var glyphs = new Dictionary<char, GlyphInfo>();
+        var glyphs = new Dictionary<int, GlyphInfo>();
         lineHeight = 0;
         foreach (var lineSpan in fntContent.EnumerateLines())
         {
@@ -121,7 +122,7 @@ public sealed class TmFont : IDisposable
             }
             else if (line.StartsWith("char") && line.Length > 4 && char.IsWhiteSpace(line[4]))
             {
-                char id = (char)ParseValue(line, "id=");
+                var rune = new Rune(ParseValue(line, "id="));
                 var glyph = new GlyphInfo
                 {
                     sourcePos  = new Vector2(ParseValue(line, "x="), ParseValue(line, "y=")),
@@ -129,20 +130,20 @@ public sealed class TmFont : IDisposable
                     offset     = new Vector2(ParseValue(line, "xoffset="), ParseValue(line, "yoffset=")),
                     advance    = ParseValue(line, "xadvance=")
                 };
-                glyphs[id] = glyph;
+                glyphs[rune.Value] = glyph;
             }
         }
         return glyphs;
     }
 
-    private static float ParseValue(ReadOnlySpan<char> line, ReadOnlySpan<char> key)
+    private static int ParseValue(ReadOnlySpan<char> line, ReadOnlySpan<char> key)
     {
         int idx = line.IndexOf(key);
-        if (idx == -1) return 0f;
+        if (idx == -1) return 0;
         var valueSpan = line[(idx + key.Length)..];
         int spaceIdx = valueSpan.IndexOf(' ');
         if (spaceIdx != -1) valueSpan = valueSpan[..spaceIdx];
-        return float.TryParse(valueSpan, NumberStyles.Float, CultureInfo.InvariantCulture, out float result) ? result : 0f;
+        return int.TryParse(valueSpan, out int result) ? result : 0;
     }
 
     internal static TmFont CreateBMFont(TmGuiBackend backend, ReadOnlySpan<char> fntContent, TmImageAsset image, string name, bool disposable)

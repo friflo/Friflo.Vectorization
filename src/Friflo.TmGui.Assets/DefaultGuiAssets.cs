@@ -87,16 +87,16 @@ public class DefaultGuiAssets : IGuiAssets
             }
         }
 
-        var glyphs = new Dictionary<char, GlyphInfo>(charCount);
+        var glyphs = new Dictionary<int, GlyphInfo>(charCount);
         int maxY = 0;
 
         for (int i = 0; i < charCount; i++)
         {
-            var baked = bakedChars[i];
-            char c = (char)(firstChar + i);
+            var baked   = bakedChars[i];
+            var rune    = new Rune(firstChar + i);
             if (maxY < baked.y1) maxY = baked.y1; 
 
-            glyphs[c] = new GlyphInfo {
+            glyphs[rune.Value] = new GlyphInfo {
                 sourcePos  = new Vector2(baked.x0, baked.y0),
                 sourceSize = new Vector2(baked.x1 - baked.x0, baked.y1 - baked.y0),
                 // Bake ascent directly into yoff -> top-left ready!

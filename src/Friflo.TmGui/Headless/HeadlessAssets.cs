@@ -23,7 +23,7 @@ internal class HeadlessAssets : IGuiAssets
             offset     = new Vector2( 2.0f,  3.0f),
             advance    = 24.0f
         };
-        var glyphs = new Dictionary<char, GlyphInfo>();
+        var glyphs = new Dictionary<int, GlyphInfo>();
         for (int n = 0; n <= 190; n++)
         {
             int col = n % 20;

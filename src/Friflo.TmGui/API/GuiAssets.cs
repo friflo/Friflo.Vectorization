@@ -42,6 +42,6 @@ public enum TmColorComponents
 
 public struct TmTrueTypeFontAsset
 {
-    public  Dictionary<char, GlyphInfo> glyphs;
+    public  Dictionary<int, GlyphInfo>  glyphs;
     public  int                         maxY;
 }
