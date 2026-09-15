@@ -32,12 +32,14 @@ public readonly ref partial struct GuiWidget
         var widgetState = GetWidgetState(isHover, widgetId);
         var color       = textColor.IsNone ? Colors.ButtonText : textColor;
 
-        if (tui != null) {
-            tui.Button(name, pos, finalSize, color, Colors.ButtonState(widgetState), isFocused);
-        } else {
-            draw.FillRectRounded  (pos, finalSize, Sizes.CornerRadius, Colors.ButtonState(widgetState), GuiSizes.CornerSegments);
-            draw.StrokeRectRounded(pos, finalSize, Sizes.CornerRadius, 2, Colors.ButtonBorder, GuiSizes.CornerSegments);
-            draw.DrawTextInRect(name, pos + Sizes.FramePadding.Min, textSize, TextAlignment.Center, VerticalAlignment.Middle, color);
+        if (draw.batch.currentScissor.IntersectsRect(pos, finalSize)) {
+            if (tui != null) {
+                tui.Button(name, pos, finalSize, color, Colors.ButtonState(widgetState), isFocused);
+            } else {
+                draw.FillRectRounded  (pos, finalSize, Sizes.CornerRadius, Colors.ButtonState(widgetState), GuiSizes.CornerSegments);
+                draw.StrokeRectRounded(pos, finalSize, Sizes.CornerRadius, 2, Colors.ButtonBorder, GuiSizes.CornerSegments);
+                draw.DrawTextInRect(name, pos + Sizes.FramePadding.Min, textSize, TextAlignment.Center, VerticalAlignment.Middle, color);
+            }
         }
         if (isFocused) {
             DrawFocus(pos, finalSize);

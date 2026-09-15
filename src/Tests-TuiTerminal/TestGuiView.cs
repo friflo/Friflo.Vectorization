@@ -123,9 +123,9 @@ public class TestGuiView : IGuiView
         gui.Spacer();
         using (gui.BeginHorizontal()) {
             gui.Label("scroll area");
-            if (gui.Button("Add 1000")) {
+            if (gui.Button("Add 100.000")) {
                 var buttons = appState.scrollAreaButtons; 
-                for (int n = 0; n < 1000; n++) {
+                for (int n = 0; n < 100_000; n++) {
                     buttons.Add($"Added {buttons.Count}");
                 }
             }

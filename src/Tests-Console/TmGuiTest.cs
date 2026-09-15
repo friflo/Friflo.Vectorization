@@ -24,6 +24,7 @@ public class TmGuiRenderer : IRenderer
     private readonly    TmFont                  monocraftFont;
     private             bool                    enabled2;
     private             float                   volume = 0.8f;
+    private readonly    List<string>            scrollAreaButtons = [];
     private readonly    Color32[]               textColors = [0x0000FFFF, 0xFF0000FF, 0x009900FF, 0xFF00FFFF, 0xCC6600FF, 0x000000ff];
     
     private readonly GuiStyle redButtonStyle = new() {
@@ -161,7 +162,7 @@ public class TmGuiRenderer : IRenderer
         }
     }
     
-    private static void Window2(Gui gui)
+    private void Window2(Gui gui)
     {
         gui.Label("fixed child");
         using (gui.BeginChild(1, Dim.Fill_X(0, 90))) {
@@ -175,7 +176,18 @@ public class TmGuiRenderer : IRenderer
             gui.Button("Button 2 unclipped");
         }
         gui.Spacer();
-        gui.Label("scroll area");
+        using (gui.BeginHorizontal()) {
+            gui.Label("scroll area");
+            if (gui.Button("Add 100.000")) {
+                var buttons = scrollAreaButtons; 
+                for (int n = 0; n < 100_000; n++) {
+                    buttons.Add($"Added {buttons.Count}");
+                }
+            }
+            if (gui.Button("Clear")) {
+                scrollAreaButtons.Clear();
+            }
+        }
         var scrollArea = gui.BeginScrollArea(3, Dim.Fill(0, 60));
             gui.Button("Button 1 - more to to enable horizontal scrolling");
             gui.Button("Button 2 -  Dim.Fill_X(0, Fit.Content)",  Dim.Fill_X(0, Fit.Content));
@@ -211,6 +223,9 @@ public class TmGuiRenderer : IRenderer
                 gui.Button("Center");
             }
             gui.Button("Button last");
+            foreach (var button in scrollAreaButtons) {
+                gui.Button(button);
+            }
         
         gui.EndScrollArea(scrollArea);
         gui.Button("after scroll area");
