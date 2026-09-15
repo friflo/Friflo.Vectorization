@@ -56,13 +56,13 @@ internal sealed partial class TuiSession
                 break;
             
             case RS.ESC:
-                if (character == '[') { // 0x5b
+                if (character == '[')    { // 0x5b  CSI
                     return RS.CSI;
                 }
                 break;
             
             case RS.Ground:
-                if (character == Escape.ESC) { // 0x1B
+                if (character == '\x1b') { // 0x1B  ECS
                     return RS.ESC;
                 }
                 if (character == (char)Telnet.IAC) {
