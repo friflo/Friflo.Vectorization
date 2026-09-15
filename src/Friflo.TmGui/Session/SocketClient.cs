@@ -7,15 +7,15 @@ using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 
+// ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable ConvertToPrimaryConstructor
 namespace Friflo.TmGui.Session;
 
 
-
 public class SocketClient : TmClient
 {
-    private readonly Socket socket;
+    public readonly Socket socket; // is public to enable access to remote info  
     
     public SocketClient(Socket socket)
     {
