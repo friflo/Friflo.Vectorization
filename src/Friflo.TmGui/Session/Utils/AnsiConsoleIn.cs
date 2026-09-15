@@ -19,18 +19,18 @@ internal sealed class AnsiConsoleIn : Stream
 {
     private readonly struct Chunk
     {
-        public readonly byte[] Buffer;
-        public readonly int    Length;
+        internal readonly byte[] buffer;
+        internal readonly int    length;
 
-        public Chunk(byte[] buffer, int length)
+        internal Chunk(byte[] buffer, int length)
         {
-            Buffer = buffer;
-            Length = length;
+            this.buffer = buffer;
+            this.length = length;
         }
 
-        public void Return()
+        internal void Return()
         {
-            ArrayPool<byte>.Shared.Return(Buffer);
+            ArrayPool<byte>.Shared.Return(buffer);
         }
     }
 
@@ -221,15 +221,15 @@ internal sealed class AnsiConsoleIn : Stream
         int bytesWritten = 0;
 
         // Drain pending chunk left over from previous read
-        if (pendingChunk.Buffer != null) {
-            int remaining = pendingChunk.Length - pendingOffset;
+        if (pendingChunk.buffer != null) {
+            int remaining = pendingChunk.length - pendingOffset;
             int toCopy = Math.Min(target.Length, remaining);
 
-            pendingChunk.Buffer.AsSpan(pendingOffset, toCopy).CopyTo(target.Span);
+            pendingChunk.buffer.AsSpan(pendingOffset, toCopy).CopyTo(target.Span);
             pendingOffset += toCopy;
             bytesWritten += toCopy;
 
-            if (pendingOffset >= pendingChunk.Length) {
+            if (pendingOffset >= pendingChunk.length) {
                 pendingChunk.Return();
                 pendingChunk = default;
                 pendingOffset = 0;
@@ -249,11 +249,11 @@ internal sealed class AnsiConsoleIn : Stream
             }
 
             while (bytesWritten < target.Length && reader.TryRead(out var chunk)) {
-                int toCopy = Math.Min(target.Length - bytesWritten, chunk.Length);
-                chunk.Buffer.AsSpan(0, toCopy).CopyTo(target.Span.Slice(bytesWritten));
+                int toCopy = Math.Min(target.Length - bytesWritten, chunk.length);
+                chunk.buffer.AsSpan(0, toCopy).CopyTo(target.Span.Slice(bytesWritten));
                 bytesWritten += toCopy;
 
-                if (toCopy < chunk.Length) {
+                if (toCopy < chunk.length) {
                     pendingChunk = chunk;
                     pendingOffset = toCopy;
                     break;
@@ -283,7 +283,7 @@ internal sealed class AnsiConsoleIn : Stream
         cts.Dispose();
 
         // Drain remaining unread chunks to avoid leaking ArrayPool buffers
-        if (pendingChunk.Buffer != null) {
+        if (pendingChunk.buffer != null) {
             pendingChunk.Return();
             pendingChunk = default;
         }

@@ -24,7 +24,6 @@ public class ConsoleClient : TmClient
         outputStream = Console.OpenStandardOutput();
 
         if (OperatingSystem.IsWindows()) {
-            // TerminalUtils.EnableRawModeAndVT100(); inputStream = Console.OpenStandardInput();
             inputStream = new WinConsoleIn();
         } else {
             inputStream = new AnsiConsoleIn();

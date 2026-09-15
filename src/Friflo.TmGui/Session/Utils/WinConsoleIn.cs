@@ -10,10 +10,10 @@ using System.Threading;
 using System.Threading.Channels;
 using System.Threading.Tasks;
 
-// ReSharper disable ConvertToPrimaryConstructor
-// ReSharper disable UnusedMember.Local
-// ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable InconsistentNaming
+// ReSharper disable UnusedMember.Local
+// ReSharper disable ConvertToPrimaryConstructor
+// ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable CheckNamespace
 namespace Friflo.TmGui.Session;
 
@@ -22,38 +22,38 @@ internal sealed class WinConsoleIn : Stream
 {
     private readonly struct Chunk
     {
-        public readonly     byte[]  Buffer;
-        public readonly     int     Length;
+        internal readonly     byte[]  buffer;
+        internal readonly     int     length;
 
-        public Chunk(byte[] buffer, int length) {
-            Buffer = buffer;
-            Length = length;
+        internal Chunk(byte[] buffer, int length) {
+            this.buffer = buffer;
+            this.length = length;
         }
         
-        public void Return()
+        internal void Return()
         {
-            ArrayPool<byte>.Shared.Return(Buffer);
+            ArrayPool<byte>.Shared.Return(buffer);
         }
     }
 
-    private readonly    IntPtr                  _inHandle;
-    private readonly    Channel<Chunk>          _chunkChannel;
-    private readonly    CancellationTokenSource _cts;
-    private             Chunk                   _pendingChunk;
-    private             int                     _pendingOffset;
-    private             bool                    _isDisposed;
+    private readonly    IntPtr                  inHandle;
+    private readonly    Channel<Chunk>          chunkChannel;
+    private readonly    CancellationTokenSource cts;
+    private             Chunk                   pendingChunk;
+    private             int                     pendingOffset;
+    private             bool                    isDisposed;
 
     internal WinConsoleIn()
     {
-        _inHandle = GetStdHandle(STD_INPUT_HANDLE);
+        inHandle = GetStdHandle(STD_INPUT_HANDLE);
         EnableWindowsRawAndVt100();
 
-        _cts = new CancellationTokenSource();
+        cts = new CancellationTokenSource();
         var options = new UnboundedChannelOptions {
             SingleWriter = true,
             SingleReader = true
         };
-        _chunkChannel = Channel.CreateUnbounded<Chunk>(options);
+        chunkChannel = Channel.CreateUnbounded<Chunk>(options);
 
         var thread = new Thread(InputLoop) {
             IsBackground = true,
@@ -65,16 +65,16 @@ internal sealed class WinConsoleIn : Stream
     private void InputLoop()
     {
         var records = new INPUT_RECORD[16];
-        var writer = _chunkChannel.Writer;
+        var writer = chunkChannel.Writer;
 
         byte[] buffer = ArrayPool<byte>.Shared.Rent(256);
         int writePos = 0;
 
         try
         {
-            while (!_cts.IsCancellationRequested)
+            while (!cts.IsCancellationRequested)
             {
-                if (!ReadConsoleInput(_inHandle, records, (uint)records.Length, out uint numRead) || numRead == 0) {
+                if (!ReadConsoleInput(inHandle, records, (uint)records.Length, out uint numRead) || numRead == 0) {
                     continue;
                 }
 
@@ -129,31 +129,31 @@ internal sealed class WinConsoleIn : Stream
 #region Stream
     public override async ValueTask<int> ReadAsync(Memory<byte> buffer, CancellationToken cancellationToken = default)
     {
-        ObjectDisposedException.ThrowIf(_isDisposed, this);
+        ObjectDisposedException.ThrowIf(isDisposed, this);
 
         if (buffer.IsEmpty) {
             return 0;
         }
 
-        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _cts.Token);
+        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, cts.Token);
         var token = linkedCts.Token;
 
         var target = buffer;
         int bytesWritten = 0;
 
         // Drain pending chunk left over from previous read
-        if (_pendingChunk.Buffer != null) {
-            int remaining = _pendingChunk.Length - _pendingOffset;
+        if (pendingChunk.buffer != null) {
+            int remaining = pendingChunk.length - pendingOffset;
             int toCopy = Math.Min(target.Length, remaining);
 
-            _pendingChunk.Buffer.AsSpan(_pendingOffset, toCopy).CopyTo(target.Span);
-            _pendingOffset += toCopy;
+            pendingChunk.buffer.AsSpan(pendingOffset, toCopy).CopyTo(target.Span);
+            pendingOffset += toCopy;
             bytesWritten += toCopy;
 
-            if (_pendingOffset >= _pendingChunk.Length) {
-                _pendingChunk.Return();
-                _pendingChunk = default;
-                _pendingOffset = 0;
+            if (pendingOffset >= pendingChunk.length) {
+                pendingChunk.Return();
+                pendingChunk = default;
+                pendingOffset = 0;
             }
 
             if (bytesWritten == target.Length) {
@@ -161,7 +161,7 @@ internal sealed class WinConsoleIn : Stream
             }
         }
 
-        var reader = _chunkChannel.Reader;
+        var reader = chunkChannel.Reader;
 
         try
         {
@@ -170,13 +170,13 @@ internal sealed class WinConsoleIn : Stream
             }
 
             while (bytesWritten < target.Length && reader.TryRead(out var chunk)) {
-                int toCopy = Math.Min(target.Length - bytesWritten, chunk.Length);
-                chunk.Buffer.AsSpan(0, toCopy).CopyTo(target.Span.Slice(bytesWritten));
+                int toCopy = Math.Min(target.Length - bytesWritten, chunk.length);
+                chunk.buffer.AsSpan(0, toCopy).CopyTo(target.Span.Slice(bytesWritten));
                 bytesWritten += toCopy;
 
-                if (toCopy < chunk.Length) {
-                    _pendingChunk = chunk;
-                    _pendingOffset = toCopy;
+                if (toCopy < chunk.length) {
+                    pendingChunk = chunk;
+                    pendingOffset = toCopy;
                     break;
                 }
 
@@ -184,7 +184,7 @@ internal sealed class WinConsoleIn : Stream
                 chunk.Return();
             }
         }
-        catch (OperationCanceledException) when (_cts.IsCancellationRequested)
+        catch (OperationCanceledException) when (cts.IsCancellationRequested)
         {
             return bytesWritten;
         }
@@ -194,19 +194,19 @@ internal sealed class WinConsoleIn : Stream
 
     protected override void Dispose(bool disposing)
     {
-        if (_isDisposed) return;
-        _isDisposed = true;
+        if (isDisposed) return;
+        isDisposed = true;
 
-        _cts.Cancel();
-        _cts.Dispose();
+        cts.Cancel();
+        cts.Dispose();
 
         // ain remaining unread chunks to avoid leaking ArrayPool buffers
-        if (_pendingChunk.Buffer != null) {
-            _pendingChunk.Return();
-            _pendingChunk = default;
+        if (pendingChunk.buffer != null) {
+            pendingChunk.Return();
+            pendingChunk = default;
         }
 
-        while (_chunkChannel.Reader.TryRead(out var chunk)) {
+        while (chunkChannel.Reader.TryRead(out var chunk)) {
             chunk.Return();
         }
 
@@ -242,7 +242,7 @@ internal sealed class WinConsoleIn : Stream
     }
 
     // Stream base boilerplate overrides
-    public override     bool    CanRead => !_isDisposed;
+    public override     bool    CanRead => !isDisposed;
     public override     bool    CanSeek => false;
     public override     bool    CanWrite => false;
     public override     long    Length => throw new NotSupportedException();
