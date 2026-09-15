@@ -32,20 +32,21 @@ public readonly ref partial struct GuiWidget
     
     internal HorizontalCenterScope BeginHorizontalAligned(int centerId, float align, Dim size)
     {
-        var oldMouseOffset = input.mouseOffset;
-        guiState.mouseOffsets.TryGetValue(centerId, out input.mouseOffset);
+        var oldLayoutOffset = input.layoutOffset;
+        guiState.layoutOffsets.TryGetValue(centerId, out input.layoutOffset);
+        draw.batch.layoutOffset = input.layoutOffset;
         
         BeginHorizontal(size);
         var tui = draw.Tui;
         var startIndex = tui == null ? draw.batch.vertexCount : tui.tuiRects.Count;
-        return new HorizontalCenterScope(this, centerId, align, startIndex, oldMouseOffset);
+        return new HorizontalCenterScope(this, centerId, align, startIndex, oldLayoutOffset);
     }
     
     internal void EndHorizontalAligned(in HorizontalCenterScope scope)
     {
         var maxSize = PopLayout();
         
-        input.mouseOffset   = scope.oldMouseOffset;
+        draw.batch.layoutOffset = input.layoutOffset = scope.oldLayoutOffset;
         var availableWidth  = Window.CurrentLayout.boundsSize.X;
         var offset          = (availableWidth - maxSize.X) * scope.align;
         var tui             = draw.Tui;
@@ -62,6 +63,6 @@ public readonly ref partial struct GuiWidget
                 vertex.BR.X += offset;
             }
         }
-        guiState.mouseOffsets[scope.centerId] = new Vector2(offset, 0);
+        guiState.layoutOffsets[scope.centerId] = new Vector2(offset, 0);
     }
 }

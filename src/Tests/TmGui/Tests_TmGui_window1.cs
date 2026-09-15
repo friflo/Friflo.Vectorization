@@ -127,7 +127,7 @@ public class Tests_TmGui_window1
         var drawList    = batch.DrawList;
         var verticesLen = batch.Vertices.Length;
         Assert.That(drawList.Length,    Is.EqualTo(4));
-        Assert.That(verticesLen,        Is.EqualTo(2400));
+        Assert.That(verticesLen,        Is.EqualTo(2640));
         
         int vertexSum = 0;
         int indexSum  = 0;

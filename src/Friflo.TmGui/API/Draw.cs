@@ -3,6 +3,7 @@
 
 
 using System.Numerics;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using Friflo.TmGui.TUI;
 
@@ -52,6 +53,9 @@ public readonly ref partial struct TmDraw
     }
     
 #region scissor
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public bool IntersectsScissor(Vector2 pos, Vector2 size) => batch.currentScissor.IntersectsRect(pos + batch.layoutOffset, size);
+    
     public ScissorScope PushScissor(Vector2 position, Vector2 size)
     {
         var scissorStack = batch.scissorStack;

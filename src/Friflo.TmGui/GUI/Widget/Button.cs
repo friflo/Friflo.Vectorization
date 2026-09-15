@@ -32,7 +32,7 @@ public readonly ref partial struct GuiWidget
         var widgetState = GetWidgetState(isHover, widgetId);
         var color       = textColor.IsNone ? Colors.ButtonText : textColor;
 
-        if (draw.batch.currentScissor.IntersectsRect(pos, finalSize)) {
+        if (draw.IntersectsScissor(pos, finalSize)) {
             if (tui != null) {
                 tui.Button(name, pos, finalSize, color, Colors.ButtonState(widgetState), isFocused);
             } else {

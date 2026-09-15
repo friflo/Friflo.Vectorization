@@ -25,7 +25,7 @@ internal sealed class GuiState
     internal            RevertStyle[]           revertStyles        = [];
     internal            int                     revertStylesCount;
     internal readonly   GuiStyle                currentStyle        = new();
-    internal readonly   Dictionary<int,Vector2> mouseOffsets        = new();
+    internal readonly   Dictionary<int,Vector2> layoutOffsets       = new();
     
     internal            bool                    scrollAreaChanged;
     

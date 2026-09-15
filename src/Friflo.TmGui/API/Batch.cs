@@ -91,6 +91,8 @@ public abstract class TmBatch : IDisposable
     internal            BlendState          currentBlendState;
     internal            SamplerFilter       currentSamplerFilter;
     internal            RectVector2         currentScissor;
+    /// should be near <see cref="currentScissor"/>. Same as <see cref="GuiInput.layoutOffset"/>.
+    internal            Vector2             layoutOffset;
     internal            bool                sortZIndex;
     internal            ZIndex              currentZIndex;
     internal            int                 currentSequence;
@@ -181,6 +183,7 @@ public abstract class TmBatch : IDisposable
         currentTransform    = Matrix4x4.Identity;
         currentBlendState   = BlendState.Alpha;
         currentScissor      = new RectVector2(Vector2.Zero, new Vector2(width, height));
+        layoutOffset        = input.layoutOffset;
         sortZIndex          = false;
         currentZIndex       = default;
         currentSequence     = 0;

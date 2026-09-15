@@ -24,7 +24,7 @@ namespace Friflo.TmGui;
 public sealed class GuiInput
 {
 #region public    
-    public              Vector2             MousePos        => mousePos - mouseOffset;
+    public              Vector2             MousePos        => mousePos - layoutOffset;
     public              Vector2             MousePosDelta   => mousePosDelta;
     public              bool                IsShiftDown     => isShiftDown;
     public              Vector2             MouseWheel      => mouseWheel;
@@ -39,7 +39,7 @@ public sealed class GuiInput
 #region input state
     private             bool                isMouseDown;
     private             Vector2             mousePos;
-    internal            Vector2             mouseOffset;
+    internal            Vector2             layoutOffset;
     private             Vector2             mousePosLast;
     private             Vector2             mousePosDelta;
     
@@ -211,7 +211,7 @@ public sealed class GuiInput
     internal bool RegisterFocusable(GuiWindow window, int widgetId, Vector2 pos, Vector2 size) // , out bool gainedFocus
     {
         int myIndex = focusableCounter++;
-        window.currentFocusables.Add(new FocusableEntry { id = widgetId, pos = pos + mouseOffset, size = size });
+        window.currentFocusables.Add(new FocusableEntry { id = widgetId, pos = pos + layoutOffset, size = size });
         // gainedFocus = false
         if (setNextFocus) {
             focusedItem         = widgetId;
