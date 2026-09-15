@@ -212,12 +212,18 @@ public readonly ref partial struct TmDraw
 
         // Calculate position for '...' and render it
         Vector2 ellipsisPos = position;
-        for (int i = 0; i < visibleLength; i++)
-        {
-            if (font.TryGetGlyph(text[i], out var glyph))
-                ellipsisPos.X += glyph.advance * scale;
-        }
+        int count = 0;
 
+        foreach (var rune in text.EnumerateRunes())
+        {
+            if (count >= visibleLength) break;
+
+            // Accumulate advance width for the current rune
+            if (font.TryGetGlyph(rune.Value, out var glyph))
+                ellipsisPos.X += glyph.advance * scale;
+
+            count++;
+        }
         DrawText("...", ellipsisPos, color, font, scale);
     }
 
