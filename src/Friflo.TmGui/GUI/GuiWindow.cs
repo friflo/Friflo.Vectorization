@@ -193,9 +193,9 @@ public sealed class GuiWindow
         // Is the mouse cursor inside the currently active scissor clip region?
         var scissor = draw.batch.currentScissor;
         if (scissor.size.X > 0 && scissor.size.Y > 0) {
-            if (!scissor.Contains(input.MousePos)) return false;
+            if (!scissor.Contains(input.MousePosWindow)) return false;
         }
-        return host.IsTopWindowAt(input.MousePos, this);
+        return host.IsTopWindowAt(input.MousePosWindow, this);
     }
     
     public bool IsHoverAtCapture(Vector2 pos, Vector2 size, TmDraw draw)

@@ -25,6 +25,7 @@ public sealed class GuiInput
 {
 #region public    
     public              Vector2             MousePos        => mousePos - layoutOffset;
+    internal            Vector2             MousePosWindow  => mousePos; // raw screen coordinate to check if in scissor / window  
     public              Vector2             MousePosDelta   => mousePosDelta;
     public              bool                IsShiftDown     => isShiftDown;
     public              Vector2             MouseWheel      => mouseWheel;
