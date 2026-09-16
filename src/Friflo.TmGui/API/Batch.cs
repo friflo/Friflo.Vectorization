@@ -175,6 +175,7 @@ public abstract class TmBatch : IDisposable
         /* if (defaultFontTexture.IsDisposed) {    // TODO IM_TEX
             SetFontDefault();
         } */
+        recorder?.Reset();
         tui?.Reset();
         guiState.Reset();
         currentTexture      = currentFontTexture;

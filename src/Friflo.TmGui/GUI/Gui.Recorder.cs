@@ -49,11 +49,16 @@ internal sealed class GuiRecorder
         records.Add(new Record(type, index));
     }
     
-    private void Reset()
+    internal void Reset()
     {
         records.Clear();
+        
+        // --- container
         windowBegin.Clear();
         windowEnd.Clear();
+        
+        // --- widgets
+        button.Clear();
     }
     
     private static void Replay(GuiRecorder recorder, in GuiWidget widget)
@@ -62,10 +67,10 @@ internal sealed class GuiRecorder
         var textBuffer      = CollectionsMarshal.AsSpan(recorder.textBuffer);
         var colorBuffer     = CollectionsMarshal.AsSpan(recorder.colorBuffer);
         
-        
         // --- container
         var windowBegin     = CollectionsMarshal.AsSpan(recorder.windowBegin);
         var windowEnd       = CollectionsMarshal.AsSpan(recorder.windowEnd);
+        
         // --- widgets
         var button          = CollectionsMarshal.AsSpan(recorder.button);
         
@@ -105,12 +110,6 @@ internal sealed class GuiRecorder
     }
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private TextColor GetTextColor(in Color32Span color)
-    {
-        return new TextColor();
-    }
-    
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private TextSpan GetTextSpan(ReadOnlySpan<char> text)
     {
         var span = new TextSpan { start = textBuffer.Count, len = text.Length };
@@ -122,22 +121,22 @@ internal sealed class GuiRecorder
     // ------------------------------------- container
     internal void BeginWindow(in WindowBegin cmd)
     {
-        AddCommand(RecordType.WindowBegin, windowBegin.Count);
         windowBegin.Add(cmd);
+        AddCommand(RecordType.WindowBegin, windowBegin.Count - 1);
     }
     
     internal void EndWindow(in WindowEnd cmd)
     {
-        AddCommand(RecordType.WindowEnd, windowEnd.Count);
         windowEnd.Add(cmd);
+        AddCommand(RecordType.WindowEnd, windowEnd.Count - 1);
     }
     
     
     // ------------------------------------- widgets
     internal void Button(ReadOnlySpan<char> name, Dim size, GuiStyle? style, WidgetID id, in TextColor textColor)
     {
-        AddCommand(RecordType.Button, button.Count);
         button.Add(new Button(GetTextSpan(name), size, style, id, GetColorSpan(textColor)));
+        AddCommand(RecordType.Button, button.Count - 1);
     }
 }
 
