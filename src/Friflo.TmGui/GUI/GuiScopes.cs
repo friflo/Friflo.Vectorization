@@ -8,6 +8,7 @@ using System.Numerics;
 namespace Friflo.TmGui;
 
 
+// ----------------------------------------------------------
 public readonly ref struct WindowScope
 {
     private  readonly GuiWidget widget;
@@ -38,6 +39,8 @@ internal readonly struct WindowPod
     }
 }
 
+
+// ----------------------------------------------------------
 public readonly ref struct ScrollAreaScope
 {
     private  readonly GuiWidget     widget;
@@ -66,6 +69,8 @@ internal readonly struct ScrollAreaPod
     }
 }
 
+
+// ----------------------------------------------------------
 public readonly ref struct ChildScope
 {
     private  readonly GuiWidget widget;
@@ -94,6 +99,8 @@ internal readonly struct ChildPod
     }
 }
 
+
+// ----------------------------------------------------------
 public readonly ref struct VerticalScope
 {
     private readonly GuiWidget widget;
@@ -118,6 +125,8 @@ public readonly ref struct HorizontalScope
     public void Dispose() => widget.EndHorizontal();
 }
 
+
+// ----------------------------------------------------------
 public readonly ref struct HorizontalCenterScope
 {
     private  readonly GuiWidget           widget;
@@ -148,6 +157,8 @@ internal readonly struct HorizontalCenterPod
     }
 }
 
+
+// ----------------------------------------------------------
 public readonly ref struct StyleScope
 {
     private readonly GuiWidget widget;
@@ -163,6 +174,8 @@ public readonly ref struct StyleScope
     }
 }
 
+
+// ----------------------------------------------------------
 public readonly ref struct SpaceScope
 {
     private  readonly   GuiWidget widget;
