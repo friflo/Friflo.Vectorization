@@ -12,6 +12,8 @@ public readonly ref partial struct GuiWidget
 {
     internal bool Button(ReadOnlySpan<char> name, Dim size, GuiStyle? style, WidgetID id, in TextColor textColor)
     {
+        Recorder?.Button(name, size, style, id, textColor);
+        
         var window = Window;
         using var _ = UseStyle(style);
 

@@ -14,7 +14,7 @@ public readonly ref partial struct GuiWidget
 {
     internal WindowScope BeginWindow(string title, Vector2? pos, Vector2? size, TmTrait traits, TuiBorder tuiBorder)
     {
-        Recorder?.Add(new WindowBegin(title, pos, size, traits, tuiBorder));
+        Recorder?.BeginWindow(new WindowBegin(title, pos, size, traits, tuiBorder));
         
         var host = draw.batch.host;
         var tui  = draw.Tui;
@@ -95,7 +95,7 @@ public readonly ref partial struct GuiWidget
     
     internal void EndWindow(in WindowScope scope)
     {
-        Recorder?.Add(scope.end);
+        Recorder?.EndWindow(scope.end);
         
         var window      = Window;
         window.state    = WindowState.Visible;
