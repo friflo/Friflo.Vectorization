@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Ullrich Praetz - https://github.com/friflo. All rights reserved.
 // See LICENSE file in the project root for full license information.
 
+using System.Diagnostics.CodeAnalysis;
 using System.Numerics;
 using Friflo.TmGui.TUI;
 
@@ -12,23 +13,25 @@ namespace Friflo.TmGui;
 
 public readonly ref partial struct GuiWidget
 {
-    internal WindowScope BeginWindow(string title, Vector2? pos, Vector2? size, TmTrait traits, in TuiBorder tuiBorder)
+    internal WindowScope BeginWindow(BeginWindowPod pod)
     {
+        Recorder?.BeginWindow(pod);
+        
         var host = draw.batch.host;
         var tui  = draw.Tui;
-        if (!host.windows.TryGetValue(title, out guiState.window!)) {
-            var finalPos    = pos  ?? new Vector2( 50,  50);
-            var finalSize   = size ?? new Vector2(300, 200);
+        if (!host.windows.TryGetValue(pod.title, out guiState.window!)) {
+            var finalPos    = pod.pos  ?? new Vector2( 50,  50);
+            var finalSize   = pod.size ?? new Vector2(300, 200);
             // Snap initial window size to discrete terminal grid.
             tui?.SnapPositionToGrid(ref finalPos);
             tui?.SnapExtentToGrid(ref finalSize);
             
-            guiState.window = new GuiWindow(host, title) {
+            guiState.window = new GuiWindow(host, pod.title) {
                 bounds      = new RectVector2(finalPos, finalSize),
-                traits      = traits,
-                tuiBorder   = tuiBorder,
+                traits      = pod.traits,
+                tuiBorder   = pod.tuiBorder,
             };
-            host.windows.Add(title, guiState.window);
+            host.windows.Add(pod.title, guiState.window);
             host.windowOrder.Add(guiState.window);
         }
         var window = Window;
@@ -74,7 +77,7 @@ public readonly ref partial struct GuiWidget
         
         // Render background & titlebar
         if (tui != null) {
-            tui.DrawWindowTitle(title, window.Pos, window.Size, Colors, traits, tuiBorder);
+            tui.DrawWindowTitle(pod.title, window.Pos, window.Size, Colors, pod.traits, pod.tuiBorder);
             scissorPos  += new Vector2(tui.CharWidth,     0);
             scissorSize -= new Vector2(tui.CharWidth * 2, tui.LineHeight);
         } else {
@@ -82,7 +85,7 @@ public readonly ref partial struct GuiWidget
             var headerColor = Colors.ButtonState(titleState);
             draw.FillRectRounded(window.Pos,   window.Size,  Sizes.CornerRadius, Colors.WindowColor,     GuiSizes.CornerSegments);
             draw.FillRectRounded(window.Pos,   titleBarSize, Sizes.CornerRadius, headerColor,            GuiSizes.CornerSegments);
-            draw.DrawText(title, textPos, Colors.TextColor);
+            draw.DrawText(pod.title, textPos, Colors.TextColor);
         }
         draw.PushScissor(scissorPos,  scissorSize);
         var scrollRect  = PushScrollArea(parentHash, contentPos, innerSize, Sizes.WindowPadding);

@@ -23,12 +23,13 @@ public readonly ref partial struct GuiWidget
     private  readonly   GuiStyle        currentStyle;   //  8 bytes
     
     [DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
-    public ref readonly GuiColors       Colors          { [Hide] get => ref currentStyle.colors; }
-    public ref readonly GuiSizes        Sizes           { [Hide] get => ref currentStyle.sizes; }
-    public              GuiWindow       Window          { [Hide] get => guiState.window; }
-    public              float           LineHeight      { [Hide] get => draw.Font.lineHeight; }
+    public ref readonly GuiColors       Colors          { [Hide] get => ref currentStyle.colors;   }
+    public ref readonly GuiSizes        Sizes           { [Hide] get => ref currentStyle.sizes;    }
+    public              GuiWindow       Window          { [Hide] get => guiState.window;           }
+    public              float           LineHeight      { [Hide] get => draw.Font.lineHeight;      }
     public              IFormatProvider FormatProvider  { [Hide] get => draw.batch.formatProvider; }
-    public              bool            IsSet           { [Hide] get => currentStyle != null; }
+    public              bool            IsSet           { [Hide] get => currentStyle != null;      }
+    internal            GuiRecorder?    Recorder        { [Hide] get => draw.batch.recorder;       }
 
     
     /// <summary> Clears and returns a cached <see cref="System.Text.StringBuilder"/> to prevent allocations. </summary>
