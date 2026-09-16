@@ -11,26 +11,26 @@ namespace Friflo.TmGui;
 // ----------------------------------------------------------
 public readonly ref struct WindowScope
 {
-    private  readonly GuiWidget widget;
-    internal readonly WindowPod pod;
+    private  readonly   GuiWidget   widget;
+    internal readonly   WindowEnd   end;
 
-    internal WindowScope(GuiWidget widget, WindowPod pod)
+    internal WindowScope(GuiWidget widget, WindowEnd end)
     {
         this.widget = widget;
-        this.pod    = pod;
+        this.end    = end;
     }
 
     public void Dispose() => widget.EndWindow(this);
 }
 
-internal readonly struct WindowPod
+internal readonly struct WindowEnd
 {
-    internal readonly bool    isOpen;
-    internal readonly int     windowId;
-    internal readonly Vector2 startCursor;
-    internal readonly Vector2 outerSize;
+    internal readonly   bool        isOpen;
+    internal readonly   int         windowId;
+    internal readonly   Vector2     startCursor;
+    internal readonly   Vector2     outerSize;
 
-    internal WindowPod(bool isOpen, int windowId, Vector2 startCursor, Vector2 outerSize)
+    internal WindowEnd(bool isOpen, int windowId, Vector2 startCursor, Vector2 outerSize)
     {
         this.isOpen      = isOpen;
         this.windowId    = windowId;
@@ -43,25 +43,25 @@ internal readonly struct WindowPod
 // ----------------------------------------------------------
 public readonly ref struct ScrollAreaScope
 {
-    private  readonly GuiWidget     widget;
-    internal readonly ScrollAreaPod pod;
+    private  readonly   GuiWidget       widget;
+    internal readonly   ScrollAreaEnd   end;
 
-    internal ScrollAreaScope(GuiWidget widget, ScrollAreaPod pod)
+    internal ScrollAreaScope(GuiWidget widget, ScrollAreaEnd end)
     {
         this.widget = widget;
-        this.pod    = pod;
+        this.end    = end;
     }
 
     public void Dispose() => widget.EndScrollArea(this);
 }
 
-internal readonly struct ScrollAreaPod
+internal readonly struct ScrollAreaEnd
 {
-    internal readonly int     childId;
-    internal readonly Vector2 startCursor;
-    internal readonly Vector2 outerSize;
+    internal readonly   int         childId;
+    internal readonly   Vector2     startCursor;
+    internal readonly   Vector2     outerSize;
 
-    internal ScrollAreaPod(int childId, Vector2 startCursor, Vector2 outerSize)
+    internal ScrollAreaEnd(int childId, Vector2 startCursor, Vector2 outerSize)
     {
         this.childId     = childId;
         this.startCursor = startCursor;
@@ -73,25 +73,25 @@ internal readonly struct ScrollAreaPod
 // ----------------------------------------------------------
 public readonly ref struct ChildScope
 {
-    private  readonly GuiWidget widget;
-    internal readonly ChildPod  pod;
+    private  readonly   GuiWidget   widget;
+    internal readonly   ChildEnd    end;
 
-    internal ChildScope(GuiWidget widget, ChildPod pod)
+    internal ChildScope(GuiWidget widget, ChildEnd end)
     {
         this.widget = widget;
-        this.pod    = pod;
+        this.end    = end;
     }
 
     public void Dispose() => widget.EndChild(this);
 }
 
-internal readonly struct ChildPod
+internal readonly struct ChildEnd
 {
-    internal readonly Vector2 startCursor;
-    internal readonly Vector2 outerSize;
-    internal readonly Dim     requestedSize;
+    internal readonly   Vector2     startCursor;
+    internal readonly   Vector2     outerSize;
+    internal readonly   Dim         requestedSize;
 
-    internal ChildPod(Vector2 startCursor, Vector2 outerSize, Dim requestedSize)
+    internal ChildEnd(Vector2 startCursor, Vector2 outerSize, Dim requestedSize)
     {
         this.startCursor   = startCursor;
         this.outerSize     = outerSize;
@@ -129,26 +129,26 @@ public readonly ref struct HorizontalScope
 // ----------------------------------------------------------
 public readonly ref struct HorizontalCenterScope
 {
-    private  readonly GuiWidget           widget;
-    internal readonly HorizontalCenterPod pod;
+    private  readonly   GuiWidget               widget;
+    internal readonly   HorizontalCenterEnd     end;
 
-    internal HorizontalCenterScope(GuiWidget widget, HorizontalCenterPod pod)
+    internal HorizontalCenterScope(GuiWidget widget, HorizontalCenterEnd end)
     {
         this.widget = widget;
-        this.pod    = pod;
+        this.end    = end;
     }
 
     public void Dispose() => widget.EndHorizontalAligned(this);
 }
 
-internal readonly struct HorizontalCenterPod
+internal readonly struct HorizontalCenterEnd
 {
-    internal readonly Vector2 oldLayoutOffset;
-    internal readonly int     centerId;
-    internal readonly float   align;
-    internal readonly int     startIndex;
+    internal readonly   Vector2     oldLayoutOffset;
+    internal readonly   int         centerId;
+    internal readonly   float       align;
+    internal readonly   int         startIndex;
 
-    internal HorizontalCenterPod(int centerId, float align, int startIndex, Vector2 oldLayoutOffset)
+    internal HorizontalCenterEnd(int centerId, float align, int startIndex, Vector2 oldLayoutOffset)
     {
         this.oldLayoutOffset = oldLayoutOffset;
         this.centerId        = centerId;
@@ -178,33 +178,33 @@ public readonly ref struct StyleScope
 // ----------------------------------------------------------
 public readonly ref struct SpaceScope
 {
-    private  readonly   GuiWidget widget;
-    internal readonly   SpacePod  pod;
+    private  readonly   GuiWidget   widget;
+    internal readonly   SpaceEnd    end;
     
-    public              Vector2     pos         => pod.pos;
-    public              Vector2     size        => pod.size;
-    public              bool        isFired     => pod.isFired;
-    public              WidgetState widgetState => pod.widgetState;
+    public              Vector2     pos         => end.pos;
+    public              Vector2     size        => end.size;
+    public              bool        isFired     => end.isFired;
+    public              WidgetState widgetState => end.widgetState;
            
 
-    internal SpaceScope(GuiWidget widget, SpacePod pod)
+    internal SpaceScope(GuiWidget widget, SpaceEnd end)
     {
         this.widget = widget;
-        this.pod    = pod;
+        this.end    = end;
     }
 
     public void Dispose() => widget.EndSpace(this);
 }
 
-internal readonly struct SpacePod
+internal readonly struct SpaceEnd
 {
-    internal readonly Vector2     pos;
-    internal readonly Vector2     size;
-    internal readonly bool        isFired;
-    internal readonly bool        isFocused;
-    internal readonly WidgetState widgetState;
+    internal readonly   Vector2         pos;
+    internal readonly   Vector2         size;
+    internal readonly   bool            isFired;
+    internal readonly   bool            isFocused;
+    internal readonly   WidgetState     widgetState;
 
-    internal SpacePod(Vector2 pos, Vector2 size, bool isFired, bool isFocused, WidgetState widgetState)
+    internal SpaceEnd(Vector2 pos, Vector2 size, bool isFired, bool isFocused, WidgetState widgetState)
     {
         this.pos         = pos;
         this.size        = size;

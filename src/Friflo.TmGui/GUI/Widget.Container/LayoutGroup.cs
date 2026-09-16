@@ -39,30 +39,30 @@ public readonly ref partial struct GuiWidget
         BeginHorizontal(size);
         var tui = draw.Tui;
         var startIndex = tui == null ? draw.batch.vertexCount : tui.tuiRects.Count;
-        return new HorizontalCenterScope(this, new HorizontalCenterPod(centerId, align, startIndex, oldLayoutOffset));
+        return new HorizontalCenterScope(this, new HorizontalCenterEnd(centerId, align, startIndex, oldLayoutOffset));
     }
     
     internal void EndHorizontalAligned(in HorizontalCenterScope scope)
     {
         var maxSize = PopLayout();
         
-        draw.batch.layoutOffset = input.layoutOffset = scope.pod.oldLayoutOffset;
+        draw.batch.layoutOffset = input.layoutOffset = scope.end.oldLayoutOffset;
         var availableWidth  = Window.CurrentLayout.boundsSize.X;
-        var offset          = (availableWidth - maxSize.X) * scope.pod.align;
+        var offset          = (availableWidth - maxSize.X) * scope.end.align;
         var tui             = draw.Tui;
         if (tui == null) {
-            var vertices = draw.batch.vertexBuffer.Span.Slice(scope.pod.startIndex, draw.batch.vertexCount - scope.pod.startIndex);
+            var vertices = draw.batch.vertexBuffer.Span.Slice(scope.end.startIndex, draw.batch.vertexCount - scope.end.startIndex);
             foreach (ref var vertex in vertices) {
                 vertex.position.X += offset;
             }
         } else {
             var rects = CollectionsMarshal.AsSpan(tui.tuiRects);
-            rects = rects.Slice(scope.pod.startIndex, rects.Length - scope.pod.startIndex);
+            rects = rects.Slice(scope.end.startIndex, rects.Length - scope.end.startIndex);
             foreach (ref var vertex in rects) {
                 vertex.TL.X += offset;
                 vertex.BR.X += offset;
             }
         }
-        guiState.layoutOffsets[scope.pod.centerId] = new Vector2(offset, 0);
+        guiState.layoutOffsets[scope.end.centerId] = new Vector2(offset, 0);
     }
 }

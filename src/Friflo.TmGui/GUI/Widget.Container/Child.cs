@@ -24,7 +24,7 @@ public readonly ref partial struct GuiWidget
 	    var innerLayoutSize	= outerSize - Sizes.ChildPadding.Size;
 	    PushLayout(LayoutDirection.Vertical, innerLayoutSize);
 
-	    return new ChildScope(this, new ChildPod(parentStartCursor, outerSize, size));
+	    return new ChildScope(this, new ChildEnd(parentStartCursor, outerSize, size));
 	}
 
 	internal void EndChild(in ChildScope scope)
@@ -33,16 +33,16 @@ public readonly ref partial struct GuiWidget
 	    var padding = Sizes.ChildPadding;
 	    var contentSize = PopLayout();
 
-	    if (scope.pod.requestedSize.IsBounded) {
+	    if (scope.end.requestedSize.IsBounded) {
 	        draw.PopScissor();
 	    }
 	    window.PopScope();
 
 	    var finalChildSize = new Vector2(
-	        scope.pod.requestedSize.IsAutoWidth  ? contentSize.X + padding.Size.X : scope.pod.outerSize.X,
-	        scope.pod.requestedSize.IsAutoHeight ? contentSize.Y + padding.Size.Y : scope.pod.outerSize.Y
+	        scope.end.requestedSize.IsAutoWidth  ? contentSize.X + padding.Size.X : scope.end.outerSize.X,
+	        scope.end.requestedSize.IsAutoHeight ? contentSize.Y + padding.Size.Y : scope.end.outerSize.Y
 	    );
-	    window.SetCursor(scope.pod.startCursor);
+	    window.SetCursor(scope.end.startCursor);
 	    MoveCursor(finalChildSize);
 	}
 #endregion
@@ -72,7 +72,7 @@ public readonly ref partial struct GuiWidget
 	    window.SetCursor(scrollRect.pos);
 	    PushLayout(LayoutDirection.Vertical, scrollRect.size);
 
-	    return new ScrollAreaScope(this, new ScrollAreaPod(childId, startCursor, outerSize));
+	    return new ScrollAreaScope(this, new ScrollAreaEnd(childId, startCursor, outerSize));
 	}
 
 	internal void EndScrollArea(in ScrollAreaScope scope)
@@ -86,12 +86,12 @@ public readonly ref partial struct GuiWidget
 	    var rawContent = PopLayout();
 	    var scrollSize = rawContent + padding.Size;
 	    
-	    PopScrollArea(scope.pod.childId, scope.pod.startCursor, scope.pod.outerSize, scrollSize, Colors.ScrollAreaColor, true);
+	    PopScrollArea(scope.end.childId, scope.end.startCursor, scope.end.outerSize, scrollSize, Colors.ScrollAreaColor, true);
 
 	    window.PopScope();
 	    
-	    window.SetCursor(scope.pod.startCursor);
-	    MoveCursor(scope.pod.outerSize);
+	    window.SetCursor(scope.end.startCursor);
+	    MoveCursor(scope.end.outerSize);
 	}
 #endregion
 }

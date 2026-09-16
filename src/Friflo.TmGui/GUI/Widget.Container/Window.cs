@@ -14,7 +14,7 @@ public readonly ref partial struct GuiWidget
 {
     internal WindowScope BeginWindow(string title, Vector2? pos, Vector2? size, TmTrait traits, TuiBorder tuiBorder)
     {
-        Recorder?.Add(new BeginWindow(title, pos, size, traits, tuiBorder));
+        Recorder?.Add(new WindowBegin(title, pos, size, traits, tuiBorder));
         
         var host = draw.batch.host;
         var tui  = draw.Tui;
@@ -90,11 +90,13 @@ public readonly ref partial struct GuiWidget
         var scrollRect  = PushScrollArea(parentHash, contentPos, innerSize, Sizes.WindowPadding);
         window.InitLayout(scrollRect.pos, scrollRect.size);
 
-        return new WindowScope(this, new WindowPod(true, parentHash, contentPos, innerSize));
+        return new WindowScope(this, new WindowEnd(true, parentHash, contentPos, innerSize));
     }
     
     internal void EndWindow(in WindowScope scope)
     {
+        Recorder?.Add(scope.end);
+        
         var window      = Window;
         window.state    = WindowState.Visible;
         var scrollSize  = window.CurrentLayout.maxSize + Sizes.WindowPadding.Size;
@@ -109,7 +111,7 @@ public readonly ref partial struct GuiWidget
                 draw.StrokeRectRounded(window.Pos, window.Size,  Sizes.CornerRadius, 2, Colors.WindowBorder, GuiSizes.CornerSegments);
             }
         }
-        PopScrollArea(scope.pod.windowId, scope.pod.startCursor, scope.pod.outerSize, scrollSize, Colors.WindowColor, false);
+        PopScrollArea(scope.end.windowId, scope.end.startCursor, scope.end.outerSize, scrollSize, Colors.WindowColor, false);
         
         draw.PopScissor();
         draw.PopZIndex();

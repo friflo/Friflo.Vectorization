@@ -12,17 +12,18 @@ using System.Runtime.InteropServices;
 namespace Friflo.TmGui;
 
 
-internal readonly record struct BeginWindow(string title, Vector2? pos, Vector2? size, TmTrait traits, TuiBorder tuiBorder);
+internal readonly record struct WindowBegin(string title, Vector2? pos, Vector2? size, TmTrait traits, TuiBorder tuiBorder);
 
 
 internal sealed class GuiRecorder
 {
-    private readonly    List<Record>        records        = [];
-    private readonly    List<BeginWindow>   beginWindow     = [];
+    private readonly    List<Record>        records         = [];
+    private readonly    List<WindowBegin>   windowBegin     = [];
+    private readonly    List<WindowEnd>     windowEnd       = [];
 
     private enum RecordType
     {
-        BeginWindow
+        WindowBegin, WindowEnd,
     }
     
     private readonly struct Record(RecordType type, int index)
@@ -38,29 +39,42 @@ internal sealed class GuiRecorder
     private void Reset()
     {
         records.Clear();
-        beginWindow.Clear();
+        windowBegin.Clear();
     }
     
     private static void Replay(GuiRecorder recorder, in GuiWidget widget)
     {
         var records         = CollectionsMarshal.AsSpan(recorder.records);
-        var beginWindow     = CollectionsMarshal.AsSpan(recorder.beginWindow);
+        var windowBegin     = CollectionsMarshal.AsSpan(recorder.windowBegin);
+        var windowEnd       = CollectionsMarshal.AsSpan(recorder.windowEnd);
         
         foreach (var record in records)
         {
             var index = record.index;
             switch (record.type) {
-                case RecordType.BeginWindow:
-                    var cmd = beginWindow[index];
+                case RecordType.WindowBegin: {
+                    var cmd = windowBegin[index];
                     widget.BeginWindow(cmd.title, cmd.pos, cmd.size, cmd.traits, cmd.tuiBorder);
-                    break; 
+                    break;
+                }
+                case RecordType.WindowEnd: {
+                    var end = windowEnd[index];
+                    widget.EndWindow(new WindowScope(widget, end));
+                    break;
+                }
             }
         }
     }
     
-    internal void Add(in BeginWindow cmd)
+    internal void Add(in WindowBegin cmd)
     {
-        AddCommand(RecordType.BeginWindow, beginWindow.Count);
-        beginWindow.Add(cmd);
+        AddCommand(RecordType.WindowBegin, windowBegin.Count);
+        windowBegin.Add(cmd);
+    }
+    
+    internal void Add(in WindowEnd cmd)
+    {
+        AddCommand(RecordType.WindowEnd, windowEnd.Count);
+        windowEnd.Add(cmd);
     }
 }
