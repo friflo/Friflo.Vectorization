@@ -14,7 +14,7 @@ public readonly ref struct WindowScope
     private  readonly GuiWidget widget;
     internal readonly WindowPod pod;
 
-    internal WindowScope(GuiWidget widget, in WindowPod pod)
+    internal WindowScope(GuiWidget widget, WindowPod pod)
     {
         this.widget = widget;
         this.pod    = pod;
@@ -46,7 +46,7 @@ public readonly ref struct ScrollAreaScope
     private  readonly GuiWidget     widget;
     internal readonly ScrollAreaPod pod;
 
-    internal ScrollAreaScope(GuiWidget widget, in ScrollAreaPod pod)
+    internal ScrollAreaScope(GuiWidget widget, ScrollAreaPod pod)
     {
         this.widget = widget;
         this.pod    = pod;
@@ -76,7 +76,7 @@ public readonly ref struct ChildScope
     private  readonly GuiWidget widget;
     internal readonly ChildPod  pod;
 
-    internal ChildScope(GuiWidget widget, in ChildPod pod)
+    internal ChildScope(GuiWidget widget, ChildPod pod)
     {
         this.widget = widget;
         this.pod    = pod;
@@ -113,8 +113,6 @@ public readonly ref struct VerticalScope
     public void Dispose() => widget.EndVertical();
 }
 
-
-// ----------------------------------------------------------
 public readonly ref struct HorizontalScope
 {
     private readonly GuiWidget widget;
@@ -134,7 +132,7 @@ public readonly ref struct HorizontalCenterScope
     private  readonly GuiWidget           widget;
     internal readonly HorizontalCenterPod pod;
 
-    internal HorizontalCenterScope(GuiWidget widget, in HorizontalCenterPod pod)
+    internal HorizontalCenterScope(GuiWidget widget, HorizontalCenterPod pod)
     {
         this.widget = widget;
         this.pod    = pod;
@@ -189,7 +187,7 @@ public readonly ref struct SpaceScope
     public              WidgetState widgetState => pod.widgetState;
            
 
-    internal SpaceScope(GuiWidget widget, in SpacePod pod)
+    internal SpaceScope(GuiWidget widget, SpacePod pod)
     {
         this.widget = widget;
         this.pod    = pod;
