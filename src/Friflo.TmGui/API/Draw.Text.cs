@@ -5,6 +5,7 @@
 using System;
 using System.Numerics;
 using System.Text;
+using Friflo.TmGui.TUI;
 
 // ReSharper disable MergeIntoLogicalPattern
 // ReSharper disable ForCanBeConvertedToForeach
@@ -62,13 +63,17 @@ public readonly ref partial struct TmDraw
     /// </summary>
     public Vector2 MeasureText(ReadOnlySpan<char> text, TmFont? font = null, float scale = 1.0f)
     {
-        font          ??= batch.currentFont;
-        var charWidth   = Tui?.CharWidth ?? 0; 
+        font  ??= batch.currentFont;
+        var tui = Tui;
+        if (tui != null && TuiFastPath.IsOneLineAscii(text)) {
+            return new Vector2(text.Length * tui.CharWidth, tui.LineHeight);
+        }
+        var charWidth = tui?.CharWidth ?? 0; 
 
         float   maxWidth            = 0f;
         float   currentLineWidth    = 0f;
         int     lineCount           = 1;
-
+        
         foreach (Rune rune in text.EnumerateRunes())
         {
             var runeValue = rune.Value;
@@ -82,7 +87,7 @@ public readonly ref partial struct TmDraw
                 continue;
             }
             if (charWidth != 0) {
-                currentLineWidth += charWidth;
+                currentLineWidth += charWidth * rune.RuneWidth;
                 continue;
             }
             if (!font.TryGetGlyph(runeValue, out var glyph)) {
