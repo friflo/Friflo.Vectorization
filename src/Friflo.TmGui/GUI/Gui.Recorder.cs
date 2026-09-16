@@ -40,6 +40,7 @@ internal sealed class GuiRecorder
     {
         records.Clear();
         windowBegin.Clear();
+        windowEnd.Clear();
     }
     
     private static void Replay(GuiRecorder recorder, in GuiWidget widget)
