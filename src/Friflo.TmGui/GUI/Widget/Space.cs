@@ -37,13 +37,13 @@ public readonly ref partial struct GuiWidget
         MoveCursor(size);
 
         bool isFired = IsFired(widgetState, isFocused);
-        return new SpaceScope(this, pos, size, isFired, isFocused, widgetState);
+        return new SpaceScope(this, new SpacePod(pos, size, isFired, isFocused, widgetState));
     }
 
     internal void EndSpace(in SpaceScope space)
     {
-        if (!space.isFocused) return;
-        DrawFocus(space.pos, space.size);
-        EnsureVisibleInScrollArea(space.pos, space.size);
+        if (!space.pod.isFocused) return;
+        DrawFocus(space.pod.pos, space.pod.size);
+        EnsureVisibleInScrollArea(space.pod.pos, space.pod.size);
     }
 }
