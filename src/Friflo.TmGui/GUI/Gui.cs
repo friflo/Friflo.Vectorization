@@ -34,9 +34,8 @@ public readonly ref struct Gui
     }
     
     public WindowScope  BeginWindow(string title, Vector2? pos = null, Vector2? size = null, TmTrait traits = TmTrait.Border, in TuiBorder tuiBorder = default)
-                            => widget.BeginWindow(new BeginWindowPod(title, pos, size, traits, tuiBorder));
-    public void         EndWindow(in WindowScope scope) 
-                            => widget.EndWindow(scope);
+                            => widget.BeginWindow(title, pos, size, traits, tuiBorder);
+    public void         EndWindow(in WindowScope scope) => widget.EndWindow(scope);
     
     /// <summary>Begins a clipped, isolated child area within the current window.</summary>
     /// <param name="size">Target size. Use &gt; 0 for fixed dimensions or 0 for dynamic auto-fit/remaining space.</param>
