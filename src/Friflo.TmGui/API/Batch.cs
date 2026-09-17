@@ -4,9 +4,11 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.Numerics;
 using System.Text;
+using Friflo.TmGui.Session;
 using Friflo.TmGui.TUI;
 
 // ReSharper disable InconsistentNaming
@@ -76,8 +78,8 @@ public abstract class TmBatch : IDisposable
     private   readonly  StringBuilder       stringBuilder       = new(512,512); // => first chunk: 512 chars
     internal  readonly  GuiState            guiState            = new();
     // --- replay
-    internal            GuiRecorder?        recorder;
-    internal            GuiReplay?          replay;
+    internal            TmSession?          session;
+    internal            GuiRecorder?        recorder; // gui recording requires a session
     
     internal            int                 beginWidth;
     internal            int                 beginHeight;
@@ -171,10 +173,20 @@ public abstract class TmBatch : IDisposable
     public bool LiveReplay {
         get => recorder != null;
         set {
-            if (value) {
-                recorder ??= new GuiRecorder(this);    
-            } else {
+            if (!value) {
                 recorder = null;
+                return;
+            }
+            // case: true
+            if (recorder != null) {
+                return;
+            }
+            if (session == null || !Debugger.IsAttached) {
+                return;
+            }
+            var replay = session.CreateReplay();
+            if (replay != null) {
+                recorder ??= new GuiRecorder(this, replay);
             }
         }
     }

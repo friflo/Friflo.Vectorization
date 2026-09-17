@@ -11,6 +11,12 @@ using System.Threading.Tasks;
 namespace Friflo.TmGui.Session;
 
 
+internal abstract class TmSession
+{
+    internal virtual GuiReplay? CreateReplay()      => null;
+    internal virtual void       SendReplayCommands() { }
+}
+
 internal enum ClientEventType : byte
 {
     TerminalConnected,

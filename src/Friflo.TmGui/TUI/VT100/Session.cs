@@ -12,9 +12,10 @@ using Friflo.TmGui.Session;
 namespace Friflo.TmGui.TUI.VT100;
 
 
-internal sealed partial class TuiSession
+internal sealed partial class TuiSession : TmSession
 {
     private readonly    TmClient        client;
+    private readonly    TuiColorMode    colorMode;
     private readonly    FrameBuffer     frameBuffer;
     private readonly    TuiBackend      tuiBackend;
     private readonly    TuiBatch        tuiBatch;
@@ -31,21 +32,26 @@ internal sealed partial class TuiSession
     public TuiSession(IGuiView guiView, TmClient client, FrameBuffer frameBuffer, TuiColorMode colorMode)
     {
         this.client         = client;
+        this.colorMode      = colorMode;
         this.guiView        = guiView;
         this.frameBuffer    = frameBuffer;
         tuiBackend          = new TuiBackend("Terminal");
         
         tuiBatch            = tuiBackend.CreateBatch(colorMode);
-        
-        // --- replay
-        var replayBackend   = new TuiBackend("Replay");
-        var replayBatch     = replayBackend.CreateBatch(colorMode);
-        tuiBatch.replay     = new GuiReplay(replayBackend, replayBatch, this);
+        tuiBatch.session    = this;
     }
     
-    internal void SendReplayFrame()
+    // --- TmSession
+    internal override GuiReplay CreateReplay()
     {
-        var replay          = tuiBatch.replay!;
+        var replayBackend   = new TuiBackend("Replay");
+        var replayBatch     = replayBackend.CreateBatch(colorMode);
+        return new GuiReplay(replayBackend, replayBatch, this);
+    }
+    
+    internal override void SendReplayCommands()
+    {
+        var replay          = tuiBatch.recorder!.replay;
         var replayBackend   = replay.backend;
         var replayBatch     = (TuiBatch)replay.batch;
         
@@ -54,6 +60,7 @@ internal sealed partial class TuiSession
         client.Send(framePayload);
     }
 
+    // --- internal
     private void SetFrameSize(int width, int height)
     {
         frameWidth      = width;

@@ -7,7 +7,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using Friflo.TmGui.TUI;
 using System.Runtime.CompilerServices;
-using Friflo.TmGui.TUI.VT100;
+using Friflo.TmGui.Session;
+
 
 // ReSharper disable ConvertIfStatementToReturnStatement
 // ReSharper disable once CheckNamespace
@@ -17,13 +18,15 @@ namespace Friflo.TmGui;
 internal sealed partial class GuiRecorder
 {
     private             long                lastRecordTime;
-    private readonly    TmBatch             batch;
+    private  readonly   TmBatch             batch;
     
-    private readonly    List<Record>        records         = [];
-    private readonly    List<Record>        endRecords      = [];
+    private  readonly   List<Record>        records         = [];
+    private  readonly   List<Record>        endRecords      = [];
     private             bool[]              endFinished     = [];
-    private readonly    List<char>          textBuffer      = [];
-    private readonly    List<Color32>       colorBuffer     = [];
+    private  readonly   List<char>          textBuffer      = [];
+    private  readonly   List<Color32>       colorBuffer     = [];
+    
+    internal readonly   GuiReplay           replay;
     
     private readonly struct Record
     {
@@ -47,9 +50,10 @@ internal sealed partial class GuiRecorder
         }
     }
     
-    internal GuiRecorder(TmBatch batch)
+    internal GuiRecorder(TmBatch batch, GuiReplay replay)
     {
-        this.batch = batch;
+        this.replay = replay;
+        this.batch  = batch;
     }
     
     private void AddCommandEnd(RecordType type, int index, int beginIndex)
@@ -72,7 +76,6 @@ internal sealed partial class GuiRecorder
     
     private void Replay()
     {
-        var replay      = batch.replay!;
         var replayBatch = replay.batch;
         
         replay.backend.NewFrame();
@@ -89,7 +92,7 @@ internal sealed partial class GuiRecorder
         
         ReplayCommands(this, replayGui.widget, endRecords);
         
-        replay.session.SendReplayFrame();
+        replay.session.SendReplayCommands();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -148,9 +151,9 @@ internal sealed class GuiReplay
 {
     internal readonly   TmGuiBackend    backend;
     internal readonly   TmBatch         batch;
-    internal readonly   TuiSession      session;
+    internal readonly   TmSession       session;
     
-    internal GuiReplay(TmGuiBackend backend, TmBatch batch, TuiSession  session) {
+    internal GuiReplay(TmGuiBackend backend, TmBatch batch, TmSession session) {
         this.backend    = backend;
         this.batch      = batch;
         this.session    = session;
