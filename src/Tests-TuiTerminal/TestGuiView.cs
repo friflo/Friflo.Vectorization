@@ -34,8 +34,11 @@ public class TestGuiView : IGuiView
     {
         gui.Button("hello TUI 💻 🙂", Dim.Fill_X(0, Fit.Content), color: textColors);
         gui.Spacer();
-        using (gui.PushStyle(greenButtonStyle)) {
-            if (gui.Button("green"))                            Debug.WriteLine("Clicked: hello");
+        using (gui.BeginHorizontal()) {
+            using (gui.PushStyle(greenButtonStyle)) {
+                if (gui.Button("green"))                            Debug.WriteLine("Clicked: hello");
+            }
+            if (gui.Button("GC.Collect()"))  GC.Collect();
         }
 
         gui.Spacer();
