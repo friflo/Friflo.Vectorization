@@ -35,10 +35,10 @@ public readonly ref partial struct GuiWidget
         PushLayout(LayoutDirection.Horizontal, boundsSize);
         return new HorizontalScope(this);
     }
-    internal void EndHorizontal()
+    internal Vector2 EndHorizontal()
     {
         Recorder?.EndLayout(RecordType.HorizontalEnd);
-        PopLayout();
+        return PopLayout();
     }
 
 
@@ -56,7 +56,7 @@ public readonly ref partial struct GuiWidget
     
     internal void EndHorizontalAligned(in HorizontalCenterScope scope)
     {
-        var maxSize = PopLayout();
+        var maxSize = EndHorizontal();
         
         draw.batch.layoutOffset = input.layoutOffset = scope.end.oldLayoutOffset;
         var availableWidth  = Window.CurrentLayout.boundsSize.X;

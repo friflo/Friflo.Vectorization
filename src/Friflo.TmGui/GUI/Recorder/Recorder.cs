@@ -19,21 +19,13 @@ internal readonly struct Record
 {
     internal readonly   RecordType  type;
     internal readonly   int         index;
-    internal readonly   int         beginIndex;
 
     public   override   string      ToString() => $"{type} - index: {index}";
     
     internal Record(RecordType type, int index)
     {
-        this.type    = type;
-        this.index   = index;
-    }
-    
-    internal Record(RecordType type, int index, int beginIndex)
-    {
-        this.type       = type;
-        this.index      = index;
-        this.beginIndex = beginIndex;
+        this.type   = type;
+        this.index  = index;
     }
 }
 
@@ -41,12 +33,12 @@ internal readonly struct Record
 internal sealed partial class GuiRecorder
 {
     private             long                lastRecordTime;
+    private             bool                rewindStack;
     private  readonly   TmBatch             batch;
     internal readonly   GuiReplay           replay;
     
     private  readonly   List<Record>        records         = [];
-    private  readonly   List<Record>        endRecords      = [];
-    private             bool[]              endFinished     = [];
+    private  readonly   List<Record>        stackEnd        = [];
     private  readonly   List<char>          textBuffer      = [];
     private  readonly   List<Color32>       colorBuffer     = [];
 
@@ -57,13 +49,27 @@ internal sealed partial class GuiRecorder
         this.batch  = batch;
     }
     
-    private void AddCommandEnd(RecordType type, int index, int beginIndex)
+    private void PopStackEnd()
     {
-        endRecords.Add(new Record(type, index - 1, beginIndex));
+        if (rewindStack) {
+            return;
+        }
+        stackEnd.RemoveAt(stackEnd.Count - 1);
+    }
+    
+    private void PushStackEnd(RecordType type, int index)
+    {
+        if (rewindStack) {
+            return;
+        }
+        stackEnd.Add(new Record(type, index - 1));
     }
     
     private void AddCommand(RecordType type, int index)
     {
+        if (rewindStack) {
+            return;
+        }
         records.Add(new Record(type, index - 1));
         
         var time = Stopwatch.GetTimestamp();
@@ -81,17 +87,19 @@ internal sealed partial class GuiRecorder
         
         replay.backend.NewFrame();
         
-        var replayGui   = replayBatch.BeginGui(batch.beginWidth, batch.beginHeight);
+        var replayGui = replayBatch.BeginGui(batch.beginWidth, batch.beginHeight);
         
-        var finished = endFinished;
-        if (finished.Length < records.Count) {
-            finished = endFinished = new bool [Math.Max(records.Count, 2 * finished.Length)];
-        }
-        Array.Fill(finished, false, 0, finished.Length);
+        stackEnd.Clear();
+        rewindStack = false;
         
         ReplayCommands(this, replayGui.widget, records);
         
-        ReplayCommands(this, replayGui.widget, endRecords);
+        rewindStack = true;
+        stackEnd.Reverse();
+        
+        ReplayCommands(this, replayGui.widget, stackEnd);
+        
+        rewindStack = false;
         
         replay.session.SendReplayCommands();
     }

@@ -8,6 +8,8 @@ using Friflo.TmGui.TUI;
 using System.Numerics;
 using System.Runtime.InteropServices;
 
+// ReSharper disable ForCanBeConvertedToForeach
+// ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable UseDeconstruction
 // ReSharper disable SuggestVarOrType_SimpleTypes
 // ReSharper disable UnusedMember.Local
@@ -56,10 +58,9 @@ internal sealed partial class GuiRecorder
     
     internal void Reset()
     {
-        lastRecordTime = Stopwatch.GetTimestamp();
+        lastRecordTime  = Stopwatch.GetTimestamp();
         
         records.Clear();
-        endRecords.Clear();
         textBuffer.Clear();
         colorBuffer.Clear();
         
@@ -81,7 +82,6 @@ internal sealed partial class GuiRecorder
     {
         var replays         = CollectionsMarshal.AsSpan(replayList);
         //
-        var endFinished     = recorder.endFinished;
         var textBuffer      = CollectionsMarshal.AsSpan(recorder.textBuffer);
         var colorBuffer     = CollectionsMarshal.AsSpan(recorder.colorBuffer);
         
@@ -98,8 +98,9 @@ internal sealed partial class GuiRecorder
         var checkbox        = CollectionsMarshal.AsSpan(recorder.checkbox);
         var slider          = CollectionsMarshal.AsSpan(recorder.slider);
         
-        foreach (var record in replays)
+        for (int n = 0; n < replays.Length; n++)
         {
+            var record  = replays[n];
             var index   = record.index;
             var type    = record.type;
             switch (type)
@@ -110,12 +111,11 @@ internal sealed partial class GuiRecorder
                     WindowBegin cmd = windowBegin[index];
                     var scope = widget.BeginWindow(cmd.title, cmd.pos, cmd.size, cmd.traits, cmd.tuiBorder);
                     recorder.windowEnd.Add(scope.end);
-                    recorder.AddCommandEnd(RecordType.WindowEnd, recorder.windowEnd.Count, index);
+                    recorder.PushStackEnd(RecordType.WindowEnd, recorder.windowEnd.Count);
                     break;
                 }
                 case RecordType.WindowEnd: {
-                    if (endFinished[record.beginIndex]) return;
-                    endFinished[record.beginIndex] = true;
+                    recorder.PopStackEnd();
                     
                     WindowEnd end = windowEnd[index];
                     widget.EndWindow(new WindowScope(widget, end));
@@ -133,13 +133,12 @@ internal sealed partial class GuiRecorder
                     }
                     var end = type == RecordType.HorizontalBegin ? RecordType.HorizontalEnd : RecordType.VerticalEnd; 
                     recorder.layoutEnd.Add(end);
-                    recorder.AddCommandEnd(end, recorder.layoutEnd.Count, index);
+                    recorder.PushStackEnd(end, recorder.layoutEnd.Count);
                     break;
                 }
                 case RecordType.HorizontalEnd:
                 case RecordType.VerticalEnd: {
-                    if (endFinished[record.beginIndex]) return;
-                    endFinished[record.beginIndex] = true;
+                    recorder.PopStackEnd();
                     
                     if (type == RecordType.HorizontalEnd) {
                         widget.EndHorizontal();
