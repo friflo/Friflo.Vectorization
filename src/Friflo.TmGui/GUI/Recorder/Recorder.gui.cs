@@ -29,6 +29,8 @@ internal sealed partial class GuiRecorder
 
     private enum RecordType
     {
+        None,
+        
         WindowBegin, WindowEnd,
         
         Label,
@@ -39,6 +41,7 @@ internal sealed partial class GuiRecorder
     {
         lastRecordTime = Stopwatch.GetTimestamp();
         records.Clear();
+        endRecords.Clear();
         
         // --- container
         windowBegin.Clear();
@@ -71,7 +74,9 @@ internal sealed partial class GuiRecorder
                 // --- containers
                 case RecordType.WindowBegin: {
                     var cmd = windowBegin[index];
-                    widget.BeginWindow(cmd.title, cmd.pos, cmd.size, cmd.traits, cmd.tuiBorder);
+                    var scope = widget.BeginWindow(cmd.title, cmd.pos, cmd.size, cmd.traits, cmd.tuiBorder);
+                    recorder.windowEnd.Add(scope.end);
+                    recorder.AddCommandEnd(RecordType.WindowEnd, recorder.windowEnd.Count);
                     break;
                 }
                 case RecordType.WindowEnd: {
@@ -99,25 +104,25 @@ internal sealed partial class GuiRecorder
     internal void BeginWindow(in WindowBegin cmd)
     {
         windowBegin.Add(cmd);
-        AddCommand(RecordType.WindowBegin, windowBegin.Count - 1);
+        AddCommand(RecordType.WindowBegin, windowBegin.Count);
     }
     
     internal void EndWindow(in WindowEnd cmd)
     {
         windowEnd.Add(cmd);
-        AddCommand(RecordType.WindowEnd, windowEnd.Count - 1);
+        AddCommand(RecordType.WindowEnd, windowEnd.Count);
     }
     
     // ------------------------------------- widgets
     internal void Label(ReadOnlySpan<char> name, TextColor textColor)
     {
         label.Add(new Label(GetTextSpan(name), GetColorSpan(textColor)));
-        AddCommand(RecordType.Label, label.Count - 1);
+        AddCommand(RecordType.Label, label.Count);
     }
         
     internal void Button(ReadOnlySpan<char> name, Dim size, GuiStyle? style, WidgetID id, in TextColor textColor)
     {
         button.Add(new Button(GetTextSpan(name), size, style, id, GetColorSpan(textColor)));
-        AddCommand(RecordType.Button, button.Count - 1);
+        AddCommand(RecordType.Button, button.Count);
     }
 }

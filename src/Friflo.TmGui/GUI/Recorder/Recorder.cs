@@ -19,6 +19,7 @@ internal sealed partial class GuiRecorder
     private readonly    TmBatch             batch;
     
     private readonly    List<Record>        records         = [];
+    private readonly    List<Record>        endRecords      = [];
     private readonly    List<char>          textBuffer      = [];
     private readonly    List<Color32>       colorBuffer     = [];
     
@@ -35,9 +36,14 @@ internal sealed partial class GuiRecorder
         this.batch = batch;
     }
     
+    private void AddCommandEnd(RecordType type, int index)
+    {
+        endRecords.Add(new Record(type, index - 1));
+    }
+    
     private void AddCommand(RecordType type, int index)
     {
-        records.Add(new Record(type, index));
+        records.Add(new Record(type, index - 1));
         
         var time = Stopwatch.GetTimestamp();
         var diff = Stopwatch.GetElapsedTime(lastRecordTime, time);
