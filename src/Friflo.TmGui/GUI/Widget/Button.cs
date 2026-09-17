@@ -22,7 +22,7 @@ public readonly ref partial struct GuiWidget
 
         var tui         = draw.Tui;
         var pos         = window.Cursor;
-        var textSize    = draw.MeasureText(name) ;
+        var textSize    = draw.MeasureText(name);
 
         // Calculate final pixel footprint based on measured text size as content fallback
         var defaultSize = textSize + Sizes.FramePadding.Size;

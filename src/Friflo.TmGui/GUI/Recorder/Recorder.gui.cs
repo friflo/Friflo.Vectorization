@@ -8,6 +8,7 @@ using Friflo.TmGui.TUI;
 using System.Numerics;
 using System.Runtime.InteropServices;
 
+// ReSharper disable UnusedMember.Local
 // ReSharper disable InconsistentNaming
 // ReSharper disable once CheckNamespace
 namespace Friflo.TmGui;
@@ -56,7 +57,7 @@ internal sealed partial class GuiRecorder
     {
         var replays         = CollectionsMarshal.AsSpan(replayList);
         //
-        var records         = CollectionsMarshal.AsSpan(recorder.records);
+        var endFinished     = recorder.endFinished;
         var textBuffer      = CollectionsMarshal.AsSpan(recorder.textBuffer);
         var colorBuffer     = CollectionsMarshal.AsSpan(recorder.colorBuffer);
         
@@ -82,8 +83,8 @@ internal sealed partial class GuiRecorder
                     break;
                 }
                 case RecordType.WindowEnd: {
-                    if (records[record.beginIndex].type == RecordType.None) return;
-                    records[record.beginIndex] = default;
+                    if (endFinished[record.beginIndex]) return;
+                    endFinished[record.beginIndex] = true;
                     var end = windowEnd[index];
                     widget.EndWindow(new WindowScope(widget, end));
                     break;

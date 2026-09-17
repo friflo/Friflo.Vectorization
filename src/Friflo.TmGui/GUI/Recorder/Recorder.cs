@@ -21,6 +21,7 @@ internal sealed partial class GuiRecorder
     
     private readonly    List<Record>        records         = [];
     private readonly    List<Record>        endRecords      = [];
+    private             bool[]              endFinished     = [];
     private readonly    List<char>          textBuffer      = [];
     private readonly    List<Color32>       colorBuffer     = [];
     
@@ -73,7 +74,16 @@ internal sealed partial class GuiRecorder
     {
         var replay      = batch.replay!;
         var replayBatch = replay.batch;
+        
+        replay.backend.NewFrame();
+        
         var replayGui   = replayBatch.BeginGui(batch.beginWidth, batch.beginHeight);
+        
+        var finished = endFinished;
+        if (finished.Length < records.Count) {
+            finished = endFinished = new bool [Math.Max(records.Count, 2 * finished.Length)];
+        }
+        Array.Fill(finished, false, 0, finished.Length);
         
         ReplayCommands(this, replayGui.widget, records);
         
