@@ -13,6 +13,7 @@ public readonly ref partial struct GuiWidget
 {
     internal bool Checkbox(ReadOnlySpan<char> name, ref bool value, GuiStyle? style, WidgetID id)
     {
+        Recorder?.Checkbox(name, value, style, id);
         var window  = Window;
         using var _ = UseStyle(style);
         int parentHash  = window.GetCurrentScopeHash();

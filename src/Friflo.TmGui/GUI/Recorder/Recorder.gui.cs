@@ -8,6 +8,8 @@ using Friflo.TmGui.TUI;
 using System.Numerics;
 using System.Runtime.InteropServices;
 
+// ReSharper disable UseDeconstruction
+// ReSharper disable SuggestVarOrType_SimpleTypes
 // ReSharper disable UnusedMember.Local
 // ReSharper disable InconsistentNaming
 // ReSharper disable once CheckNamespace
@@ -18,6 +20,7 @@ internal readonly record struct WindowBegin (string title, Vector2? pos, Vector2
 
 internal readonly record struct Label       (TextSpan name, Color32Span textColor);
 internal readonly record struct Button      (TextSpan name, Dim size, GuiStyle? style, WidgetID id, Color32Span textColor);
+internal readonly record struct Checkbox    (TextSpan name, bool value, GuiStyle? style, WidgetID id);
 
 
 internal sealed partial class GuiRecorder
@@ -27,6 +30,7 @@ internal sealed partial class GuiRecorder
     
     private readonly    List<Label>         label           = [];
     private readonly    List<Button>        button          = [];
+    private readonly    List<Checkbox>      checkbox          = [];
 
     private enum RecordType
     {
@@ -35,7 +39,8 @@ internal sealed partial class GuiRecorder
         WindowBegin, WindowEnd,
         
         Label,
-        Button
+        Button,
+        Checkbox,
     }
     
     internal void Reset()
@@ -51,6 +56,7 @@ internal sealed partial class GuiRecorder
         // --- widgets
         label.Clear();
         button.Clear();
+        checkbox.Clear();
     }
     
     private static void ReplayCommands(GuiRecorder recorder, in GuiWidget widget, List<Record> replayList)
@@ -68,6 +74,7 @@ internal sealed partial class GuiRecorder
         // --- widgets
         var label           = CollectionsMarshal.AsSpan(recorder.label);
         var button          = CollectionsMarshal.AsSpan(recorder.button);
+        var checkbox        = CollectionsMarshal.AsSpan(recorder.checkbox);
         
         foreach (var record in replays)
         {
@@ -76,7 +83,7 @@ internal sealed partial class GuiRecorder
             {
                 // --- containers
                 case RecordType.WindowBegin: {
-                    var cmd = windowBegin[index];
+                    WindowBegin cmd = windowBegin[index];
                     var scope = widget.BeginWindow(cmd.title, cmd.pos, cmd.size, cmd.traits, cmd.tuiBorder);
                     recorder.windowEnd.Add(scope.end);
                     recorder.AddCommandEnd(RecordType.WindowEnd, recorder.windowEnd.Count, index);
@@ -85,19 +92,26 @@ internal sealed partial class GuiRecorder
                 case RecordType.WindowEnd: {
                     if (endFinished[record.beginIndex]) return;
                     endFinished[record.beginIndex] = true;
-                    var end = windowEnd[index];
+                    
+                    WindowEnd end = windowEnd[index];
                     widget.EndWindow(new WindowScope(widget, end));
                     break;
                 }
                 // --- widgets
                 case RecordType.Label: {
-                    var cmd = label[index];
+                    Label cmd = label[index];
                     widget.Label(textBuffer.GetText(cmd.name), colorBuffer.GetColor(cmd.textColor));
                     break;
                 }
                 case RecordType.Button: {
-                    var cmd = button[index];
+                    Button cmd = button[index];
                     widget.Button(textBuffer.GetText(cmd.name), cmd.size, cmd.style, cmd.id, colorBuffer.GetColor(cmd.textColor));
+                    break;
+                }
+                case RecordType.Checkbox: {
+                    Checkbox cmd = checkbox[index];
+                    var value   = cmd.value;
+                    widget.Checkbox(textBuffer.GetText(cmd.name), ref value, cmd.style, cmd.id);
                     break;
                 }
             }
@@ -129,5 +143,11 @@ internal sealed partial class GuiRecorder
     {
         button.Add(new Button(GetTextSpan(name), size, style, id, GetColorSpan(textColor)));
         AddCommand(RecordType.Button, button.Count);
+    }
+    
+    internal void Checkbox(ReadOnlySpan<char> name, bool value, GuiStyle? style, WidgetID id)
+    {
+        checkbox.Add(new Checkbox(GetTextSpan(name), value, style, id));
+        AddCommand(RecordType.Checkbox, checkbox.Count);
     }
 }
