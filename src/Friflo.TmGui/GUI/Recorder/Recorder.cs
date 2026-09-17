@@ -23,12 +23,26 @@ internal sealed partial class GuiRecorder
     private readonly    List<char>          textBuffer      = [];
     private readonly    List<Color32>       colorBuffer     = [];
     
-    private readonly struct Record(RecordType type, int index)
+    private readonly struct Record
     {
-        internal readonly   RecordType  type    = type;
-        internal readonly   int         index   = index;
+        internal readonly   RecordType  type;
+        internal readonly   int         index;
+        internal readonly   int         beginIndex;
 
         public   override   string      ToString() => $"{type} - index: {index}";
+        
+        internal Record(RecordType type, int index)
+        {
+            this.type    = type;
+            this.index   = index;
+        }
+        
+        internal Record(RecordType type, int index, int beginIndex)
+        {
+            this.type       = type;
+            this.index      = index;
+            this.beginIndex = beginIndex;
+        }
     }
     
     internal GuiRecorder(TmBatch batch)
@@ -36,9 +50,9 @@ internal sealed partial class GuiRecorder
         this.batch = batch;
     }
     
-    private void AddCommandEnd(RecordType type, int index)
+    private void AddCommandEnd(RecordType type, int index, int beginIndex)
     {
-        endRecords.Add(new Record(type, index - 1));
+        endRecords.Add(new Record(type, index - 1, beginIndex));
     }
     
     private void AddCommand(RecordType type, int index)
@@ -51,10 +65,17 @@ internal sealed partial class GuiRecorder
         if (diff.TotalMilliseconds < 100) {
             return;
         }
-        return;
+        // Replay();
+    }
+    
+    private void Replay()
+    {
         TmBatch replayBatch = null!;
         var replayGui = replayBatch.BeginGui(batch.beginWidth, batch.beginHeight);
-        ReplayCommands(this, replayGui.widget);
+        
+        ReplayCommands(this, replayGui.widget, records);
+        
+        ReplayCommands(this, replayGui.widget, endRecords);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

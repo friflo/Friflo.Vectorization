@@ -52,8 +52,10 @@ internal sealed partial class GuiRecorder
         button.Clear();
     }
     
-    private static void ReplayCommands(GuiRecorder recorder, in GuiWidget widget)
+    private static void ReplayCommands(GuiRecorder recorder, in GuiWidget widget, List<Record> replayList)
     {
+        var replays         = CollectionsMarshal.AsSpan(replayList);
+        //
         var records         = CollectionsMarshal.AsSpan(recorder.records);
         var textBuffer      = CollectionsMarshal.AsSpan(recorder.textBuffer);
         var colorBuffer     = CollectionsMarshal.AsSpan(recorder.colorBuffer);
@@ -66,7 +68,7 @@ internal sealed partial class GuiRecorder
         var label           = CollectionsMarshal.AsSpan(recorder.label);
         var button          = CollectionsMarshal.AsSpan(recorder.button);
         
-        foreach (var record in records)
+        foreach (var record in replays)
         {
             var index = record.index;
             switch (record.type)
@@ -76,10 +78,12 @@ internal sealed partial class GuiRecorder
                     var cmd = windowBegin[index];
                     var scope = widget.BeginWindow(cmd.title, cmd.pos, cmd.size, cmd.traits, cmd.tuiBorder);
                     recorder.windowEnd.Add(scope.end);
-                    recorder.AddCommandEnd(RecordType.WindowEnd, recorder.windowEnd.Count);
+                    recorder.AddCommandEnd(RecordType.WindowEnd, recorder.windowEnd.Count, index);
                     break;
                 }
                 case RecordType.WindowEnd: {
+                    if (records[record.beginIndex].type == RecordType.None) return;
+                    records[record.beginIndex] = default;
                     var end = windowEnd[index];
                     widget.EndWindow(new WindowScope(widget, end));
                     break;
