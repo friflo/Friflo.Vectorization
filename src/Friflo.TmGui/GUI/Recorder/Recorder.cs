@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using Friflo.TmGui.TUI;
 using System.Runtime.CompilerServices;
+using Friflo.TmGui.TUI.VT100;
 
 // ReSharper disable ConvertIfStatementToReturnStatement
 // ReSharper disable once CheckNamespace
@@ -70,12 +71,18 @@ internal sealed partial class GuiRecorder
     
     private void Replay()
     {
-        TmBatch replayBatch = null!;
+        var replay = batch.replay;
+        if (replay == null) {
+            return;
+        }
+        var replayBatch = replay.batch;
         var replayGui = replayBatch.BeginGui(batch.beginWidth, batch.beginHeight);
         
         ReplayCommands(this, replayGui.widget, records);
         
         ReplayCommands(this, replayGui.widget, endRecords);
+        
+        replay.session.SendReplayFrame();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -127,5 +134,16 @@ internal static class RecorderExtensions
             }
             return new TextColor(buffer.Slice(span.start, span.len));
         }
+    }
+}
+
+internal sealed class GuiReplay
+{
+    internal readonly   TmBatch     batch;
+    internal readonly   TuiSession  session;
+    
+    internal GuiReplay(TmBatch batch, TuiSession  session) {
+        this.batch      = batch;
+        this.session    = session;
     }
 }

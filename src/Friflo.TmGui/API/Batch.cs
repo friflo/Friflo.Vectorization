@@ -75,7 +75,10 @@ public abstract class TmBatch : IDisposable
     internal  readonly  Stack<SamplerFilter>samplerFilterStack  = [];
     private   readonly  StringBuilder       stringBuilder       = new(512,512); // => first chunk: 512 chars
     internal  readonly  GuiState            guiState            = new();
+    // --- replay
     internal            GuiRecorder?        recorder;
+    internal            GuiReplay?          replay;
+    
     internal            int                 beginWidth;
     internal            int                 beginHeight;
 

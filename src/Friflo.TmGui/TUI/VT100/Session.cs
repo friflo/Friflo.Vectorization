@@ -34,7 +34,11 @@ internal sealed partial class TuiSession
         this.guiView        = guiView;
         this.frameBuffer    = frameBuffer;
         backend             = new TuiBackend();
+        
         batch               = backend.CreateBatch(colorMode);
+        
+        var replayBatch     = backend.CreateBatch(colorMode);
+        batch.replay        = new GuiReplay(replayBatch, this);
     }
 
     private void SetFrameSize(int width, int height)
@@ -96,7 +100,17 @@ internal sealed partial class TuiSession
         } else {
             sendBufferCount = 0;
         }
+        return RenderFrame();
+    }
+    
+    internal void SendReplayFrame()
+    {
+        var framePayload = RenderFrame();
+        client.Send(framePayload);
+    }
         
+    private Memory<byte> RenderFrame()
+    {
         // \x1b[?2026h      Sync Start (atomic frame)
         // \x1b[H           Cursor Home
         AppendSpan("\x1b[?2026h\x1b[H"u8);  // NOTE: don't use  \x1b[2J  (Clear screen)
