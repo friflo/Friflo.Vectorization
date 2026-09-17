@@ -181,6 +181,8 @@ public sealed class GuiWindow
         host.SetTopWindow(this);
     }
     
+    internal bool IsTopWindow => host.TopWindow == this;
+    
     public bool IsHoverAt(Vector2 pos, Vector2 size, TmDraw draw)
     {
         var input       = host.input;

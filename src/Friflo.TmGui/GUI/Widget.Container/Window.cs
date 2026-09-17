@@ -66,6 +66,9 @@ public readonly ref partial struct GuiWidget
             window.bounds = new RectVector2(window.Pos + input.MousePosDelta, window.Size);
         }
         
+        if (tui != null && window.IsTopWindow) {
+            tui.DrawWindowShadow(window.Pos, window.Size);
+        }
         // ensure every drawing is clipped
         draw.PushScissor(window.Pos,  window.Size);
         var titleOffset = new Vector2(0f, titleBarHeight);

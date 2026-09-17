@@ -6,7 +6,7 @@ using System;
 using System.Globalization;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using System.Text;
+
 
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable ConvertToPrimaryConstructor
@@ -98,6 +98,21 @@ public struct Color32 : IEquatable<Color32>
     public static implicit operator Color32(uint rgbaHex) => FromRgbaHex(rgbaHex);
 
     public readonly override string ToString() => $"RGBA({R}, {G}, {B}, {A}) {GetClosestUnicodeHeart(this)}";
+    
+    
+    public static Color32 BlendFast(Color32 val, Color32 tint)
+    {
+        uint alpha = tint.A;
+        uint invAlpha = 255 - alpha;
+
+        return new Color32
+        {
+            R = (byte)((val.R * invAlpha + tint.R * alpha) * 32897 >> 23),
+            G = (byte)((val.G * invAlpha + tint.G * alpha) * 32897 >> 23),
+            B = (byte)((val.B * invAlpha + tint.B * alpha) * 32897 >> 23),
+            A = val.A
+        };
+    }
 
 
     // Presets

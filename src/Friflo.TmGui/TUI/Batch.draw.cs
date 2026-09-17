@@ -172,5 +172,19 @@ public partial class TuiBatch
         // center ─     1/8 ▁   bottom  1/16 none        
         // corners  ╭ ╮ ╰ ╯
     }
+
+    public void DrawWindowShadow(Vector2 pos, Vector2 size)
+    {
+        var yOffset     = new Vector2(0, lineHeight);
+        var xOffset     = new Vector2(charWidth, 0);
+        var vertical    = new Vector2(charWidth, size.Y);
+        var horizontal  = new Vector2(size.X, 0) - xOffset;
+
+        Color32 shadow = 0x00000028;
+        FillRectChar(pos + horizontal +     xOffset + yOffset, vertical + xOffset, shadow, (char)0, shadow);
+        
+        var bl = pos + vertical + xOffset;
+        FillRectChar(bl, horizontal + yOffset - xOffset, shadow, (char)0, shadow);
+    }
 }
 

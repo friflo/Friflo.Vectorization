@@ -200,6 +200,16 @@ public sealed partial class TuiBatch : TmBatch
                             fill.background = colors[rect.color.start];
                             fill.color      = colors[rect.color.start + 1];
                         }
+                        if (fill.rune.Value == 0) {
+                            for (int y = startY; y < endY; y++) {
+                                for (int x = startX; x < endX; x++) {
+                                    ref var cell = ref cells[y * stride + x];
+                                    cell.background = Color32.BlendFast(cell.background, fill.background);
+                                    cell.color      = Color32.BlendFast(cell.color,      fill.color);
+                                }
+                            }
+                            continue;
+                        }
                         for (int y = startY; y < endY; y++) {
                             var fillRow = cells.Slice(stride * y, stride);
 
