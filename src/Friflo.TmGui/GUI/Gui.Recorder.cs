@@ -175,12 +175,14 @@ internal sealed class GuiRecorder
 
 internal static class RecorderExtensions
 {
-    extension (Span<char> buffer) {
-        internal Span<char> GetText(TextSpan span) {
+    extension (ReadOnlySpan<char> buffer)
+    {
+        internal ReadOnlySpan<char> GetText(TextSpan span) {
             return buffer.Slice(span.start, span.len);
         }
     }
-    extension (Span<Color32> buffer) {
+    extension (ReadOnlySpan<Color32> buffer)
+    {
         internal TextColor GetColor(Color32Span span) {
             if (span.len == 0) {
                 return new TextColor(span.value);
