@@ -15,40 +15,41 @@ using Friflo.TmGui.Session;
 namespace Friflo.TmGui;
 
 
+internal readonly struct Record
+{
+    internal readonly   RecordType  type;
+    internal readonly   int         index;
+    internal readonly   int         beginIndex;
+
+    public   override   string      ToString() => $"{type} - index: {index}";
+    
+    internal Record(RecordType type, int index)
+    {
+        this.type    = type;
+        this.index   = index;
+    }
+    
+    internal Record(RecordType type, int index, int beginIndex)
+    {
+        this.type       = type;
+        this.index      = index;
+        this.beginIndex = beginIndex;
+    }
+}
+
+
 internal sealed partial class GuiRecorder
 {
     private             long                lastRecordTime;
     private  readonly   TmBatch             batch;
+    internal readonly   GuiReplay           replay;
     
     private  readonly   List<Record>        records         = [];
     private  readonly   List<Record>        endRecords      = [];
     private             bool[]              endFinished     = [];
     private  readonly   List<char>          textBuffer      = [];
     private  readonly   List<Color32>       colorBuffer     = [];
-    
-    internal readonly   GuiReplay           replay;
-    
-    private readonly struct Record
-    {
-        internal readonly   RecordType  type;
-        internal readonly   int         index;
-        internal readonly   int         beginIndex;
 
-        public   override   string      ToString() => $"{type} - index: {index}";
-        
-        internal Record(RecordType type, int index)
-        {
-            this.type    = type;
-            this.index   = index;
-        }
-        
-        internal Record(RecordType type, int index, int beginIndex)
-        {
-            this.type       = type;
-            this.index      = index;
-            this.beginIndex = beginIndex;
-        }
-    }
     
     internal GuiRecorder(TmBatch batch, GuiReplay replay)
     {
