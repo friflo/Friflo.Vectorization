@@ -14,6 +14,8 @@ public readonly ref partial struct GuiWidget
 {
     internal void Label(ReadOnlySpan<char> name, TextColor textColor)
     {
+        Recorder?.Label(name, textColor);
+        
         var window = Window;
         textColor = textColor.IsNone ? Colors.TextColor : textColor;
         

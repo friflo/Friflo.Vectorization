@@ -17,7 +17,10 @@ namespace Friflo.TmGui;
 
 internal readonly record struct WindowBegin (string title, Vector2? pos, Vector2? size, TmTrait traits, TuiBorder tuiBorder);
 
+
+internal readonly record struct Label       (TextSpan name, Color32Span textColor);
 internal readonly record struct Button      (TextSpan name, Dim size, GuiStyle? style, WidgetID id, Color32Span textColor);
+
 
 
 internal sealed class GuiRecorder
@@ -29,11 +32,14 @@ internal sealed class GuiRecorder
     private readonly    List<WindowBegin>   windowBegin     = [];
     private readonly    List<WindowEnd>     windowEnd       = [];
     
+    private readonly    List<Label>         label           = [];
     private readonly    List<Button>        button          = [];
 
     private enum RecordType
     {
         WindowBegin, WindowEnd,
+        
+        Label,
         Button
     }
     
@@ -42,7 +48,7 @@ internal sealed class GuiRecorder
         internal readonly   RecordType  type    = type;
         internal readonly   int         index   = index;
 
-        public   override   string      ToString() => $"{type} index: {index}";
+        public   override   string      ToString() => $"{type} - index: {index}";
     }
 
     
@@ -59,6 +65,7 @@ internal sealed class GuiRecorder
         windowEnd.Clear();
         
         // --- widgets
+        label.Clear();
         button.Clear();
     }
     
@@ -73,6 +80,7 @@ internal sealed class GuiRecorder
         var windowEnd       = CollectionsMarshal.AsSpan(recorder.windowEnd);
         
         // --- widgets
+        var label           = CollectionsMarshal.AsSpan(recorder.label);
         var button          = CollectionsMarshal.AsSpan(recorder.button);
         
         foreach (var record in records)
@@ -91,6 +99,11 @@ internal sealed class GuiRecorder
                     break;
                 }
                 // --- widgets
+                case RecordType.Label: {
+                    var cmd = label[index];
+                    widget.Label(textBuffer.GetText(cmd.name), colorBuffer.GetColor(cmd.textColor));
+                    break;
+                }
                 case RecordType.Button: {
                     var cmd = button[index];
                     widget.Button(textBuffer.GetText(cmd.name), cmd.size, cmd.style, cmd.id, colorBuffer.GetColor(cmd.textColor));
@@ -144,6 +157,12 @@ internal sealed class GuiRecorder
     
     
     // ------------------------------------- widgets
+    internal void Label(ReadOnlySpan<char> name, TextColor textColor)
+    {
+        label.Add(new Label(GetTextSpan(name), GetColorSpan(textColor)));
+        AddCommand(RecordType.Label, label.Count - 1);
+    }
+        
     internal void Button(ReadOnlySpan<char> name, Dim size, GuiStyle? style, WidgetID id, in TextColor textColor)
     {
         button.Add(new Button(GetTextSpan(name), size, style, id, GetColorSpan(textColor)));
