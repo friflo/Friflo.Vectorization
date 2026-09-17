@@ -14,6 +14,8 @@ public readonly ref partial struct GuiWidget
 {
     internal bool Slider(ReadOnlySpan<char> name, ref float value, float min, float max, float width, ReadOnlySpan<char> format, GuiStyle? style, WidgetID id)
     {
+        Recorder?.Slider(name, value, min, max, width, format, style, id);
+        
         var window      = Window;
         using var _     = UseStyle(style);
         int parentHash  = window.GetCurrentScopeHash();

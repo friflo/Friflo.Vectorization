@@ -21,6 +21,7 @@ internal readonly record struct WindowBegin (string title, Vector2? pos, Vector2
 internal readonly record struct Label       (TextSpan name, Color32Span textColor);
 internal readonly record struct Button      (TextSpan name, Dim size, GuiStyle? style, WidgetID id, Color32Span textColor);
 internal readonly record struct Checkbox    (TextSpan name, bool value, GuiStyle? style, WidgetID id);
+internal readonly record struct Slider      (TextSpan name, float value, float min, float max, float width, TextSpan format, GuiStyle? style, WidgetID id);
 
 
 internal sealed partial class GuiRecorder
@@ -30,7 +31,8 @@ internal sealed partial class GuiRecorder
     
     private readonly    List<Label>         label           = [];
     private readonly    List<Button>        button          = [];
-    private readonly    List<Checkbox>      checkbox          = [];
+    private readonly    List<Checkbox>      checkbox        = [];
+    private readonly    List<Slider>        slider          = [];
 
     private enum RecordType
     {
@@ -41,6 +43,7 @@ internal sealed partial class GuiRecorder
         Label,
         Button,
         Checkbox,
+        Slider
     }
     
     internal void Reset()
@@ -57,6 +60,7 @@ internal sealed partial class GuiRecorder
         label.Clear();
         button.Clear();
         checkbox.Clear();
+        slider.Clear();
     }
     
     private static void ReplayCommands(GuiRecorder recorder, in GuiWidget widget, List<Record> replayList)
@@ -75,6 +79,7 @@ internal sealed partial class GuiRecorder
         var label           = CollectionsMarshal.AsSpan(recorder.label);
         var button          = CollectionsMarshal.AsSpan(recorder.button);
         var checkbox        = CollectionsMarshal.AsSpan(recorder.checkbox);
+        var slider          = CollectionsMarshal.AsSpan(recorder.slider);
         
         foreach (var record in replays)
         {
@@ -114,6 +119,12 @@ internal sealed partial class GuiRecorder
                     widget.Checkbox(textBuffer.GetText(cmd.name), ref value, cmd.style, cmd.id);
                     break;
                 }
+                case RecordType.Slider: {
+                    Slider cmd = slider[index];
+                    var value   = cmd.value;
+                    widget.Slider(textBuffer.GetText(cmd.name), ref value, cmd.min, cmd.max, cmd.width, textBuffer.GetText(cmd.format), cmd.style, cmd.id);
+                    break;
+                }
             }
         }
     }
@@ -149,5 +160,11 @@ internal sealed partial class GuiRecorder
     {
         checkbox.Add(new Checkbox(GetTextSpan(name), value, style, id));
         AddCommand(RecordType.Checkbox, checkbox.Count);
+    }
+    
+    internal void Slider(ReadOnlySpan<char> name, float value, float min, float max, float width, ReadOnlySpan<char> format, GuiStyle? style, WidgetID id)
+    {
+        slider.Add(new Slider(GetTextSpan(name), value, min, max, width, GetTextSpan(format), style, id));
+        AddCommand(RecordType.Slider, slider.Count);
     }
 }
