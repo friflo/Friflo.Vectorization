@@ -29,5 +29,7 @@
     "wgsl-analyzer.inlayHints.parameterHints": false,
     "wgsl-analyzer.inlayHints.typeHints": false,
 
-    "dotnet.server.sourceGeneratorExecution": "Automatic"
+    "dotnet.server.sourceGeneratorExecution": "Automatic",
+
+    "csharp.debug.console": "integratedTerminal" // required to run TUI App in Terminal (instead of 'Debug Console' which throw an exception)
 }
