@@ -171,8 +171,8 @@ public abstract class TmBatch : IDisposable
     public bool LiveReplay {
         get => recorder != null;
         set {
-            if (value && recorder == null) {
-                recorder = new GuiRecorder(this);    
+            if (value) {
+                recorder ??= new GuiRecorder(this);    
             } else {
                 recorder = null;
             }
