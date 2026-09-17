@@ -9,8 +9,7 @@ using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
-
-// ReSharper disable ClassNeverInstantiated.Global
+// ReSharper disable ConvertIfStatementToReturnStatement
 // ReSharper disable InconsistentNaming
 // ReSharper disable once CheckNamespace
 namespace Friflo.TmGui;
@@ -42,6 +41,8 @@ internal sealed class GuiRecorder
     {
         internal readonly   RecordType  type    = type;
         internal readonly   int         index   = index;
+
+        public   override   string      ToString() => $"{type} index: {index}";
     }
 
     
@@ -78,6 +79,7 @@ internal sealed class GuiRecorder
         {
             var index = record.index;
             switch (record.type) {
+                // --- containers
                 case RecordType.WindowBegin: {
                     var cmd = windowBegin[index];
                     widget.BeginWindow(cmd.title, cmd.pos, cmd.size, cmd.traits, cmd.tuiBorder);
@@ -101,11 +103,20 @@ internal sealed class GuiRecorder
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private Color32Span GetColorSpan(in TextColor color)
     {
-        if (!color.IsSpan) {
-            return new Color32Span(color.value);
+        Color32Span colorSpan;
+        switch (color.kind) {
+            case TmColorKind.Span:
+                colorSpan = new Color32Span(colorBuffer.Count, color.colors.Length);
+                colorBuffer.AddRange(color.colors);
+                break;
+            case TmColorKind.Value:
+                colorSpan = new Color32Span(color.value);
+                break;
+            default:
+            case TmColorKind.None:
+                colorSpan = new Color32Span();
+                break;
         }
-        var colorSpan = new Color32Span(colorBuffer.Count, color.colors.Length);
-        colorBuffer.AddRange(color.colors);
         return colorSpan;
     }
     
@@ -152,7 +163,13 @@ internal static class RecorderExtensions
     }
     extension (Span<Color32> buffer) {
         internal TextColor GetColor(Color32Span span) {
-            return buffer.Slice(span.start, span.len);
+            if (span.len == 0) {
+                return new TextColor(span.value);
+            }
+            if (span.len == -1) {
+                return new TextColor();
+            }
+            return new TextColor(buffer.Slice(span.start, span.len));
         }
     }
 }

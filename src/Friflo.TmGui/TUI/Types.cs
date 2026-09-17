@@ -105,9 +105,10 @@ public readonly struct Color32Span
 {
     [FieldOffset(0)] public readonly    int     start;  //  4 bytes
     [FieldOffset(0)] public readonly    Color32 value;  //  4 bytes (+0)
-    [FieldOffset(4)] public readonly    short   len;    //  2 bytes - case: len == 0   color is .value
+    /// <summary> case: len == 0   color: .value    len == -1: no color </summary>
+    [FieldOffset(4)] public readonly    short   len;    //  2 bytes
     
-    public override string ToString() => $"[{start}..{start + len}]";
+    public override                     string  ToString() => $"[{start}..{start + len}]";
     
     public Color32Span(int start, int len) {
         this.start  = start;
@@ -116,6 +117,10 @@ public readonly struct Color32Span
     
     public Color32Span(Color32 value) {
         this.value  = value;
+    }
+    
+    public Color32Span() {
+        len = -1;
     }
 }
 

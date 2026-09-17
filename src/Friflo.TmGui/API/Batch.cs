@@ -163,6 +163,17 @@ public abstract class TmBatch : IDisposable
     
     public void SetFormatProvider(IFormatProvider provider) => formatProvider = provider;
     
+    public bool LiveDebug {
+        get => recorder != null;
+        set {
+            if (value && recorder == null) {
+                recorder = new GuiRecorder();    
+            } else {
+                recorder = null;
+            }
+        }
+    }
+    
     public Gui BeginGui(int width, int height)
     {
         var draw = BeginDraw(width, height);
