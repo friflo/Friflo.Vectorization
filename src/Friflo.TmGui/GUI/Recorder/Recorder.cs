@@ -49,6 +49,25 @@ internal sealed partial class GuiRecorder
         this.batch  = batch;
     }
     
+    private void SyncWindow(string title)
+    {
+        if (!batch.host.windows.TryGetValue(title, out var window)) {
+            return;
+        }
+        if(!replay.batch.host.windows.TryGetValue(title, out var replayWindow)) {
+            return;
+        }
+        replayWindow.bounds = window.bounds;
+        
+        var replayScrollStates = replayWindow.scrollStates;
+        foreach (var (id, scrollState) in replayScrollStates) {
+            if (!window.scrollStates.TryGetValue(id, out var srcScrollState)) {
+                continue;
+            }
+            replayScrollStates[id] = scrollState with { offset = srcScrollState.offset };
+        }
+    }
+    
     private void PopStackEnd()
     {
         if (rewindStack) {

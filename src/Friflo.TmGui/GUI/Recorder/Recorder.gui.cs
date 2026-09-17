@@ -109,6 +109,8 @@ internal sealed partial class GuiRecorder
                 // --- Window
                 case RecordType.WindowBegin: {
                     WindowBegin cmd = windowBegin[index];
+                    recorder.SyncWindow(cmd.title);
+                    
                     var scope = widget.BeginWindow(cmd.title, cmd.pos, cmd.size, cmd.traits, cmd.tuiBorder);
                     recorder.windowEnd.Add(scope.end);
                     recorder.PushStackEnd(RecordType.WindowEnd, recorder.windowEnd.Count);

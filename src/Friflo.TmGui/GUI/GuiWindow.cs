@@ -39,7 +39,7 @@ public sealed class GuiWindow
     internal        ref     LayoutNode      CurrentLayoutRef    => ref layoutStack[layoutStackCount - 1];
     public                  Vector2         Cursor              =>     layoutStack[layoutStackCount - 1].cursor;
     
-    private  readonly       Dictionary<int, ScrollState>    scrollStates        = new(64);
+    internal readonly       Dictionary<int, ScrollState>    scrollStates        = new(64);
     
     // --- 2D arrow key navigation
     internal readonly       List<FocusableEntry>            currentFocusables   = new(32);
