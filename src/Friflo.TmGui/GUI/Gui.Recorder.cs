@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using Friflo.TmGui.TUI;
 using System.Numerics;
 using System.Runtime.CompilerServices;
@@ -25,6 +26,7 @@ internal readonly record struct Button      (TextSpan name, Dim size, GuiStyle? 
 
 internal sealed class GuiRecorder
 {
+    private             long                lastRecordTime;
     private readonly    List<Record>        records         = [];
     private readonly    List<char>          textBuffer      = [];
     private readonly    List<Color32>       colorBuffer     = [];
@@ -52,12 +54,21 @@ internal sealed class GuiRecorder
     }
 
     
-    private void AddCommand(RecordType type, int index) {
+    private void AddCommand(RecordType type, int index)
+    {
         records.Add(new Record(type, index));
+        
+        var time = Stopwatch.GetTimestamp();
+        var diff = Stopwatch.GetElapsedTime(lastRecordTime, time);
+        lastRecordTime = time;
+        if (diff.TotalMilliseconds > 100) {
+            int i = 1;
+        }
     }
     
     internal void Reset()
     {
+        lastRecordTime = Stopwatch.GetTimestamp();
         records.Clear();
         
         // --- container
