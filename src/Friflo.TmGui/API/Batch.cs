@@ -170,7 +170,12 @@ public abstract class TmBatch : IDisposable
     
     public void SetFormatProvider(IFormatProvider provider) => formatProvider = provider;
     
-    public bool LiveReplay {
+    /// <summary> Enables incremental frame rendering during step-by-step debugging sessions. </summary>
+    /// <remarks>
+    /// When enabled and a debugger is attached, the TUI renders the live UI state
+    /// incrementally up to the current point of code execution.
+    /// </remarks>
+    public bool EnableStepRendering {
         get => recorder != null;
         set {
             if (!value) {
