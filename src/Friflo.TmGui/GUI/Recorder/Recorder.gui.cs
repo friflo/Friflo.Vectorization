@@ -17,34 +17,42 @@ namespace Friflo.TmGui;
 
 
 internal readonly record struct WindowBegin (string title, Vector2? pos, Vector2? size, TmTrait traits, TuiBorder tuiBorder);
+internal readonly record struct LayoutBegin (Dim size);
+
 
 internal readonly record struct Label       (TextSpan name, Color32Span textColor);
 internal readonly record struct Button      (TextSpan name, Dim size, GuiStyle? style, WidgetID id, Color32Span textColor);
 internal readonly record struct Checkbox    (TextSpan name, bool value, GuiStyle? style, WidgetID id);
 internal readonly record struct Slider      (TextSpan name, float value, float min, float max, float width, TextSpan format, GuiStyle? style, WidgetID id);
 
+internal enum RecordType
+{
+    None,
+    
+    WindowBegin,        WindowEnd,
+    HorizontalBegin,    HorizontalEnd,
+    VerticalBegin,      VerticalEnd,
+    
+    Label,
+    Button,
+    Checkbox,
+    Slider
+}
 
 internal sealed partial class GuiRecorder
 {
     private readonly    List<WindowBegin>   windowBegin     = [];
     private readonly    List<WindowEnd>     windowEnd       = [];
     
+    private readonly    List<LayoutBegin>   layoutBegin     = [];
+    private readonly    List<RecordType>    layoutEnd       = [];
+    
     private readonly    List<Label>         label           = [];
     private readonly    List<Button>        button          = [];
     private readonly    List<Checkbox>      checkbox        = [];
     private readonly    List<Slider>        slider          = [];
 
-    private enum RecordType
-    {
-        None,
-        
-        WindowBegin, WindowEnd,
-        
-        Label,
-        Button,
-        Checkbox,
-        Slider
-    }
+
     
     internal void Reset()
     {
@@ -55,6 +63,9 @@ internal sealed partial class GuiRecorder
         // --- container
         windowBegin.Clear();
         windowEnd.Clear();
+        
+        layoutBegin.Clear();
+        layoutEnd.Clear();
         
         // --- widgets
         label.Clear();
@@ -75,6 +86,9 @@ internal sealed partial class GuiRecorder
         var windowBegin     = CollectionsMarshal.AsSpan(recorder.windowBegin);
         var windowEnd       = CollectionsMarshal.AsSpan(recorder.windowEnd);
         
+        var layoutBegin     = CollectionsMarshal.AsSpan(recorder.layoutBegin);
+        var layoutEnd       = CollectionsMarshal.AsSpan(recorder.layoutEnd);
+        
         // --- widgets
         var label           = CollectionsMarshal.AsSpan(recorder.label);
         var button          = CollectionsMarshal.AsSpan(recorder.button);
@@ -83,10 +97,12 @@ internal sealed partial class GuiRecorder
         
         foreach (var record in replays)
         {
-            var index = record.index;
-            switch (record.type)
+            var index   = record.index;
+            var type    = record.type;
+            switch (type)
             {
-                // --- containers
+                // -------------------------------- containers -------------------------------
+                // --- Window
                 case RecordType.WindowBegin: {
                     WindowBegin cmd = windowBegin[index];
                     var scope = widget.BeginWindow(cmd.title, cmd.pos, cmd.size, cmd.traits, cmd.tuiBorder);
@@ -102,7 +118,36 @@ internal sealed partial class GuiRecorder
                     widget.EndWindow(new WindowScope(widget, end));
                     break;
                 }
-                // --- widgets
+                
+                // --- Layout
+                case RecordType.HorizontalBegin:
+                case RecordType.VerticalBegin: {
+                    LayoutBegin cmd = layoutBegin[index];
+                    if (type == RecordType.HorizontalBegin) {
+                        widget.BeginHorizontal(cmd.size);
+                    } else {
+                        widget.BeginVertical(cmd.size);
+                    }
+                    var end = type == RecordType.HorizontalBegin ? RecordType.HorizontalEnd : RecordType.VerticalEnd; 
+                    recorder.layoutEnd.Add(end);
+                    recorder.AddCommandEnd(end, recorder.layoutEnd.Count, index);
+                    break;
+                }
+                case RecordType.HorizontalEnd:
+                case RecordType.VerticalEnd: {
+                    if (endFinished[record.beginIndex]) return;
+                    endFinished[record.beginIndex] = true;
+                    
+                    if (type == RecordType.HorizontalEnd) {
+                        widget.EndHorizontal();
+                    } else {
+                        widget.EndVertical();
+                    }
+                    break;
+                }
+                
+                
+                // ------------------------------- widgets -------------------------------
                 case RecordType.Label: {
                     Label cmd = label[index];
                     widget.Label(textBuffer.GetText(cmd.name), colorBuffer.GetColor(cmd.textColor));
@@ -125,6 +170,9 @@ internal sealed partial class GuiRecorder
                     widget.Slider(textBuffer.GetText(cmd.name), ref value, cmd.min, cmd.max, cmd.width, textBuffer.GetText(cmd.format), cmd.style, cmd.id);
                     break;
                 }
+                default:
+                case RecordType.None:
+                    break;
             }
         }
     }
@@ -142,6 +190,19 @@ internal sealed partial class GuiRecorder
         windowEnd.Add(cmd);
         AddCommand(RecordType.WindowEnd, windowEnd.Count);
     }
+    
+    internal void BeginLayout(RecordType type, Dim size)
+    {
+        layoutBegin.Add(new LayoutBegin(size));
+        AddCommand(type, layoutBegin.Count);
+    }
+    
+    internal void EndLayout(RecordType type)
+    {
+        layoutEnd.Add(type);
+        AddCommand(type, layoutEnd.Count);
+    }
+    
     
     // ------------------------------------- widgets
     internal void Label(ReadOnlySpan<char> name, TextColor textColor)

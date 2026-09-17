@@ -14,22 +14,34 @@ public readonly ref partial struct GuiWidget
 {
     internal VerticalScope BeginVertical(Dim size)
     {
+        Recorder?.BeginLayout(RecordType.VerticalBegin, size);
+        
         var boundsSize = Window.WidgetSize(size, default);
         PushLayout(LayoutDirection.Vertical, boundsSize);
         return new VerticalScope(this);
     }
 
-    internal void EndVertical() => PopLayout();
-    
+    internal void EndVertical()
+    {
+        Recorder?.EndLayout(RecordType.VerticalEnd);
+        PopLayout();
+    }
+
     internal HorizontalScope BeginHorizontal(Dim size)
     {
+        Recorder?.BeginLayout(RecordType.HorizontalBegin, size);
+        
         var boundsSize = Window.WidgetSize(size, default);
         PushLayout(LayoutDirection.Horizontal, boundsSize);
         return new HorizontalScope(this);
     }
-    internal void EndHorizontal() => PopLayout();
-    
-    
+    internal void EndHorizontal()
+    {
+        Recorder?.EndLayout(RecordType.HorizontalEnd);
+        PopLayout();
+    }
+
+
     internal HorizontalCenterScope BeginHorizontalAligned(int centerId, float align, Dim size)
     {
         var oldLayoutOffset = input.layoutOffset;
