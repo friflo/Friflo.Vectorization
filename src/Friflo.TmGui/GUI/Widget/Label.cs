@@ -12,10 +12,10 @@ namespace Friflo.TmGui;
 
 public readonly ref partial struct GuiWidget
 {
-    internal void Label(ReadOnlySpan<char> name, Color32 textColor)
+    internal void Label(ReadOnlySpan<char> name, TextColor textColor)
     {
         var window = Window;
-        if (textColor.Packed == 0) textColor = Colors.TextColor;
+        textColor = textColor.IsNone ? Colors.TextColor : textColor;
         
         var tui = draw.Tui;
         Vector2 size;

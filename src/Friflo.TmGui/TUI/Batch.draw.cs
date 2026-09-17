@@ -60,9 +60,9 @@ public partial class TuiBatch
         textBuffer.Add(character);
     }
     
-    public Vector2 DrawLabel(ReadOnlySpan<char> text, Vector2 position, Color32 color)
+    public Vector2 DrawLabel(ReadOnlySpan<char> text, Vector2 position, TextColor textColor)
     {
-        DrawText(text, TextStyle.None, position, color);
+        DrawText(text, TextStyle.None, position, textColor);
         return new Vector2(lineHeight * text.Length, lineHeight);
     }
     

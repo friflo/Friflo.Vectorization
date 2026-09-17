@@ -129,7 +129,7 @@ public class TmGuiRenderer : IRenderer
             if (gui.Button("Red", style: redButtonStyle))       Console.WriteLine("Clicked: Red");
         gui.EndHorizontal();
         
-        gui.Label("after horizontal");
+        gui.Label("after horizontal", Color32.Teal);
         using (var space = gui.BeginSpace(new(128, 64), "sprite")) {
             if (space.isFired) Console.WriteLine("Clicked: Sprite");
             var srcPos  = new Vector2(3 * 64, 0 * 64);  // tile pos in Sheet (3, 0)        

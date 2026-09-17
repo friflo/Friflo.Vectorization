@@ -42,7 +42,7 @@ public readonly ref struct Gui
     public ChildScope   BeginChild(WidgetID id, Dim size)   => widget.BeginChild(id, size);
     public void         EndChild(in ChildScope scope)       => widget.EndChild(scope);
     
-    public void Label(ReadOnlySpan<char> name, Color32 textColor = default)
+    public void Label(ReadOnlySpan<char> name, in TextColor textColor = default)
         => widget.Label(name, textColor);
     
     public bool Button(ReadOnlySpan<char> name, Dim size = default, GuiStyle? style = null, WidgetID id = default, in TextColor color = default)
