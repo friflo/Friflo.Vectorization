@@ -1,16 +1,13 @@
 // Copyright (c) Ullrich Praetz - https://github.com/friflo. All rights reserved.
 // See LICENSE file in the project root for full license information.
 
-
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using Friflo.TmGui.TUI;
 using System.Numerics;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
-// ReSharper disable ConvertIfStatementToReturnStatement
 // ReSharper disable InconsistentNaming
 // ReSharper disable once CheckNamespace
 namespace Friflo.TmGui;
@@ -18,19 +15,12 @@ namespace Friflo.TmGui;
 
 internal readonly record struct WindowBegin (string title, Vector2? pos, Vector2? size, TmTrait traits, TuiBorder tuiBorder);
 
-
 internal readonly record struct Label       (TextSpan name, Color32Span textColor);
 internal readonly record struct Button      (TextSpan name, Dim size, GuiStyle? style, WidgetID id, Color32Span textColor);
 
 
-
-internal sealed class GuiRecorder
+internal sealed partial class GuiRecorder
 {
-    private             long                lastRecordTime;
-    private readonly    List<Record>        records         = [];
-    private readonly    List<char>          textBuffer      = [];
-    private readonly    List<Color32>       colorBuffer     = [];
-    
     private readonly    List<WindowBegin>   windowBegin     = [];
     private readonly    List<WindowEnd>     windowEnd       = [];
     
@@ -43,27 +33,6 @@ internal sealed class GuiRecorder
         
         Label,
         Button
-    }
-    
-    private readonly struct Record(RecordType type, int index)
-    {
-        internal readonly   RecordType  type    = type;
-        internal readonly   int         index   = index;
-
-        public   override   string      ToString() => $"{type} - index: {index}";
-    }
-
-    
-    private void AddCommand(RecordType type, int index)
-    {
-        records.Add(new Record(type, index));
-        
-        var time = Stopwatch.GetTimestamp();
-        var diff = Stopwatch.GetElapsedTime(lastRecordTime, time);
-        lastRecordTime = time;
-        if (diff.TotalMilliseconds > 100) {
-            int i = 1;
-        }
     }
     
     internal void Reset()
@@ -80,7 +49,7 @@ internal sealed class GuiRecorder
         button.Clear();
     }
     
-    private static void Replay(GuiRecorder recorder, in GuiWidget widget)
+    private static void ReplayCommands(GuiRecorder recorder, in GuiWidget widget)
     {
         var records         = CollectionsMarshal.AsSpan(recorder.records);
         var textBuffer      = CollectionsMarshal.AsSpan(recorder.textBuffer);
@@ -97,7 +66,8 @@ internal sealed class GuiRecorder
         foreach (var record in records)
         {
             var index = record.index;
-            switch (record.type) {
+            switch (record.type)
+            {
                 // --- containers
                 case RecordType.WindowBegin: {
                     var cmd = windowBegin[index];
@@ -124,34 +94,6 @@ internal sealed class GuiRecorder
         }
     }
     
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private Color32Span GetColorSpan(in TextColor color)
-    {
-        Color32Span colorSpan;
-        switch (color.kind) {
-            case TmColorKind.Span:
-                colorSpan = new Color32Span(colorBuffer.Count, color.colors.Length);
-                colorBuffer.AddRange(color.colors);
-                break;
-            case TmColorKind.Value:
-                colorSpan = new Color32Span(color.value);
-                break;
-            default:
-            case TmColorKind.None:
-                colorSpan = new Color32Span();
-                break;
-        }
-        return colorSpan;
-    }
-    
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private TextSpan GetTextSpan(ReadOnlySpan<char> text)
-    {
-        var span = new TextSpan { start = textBuffer.Count, len = text.Length };
-        textBuffer.AddRange(text);
-        return span;
-    }
-    
     
     // ------------------------------------- container
     internal void BeginWindow(in WindowBegin cmd)
@@ -166,7 +108,6 @@ internal sealed class GuiRecorder
         AddCommand(RecordType.WindowEnd, windowEnd.Count - 1);
     }
     
-    
     // ------------------------------------- widgets
     internal void Label(ReadOnlySpan<char> name, TextColor textColor)
     {
@@ -178,30 +119,5 @@ internal sealed class GuiRecorder
     {
         button.Add(new Button(GetTextSpan(name), size, style, id, GetColorSpan(textColor)));
         AddCommand(RecordType.Button, button.Count - 1);
-    }
-}
-
-
-
-
-internal static class RecorderExtensions
-{
-    extension (ReadOnlySpan<char> buffer)
-    {
-        internal ReadOnlySpan<char> GetText(TextSpan span) {
-            return buffer.Slice(span.start, span.len);
-        }
-    }
-    extension (ReadOnlySpan<Color32> buffer)
-    {
-        internal TextColor GetColor(Color32Span span) {
-            if (span.len == 0) {
-                return new TextColor(span.value);
-            }
-            if (span.len == -1) {
-                return new TextColor();
-            }
-            return new TextColor(buffer.Slice(span.start, span.len));
-        }
     }
 }

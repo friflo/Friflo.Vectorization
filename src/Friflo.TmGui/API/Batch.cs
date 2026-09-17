@@ -76,6 +76,8 @@ public abstract class TmBatch : IDisposable
     private   readonly  StringBuilder       stringBuilder       = new(512,512); // => first chunk: 512 chars
     internal  readonly  GuiState            guiState            = new();
     internal            GuiRecorder?        recorder;
+    internal            int                 beginWidth;
+    internal            int                 beginHeight;
 
     // --- resources owned by DrawModule
     internal readonly   GuiHost             host;
@@ -167,7 +169,7 @@ public abstract class TmBatch : IDisposable
         get => recorder != null;
         set {
             if (value && recorder == null) {
-                recorder = new GuiRecorder();    
+                recorder = new GuiRecorder(this);    
             } else {
                 recorder = null;
             }
@@ -186,6 +188,8 @@ public abstract class TmBatch : IDisposable
         /* if (defaultFontTexture.IsDisposed) {    // TODO IM_TEX
             SetFontDefault();
         } */
+        beginWidth          = width;
+        beginHeight         = height;
         recorder?.Reset();
         tui?.Reset();
         guiState.Reset();
