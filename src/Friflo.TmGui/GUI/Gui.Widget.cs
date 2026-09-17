@@ -34,6 +34,7 @@ public readonly ref partial struct GuiWidget
     
     /// <summary> Clears and returns a cached <see cref="System.Text.StringBuilder"/> to prevent allocations. </summary>
     public              StringBuilder   StringBuilder() => draw.batch.StringBuilder();
+    public override     string?         ToString()      => draw.batch.ToString();
 
     /// <summary> Registers a widget for keyboard/gamepad navigation.<br/> Keyboard: Tab and arrow keys (2D). </summary>
     /// <remarks> The frame a widget receives focus <see cref="GuiInput.JustNavigated"/> is set to true. </remarks>

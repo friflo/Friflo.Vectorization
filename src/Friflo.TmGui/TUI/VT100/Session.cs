@@ -33,12 +33,12 @@ internal sealed partial class TuiSession
         this.client         = client;
         this.guiView        = guiView;
         this.frameBuffer    = frameBuffer;
-        tuiBackend          = new TuiBackend();
+        tuiBackend          = new TuiBackend("Terminal");
         
         tuiBatch            = tuiBackend.CreateBatch(colorMode);
         
         // --- replay
-        var replayBackend   = new TuiBackend();
+        var replayBackend   = new TuiBackend("Replay");
         var replayBatch     = replayBackend.CreateBatch(colorMode);
         tuiBatch.replay     = new GuiReplay(replayBackend, replayBatch, this);
     }

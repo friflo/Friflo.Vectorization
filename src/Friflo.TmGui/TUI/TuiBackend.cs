@@ -9,7 +9,13 @@ namespace Friflo.TmGui.TUI;
 
 public sealed class TuiBackend : TmGuiBackend
 {
-    public TuiBackend() : base(new HeadlessAssets()) { }
+    internal readonly   string  name;
+    
+    public   override   string  ToString()  => name;
+    
+    public TuiBackend(string name) : base(new HeadlessAssets()) {
+        this.name = name;
+    }
 
     public TuiBatch CreateBatch(TuiColorMode colorMode)
     {

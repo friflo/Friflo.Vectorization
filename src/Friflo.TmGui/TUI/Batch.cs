@@ -19,6 +19,7 @@ namespace Friflo.TmGui.TUI;
 
 public sealed partial class TuiBatch : TmBatch
 {
+    private readonly    string                  name;
     public              TuiFocusBorder          focusBorder;
     private             float                   yScale;
     private             float                   xScale;
@@ -38,8 +39,11 @@ public sealed partial class TuiBatch : TmBatch
     public              float                   XScale      => xScale;
     public              float                   YScale      => yScale;
 
+    public   override   string                  ToString()  => name;
+
     public TuiBatch(TuiBackend backend, TuiColorMode colorMode) : base(backend, 0)
     {
+        name = backend.name;
         if  (colorMode == TuiColorMode.Monochrome) {
             focusBorder  = new TuiFocusBorder('>', '<');
         } else {

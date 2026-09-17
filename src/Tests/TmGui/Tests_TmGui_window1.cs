@@ -31,7 +31,7 @@ public class Tests_TmGui_window1
     [Test]
     public void Tests_TmGui_window1_TUI_char()
     {
-        var backend     = new TuiBackend();
+        var backend     = new TuiBackend("Test");
         var frameBuffer = new FrameBuffer();
         var batch       = backend.CreateBatch(TuiColorMode.Monochrome);
 
@@ -66,7 +66,7 @@ public class Tests_TmGui_window1
     [Test]
     public void Tests_TmGui_window1_TUI_color()
     {
-        var backend     = new TuiBackend();
+        var backend     = new TuiBackend("Test");
         var frameBuffer = new FrameBuffer();
         var batch       = backend.CreateBatch(TuiColorMode.Monochrome);
 

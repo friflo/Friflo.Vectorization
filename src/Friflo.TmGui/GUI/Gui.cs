@@ -28,7 +28,9 @@ public readonly ref struct Gui
     public              TmDraw      Draw        => widget.draw;
     public              float       LineHeight  => widget.draw.Font.lineHeight;
     public              GuiInput    Input       => widget.input;
-    
+
+    public override     string?     ToString()  => Draw.batch.ToString();
+
     internal Gui(TmDraw draw, TmBatch batch) {
         widget = new GuiWidget(draw, batch);
     }

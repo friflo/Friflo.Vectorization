@@ -47,6 +47,8 @@ public readonly ref partial struct TmDraw
     public              TmFont      Font        => batch.currentFont;
     public              TuiBatch?   Tui         => batch.tui;
     
+    public override     string?     ToString()  => batch.ToString();
+    
     internal TmDraw(TmBatch batch)
     {
         this.batch  = batch;
