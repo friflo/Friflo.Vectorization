@@ -163,7 +163,7 @@ public abstract class TmBatch : IDisposable
     
     public void SetFormatProvider(IFormatProvider provider) => formatProvider = provider;
     
-    public bool LiveDebug {
+    public bool LiveReplay {
         get => recorder != null;
         set {
             if (value && recorder == null) {
