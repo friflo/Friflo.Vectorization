@@ -66,17 +66,14 @@ internal sealed partial class GuiRecorder
         if (diff.TotalMilliseconds < 100) {
             return;
         }
-        // Replay();
+        Replay();
     }
     
     private void Replay()
     {
-        var replay = batch.replay;
-        if (replay == null) {
-            return;
-        }
+        var replay      = batch.replay!;
         var replayBatch = replay.batch;
-        var replayGui = replayBatch.BeginGui(batch.beginWidth, batch.beginHeight);
+        var replayGui   = replayBatch.BeginGui(batch.beginWidth, batch.beginHeight);
         
         ReplayCommands(this, replayGui.widget, records);
         
@@ -139,10 +136,12 @@ internal static class RecorderExtensions
 
 internal sealed class GuiReplay
 {
-    internal readonly   TmBatch     batch;
-    internal readonly   TuiSession  session;
+    internal readonly   TmGuiBackend    backend;
+    internal readonly   TmBatch         batch;
+    internal readonly   TuiSession      session;
     
-    internal GuiReplay(TmBatch batch, TuiSession  session) {
+    internal GuiReplay(TmGuiBackend backend, TmBatch batch, TuiSession  session) {
+        this.backend    = backend;
         this.batch      = batch;
         this.session    = session;
     }

@@ -19,15 +19,15 @@ public class TestGuiView : IGuiView
     
     public void RenderGui(TmBatch batch, int targetWidth, int targetHeight)
     {
-        batch.LiveReplay = true;
+        batch.LiveReplay = false;
         var gui = batch.BeginGui(targetWidth, targetHeight);
         
         using (gui.BeginWindow("Window 1", new Vector2(0, 0), new Vector2(1000, 850), traits: 0, TuiBorder.Rounded)) { // (500, 450) (1000, 850)
             Window1(gui);
         }
-        using (gui.BeginWindow("Window 2", new(550, 50), new(500, 900))) {
+        /* using (gui.BeginWindow("Window 2", new(550, 50), new(500, 900))) {
             Window2(gui);
-        }
+        } */
     }
     
     private void Window1(Gui gui)

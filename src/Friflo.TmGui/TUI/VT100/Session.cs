@@ -16,8 +16,8 @@ internal sealed partial class TuiSession
 {
     private readonly    TmClient        client;
     private readonly    FrameBuffer     frameBuffer;
-    private readonly    TuiBackend      backend;
-    private readonly    TuiBatch        batch;
+    private readonly    TuiBackend      tuiBackend;
+    private readonly    TuiBatch        tuiBatch;
     private readonly    IGuiView        guiView;
     private readonly    byte[]          sendBuffer      = new byte[30000];  // TODO grow if needed
     private             int             sendBufferCount;
@@ -33,12 +33,23 @@ internal sealed partial class TuiSession
         this.client         = client;
         this.guiView        = guiView;
         this.frameBuffer    = frameBuffer;
-        backend             = new TuiBackend();
+        tuiBackend          = new TuiBackend();
         
-        batch               = backend.CreateBatch(colorMode);
+        tuiBatch            = tuiBackend.CreateBatch(colorMode);
         
-        var replayBatch     = backend.CreateBatch(colorMode);
-        batch.replay        = new GuiReplay(replayBatch, this);
+        // --- replay
+        var replayBackend   = new TuiBackend();
+        var replayBatch     = replayBackend.CreateBatch(colorMode);
+        tuiBatch.replay     = new GuiReplay(replayBackend, replayBatch, this);
+    }
+    
+    internal void SendReplayFrame()
+    {
+        var replay          = tuiBatch.replay!;
+        var replayBackend   = replay.backend;
+        var replayBatch     = (TuiBatch)replay.batch;
+        var framePayload    = RenderFrame(replayBackend, replayBatch);
+        client.Send(framePayload);
     }
 
     private void SetFrameSize(int width, int height)
@@ -81,17 +92,17 @@ internal sealed partial class TuiSession
                 SetFrameSize(width, height);
             }
         }
-        backend.NewFrame();
+        tuiBackend.NewFrame();
         
         // renderer gui in pixel units to support GUI & TUI with same application code
-        var pixelWidth  = (int)(frameWidth  * batch.CharWidth);
-        var pixelHeight = (int)(frameHeight * batch.LineHeight);
+        var pixelWidth  = (int)(frameWidth  * tuiBatch.CharWidth);
+        var pixelHeight = (int)(frameHeight * tuiBatch.LineHeight);
         
-        guiView.RenderGui(batch, pixelWidth, pixelHeight);
+        guiView.RenderGui(tuiBatch, pixelWidth, pixelHeight);
         
-        if (batch.guiState.scrollAreaChanged) {
-            backend.NewFrame();
-            guiView.RenderGui(batch, pixelWidth, pixelHeight);
+        if (tuiBatch.guiState.scrollAreaChanged) {
+            tuiBackend.NewFrame();
+            guiView.RenderGui(tuiBatch, pixelWidth, pixelHeight);
             // Console.WriteLine("Scroll Area Changed");
         }
         
@@ -100,22 +111,16 @@ internal sealed partial class TuiSession
         } else {
             sendBufferCount = 0;
         }
-        return RenderFrame();
-    }
-    
-    internal void SendReplayFrame()
-    {
-        var framePayload = RenderFrame();
-        client.Send(framePayload);
+        return RenderFrame(tuiBackend, tuiBatch);
     }
         
-    private Memory<byte> RenderFrame()
+    private Memory<byte> RenderFrame(TmGuiBackend backend, TuiBatch batch)
     {
         // \x1b[?2026h      Sync Start (atomic frame)
         // \x1b[H           Cursor Home
         AppendSpan("\x1b[?2026h\x1b[H"u8);  // NOTE: don't use  \x1b[2J  (Clear screen)
         
-        AppendFrameBuffer(frameWidth, frameHeight);
+        AppendFrameBuffer(backend, batch, frameWidth, frameHeight);
         
         AppendSpan("\x1b[?2026l"u8);        // Sync Stop (atomic frame)
         
@@ -133,7 +138,7 @@ internal sealed partial class TuiSession
         return sendMemory;
     }
     
-    private void AppendFrameBuffer(int width, int height)
+    private void AppendFrameBuffer(TmGuiBackend backend, TuiBatch batch, int width, int height)
     {
         // color / background are only sent if changed 
         var color       = new Color32();
@@ -144,7 +149,7 @@ internal sealed partial class TuiSession
         batch.DrawRectCommands(frameBuffer, width, height, clear);
         
         if (backend.input.CurrentCursor != MouseCursor.Arrow) {
-            DrawMouseCursor();
+            DrawMouseCursor(backend);
         }
         
         var cells = frameBuffer.ColorCells;
@@ -266,11 +271,11 @@ internal sealed partial class TuiSession
         if ((disabled & TextStyle.StrikeThrough)!= 0) AppendSpan("\x1b[29m"u8);
     }
     
-    private void DrawMouseCursor()
+    private void DrawMouseCursor(TmGuiBackend backend)
     {
-        var mouse   = backend.input.MousePos; 
-        var x       = (int)(mouse.X / batch.CharWidth)  - 1;
-        var y       = (int)(mouse.Y / batch.LineHeight) - 1;
+        var mouse   = backend.input.MousePos;
+        var x       = (int)(mouse.X / tuiBatch.CharWidth)  - 1;
+        var y       = (int)(mouse.Y / tuiBatch.LineHeight) - 1;
         
         var cell = new TuiColorCell {
             textStyle  = TextStyle.None, 
