@@ -48,6 +48,8 @@ internal sealed partial class TuiSession
         var replay          = tuiBatch.replay!;
         var replayBackend   = replay.backend;
         var replayBatch     = (TuiBatch)replay.batch;
+        
+        sendBufferCount     = 0;
         var framePayload    = RenderFrame(replayBackend, replayBatch);
         client.Send(framePayload);
     }
