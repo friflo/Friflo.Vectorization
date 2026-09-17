@@ -29,7 +29,14 @@ public readonly ref struct Gui
     public              float       LineHeight  => widget.draw.Font.lineHeight;
     public              GuiInput    Input       => widget.input;
 
-    public override     string?     ToString()  => Draw.batch.ToString();
+    public override     string?     ToString() {
+        var recorder = widget.Recorder;
+        if (recorder != null) {
+            recorder.Replay();
+            return $"{Draw.batch} - Step-rendering: commands: {recorder.recordsSendCount}"; // ({recorder})";
+        }
+        return Draw.batch.ToString();
+    }
 
     internal Gui(TmDraw draw, TmBatch batch) {
         widget = new GuiWidget(draw, batch);

@@ -34,6 +34,8 @@ internal sealed partial class GuiRecorder
 {
     private             long                lastRecordTime;
     private             bool                rewindStack;
+    private             int                 replayCounter;
+    internal            int                 recordsSendCount;
     private  readonly   TmBatch             batch;
     internal readonly   GuiReplay           replay;
     
@@ -42,7 +44,9 @@ internal sealed partial class GuiRecorder
     private  readonly   List<char>          textBuffer      = [];
     private  readonly   List<Color32>       colorBuffer     = [];
 
-    
+    public   override   string              ToString()  => $"replays: {replayCounter}";
+
+
     internal GuiRecorder(TmBatch batch, GuiReplay replay)
     {
         this.replay = replay;
@@ -99,9 +103,14 @@ internal sealed partial class GuiRecorder
         }
         Replay();
     }
-    
-    private void Replay()
+
+    internal void Replay()
     {
+        if (recordsSendCount == records.Count) {
+            return;
+        }
+        recordsSendCount = records.Count;
+        replayCounter++;
         var replayBatch = replay.batch;
         
         replay.backend.NewFrame();

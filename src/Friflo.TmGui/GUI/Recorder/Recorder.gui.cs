@@ -59,6 +59,7 @@ internal sealed partial class GuiRecorder
     internal void Reset()
     {
         lastRecordTime  = Stopwatch.GetTimestamp();
+        recordsSendCount = 0;
         
         records.Clear();
         textBuffer.Clear();
