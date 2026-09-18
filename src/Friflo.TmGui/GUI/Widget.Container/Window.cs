@@ -67,7 +67,7 @@ public readonly ref partial struct GuiWidget
             window.bounds = new RectVector2(window.Pos + input.MousePosDelta, window.Size);
         }
         
-        if (tui != null && (traits.HasFlag(TmTrait.Shadow) || window.IsTopWindow)) {
+        if (tui != null && (traits.Has(TmTrait.Shadow) || window.IsTopWindow)) {
             tui.DrawWindowShadow(window.Pos, window.Size);
         }
         // ensure every drawing is clipped
