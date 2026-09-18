@@ -34,7 +34,7 @@ internal sealed partial class GuiRecorder
 {
     private  readonly   List<ReplayRecord>  replayRecords   = [];
     internal readonly   List<ReplayRecord>  pushRecords     = [];
-    private  readonly   CmdReplay?[]        replays         = new CmdReplay?[200];
+    private  readonly   CmdReplay?[]        cmdReplays      = new CmdReplay?[200];
     private             int                 maxTypeIndex;
     
     [MethodImpl(MethodImplOptions.NoInlining)]
@@ -45,10 +45,10 @@ internal sealed partial class GuiRecorder
         if (rewindStack) {
             return;
         }
-        var cmdReplay = (CmdReplay<T>?)replays[CmdReplay<T>.TypeIndex];
+        var cmdReplay = (CmdReplay<T>?)cmdReplays[CmdReplay<T>.TypeIndex];
         if (cmdReplay == null) {
             cmdReplay = new TReplay();
-            replays[CmdReplay<T>.TypeIndex] = cmdReplay;
+            cmdReplays[CmdReplay<T>.TypeIndex] = cmdReplay;
             maxTypeIndex = Math.Max(maxTypeIndex, CmdReplay<T>.TypeIndex + 1);
         }
         
@@ -82,11 +82,12 @@ internal sealed partial class GuiRecorder
         lastRecordTime  = Stopwatch.GetTimestamp();
         recordsSendCount = 0;
         
-        // records.Clear();
         replayRecords.Clear();
         
         textBuffer.Clear();
         colorBuffer.Clear();
+        
+        var replays = cmdReplays;
         
         for (int n = 0; n < maxTypeIndex; n++) {
             replays[n]?.Clear();
@@ -100,7 +101,7 @@ internal sealed partial class GuiRecorder
         var records         = CollectionsMarshal.AsSpan(replayList);
         
         var replay  = new Replay(recorder, widget, textBuffer, colorBuffer);
-        var replays = recorder.replays;
+        var replays = recorder.cmdReplays;
         
         for (int n = 0; n < records.Length; n++)
         {
