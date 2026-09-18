@@ -3,6 +3,7 @@
 
 using System.Numerics;
 
+// ReSharper disable InconsistentNaming
 // ReSharper disable once CheckNamespace
 namespace Friflo.TmGui;
 
@@ -11,6 +12,8 @@ public readonly ref partial struct GuiWidget
 {
 	internal ChildScope BeginChild(WidgetID childId, Dim size)
 	{
+        ChildBeginReplay.Record(Recorder, new ChildBegin(childId, size));
+        
 	    var window = Window;
 	    var parentStartCursor = window.Cursor;
 	    window.PushScope(childId);
@@ -28,6 +31,8 @@ public readonly ref partial struct GuiWidget
 
 	internal void EndChild(in ChildScope scope)
 	{
+        ChildEndReplay.Record(Recorder, scope.end, false);
+            
 		var window = Window;
 	    var padding = Sizes.ChildPadding;
 	    var contentSize = PopLayout();
@@ -48,4 +53,35 @@ public readonly ref partial struct GuiWidget
 
 
 // --------------------------------------------- Step-Rendering ---------------------------------------------
+internal readonly record struct ChildBegin(WidgetID childId, Dim size);
+
+
+internal sealed class ChildBeginReplay : CmdReplay<ChildBegin>
+{
+    protected internal override void Replay(in Replay replay, int index)
+    {
+        var cmd = commands[index];
+        var scope = replay.widget.BeginChild(cmd.childId, cmd.size);
+        ChildEndReplay.Record(replay.recorder, scope.end, true);
+    }
+    
+    internal static void Record(GuiRecorder? rec, ChildBegin cmd)
+    {
+        rec?.Record<ChildBeginReplay, ChildBegin>(cmd, false);
+    }
+}
+
+internal sealed class ChildEndReplay : CmdReplay<ChildEnd>
+{
+    protected internal override void Replay(in Replay replay, int index)
+    {
+        replay.PopStackEnd();
+        replay.widget.EndChild(new ChildScope(replay.widget, commands[index]));
+    }
+    
+    internal static void Record(GuiRecorder? rec, ChildEnd end, bool isPush)
+    {
+        rec?.Record<ChildEndReplay, ChildEnd>(end, isPush);
+    }
+}
 
