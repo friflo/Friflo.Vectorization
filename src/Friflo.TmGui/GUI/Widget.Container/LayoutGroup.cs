@@ -5,6 +5,7 @@
 using System.Numerics;
 using System.Runtime.InteropServices;
 
+// ReSharper disable InconsistentNaming
 // ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable once CheckNamespace
 namespace Friflo.TmGui;
@@ -14,7 +15,7 @@ public readonly ref partial struct GuiWidget
 {
     internal VerticalScope BeginVertical(Dim size)
     {
-        Recorder?.BeginLayout(RecordType.VerticalBegin, size);
+        LayoutBeginReplay.Record(Recorder, new LayoutBegin(size, LayoutType.Vertical));
         
         var boundsSize = Window.WidgetSize(size, default);
         PushLayout(LayoutDirection.Vertical, boundsSize);
@@ -23,13 +24,14 @@ public readonly ref partial struct GuiWidget
 
     internal void EndVertical()
     {
-        Recorder?.EndLayout(RecordType.VerticalEnd);
+        LayoutEndReplay.Record(Recorder, LayoutType.Vertical, false);
+        
         PopLayout();
     }
 
     internal HorizontalScope BeginHorizontal(Dim size)
     {
-        Recorder?.BeginLayout(RecordType.HorizontalBegin, size);
+        LayoutBeginReplay.Record(Recorder, new LayoutBegin(size, LayoutType.Horizontal));
         
         var boundsSize = Window.WidgetSize(size, default);
         PushLayout(LayoutDirection.Horizontal, boundsSize);
@@ -37,7 +39,7 @@ public readonly ref partial struct GuiWidget
     }
     internal Vector2 EndHorizontal()
     {
-        Recorder?.EndLayout(RecordType.HorizontalEnd);
+        LayoutEndReplay.Record(Recorder, LayoutType.Horizontal, false);
         return PopLayout();
     }
 
@@ -76,5 +78,48 @@ public readonly ref partial struct GuiWidget
             }
         }
         guiState.layoutOffsets[scope.end.centerId] = new Vector2(offset, 0);
+    }
+}
+
+internal enum LayoutType { Horizontal, Vertical }
+
+internal readonly record struct LayoutBegin (Dim size, LayoutType type);
+
+
+internal class LayoutBeginReplay : CmdReplay<LayoutBegin>
+{
+    protected internal override void Replay(in Replay replay, int index)
+    {
+        var cmd = commands[index];
+        if (cmd.type == LayoutType.Horizontal) {
+            replay.widget.BeginHorizontal(cmd.size);
+        } else {
+            replay.widget.BeginVertical(cmd.size);
+        }
+        LayoutEndReplay.Record(replay.recorder, cmd.type, true);
+    }
+    
+    internal static void Record(GuiRecorder? rec, LayoutBegin cmd)
+    {
+        rec?.Record<LayoutBeginReplay, LayoutBegin>(cmd, false);
+    }
+}
+
+internal class LayoutEndReplay : CmdReplay<LayoutType>
+{
+    protected internal override void Replay(in Replay replay, int index)
+    {
+        replay.PopStackEnd();
+        if (commands[index] == LayoutType.Horizontal) {
+            replay.widget.EndHorizontal();
+        } else {
+            replay.widget.EndVertical();
+        }
+        // replay.widget.EndWindow(new WindowScope(replay.widget, commands[index]));
+    }
+    
+    internal static void Record(GuiRecorder? rec, LayoutType type, bool isPush)
+    {
+        rec?.Record<LayoutEndReplay, LayoutType>(type, isPush);
     }
 }

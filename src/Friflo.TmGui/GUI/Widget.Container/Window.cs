@@ -5,6 +5,7 @@ using System.Numerics;
 using Friflo.TmGui.TUI;
 
 
+// ReSharper disable InconsistentNaming
 // ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable once CheckNamespace
 namespace Friflo.TmGui;
@@ -14,7 +15,7 @@ public readonly ref partial struct GuiWidget
 {
     internal WindowScope BeginWindow(string title, Vector2? pos, Vector2? size, TmTrait traits, TuiBorder tuiBorder)
     {
-        Recorder?.BeginWindow(new WindowBegin(title, pos, size, traits, tuiBorder));
+        WindowBeginReplay.Record(Recorder, new WindowBegin(title, pos, size, traits, tuiBorder));
         
         var host = draw.batch.host;
         var tui  = draw.Tui;
@@ -98,7 +99,7 @@ public readonly ref partial struct GuiWidget
     
     internal void EndWindow(in WindowScope scope)
     {
-        Recorder?.EndWindow(scope.end);
+        WindowEndReplay.Record(Recorder, scope.end, false);
         
         var window      = Window;
         window.state    = WindowState.Visible;
@@ -119,5 +120,38 @@ public readonly ref partial struct GuiWidget
         draw.PopScissor();
         draw.PopZIndex();
         window.ClearScope();
+    }
+}
+
+internal readonly record struct WindowBegin(string title, Vector2? pos, Vector2? size, TmTrait traits, TuiBorder tuiBorder);
+
+internal class WindowBeginReplay : CmdReplay<WindowBegin>
+{
+    protected internal override void Replay(in Replay replay, int index)
+    {
+        var cmd = commands[index];
+        replay.recorder.SyncWindow(cmd.title);
+        
+        var scope = replay.widget.BeginWindow(cmd.title, cmd.pos, cmd.size, cmd.traits, cmd.tuiBorder);
+        WindowEndReplay.Record(replay.recorder, scope.end, true);
+    }
+    
+    internal static void Record(GuiRecorder? rec, WindowBegin cmd)
+    {
+        rec?.Record<WindowBeginReplay, WindowBegin>(cmd, false);
+    }
+}
+
+internal class WindowEndReplay : CmdReplay<WindowEnd>
+{
+    protected internal override void Replay(in Replay replay, int index)
+    {
+        replay.PopStackEnd();
+        replay.widget.EndWindow(new WindowScope(replay.widget, commands[index]));
+    }
+    
+    internal static void Record(GuiRecorder? rec, WindowEnd cmd, bool isPush)
+    {
+        rec?.Record<WindowEndReplay, WindowEnd>(cmd, isPush);
     }
 }

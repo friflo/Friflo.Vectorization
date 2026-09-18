@@ -3,7 +3,9 @@
 
 using System;
 using System.Numerics;
+using Friflo.TmGui.TUI;
 
+// ReSharper disable InconsistentNaming
 // ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable once CheckNamespace
 namespace Friflo.TmGui;
@@ -13,7 +15,8 @@ public readonly ref partial struct GuiWidget
 {
     internal bool Checkbox(ReadOnlySpan<char> name, ref bool value, GuiStyle? style, WidgetID id)
     {
-        Recorder?.Checkbox(name, value, style, id);
+        CheckboxReplay.Record(Recorder, name, value, style, id);
+        
         var window  = Window;
         using var _ = UseStyle(style);
         int parentHash  = window.GetCurrentScopeHash();
@@ -54,5 +57,22 @@ public readonly ref partial struct GuiWidget
         }
         MoveCursor(totalSize);
         return isToggled;
+    }
+}
+
+internal readonly record struct Checkbox(TextSpan name, bool value, GuiStyle? style, WidgetID id);
+
+internal class CheckboxReplay : CmdReplay<Checkbox>
+{
+    protected internal override void Replay(in Replay replay, int index)
+    {
+        var cmd = commands[index];
+        var value = cmd.value;
+        replay.widget.Checkbox(replay.GetText(cmd.name), ref value, cmd.style, cmd.id);
+    }
+    
+    internal static void Record(GuiRecorder? rec, ReadOnlySpan<char> name, bool value, GuiStyle? style, WidgetID id)
+    {
+        rec?.Record<CheckboxReplay, Checkbox>(new Checkbox(rec.GetTextSpan(name), value, style, id), false);
     }
 }

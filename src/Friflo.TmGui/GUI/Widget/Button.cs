@@ -2,7 +2,9 @@
 // See LICENSE file in the project root for full license information.
 
 using System;
+using Friflo.TmGui.TUI;
 
+// ReSharper disable InconsistentNaming
 // ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable once CheckNamespace
 namespace Friflo.TmGui;
@@ -12,7 +14,7 @@ public readonly ref partial struct GuiWidget
 {
     internal bool Button(ReadOnlySpan<char> name, Dim size, GuiStyle? style, WidgetID id, in TextColor textColor)
     {
-        Recorder?.Button(name, size, style, id, textColor);
+        ButtonReplay.Record(Recorder, name, size, style, id, textColor);
         
         var window = Window;
         using var _ = UseStyle(style);
@@ -51,5 +53,22 @@ public readonly ref partial struct GuiWidget
         MoveCursor(finalSize);
         
         return IsFired(widgetState, isFocused);
+    }
+}
+
+internal readonly record struct Button(TextSpan name, Dim size, GuiStyle? style, WidgetID id, Color32Span textColor);
+
+
+internal class ButtonReplay : CmdReplay<Button>
+{
+    protected internal override void Replay(in Replay replay, int index)
+    {
+        var cmd = commands[index];
+        replay.widget.Button(replay.GetText(cmd.name), cmd.size, cmd.style, cmd.id, replay.GetColor(cmd.textColor));
+    }
+    
+    internal static void Record(GuiRecorder? rec, ReadOnlySpan<char> name, Dim size, GuiStyle? style, WidgetID id, in TextColor textColor)
+    {
+        rec?.Record<ButtonReplay, Button>(new Button(rec.GetTextSpan(name), size, style, id, rec.GetColorSpan(textColor)), false);
     }
 }

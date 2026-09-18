@@ -4,7 +4,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using Friflo.TmGui.TUI;
 using System.Runtime.CompilerServices;
 using Friflo.TmGui.Session;
@@ -15,34 +14,17 @@ using Friflo.TmGui.Session;
 namespace Friflo.TmGui;
 
 
-internal readonly struct Record
-{
-    internal readonly   RecordType  type;
-    internal readonly   int         index;
-
-    public   override   string      ToString() => $"{type} - index: {index}";
-    
-    internal Record(RecordType type, int index)
-    {
-        this.type   = type;
-        this.index  = index;
-    }
-}
-
-
 internal sealed partial class GuiRecorder
 {
     private             long                lastRecordTime;
-    private             bool                rewindStack;
+    internal            bool                rewindStack;
     private             int                 replayCounter;
     internal            int                 recordsSendCount;
     private  readonly   TmBatch             batch;
     internal readonly   GuiReplay           replay;
     
-    private  readonly   List<Record>        records         = [];
-    private  readonly   List<Record>        stackEnd        = [];
-    private  readonly   List<char>          textBuffer      = [];
-    private  readonly   List<Color32>       colorBuffer     = [];
+    private  readonly   List<char>          textBuffer  = [];
+    private  readonly   List<Color32>       colorBuffer = [];
 
     public   override   string              ToString()  => $"replays: {replayCounter}";
 
@@ -53,7 +35,7 @@ internal sealed partial class GuiRecorder
         this.batch  = batch;
     }
     
-    private void SyncWindow(string title)
+    internal void SyncWindow(string title)
     {
         if (!batch.host.windows.TryGetValue(title, out var window)) {
             return;
@@ -71,7 +53,7 @@ internal sealed partial class GuiRecorder
             replayScrollStates[id] = scrollState with { offset = srcScrollState.offset };
         }
     }
-    
+    /*
     private void PopStackEnd()
     {
         if (rewindStack) {
@@ -82,14 +64,17 @@ internal sealed partial class GuiRecorder
     
     private void PushStackEnd(RecordType type, int index)
     {
+
         if (rewindStack) {
             return;
         }
         stackEnd.Add(new Record(type, index - 1));
+
     }
     
     private void AddCommand(RecordType type, int index)
     {
+
         if (rewindStack) {
             return;
         }
@@ -102,14 +87,14 @@ internal sealed partial class GuiRecorder
             return;
         }
         Replay();
-    }
+    } */
 
     internal void Replay()
     {
-        if (recordsSendCount == records.Count) {
+        if (recordsSendCount == replayRecords.Count) {
             return;
         }
-        recordsSendCount = records.Count;
+        recordsSendCount = replayRecords.Count;
         replayCounter++;
         var replayBatch = replay.batch;
         
@@ -117,15 +102,15 @@ internal sealed partial class GuiRecorder
         
         var replayGui = replayBatch.BeginGui(batch.beginWidth, batch.beginHeight);
         
-        stackEnd.Clear();
+        pushRecords.Clear();
         rewindStack = false;
         
-        ReplayCommands(this, replayGui.widget, records);
+        ReplayCommands(this, replayGui.widget, replayRecords);
         
         rewindStack = true;
-        stackEnd.Reverse();
+        pushRecords.Reverse();
         
-        ReplayCommands(this, replayGui.widget, stackEnd);
+        ReplayCommands(this, replayGui.widget, pushRecords);
         
         rewindStack = false;
         
@@ -133,7 +118,7 @@ internal sealed partial class GuiRecorder
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private Color32Span GetColorSpan(in TextColor color)
+    internal Color32Span GetColorSpan(in TextColor color)
     {
         Color32Span colorSpan;
         switch (color.kind) {
@@ -153,7 +138,7 @@ internal sealed partial class GuiRecorder
     }
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private TextSpan GetTextSpan(ReadOnlySpan<char> text)
+    internal TextSpan GetTextSpan(ReadOnlySpan<char> text)
     {
         var span = new TextSpan { start = textBuffer.Count, len = text.Length };
         textBuffer.AddRange(text);
@@ -161,28 +146,6 @@ internal sealed partial class GuiRecorder
     }
 }
 
-
-internal static class RecorderExtensions
-{
-    extension (ReadOnlySpan<char> buffer)
-    {
-        internal ReadOnlySpan<char> GetText(TextSpan span) {
-            return buffer.Slice(span.start, span.len);
-        }
-    }
-    extension (ReadOnlySpan<Color32> buffer)
-    {
-        internal TextColor GetColor(Color32Span span) {
-            if (span.len == 0) {
-                return new TextColor(span.value);
-            }
-            if (span.len == -1) {
-                return new TextColor();
-            }
-            return new TextColor(buffer.Slice(span.start, span.len));
-        }
-    }
-}
 
 internal sealed class GuiReplay
 {

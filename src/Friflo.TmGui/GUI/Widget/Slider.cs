@@ -3,7 +3,9 @@
 
 using System;
 using System.Numerics;
+using Friflo.TmGui.TUI;
 
+// ReSharper disable InconsistentNaming
 // ReSharper disable CompareOfFloatsByEqualityOperator
 // ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable once CheckNamespace
@@ -14,7 +16,7 @@ public readonly ref partial struct GuiWidget
 {
     internal bool Slider(ReadOnlySpan<char> name, ref float value, float min, float max, float width, ReadOnlySpan<char> format, GuiStyle? style, WidgetID id)
     {
-        Recorder?.Slider(name, value, min, max, width, format, style, id);
+        SliderReplay.Record(Recorder, name, value, min, max, width, format, style, id);
         
         var window      = Window;
         using var _     = UseStyle(style);
@@ -59,5 +61,22 @@ public readonly ref partial struct GuiWidget
         }
         MoveCursor(totalSize);
         return changed;
+    }
+}
+
+internal readonly record struct Slider(TextSpan name, float value, float min, float max, float width, TextSpan format, GuiStyle? style, WidgetID id);
+
+internal class SliderReplay : CmdReplay<Slider>
+{
+    protected internal override void Replay(in Replay replay, int index)
+    {
+        var cmd = commands[index];
+        var value   = cmd.value;
+        replay.widget.Slider(replay.GetText(cmd.name), ref value, cmd.min, cmd.max, cmd.width, replay.GetText(cmd.format), cmd.style, cmd.id);
+    }
+    
+    internal static void Record(GuiRecorder? rec, ReadOnlySpan<char> name, float value, float min, float max, float width, ReadOnlySpan<char> format, GuiStyle? style, WidgetID id)
+    {
+        rec?.Record<SliderReplay, Slider>(new Slider(rec.GetTextSpan(name), value, min, max, width, rec.GetTextSpan(format), style, id), false);
     }
 }
