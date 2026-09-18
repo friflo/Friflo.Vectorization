@@ -3,6 +3,7 @@
 
 using System.Numerics;
 
+// ReSharper disable InconsistentNaming
 // ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable once CheckNamespace
 namespace Friflo.TmGui;
@@ -12,6 +13,8 @@ public readonly ref partial struct GuiWidget
 {
     internal void Spacer(float size)
     {
+        SpacerReplay.Record(Recorder, size);
+        
         var window      = Window;
         var spaceSize   = window.CurrentLayout.direction == LayoutDirection.Horizontal ? new Vector2(size, 0) : new Vector2(0, size);
         MoveCursor(spaceSize);
@@ -45,5 +48,22 @@ public readonly ref partial struct GuiWidget
         if (!space.end.isFocused) return;
         DrawFocus(space.end.pos, space.end.size);
         EnsureVisibleInScrollArea(space.end.pos, space.end.size);
+    }
+}
+
+// --------------------------------------------- Step-Rendering --------------------------------------------- 
+public readonly record struct Spacer(float size);
+
+
+public sealed class SpacerReplay : CmdReplay<Spacer>
+{
+    protected internal override void Replay(in Replay replay, int index)
+    {
+        replay.widget.Spacer(commands[index].size);
+    }
+    
+    public static void Record(GuiRecorder? rec, float size)
+    {
+        rec?.Record<SpacerReplay, Spacer>(new Spacer(size), false);
     }
 }
