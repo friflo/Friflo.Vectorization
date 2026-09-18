@@ -3,6 +3,7 @@
 
 using System.Numerics;
 
+// ReSharper disable InconsistentNaming
 // ReSharper disable once CheckNamespace
 namespace Friflo.TmGui;
 
@@ -11,6 +12,8 @@ public readonly ref partial struct GuiWidget
 {
 	internal ScrollAreaScope BeginScrollArea(int childId, Dim size)
 	{
+        ScrollAreaBeginReplay.Record(Recorder, new ScrollAreaBegin(childId, size));
+            
 	    var window		= Window;
 	    var startCursor = window.Cursor;
 	    window.PushScope(childId);
@@ -37,6 +40,8 @@ public readonly ref partial struct GuiWidget
 
 	internal void EndScrollArea(in ScrollAreaScope scope)
 	{
+        ScrollAreaEndReplay.Record(Recorder, scope.end, false);
+            
 	    var window	= Window;
 	    var padding = Sizes.ChildPadding;
 	    
@@ -57,3 +62,35 @@ public readonly ref partial struct GuiWidget
 
 
 // --------------------------------------------- Step-Rendering ---------------------------------------------
+internal readonly record struct ScrollAreaBegin(int childId, Dim size);
+
+
+internal sealed class ScrollAreaBeginReplay : CmdReplay<ScrollAreaBegin>
+{
+    protected internal override void Replay(in Replay replay, int index)
+    {
+        var cmd = commands[index];
+        var scope = replay.widget.BeginScrollArea(cmd.childId, cmd.size);
+        ScrollAreaEndReplay.Record(replay.recorder, scope.end, true);
+    }
+    
+    internal static void Record(GuiRecorder? rec, ScrollAreaBegin cmd)
+    {
+        rec?.Record<ScrollAreaBeginReplay, ScrollAreaBegin>(cmd, false);
+    }
+}
+
+internal sealed class ScrollAreaEndReplay : CmdReplay<ScrollAreaEnd>
+{
+    protected internal override void Replay(in Replay replay, int index)
+    {
+        replay.PopStackEnd();
+        replay.widget.EndScrollArea(new ScrollAreaScope(replay.widget, commands[index]));
+    }
+    
+    internal static void Record(GuiRecorder? rec, ScrollAreaEnd end, bool isPush)
+    {
+        rec?.Record<ScrollAreaEndReplay, ScrollAreaEnd>(end, isPush);
+    }
+}
+
