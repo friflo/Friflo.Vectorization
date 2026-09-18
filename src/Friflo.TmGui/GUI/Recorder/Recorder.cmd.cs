@@ -30,7 +30,7 @@ internal readonly struct ReplayRecord
 }
 
 
-internal sealed partial class GuiRecorder
+public sealed partial class GuiRecorder
 {
     private  readonly   List<ReplayRecord>  replayRecords   = [];
     internal readonly   List<ReplayRecord>  pushRecords     = [];
@@ -154,13 +154,13 @@ public readonly ref struct Replay
 
 
 
-internal abstract class CmdReplay
+public abstract class CmdReplay
 {
     protected internal abstract void Clear();
     protected internal abstract void Replay(in Replay widget, int index);
 }
 
-internal abstract class CmdReplay<T> : CmdReplay where T : struct
+public abstract class CmdReplay<T> : CmdReplay where T : struct
 {
     internal    T[]     commands = new T[4];
     internal    int     count;

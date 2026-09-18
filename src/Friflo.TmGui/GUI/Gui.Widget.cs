@@ -29,7 +29,7 @@ public readonly ref partial struct GuiWidget
     public              float           LineHeight      { [Hide] get => draw.Font.lineHeight;      }
     public              IFormatProvider FormatProvider  { [Hide] get => draw.batch.formatProvider; }
     public              bool            IsSet           { [Hide] get => currentStyle != null;      }
-    internal            GuiRecorder?    Recorder        { [Hide] get => draw.batch.recorder;       }
+    public              GuiRecorder?    Recorder        { [Hide] get => draw.batch.recorder;       }
 
     
     /// <summary> Clears and returns a cached <see cref="System.Text.StringBuilder"/> to prevent allocations. </summary>

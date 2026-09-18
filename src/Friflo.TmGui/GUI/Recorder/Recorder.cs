@@ -14,7 +14,7 @@ using Friflo.TmGui.Session;
 namespace Friflo.TmGui;
 
 
-internal sealed partial class GuiRecorder
+public sealed partial class GuiRecorder
 {
     private             long                lastRecordTime;
     internal            bool                rewindStack;

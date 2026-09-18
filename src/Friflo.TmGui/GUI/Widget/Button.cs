@@ -56,10 +56,10 @@ public readonly ref partial struct GuiWidget
     }
 }
 
-internal readonly record struct Button(TextSpan name, Dim size, GuiStyle? style, WidgetID id, Color32Span textColor);
+public readonly record struct Button(TextSpan name, Dim size, GuiStyle? style, WidgetID id, Color32Span textColor);
 
 
-internal class ButtonReplay : CmdReplay<Button>
+public class ButtonReplay : CmdReplay<Button>
 {
     protected internal override void Replay(in Replay replay, int index)
     {
@@ -67,7 +67,7 @@ internal class ButtonReplay : CmdReplay<Button>
         replay.widget.Button(replay.GetText(cmd.name), cmd.size, cmd.style, cmd.id, replay.GetColor(cmd.textColor));
     }
     
-    internal static void Record(GuiRecorder? rec, ReadOnlySpan<char> name, Dim size, GuiStyle? style, WidgetID id, in TextColor textColor)
+    public static void Record(GuiRecorder? rec, ReadOnlySpan<char> name, Dim size, GuiStyle? style, WidgetID id, in TextColor textColor)
     {
         rec?.Record<ButtonReplay, Button>(new Button(rec.GetTextSpan(name), size, style, id, rec.GetColorSpan(textColor)), false);
     }

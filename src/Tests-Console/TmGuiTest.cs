@@ -235,9 +235,11 @@ public class TmGuiRenderer : IRenderer
 
 public static class GuiExtensions
 {
-    public static bool MyButton(this in Gui gui, ReadOnlySpan<char> name, GuiStyle? style = null, WidgetID id = default)
+    public static bool MyButton(this in Gui gui, ReadOnlySpan<char> name, Dim size = default, GuiStyle? style = null, WidgetID id = default, in TextColor color = default)
     {
         var widget  = gui.widget;
+        ButtonReplay.Record(widget.Recorder, name, size, style, id, color);
+        
         var draw    = gui.Draw;
         var window  = widget.Window;
         using var _ = widget.UseStyle(style);
@@ -246,25 +248,25 @@ public static class GuiExtensions
         int widgetId    = id.Resolve(name, parentHash);
         
         var textSize    = draw.MeasureText(name);
-        var size        = textSize + widget.Sizes.FramePadding.Size;
+        var finalSize   = textSize + widget.Sizes.FramePadding.Size;
         var pos         = window.Cursor;
-        var isHover     = window.IsHoverAtCapture(pos, size, draw);
-        var isFocused   = widget.RegisterFocusable(widgetId, pos, size);
+        var isHover     = window.IsHoverAtCapture(pos, finalSize, draw);
+        var isFocused   = widget.RegisterFocusable(widgetId, pos, finalSize);
         var widgetState = widget.GetWidgetState(isHover, widgetId);
 
         var tui = draw.Tui;
         if (tui != null) {
-            tui.Button(name, pos, size, widget.Colors.ButtonText, widget.Colors.ButtonState(widgetState), isFocused);
+            tui.Button(name, pos, finalSize, widget.Colors.ButtonText, widget.Colors.ButtonState(widgetState), isFocused);
         } else {
-            draw.FillRectRounded  (pos, size, widget.Sizes.CornerRadius, widget.Colors.ButtonState(widgetState), GuiSizes.CornerSegments); // background
-            draw.StrokeRectRounded(pos, size, widget.Sizes.CornerRadius, 2, widget.Colors.ButtonBorder, GuiSizes.CornerSegments);
+            draw.FillRectRounded  (pos, finalSize, widget.Sizes.CornerRadius, widget.Colors.ButtonState(widgetState), GuiSizes.CornerSegments); // background
+            draw.StrokeRectRounded(pos, finalSize, widget.Sizes.CornerRadius, 2, widget.Colors.ButtonBorder, GuiSizes.CornerSegments);
             draw.DrawTextInRect(name, pos + widget.Sizes.FramePadding.Min, textSize, TextAlignment.Center, VerticalAlignment.Middle, widget.Colors.ButtonText);
         }
         if (isFocused) {
-            widget.DrawFocus(pos, size);
-            widget.EnsureVisibleInScrollArea(pos, size);
+            widget.DrawFocus(pos, finalSize);
+            widget.EnsureVisibleInScrollArea(pos, finalSize);
         }
-        widget.MoveCursor(size);
+        widget.MoveCursor(finalSize);
         return widget.IsFired(widgetState, isFocused);
     }
 }
