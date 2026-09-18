@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using Friflo.TmGui.TUI;
 using System.Runtime.CompilerServices;
 using Friflo.TmGui.Session;
@@ -82,8 +83,9 @@ public sealed partial class GuiRecorder
         replay.session.SendReplayCommands();
     }
 
+    [DebuggerHidden]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal Color32Span GetColorSpan(in TextColor color)
+    public Color32Span GetColorSpan(in TextColor color)
     {
         Color32Span colorSpan;
         switch (color.kind) {
@@ -102,8 +104,9 @@ public sealed partial class GuiRecorder
         return colorSpan;
     }
     
+    [DebuggerHidden]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal TextSpan GetTextSpan(ReadOnlySpan<char> text)
+    public TextSpan GetTextSpan(ReadOnlySpan<char> text)
     {
         var span = new TextSpan { start = textBuffer.Count, len = text.Length };
         textBuffer.AddRange(text);

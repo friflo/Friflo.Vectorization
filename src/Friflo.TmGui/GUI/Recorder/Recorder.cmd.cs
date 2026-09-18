@@ -46,21 +46,15 @@ public sealed partial class GuiRecorder
             return;
         }
         var cmdReplay = (CmdReplay<T>?)cmdReplays[CmdReplay<T>.TypeIndex];
-        if (cmdReplay == null) {
-            cmdReplay = new TReplay();
-            cmdReplays[CmdReplay<T>.TypeIndex] = cmdReplay;
-            maxTypeIndex = Math.Max(maxTypeIndex, CmdReplay<T>.TypeIndex + 1);
-        }
+        cmdReplay   ??= CreateCmdReplay<TReplay, T>();
         
         var commands = cmdReplay.commands;
         var count = cmdReplay.count;
         if (count == commands.Length) {
-            commands = new T[2 * count];
-            Array.Copy(cmdReplay.commands, commands, count);
-            cmdReplay.commands = commands;
+            commands = CreateCommands(cmdReplay);
         }
-        
         commands[count] = cmd;
+        
         var records = isPush ? pushRecords : replayRecords;
         records.Add(new ReplayRecord(CmdReplay<T>.TypeIndex, count));
 
@@ -73,6 +67,24 @@ public sealed partial class GuiRecorder
             return;
         }
         Replay();
+    }
+    
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    private TReplay CreateCmdReplay<TReplay, T>() where T : struct   where TReplay : CmdReplay<T>, new()
+    {
+        var cmdReplay = new TReplay();
+        cmdReplays[CmdReplay<T>.TypeIndex] = cmdReplay;
+        maxTypeIndex = Math.Max(maxTypeIndex, CmdReplay<T>.TypeIndex + 1);
+        return cmdReplay;
+    }
+    
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    private static T[] CreateCommands<T>(CmdReplay<T> cmdReplay) where T : struct
+    {
+        var count = cmdReplay.count;
+        var commands = new T[2 * count];
+        Array.Copy(cmdReplay.commands, commands, count);
+        return cmdReplay.commands = commands;
     }
     
     internal void Reset()
