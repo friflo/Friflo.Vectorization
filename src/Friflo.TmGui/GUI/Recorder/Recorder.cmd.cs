@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using Friflo.TmGui.TUI;
 
 // ReSharper disable ConvertIfStatementToSwitchStatement
 // ReSharper disable ConvertIfStatementToReturnStatement
@@ -14,6 +13,7 @@ using Friflo.TmGui.TUI;
 // ReSharper disable StaticMemberInGenericType
 // ReSharper disable once CheckNamespace
 namespace Friflo.TmGui;
+
 
 internal readonly struct ReplayRecord
 {
@@ -110,76 +110,4 @@ public sealed partial class GuiRecorder
             cmdReplay!.Replay(replay, record.index);
         }
     }
-}
-
-
-
-public readonly ref struct Replay
-{
-    public   readonly   GuiWidget               widget;
-    private  readonly   ReadOnlySpan<char>      textBuffer;
-    private  readonly   ReadOnlySpan<Color32>   colorBuffer;
-    internal readonly   GuiRecorder             recorder;
-    
-    internal Replay(GuiRecorder recorder, GuiWidget widget, ReadOnlySpan<char> textBuffer, ReadOnlySpan<Color32> colorBuffer) {
-        this.recorder       = recorder;
-        this.widget         = widget;
-        this.textBuffer     = textBuffer;
-        this.colorBuffer    = colorBuffer;
-    }
-    
-    public ReadOnlySpan<char> GetText(TextSpan span) {
-        return textBuffer.Slice(span.start, span.len);
-    }
-    
-    public void PopStackEnd()
-    {
-        if (recorder.rewindStack) {
-            return;
-        }
-        recorder.pushRecords.RemoveAt(recorder.pushRecords.Count - 1);
-    }
-    
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal TextColor GetColor(Color32Span span) {
-        if (span.len == 0) {
-            return new TextColor(span.value);
-        }
-        if (span.len == -1) {
-            return new TextColor();
-        }
-        return new TextColor(colorBuffer.Slice(span.start, span.len));
-    }
-}
-
-
-
-public abstract class CmdReplay
-{
-    protected internal abstract void Clear();
-    protected internal abstract void Replay(in Replay widget, int index);
-}
-
-public abstract class CmdReplay<T> : CmdReplay where T : struct
-{
-    internal    T[]     commands = new T[4];
-    internal    int     count;
-    
-    internal static readonly  int TypeIndex = ReplayCommands.NewType(typeof(T));
-    
-    protected internal  override    void    Clear()     => count = 0;
-    public              override    string  ToString()  => $"Count: {count}";
-}
-
-internal static class ReplayCommands {
-    
-    private static int _nextIndex;
-    
-    internal static int NewType(Type type)
-    {
-        Types[_nextIndex] = type;
-        return _nextIndex++;
-    }
-    
-    internal static readonly  Type[] Types = new Type[200];
 }
