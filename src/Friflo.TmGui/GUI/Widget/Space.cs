@@ -23,6 +23,8 @@ public readonly ref partial struct GuiWidget
    
     internal SpaceScope BeginSpace(Vector2 size, WidgetID id)
     {
+        SpaceBeginReplay.Record(Recorder, new SpaceBegin(size, id));
+            
         var window      = Window;
         var pos         = window.Cursor;
         var widgetState = WidgetState.None;
@@ -45,6 +47,8 @@ public readonly ref partial struct GuiWidget
 
     internal void EndSpace(in SpaceScope space)
     {
+        SpaceEndReplay.Record(Recorder, space.end, false);
+            
         if (!space.end.isFocused) return;
         DrawFocus(space.end.pos, space.end.size);
         EnsureVisibleInScrollArea(space.end.pos, space.end.size);
@@ -53,7 +57,6 @@ public readonly ref partial struct GuiWidget
 
 // --------------------------------------------- Step-Rendering --------------------------------------------- 
 public readonly record struct Spacer(float size);
-
 
 public sealed class SpacerReplay : CmdReplay<Spacer>
 {
@@ -65,5 +68,37 @@ public sealed class SpacerReplay : CmdReplay<Spacer>
     public static void Record(GuiRecorder? rec, float size)
     {
         rec?.Record<SpacerReplay, Spacer>(new Spacer(size), false);
+    }
+}
+
+
+internal readonly record struct SpaceBegin(Vector2 size, WidgetID id);
+
+internal sealed class SpaceBeginReplay : CmdReplay<SpaceBegin>
+{
+    protected internal override void Replay(in Replay replay, int index)
+    {
+        var cmd = commands[index];
+        var scope = replay.widget.BeginSpace(cmd.size, cmd.id);
+        SpaceEndReplay.Record(replay.recorder, scope.end, true);
+    }
+    
+    internal static void Record(GuiRecorder? rec, SpaceBegin cmd)
+    {
+        rec?.Record<SpaceBeginReplay, SpaceBegin>(cmd, false);
+    }
+}
+
+internal sealed class SpaceEndReplay : CmdReplay<SpaceEnd>
+{
+    protected internal override void Replay(in Replay replay, int index)
+    {
+        replay.PopStackEnd();
+        replay.widget.EndSpace(new SpaceScope(replay.widget, commands[index]));
+    }
+    
+    internal static void Record(GuiRecorder? rec, SpaceEnd end, bool isPush)
+    {
+        rec?.Record<SpaceEndReplay, SpaceEnd>(end, isPush);
     }
 }
