@@ -33,7 +33,7 @@ public readonly ref struct Gui
         var recorder = widget.Recorder;
         if (recorder != null) {
             recorder.Replay();
-            return $"{Draw.batch} - Step-rendering: commands: {recorder.recordsSendCount}"; // ({recorder})";
+            return $"Step-rendering: {recorder.recordsSendCount}"; // ({recorder})";
         }
         return Draw.batch.ToString();
     }
