@@ -29,6 +29,8 @@ public readonly ref partial struct GuiWidget
         PopLayout();
     }
 
+    
+    
     internal HorizontalScope BeginHorizontal(Dim size)
     {
         LayoutBeginReplay.Record(Recorder, new LayoutBegin(size, LayoutType.Horizontal));
@@ -37,20 +39,23 @@ public readonly ref partial struct GuiWidget
         PushLayout(LayoutDirection.Horizontal, boundsSize);
         return new HorizontalScope(this);
     }
-    internal Vector2 EndHorizontal()
+    internal void EndHorizontal()
     {
         LayoutEndReplay.Record(Recorder, LayoutType.Horizontal, false);
-        return PopLayout();
+        PopLayout();
     }
 
 
+    
     internal HorizontalCenterScope BeginHorizontalAligned(int centerId, float align, Dim size)
     {
         var oldLayoutOffset = input.layoutOffset;
         guiState.layoutOffsets.TryGetValue(centerId, out input.layoutOffset);
         draw.batch.layoutOffset = input.layoutOffset;
         
-        BeginHorizontal(size);
+        var boundsSize = Window.WidgetSize(size, default);
+        PushLayout(LayoutDirection.Horizontal, boundsSize);
+        
         var tui = draw.Tui;
         var startIndex = tui == null ? draw.batch.vertexCount : tui.tuiRects.Count;
         return new HorizontalCenterScope(this, new HorizontalCenterEnd(centerId, align, startIndex, oldLayoutOffset));
@@ -58,7 +63,7 @@ public readonly ref partial struct GuiWidget
     
     internal void EndHorizontalAligned(in HorizontalCenterScope scope)
     {
-        var maxSize = EndHorizontal();
+        var maxSize = PopLayout();
         
         draw.batch.layoutOffset = input.layoutOffset = scope.end.oldLayoutOffset;
         var availableWidth  = Window.CurrentLayout.boundsSize.X;
@@ -83,7 +88,10 @@ public readonly ref partial struct GuiWidget
 
 
 // --------------------------------------------- Step-Rendering ---------------------------------------------
-internal enum LayoutType { Horizontal, Vertical }
+internal enum LayoutType {
+    Horizontal,
+    Vertical,
+}
 
 internal readonly record struct LayoutBegin (Dim size, LayoutType type);
 
