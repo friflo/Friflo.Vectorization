@@ -61,11 +61,9 @@ public sealed partial class GuiRecorder
         }
         
         commands[count] = cmd;
-        if (isPush) {
-            pushRecords.  Add(new ReplayRecord(CmdReplay<T>.TypeIndex, count));
-        } else {
-            replayRecords.Add(new ReplayRecord(CmdReplay<T>.TypeIndex, count));
-        }
+        var records = isPush ? pushRecords : replayRecords;
+        records.Add(new ReplayRecord(CmdReplay<T>.TypeIndex, count));
+
         cmdReplay.count = count + 1;
         
         var time = Stopwatch.GetTimestamp();
