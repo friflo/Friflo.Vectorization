@@ -56,6 +56,8 @@ public readonly ref partial struct GuiWidget
     }
 }
 
+
+// --------------------------------------------- Step-Rendering --------------------------------------------- 
 public readonly record struct Button(TextSpan name, Dim size, GuiStyle? style, WidgetID id, Color32Span textColor);
 
 

@@ -64,6 +64,8 @@ public readonly ref partial struct GuiWidget
     }
 }
 
+
+// --------------------------------------------- Step-Rendering ---------------------------------------------
 internal readonly record struct Slider(TextSpan name, float value, float min, float max, float width, TextSpan format, GuiStyle? style, WidgetID id);
 
 internal sealed class SliderReplay : CmdReplay<Slider>

@@ -123,6 +123,8 @@ public readonly ref partial struct GuiWidget
     }
 }
 
+
+// --------------------------------------------- Step-Rendering ---------------------------------------------
 internal readonly record struct WindowBegin(string title, Vector2? pos, Vector2? size, TmTrait traits, TuiBorder tuiBorder);
 
 internal sealed class WindowBeginReplay : CmdReplay<WindowBegin>

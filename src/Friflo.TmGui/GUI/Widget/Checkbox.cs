@@ -60,6 +60,7 @@ public readonly ref partial struct GuiWidget
     }
 }
 
+// --------------------------------------------- Step-Rendering ---------------------------------------------
 internal readonly record struct Checkbox(TextSpan name, bool value, GuiStyle? style, WidgetID id);
 
 internal sealed class CheckboxReplay : CmdReplay<Checkbox>

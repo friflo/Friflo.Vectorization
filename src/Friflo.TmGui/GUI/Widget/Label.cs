@@ -32,7 +32,7 @@ public readonly ref partial struct GuiWidget
     }
 }
 
-
+// --------------------------------------------- Step-Rendering ---------------------------------------------
 internal readonly record struct Label(TextSpan name, Color32Span textColor);
 
 

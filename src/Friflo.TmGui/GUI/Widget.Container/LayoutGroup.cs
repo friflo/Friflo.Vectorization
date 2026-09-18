@@ -81,6 +81,8 @@ public readonly ref partial struct GuiWidget
     }
 }
 
+
+// --------------------------------------------- Step-Rendering ---------------------------------------------
 internal enum LayoutType { Horizontal, Vertical }
 
 internal readonly record struct LayoutBegin (Dim size, LayoutType type);
