@@ -115,7 +115,6 @@ internal class LayoutEndReplay : CmdReplay<LayoutType>
         } else {
             replay.widget.EndVertical();
         }
-        // replay.widget.EndWindow(new WindowScope(replay.widget, commands[index]));
     }
     
     internal static void Record(GuiRecorder? rec, LayoutType type, bool isPush)

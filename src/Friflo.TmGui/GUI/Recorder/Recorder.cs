@@ -53,41 +53,6 @@ internal sealed partial class GuiRecorder
             replayScrollStates[id] = scrollState with { offset = srcScrollState.offset };
         }
     }
-    /*
-    private void PopStackEnd()
-    {
-        if (rewindStack) {
-            return;
-        }
-        stackEnd.RemoveAt(stackEnd.Count - 1);
-    }
-    
-    private void PushStackEnd(RecordType type, int index)
-    {
-
-        if (rewindStack) {
-            return;
-        }
-        stackEnd.Add(new Record(type, index - 1));
-
-    }
-    
-    private void AddCommand(RecordType type, int index)
-    {
-
-        if (rewindStack) {
-            return;
-        }
-        records.Add(new Record(type, index - 1));
-        
-        var time = Stopwatch.GetTimestamp();
-        var diff = Stopwatch.GetElapsedTime(lastRecordTime, time);
-        lastRecordTime = time;
-        if (diff.TotalMilliseconds < 100) {
-            return;
-        }
-        Replay();
-    } */
 
     internal void Replay()
     {
