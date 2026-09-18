@@ -10,7 +10,8 @@ namespace Friflo.TmGui;
 [Flags]
 public enum TmTrait
 {
-    Border = 1 << 0
+    Border = 1 << 0,
+    Shadow = 2 << 0,
 }
 
 public static class TmTraitExtensions
