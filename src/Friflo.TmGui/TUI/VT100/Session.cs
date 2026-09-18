@@ -170,7 +170,7 @@ internal sealed partial class TuiSession : TmSession
             {
                 var cell = cells[y * width + x];
                 if (cell.color.A != 0) {
-                    if (cell.color != color) {
+                    if ((cell.color.Packed & 0x00ffffff) != (color.Packed & 0x00ffffff)) {
                         SetColor(color = cell.color);
                     }
                 }
@@ -178,7 +178,7 @@ internal sealed partial class TuiSession : TmSession
                     ApplyStyleDiff(textStyle, cell.textStyle);
                     textStyle = cell.textStyle;
                 }
-                if (cell.background != background) {
+                if ((cell.background.Packed & 0x00ffffff) != (background.Packed & 0x00ffffff)) {
                     SetBackground(background = cell.background);
                 }
                 AppendRune(cell.rune);
