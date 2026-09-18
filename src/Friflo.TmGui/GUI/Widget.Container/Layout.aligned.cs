@@ -36,7 +36,7 @@ public readonly ref partial struct GuiWidget
             
         var maxSize = PopLayout();
         
-        ref var layoutOffset = ref CollectionsMarshal.GetValueRefOrNullRef(guiState.layoutOffsets, scope.end.centerId);
+        ref var layoutOffset = ref CollectionsMarshal.GetValueRefOrAddDefault(guiState.layoutOffsets, scope.end.centerId, out _);
         var startIndex       = layoutOffset.startIndex;
         
         draw.batch.layoutOffset = input.layoutOffset = scope.end.oldLayoutOffset;
