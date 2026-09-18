@@ -18,8 +18,8 @@ public abstract class CmdReplay
 
 public abstract class CmdReplay<T> : CmdReplay where T : struct
 {
-    internal    T[]     commands = new T[4];
-    internal    int     count;
+    protected internal  T[]     commands = new T[4];
+    internal            int     count;
     
     internal static readonly  int TypeIndex = CmdReplayUtils.NewType(typeof(T));
     
