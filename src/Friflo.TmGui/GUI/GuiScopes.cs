@@ -146,14 +146,12 @@ internal readonly struct HorizontalCenterEnd
     internal readonly   Vector2     oldLayoutOffset;
     internal readonly   int         centerId;
     internal readonly   float       align;
-    internal readonly   int         startIndex;
 
-    internal HorizontalCenterEnd(int centerId, float align, int startIndex, Vector2 oldLayoutOffset)
+    internal HorizontalCenterEnd(int centerId, float align, Vector2 oldLayoutOffset)
     {
         this.oldLayoutOffset = oldLayoutOffset;
         this.centerId        = centerId;
         this.align           = align;
-        this.startIndex      = startIndex;
     }
 }
 

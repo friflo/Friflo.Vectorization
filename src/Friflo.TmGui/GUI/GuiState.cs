@@ -18,23 +18,29 @@ internal struct RevertStyle
     public override string      ToString() => $"colors: {colors.ToString()}  sizes: {sizes.ToString()}";
 }
 
+internal struct LayoutOffset
+{
+    internal    Vector2 shift;
+    internal    int     startIndex;
+} 
+
 
 internal sealed class GuiState
 {
-    private  readonly   GuiStyle                defaultStyle        = new();
-    internal            RevertStyle[]           revertStyles        = [];
-    internal            int                     revertStylesCount;
-    internal readonly   GuiStyle                currentStyle        = new();
-    internal readonly   Dictionary<int,Vector2> layoutOffsets       = new();
+    private  readonly   GuiStyle                    defaultStyle        = new();
+    internal            RevertStyle[]               revertStyles        = [];
+    internal            int                         revertStylesCount;
+    internal readonly   GuiStyle                    currentStyle        = new();
+    internal readonly   Dictionary<int,LayoutOffset>layoutOffsets       = new();
     
-    internal            bool                    scrollAreaChanged;
+    internal            bool                        scrollAreaChanged;
     
-    internal            GuiWindow               window              = null!;
+    internal            GuiWindow                   window              = null!;
     
-    private             int                     frameCount;
-    internal            bool                    IsNewFrame          { get; private set;}
+    private             int                         frameCount;
+    internal            bool                        IsNewFrame          { get; private set;}
 
-    public   override   string                  ToString()          => $"window: {window}";
+    public   override   string                      ToString()          => $"window: {window}";
     
     internal void SetDefaultStyle(TmBatch batch)
     {
