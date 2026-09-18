@@ -66,7 +66,7 @@ public readonly ref partial struct GuiWidget
 
 internal readonly record struct Slider(TextSpan name, float value, float min, float max, float width, TextSpan format, GuiStyle? style, WidgetID id);
 
-internal class SliderReplay : CmdReplay<Slider>
+internal sealed class SliderReplay : CmdReplay<Slider>
 {
     protected internal override void Replay(in Replay replay, int index)
     {

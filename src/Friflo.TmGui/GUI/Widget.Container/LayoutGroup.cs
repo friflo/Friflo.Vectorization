@@ -86,7 +86,7 @@ internal enum LayoutType { Horizontal, Vertical }
 internal readonly record struct LayoutBegin (Dim size, LayoutType type);
 
 
-internal class LayoutBeginReplay : CmdReplay<LayoutBegin>
+internal sealed class LayoutBeginReplay : CmdReplay<LayoutBegin>
 {
     protected internal override void Replay(in Replay replay, int index)
     {
@@ -105,7 +105,7 @@ internal class LayoutBeginReplay : CmdReplay<LayoutBegin>
     }
 }
 
-internal class LayoutEndReplay : CmdReplay<LayoutType>
+internal sealed class LayoutEndReplay : CmdReplay<LayoutType>
 {
     protected internal override void Replay(in Replay replay, int index)
     {

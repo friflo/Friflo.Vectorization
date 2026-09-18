@@ -62,7 +62,7 @@ public readonly ref partial struct GuiWidget
 
 internal readonly record struct Checkbox(TextSpan name, bool value, GuiStyle? style, WidgetID id);
 
-internal class CheckboxReplay : CmdReplay<Checkbox>
+internal sealed class CheckboxReplay : CmdReplay<Checkbox>
 {
     protected internal override void Replay(in Replay replay, int index)
     {

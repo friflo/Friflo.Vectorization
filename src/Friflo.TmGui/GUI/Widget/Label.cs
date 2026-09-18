@@ -36,7 +36,7 @@ public readonly ref partial struct GuiWidget
 internal readonly record struct Label(TextSpan name, Color32Span textColor);
 
 
-internal class LabelReplay : CmdReplay<Label>
+internal sealed class LabelReplay : CmdReplay<Label>
 {
     protected internal override void Replay(in Replay replay, int index)
     {

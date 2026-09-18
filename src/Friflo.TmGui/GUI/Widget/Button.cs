@@ -59,7 +59,7 @@ public readonly ref partial struct GuiWidget
 public readonly record struct Button(TextSpan name, Dim size, GuiStyle? style, WidgetID id, Color32Span textColor);
 
 
-public class ButtonReplay : CmdReplay<Button>
+public sealed class ButtonReplay : CmdReplay<Button>
 {
     protected internal override void Replay(in Replay replay, int index)
     {

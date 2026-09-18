@@ -125,7 +125,7 @@ public readonly ref partial struct GuiWidget
 
 internal readonly record struct WindowBegin(string title, Vector2? pos, Vector2? size, TmTrait traits, TuiBorder tuiBorder);
 
-internal class WindowBeginReplay : CmdReplay<WindowBegin>
+internal sealed class WindowBeginReplay : CmdReplay<WindowBegin>
 {
     protected internal override void Replay(in Replay replay, int index)
     {
@@ -142,7 +142,7 @@ internal class WindowBeginReplay : CmdReplay<WindowBegin>
     }
 }
 
-internal class WindowEndReplay : CmdReplay<WindowEnd>
+internal sealed class WindowEndReplay : CmdReplay<WindowEnd>
 {
     protected internal override void Replay(in Replay replay, int index)
     {
