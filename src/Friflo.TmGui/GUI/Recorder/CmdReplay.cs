@@ -21,7 +21,7 @@ public abstract class CmdReplay<T> : CmdReplay where T : struct
     internal    T[]     commands = new T[4];
     internal    int     count;
     
-    internal static readonly  int TypeIndex = ReplayCommands.NewType(typeof(T));
+    internal static readonly  int TypeIndex = CmdReplayUtils.NewType(typeof(T));
     
     protected internal  override    void    Clear()     => count = 0;
     public              override    string  ToString()  => $"{typeof(T).Name} - Count: {count}";
@@ -29,7 +29,7 @@ public abstract class CmdReplay<T> : CmdReplay where T : struct
 
 
 
-internal static class ReplayCommands {
+internal static class CmdReplayUtils {
     
     private static int _nextIndex;
     
@@ -39,7 +39,9 @@ internal static class ReplayCommands {
         return _nextIndex++;
     }
     
-    internal static readonly  Type[] Types = new Type[200];
+    internal const int MaxWidgetType = 500;
+    
+    internal static readonly  Type[] Types = new Type[MaxWidgetType];
 }
 
 

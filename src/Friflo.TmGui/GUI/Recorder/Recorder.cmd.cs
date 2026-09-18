@@ -20,7 +20,7 @@ internal readonly struct ReplayRecord
     internal readonly   int     index;
     internal readonly   int     type;
 
-    public   override   string  ToString() => $"{ReplayCommands.Types[type].Name} - index: {index}";
+    public   override   string  ToString() => $"{CmdReplayUtils.Types[type].Name} - index: {index}";
     
     internal ReplayRecord(int type, int index)
     {
@@ -34,7 +34,7 @@ public sealed partial class GuiRecorder
 {
     private  readonly   List<ReplayRecord>  replayRecords   = [];
     internal readonly   List<ReplayRecord>  pushRecords     = [];
-    private  readonly   CmdReplay?[]        cmdReplays      = new CmdReplay?[200];
+    private  readonly   CmdReplay?[]        cmdReplays      = new CmdReplay?[CmdReplayUtils.MaxWidgetType];
     private             int                 maxTypeIndex;
     
     [MethodImpl(MethodImplOptions.NoInlining)]
