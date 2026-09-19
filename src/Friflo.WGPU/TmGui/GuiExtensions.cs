@@ -15,8 +15,8 @@ public static class WgpuGuiExtensions
         return new TmTexture(textureView.texture, textureView.Handle);
     }
     
-    public static GpuTextureView AsGpuTexture(in this TmTexture tmTexture)
+    public static GpuTexture AsGpuTexture(in this TmTexture tmTexture)
     {
-        return new GpuTextureView((GpuTexture)tmTexture.native, tmTexture.handle);
+        return (GpuTexture)tmTexture.native;
     }
 }

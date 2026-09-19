@@ -33,7 +33,7 @@ public class TmDrawRenderer : IRenderer
         
         // create tile texture
         using var stream = typeof(SdlWindow).Assembly.GetManifestResourceStream("Tests-Console.Assets.img.world_tileset.png")!;
-        myTexture        = guiBackend.LoadTexture(stream, "world_tileset.png"); 
+        myTexture        = guiBackend.LoadTexture(stream, "world_tileset.png").AsGpuTexture(); 
         myTextureView    = myTexture.CreateView().AsImTexture();
     }
     

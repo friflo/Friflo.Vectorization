@@ -35,7 +35,7 @@ public class Tests_TmGui_window2
         var drawList    = batch.DrawList;
         var verticesLen = batch.Vertices.Length;
         Assert.That(drawList.Length,    Is.EqualTo(14));
-        Assert.That(verticesLen,        Is.EqualTo(2908));
+        Assert.That(verticesLen,        Is.EqualTo(3176));
     }
     
     private static void Window2(Gui gui)

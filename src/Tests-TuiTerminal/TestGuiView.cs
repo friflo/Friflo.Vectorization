@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using System.Numerics;
 using Friflo.TmGui;
+using Friflo.TmGui.Session;
 using Friflo.TmGui.TUI;
 
 // ReSharper disable ConvertToPrimaryConstructor
@@ -12,9 +13,12 @@ public class TestGuiView : IGuiView
     private readonly    AppState    appState;
     private readonly    Color32[]   textColors = [0x0000FFFF, 0xFF0000FF, 0x009900FF, 0xFF00FFFF, 0xCC6600FF, 0x000000ff];
     
-    public TestGuiView(AppState appState)
+    public TestGuiView(AppState appState, ConnectInfo info)
     {
         this.appState = appState;
+        using var stream = typeof(TestGuiView).Assembly.GetManifestResourceStream("Tests-Console.Assets.img.sixel_text.png")!;
+        // var myTexture    = info.backend.LoadTexture(stream, "sixel_text.png"); 
+        // myTextureView    = myTexture.CreateView().AsImTexture();
     }
     
     public void RenderGui(TmBatch batch, int targetWidth, int targetHeight)

@@ -91,10 +91,13 @@ public sealed partial class TmSessionLoop : IDisposable
         var firstLine   = payload.Span.IndexOf((byte)'\n');
         var client      = evt.Client;
         var args        = firstLine == -1 ? [] : GetArgs(payload.Span.Slice(0, firstLine));
-        var connectInfo = new ConnectInfo{ client = client, args = args };
+
+        var session     = new TuiSession(evt.Client, frameBuffer, TuiColorMode.RGB24);
+
+        var connectInfo = new ConnectInfo{ client = client, backend = session.tuiBackend, args = args };
         var guiView     = createGuiView(connectInfo);
         
-        var session     = new TuiSession(guiView, evt.Client, frameBuffer, TuiColorMode.RGB24);
+        session.guiView = guiView;
         sessions[client]= session;
         var msgStart    = firstLine == -1 ? 0 : firstLine + 1;
         firstPayload    = payload.GetMemory(msgStart);

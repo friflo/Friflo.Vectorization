@@ -30,7 +30,7 @@ using TuiTerminal;
 Console.WriteLine("TUI Terminal Server");
 
 var appState = new AppState();
-var loop     = new TmSessionLoop(_ => new TestGuiView(appState));
+var loop     = new TmSessionLoop(info => new TestGuiView(appState, info));
 
 
 // Flag toggles execution mode:

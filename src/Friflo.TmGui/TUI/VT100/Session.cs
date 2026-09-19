@@ -14,13 +14,13 @@ namespace Friflo.TmGui.TUI.VT100;
 
 internal sealed partial class TuiSession : TmSession
 {
-    private readonly    TmClient        client;
-    private readonly    TuiColorMode    colorMode;
-    private readonly    FrameBuffer     frameBuffer;
-    private readonly    TuiBackend      tuiBackend;
-    private readonly    TuiBatch        tuiBatch;
-    private readonly    IGuiView        guiView;
-    private readonly    byte[]          sendBuffer      = new byte[30000];  // TODO grow if needed
+    private  readonly   TmClient        client;
+    private  readonly   TuiColorMode    colorMode;
+    private  readonly   FrameBuffer     frameBuffer;
+    internal readonly   TuiBackend      tuiBackend;
+    private  readonly   TuiBatch        tuiBatch;
+    internal            IGuiView        guiView;
+    private  readonly   byte[]          sendBuffer      = new byte[30000];  // TODO grow if needed
     private             int             sendBufferCount;
     private             int             frameWidth      = 50;
     private             int             frameHeight     = 20;
@@ -29,11 +29,10 @@ internal sealed partial class TuiSession : TmSession
     private             ulong           lastSendHash;
     private             int             sendCounter;
     
-    public TuiSession(IGuiView guiView, TmClient client, FrameBuffer frameBuffer, TuiColorMode colorMode)
+    public TuiSession(TmClient client, FrameBuffer frameBuffer, TuiColorMode colorMode)
     {
         this.client         = client;
         this.colorMode      = colorMode;
-        this.guiView        = guiView;
         this.frameBuffer    = frameBuffer;
         tuiBackend          = new TuiBackend("Terminal");
         

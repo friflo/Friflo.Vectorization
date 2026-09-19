@@ -66,9 +66,8 @@ public class TmGuiRenderer : IRenderer
         
         // create tile texture
         using var stream = typeof(SdlWindow).Assembly.GetManifestResourceStream("Tests-Console.Assets.img.world_tileset.png")!;
-        myTexture        = guiBackend.LoadTexture(stream, "world_tileset.png"); 
+        myTexture        = guiBackend.LoadTexture(stream, "world_tileset.png").AsGpuTexture(); 
         myTextureView    = myTexture.CreateView().AsImTexture();
-        var native       = myTextureView.AsGpuTexture(); // only ensure API is available
     }
     
     public void OnWindowChanged(int width, int height)

@@ -53,8 +53,9 @@ internal readonly struct Payload
 
 public struct ConnectInfo
 {
-    public  string[]    args;
-    public  TmClient    client;
+    public  string[]        args;
+    public  TmClient        client;
+    public  TmGuiBackend    backend;
 }
 
 public delegate IGuiView CreateGuiView(ConnectInfo info);
