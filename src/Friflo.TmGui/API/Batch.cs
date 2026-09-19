@@ -99,7 +99,8 @@ public abstract class TmBatch : IDisposable
     internal            BlendState          currentBlendState;
     internal            SamplerFilter       currentSamplerFilter;
     internal            RectVector2         currentScissor;
-    /// should be near <see cref="currentScissor"/>. Same as <see cref="GuiInput.layoutOffset"/>.
+    internal            RectVector2         paddedScissor;
+    /// Should be near <see cref="paddedScissor"/>. Same as <see cref="GuiInput.layoutOffset"/>.
     internal            Vector2             layoutOffset;
     internal            bool                sortZIndex;
     internal            ZIndex              currentZIndex;
@@ -148,6 +149,12 @@ public abstract class TmBatch : IDisposable
     {
         stringBuilder.Clear();
         return stringBuilder;
+    }
+    
+    internal void SetScissor(RectVector2 scissor) {
+        currentScissor = scissor;
+        var lineHeight = currentFont.lineHeight;
+        paddedScissor  = new RectVector2(scissor.pos - new Vector2(lineHeight), scissor.size + new Vector2(2 * lineHeight));
     }
 #endregion
 
@@ -219,7 +226,7 @@ public abstract class TmBatch : IDisposable
         currentSamplerFilter= SamplerFilter.Linear;
         currentTransform    = Matrix4x4.Identity;
         currentBlendState   = BlendState.Alpha;
-        currentScissor      = new RectVector2(Vector2.Zero, new Vector2(width, height));
+        SetScissor(new RectVector2(Vector2.Zero, new Vector2(width, height)));
         layoutOffset        = input.layoutOffset;
         sortZIndex          = false;
         currentZIndex       = default;

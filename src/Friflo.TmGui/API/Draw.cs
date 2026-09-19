@@ -56,7 +56,7 @@ public readonly ref partial struct TmDraw
     
 #region scissor
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool IntersectsScissor(Vector2 pos, Vector2 size) => batch.currentScissor.IntersectsRect(pos + batch.layoutOffset, size);
+    public bool IntersectsScissor(Vector2 pos, Vector2 size) => batch.paddedScissor.IntersectsRect(pos + batch.layoutOffset, size);
     
     public ScissorScope PushScissor(Vector2 position, Vector2 size)
     {
@@ -73,7 +73,7 @@ public readonly ref partial struct TmDraw
         scissorStack.Push(scissor);
 
         batch.Flush();
-        batch.currentScissor = scissor;
+        batch.SetScissor(scissor);
         return new ScissorScope(this);
     }
 
@@ -85,7 +85,7 @@ public readonly ref partial struct TmDraw
         }
         var scissor = scissorStack.Count > 0 ? scissorStack.Peek() : new RectVector2(Vector2.Zero, batch.viewport);
         batch.Flush();
-        batch.currentScissor = scissor;
+        batch.SetScissor(scissor);
     }
 #endregion
     
