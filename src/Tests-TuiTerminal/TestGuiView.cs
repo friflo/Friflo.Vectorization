@@ -12,13 +12,14 @@ public class TestGuiView : IGuiView
 {
     private readonly    AppState    appState;
     private readonly    Color32[]   textColors = [0x0000FFFF, 0xFF0000FF, 0x009900FF, 0xFF00FFFF, 0xCC6600FF, 0x000000ff];
+    private readonly    TmTexture   myTexture;
     
     public TestGuiView(AppState appState, ConnectInfo info)
     {
         this.appState = appState;
         using var stream = typeof(TestGuiView).Assembly.GetManifestResourceStream("TuiTerminal.Assets.sixel_test.png")!;
-        var myTexture    = info.backend.LoadTexture(stream, "sixel_test.png"); 
-        // var myTextureView    = myTexture.CreateView().AsImTexture();
+        myTexture       = info.backend.LoadTexture(stream, "sixel_test.png");
+        // var myTextureView    = myTexture.AsImTexture();
     }
     
     public void RenderGui(TmBatch batch, int targetWidth, int targetHeight)

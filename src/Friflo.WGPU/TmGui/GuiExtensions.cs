@@ -10,7 +10,7 @@ namespace Friflo.WGPU.TmGui;
 
 public static class WgpuGuiExtensions
 {
-    public static TmTexture AsImTexture(this GpuTextureView textureView)
+    public static TmTexture AsTmTexture(this GpuTextureView textureView)
     {
         return new TmTexture(textureView.texture, textureView.Handle);
     }

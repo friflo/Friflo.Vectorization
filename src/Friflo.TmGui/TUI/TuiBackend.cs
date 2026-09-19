@@ -8,6 +8,20 @@ using Friflo.TmGui.Headless;
 // ReSharper disable ConvertToPrimaryConstructor
 namespace Friflo.TmGui.TUI;
 
+
+internal class TuiTexture
+{
+    internal readonly   int     width;
+    internal readonly   int     height;
+    internal readonly   byte[]  data;
+    
+    internal TuiTexture(int width, int height, byte[]  data) {
+        this.width  = width;
+        this.height = height;
+        this.data   = data;
+    }
+}
+
 public sealed class TuiBackend : TmGuiBackend
 {
     internal readonly   string  name;
@@ -46,6 +60,7 @@ public sealed class TuiBackend : TmGuiBackend
         var image = assets.LoadImage(stream, TmColorComponents.RedGreenBlueAlpha);
 
         // texture.Write(image.data, bytesPerRow: image.width * 4, rowsPerImage: image.height);
-        return new TmTexture(null!, 0);
+        var tuiTexture = new TuiTexture(image.width, image.height, image.data);
+        return new TmTexture(tuiTexture, 0);
     }
 }
