@@ -56,11 +56,20 @@ public sealed class TuiSixel
         }
     }
     
-    internal static int AppendColorIndexesToTargetBuffer(int width, int height, byte[] colorIndexes, Span<byte> target)
+    private static int AppendColorIndexesToTargetBuffer(int width, int height, byte[] colorIndexes, Span<byte> target)
     {
-        // Temporary 256-entry lookup to track active colors and their bitmasks within a 6-row band
         Span<ushort> colorBitmasks = stackalloc ushort[256];
         int writtenBytes = 0;
+
+        // 1. Write SIXEL Header: DCS (ESC P 7 ; 1 ; q)
+        // "7;1" specifies aspect ratio and grid unit
+        target[writtenBytes++] = 0x1B; // ESC
+        target[writtenBytes++] = (byte)'P';
+        target[writtenBytes++] = (byte)'7';
+        target[writtenBytes++] = (byte)';';
+        target[writtenBytes++] = (byte)'1';
+        target[writtenBytes++] = (byte)';';
+        target[writtenBytes++] = (byte)'q';
 
         int bandCount = (height + 5) / 6;
 
@@ -69,18 +78,15 @@ public sealed class TuiSixel
             int startY = band * 6;
             int endY = Math.Min(startY + 6, height);
 
-            // 1. Flush SIXEL Band Start / DECGNL (Graphics New Line "-") between bands
             if (band > 0)
             {
                 target[writtenBytes++] = (byte)'-';
             }
 
-            // 2. Process all 256 possible colors for the current 6-row band
             for (int color = 0; color < 256; color++)
             {
                 bool colorUsedInBand = false;
 
-                // Step A: Collect 6-row bitmasks for the current color across all columns (x)
                 for (int x = 0; x < width; x++)
                 {
                     byte columnBitmask = 0;
@@ -104,13 +110,10 @@ public sealed class TuiSixel
                     }
                 }
 
-                // Step B: If the color is used in this band, write color introducer and SIXEL characters
                 if (colorUsedInBand)
                 {
-                    // Write SIXEL color selection string: "#<colorIndex>"
                     target[writtenBytes++] = (byte)'#';
                     
-                    // Fast ASCII formatting for color index (0..255) without allocations
                     if (color >= 100)
                     {
                         target[writtenBytes++] = (byte)('0' + (color / 100));
@@ -122,19 +125,20 @@ public sealed class TuiSixel
                     }
                     target[writtenBytes++] = (byte)('0' + (color % 10));
 
-                    // Step C: Append SIXEL characters ('?' to '~') for each column
                     for (int x = 0; x < width; x++)
                     {
                         byte mask = (byte)colorBitmasks[x];
-                        // SIXEL character encoding offset (+63 / ASCII '?')
                         target[writtenBytes++] = (byte)(63 + mask);
                     }
 
-                    // Graphics Carriage Return ('$') to reset cursor position for next color in same band
                     target[writtenBytes++] = (byte)'$';
                 }
             }
         }
+
+        // 2. Write SIXEL Footer: ST (ESC \)
+        target[writtenBytes++] = 0x1B; // ESC
+        target[writtenBytes++] = (byte)'\\';
 
         return writtenBytes;
     }
