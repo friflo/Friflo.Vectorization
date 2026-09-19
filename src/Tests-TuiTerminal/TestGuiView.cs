@@ -64,11 +64,10 @@ public class TestGuiView : IGuiView
         gui.EndHorizontal();
         
         gui.Label("after horizontal", Color32.Teal);
-        using (var space = gui.BeginSpace(new(128, 64), "sprite")) {
-            if (space.isFired) Debug.WriteLine("Clicked: Sprite");
-            var srcPos  = new Vector2(3 * 64, 0 * 64);  // tile pos in Sheet (3, 0)        
-            var tint = gui.Colors.ButtonState(space.widgetState);
-            gui.Draw.DrawSpriteRegion(default, space.pos, space.size, srcPos, space.size, new(1024, 1024), tint);
+        using (var space = gui.BeginSpace(new(192, 64), "sprite")) {
+            // var srcPos  = new Vector2(3 * 64, 0 * 64);  // tile pos in Sheet (3, 0)
+            // var tint = gui.Colors.ButtonState(space.widgetState);
+            gui.Draw.DrawSprite(myTexture, space.pos, space.size);
         }
         gui.Spacer();
         gui.Checkbox("checkbox", ref appState.enabled2);

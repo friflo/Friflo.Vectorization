@@ -11,14 +11,18 @@ namespace Friflo.TmGui.TUI;
 
 internal class TuiTexture
 {
-    internal readonly   int     width;
-    internal readonly   int     height;
-    internal readonly   byte[]  data;
+    internal readonly   int         width;
+    internal readonly   int         height;
+    internal readonly   byte[]      data;
+    internal readonly   TuiSixel    sixel;
     
-    internal TuiTexture(int width, int height, byte[]  data) {
+    public   override   string      ToString() => $"{width} x {height}";
+    
+    internal TuiTexture(int width, int height, byte[] data) {
         this.width  = width;
         this.height = height;
         this.data   = data;
+        sixel       = new TuiSixel(width, height, data);
     }
 }
 
