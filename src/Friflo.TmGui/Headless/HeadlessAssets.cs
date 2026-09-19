@@ -17,6 +17,28 @@ internal class HeadlessAssets : IGuiAssets
 {
     public TmFont CreateDefaultFont(TmGuiBackend backend)
     {
+        return CreateHeadlessFont();
+    }
+    
+    public TmImageAsset LoadImage(Stream stream, TmColorComponents colorComponents)
+    {
+        return default;
+    }
+    
+    public TmTrueTypeFontAsset LoadTrueTypeFont(
+        Stream  ttfStream,
+        float   fontSize,
+        int     atlasWidth,
+        int     atlasHeight,
+        byte[]  alphaBitmapTarget, 	// [atlasWidth * atlasHeight]
+        int     firstChar,    		// ASCII 32 to 126
+        int     charCount)
+    {
+        return default;
+    }
+    
+    internal static TmFont CreateHeadlessFont()
+    {
          // Simulate monospace font
         var glyph = new GlyphInfo {
             sourceSize = new Vector2(20.0f, 32.0f),
@@ -36,22 +58,5 @@ internal class HeadlessAssets : IGuiAssets
         var textureSize = new Vector2(fontTexture.width, fontTexture.height);
         
         return new TmFont(texture, textureSize, 47, glyphs, "Headless Font", -1, false);
-    }
-    
-    public TmImageAsset LoadImage(Stream stream, TmColorComponents colorComponents)
-    {
-        return default;
-    }
-    
-    public TmTrueTypeFontAsset LoadTrueTypeFont(
-        Stream  ttfStream,
-        float   fontSize,
-        int     atlasWidth,
-        int     atlasHeight,
-        byte[]  alphaBitmapTarget, 	// [atlasWidth * atlasHeight]
-        int     firstChar,    		// ASCII 32 to 126
-        int     charCount)
-    {
-        return default;
     }
 }

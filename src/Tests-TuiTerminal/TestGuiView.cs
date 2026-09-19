@@ -16,9 +16,9 @@ public class TestGuiView : IGuiView
     public TestGuiView(AppState appState, ConnectInfo info)
     {
         this.appState = appState;
-        using var stream = typeof(TestGuiView).Assembly.GetManifestResourceStream("Tests-Console.Assets.img.sixel_text.png")!;
-        // var myTexture    = info.backend.LoadTexture(stream, "sixel_text.png"); 
-        // myTextureView    = myTexture.CreateView().AsImTexture();
+        using var stream = typeof(TestGuiView).Assembly.GetManifestResourceStream("TuiTerminal.Assets.sixel_test.png")!;
+        var myTexture    = info.backend.LoadTexture(stream, "sixel_test.png"); 
+        // var myTextureView    = myTexture.CreateView().AsImTexture();
     }
     
     public void RenderGui(TmBatch batch, int targetWidth, int targetHeight)

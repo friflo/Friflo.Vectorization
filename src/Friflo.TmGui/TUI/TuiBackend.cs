@@ -14,7 +14,7 @@ public sealed class TuiBackend : TmGuiBackend
     
     public   override   string  ToString()  => name;
     
-    public TuiBackend(string name) : base(new HeadlessAssets()) {
+    public TuiBackend(string name) : base(new TuiAssets()) {
         this.name = name;
     }
 
@@ -43,6 +43,9 @@ public sealed class TuiBackend : TmGuiBackend
     
     public override TmTexture LoadTexture(Stream stream, string? label = null, TmTextureUsage usage = TmTextureUsage.TextureBinding | TmTextureUsage.CopyDst)
     {
-        throw new NotSupportedException();
+        var image = assets.LoadImage(stream, TmColorComponents.RedGreenBlueAlpha);
+
+        // texture.Write(image.data, bytesPerRow: image.width * 4, rowsPerImage: image.height);
+        return new TmTexture(null!, 0);
     }
 }

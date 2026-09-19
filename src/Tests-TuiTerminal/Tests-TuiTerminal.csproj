@@ -11,5 +11,9 @@
     <ItemGroup>
       <ProjectReference Include="..\Friflo.TmGui\Friflo.TmGui.csproj" />
     </ItemGroup>
+    
+    <ItemGroup>
+      <EmbeddedResource Include="Assets/**/*.png" />
+    </ItemGroup>
 
 </Project>
