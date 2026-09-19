@@ -60,6 +60,8 @@ public sealed partial class GuiRecorder
 
         cmdReplay.count = count + 1;
         
+        /*
+        // using Gui.ToString() is sufficient
         var time = Stopwatch.GetTimestamp();
         var diff = Stopwatch.GetElapsedTime(lastRecordTime, time);
         lastRecordTime = time;
@@ -67,6 +69,7 @@ public sealed partial class GuiRecorder
             return;
         }
         Replay();
+        */
     }
     
     [MethodImpl(MethodImplOptions.NoInlining)]
