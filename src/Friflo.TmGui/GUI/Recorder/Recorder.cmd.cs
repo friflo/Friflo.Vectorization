@@ -62,14 +62,14 @@ public sealed partial class GuiRecorder
         var records = isPush ? pushRecords : replayRecords;
         records.Add(new ReplayRecord(CmdReplay<T>.TypeIndex, count));
 
+#if DEBUG
+        // using Gui.ToString() to trigger Replay() is sufficient
         var time = Stopwatch.GetTimestamp(); // ~5-15 ns
         var diff = time - lastRecordTime;
         lastRecordTime = time;
         if (diff < TargetIntervalTicks) {
             return;
         }
-#if DEBUG
-        // using Gui.ToString() is sufficient
         Replay();
 #endif
     }
