@@ -191,11 +191,20 @@ public partial class TuiBatch
     {
         var tuiTexture = (TuiTexture)texture.native!;
         var sixel = tuiTexture.sixel;
-        sixelMap.TryAdd(sixel.sixelHandle, sixel);
         
-        tuiRects.Add(new TuiRect(sixel.sixelHandle, position, size));
+        drawSixels[++drawSixelCount] = new DrawSixel { sixel = sixel };
+        
+        tuiRects.Add(new TuiRect(drawSixelCount, position, size));
     }
     
-    internal readonly Dictionary<byte, TuiSixel> sixelMap = new(); 
+    internal readonly   DrawSixel[] drawSixels      = new DrawSixel[256];
+    internal            byte        drawSixelCount;
+}
+
+internal struct DrawSixel {
+    internal TuiSixel?  sixel; 
+    internal bool       isDrawn;
+
+    public   override string ToString() => sixel?.ToString() ?? "null";
 }
 

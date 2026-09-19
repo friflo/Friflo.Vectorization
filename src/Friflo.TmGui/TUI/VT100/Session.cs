@@ -180,8 +180,8 @@ internal sealed partial class TuiSession : TmSession
                 if ((cell.background.Packed & 0x00ffffff) != (background.Packed & 0x00ffffff)) {
                     SetBackground(background = cell.background);
                 }
-                if (cell.sixelHandle != 0) {
-                    var sixel = AppendSixel(cell.sixelHandle, ref x, y);
+                if (cell.sixelSeq != 0) {
+                    var sixel = AppendSixel(cell.sixelSeq, ref x, y);
                     if (sixel) {
                         continue;
                     }
@@ -313,12 +313,15 @@ internal sealed partial class TuiSession : TmSession
         buffer.SetCell(x + 1, y, cell with { rune = new Rune(shape.right)  });
     }
     
-    private bool AppendSixel(byte sixelHandle, ref int x, int y)
+    private bool AppendSixel(byte sixelSeq, ref int x, int y)
     {
-        if (!tuiBatch.sixelMap.TryGetValue(sixelHandle, out var sixel)) {
+        ref var drawSixel = ref tuiBatch.drawSixels[sixelSeq];
+        if (drawSixel.sixel == null || drawSixel.isDrawn) {
             return false;
         }
-        var target = sendBuffer.AsSpan(sendBufferCount, sendBuffer.Length - sendBufferCount);
+        drawSixel.isDrawn = true;
+        var sixel   = drawSixel.sixel;
+        var target  = sendBuffer.AsSpan(sendBufferCount, sendBuffer.Length - sendBufferCount);
         var bytesWritten = TuiSixel.AppendColorIndexesToTargetBuffer(sixel.width, sixel.height, sixel.colorIndexes, target);
         sendBufferCount += bytesWritten;
         

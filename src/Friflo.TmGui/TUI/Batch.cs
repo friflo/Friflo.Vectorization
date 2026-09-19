@@ -83,6 +83,7 @@ public sealed partial class TuiBatch : TmBatch
         rectCommands.Clear();
         textBuffer.Clear();
         colorBuffer.Clear();
+        drawSixelCount = 0;
     }
     
     internal void FlushRects()
@@ -185,8 +186,8 @@ public sealed partial class TuiBatch : TmBatch
                     // Early exit for fully clipped rectangles
                     if (startX >= endX || startY >= endY) continue;
                     
-                    if (rect.sixelHandle != 0) {
-                        cells[startY * stride + startX].sixelHandle = rect.sixelHandle;
+                    if (rect.sixelSeq != 0) {
+                        cells[startY * stride + startX].sixelSeq = rect.sixelSeq;
                         continue;
                     }
 
