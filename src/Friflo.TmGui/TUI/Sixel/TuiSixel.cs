@@ -63,15 +63,41 @@ public sealed class TuiSixel
         Span<ushort> colorBitmasks = stackalloc ushort[256];
         int writtenBytes = 0;
 
-        // 1. Write SIXEL Header: DCS (ESC P 7 ; 1 ; q)
-        // "7;1" specifies aspect ratio and grid unit
+        // 1. Write SIXEL Header with explicit transparency mode (7;1;1)
+        // 7 = aspect ratio, 1 = grid, 1 = transparent background (does not bleed black)
         target[writtenBytes++] = 0x1B; // ESC
         target[writtenBytes++] = (byte)'P';
         target[writtenBytes++] = (byte)'7';
         target[writtenBytes++] = (byte)';';
         target[writtenBytes++] = (byte)'1';
         target[writtenBytes++] = (byte)';';
+        target[writtenBytes++] = (byte)'1';
         target[writtenBytes++] = (byte)'q';
+
+        // 2. Define R3G3B2 Color Palette (#index;2;r%;g%;b%)
+        for (int color = 0; color < 256; color++)
+        {
+            // Extract R3G3B2 components
+            int r = (color >> 5) & 0x07;
+            int g = (color >> 2) & 0x07;
+            int b = color & 0x03;
+
+            // Convert to percentage values (0..100) for SIXEL format
+            int rPct = (r * 100) / 7;
+            int gPct = (g * 100) / 7;
+            int bPct = (b * 100) / 3;
+
+            target[writtenBytes++] = (byte)'#';
+            writtenBytes += WriteIntToSpan(color, target.Slice(writtenBytes));
+            target[writtenBytes++] = (byte)';';
+            target[writtenBytes++] = (byte)'2'; // RGB Percent mode
+            target[writtenBytes++] = (byte)';';
+            writtenBytes += WriteIntToSpan(rPct, target.Slice(writtenBytes));
+            target[writtenBytes++] = (byte)';';
+            writtenBytes += WriteIntToSpan(gPct, target.Slice(writtenBytes));
+            target[writtenBytes++] = (byte)';';
+            writtenBytes += WriteIntToSpan(bPct, target.Slice(writtenBytes));
+        }
 
         int bandCount = (height + 5) / 6;
 
@@ -115,17 +141,7 @@ public sealed class TuiSixel
                 if (colorUsedInBand)
                 {
                     target[writtenBytes++] = (byte)'#';
-                    
-                    if (color >= 100)
-                    {
-                        target[writtenBytes++] = (byte)('0' + (color / 100));
-                        target[writtenBytes++] = (byte)('0' + ((color / 10) % 10));
-                    }
-                    else if (color >= 10)
-                    {
-                        target[writtenBytes++] = (byte)('0' + (color / 10));
-                    }
-                    target[writtenBytes++] = (byte)('0' + (color % 10));
+                    writtenBytes += WriteIntToSpan(color, target.Slice(writtenBytes));
 
                     for (int x = 0; x < width; x++)
                     {
@@ -138,14 +154,29 @@ public sealed class TuiSixel
             }
         }
 
-        // 2. Write SIXEL Footer: ST (ESC \)
+        // 3. Write SIXEL Footer: ST (ESC \)
         target[writtenBytes++] = 0x1B; // ESC
         target[writtenBytes++] = (byte)'\\';
-        
-        // Force newline / reset text position
-        target[writtenBytes++] = (byte)'\r';
-        target[writtenBytes++] = (byte)'\n';
 
         return writtenBytes;
+    }
+
+    private static int WriteIntToSpan(int value, Span<byte> destination)
+    {
+        if (value >= 100)
+        {
+            destination[0] = (byte)('0' + (value / 100));
+            destination[1] = (byte)('0' + ((value / 10) % 10));
+            destination[2] = (byte)('0' + (value % 10));
+            return 3;
+        }
+        if (value >= 10)
+        {
+            destination[0] = (byte)('0' + (value / 10));
+            destination[1] = (byte)('0' + (value % 10));
+            return 2;
+        }
+        destination[0] = (byte)('0' + value);
+        return 1;
     }
 }

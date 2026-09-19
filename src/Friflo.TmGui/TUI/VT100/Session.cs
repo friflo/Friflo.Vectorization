@@ -182,7 +182,7 @@ internal sealed partial class TuiSession : TmSession
                 }
                 if (cell.sixelHandle != 0) {
                     if (AppendSixel(cell.sixelHandle)) {
-                        x += 3;
+                        x += 10;
                         SetCursorPos(y, x + 2);
                         continue;
                     }
