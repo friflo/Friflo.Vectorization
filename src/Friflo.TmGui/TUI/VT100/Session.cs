@@ -19,7 +19,7 @@ internal sealed partial class TuiSession : TmSession
     private  readonly   FrameBuffer     frameBuffer;
     internal readonly   TuiBackend      tuiBackend;
     private  readonly   TuiBatch        tuiBatch;
-    internal            IGuiView        guiView;
+    internal            IGuiView?       guiView;
     private  readonly   byte[]          sendBuffer      = new byte[30000];  // TODO grow if needed
     private             int             sendBufferCount;
     private             int             frameWidth      = 50;
@@ -106,7 +106,7 @@ internal sealed partial class TuiSession : TmSession
         var pixelWidth  = (int)(frameWidth  * tuiBatch.CharWidth);
         var pixelHeight = (int)(frameHeight * tuiBatch.LineHeight);
         
-        guiView.RenderGui(tuiBatch, pixelWidth, pixelHeight);
+        guiView!.RenderGui(tuiBatch, pixelWidth, pixelHeight);
         
         if (tuiBatch.guiState.scrollAreaChanged) {
             tuiBackend.NewFrame();
@@ -179,6 +179,10 @@ internal sealed partial class TuiSession : TmSession
                 }
                 if ((cell.background.Packed & 0x00ffffff) != (background.Packed & 0x00ffffff)) {
                     SetBackground(background = cell.background);
+                }
+                if (cell.sixelHandle != 0) {
+                    AppendSixel(cell.sixelHandle);
+                    return;
                 }
                 AppendRune(cell.rune);
             }
@@ -296,5 +300,14 @@ internal sealed partial class TuiSession : TmSession
         buffer.SetCell(x - 1, y, cell with { rune = new Rune(shape.left)   });
         buffer.SetCell(x,     y, cell with { rune = new Rune(shape.center) });
         buffer.SetCell(x + 1, y, cell with { rune = new Rune(shape.right)  });
+    }
+    
+    void AppendSixel(byte sixelHandle)
+    {
+        if (tuiBatch.sixelMap.TryGetValue(sixelHandle, out var sixel)) {
+            var target = sendBuffer.AsSpan(sendBufferCount, sendBuffer.Length - sendBufferCount);
+            var bytesWritten = TuiSixel.AppendColorIndexesToTargetBuffer(sixel.width, sixel.height, sixel.colorIndexes, target);
+            sendBufferCount += bytesWritten;
+        }
     }
 }

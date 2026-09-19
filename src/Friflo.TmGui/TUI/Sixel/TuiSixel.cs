@@ -13,6 +13,7 @@ public sealed class TuiSixel
     internal readonly   int     width;
     internal readonly   int     height;
     internal readonly   byte[]  data;
+    internal readonly   byte    sixelHandle;
     
     // Size: exactly width * height bytes (1/4 of RGBA size)
     internal readonly   byte[]  colorIndexes;
@@ -23,6 +24,7 @@ public sealed class TuiSixel
         this.width  = width;
         this.height = height;
         this.data   = data;
+        sixelHandle = 1;
                 
         // int bandCount = (height + 5) / 6;
         
@@ -56,7 +58,7 @@ public sealed class TuiSixel
         }
     }
     
-    private static int AppendColorIndexesToTargetBuffer(int width, int height, byte[] colorIndexes, Span<byte> target)
+    internal static int AppendColorIndexesToTargetBuffer(int width, int height, byte[] colorIndexes, Span<byte> target)
     {
         Span<ushort> colorBitmasks = stackalloc ushort[256];
         int writtenBytes = 0;

@@ -22,11 +22,12 @@ public enum TuiColorMode
 
 public struct TuiColorCell
 {
-    public  Rune        rune;       //  4 bytes
-    public  TextStyle   textStyle;  //  1 byte
-    public  byte        width;      //  1 byte      1 or 2: rune width in terminal. 0: ghost cells
-    public  Color32     color;      //  4 bytes
-    public  Color32     background; //  4 bytes
+    public  Rune        rune;           //  4 bytes
+    public  TextStyle   textStyle;      //  1 byte
+    public  byte        width;          //  1 byte      1 or 2: rune width in terminal. 0: ghost cells
+    public  byte        sixelHandle;    //  1 byte
+    public  Color32     color;          //  4 bytes
+    public  Color32     background;     //  4 bytes
     
     public  char        Character   { get => throw new InvalidOperationException(); set => rune = new Rune(value); }
     
@@ -131,11 +132,12 @@ public readonly struct Color32Span
 /// </remarks>
 public struct TuiRect
 {
-    public  readonly    TextSpan    text;       //  8 bytes
-    public              Vector2     TL;         //  8 bytes - top / lLeft    - Must use floats to enable layout mutations
-    public              Vector2     BR;         //  8 bytes - bottom / right - Must use floats to enable layout mutations
-    public  readonly    Color32Span color;      //  6 bytes
-    public  readonly    TextStyle   textStyle;  //  1 byte
+    public  readonly    TextSpan    text;           //  8 bytes
+    public              Vector2     TL;             //  8 bytes - top / lLeft    - Must use floats to enable layout mutations
+    public              Vector2     BR;             //  8 bytes - bottom / right - Must use floats to enable layout mutations
+    public  readonly    Color32Span color;          //  6 bytes
+    public  readonly    TextStyle   textStyle;      //  1 byte
+    public  readonly    byte        sixelHandle;    //  1 byte
     
     public  readonly    Vector2     Size        => BR - TL; // only for debugging
     
@@ -156,6 +158,12 @@ public struct TuiRect
         this.TL         = pos;
         this.BR         = pos + size;
         this.color      = color;
+    }
+    
+    internal TuiRect(byte sixelHandle, Vector2 pos, Vector2 size) {
+        this.sixelHandle    = sixelHandle;
+        this.TL             = pos;
+        this.BR             = pos + size;
     }
 }
 

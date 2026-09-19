@@ -186,5 +186,16 @@ public partial class TuiBatch
         var bl = pos + vertical + xOffset;
         FillRectChar(bl, horizontal + yOffset - xOffset, shadow, (char)0, shadow);
     }
+
+    public void DrawSprite(in TmTexture texture, Vector2 position, Vector2 size)
+    {
+        var tuiTexture = (TuiTexture)texture.native!;
+        var sixel = tuiTexture.sixel;
+        sixelMap.TryAdd(sixel.sixelHandle, sixel);
+        
+        tuiRects.Add(new TuiRect(sixel.sixelHandle, position, size));
+    }
+    
+    internal readonly Dictionary<byte, TuiSixel> sixelMap = new(); 
 }
 

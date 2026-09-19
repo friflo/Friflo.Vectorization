@@ -19,7 +19,7 @@ namespace Friflo.TmGui.TUI;
 
 public sealed partial class TuiBatch : TmBatch
 {
-    private readonly    string                  name;
+    private readonly    string                  batchName;
     public              TuiFocusBorder          focusBorder;
     private             float                   yScale;
     private             float                   xScale;
@@ -39,11 +39,11 @@ public sealed partial class TuiBatch : TmBatch
     public              float                   XScale      => xScale;
     public              float                   YScale      => yScale;
 
-    public   override   string                  ToString()  => name;
+    public   override   string                  ToString()  => batchName;
 
     public TuiBatch(TuiBackend backend, TuiColorMode colorMode) : base(backend, 0)
     {
-        name = backend.name;
+        batchName = backend.name;
         if  (colorMode == TuiColorMode.Monochrome) {
             focusBorder  = new TuiFocusBorder('>', '<');
         } else {
@@ -184,6 +184,11 @@ public sealed partial class TuiBatch : TmBatch
 
                     // Early exit for fully clipped rectangles
                     if (startX >= endX || startY >= endY) continue;
+                    
+                    if (rect.sixelHandle != 0) {
+                        cells[startY * stride + startX].sixelHandle = rect.sixelHandle;
+                        return;
+                    }
 
                     if (rect.text.len == 0)
                     {
