@@ -55,11 +55,11 @@ public sealed partial class GuiRecorder
         }
         commands[count] = cmd;
         
+        cmdReplay.count = count + 1;
+
         var records = isPush ? pushRecords : replayRecords;
         records.Add(new ReplayRecord(CmdReplay<T>.TypeIndex, count));
 
-        cmdReplay.count = count + 1;
-        
         /*
         // using Gui.ToString() is sufficient
         var time = Stopwatch.GetTimestamp();
