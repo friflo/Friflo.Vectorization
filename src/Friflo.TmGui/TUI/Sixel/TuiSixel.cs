@@ -141,6 +141,10 @@ public sealed class TuiSixel
         // 2. Write SIXEL Footer: ST (ESC \)
         target[writtenBytes++] = 0x1B; // ESC
         target[writtenBytes++] = (byte)'\\';
+        
+        // Force newline / reset text position
+        target[writtenBytes++] = (byte)'\r';
+        target[writtenBytes++] = (byte)'\n';
 
         return writtenBytes;
     }

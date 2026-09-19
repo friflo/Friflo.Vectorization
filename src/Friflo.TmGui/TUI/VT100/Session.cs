@@ -181,8 +181,11 @@ internal sealed partial class TuiSession : TmSession
                     SetBackground(background = cell.background);
                 }
                 if (cell.sixelHandle != 0) {
-                    AppendSixel(cell.sixelHandle);
-                    return;
+                    if (AppendSixel(cell.sixelHandle)) {
+                        x += 3;
+                        SetCursorPos(y, x + 2);
+                        continue;
+                    }
                 }
                 AppendRune(cell.rune);
             }
@@ -198,6 +201,15 @@ internal sealed partial class TuiSession : TmSession
         AppendSpan("\x1b["u8);
         AppendNumber((byte)row);
         AppendSpan(";1H"u8);
+    }
+    
+    private void SetCursorPos(int row, int col)
+    {
+        AppendSpan("\x1b["u8);
+        AppendNumber((byte)row);
+        AppendSpan(";"u8);
+        AppendNumber((byte)col);
+        AppendSpan("H"u8);
     }
     
     private void SetColor(Color32 color)
@@ -302,12 +314,14 @@ internal sealed partial class TuiSession : TmSession
         buffer.SetCell(x + 1, y, cell with { rune = new Rune(shape.right)  });
     }
     
-    void AppendSixel(byte sixelHandle)
+    private bool AppendSixel(byte sixelHandle)
     {
-        if (tuiBatch.sixelMap.TryGetValue(sixelHandle, out var sixel)) {
-            var target = sendBuffer.AsSpan(sendBufferCount, sendBuffer.Length - sendBufferCount);
-            var bytesWritten = TuiSixel.AppendColorIndexesToTargetBuffer(sixel.width, sixel.height, sixel.colorIndexes, target);
-            sendBufferCount += bytesWritten;
+        if (!tuiBatch.sixelMap.TryGetValue(sixelHandle, out var sixel)) {
+            return false;
         }
+        var target = sendBuffer.AsSpan(sendBufferCount, sendBuffer.Length - sendBufferCount);
+        var bytesWritten = TuiSixel.AppendColorIndexesToTargetBuffer(sixel.width, sixel.height, sixel.colorIndexes, target);
+        sendBufferCount += bytesWritten;
+        return true;
     }
 }

@@ -187,7 +187,7 @@ public sealed partial class TuiBatch : TmBatch
                     
                     if (rect.sixelHandle != 0) {
                         cells[startY * stride + startX].sixelHandle = rect.sixelHandle;
-                        return;
+                        continue;
                     }
 
                     if (rect.text.len == 0)
