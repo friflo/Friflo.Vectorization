@@ -35,13 +35,13 @@ internal static class CmdReplayUtils {
     
     internal static int NewType(Type type)
     {
-        Types[_nextIndex] = type;
+        Types[_nextIndex] = type.Name;
         return _nextIndex++;
     }
     
     internal const int MaxWidgetType = 500;
     
-    internal static readonly  Type[] Types = new Type[MaxWidgetType];
+    internal static readonly  string[] Types = new string[MaxWidgetType];
 }
 
 

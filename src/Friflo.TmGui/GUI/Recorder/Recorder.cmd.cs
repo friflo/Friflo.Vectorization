@@ -20,7 +20,7 @@ internal readonly struct ReplayRecord
     internal readonly   int     index;
     internal readonly   int     type;
 
-    public   override   string  ToString() => $"{CmdReplayUtils.Types[type].Name} - index: {index}";
+    public   override   string  ToString() => $"{CmdReplayUtils.Types[type]} - index: {index}";
     
     internal ReplayRecord(int type, int index)
     {
