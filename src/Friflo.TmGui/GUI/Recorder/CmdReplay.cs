@@ -80,7 +80,8 @@ public readonly ref struct Replay
         if (recorder.rewindStack) {
             return;
         }
-        recorder.pushRecords.RemoveAt(recorder.pushRecords.Count - 1);
+        var pushRecords = recorder.pushRecords;
+        pushRecords.RemoveAt(pushRecords.Count - 1);
     }
 }
 
