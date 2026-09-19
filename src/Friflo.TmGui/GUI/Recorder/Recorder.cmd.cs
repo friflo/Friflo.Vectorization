@@ -37,6 +37,8 @@ public sealed partial class GuiRecorder
     private  readonly   CmdReplay?[]        cmdReplays      = new CmdReplay?[CmdReplayUtils.MaxWidgetType];
     private             int                 maxTypeIndex;
     
+    private static readonly long TargetIntervalTicks = (Stopwatch.Frequency * 100) / 1000; // interval: 100 ms
+    
     [MethodImpl(MethodImplOptions.NoInlining)]
     public void Record<TReplay, T>(in T cmd, bool isPush)
         where T : struct
@@ -60,16 +62,16 @@ public sealed partial class GuiRecorder
         var records = isPush ? pushRecords : replayRecords;
         records.Add(new ReplayRecord(CmdReplay<T>.TypeIndex, count));
 
-        /*
-        // using Gui.ToString() is sufficient
-        var time = Stopwatch.GetTimestamp();
-        var diff = Stopwatch.GetElapsedTime(lastRecordTime, time);
+        var time = Stopwatch.GetTimestamp(); // ~5-15 ns
+        var diff = time - lastRecordTime;
         lastRecordTime = time;
-        if (diff.TotalMilliseconds < 100) {
+        if (diff < TargetIntervalTicks) {
             return;
         }
+#if DEBUG
+        // using Gui.ToString() is sufficient
         Replay();
-        */
+#endif
     }
     
     [MethodImpl(MethodImplOptions.NoInlining)]

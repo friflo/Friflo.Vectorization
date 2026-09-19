@@ -2,6 +2,7 @@
 // See LICENSE file in the project root for full license information.
 
 using System;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using Friflo.TmGui.TUI;
 
@@ -60,10 +61,12 @@ public readonly ref struct Replay
         this.colorBuffer    = colorBuffer;
     }
     
+    [DebuggerHidden]
     public ReadOnlySpan<char> GetText(TextSpan span) {
         return textBuffer.Slice(span.start, span.len);
     }
     
+    [DebuggerHidden]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public TextColor GetColor(Color32Span span) {
         if (span.len == 0) {

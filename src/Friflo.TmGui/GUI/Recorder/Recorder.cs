@@ -17,17 +17,17 @@ namespace Friflo.TmGui;
 
 public sealed partial class GuiRecorder
 {
-    private             long                lastRecordTime;
-    internal            bool                rewindStack;
-    private             int                 replayCounter;
-    internal            int                 recordsSendCount;
-    private  readonly   TmBatch             batch;
-    internal readonly   GuiReplay           replay;
+    private             long            lastRecordTime;
+    internal            bool            rewindStack;
+    private             int             replayCounter;
+    internal            int             recordsSendCount;
+    private  readonly   TmBatch         batch;
+    internal readonly   GuiReplay       replay;
     
-    private  readonly   List<char>          textBuffer  = [];
-    private  readonly   List<Color32>       colorBuffer = [];
+    private  readonly   List<char>      textBuffer  = [];
+    private  readonly   List<Color32>   colorBuffer = [];
 
-    public   override   string              ToString()  => $"replays: {replayCounter}";
+    public   override   string          ToString()  => $"replays: {replayCounter}";
 
 
     internal GuiRecorder(TmBatch batch, GuiReplay replay)
