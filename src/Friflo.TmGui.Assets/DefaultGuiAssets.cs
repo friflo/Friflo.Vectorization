@@ -19,8 +19,9 @@ public class DefaultGuiAssets : IGuiAssets
 {
     public TmFont CreateDefaultFont(TmGuiBackend backend)
     {
-        using var fontAtlas = typeof(DefaultGuiAssets).Assembly.GetManifestResourceStream("Friflo.TmGui.Assets.fonts.arial-48-latin_0.png");
-        using var fntFile   = typeof(DefaultGuiAssets).Assembly.GetManifestResourceStream("Friflo.TmGui.Assets.fonts.arial-48-latin.fnt");
+        var assembly        = typeof(DefaultGuiAssets).Assembly;
+        using var fontAtlas = assembly.GetManifestResourceStream("Friflo.TmGui.Assets.fonts.arial-48-latin_0.png");
+        using var fntFile   = assembly.GetManifestResourceStream("Friflo.TmGui.Assets.fonts.arial-48-latin.fnt");
         using var reader    = new StreamReader(fntFile!, Encoding.UTF8);
         var fntContent      = reader.ReadToEnd();
         return backend.CreateBMFont(fntContent, fontAtlas!, "Default Font");
