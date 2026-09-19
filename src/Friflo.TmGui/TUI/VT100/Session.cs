@@ -183,6 +183,10 @@ internal sealed partial class TuiSession : TmSession
                 if (cell.sixelSeq != 0) {
                     var sixel = AppendSixel(cell.sixelSeq, ref x, y);
                     if (sixel) {
+                        // reset state. Terminal may have changed some states
+                        color       = new Color32();
+                        background  = new Color32();
+                        textStyle   = TextStyle.None;
                         continue;
                     }
                 }
