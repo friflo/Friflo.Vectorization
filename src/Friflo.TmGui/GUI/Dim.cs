@@ -39,10 +39,10 @@ internal enum Sizing : byte
 /// </summary>
 public readonly struct Dim
 {
-    private  readonly   float   X;
-    private  readonly   float   Y;
-    internal readonly   Sizing  sizingX;
-    internal readonly   Sizing  sizingY;
+    private  readonly   float   X;          //  4 bytes
+    private  readonly   float   Y;          //  4 bytes
+    internal readonly   Sizing  sizingX;    //  1 byte
+    internal readonly   Sizing  sizingY;    //  1 byte
     
     internal            float   Width       => X;
     internal            float   Height      => Y;
