@@ -65,7 +65,7 @@ public sealed class WgpuGuiBackend : TmGuiBackend
         return new TmWgpuBuffer<uint>(buffer);
     }
     
-    public TmTexture LoadTexture(Stream stream, string label = null, TextureUsage usage = TextureUsage.TextureBinding | TextureUsage.CopyDst)
+    public override TmTexture LoadTexture(Stream stream, string label = null, TmTextureUsage usage = TmTextureUsage.TextureBinding | TmTextureUsage.CopyDst)
     {
         var image = assets.LoadImage(stream, TmColorComponents.RedGreenBlueAlpha);
 
@@ -73,7 +73,7 @@ public sealed class WgpuGuiBackend : TmGuiBackend
             label  = label,
             size   = [image.width, image.height],
             format = TextureFormat.RGBA8Unorm,
-            usage  = usage
+            usage  = (TextureUsage)usage
         });
         texture.Write(image.data, bytesPerRow: image.width * 4, rowsPerImage: image.height);
         return new TmTexture(texture, 0);

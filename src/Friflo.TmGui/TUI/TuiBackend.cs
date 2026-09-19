@@ -2,6 +2,7 @@
 // See LICENSE file in the project root for full license information.
 
 using System;
+using System.IO;
 using Friflo.TmGui.Headless;
 
 // ReSharper disable ConvertToPrimaryConstructor
@@ -38,5 +39,10 @@ public sealed class TuiBackend : TmGuiBackend
     protected internal override TmBuffer<uint> CreateIndexBuffer(int indexCount)
     {
         return new TuiBuffer<uint>();
+    }
+    
+    public override TmTexture LoadTexture(Stream stream, string? label = null, TmTextureUsage usage = TmTextureUsage.TextureBinding | TmTextureUsage.CopyDst)
+    {
+        throw new NotSupportedException();
     }
 }

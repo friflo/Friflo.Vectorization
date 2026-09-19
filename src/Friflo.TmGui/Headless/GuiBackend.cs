@@ -2,6 +2,7 @@
 // See LICENSE file in the project root for full license information.
 
 using System;
+using System.IO;
 
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable EmptyConstructor
@@ -42,17 +43,8 @@ public sealed class HeadlessBackend : TmGuiBackend
         return new HeadlessBuffer<uint>(buffer);
     }
     
-    /* public GpuTexture LoadTexture(Stream stream, string label = null, TextureUsage usage = TextureUsage.TextureBinding | TextureUsage.CopyDst)
+    public override TmTexture LoadTexture(Stream stream, string? label = null, TmTextureUsage usage = TmTextureUsage.TextureBinding | TmTextureUsage.CopyDst)
     {
-        var image = ImageResult.FromStream(stream, ColorComponents.RedGreenBlueAlpha);
-
-        var texture = device.CreateTexture(new GpuTextureDescriptor {
-            label  = label,
-            size   = [image.Width, image.Height],
-            format = TextureFormat.RGBA8Unorm,
-            usage  = usage
-        });
-        texture.Write(image.Data, bytesPerRow: image.Width * 4, rowsPerImage: image.Height);
-        return texture;
-    } */
+        throw new NotSupportedException();
+    }
 }

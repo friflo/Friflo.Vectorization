@@ -18,6 +18,21 @@ public abstract class TmBuffer<T> : IDisposable where T : unmanaged
     public abstract void        Write(int start, int length);
 }
 
+
+/// <summary> Same flags as WGPU enum TextureUsage </summary>
+[Flags]
+public enum TmTextureUsage
+{
+  None                  = 0,
+  CopySrc               = 1,
+  CopyDst               = 2,
+  TextureBinding        = 4,
+  StorageBinding        = 8,
+  RenderAttachment      = 16,
+  TransientAttachment   = 32,
+}
+
+
 public abstract class TmGuiBackend : IDisposable
 {
     private             TmFont?     defaultFont;
@@ -30,6 +45,8 @@ public abstract class TmGuiBackend : IDisposable
     protected internal abstract  TmTexture           CreateTexture(string name, int width, int height, ReadOnlySpan<byte> rgbaPixels);
     protected internal abstract  TmBuffer<Vertex2D>  CreateVertexBuffer(int vertexCount);
     protected internal abstract  TmBuffer<uint>      CreateIndexBuffer(int indexCount);
+    
+    public abstract TmTexture LoadTexture(Stream stream, string? label = null, TmTextureUsage usage = TmTextureUsage.TextureBinding | TmTextureUsage.CopyDst);
     
     protected TmGuiBackend(IGuiAssets assets)
     {
