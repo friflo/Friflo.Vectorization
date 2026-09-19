@@ -23,8 +23,8 @@ public abstract class CmdReplay<T> : CmdReplay where T : struct
     
     internal static readonly  int TypeIndex = CmdReplayUtils.NewType(typeof(T));
     
-    protected internal  override    void    Clear()     => count = 0;
-    public              override    string  ToString()  => $"{typeof(T).Name} - Count: {count}";
+    protected internal sealed   override    void    Clear()     => count = 0;
+    public                      override    string  ToString()  => $"{typeof(T).Name} - Count: {count}";
 }
 
 
