@@ -54,29 +54,7 @@ public sealed class TuiSixel
         return paletteCount;
     }
 
-    private static void UpdateFromRgb888(int width, int height, ReadOnlySpan<byte> src, byte[] colorIndexes, int bytesPerPixel)
-    {
-        for (int y = 0; y < height; y++)
-        {
-            int rowOffset = y * width;
-            int srcRowOffset = rowOffset * bytesPerPixel;
 
-            for (int x = 0; x < width; x++)
-            {
-                int pixelOffset = srcRowOffset + (x * bytesPerPixel);
-
-                byte r = src[pixelOffset];
-                byte g = src[pixelOffset + 1];
-                byte b = src[pixelOffset + 2];
-
-                // Fast R3G3B2 color quantization (0..255)
-                byte colorIndex = (byte)((r & 0xE0) | ((g & 0xE0) >> 3) | (b >> 6));
-
-                // Direct 1-to-1 mapping into the width * height buffer
-                colorIndexes[rowOffset + x] = colorIndex;
-            }
-        }
-    }
     
     private static int AppendHeaderToTargetBuffer(Span<byte> target, ReadOnlySpan<byte> palette)
     {
@@ -115,6 +93,30 @@ public sealed class TuiSixel
             writtenBytes += WriteIntToSpan(bPct, target.Slice(writtenBytes));
         }
         return writtenBytes;
+    }
+    
+    private static void UpdateFromRgb888(int width, int height, ReadOnlySpan<byte> src, byte[] colorIndexes, int bytesPerPixel)
+    {
+        for (int y = 0; y < height; y++)
+        {
+            int rowOffset = y * width;
+            int srcRowOffset = rowOffset * bytesPerPixel;
+
+            for (int x = 0; x < width; x++)
+            {
+                int pixelOffset = srcRowOffset + (x * bytesPerPixel);
+
+                byte r = src[pixelOffset];
+                byte g = src[pixelOffset + 1];
+                byte b = src[pixelOffset + 2];
+
+                // Fast R3G3B2 color quantization (0..255)
+                byte colorIndex = (byte)((r & 0xE0) | ((g & 0xE0) >> 3) | (b >> 6));
+
+                // Direct 1-to-1 mapping into the width * height buffer
+                colorIndexes[rowOffset + x] = colorIndex;
+            }
+        }
     }
     
     internal static int AppendColorIndexesToTargetBuffer(int width, int height, byte[] colorIndexes, Span<byte> target, ReadOnlySpan<byte> palette)
