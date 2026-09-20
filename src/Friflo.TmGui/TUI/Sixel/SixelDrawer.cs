@@ -101,8 +101,8 @@ public sealed class SixelDrawer
         Span<byte> activeColors = stackalloc byte[256];
         
         // subsequent unit are in sixel pixel:  imagePos, origin & canvas
-        var imagePosX =  (int)(TuiBatch.FastFloor(drawSixel.pos.X / tuiBatch.CharWidth)  * cellPixelSize.X);
-        var imagePosY =  (int)(TuiBatch.FastFloor(drawSixel.pos.Y / tuiBatch.LineHeight) * cellPixelSize.Y);
+        var imagePosX = (int)(TuiBatch.FastFloor(drawSixel.pos.X / tuiBatch.CharWidth)  * cellPixelSize.X);
+        var imagePosY = (int)(TuiBatch.FastFloor(drawSixel.pos.Y / tuiBatch.LineHeight) * cellPixelSize.Y);
         
         var originX = TuiBatch.FastFloor(cursorX * cellPixelSize.X) - imagePosX;
         var originY = TuiBatch.FastFloor(cursorY * cellPixelSize.Y) - imagePosY;
@@ -112,12 +112,15 @@ public sealed class SixelDrawer
         var canvasWidth     = (int)(cellsWidth  * cellPixelSize.X);
         var canvasHeight    = (int)(cellsHeight * cellPixelSize.Y);
 
-        // Calculate source boundaries considering origin offsets
+        // Calculate source boundaries considering origin offsets and canvas right/bottom edges
         int startSrcX = Math.Max(0, originX);
         int startSrcY = Math.Max(0, originY);
         
-        int renderWidth  = width  - startSrcX;
-        int renderHeight = height - startSrcY;
+        int endSrcX   = Math.Min(width,  canvasWidth  - imagePosX);
+        int endSrcY   = Math.Min(height, canvasHeight - imagePosY);
+
+        int renderWidth  = endSrcX - startSrcX;
+        int renderHeight = endSrcY - startSrcY;
 
         if (renderWidth <= 0 || renderHeight <= 0) {
             // Nothing to draw
@@ -130,7 +133,7 @@ public sealed class SixelDrawer
         for (int band = 0; band < bandCount; band++)
         {
             int startY = startSrcY + (band * 6);
-            int endY = Math.Min(startY + 6, height);
+            int endY = Math.Min(startY + 6, endSrcY);
 
             if (band > 0)
             {
@@ -148,7 +151,7 @@ public sealed class SixelDrawer
                 int bit = 1 << rowInBand;
                 int rowOffset = y * width;
 
-                for (int x = startSrcX; x < width; x++)
+                for (int x = startSrcX; x < endSrcX; x++)
                 {
                     byte colorIndex = colorIndexes[rowOffset + x];
 
