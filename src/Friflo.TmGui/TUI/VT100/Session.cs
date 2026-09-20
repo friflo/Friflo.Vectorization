@@ -184,8 +184,9 @@ internal sealed partial class TuiSession : TmSession
                     SetBackground(background = cell.background);
                 }
                 if (cell.sixelSeq != 0) {
-                    var sixel = AppendSixel(cell.sixelSeq, ref x, y);
+                    var sixel = AppendSixel(cell.sixelSeq);
                     if (sixel) {
+                        SetCursorPos(y + 1, x + 2);
                         // reset state. Terminal may have changed some states
                         color       = new Color32();
                         background  = new Color32();
@@ -320,21 +321,20 @@ internal sealed partial class TuiSession : TmSession
         buffer.SetCell(x + 1, y, cell with { rune = new Rune(shape.right)  });
     }
     
-    private bool AppendSixel(byte sixelSeq, ref int x, int y)
+    private bool AppendSixel(byte sixelSeq)
     {
         ref var drawSixel = ref tuiBatch.drawSixels[sixelSeq];
-        if (drawSixel.sixel == null || drawSixel.isDrawn) {
+        if (drawSixel.sixel == null) {
             return false;
+        }
+        if (drawSixel.isDrawn) {
+            return true;
         }
         drawSixel.isDrawn = true;
         var sixel   = drawSixel.sixel;
         var target  = sendBuffer.AsSpan(sendBufferCount, sendBuffer.Length - sendBufferCount);
         var bytesWritten = sixelDrawer.AppendSixelToTargetBuffer(sixel, target);
         sendBufferCount += bytesWritten;
-        
-        int cellWidth = (sixel.width + 7) / 8; // Assuming 8px per character cell
-        x += cellWidth - 1;
-        SetCursorPos(y + 1, x + 2);
         return true;
     }
 }

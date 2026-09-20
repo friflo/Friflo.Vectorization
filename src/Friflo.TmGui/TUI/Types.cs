@@ -151,6 +151,15 @@ public struct TuiRect
         this.color      = background;
     }
     
+    /// <summary> A sixel rectangle with given sixel id. </summary>
+    internal TuiRect(byte sixelSeq, Vector2 pos, Vector2 size) {
+        text.fillChar   = '#';
+        this.sixelSeq   = sixelSeq;
+        this.TL         = pos;
+        this.BR         = pos + size;
+        this.color      = new Color32Span(Color32.Pink); // debugging color
+    }
+    
     /// <summary> A horizontal text with given text <see cref="color"/>. </summary>
     internal TuiRect(TextSpan text, TextStyle style, Vector2 pos, Vector2 size, Color32Span color) {
         this.text       = text;
@@ -158,12 +167,6 @@ public struct TuiRect
         this.TL         = pos;
         this.BR         = pos + size;
         this.color      = color;
-    }
-    
-    internal TuiRect(byte sixelSeq, Vector2 pos, Vector2 size) {
-        this.sixelSeq   = sixelSeq;
-        this.TL         = pos;
-        this.BR         = pos + size;
     }
 }
 

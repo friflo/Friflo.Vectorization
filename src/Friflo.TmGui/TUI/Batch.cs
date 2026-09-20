@@ -186,21 +186,17 @@ public sealed partial class TuiBatch : TmBatch
                     // Early exit for fully clipped rectangles
                     if (startX >= endX || startY >= endY) continue;
                     
-                    if (rect.sixelSeq != 0) {
-                        cells[startY * stride + startX].sixelSeq = rect.sixelSeq;
-                        continue;
-                    }
-
                     if (rect.text.len == 0)
                     {
                         // -----------------------------------------------------------
                         // case: Fill clipped background area row by row with split-wide cell repairs
                         int width = endX - startX;
                         var fill  = new TuiColorCell { 
-                            rune       = new Rune(rect.text.fillChar), 
-                            width      = 1, 
-                            color      = 0, 
-                            background = rect.color.value 
+                            rune        = new Rune(rect.text.fillChar), 
+                            width       = 1, 
+                            color       = 0, 
+                            background  = rect.color.value,
+                            sixelSeq    = rect.sixelSeq,
                         };
                         if (rect.color.len == 2) {
                             fill.background = colors[rect.color.start];
