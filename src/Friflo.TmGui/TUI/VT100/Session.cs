@@ -343,7 +343,7 @@ internal sealed partial class TuiSession : TmSession
         drawSixel.isDrawn = true;
         var sixel   = drawSixel.sixel;
         var target  = sendBuffer.AsSpan(sendBufferCount, sendBuffer.Length - sendBufferCount);
-        var bytesWritten = sixelDrawer.AppendSixelToTargetBuffer(sixel, target);
+        var bytesWritten = sixelDrawer.AppendSixelToTargetBuffer(sixel, tuiBatch, target);
         sendBufferCount += bytesWritten;
         return true;
     }

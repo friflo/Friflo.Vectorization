@@ -13,9 +13,9 @@ public sealed class FrameBuffer
 {
     private     int                 bufferWidth;
     private     int                 bufferHeight;
-    private     TuiColorCell[]      colorCells              = [];
+    private     TuiColorCell[]      colorCells  = [];
     
-    public      Span<TuiColorCell>  ColorCells              => colorCells. AsSpan().Slice(0,  bufferWidth * bufferHeight);
+    public      Span<TuiColorCell>  ColorCells  => colorCells. AsSpan().Slice(0,  bufferWidth * bufferHeight);
     
     internal void PrepareColorCells(int width, int height)
     {
