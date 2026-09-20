@@ -89,18 +89,8 @@ public sealed class SixelDrawer
         var height          = sixel.height;
         var colorIndexes    = sixel.colorIndexes;
         var palette         = sixel.Palette;
-            
-        // Flattened bitmask array: [color * width + x]
-        var colorBitmasksLength = 256 * width;
-        if (colorBitmasksBuffer.Length < colorBitmasksLength) {
-            colorBitmasksBuffer = new byte[colorBitmasksLength];
-        }
-        var colorBitmasks = colorBitmasksBuffer.AsSpan(0, colorBitmasksLength);
 
-        Span<bool> usedColors   = stackalloc bool[256];
-        Span<byte> activeColors = stackalloc byte[256];
-        
-        // subsequent unit are in sixel pixel:  imagePos, origin & canvas
+        // subsequent unit are in sixel pixel: imagePos, origin & canvas
         var imagePosX = (int)(TuiBatch.FastFloor(drawSixel.pos.X / tuiBatch.CharWidth)  * cellPixelSize.X);
         var imagePosY = (int)(TuiBatch.FastFloor(drawSixel.pos.Y / tuiBatch.LineHeight) * cellPixelSize.Y);
         
@@ -109,15 +99,15 @@ public sealed class SixelDrawer
         
         // unit of canvasWidth / canvasHeight are sixel pixels.
         // unit of cellsWidth / cellsHeight are terminal cells.
-        var canvasWidth     = (int)(cellsWidth  * cellPixelSize.X);
-        var canvasHeight    = (int)(cellsHeight * cellPixelSize.Y);
+        var canvasWidth  = (int)(cellsWidth  * cellPixelSize.X);
+        var canvasHeight = (int)(cellsHeight * cellPixelSize.Y);
 
         // Calculate source boundaries considering origin offsets and canvas right/bottom edges
         int startSrcX = Math.Max(0, originX);
         int startSrcY = Math.Max(0, originY);
         
-        int endSrcX   = Math.Min(width,  canvasWidth  - imagePosX);
-        int endSrcY   = Math.Min(height, canvasHeight - imagePosY);
+        int endSrcX = Math.Min(width,  canvasWidth  - imagePosX);
+        int endSrcY = Math.Min(height, canvasHeight - imagePosY);
 
         int renderWidth  = endSrcX - startSrcX;
         int renderHeight = endSrcY - startSrcY;
@@ -126,8 +116,40 @@ public sealed class SixelDrawer
             // Nothing to draw
             return 0;
         }
+
         var writtenBytes = AppendHeaderToTargetBuffer(target, palette);
 
+        writtenBytes += RasterizeBands(colorIndexes, width, startSrcX, startSrcY, endSrcX, endSrcY, renderWidth, renderHeight, target.Slice(writtenBytes));
+
+        // Write SIXEL Footer: ST (ESC \)
+        target[writtenBytes++] = 0x1B; // ESC
+        target[writtenBytes++] = (byte)'\\';
+
+        return writtenBytes;
+    }
+
+    private int RasterizeBands(
+        ReadOnlySpan<byte> colorIndexes,
+        int         fullWidth,
+        int         startSrcX,
+        int         startSrcY,
+        int         endSrcX,
+        int         endSrcY,
+        int         renderWidth,
+        int         renderHeight,
+        Span<byte>  target)
+    {
+        // Flattened bitmask array: [color * width + x]
+        var colorBitmasksLength = 256 * fullWidth;
+        if (colorBitmasksBuffer.Length < colorBitmasksLength) {
+            colorBitmasksBuffer = new byte[colorBitmasksLength];
+        }
+        var colorBitmasks = colorBitmasksBuffer.AsSpan(0, colorBitmasksLength);
+
+        Span<bool> usedColors   = stackalloc bool[256];
+        Span<byte> activeColors = stackalloc byte[256];
+
+        int writtenBytes = 0;
         int bandCount = (renderHeight + 5) / 6;
 
         for (int band = 0; band < bandCount; band++)
@@ -149,7 +171,7 @@ public sealed class SixelDrawer
                 // Bit position inside the 6-pixel SIXEL band
                 int rowInBand = (y - startSrcY) % 6;
                 int bit = 1 << rowInBand;
-                int rowOffset = y * width;
+                int rowOffset = y * fullWidth;
 
                 for (int x = startSrcX; x < endSrcX; x++)
                 {
@@ -192,10 +214,6 @@ public sealed class SixelDrawer
                 target[writtenBytes++] = (byte)'$';
             }
         }
-
-        // 3. Write SIXEL Footer: ST (ESC \)
-        target[writtenBytes++] = 0x1B; // ESC
-        target[writtenBytes++] = (byte)'\\';
 
         return writtenBytes;
     }
