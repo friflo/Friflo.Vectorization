@@ -100,8 +100,15 @@ public sealed class SixelDrawer
         Span<bool> usedColors   = stackalloc bool[256];
         Span<byte> activeColors = stackalloc byte[256];
         
-        var originX = -(int)((TuiBatch.FastFloor(drawSixel.pos.X / tuiBatch.CharWidth)  - cursorX) * cellPixelSize.X);
-        var originY = -(int)((TuiBatch.FastFloor(drawSixel.pos.Y / tuiBatch.LineHeight) - cursorY) * cellPixelSize.Y);
+        // subsequent unit are in sixel pixel:  imagePos, origin & canvas
+        var imagePosX =  (int)(TuiBatch.FastFloor(drawSixel.pos.X / tuiBatch.CharWidth)  * cellPixelSize.X);
+        var imagePosY =  (int)(TuiBatch.FastFloor(drawSixel.pos.Y / tuiBatch.LineHeight) * cellPixelSize.Y);
+        
+        var originX = TuiBatch.FastFloor(cursorX * cellPixelSize.X) - imagePosX;
+        var originY = TuiBatch.FastFloor(cursorY * cellPixelSize.Y) - imagePosY;
+        
+        // unit of canvasWidth / canvasHeight are sixel pixels.
+        // unit of cellsWidth / cellsHeight are terminal cells.
         var canvasWidth     = (int)(cellsWidth  * cellPixelSize.X);
         var canvasHeight    = (int)(cellsHeight * cellPixelSize.Y);
 
