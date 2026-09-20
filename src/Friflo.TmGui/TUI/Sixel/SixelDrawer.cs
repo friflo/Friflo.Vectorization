@@ -89,8 +89,6 @@ public sealed class SixelDrawer
         var height          = sixel.height;
         var colorIndexes    = sixel.colorIndexes;
         var palette         = sixel.Palette;
-        
-        var writtenBytes = AppendHeaderToTargetBuffer(target, palette);
             
         // Flattened bitmask array: [color * width + x]
         var colorBitmasksLength = 256 * width;
@@ -114,10 +112,9 @@ public sealed class SixelDrawer
 
         if (renderWidth <= 0 || renderHeight <= 0) {
             // Nothing to draw
-            target[writtenBytes++] = 0x1B; // ESC
-            target[writtenBytes++] = (byte)'\\';
-            return writtenBytes;
+            return 0;
         }
+        var writtenBytes = AppendHeaderToTargetBuffer(target, palette);
 
         int bandCount = (renderHeight + 5) / 6;
 
