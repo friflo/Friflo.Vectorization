@@ -181,6 +181,12 @@ internal sealed partial class TuiSession : TmSession
             for (int x = 0; x < width; x++)
             {
                 var cell = cells[y * width + x];
+                if (cell.sixelId != 0) {
+                    var sixel = AppendSixel(cell.sixelId, x, y);
+                    if (sixel) {
+                        continue;
+                    }
+                }
                 if (cell.color.A != 0) {
                     if ((cell.color.Packed & 0x00ffffff) != (color.Packed & 0x00ffffff)) {
                         SetColor(color = cell.color);
@@ -192,17 +198,6 @@ internal sealed partial class TuiSession : TmSession
                 }
                 if ((cell.background.Packed & 0x00ffffff) != (background.Packed & 0x00ffffff)) {
                     SetBackground(background = cell.background);
-                }
-                if (cell.sixelId != 0) {
-                    var sixel = AppendSixel(cell.sixelId);
-                    if (sixel) {
-                        SetCursorPos(y + 1, x + 2);
-                        // reset state. Terminal may have changed some states
-                        color       = new Color32();
-                        background  = new Color32();
-                        textStyle   = TextStyle.None;
-                        continue;
-                    }
                 }
                 AppendRune(cell.rune);
             }
@@ -331,19 +326,20 @@ internal sealed partial class TuiSession : TmSession
         buffer.SetCell(x + 1, y, cell with { rune = new Rune(shape.right)  });
     }
     
-    private bool AppendSixel(byte sixelId)
+    private bool AppendSixel(byte sixelId, int x, int y)
     {
         ref var drawSixel = ref tuiBatch.drawSixels[sixelId];
         if (drawSixel.sixel == null) {
             return false;
         }
+        SetCursorPos(y + 1, x + 2);
         if (drawSixel.isDrawn) {
             return true;
         }
         drawSixel.isDrawn = true;
         var sixel   = drawSixel.sixel;
         var target  = sendBuffer.AsSpan(sendBufferCount, sendBuffer.Length - sendBufferCount);
-        var bytesWritten = sixelDrawer.AppendSixelToTargetBuffer(sixel, tuiBatch, target);
+        var bytesWritten = sixelDrawer.AppendSixelToTargetBuffer(sixel, tuiBatch, target, x, y);
         sendBufferCount += bytesWritten;
         return true;
     }

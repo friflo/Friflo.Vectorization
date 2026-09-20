@@ -75,7 +75,7 @@ public sealed class SixelDrawer
     
     private byte[] colorBitmasksBuffer = [];
     
-    internal int AppendSixelToTargetBuffer(TuiSixel sixel, TuiBatch tuiBatch, Span<byte> target)
+    internal int AppendSixelToTargetBuffer(TuiSixel sixel, TuiBatch tuiBatch, Span<byte> target, int cellX, int cellY)
     {
         var width           = sixel.width;
         var height          = sixel.height;
