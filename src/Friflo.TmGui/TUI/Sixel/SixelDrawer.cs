@@ -1,8 +1,10 @@
 // Copyright (c) Ullrich Praetz - https://github.com/friflo. All rights reserved.
 // See LICENSE file in the project root for full license information.
 
+// #define DEBUG_CLIPPING
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Numerics;
 
@@ -139,7 +141,6 @@ public sealed class SixelDrawer
         target[writtenBytes++] = 0x1B; // ESC
         target[writtenBytes++] = (byte)'\\';
 
-        Debug.Write("bytesWritten: "); Debug.WriteLine(writtenBytes);
         return writtenBytes;
     }
 
@@ -164,6 +165,8 @@ public sealed class SixelDrawer
             colorBitmasksBuffer = new byte[colorBitmasksLength];
         }
         var colorBitmasks = colorBitmasksBuffer.AsSpan(0, colorBitmasksLength);
+        HashSetClear(debugSkipped);
+        HashSetClear(debugDrawn);
 
         Span<bool> usedColors   = stackalloc bool[256];
         Span<byte> activeColors = stackalloc byte[256];
@@ -179,8 +182,7 @@ public sealed class SixelDrawer
             int startY = startSrcY + (band * 6);
             int endY = Math.Min(startY + 6, endSrcY);
 
-            if (band > 0)
-            {
+            if (band > 0) {
                 target[writtenBytes++] = (byte)'-';
             }
 
@@ -206,14 +208,17 @@ public sealed class SixelDrawer
                     if (colorIndex == 0) {
                         continue;
                     }
-
                     // Check clip cells buffer for current pixel
                     int cellX = (int)((imagePosX + x) * invCellWidthPx);
                     int clipIndex = cellRowOffset + cellX;
-
-                    if ((uint)clipIndex >= (uint)clipCellsBuffer.Length || clipCellsBuffer[clipIndex] != targetSixelId) {
+                    
+                    var skip = (uint)clipIndex >= (uint)clipCellsBuffer.Length || clipCellsBuffer[clipIndex] != targetSixelId;
+                    
+                    if (skip) {
+                        HashSetAdd(debugSkipped, clipIndex);
                         continue;
                     }
+                    HashSetAdd(debugDrawn, clipIndex);
 
                     // Local X coordinate within the rendered target area
                     int localX = x - startSrcX;
@@ -234,22 +239,63 @@ public sealed class SixelDrawer
             {
                 byte color = activeColors[i];
 
+                int maskOffset = color * renderWidth;
+                var bandMask = colorBitmasks.Slice(maskOffset, renderWidth);
+
+                // Find min/max bounds to trim empty trailing space
+                int minX = 0;
+                while (minX < renderWidth && bandMask[minX] == 0) {
+                    minX++;
+                }
+                int maxX = renderWidth - 1;
+                while (maxX >= minX && bandMask[maxX] == 0) {
+                    maxX--;
+                }
+                // Skip if no active bits remain in this band
+                if (minX > maxX) {
+                    continue;
+                }
                 target[writtenBytes++] = (byte)'#';
                 writtenBytes += WriteIntToSpan(color, target.Slice(writtenBytes));
 
-                int maskOffset = color * renderWidth;
-                for (int x = 0; x < renderWidth; x++)
+                // RLE encode the active window [0..maxX]
+                int x = 0;
+                while (x <= maxX)
                 {
-                    byte mask = colorBitmasks[maskOffset + x];
-                    target[writtenBytes++] = (byte)(63 + mask);
-                }
+                    byte mask = bandMask[x];
+                    int runLength = 1;
 
+                    while (x + runLength <= maxX && bandMask[x + runLength] == mask) {
+                        runLength++;
+                    }
+
+                    if (runLength > 3) {
+                        // Emit SIXEL RLE sequence: !<count><character>
+                        target[writtenBytes++] = (byte)'!';
+                        writtenBytes += WriteIntToSpan(runLength, target.Slice(writtenBytes));
+                        target[writtenBytes++] = (byte)(63 + mask);
+                    } else {
+                        for (int r = 0; r < runLength; r++) {
+                            target[writtenBytes++] = (byte)(63 + mask);
+                        }
+                    }
+                    x += runLength;
+                }
                 target[writtenBytes++] = (byte)'$';
             }
         }
+#if DEBUG_CLIPPING
+        Debug.WriteLine($"skipped: {debugSkipped.Count}  drawn: {debugDrawn.Count}  writtenBytes: {writtenBytes}");
+        // Debug.WriteLine(new string(Encoding.UTF8.GetChars(target.Slice(0, writtenBytes).ToArray())));
+#endif
 
         return writtenBytes;
     }
+    
+    private readonly HashSet<int> debugSkipped = [];
+    private readonly HashSet<int> debugDrawn   = [];
+    [Conditional("DEBUG_CLIPPING")] private static void HashSetClear(HashSet<int> hashSet)                => hashSet.Clear();
+    [Conditional("DEBUG_CLIPPING")] private static void HashSetAdd  (HashSet<int> hashSet, int cellIndex) => hashSet.Add(cellIndex); 
 
     private static int WriteIntToSpan(int value, Span<byte> destination)
     {
