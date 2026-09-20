@@ -164,7 +164,8 @@ public sealed class SixelDrawer
         if (colorBitmasksBuffer.Length < colorBitmasksLength) {
             colorBitmasksBuffer = new byte[colorBitmasksLength];
         }
-        var colorBitmasks = colorBitmasksBuffer.AsSpan(0, colorBitmasksLength);
+        var clipCells       = clipCellsBuffer;
+        var colorBitmasks   = colorBitmasksBuffer.AsSpan(0, colorBitmasksLength);
         HashSetClear(debugSkipped);
         HashSetClear(debugDrawn);
 
@@ -212,7 +213,7 @@ public sealed class SixelDrawer
                     int cellX = (int)((imagePosX + x) * invCellWidthPx);
                     int clipIndex = cellRowOffset + cellX;
                     
-                    var skip = (uint)clipIndex >= (uint)clipCellsBuffer.Length || clipCellsBuffer[clipIndex] != targetSixelId;
+                    var skip = (uint)clipIndex >= (uint)clipCells.Length || clipCells[clipIndex] != targetSixelId;
                     
                     if (skip) {
                         HashSetAdd(debugSkipped, clipIndex);
