@@ -3,6 +3,7 @@
 
 
 using System;
+using System.Diagnostics;
 using System.Numerics;
 
 // ReSharper disable SuggestVarOrType_BuiltInTypes
@@ -106,8 +107,8 @@ public sealed class SixelDrawer
         int startSrcX = Math.Max(0, originX);
         int startSrcY = Math.Max(0, originY);
         
-        int endSrcX = Math.Min(width,  canvasWidth  - imagePosX);
-        int endSrcY = Math.Min(height, canvasHeight - imagePosY);
+        int endSrcX   = Math.Min(width,  canvasWidth  - imagePosX);
+        int endSrcY   = Math.Min(height, canvasHeight - imagePosY);
 
         int renderWidth  = endSrcX - startSrcX;
         int renderHeight = endSrcY - startSrcY;
@@ -119,25 +120,43 @@ public sealed class SixelDrawer
 
         var writtenBytes = AppendHeaderToTargetBuffer(target, palette);
 
-        writtenBytes += RasterizeBands(colorIndexes, width, startSrcX, startSrcY, endSrcX, endSrcY, renderWidth, renderHeight, target.Slice(writtenBytes));
+        writtenBytes += RasterizeBands(
+            colorIndexes,
+            width,
+            startSrcX,
+            startSrcY,
+            endSrcX,
+            endSrcY,
+            renderWidth,
+            renderHeight,
+            imagePosX,
+            imagePosY,
+            cellPixelSize,
+            drawSixel.sixelId,
+            target.Slice(writtenBytes));
 
         // Write SIXEL Footer: ST (ESC \)
         target[writtenBytes++] = 0x1B; // ESC
         target[writtenBytes++] = (byte)'\\';
 
+        Debug.Write("bytesWritten: "); Debug.WriteLine(writtenBytes);
         return writtenBytes;
     }
 
     private int RasterizeBands(
-        ReadOnlySpan<byte> colorIndexes,
-        int         fullWidth,
-        int         startSrcX,
-        int         startSrcY,
-        int         endSrcX,
-        int         endSrcY,
-        int         renderWidth,
-        int         renderHeight,
-        Span<byte>  target)
+        ReadOnlySpan<byte>  colorIndexes,
+        int                 fullWidth,
+        int                 startSrcX,
+        int                 startSrcY,
+        int                 endSrcX,
+        int                 endSrcY,
+        int                 renderWidth,
+        int                 renderHeight,
+        int                 imagePosX,
+        int                 imagePosY,
+        Vector2             cellPixelSize,
+        byte                targetSixelId,
+        Span<byte>          target)
     {
         // Flattened bitmask array: [color * width + x]
         var colorBitmasksLength = 256 * fullWidth;
@@ -151,6 +170,9 @@ public sealed class SixelDrawer
 
         int writtenBytes = 0;
         int bandCount = (renderHeight + 5) / 6;
+
+        float invCellWidthPx  = 1.0f / cellPixelSize.X;
+        float invCellHeightPx = 1.0f / cellPixelSize.Y;
 
         for (int band = 0; band < bandCount; band++)
         {
@@ -173,12 +195,23 @@ public sealed class SixelDrawer
                 int bit = 1 << rowInBand;
                 int rowOffset = y * fullWidth;
 
+                int cellY = (int)((imagePosY + y) * invCellHeightPx);
+                int cellRowOffset = cellY * cellsWidth;
+
                 for (int x = startSrcX; x < endSrcX; x++)
                 {
                     byte colorIndex = colorIndexes[rowOffset + x];
 
                     // Skip processing transparent pixels (index 0)
                     if (colorIndex == 0) {
+                        continue;
+                    }
+
+                    // Check clip cells buffer for current pixel
+                    int cellX = (int)((imagePosX + x) * invCellWidthPx);
+                    int clipIndex = cellRowOffset + cellX;
+
+                    if ((uint)clipIndex >= (uint)clipCellsBuffer.Length || clipCellsBuffer[clipIndex] != targetSixelId) {
                         continue;
                     }
 

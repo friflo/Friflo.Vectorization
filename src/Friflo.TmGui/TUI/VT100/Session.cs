@@ -152,8 +152,7 @@ internal sealed partial class TuiSession : TmSession
             return default;
         }
         sendCounter++;
-        Debug.Write(sendCounter);
-        Debug.WriteLine(" - send buffer");
+        // Debug.Write(sendCounter); Debug.WriteLine(" - send buffer");
         lastSendHash = sendHash;
         return sendMemory;
     }
