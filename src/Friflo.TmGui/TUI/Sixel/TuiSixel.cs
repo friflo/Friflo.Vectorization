@@ -16,6 +16,10 @@ public sealed class TuiSixel
     
     // Size: exactly width * height bytes (1/4 of RGBA size)
     internal readonly   byte[]  colorIndexes;
+    private  readonly   byte[]  palette = new byte[256];
+    private  readonly   int     paletteCount;
+    
+    internal ReadOnlySpan<byte> Palette => new ReadOnlySpan<byte>(palette, 0, paletteCount);
 
     public   override   string  ToString() => $"{width} x {height}";
 
@@ -27,9 +31,27 @@ public sealed class TuiSixel
         // int bandCount = (height + 5) / 6;
         
         // Exact size: 1 byte per pixel (+ optional alignment padding if needed)
-        colorIndexes = new byte[width * height];
+        
+        int count = width * height;
+        colorIndexes = new byte[count];
         
         UpdateFromRgb888(width, height, data, colorIndexes, 4);
+        
+        paletteCount = UpdatePalette(colorIndexes, palette);
+    }
+    
+    private static int UpdatePalette(byte[] colorIndexes, byte[] palette)
+    {
+        Span<bool> usedColors = stackalloc bool[256];
+        foreach (var index in colorIndexes.AsSpan()) {
+            usedColors[index] = true;
+        }
+        int paletteCount = 0;
+        for (int n = 0; n < 256; n++) {
+            if (!usedColors[n]) continue;
+            palette[paletteCount++] = (byte)n;
+        }
+        return paletteCount;
     }
 
     private static void UpdateFromRgb888(int width, int height, ReadOnlySpan<byte> src, byte[] colorIndexes, int bytesPerPixel)
@@ -56,7 +78,7 @@ public sealed class TuiSixel
         }
     }
     
-    internal static int AppendColorIndexesToTargetBuffer(int width, int height, byte[] colorIndexes, Span<byte> target)
+    internal static int AppendColorIndexesToTargetBuffer(int width, int height, byte[] colorIndexes, Span<byte> target, ReadOnlySpan<byte> palette)
     {
         Span<ushort> colorBitmasks = stackalloc ushort[256];
         int writtenBytes = 0;
@@ -73,7 +95,7 @@ public sealed class TuiSixel
         target[writtenBytes++] = (byte)'q';
 
         // 2. Define R3G3B2 Color Palette (#index;2;r%;g%;b%)
-        for (int color = 0; color < 256; color++)
+        foreach (var color in palette)
         {
             // Extract R3G3B2 components
             int r = (color >> 5) & 0x07;

@@ -326,7 +326,7 @@ internal sealed partial class TuiSession : TmSession
         drawSixel.isDrawn = true;
         var sixel   = drawSixel.sixel;
         var target  = sendBuffer.AsSpan(sendBufferCount, sendBuffer.Length - sendBufferCount);
-        var bytesWritten = TuiSixel.AppendColorIndexesToTargetBuffer(sixel.width, sixel.height, sixel.colorIndexes, target);
+        var bytesWritten = TuiSixel.AppendColorIndexesToTargetBuffer(sixel.width, sixel.height, sixel.colorIndexes, target, sixel.Palette);
         sendBufferCount += bytesWritten;
         
         int cellWidth = (sixel.width + 7) / 8; // Assuming 8px per character cell
