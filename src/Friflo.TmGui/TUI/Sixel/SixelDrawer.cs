@@ -52,6 +52,10 @@ public sealed class SixelDrawer
     
     private int     clipCellsWidth;
     private int     clipCellsHeight;
+    /// <summary>
+    /// Pixels must be drawn only if they are inside a <see cref="clipCellsBuffer"/> having the same sixelId.<br/>
+    /// The dimension of clipCellsBuffer is in terminal cells: <see cref="clipCellsWidth"/> x <see cref="clipCellsHeight"/>.
+    /// </summary>
     private byte[]  clipCellsBuffer = [];
 
     public void SetClipCells(Span<TuiColorCell> cells, int width, int height)
