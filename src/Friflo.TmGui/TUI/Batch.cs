@@ -145,7 +145,7 @@ public sealed partial class TuiBatch : TmBatch
     private static readonly Rune Ellipsis = new('…');
     
     /// Fast alternative for <see cref="MathF.Floor"/> especially in DEBUG
-    private static int FastFloor(float x) {
+    internal static int FastFloor(float x) {
         int i = (int)x;
         return i > x ? i - 1 : i;
     }

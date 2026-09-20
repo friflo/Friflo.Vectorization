@@ -3,6 +3,7 @@
 
 
 using System;
+using System.Numerics;
 
 // ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable once CheckNamespace
@@ -75,8 +76,15 @@ public sealed class SixelDrawer
     
     private byte[] colorBitmasksBuffer = [];
     
-    internal int AppendSixelToTargetBuffer(TuiSixel sixel, TuiBatch tuiBatch, Span<byte> target, int cellX, int cellY)
+    internal int AppendSixelToTargetBuffer(
+        DrawSixel   drawSixel,
+        TuiBatch    tuiBatch,
+        Span<byte>  target,
+        Vector2     cellPixelSize,
+        int         cursorX,
+        int         cursorY)
     {
+        var sixel           = drawSixel.sixel;
         var width           = sixel.width;
         var height          = sixel.height;
         var colorIndexes    = sixel.colorIndexes;
@@ -91,8 +99,11 @@ public sealed class SixelDrawer
         }
         var colorBitmasks = colorBitmasksBuffer.AsSpan(0, colorBitmasksLength);
 
-        Span<bool> usedColors = stackalloc bool[256];
+        Span<bool> usedColors   = stackalloc bool[256];
         Span<byte> activeColors = stackalloc byte[256];
+        
+        var originX = -(int)((TuiBatch.FastFloor(drawSixel.pos.X / tuiBatch.CharWidth)  - cursorX) * cellPixelSize.X);
+        var originY = -(int)((TuiBatch.FastFloor(drawSixel.pos.Y / tuiBatch.LineHeight) - cursorY) * cellPixelSize.Y);
 
         int bandCount = (height + 5) / 6;
 
