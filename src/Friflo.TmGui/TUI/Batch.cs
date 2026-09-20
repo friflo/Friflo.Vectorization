@@ -25,6 +25,7 @@ public sealed partial class TuiBatch : TmBatch
     private             float                   xScale;
     private             float                   lineHeight;
     private             float                   charWidth;
+    internal            Vector2                 cellPixelScale  = new(1, 1);
     private             int                     rectStart;
     internal readonly   List<TuiRect>           tuiRects        = [];
     private  readonly   List<TuiRectCommand>    rectCommands    = [];

@@ -24,7 +24,7 @@ public readonly ref partial struct TmDraw
     public void DrawSprite(in TmTexture texture, Vector2 position, Vector2 size)
     {
         if (Tui != null) {
-            Tui.DrawSprite(texture, position, size);
+            Tui.DrawSprite(texture, position, size * Tui.cellPixelScale);
             return;
         }
         DrawSprite(texture, position, size, default, new Vector2(1f, 1f), Color32.White);
