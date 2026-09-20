@@ -65,7 +65,7 @@ public sealed class SixelDrawer
         var clipCells = clipCellsBuffer.AsSpan(0, cells.Length);
         
         for (int n = 0; n < clipCells.Length; n++) {
-            clipCells[n] = cells[n].sixelSeq; 
+            clipCells[n] = cells[n].sixelId; 
         }
     }
     

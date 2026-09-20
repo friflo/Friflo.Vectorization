@@ -197,7 +197,7 @@ public sealed partial class TuiBatch : TmBatch
                             width       = 1, 
                             color       = 0, 
                             background  = rect.color.value,
-                            sixelSeq    = rect.sixelSeq,
+                            sixelId     = rect.sixelId,
                         };
                         if (rect.color.len == 2) {
                             fill.background = colors[rect.color.start];

@@ -22,7 +22,7 @@ internal sealed partial class TuiSession : TmSession
     internal readonly   TuiBackend      tuiBackend;
     private  readonly   TuiBatch        tuiBatch;
     internal            IGuiView?       guiView;
-    private  readonly   byte[]          sendBuffer      = new byte[30000];  // TODO grow if needed
+    private  readonly   byte[]          sendBuffer      = new byte[60000];  // TODO grow if needed
     private             int             sendBufferCount;
     private             int             frameWidth      = 50;
     private             int             frameHeight     = 20;
@@ -193,8 +193,8 @@ internal sealed partial class TuiSession : TmSession
                 if ((cell.background.Packed & 0x00ffffff) != (background.Packed & 0x00ffffff)) {
                     SetBackground(background = cell.background);
                 }
-                if (cell.sixelSeq != 0) {
-                    var sixel = AppendSixel(cell.sixelSeq);
+                if (cell.sixelId != 0) {
+                    var sixel = AppendSixel(cell.sixelId);
                     if (sixel) {
                         SetCursorPos(y + 1, x + 2);
                         // reset state. Terminal may have changed some states
@@ -331,9 +331,9 @@ internal sealed partial class TuiSession : TmSession
         buffer.SetCell(x + 1, y, cell with { rune = new Rune(shape.right)  });
     }
     
-    private bool AppendSixel(byte sixelSeq)
+    private bool AppendSixel(byte sixelId)
     {
-        ref var drawSixel = ref tuiBatch.drawSixels[sixelSeq];
+        ref var drawSixel = ref tuiBatch.drawSixels[sixelId];
         if (drawSixel.sixel == null) {
             return false;
         }
