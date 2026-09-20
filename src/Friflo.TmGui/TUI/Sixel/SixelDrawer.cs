@@ -105,11 +105,25 @@ public sealed class SixelDrawer
         var originX = -(int)((TuiBatch.FastFloor(drawSixel.pos.X / tuiBatch.CharWidth)  - cursorX) * cellPixelSize.X);
         var originY = -(int)((TuiBatch.FastFloor(drawSixel.pos.Y / tuiBatch.LineHeight) - cursorY) * cellPixelSize.Y);
 
-        int bandCount = (height + 5) / 6;
+        // Calculate source boundaries considering origin offsets
+        int startSrcX = Math.Max(0, originX);
+        int startSrcY = Math.Max(0, originY);
+        
+        int renderWidth  = width  - startSrcX;
+        int renderHeight = height - startSrcY;
+
+        if (renderWidth <= 0 || renderHeight <= 0) {
+            // Nothing to draw
+            target[writtenBytes++] = 0x1B; // ESC
+            target[writtenBytes++] = (byte)'\\';
+            return writtenBytes;
+        }
+
+        int bandCount = (renderHeight + 5) / 6;
 
         for (int band = 0; band < bandCount; band++)
         {
-            int startY = band * 6;
+            int startY = startSrcY + (band * 6);
             int endY = Math.Min(startY + 6, height);
 
             if (band > 0)
@@ -120,14 +134,15 @@ public sealed class SixelDrawer
             usedColors.Clear();
             int activeColorCount = 0;
 
-            // Single pass over band pixels: O(width * bandHeight)
+            // Single pass over band pixels: O(renderWidth * bandHeight)
             for (int y = startY; y < endY; y++)
             {
-                int rowInBand = y - startY;
+                // Bit position inside the 6-pixel SIXEL band
+                int rowInBand = (y - startSrcY) % 6;
                 int bit = 1 << rowInBand;
                 int rowOffset = y * width;
 
-                for (int x = 0; x < width; x++)
+                for (int x = startSrcX; x < width; x++)
                 {
                     byte colorIndex = colorIndexes[rowOffset + x];
 
@@ -136,14 +151,17 @@ public sealed class SixelDrawer
                         continue;
                     }
 
+                    // Local X coordinate within the rendered target area
+                    int localX = x - startSrcX;
+
                     // Clear mask row only on first access in this band
                     if (!usedColors[colorIndex]) {
                         usedColors[colorIndex] = true;
                         activeColors[activeColorCount++] = colorIndex;
-                        colorBitmasks.Slice(colorIndex * width, width).Clear();
+                        colorBitmasks.Slice(colorIndex * renderWidth, renderWidth).Clear();
                     }
 
-                    colorBitmasks[colorIndex * width + x] |= (byte)bit;
+                    colorBitmasks[colorIndex * renderWidth + localX] |= (byte)bit;
                 }
             }
 
@@ -155,8 +173,8 @@ public sealed class SixelDrawer
                 target[writtenBytes++] = (byte)'#';
                 writtenBytes += WriteIntToSpan(color, target.Slice(writtenBytes));
 
-                int maskOffset = color * width;
-                for (int x = 0; x < width; x++)
+                int maskOffset = color * renderWidth;
+                for (int x = 0; x < renderWidth; x++)
                 {
                     byte mask = colorBitmasks[maskOffset + x];
                     target[writtenBytes++] = (byte)(63 + mask);
