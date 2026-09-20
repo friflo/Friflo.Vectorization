@@ -117,6 +117,12 @@ internal sealed partial class TuiSession
             case '<':       // 0x3C     Mouse events
                 HandleMouse();
                 break;
+            case '4':       // 0x34     Terminal pixel size response
+                HandlePixelSizeResponse();
+                break;
+            case '6':       // 0x36     Cell pixel size response (\x1b[6;<height>;<width>t)
+                HandleCellPixelSizeResponse();
+                break;
             case '8':       // 0x38     terminal resize
                 HandleInBandResize();
                 break;
@@ -176,6 +182,40 @@ internal sealed partial class TuiSession
         
         if (finalChar == 't' && width > 0 && height > 0) {
             SetFrameSize(width, height);
+        }
+    }
+
+    private void HandlePixelSizeResponse()
+    {
+        // Sequence format: \x1b[4;<height>;<width>t
+        csi.SkipFirst(); // Skip '4'
+        
+        csi.TryReadChar(';');
+        csi.TryReadInt(out int heightPx);
+        csi.TryReadChar(';');
+        csi.TryReadInt(out int widthPx);
+
+        char finalChar = csi.Current; // Must be 't'
+        
+        if (finalChar == 't' && widthPx > 0 && heightPx > 0) {
+            // SetPixelSize(widthPx, heightPx);
+        }
+    }
+    
+    private void HandleCellPixelSizeResponse()
+    {
+        // Sequence format: \x1b[6;<height>;<width>t
+        csi.SkipFirst(); // Skip '6'
+        
+        csi.TryReadChar(';');
+        csi.TryReadInt(out int cellHeightPx);
+        csi.TryReadChar(';');
+        csi.TryReadInt(out int cellWidthPx);
+
+        char finalChar = csi.Current; // Must be 't'
+        
+        if (finalChar == 't' && cellWidthPx > 0 && cellHeightPx > 0) {
+            SetCellPixelSize(cellWidthPx, cellHeightPx);
         }
     }
 }

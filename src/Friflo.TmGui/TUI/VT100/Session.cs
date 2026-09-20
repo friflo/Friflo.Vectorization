@@ -3,6 +3,7 @@
 
 using System;
 using System.Diagnostics;
+using System.Numerics;
 using System.Text;
 using Friflo.TmGui.Session;
 
@@ -25,6 +26,7 @@ internal sealed partial class TuiSession : TmSession
     private             int             sendBufferCount;
     private             int             frameWidth      = 50;
     private             int             frameHeight     = 20;
+    private             Vector2         cellPixelSize   = new(10, 20);
     private             bool            sessionStart;
     //
     private             ulong           lastSendHash;
@@ -69,6 +71,11 @@ internal sealed partial class TuiSession : TmSession
         lastSendHash    = 0; // force send frame
     }
     
+    private void SetCellPixelSize(int width, int height)
+    {
+        cellPixelSize = new Vector2(width, height);
+    }
+    
     internal ReadOnlyMemory<byte> StartSession() {
         sessionStart = true;
         InitialCommands();
@@ -78,6 +85,8 @@ internal sealed partial class TuiSession : TmSession
     private void InitialCommands()
     {
         // Extended Init Sequence:
+        // \x1b[14t     = Request window pixel size (CSI 14 t)
+        // \x1b[16t     = Request cell pixel size (CSI 16 t)
         // \x1b[?1l     = Normal Cursor Mode
         // \x1b[?25l    = Hide Cursor
         // \x1b[0m      = Reset All Colors/Attributes
@@ -86,7 +95,7 @@ internal sealed partial class TuiSession : TmSession
         // \x1b[3J      = Clear Scrollback-Buffer           - prevents Alternate Screen-Buffer Reflow-Ghosting
         // \x1b[?7l     = Disable Auto-Wrap
         // \x1b[H       = Home Cursor (0,0)
-        AppendSpan("\x1b[?1l\x1b[?25l\x1b[0m\x1b[?1049h\x1b[2J\x1b[3J\x1b[?7l\x1b[H"u8);
+        AppendSpan("\x1b[14t\x1b[16t\x1b[?1l\x1b[?25l\x1b[0m\x1b[?1049h\x1b[2J\x1b[3J\x1b[?7l\x1b[H"u8);
         
         AppendSpan("\x1b[?1003h"u8);    // Enable mouse hover (tracks ALL movement, clicks & scrolling)
         AppendSpan("\x1b[?1006h"u8);    // Enable SGR extended coordinate format (required for modern terminals & high resolutions)
