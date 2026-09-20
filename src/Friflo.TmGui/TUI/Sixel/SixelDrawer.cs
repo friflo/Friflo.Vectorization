@@ -51,18 +51,18 @@ public sealed class SixelDrawer
         return writtenBytes;
     }
     
-    private int     clipCellsWidth;
-    private int     clipCellsHeight;
+    private int     cellsWidth;
+    private int     cellsHeight;
     /// <summary>
     /// Pixels must be drawn only if they are inside a <see cref="clipCellsBuffer"/> having the same sixelId.<br/>
-    /// The dimension of clipCellsBuffer is in terminal cells: <see cref="clipCellsWidth"/> x <see cref="clipCellsHeight"/>.
+    /// The dimension of clipCellsBuffer is in terminal cells: <see cref="cellsWidth"/> x <see cref="cellsHeight"/>.
     /// </summary>
     private byte[]  clipCellsBuffer = [];
 
     public void SetClipCells(Span<TuiColorCell> cells, int width, int height)
     {
-        clipCellsWidth  = width;
-        clipCellsHeight = height;
+        cellsWidth  = width;
+        cellsHeight = height;
         
         if (clipCellsBuffer.Length < cells.Length) {
             clipCellsBuffer = new byte[cells.Length];
@@ -102,6 +102,8 @@ public sealed class SixelDrawer
         
         var originX = -(int)((TuiBatch.FastFloor(drawSixel.pos.X / tuiBatch.CharWidth)  - cursorX) * cellPixelSize.X);
         var originY = -(int)((TuiBatch.FastFloor(drawSixel.pos.Y / tuiBatch.LineHeight) - cursorY) * cellPixelSize.Y);
+        var canvasWidth     = (int)(cellsWidth  * cellPixelSize.X);
+        var canvasHeight    = (int)(cellsHeight * cellPixelSize.Y);
 
         // Calculate source boundaries considering origin offsets
         int startSrcX = Math.Max(0, originX);
