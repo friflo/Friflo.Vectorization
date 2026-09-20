@@ -202,7 +202,7 @@ public partial class TuiBatch
 
 internal struct DrawSixel
 {
-    internal TuiSixel?  sixel; 
+    internal TuiSixel   sixel; 
     internal bool       isDrawn;
     internal Vector2    pos; // screen space. Not terminal pixel position
 

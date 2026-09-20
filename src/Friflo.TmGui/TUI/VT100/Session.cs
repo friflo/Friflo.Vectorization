@@ -329,9 +329,6 @@ internal sealed partial class TuiSession : TmSession
     private bool AppendSixel(byte sixelId, int x, int y)
     {
         ref var drawSixel = ref tuiBatch.drawSixels[sixelId];
-        if (drawSixel.sixel == null) {
-            return false;
-        }
         if (drawSixel.isDrawn) {
             SetCursorPos(y + 1, x + 2);
             return true;
@@ -339,7 +336,7 @@ internal sealed partial class TuiSession : TmSession
         drawSixel.isDrawn = true;
         var sixel   = drawSixel.sixel;
         var target  = sendBuffer.AsSpan(sendBufferCount, sendBuffer.Length - sendBufferCount);
-        var bytesWritten = sixelDrawer.AppendSixelToTargetBuffer(sixel, tuiBatch, target, x, y);
+        var bytesWritten = sixelDrawer.AppendSixelToTargetBuffer(sixel!, tuiBatch, target, x, y);
         sendBufferCount += bytesWritten;
         
         SetCursorPos(y + 1, x + 2);
