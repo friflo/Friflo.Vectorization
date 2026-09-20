@@ -78,11 +78,8 @@ public sealed class TuiSixel
         }
     }
     
-    internal static int AppendColorIndexesToTargetBuffer(int width, int height, byte[] colorIndexes, Span<byte> target, ReadOnlySpan<byte> palette)
+    private static int AppendHeaderToTargetBuffer(Span<byte> target, ReadOnlySpan<byte> palette)
     {
-        // Flattened bitmask array: [color * width + x]
-        Span<byte> colorBitmasks = stackalloc byte[256 * width];
-        Span<bool> usedColors = stackalloc bool[256];
         int writtenBytes = 0;
 
         // 1. Write SIXEL Header with explicit transparency mode (7;1;1)
@@ -117,6 +114,16 @@ public sealed class TuiSixel
             target[writtenBytes++] = (byte)';';
             writtenBytes += WriteIntToSpan(bPct, target.Slice(writtenBytes));
         }
+        return writtenBytes;
+    }
+    
+    internal static int AppendColorIndexesToTargetBuffer(int width, int height, byte[] colorIndexes, Span<byte> target, ReadOnlySpan<byte> palette)
+    {
+        var writtenBytes = AppendHeaderToTargetBuffer (target, palette);
+            
+       // Flattened bitmask array: [color * width + x]
+        Span<byte> colorBitmasks = stackalloc byte[256 * width];
+        Span<bool> usedColors = stackalloc bool[256];
 
         int bandCount = (height + 5) / 6;
 
