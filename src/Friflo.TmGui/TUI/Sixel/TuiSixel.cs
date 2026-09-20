@@ -80,29 +80,28 @@ public sealed class TuiSixel
     
     internal static int AppendColorIndexesToTargetBuffer(int width, int height, byte[] colorIndexes, Span<byte> target, ReadOnlySpan<byte> palette)
     {
-        Span<ushort> colorBitmasks = stackalloc ushort[256];
+        // Flattened bitmask array: [color * width + x]
+        Span<byte> colorBitmasks = stackalloc byte[256 * width];
+        Span<bool> usedColors = stackalloc bool[256];
         int writtenBytes = 0;
 
         // 1. Write SIXEL Header with explicit transparency mode (7;1;1)
-        // 7 = aspect ratio, 1 = grid, 1 = transparent background (does not bleed black)
         target[writtenBytes++] = 0x1B; // ESC
         target[writtenBytes++] = (byte)'P';
         target[writtenBytes++] = (byte)'7';
         target[writtenBytes++] = (byte)';';
         target[writtenBytes++] = (byte)'1';
         target[writtenBytes++] = (byte)';';
-        target[writtenBytes++] = (byte)'1';
+        target[writtenBytes++] = (byte)'1'; // Background Mode / Transparency
         target[writtenBytes++] = (byte)'q';
 
         // 2. Define R3G3B2 Color Palette (#index;2;r%;g%;b%)
         foreach (var color in palette)
         {
-            // Extract R3G3B2 components
             int r = (color >> 5) & 0x07;
             int g = (color >> 2) & 0x07;
             int b = color & 0x03;
 
-            // Convert to percentage values (0..100) for SIXEL format
             int rPct = (r * 100) / 7;
             int gPct = (g * 100) / 7;
             int bPct = (b * 100) / 3;
@@ -131,46 +130,41 @@ public sealed class TuiSixel
                 target[writtenBytes++] = (byte)'-';
             }
 
-            for (int color = 0; color < 256; color++)
+            // Clear stack buffers for the current band
+            colorBitmasks.Clear();
+            usedColors.Clear();
+
+            // Single pass over band pixels: O(width * bandHeight)
+            for (int y = startY; y < endY; y++)
             {
-                bool colorUsedInBand = false;
+                int rowInBand = y - startY;
+                int bit = 1 << rowInBand;
+                int rowOffset = y * width;
 
                 for (int x = 0; x < width; x++)
                 {
-                    byte columnBitmask = 0;
-
-                    for (int y = startY; y < endY; y++)
-                    {
-                        int pixelIndex = y * width + x;
-
-                        if (colorIndexes[pixelIndex] == color)
-                        {
-                            int rowInBand = y - startY;
-                            columnBitmask |= (byte)(1 << rowInBand);
-                        }
-                    }
-
-                    colorBitmasks[x] = columnBitmask;
-
-                    if (columnBitmask > 0)
-                    {
-                        colorUsedInBand = true;
-                    }
+                    byte colorIndex = colorIndexes[rowOffset + x];
+                    colorBitmasks[colorIndex * width + x] |= (byte)bit;
+                    usedColors[colorIndex] = true;
                 }
+            }
 
-                if (colorUsedInBand)
+            // Write SIXEL data only for colors present in this band
+            for (int color = 0; color < 256; color++)
+            {
+                if (!usedColors[color]) continue;
+
+                target[writtenBytes++] = (byte)'#';
+                writtenBytes += WriteIntToSpan(color, target.Slice(writtenBytes));
+
+                int maskOffset = color * width;
+                for (int x = 0; x < width; x++)
                 {
-                    target[writtenBytes++] = (byte)'#';
-                    writtenBytes += WriteIntToSpan(color, target.Slice(writtenBytes));
-
-                    for (int x = 0; x < width; x++)
-                    {
-                        byte mask = (byte)colorBitmasks[x];
-                        target[writtenBytes++] = (byte)(63 + mask);
-                    }
-
-                    target[writtenBytes++] = (byte)'$';
+                    byte mask = colorBitmasks[maskOffset + x];
+                    target[writtenBytes++] = (byte)(63 + mask);
                 }
+
+                target[writtenBytes++] = (byte)'$';
             }
         }
 
