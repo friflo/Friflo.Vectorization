@@ -163,6 +163,7 @@ internal sealed partial class TuiSession : TmSession
         }
         
         var cells = frameBuffer.ColorCells;
+        sixelDrawer.SetClipCells(cells, width, height);
 
         for (int y = 0; y < height; y++)
         {
@@ -328,7 +329,7 @@ internal sealed partial class TuiSession : TmSession
         drawSixel.isDrawn = true;
         var sixel   = drawSixel.sixel;
         var target  = sendBuffer.AsSpan(sendBufferCount, sendBuffer.Length - sendBufferCount);
-        var bytesWritten = sixelDrawer.AppendColorIndexesToTargetBuffer(sixel.width, sixel.height, sixel.colorIndexes, target, sixel.Palette);
+        var bytesWritten = sixelDrawer.AppendSixelToTargetBuffer(sixel, target);
         sendBufferCount += bytesWritten;
         
         int cellWidth = (sixel.width + 7) / 8; // Assuming 8px per character cell

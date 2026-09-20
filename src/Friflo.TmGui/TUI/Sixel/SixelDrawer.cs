@@ -50,10 +50,34 @@ public sealed class SixelDrawer
         return writtenBytes;
     }
     
+    private int     clipCellsWidth;
+    private int     clipCellsHeight;
+    private byte[]  clipCellsBuffer = [];
+
+    public void SetClipCells(Span<TuiColorCell> cells, int width, int height)
+    {
+        clipCellsWidth  = width;
+        clipCellsHeight = height;
+        
+        if (clipCellsBuffer.Length < cells.Length) {
+            clipCellsBuffer = new byte[cells.Length];
+        }
+        var clipCells = clipCellsBuffer.AsSpan(0, cells.Length);
+        
+        for (int n = 0; n < clipCells.Length; n++) {
+            clipCells[n] = cells[n].sixelSeq; 
+        }
+    }
+    
     private byte[] colorBitmasksBuffer = [];
     
-    internal int AppendColorIndexesToTargetBuffer(int width, int height, byte[] colorIndexes, Span<byte> target, ReadOnlySpan<byte> palette)
+    internal int AppendSixelToTargetBuffer(TuiSixel sixel, Span<byte> target)
     {
+        var width           = sixel.width;
+        var height          = sixel.height;
+        var colorIndexes    = sixel.colorIndexes;
+        var palette         = sixel.Palette;
+        
         var writtenBytes = AppendHeaderToTargetBuffer(target, palette);
             
         // Flattened bitmask array: [color * width + x]
@@ -152,4 +176,5 @@ public sealed class SixelDrawer
         destination[0] = (byte)('0' + value);
         return 1;
     }
+
 }
