@@ -62,8 +62,9 @@ public sealed class SixelDrawer
             colorBitmasksBuffer = new byte[colorBitmasksLength];
         }
         var colorBitmasks = colorBitmasksBuffer.AsSpan(0, colorBitmasksLength);
-        colorBitmasks.Clear();
+
         Span<bool> usedColors = stackalloc bool[256];
+        Span<byte> activeColors = stackalloc byte[256];
 
         int bandCount = (height + 5) / 6;
 
@@ -77,9 +78,8 @@ public sealed class SixelDrawer
                 target[writtenBytes++] = (byte)'-';
             }
 
-            // Clear stack buffers for the current band
-            colorBitmasks.Clear();
             usedColors.Clear();
+            int activeColorCount = 0;
 
             // Single pass over band pixels: O(width * bandHeight)
             for (int y = startY; y < endY; y++)
@@ -97,15 +97,21 @@ public sealed class SixelDrawer
                         continue;
                     }
 
+                    // Clear mask row only on first access in this band
+                    if (!usedColors[colorIndex]) {
+                        usedColors[colorIndex] = true;
+                        activeColors[activeColorCount++] = colorIndex;
+                        colorBitmasks.Slice(colorIndex * width, width).Clear();
+                    }
+
                     colorBitmasks[colorIndex * width + x] |= (byte)bit;
-                    usedColors[colorIndex] = true;
                 }
             }
 
-            // Write SIXEL data only for colors present in this band (excluding index 0)
-            for (int color = 1; color < 256; color++)
+            // Write SIXEL data only for active colors present in this band
+            for (int i = 0; i < activeColorCount; i++)
             {
-                if (!usedColors[color]) continue;
+                byte color = activeColors[i];
 
                 target[writtenBytes++] = (byte)'#';
                 writtenBytes += WriteIntToSpan(color, target.Slice(writtenBytes));
@@ -127,7 +133,6 @@ public sealed class SixelDrawer
 
         return writtenBytes;
     }
-
 
     private static int WriteIntToSpan(int value, Span<byte> destination)
     {
