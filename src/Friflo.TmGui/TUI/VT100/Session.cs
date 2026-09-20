@@ -17,6 +17,7 @@ internal sealed partial class TuiSession : TmSession
     private  readonly   TmClient        client;
     private  readonly   TuiColorMode    colorMode;
     private  readonly   FrameBuffer     frameBuffer;
+    private  readonly   SixelDrawer     sixelDrawer;
     internal readonly   TuiBackend      tuiBackend;
     private  readonly   TuiBatch        tuiBatch;
     internal            IGuiView?       guiView;
@@ -29,11 +30,12 @@ internal sealed partial class TuiSession : TmSession
     private             ulong           lastSendHash;
     private             int             sendCounter;
     
-    public TuiSession(TmClient client, FrameBuffer frameBuffer, TuiColorMode colorMode)
+    public TuiSession(TmClient client, FrameBuffer frameBuffer, SixelDrawer sixelDrawer, TuiColorMode colorMode)
     {
         this.client         = client;
         this.colorMode      = colorMode;
         this.frameBuffer    = frameBuffer;
+        this.sixelDrawer    = sixelDrawer;
         tuiBackend          = new TuiBackend("Terminal");
         
         tuiBatch            = tuiBackend.CreateBatch(colorMode);
@@ -326,7 +328,7 @@ internal sealed partial class TuiSession : TmSession
         drawSixel.isDrawn = true;
         var sixel   = drawSixel.sixel;
         var target  = sendBuffer.AsSpan(sendBufferCount, sendBuffer.Length - sendBufferCount);
-        var bytesWritten = TuiSixel.AppendColorIndexesToTargetBuffer(sixel.width, sixel.height, sixel.colorIndexes, target, sixel.Palette);
+        var bytesWritten = sixelDrawer.AppendColorIndexesToTargetBuffer(sixel.width, sixel.height, sixel.colorIndexes, target, sixel.Palette);
         sendBufferCount += bytesWritten;
         
         int cellWidth = (sixel.width + 7) / 8; // Assuming 8px per character cell

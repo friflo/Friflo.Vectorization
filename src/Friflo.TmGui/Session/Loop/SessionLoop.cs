@@ -21,6 +21,7 @@ public sealed partial class TmSessionLoop : IDisposable
     private readonly    Channel<ClientEvent>                eventChannel;   // Single reader channel guarantees zero-sync single-thread execution
     private readonly    Dictionary<TmClient, TuiSession>    sessions;       // Raw non-thread-safe state (accessed exclusively by _shardThread)
     private readonly    FrameBuffer                         frameBuffer;    // shared among all sessions - is accessed single threaded
+    private readonly    SixelDrawer                         sixelDrawer;    // shared among all sessions
     private readonly    CreateGuiView                       createGuiView;  // IBatchRenderer factory
     private readonly    CancellationTokenSource             cts = new();
     private             Thread?                             shardThread;
@@ -34,6 +35,7 @@ public sealed partial class TmSessionLoop : IDisposable
         eventChannel        = Channel.CreateUnbounded<ClientEvent>(new UnboundedChannelOptions { SingleReader = true, SingleWriter = false });
         sessions            = new Dictionary<TmClient, TuiSession>();
         frameBuffer         = new FrameBuffer();
+        sixelDrawer         = new SixelDrawer();
         exitHandler         = ExitHandler;
         PosixSignalUtils.AddExitHandler(exitHandler);
     }
@@ -92,7 +94,7 @@ public sealed partial class TmSessionLoop : IDisposable
         var client      = evt.Client;
         var args        = firstLine == -1 ? [] : GetArgs(payload.Span.Slice(0, firstLine));
 
-        var session     = new TuiSession(evt.Client, frameBuffer, TuiColorMode.RGB24);
+        var session     = new TuiSession(evt.Client, frameBuffer, sixelDrawer, TuiColorMode.RGB24);
 
         var connectInfo = new ConnectInfo{ client = client, backend = session.tuiBackend, args = args };
         var guiView     = createGuiView(connectInfo);
