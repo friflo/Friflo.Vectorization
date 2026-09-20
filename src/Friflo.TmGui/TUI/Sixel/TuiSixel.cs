@@ -28,10 +28,7 @@ public sealed class TuiSixel
         this.height = height;
         this.data   = data;
                 
-        // int bandCount = (height + 5) / 6;
-        
         // Exact size: 1 byte per pixel (+ optional alignment padding if needed)
-        
         int count = width * height;
         colorIndexes = new byte[count];
         
@@ -44,18 +41,19 @@ public sealed class TuiSixel
     {
         Span<bool> usedColors = stackalloc bool[256];
         foreach (var index in colorIndexes.AsSpan()) {
+            // Index 0 is reserved for transparent background
             usedColors[index] = true;
         }
+        usedColors[0] = false;
+        
         int paletteCount = 0;
-        for (int n = 0; n < 256; n++) {
+        for (int n = 1; n < 256; n++) {
             if (!usedColors[n]) continue;
             palette[paletteCount++] = (byte)n;
         }
         return paletteCount;
     }
 
-
-    
     private static int AppendHeaderToTargetBuffer(Span<byte> target, ReadOnlySpan<byte> palette)
     {
         int writtenBytes = 0;
@@ -106,13 +104,25 @@ public sealed class TuiSixel
             {
                 int pixelOffset = srcRowOffset + (x * bytesPerPixel);
 
+                // Check alpha channel for transparency (assuming RGBA format if bytesPerPixel == 4)
+                if (bytesPerPixel >= 4 && src[pixelOffset + 3] < 128)
+                {
+                    // Map transparent pixel directly to index 0
+                    colorIndexes[rowOffset + x] = 0;
+                    continue;
+                }
+                
                 byte r = src[pixelOffset];
                 byte g = src[pixelOffset + 1];
                 byte b = src[pixelOffset + 2];
-
+                
                 // Fast R3G3B2 color quantization (0..255)
                 byte colorIndex = (byte)((r & 0xE0) | ((g & 0xE0) >> 3) | (b >> 6));
 
+                // If quantized color lands on index 0 (true black), map to index 1 to reserve 0 for transparency
+                if (colorIndex == 0) {
+                    colorIndex = 1;
+                }
                 // Direct 1-to-1 mapping into the width * height buffer
                 colorIndexes[rowOffset + x] = colorIndex;
             }
@@ -121,9 +131,9 @@ public sealed class TuiSixel
     
     internal static int AppendColorIndexesToTargetBuffer(int width, int height, byte[] colorIndexes, Span<byte> target, ReadOnlySpan<byte> palette)
     {
-        var writtenBytes = AppendHeaderToTargetBuffer (target, palette);
+        var writtenBytes = AppendHeaderToTargetBuffer(target, palette);
             
-       // Flattened bitmask array: [color * width + x]
+        // Flattened bitmask array: [color * width + x]
         Span<byte> colorBitmasks = stackalloc byte[256 * width];
         Span<bool> usedColors = stackalloc bool[256];
 
@@ -153,13 +163,19 @@ public sealed class TuiSixel
                 for (int x = 0; x < width; x++)
                 {
                     byte colorIndex = colorIndexes[rowOffset + x];
+
+                    // Skip processing transparent pixels (index 0)
+                    if (colorIndex == 0) {
+                        continue;
+                    }
+
                     colorBitmasks[colorIndex * width + x] |= (byte)bit;
                     usedColors[colorIndex] = true;
                 }
             }
 
-            // Write SIXEL data only for colors present in this band
-            for (int color = 0; color < 256; color++)
+            // Write SIXEL data only for colors present in this band (excluding index 0)
+            for (int color = 1; color < 256; color++)
             {
                 if (!usedColors[color]) continue;
 
@@ -183,6 +199,7 @@ public sealed class TuiSixel
 
         return writtenBytes;
     }
+
 
     private static int WriteIntToSpan(int value, Span<byte> destination)
     {
