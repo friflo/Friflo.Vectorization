@@ -109,17 +109,17 @@ public sealed class SixelDrawer
         var canvasWidth  = (int)(cellsWidth  * cellPixelSize.X);
         var canvasHeight = (int)(cellsHeight * cellPixelSize.Y);
 
-        // Target pixel bounds based on targetSize. Clamp to at least 1 to prevent DivideByZeroException 
+        // Scaled pixel bounds based on targetSize. Clamp to at least 1 to prevent DivideByZeroException 
         // in fixed-point scale calculations (scaleX16/scaleY16) when target size is near zero.
-        int targetWidth  = (int)Math.Max(1, targetSize.X);
-        int targetHeight = (int)Math.Max(1, targetSize.Y);
+        int scaledWidth  = (int)Math.Max(1, targetSize.X);
+        int scaledHeight = (int)Math.Max(1, targetSize.Y);
 
         // Calculate raw source boundaries mapped to target rendering area
         int startSrcX = Math.Max(0, originX);
         int startSrcY = Math.Max(0, originY);
         
-        int rawEndSrcX = Math.Min(targetWidth,  canvasWidth  - imagePosX);
-        int rawEndSrcY = Math.Min(targetHeight, canvasHeight - imagePosY);
+        int rawEndSrcX = Math.Min(scaledWidth,  canvasWidth  - imagePosX);
+        int rawEndSrcY = Math.Min(scaledHeight, canvasHeight - imagePosY);
 
         int renderWidth = rawEndSrcX - startSrcX;
         int rawHeight   = rawEndSrcY - startSrcY;
@@ -160,8 +160,8 @@ public sealed class SixelDrawer
             endSrcY,
             renderWidth,
             renderHeight,
-            targetWidth,
-            targetHeight,
+            scaledWidth,
+            scaledHeight,
             imagePosX,
             imagePosY,
             cellPixelSize,
@@ -186,8 +186,8 @@ public sealed class SixelDrawer
         int                 endSrcY,
         int                 renderWidth,
         int                 renderHeight,
-        int                 targetWidth,
-        int                 targetHeight,
+        int                 scaledWidth,
+        int                 scaledHeight,
         int                 imagePosX,
         int                 imagePosY,
         Vector2             cellPixelSize,
@@ -214,8 +214,8 @@ public sealed class SixelDrawer
         float invCellHeightPx = 1.0f / cellPixelSize.Y;
 
         // Fixed-point 16.16 scale factors for Nearest-Neighbor sampling from target to source
-        int scaleX16 = (int)(((long)srcWidth  << 16) / targetWidth);
-        int scaleY16 = (int)(((long)srcHeight << 16) / targetHeight);
+        int scaleX16 = (int)(((long)srcWidth  << 16) / scaledWidth);
+        int scaleY16 = (int)(((long)srcHeight << 16) / scaledHeight);
 
         for (int band = 0; band < bandCount; band++)
         {
