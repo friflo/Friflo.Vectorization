@@ -21,6 +21,7 @@ public partial class TuiBatch
         tuiRects.Add(new TuiRect(position, size, new Color32Span(background), ' '));
     }
     
+    /// If fillChar is 0. The rect is used for color blending (shadow)
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void FillRectChar(Vector2 position, Vector2 size, Color32 background, char fillChar, Color32 textColor)
     {

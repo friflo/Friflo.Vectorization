@@ -132,6 +132,7 @@ public readonly struct Color32Span
 /// </remarks>
 public struct TuiRect
 {
+    // For filled rectangles: If text.fillChar == 0 the rect executes color blending (shadow)
     public  readonly    TextSpan    text;           //  8 bytes
     public              Vector2     TL;             //  8 bytes - top / lLeft    - Must use floats to enable layout mutations
     public              Vector2     BR;             //  8 bytes - bottom / right - Must use floats to enable layout mutations
@@ -153,11 +154,11 @@ public struct TuiRect
     
     /// <summary> A sixel rectangle with given sixel id. </summary>
     internal TuiRect(byte sixelId, Vector2 pos, Vector2 size) {
-        text.fillChar   = ' ';
+        text.fillChar   = '#'; // Set fillChar to any char not 0. If 0 the TuiRect is handled as blending (shadow)
         this.sixelId    = sixelId;
         this.TL         = pos;
         this.BR         = pos + size;
-        this.color      = new Color32Span(Color32.Pink); // debugging color
+        // A sixel does not change rune, color, background, ... of a cell
     }
     
     /// <summary> A horizontal text with given text <see cref="color"/>. </summary>
