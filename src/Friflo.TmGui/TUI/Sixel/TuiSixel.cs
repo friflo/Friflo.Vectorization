@@ -33,7 +33,7 @@ public sealed class TuiSixel
         colorIndexes = new byte[count];
         
         UpdateFromRgb888(width, height, data, colorIndexes, 4);
-        SetDebugCorners(colorIndexes, width, height);
+        SetDebugCorners(colorIndexes, width, height, 0xffffffff);
         
         paletteCount = UpdatePalette(colorIndexes, palette);
     }
@@ -93,18 +93,21 @@ public sealed class TuiSixel
         }
     }
     
-    private static void SetDebugCorners(byte[] colorIndexes, int width, int height)
+    private static void SetDebugCorners(byte[] colorIndexes, int width, int height, Color32 color)
     {
-        // Color index for pure red in R3G3B2 (R=7 -> 0xE0)
-        byte redIndex = 0xE0;
+        int r3 = color.R >> 5;
+        int g3 = color.G >> 5;
+        int b2 = color.B >> 6;
+
+        var colorIndex = (byte)((r3 << 5) | (g3 << 2) | b2);
 
         // Top-Left
-        colorIndexes[0] = redIndex;
+        colorIndexes[0] = colorIndex;
         // Top-Right
-        colorIndexes[width - 1] = redIndex;
+        colorIndexes[width - 1] = colorIndex;
         // Bottom-Left
-        colorIndexes[(height - 1) * width] = redIndex;
+        colorIndexes[(height - 1) * width] = colorIndex;
         // Bottom-Right
-        colorIndexes[(height - 1) * width + (width - 1)] = redIndex;
+        colorIndexes[(height - 1) * width + (width - 1)] = colorIndex;
     }
 }
