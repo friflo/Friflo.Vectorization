@@ -1,7 +1,7 @@
 // Copyright (c) Ullrich Praetz - https://github.com/friflo. All rights reserved.
 // See LICENSE file in the project root for full license information.
 
-// #define DEBUG_CLIPPING
+#define DEBUG_CLIPPING
 
 using System;
 using System.Collections.Generic;
@@ -83,9 +83,7 @@ public sealed class SixelDrawer
         DrawSixel   drawSixel,
         TuiBatch    tuiBatch,
         Span<byte>  target,
-        Vector2     cellPixelSize,
-        int         cursorX,
-        int         cursorY)
+        Vector2     cellPixelSize)
     {
         var sixel           = drawSixel.sixel;
         var width           = sixel.width;
@@ -97,9 +95,12 @@ public sealed class SixelDrawer
         var imagePosX = (int)(TuiBatch.FastFloor(drawSixel.pos.X / tuiBatch.CharWidth)  * cellPixelSize.X);
         var imagePosY = (int)(TuiBatch.FastFloor(drawSixel.pos.Y / tuiBatch.LineHeight) * cellPixelSize.Y);
         
+        int cursorX = Math.Max((int)(imagePosX / cellPixelSize.X), 0);
+        int cursorY = Math.Max((int)(imagePosY / cellPixelSize.Y), 0);
+        
         var originX = TuiBatch.FastFloor(cursorX * cellPixelSize.X) - imagePosX;
         var originY = TuiBatch.FastFloor(cursorY * cellPixelSize.Y) - imagePosY;
-        
+
         // unit of canvasWidth / canvasHeight are sixel pixels.
         // unit of cellsWidth / cellsHeight are terminal cells.
         var canvasWidth  = (int)(cellsWidth  * cellPixelSize.X);
@@ -119,8 +120,22 @@ public sealed class SixelDrawer
             // Nothing to draw
             return 0;
         }
+        
+        /* if ((uint)(cursorX - 1) >= (uint)cellsWidth || (uint)(cursorY - 1) >= (uint)cellsHeight) {
+            return 0;
+        } */
 
-        var writtenBytes = AppendHeaderToTargetBuffer(target, palette);
+        int writtenBytes = 0;
+
+        // Set Cursor Position: ESC [ {row} ; {col} H
+        target[writtenBytes++] = 0x1B;
+        target[writtenBytes++] = (byte)'[';
+        writtenBytes += WriteIntToSpan(cursorY + 1, target.Slice(writtenBytes));
+        target[writtenBytes++] = (byte)';';
+        writtenBytes += WriteIntToSpan(cursorX + 1, target.Slice(writtenBytes));
+        target[writtenBytes++] = (byte)'H';
+
+        writtenBytes += AppendHeaderToTargetBuffer(target.Slice(writtenBytes), palette);
 
         writtenBytes += RasterizeBands(
             colorIndexes,

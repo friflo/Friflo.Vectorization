@@ -2,7 +2,6 @@
 // See LICENSE file in the project root for full license information.
 
 using System;
-using System.Diagnostics;
 using System.Numerics;
 using System.Text;
 using Friflo.TmGui.Session;
@@ -180,12 +179,7 @@ internal sealed partial class TuiSession : TmSession
             for (int x = 0; x < width; x++)
             {
                 var cell = cells[y * width + x];
-                if (cell.sixelId != 0) {
-                    var sixel = AppendSixel(cell.sixelId, x, y);
-                    if (sixel) {
-                        continue;
-                    }
-                }
+
                 if (cell.color.A != 0) {
                     if ((cell.color.Packed & 0x00ffffff) != (color.Packed & 0x00ffffff)) {
                         SetColor(color = cell.color);
@@ -199,12 +193,17 @@ internal sealed partial class TuiSession : TmSession
                     SetBackground(background = cell.background);
                 }
                 AppendRune(cell.rune);
+                if (cell.sixelId != 0) {
+                    tuiBatch.drawSixels[cell.sixelId].isDrawn = true;
+                }
             }
             /* AppendSpan("\x1b[K"u8); // EraseInLine - erase everything right from current cursor
             if (y < height - 1) {
                 AppendSpan("\r\n"u8);
             } */
         }
+        
+        AppendSixels();
     }
     
     private void SetCursor(int row)
@@ -212,15 +211,6 @@ internal sealed partial class TuiSession : TmSession
         AppendSpan("\x1b["u8);
         AppendNumber((byte)row);
         AppendSpan(";1H"u8);
-    }
-    
-    private void SetCursorPos(int row, int col)
-    {
-        AppendSpan("\x1b["u8);
-        AppendNumber((byte)row);
-        AppendSpan(";"u8);
-        AppendNumber((byte)col);
-        AppendSpan("H"u8);
     }
     
     private void SetColor(Color32 color)
@@ -325,20 +315,17 @@ internal sealed partial class TuiSession : TmSession
         buffer.SetCell(x + 1, y, cell with { rune = new Rune(shape.right)  });
     }
     
-    private bool AppendSixel(byte sixelId, int x, int y)
+    private void AppendSixels()
     {
-        ref var drawSixel = ref tuiBatch.drawSixels[sixelId];
-        if (drawSixel.isDrawn) {
-            SetCursorPos(y + 1, x + 2);
-            return true;
+        for (int n = 1; n <= tuiBatch.drawSixelCount; n++)
+        {
+            var drawSixel = tuiBatch.drawSixels[n];
+            if (!drawSixel.isDrawn) {
+                continue;
+            }
+            var target  = sendBuffer.AsSpan(sendBufferCount, sendBuffer.Length - sendBufferCount);
+            var bytesWritten = sixelDrawer.AppendSixelToTargetBuffer(drawSixel, tuiBatch, target, cellPixelSize);
+            sendBufferCount += bytesWritten;
         }
-        drawSixel.isDrawn = true;
-        var sixel   = drawSixel.sixel;
-        var target  = sendBuffer.AsSpan(sendBufferCount, sendBuffer.Length - sendBufferCount);
-        var bytesWritten = sixelDrawer.AppendSixelToTargetBuffer(drawSixel, tuiBatch, target, cellPixelSize, x, y);
-        sendBufferCount += bytesWritten;
-        
-        SetCursorPos(y + 1, x + 2);
-        return true;
     }
 }

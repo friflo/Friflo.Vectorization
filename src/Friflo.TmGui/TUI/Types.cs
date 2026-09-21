@@ -153,7 +153,7 @@ public struct TuiRect
     
     /// <summary> A sixel rectangle with given sixel id. </summary>
     internal TuiRect(byte sixelId, Vector2 pos, Vector2 size) {
-        text.fillChar   = '#';
+        text.fillChar   = ' ';
         this.sixelId    = sixelId;
         this.TL         = pos;
         this.BR         = pos + size;
