@@ -1,7 +1,7 @@
 // Copyright (c) Ullrich Praetz - https://github.com/friflo. All rights reserved.
 // See LICENSE file in the project root for full license information.
 
-#define DEBUG_CLIPPING
+// #define DEBUG_CLIPPING
 
 using System;
 using System.Collections.Generic;
@@ -85,45 +85,52 @@ public sealed class SixelDrawer
         Span<byte>  target,
         Vector2     cellPixelSize)
     {
-        var sixel           = drawSixel.sixel;
-        var width           = sixel.width;
-        var height          = sixel.height;
-        var colorIndexes    = sixel.colorIndexes;
-        var palette         = sixel.Palette;
+        var sixel        = drawSixel.sixel;
+        var width        = sixel.width;
+        var height       = sixel.height;
+        var colorIndexes = sixel.colorIndexes;
+        var palette      = sixel.Palette;
 
-        // subsequent unit are in sixel pixel: imagePos, origin & canvas
+        // Subsequent units are in sixel pixels: imagePos, origin & canvas
         var imagePosX = (int)(TuiBatch.FastFloor(drawSixel.pos.X / tuiBatch.CharWidth)  * cellPixelSize.X);
         var imagePosY = (int)(TuiBatch.FastFloor(drawSixel.pos.Y / tuiBatch.LineHeight) * cellPixelSize.Y);
         
         int cursorX = Math.Max((int)(imagePosX / cellPixelSize.X), 0);
         int cursorY = Math.Max((int)(imagePosY / cellPixelSize.Y), 0);
         
+        if ((uint)cursorX >= (uint)cellsWidth || (uint)cursorY >= (uint)cellsHeight) {
+            return 0;
+        }
         var originX = TuiBatch.FastFloor(cursorX * cellPixelSize.X) - imagePosX;
         var originY = TuiBatch.FastFloor(cursorY * cellPixelSize.Y) - imagePosY;
 
-        // unit of canvasWidth / canvasHeight are sixel pixels.
-        // unit of cellsWidth / cellsHeight are terminal cells.
+        // Unit of canvasWidth / canvasHeight are sixel pixels
         var canvasWidth  = (int)(cellsWidth  * cellPixelSize.X);
         var canvasHeight = (int)(cellsHeight * cellPixelSize.Y);
 
-        // Calculate source boundaries considering origin offsets and canvas right/bottom edges
+        // Calculate raw source boundaries
         int startSrcX = Math.Max(0, originX);
         int startSrcY = Math.Max(0, originY);
         
-        int endSrcX   = Math.Min(width,  canvasWidth  - imagePosX);
-        int endSrcY   = Math.Min(height, canvasHeight - imagePosY);
+        int rawEndSrcX = Math.Min(width,  canvasWidth  - imagePosX);
+        int rawEndSrcY = Math.Min(height, canvasHeight - imagePosY);
 
-        int renderWidth  = endSrcX - startSrcX;
-        int renderHeight = endSrcY - startSrcY;
+        int renderWidth = rawEndSrcX - startSrcX;
+        int rawHeight   = rawEndSrcY - startSrcY;
 
-        if (renderWidth <= 0 || renderHeight <= 0) {
+        if (renderWidth <= 0 || rawHeight <= 0) {
             // Nothing to draw
             return 0;
         }
-        
-        /* if ((uint)(cursorX - 1) >= (uint)cellsWidth || (uint)(cursorY - 1) >= (uint)cellsHeight) {
+
+        // Align height strictly down to the last complete 6-pixel SIXEL band to prevent bottom scrolling
+        int renderHeight = (rawHeight / 6) * 6;
+        if (renderHeight <= 0) {
+            // Not enough vertical space for a full SIXEL band
             return 0;
-        } */
+        }
+        int endSrcX = rawEndSrcX;
+        int endSrcY = startSrcY + renderHeight;
 
         int writtenBytes = 0;
 
@@ -300,11 +307,12 @@ public sealed class SixelDrawer
                 target[writtenBytes++] = (byte)'$';
             }
         }
+        // Trim trailing SIXEL graphic newlines ('-') to save I/O and prevent unwanted line feeds
+        while (target[writtenBytes - 1] == '-') { writtenBytes--; }
 #if DEBUG_CLIPPING
         Debug.WriteLine($"skipped: {debugSkipped.Count}  drawn: {debugDrawn.Count}  writtenBytes: {writtenBytes}");
-        // Debug.WriteLine(new string(Encoding.UTF8.GetChars(target.Slice(0, writtenBytes).ToArray())));
+        Debug.WriteLine(new string(Encoding.UTF8.GetChars(target.Slice(0, writtenBytes).ToArray())));
 #endif
-
         return writtenBytes;
     }
     
