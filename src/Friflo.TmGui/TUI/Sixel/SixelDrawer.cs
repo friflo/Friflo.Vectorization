@@ -86,6 +86,7 @@ public sealed class SixelDrawer
         Vector2     cellPixelSize)
     {
         var sixel        = drawSixel.sixel;
+        var targetSize   = drawSixel.size * cellPixelSize / new Vector2(tuiBatch.CharWidth, tuiBatch.LineHeight);
         var width        = sixel.width;
         var height       = sixel.height;
         var colorIndexes = sixel.colorIndexes;
@@ -108,12 +109,17 @@ public sealed class SixelDrawer
         var canvasWidth  = (int)(cellsWidth  * cellPixelSize.X);
         var canvasHeight = (int)(cellsHeight * cellPixelSize.Y);
 
-        // Calculate raw source boundaries
+        // Target pixel bounds based on targetSize. Clamp to at least 1 to prevent DivideByZeroException 
+        // in fixed-point scale calculations (scaleX16/scaleY16) when target size is near zero.
+        int targetWidth  = (int)Math.Max(1, targetSize.X);
+        int targetHeight = (int)Math.Max(1, targetSize.Y);
+
+        // Calculate raw source boundaries mapped to target rendering area
         int startSrcX = Math.Max(0, originX);
         int startSrcY = Math.Max(0, originY);
         
-        int rawEndSrcX = Math.Min(width,  canvasWidth  - imagePosX);
-        int rawEndSrcY = Math.Min(height, canvasHeight - imagePosY);
+        int rawEndSrcX = Math.Min(targetWidth,  canvasWidth  - imagePosX);
+        int rawEndSrcY = Math.Min(targetHeight, canvasHeight - imagePosY);
 
         int renderWidth = rawEndSrcX - startSrcX;
         int rawHeight   = rawEndSrcY - startSrcY;
@@ -147,12 +153,15 @@ public sealed class SixelDrawer
         writtenBytes += RasterizeBands(
             colorIndexes,
             width,
+            height,
             startSrcX,
             startSrcY,
             endSrcX,
             endSrcY,
             renderWidth,
             renderHeight,
+            targetWidth,
+            targetHeight,
             imagePosX,
             imagePosY,
             cellPixelSize,
@@ -166,23 +175,27 @@ public sealed class SixelDrawer
         return writtenBytes;
     }
 
+    // Samples the source image using Nearest-Neighbor to preserve performance and crisp rendering
     private int RasterizeBands(
         ReadOnlySpan<byte>  colorIndexes,
-        int                 fullWidth,
+        int                 srcWidth,
+        int                 srcHeight,
         int                 startSrcX,
         int                 startSrcY,
         int                 endSrcX,
         int                 endSrcY,
         int                 renderWidth,
         int                 renderHeight,
+        int                 targetWidth,
+        int                 targetHeight,
         int                 imagePosX,
         int                 imagePosY,
         Vector2             cellPixelSize,
         byte                targetSixelId,
         Span<byte>          target)
     {
-        // Flattened bitmask array: [color * width + x]
-        var colorBitmasksLength = 256 * fullWidth;
+        // Flattened bitmask array: [color * renderWidth + x]
+        var colorBitmasksLength = 256 * renderWidth;
         if (colorBitmasksBuffer.Length < colorBitmasksLength) {
             colorBitmasksBuffer = new byte[colorBitmasksLength];
         }
@@ -199,6 +212,10 @@ public sealed class SixelDrawer
 
         float invCellWidthPx  = 1.0f / cellPixelSize.X;
         float invCellHeightPx = 1.0f / cellPixelSize.Y;
+
+        // Fixed-point 16.16 scale factors for Nearest-Neighbor sampling from target to source
+        int scaleX16 = (int)(((long)srcWidth  << 16) / targetWidth);
+        int scaleY16 = (int)(((long)srcHeight << 16) / targetHeight);
 
         for (int band = 0; band < bandCount; band++)
         {
@@ -218,19 +235,28 @@ public sealed class SixelDrawer
                 // Bit position inside the 6-pixel SIXEL band
                 int rowInBand = (y - startSrcY) % 6;
                 int bit = 1 << rowInBand;
-                int rowOffset = y * fullWidth;
 
                 int cellY = (int)((imagePosY + y) * invCellHeightPx);
                 int cellRowOffset = cellY * cellsWidth;
 
+                // Nearest-neighbor Y sampling in source texture
+                int srcY = (int)(((long)y * scaleY16) >> 16);
+                if (srcY >= srcHeight) srcY = srcHeight - 1;
+                int srcRowOffset = srcY * srcWidth;
+
                 for (int x = startSrcX; x < endSrcX; x++)
                 {
-                    byte colorIndex = colorIndexes[rowOffset + x];
+                    // Nearest-neighbor X sampling in source texture
+                    int srcX = (int)(((long)x * scaleX16) >> 16);
+                    if (srcX >= srcWidth) srcX = srcWidth - 1;
+
+                    byte colorIndex = colorIndexes[srcRowOffset + srcX];
 
                     // Skip processing transparent pixels (index 0)
                     if (colorIndex == 0) {
                         continue;
                     }
+
                     // Check clip cells buffer for current pixel
                     int cellX = (int)((imagePosX + x) * invCellWidthPx);
                     int clipIndex = cellRowOffset + cellX;
@@ -307,8 +333,12 @@ public sealed class SixelDrawer
                 target[writtenBytes++] = (byte)'$';
             }
         }
+
         // Trim trailing SIXEL graphic newlines ('-') to save I/O and prevent unwanted line feeds
-        while (target[writtenBytes - 1] == '-') { writtenBytes--; }
+        while (writtenBytes > 0 && target[writtenBytes - 1] == (byte)'-') { 
+            writtenBytes--; 
+        }
+
 #if DEBUG_CLIPPING
         Debug.WriteLine($"skipped: {debugSkipped.Count}  drawn: {debugDrawn.Count}  writtenBytes: {writtenBytes}");
         Debug.WriteLine(new string(Encoding.UTF8.GetChars(target.Slice(0, writtenBytes).ToArray())));

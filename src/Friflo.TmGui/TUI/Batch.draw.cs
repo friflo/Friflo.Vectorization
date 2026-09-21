@@ -194,7 +194,7 @@ public partial class TuiBatch
         var sixel = tuiTexture.sixel;
         
         var sixelId = ++drawSixelCount;
-        drawSixels[sixelId] = new DrawSixel { sixelId = sixelId, sixel = sixel, pos = position };
+        drawSixels[sixelId] = new DrawSixel { sixelId = sixelId, sixel = sixel, pos = position, size = size };
         tuiRects.Add(new TuiRect(sixelId, position, size));
     }
     
@@ -207,7 +207,8 @@ internal struct DrawSixel
     internal byte       sixelId;
     internal TuiSixel   sixel; 
     internal bool       isDrawn;
-    internal Vector2    pos; // screen space. Not terminal pixel position
+    internal Vector2    pos;  // screen space. Not terminal pixel position
+    internal Vector2    size; // screen space. Not terminal pixel position
 
     public   override string ToString() => sixel == null ? "null" : $"x: {pos.X} y: {pos.Y}  {sixel}";
 }
