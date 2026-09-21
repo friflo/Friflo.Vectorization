@@ -341,7 +341,7 @@ public sealed class SixelDrawer
 
 #if DEBUG_CLIPPING
         Debug.WriteLine($"skipped: {debugSkipped.Count}  drawn: {debugDrawn.Count}  writtenBytes: {writtenBytes}");
-        Debug.WriteLine(new string(Encoding.UTF8.GetChars(target.Slice(0, writtenBytes).ToArray())));
+        // Debug.WriteLine(new string(Encoding.UTF8.GetChars(target.Slice(0, writtenBytes).ToArray())));
 #endif
         return writtenBytes;
     }

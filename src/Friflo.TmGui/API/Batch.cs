@@ -91,6 +91,7 @@ public abstract class TmBatch : IDisposable
     internal readonly   TuiBatch?           tui;
     internal            TmFont              currentFont;
     internal            TmTexture           currentFontTexture;
+    internal            Vector2             terminalPixelSize  = new(1, 1);
     
     // --- TmDraw - state
     internal            IFormatProvider     formatProvider;

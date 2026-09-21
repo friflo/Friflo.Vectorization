@@ -23,11 +23,12 @@ public readonly ref struct Gui
 {
     public readonly     GuiWidget   widget;     // 32 bytes
     
-    public ref readonly GuiColors   Colors      { [DebuggerStepThrough] get => ref widget.Colors; }
-    public ref readonly GuiSizes    Sizes       { [DebuggerStepThrough] get => ref widget.Sizes; }
-    public              TmDraw      Draw        => widget.draw;
-    public              float       LineHeight  => widget.draw.Font.lineHeight;
-    public              GuiInput    Input       => widget.input;
+    public ref readonly GuiColors   Colors              { [DebuggerStepThrough] get => ref widget.Colors; }
+    public ref readonly GuiSizes    Sizes               { [DebuggerStepThrough] get => ref widget.Sizes; }
+    public              TmDraw      Draw                => widget.draw;
+    public              float       LineHeight          => widget.draw.Font.lineHeight;
+    public              GuiInput    Input               => widget.input;
+    public              Vector2     TerminalPixelSize   => widget.draw.batch.terminalPixelSize;
 
     public override     string?     ToString() {
         var recorder = widget.Recorder;

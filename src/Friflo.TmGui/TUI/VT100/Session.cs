@@ -73,7 +73,7 @@ internal sealed partial class TuiSession : TmSession
     private void SetCellPixelSize(int width, int height)
     {
         cellPixelSize = new Vector2(width, height);
-        tuiBatch.cellPixelScale = new Vector2(tuiBatch.CharWidth / width, tuiBatch.LineHeight / height);
+        tuiBatch.terminalPixelSize = new Vector2(tuiBatch.CharWidth / width, tuiBatch.LineHeight / height);
     }
     
     internal ReadOnlyMemory<byte> StartSession() {

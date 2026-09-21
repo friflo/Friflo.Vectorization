@@ -64,7 +64,12 @@ public class TestGuiView : IGuiView
         gui.EndHorizontal();
         
         gui.Label("after horizontal", Color32.Teal);
-        using (var space = gui.BeginSpace(new(192, 64), "sprite")) {
+        
+        gui.Checkbox("terminal pixels", ref appState.useTerminalPixels);
+        var spriteSize = new Vector2(192, 64);
+        if (appState.useTerminalPixels) spriteSize *= gui.TerminalPixelSize;
+        
+        using (var space = gui.BeginSpace(spriteSize, "sprite")) {
             // var srcPos  = new Vector2(3 * 64, 0 * 64);  // tile pos in Sheet (3, 0)
             // var tint = gui.Colors.ButtonState(space.widgetState);
             gui.Draw.DrawSprite(myTexture, space.pos, space.size);
