@@ -21,7 +21,8 @@ public sealed class TuiSixel
     internal readonly   int     height;
     internal readonly   byte[]  data;
     
-    // Size: exactly width * height bytes (1/4 of RGBA size)
+    /// <summary> Linear 1-byte-per-pixel buffer containing R3G3B2 indexed color values. </summary>
+    /// <remarks> Total size is exactly <c>width * height</c> bytes. </remarks>
     internal readonly   byte[]  colorIndexes;
     private  readonly   byte[]  palette = new byte[256];
     private  readonly   int     paletteCount;
