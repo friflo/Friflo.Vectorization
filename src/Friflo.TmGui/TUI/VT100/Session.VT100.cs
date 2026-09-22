@@ -126,6 +126,9 @@ internal sealed partial class TuiSession
             case '8':       // 0x38     terminal resize
                 HandleInBandResize();
                 break;
+            case '?':       // 0x3F     DA1 - Primary Device Attributes Response (\x1b[?...c)
+                HandleDeviceAttributesResponse();
+                break;
         }
         csi.Reset();
     }
@@ -165,6 +168,27 @@ internal sealed partial class TuiSession
             case 65:    // Scroll Wheel Down
                 tuiBackend.AddEvent(new TmEvent(TmEventType.MouseWheel, mousePos) { wheel = new Vector2(0, -1) });
                 break;
+        }
+    }
+    
+    private void HandleDeviceAttributesResponse()
+    {
+        // Sequence format: \x1b[?<feature_1>;<feature_2>;...;<feature_n>c
+        csi.SkipFirst(); // Skip '?'
+        
+        while (csi.HasMore)
+        {
+            if (csi.TryReadInt(out int featureCode)) {
+                if (featureCode == 4) { // 4 = SIXEL Graphics
+                    supportsSixel = true;
+                }
+            }
+            // Advance past separator or stop at final character
+            if (csi.Current == ';') {
+                csi.MoveNext();
+            } else if (csi.Current == 'c') {
+                break;
+            }
         }
     }
     

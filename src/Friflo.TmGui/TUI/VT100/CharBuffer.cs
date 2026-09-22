@@ -10,9 +10,9 @@ namespace Friflo.TmGui.TUI.VT100;
 
 internal struct CharBuffer
 {
-    private  readonly   char[]  array;
-    private             int     length;
-    private             int     current;
+    private     char[]  array;
+    private     int     length;
+    private     int     current;
 
     public   override   string  ToString()      => $"\"{new string(array, 0, length)}\"  current: {new string(Remaining)}";
     
@@ -31,8 +31,25 @@ internal struct CharBuffer
         current = 0;
     }
     
-    internal void AppendChar(char c)    => array[length++] = c;
+    internal bool HasMore => current < length;
     
+    internal void MoveNext()
+    {
+        if (current < length) {
+            current++;
+        }
+    }
+    
+    internal void AppendChar(char c)
+    {
+        if (length == array.Length) {
+            var newArray = new char[length * 2];
+            Array.Copy(array, 0, newArray, 0, length);
+            array = newArray;
+        }
+        array[length++] = c;
+    }
+
     internal void SkipFirst()           => current++;
     
     internal bool TryReadChar(int c)

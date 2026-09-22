@@ -25,6 +25,7 @@ internal sealed partial class TuiSession : TmSession
     private             int             sendBufferCount;
     private             int             frameWidth      = 50;
     private             int             frameHeight     = 20;
+    private             bool            supportsSixel;
     private             Vector2         cellPixelSize   = new(10, 20);
     private             bool            sessionStart;
     //
@@ -87,6 +88,7 @@ internal sealed partial class TuiSession : TmSession
         // Extended Init Sequence:
         // \x1b[14t     = Request window pixel size (CSI 14 t)
         // \x1b[16t     = Request cell pixel size (CSI 16 t)
+        // \x1b[c       = Request primary Device Attributes Query (DA1) - to detect Sixel support
         // \x1b[?1l     = Normal Cursor Mode
         // \x1b[?25l    = Hide Cursor
         // \x1b[0m      = Reset All Colors/Attributes
@@ -95,7 +97,7 @@ internal sealed partial class TuiSession : TmSession
         // \x1b[3J      = Clear Scrollback-Buffer           - prevents Alternate Screen-Buffer Reflow-Ghosting
         // \x1b[?7l     = Disable Auto-Wrap
         // \x1b[H       = Home Cursor (0,0)
-        AppendSpan("\x1b[14t\x1b[16t\x1b[?1l\x1b[?25l\x1b[0m\x1b[?1049h\x1b[2J\x1b[3J\x1b[?7l\x1b[H"u8);
+        AppendSpan("\x1b[14t\x1b[16t\x1b[c\x1b[?1l\x1b[?25l\x1b[0m\x1b[?1049h\x1b[2J\x1b[3J\x1b[?7l\x1b[H"u8);
         
         AppendSpan("\x1b[?1003h"u8);    // Enable mouse hover (tracks ALL movement, clicks & scrolling)
         AppendSpan("\x1b[?1006h"u8);    // Enable SGR extended coordinate format (required for modern terminals & high resolutions)
@@ -317,6 +319,9 @@ internal sealed partial class TuiSession : TmSession
     
     private void AppendSixels()
     {
+        if (!supportsSixel) {
+            return;
+        }
         for (int n = 1; n <= tuiBatch.drawSixelCount; n++)
         {
             var drawSixel = tuiBatch.drawSixels[n];
