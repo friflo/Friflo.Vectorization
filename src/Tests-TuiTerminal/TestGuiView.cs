@@ -25,8 +25,11 @@ public class TestGuiView : IGuiView
     public void RenderGui(TmBatch batch, int targetWidth, int targetHeight)
     {
         batch.EnableStepRendering = true;
-        var gui = batch.BeginGui(targetWidth, targetHeight);
         
+        var draw = batch.BeginTextureDraw(myTexture);
+        ImageDraw(draw);
+        
+        var gui = batch.BeginGui(targetWidth, targetHeight);
         using (gui.BeginWindow("Window 1", new Vector2(0, 0), new Vector2(1000, 850), traits: 0, TuiBorder.Rounded)) { // (500, 450) (1000, 850)
             Window1(gui);
         }
@@ -192,4 +195,10 @@ public class TestGuiView : IGuiView
         gui.EndScrollArea(scrollArea);
         gui.Button("after scroll area");
     }
+    
+    private static void ImageDraw(TmDraw draw)
+    {
+        draw.FillRect(new Vector2(10, 10), new Vector2(20, 20), 0xff0000ff);
+    }
+    
 }

@@ -4,6 +4,7 @@
 using System;
 using System.Numerics;
 using System.Runtime.CompilerServices;
+using Friflo.TmGui.Image;
 
 // ReSharper disable InconsistentNaming
 // ReSharper disable UseWithExpressionToCopyStruct
@@ -20,6 +21,10 @@ public readonly ref partial struct TmDraw
     public void FillRect(Vector2 position, Vector2 size, Color32 color)
     {
         var bat = batch;
+        if (bat.isTextureDraw) {
+            ((TextureDraw)bat).FillRect(position, size, color);
+            return;
+        }
         var texView = bat.currentTexture.hasWhitePixel ? bat.currentTexture : bat.currentFontTexture;
         if (bat.vertexCount + 4 > bat.vertexBuffer.Length || bat.currentTexture != texView) {
             bat.Flush();

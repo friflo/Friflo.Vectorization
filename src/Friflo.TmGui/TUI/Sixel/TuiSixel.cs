@@ -43,11 +43,13 @@ public sealed class TuiSixel
         UpdateFromRgb888_SIMD(width, height, data, colorIndexes, 4);
         // SetDebugCorners(colorIndexes, width, height, 0xffffffff);
         
-        paletteCount = UpdatePalette_SIMD(colorIndexes, palette);
+        paletteCount = UpdatePalette();
     }
 
 #region MyRegion update palette
-    private static int UpdatePalette(ReadOnlySpan<byte> colorIndexes, byte[] palette)
+    internal int UpdatePalette () => UpdatePalette_SIMD(colorIndexes, palette);
+    
+    private static int UpdatePalette_scalar(ReadOnlySpan<byte> colorIndexes, byte[] palette)
     {
         Span<bool> usedColors = stackalloc bool[256];
         foreach (var index in colorIndexes) {
@@ -141,7 +143,7 @@ public sealed class TuiSixel
 #region MyRegion set color indexes from RGB 888
 
     
-    private static void UpdateFromRgb888(int width, int height, ReadOnlySpan<byte> src, Span<byte> colorIndexes, int bytesPerPixel)
+    private static void UpdateFromRgb888_scalar(int width, int height, ReadOnlySpan<byte> src, Span<byte> colorIndexes, int bytesPerPixel)
     {
         for (int y = 0; y < height; y++)
         {

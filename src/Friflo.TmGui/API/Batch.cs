@@ -8,6 +8,8 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Numerics;
 using System.Text;
+using Friflo.TmGui.Headless;
+using Friflo.TmGui.Image;
 using Friflo.TmGui.Session;
 using Friflo.TmGui.TUI;
 
@@ -91,7 +93,10 @@ public abstract class TmBatch : IDisposable
     internal readonly   TuiBatch?           tui;
     internal            TmFont              currentFont;
     internal            TmTexture           currentFontTexture;
+    //
     internal            Vector2             terminalPixelSize  = new(1, 1);
+    private             TextureDraw?        textureDraw;
+    internal readonly   bool                isTextureDraw;
     
     // --- TmDraw - state
     internal            IFormatProvider     formatProvider;
@@ -110,8 +115,12 @@ public abstract class TmBatch : IDisposable
     private             int                 vertexStart;                // start of next Draw()
     internal            int                 vertexCount;
     internal            TmTexture           currentTexture;
-
     
+    protected TmBatch(TmGuiBackend backend) : this(backend, 0)
+    {
+        isTextureDraw = true;
+    }
+
     protected TmBatch(TmGuiBackend backend, int maxVertices)
     {
         formatProvider  = CultureInfo.InvariantCulture;
@@ -202,6 +211,16 @@ public abstract class TmBatch : IDisposable
                 recorder ??= new GuiRecorder(this, replay);
             }
         }
+    }
+    
+    public TmDraw BeginTextureDraw(TmTexture texture)
+    {
+        var draw = textureDraw;
+        if (draw != null) {
+            return new TmDraw(draw);    
+        }
+        textureDraw ??= new TextureDraw(new HeadlessBackend(), texture);
+        return new TmDraw(textureDraw);
     }
     
     public Gui BeginGui(int width, int height)
