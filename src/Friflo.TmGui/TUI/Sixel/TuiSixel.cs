@@ -44,11 +44,11 @@ public sealed class TuiSixel
         UpdateFromRgb888_SIMD(width, height, data, colorIndexes, 4);
         // SetDebugCorners(colorIndexes, width, height, 0xffffffff);
         
-        paletteCount = UpdatePalette();
+        UpdatePalette();
     }
 
 #region MyRegion update palette
-    internal int UpdatePalette () => paletteCount = UpdatePalette_SIMD(colorIndexes, palette);
+    internal void UpdatePalette () => paletteCount = UpdatePalette_SIMD(colorIndexes, palette);
     
     private static int UpdatePalette_scalar(ReadOnlySpan<byte> colorIndexes, byte[] palette)
     {
