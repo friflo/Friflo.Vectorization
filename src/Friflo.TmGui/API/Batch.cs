@@ -12,6 +12,7 @@ using Friflo.TmGui.Headless;
 using Friflo.TmGui.Image;
 using Friflo.TmGui.Session;
 using Friflo.TmGui.TUI;
+using Hide = System.Diagnostics.DebuggerHiddenAttribute;
 
 // ReSharper disable InconsistentNaming
 // ReSharper disable PrivateFieldCanBeConvertedToLocalVariable
@@ -97,8 +98,8 @@ public abstract class TmBatch : IDisposable
     internal            Vector2             terminalPixelSize  = new(1, 1);
     private             TextureDraw?        textureDraw;
     internal readonly   bool                isTextureDraw;
-    internal            TextureDraw         AsTextureDraw => (TextureDraw)this;
-    
+    internal            TextureDraw         AsTextureDraw { [Hide] get => (TextureDraw)this; }
+
     // --- TmDraw - state
     internal            IFormatProvider     formatProvider;
     internal            Matrix4x4           defaultOrtho;
