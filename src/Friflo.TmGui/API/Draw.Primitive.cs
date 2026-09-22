@@ -107,6 +107,11 @@ public readonly ref partial struct TmDraw
     public void StrokeLine(Vector2 start, Vector2 end, float thickness, Color32 color)
     {
         if (color.A == 0) return;
+        var bat = batch;
+        if (bat.isTextureDraw) {
+            ((TextureDraw)bat).StrokeLine(start, end, thickness, color);
+            return;
+        }
         Vector2 dir = end - start;
         float len = dir.Length();
         if (len < 0.0001f) return;

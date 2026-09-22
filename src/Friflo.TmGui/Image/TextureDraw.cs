@@ -254,4 +254,90 @@ internal class TextureDraw : TmBatch
         }
         sixel.UpdatePalette(); // TODO  remove hack
     }
+    
+    internal void StrokeLine(Vector2 start, Vector2 end, float thickness, Color32 color)
+    {
+        if (color.A < TuiSixel.TransparencyThreshold || thickness <= 0.0f) return;
+
+        if (thickness <= 1.0f)
+        {
+            // Thin line using 2D Bresenham with clipping
+            Vector2 p0 = Vector2.Transform(start, currentTransform);
+            Vector2 p1 = Vector2.Transform(end, currentTransform);
+
+            int x0 = (int)MathF.Round(p0.X);
+            int y0 = (int)MathF.Round(p0.Y);
+            int x1 = (int)MathF.Round(p1.X);
+            int y1 = (int)MathF.Round(p1.Y);
+
+            DrawBresenhamLine(x0, y0, x1, y1, color);
+        }
+        else
+        {
+            // Thick line converted into an oriented rectangle (2 triangles)
+            Vector2 dir = end - start;
+            float len = dir.Length();
+            if (len <= 0.0001f) return;
+
+            // Calculate perpendicular normal vector scaled by half-thickness
+            Vector2 normal = new Vector2(-dir.Y, dir.X) / len * (thickness * 0.5f);
+
+            Vector2 v0 = start + normal;
+            Vector2 v1 = start - normal;
+            Vector2 v2 = end - normal;
+            Vector2 v3 = end + normal;
+
+            // Render line as two triangles using existing FillTriangle
+            FillTriangle(v0, v1, v2, color);
+            FillTriangle(v0, v2, v3, color);
+        }
+        sixel.UpdatePalette(); // TODO  remove hack
+    }
+
+    private void DrawBresenhamLine(int x0, int y0, int x1, int y1, Color32 color)
+    {
+        int dx = Math.Abs(x1 - x0);
+        int dy = Math.Abs(y1 - y0);
+        int sx = x0 < x1 ? 1 : -1;
+        int sy = y0 < y1 ? 1 : -1;
+        int err = dx - dy;
+
+        int scissorXStart = (int)MathF.Round(currentScissor.pos.X);
+        int scissorYStart = (int)MathF.Round(currentScissor.pos.Y);
+        int scissorXEnd   = (int)MathF.Round(currentScissor.BR.X);
+        int scissorYEnd   = (int)MathF.Round(currentScissor.BR.Y);
+
+        int clipXMin = Math.Max(0, scissorXStart);
+        int clipYMin = Math.Max(0, scissorYStart);
+        int clipXMax = Math.Min(sixel.width, scissorXEnd);
+        int clipYMax = Math.Min(sixel.height, scissorYEnd);
+
+        byte colorIndex = Color32ToR3G3B2(color);
+        Span<byte> target = sixel.colorIndexes;
+        int bufferWidth = sixel.width;
+
+        while (true)
+        {
+            // Clip individual pixels against current scissor and buffer bounds
+            if (x0 >= clipXMin && x0 < clipXMax && y0 >= clipYMin && y0 < clipYMax)
+            {
+                target[y0 * bufferWidth + x0] = colorIndex;
+            }
+
+            if (x0 == x1 && y0 == y1) break;
+
+            int e2 = 2 * err;
+            if (e2 > -dy)
+            {
+                err -= dy;
+                x0 += sx;
+            }
+            if (e2 < dx)
+            {
+                err += dx;
+                y0 += sy;
+            }
+        }
+        sixel.UpdatePalette(); // TODO  remove hack
+    }
 }

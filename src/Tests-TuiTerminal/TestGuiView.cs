@@ -200,7 +200,10 @@ public class TestGuiView : IGuiView
     {
         draw.FillRect(new Vector2(10, 10), new Vector2(20, 20), 0xff0000ff);
         draw.FillTriangle(new Vector2(30, 10), new Vector2(50, 10), new Vector2(40, 30), 0x00ff00ff);
-        draw.FillRectGradientVertical(new Vector2(60, 10), new Vector2(40,40), 0xffffffff, 0xff0000ff);
+        draw.FillRectGradientVertical(new Vector2(60, 10), new Vector2(30,40), 0xffffffff, 0xff0000ff);
+        
+        draw.StrokeLine(new Vector2(100, 10), new Vector2(110, 50), 1, 0xffffffff);
+        draw.StrokeLine(new Vector2(110, 10), new Vector2(120, 50), 2, 0xffffffff);
     }
     
 }
