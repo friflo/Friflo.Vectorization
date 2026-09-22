@@ -87,6 +87,11 @@ public readonly ref partial struct TmDraw
     public void FillTriangle(Vector2 v0, Vector2 v1, Vector2 v2, Color32 color)
     {
         if (color.A == 0) return;
+        var bat = batch;
+        if (bat.isTextureDraw) {
+            ((TextureDraw)bat).FillTriangle(v0, v1, v2, color);
+            return;
+        }
         FillQuad(v0, v1, v2, v2, color);
     }
 

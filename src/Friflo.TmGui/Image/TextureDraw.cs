@@ -38,7 +38,7 @@ internal class TextureDraw : TmBatch
     }
 
 
-internal void FillRect(Vector2 position, Vector2 size, Color32 color)
+    internal void FillRect(Vector2 position, Vector2 size, Color32 color)
     {
         // Check alpha early for full transparency
         if (color.A < TuiSixel.TransparencyThreshold) {
@@ -92,5 +92,106 @@ internal void FillRect(Vector2 position, Vector2 size, Color32 color)
         }
 
         sixel.UpdatePalette(); // TODO  remove hack
+    }
+    
+    
+    internal void FillTriangle(Vector2 v0, Vector2 v1, Vector2 v2, Color32 color)
+    {
+        // Check alpha early for full transparency
+        if (color.A < TuiSixel.TransparencyThreshold) return;
+
+        // Apply matrix transformation to all 3 vertices
+        Vector2 p0 = Vector2.Transform(v0, currentTransform);
+        Vector2 p1 = Vector2.Transform(v1, currentTransform);
+        Vector2 p2 = Vector2.Transform(v2, currentTransform);
+
+        // Sort vertices by Y coordinate (p0.Y <= p1.Y <= p2.Y)
+        if (p0.Y > p1.Y) (p0, p1) = (p1, p0);
+        if (p0.Y > p2.Y) (p0, p2) = (p2, p0);
+        if (p1.Y > p2.Y) (p1, p2) = (p2, p1);
+
+        // Calculate Y bounds
+        int yStart = (int)MathF.Round(p0.Y);
+        int yMid   = (int)MathF.Round(p1.Y);
+        int yEnd   = (int)MathF.Round(p2.Y);
+
+        if (yStart == yEnd) return; // Degenerate zero-height triangle
+
+        // Calculate Scissor & Buffer intersection bounds
+        int scissorYStart = (int)MathF.Round(currentScissor.pos.Y);
+        int scissorYEnd   = (int)MathF.Round(currentScissor.BR.Y);
+        int clipYMin      = Math.Max(0, scissorYStart);
+        int clipYMax      = Math.Min(sixel.height, scissorYEnd);
+
+        int scissorXStart = (int)MathF.Round(currentScissor.pos.X);
+        int scissorXEnd   = (int)MathF.Round(currentScissor.BR.X);
+        int clipXMin      = Math.Max(0, scissorXStart);
+        int clipXMax      = Math.Min(sixel.width, scissorXEnd);
+
+        // Early out if completely culled vertically
+        if (yEnd <= clipYMin || yStart >= clipYMax) return;
+
+        byte colorIndex = Color32ToR3G3B2(color);
+        Span<byte> target = sixel.colorIndexes;
+        int bufferWidth = sixel.width;
+
+        float totalHeight = p2.Y - p0.Y;
+
+        // --- Top Half (from p0.Y to p1.Y) ---
+        int topEnd = Math.Min(yMid, clipYMax);
+        for (int y = yStart; y < topEnd; y++)
+        {
+            if (y < clipYMin) continue;
+
+            float currentY = y + 0.5f; // Center sampling
+            float segmentHeight = p1.Y - p0.Y;
+            if (segmentHeight <= 0) break;
+
+            // Interpolate X coordinates along edges
+            float alpha = (currentY - p0.Y) / totalHeight;
+            float beta  = (currentY - p0.Y) / segmentHeight;
+
+            float xA = p0.X + (p2.X - p0.X) * alpha;
+            float xB = p0.X + (p1.X - p0.X) * beta;
+
+            DrawScanline(target, bufferWidth, y, xA, xB, clipXMin, clipXMax, colorIndex);
+        }
+
+        // --- Bottom Half (from p1.Y to p2.Y) ---
+        int bottomStart = Math.Max(yMid, yStart);
+        for (int y = bottomStart; y < yEnd; y++)
+        {
+            if (y >= clipYMax) break;
+            if (y < clipYMin) continue;
+
+            float currentY = y + 0.5f; // Center sampling
+            float segmentHeight = p2.Y - p1.Y;
+            if (segmentHeight <= 0) break;
+
+            // Interpolate X coordinates along edges
+            float alpha = (currentY - p0.Y) / totalHeight;
+            float beta  = (currentY - p1.Y) / segmentHeight;
+
+            float xA = p0.X + (p2.X - p0.X) * alpha;
+            float xB = p1.X + (p2.X - p1.X) * beta;
+
+            DrawScanline(target, bufferWidth, y, xA, xB, clipXMin, clipXMax, colorIndex);
+        }
+        sixel.UpdatePalette(); // TODO  remove hack
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static void DrawScanline(Span<byte> target, int bufferWidth, int y, float xA, float xB, int clipXMin, int clipXMax, byte colorIndex)
+    {
+        if (xA > xB) (xA, xB) = (xB, xA);
+
+        int xStart = Math.Max((int)MathF.Round(xA), clipXMin);
+        int xEnd   = Math.Min((int)MathF.Round(xB), clipXMax);
+
+        int fillLength = xEnd - xStart;
+        if (fillLength <= 0) return;
+
+        int rowOffset = y * bufferWidth + xStart;
+        target.Slice(rowOffset, fillLength).Fill(colorIndex);
     }
 }
