@@ -261,10 +261,9 @@ public sealed class SixelDrawer
 
                     // Check clip cells buffer for current pixel
                     int cellX = (int)((imagePosX + x) * invCellWidthPx);
-                    int clipIndex = cellRowOffset + cellX;
+                    var clipIndex = (uint)(cellRowOffset + cellX);
                     
-                    var skip = (uint)clipIndex >= (uint)clipCells.Length || clipCells[clipIndex] != targetSixelId;
-                    
+                    var skip = clipIndex >= clipCells.Length || clipCells[clipIndex] != targetSixelId;
                     if (skip) {
                         HashSetAdd(debugSkipped, clipIndex);
                         continue;
@@ -348,10 +347,10 @@ public sealed class SixelDrawer
         return writtenBytes;
     }
     
-    private readonly HashSet<int> debugSkipped = [];
-    private readonly HashSet<int> debugDrawn   = [];
-    [Conditional("DEBUG_CLIPPING")] private static void HashSetClear(HashSet<int> hashSet)                => hashSet.Clear();
-    [Conditional("DEBUG_CLIPPING")] private static void HashSetAdd  (HashSet<int> hashSet, int cellIndex) => hashSet.Add(cellIndex); 
+    private readonly HashSet<uint> debugSkipped = [];
+    private readonly HashSet<uint> debugDrawn   = [];
+    [Conditional("DEBUG_CLIPPING")] private static void HashSetClear(HashSet<uint> hashSet)                 => hashSet.Clear();
+    [Conditional("DEBUG_CLIPPING")] private static void HashSetAdd  (HashSet<uint> hashSet, uint cellIndex) => hashSet.Add(cellIndex); 
 
     private static int WriteIntToSpan(int value, Span<byte> destination)
     {
