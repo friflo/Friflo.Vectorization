@@ -194,4 +194,64 @@ internal class TextureDraw : TmBatch
         int rowOffset = y * bufferWidth + xStart;
         target.Slice(rowOffset, fillLength).Fill(colorIndex);
     }
+    
+    internal void FillRectGradientVertical(Vector2 position, Vector2 size, Color32 topColor, Color32 bottomColor)
+    {
+        // Apply matrix transformation to position and size
+        Vector2 transformedPos = Vector2.Transform(position, currentTransform);
+        Vector2 transformedSize = new Vector2(
+            size.X * currentTransform.M11,
+            size.Y * currentTransform.M22
+        );
+
+        int xStart     = (int)MathF.Round(transformedPos.X);
+        int yStart     = (int)MathF.Round(transformedPos.Y);
+        int rectWidth  = (int)MathF.Round(transformedSize.X);
+        int rectHeight = (int)MathF.Round(transformedSize.Y);
+
+        if (rectWidth <= 0 || rectHeight <= 0) return;
+
+        // Determine scissor region bounds
+        int scissorXStart = (int)MathF.Round(currentScissor.pos.X);
+        int scissorYStart = (int)MathF.Round(currentScissor.pos.Y);
+        int scissorXEnd   = (int)MathF.Round(currentScissor.BR.X);
+        int scissorYEnd   = (int)MathF.Round(currentScissor.BR.Y);
+
+        // Calculate final intersection bounds
+        int minX = Math.Max(xStart, Math.Max(0, scissorXStart));
+        int minY = Math.Max(yStart, Math.Max(0, scissorYStart));
+        int maxX = Math.Min(xStart + rectWidth,  Math.Min(sixel.width,  scissorXEnd));
+        int maxY = Math.Min(yStart + rectHeight, Math.Min(sixel.height, scissorYEnd));
+
+        if (minX >= maxX || minY >= maxY) return;
+
+        Span<byte> target = sixel.colorIndexes;
+        int bufferWidth = sixel.width;
+        int fillLength = maxX - minX;
+
+        // Pre-calculate interpolation bounds (relative to unclipped rectangle height)
+        float heightInv = 1.0f / (rectHeight > 1 ? rectHeight - 1 : 1);
+
+        for (int y = minY; y < maxY; y++)
+        {
+            // Linear interpolation factor t between 0.0 (top) and 1.0 (bottom)
+            float t = (y - yStart) * heightInv;
+            t = Math.Clamp(t, 0.0f, 1.0f);
+
+            // Interpolate RGBA channels
+            byte r = (byte)(topColor.R + t * (bottomColor.R - topColor.R));
+            byte g = (byte)(topColor.G + t * (bottomColor.G - topColor.G));
+            byte b = (byte)(topColor.B + t * (bottomColor.B - topColor.B));
+            byte a = (byte)(topColor.A + t * (bottomColor.A - topColor.A));
+
+            // Skip fully transparent lines
+            if (a < TuiSixel.TransparencyThreshold) continue;
+
+            byte colorIndex = Color32ToR3G3B2(new Color32(r, g, b, a));
+
+            int rowOffset = y * bufferWidth + minX;
+            target.Slice(rowOffset, fillLength).Fill(colorIndex);
+        }
+        sixel.UpdatePalette(); // TODO  remove hack
+    }
 }

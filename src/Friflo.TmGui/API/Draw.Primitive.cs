@@ -76,8 +76,14 @@ public readonly ref partial struct TmDraw
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void FillRectGradientVertical(Vector2 position, Vector2 size, Color32 top, Color32 bottom)
-        => FillRectGradient(position, size, top, top, bottom, bottom);
-
+    {
+        var bat = batch;
+        if (bat.isTextureDraw) {
+            ((TextureDraw)bat).FillRectGradientVertical(position, size, top, bottom);
+            return;
+        }
+        FillRectGradient(position, size, top, top, bottom, bottom);
+    }
 
 
     /// <summary>

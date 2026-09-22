@@ -25,7 +25,7 @@ public sealed class TuiSixel
     /// <remarks> Total size is exactly <c>width * height</c> bytes. </remarks>
     internal readonly   byte[]  colorIndexes;
     private  readonly   byte[]  palette = new byte[256];
-    private  readonly   int     paletteCount;
+    private             int     paletteCount;
     
     internal ReadOnlySpan<byte> Palette => new ReadOnlySpan<byte>(palette, 0, paletteCount);
 
@@ -47,7 +47,7 @@ public sealed class TuiSixel
     }
 
 #region MyRegion update palette
-    internal int UpdatePalette () => UpdatePalette_SIMD(colorIndexes, palette);
+    internal int UpdatePalette () => paletteCount = UpdatePalette_SIMD(colorIndexes, palette);
     
     private static int UpdatePalette_scalar(ReadOnlySpan<byte> colorIndexes, byte[] palette)
     {
