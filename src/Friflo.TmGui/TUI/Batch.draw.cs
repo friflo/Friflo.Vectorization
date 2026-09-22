@@ -202,6 +202,7 @@ public partial class TuiBatch
         tuiRects.Add(new TuiRect(sixelId, position, rasterSize));
     }
     
+    /// <summary> Expands the given pixel size to fully cover discrete terminal cell boundaries. </summary>
     public Vector2 ExpandToCellGrid(Vector2 size)
     {
         var rasterWidth  = MathF.Ceiling(size.X * xScale) * CharWidth;
