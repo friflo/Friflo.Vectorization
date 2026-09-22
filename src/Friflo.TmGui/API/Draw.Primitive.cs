@@ -4,7 +4,6 @@
 using System;
 using System.Numerics;
 using System.Runtime.CompilerServices;
-using Friflo.TmGui.Image;
 
 // ReSharper disable InconsistentNaming
 // ReSharper disable UseWithExpressionToCopyStruct
