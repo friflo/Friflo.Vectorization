@@ -195,7 +195,13 @@ public partial class TuiBatch
         
         var sixelId = ++drawSixelCount;
         drawSixels[sixelId] = new DrawSixel { sixelId = sixelId, sixel = sixel, pos = position, size = size };
-        tuiRects.Add(new TuiRect(sixelId, position, size));
+        
+        // rasterSize ensures that terminal cells covered by texture are marked for texture rendering 
+        var rasterWidth  = MathF.Ceiling(size.X / CharWidth)  * CharWidth;
+        var rasterHeight = MathF.Ceiling(size.Y / LineHeight) * LineHeight;
+        Vector2 rasterSize = new(rasterWidth, rasterHeight);
+        
+        tuiRects.Add(new TuiRect(sixelId, position, rasterSize));
     }
     
     internal readonly   DrawSixel[] drawSixels      = new DrawSixel[256];
