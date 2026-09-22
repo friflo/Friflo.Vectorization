@@ -244,14 +244,6 @@ public sealed class TuiSixel
             Vector128<uint> zero = Vector128<uint>.Zero;
             Vector128<uint> one  = Vector128.Create(1u);
 
-            // Cross-platform byte pack shuffle mask (extracts byte 0, 4, 8, 12 to lower 32 bits)
-            Vector128<byte> packBytesMask = Vector128.Create(
-                  0,   4,   8,  12,
-                255, 255, 255, 255,
-                255, 255, 255, 255,
-                255, 255, 255, 255
-            );
-
             int simdLimit = totalPixels - 4;
 
             for (; pixelIdx <= simdLimit; pixelIdx += 4)
@@ -278,11 +270,12 @@ public sealed class TuiSixel
                 // Clear palette index to 0 for transparent pixels
                 Vector128<uint> finalIndices = Vector128.AndNot(qAdjusted, isTransparent);
 
-                // 5. Pack 4x 32-bit lane results (16 bytes) down to 4 contiguous bytes using SIMD Shuffle
-                Vector128<byte> packed4Bytes = Vector128.Shuffle(finalIndices.AsByte(), packBytesMask);
+                // 5. Pack 4x 32-bit lane results down to 4 contiguous bytes using hardware Narrowing
+                Vector128<ushort> packed16 = Vector128.Narrow(finalIndices, finalIndices);
+                Vector128<byte> packed8 = Vector128.Narrow(packed16, packed16);
 
                 // 6. Write 4 index bytes to destination in a single 32-bit store operation
-                uint fourIndexBytes = packed4Bytes.AsUInt32().GetElement(0);
+                uint fourIndexBytes = packed8.AsUInt32().GetElement(0);
                 Unsafe.WriteUnaligned(ref Unsafe.Add(ref dstRef, pixelIdx), fourIndexBytes);
             }
         }
