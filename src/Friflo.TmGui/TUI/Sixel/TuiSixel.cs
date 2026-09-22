@@ -185,6 +185,51 @@ public sealed class TuiSixel
 
         ref byte srcRef = ref MemoryMarshal.GetReference(src);
         ref byte dstRef = ref MemoryMarshal.GetReference(colorIndexes);
+        
+        // 256-Bit AVX2 Ultra Fast-Path (Processes 8 pixels per iteration)
+        if (bytesPerPixel == 4 && Vector256.IsHardwareAccelerated)
+        {
+            Vector256<uint> maskRed   = Vector256.Create(0x000000E0u);
+            Vector256<uint> maskGreen = Vector256.Create(0x0000E000u);
+            Vector256<uint> maskBlue  = Vector256.Create(0x00C00000u);
+            Vector256<uint> threshold = Vector256.Create((uint)TransparencyThreshold);
+
+            Vector256<uint> zero = Vector256<uint>.Zero;
+            Vector256<uint> one  = Vector256.Create(1u);
+
+            int simdLimit = totalPixels - 8;
+
+            for (; pixelIdx <= simdLimit; pixelIdx += 8)
+            {
+                // 1. Load 8 RGBA pixels (32 bytes) at once
+                Vector256<uint> rgba = Vector256.LoadUnsafe(ref srcRef, (uint)(pixelIdx * 4)).AsUInt32();
+
+                // 2. Isolate & Shift channels
+                Vector256<uint> r = rgba & maskRed;
+                Vector256<uint> g = (rgba & maskGreen) >> 11;
+                Vector256<uint> b = (rgba & maskBlue) >> 22;
+
+                Vector256<uint> q = r | g | b;
+
+                // 3. Remap black (0 -> 1)
+                Vector256<uint> isZero = Vector256.Equals(q, zero);
+                Vector256<uint> qAdjusted = Vector256.ConditionalSelect(isZero, one, q);
+
+                // 4. Alpha check
+                Vector256<uint> alpha = rgba >> 24;
+                Vector256<uint> isTransparent = Vector256.LessThan(alpha, threshold);
+                Vector256<uint> finalIndices = Vector256.AndNot(qAdjusted, isTransparent);
+
+                // 5. Pack 8x 32-bit lanes down to 8x 8-bit bytes without expensive shuffle
+                // Pack uint32 -> uint16 -> uint8
+                Vector256<ushort> packed16 = Vector256.Narrow(finalIndices, finalIndices);
+                Vector128<byte> packed8 = Vector128.Narrow(packed16.GetLower(), packed16.GetUpper());
+
+                // 6. Write 8 bytes directly to output buffer
+                ulong eightIndexBytes = packed8.AsUInt64().GetElement(0);
+                Unsafe.WriteUnaligned(ref Unsafe.Add(ref dstRef, pixelIdx), eightIndexBytes);
+            }
+        }
 
         // 100% Pure Vector Fast-Path for 32-bit RGBA (Processes 4 pixels entirely in SIMD registers)
         if (bytesPerPixel == 4 && Vector128.IsHardwareAccelerated)
