@@ -179,7 +179,7 @@ public sealed class TuiSixel
         }
     }
     
-    private const float TransparencyThreshold = 128;
+    internal const float TransparencyThreshold = 128;
     
     private static void UpdateFromRgb888_SIMD(int width, int height, ReadOnlySpan<byte> src, Span<byte> colorIndexes, int bytesPerPixel)
     {

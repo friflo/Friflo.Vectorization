@@ -7,6 +7,7 @@ using System.Runtime.CompilerServices;
 using Friflo.TmGui.TUI;
 using System.Numerics;
 
+// ReSharper disable SuggestVarOrType_SimpleTypes
 // ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable once CheckNamespace
@@ -15,7 +16,7 @@ namespace Friflo.TmGui.Image;
 
 internal class TextureDraw : TmBatch
 {
-    private readonly TuiSixel sixel;
+    internal readonly TuiSixel sixel;
     
     internal TextureDraw(TmGuiBackend backend, TmTexture texture) : base(backend)
     {
@@ -37,41 +38,59 @@ internal class TextureDraw : TmBatch
     }
 
 
-    internal void FillRect(Vector2 position, Vector2 size, Color32 color)
+internal void FillRect(Vector2 position, Vector2 size, Color32 color)
     {
-        int width   = sixel.width;
-        int height  = sixel.height;
+        // Check alpha early for full transparency
+        if (color.A < TuiSixel.TransparencyThreshold) {
+            return;
+        }
 
-        // Convert Vector2 pixel coordinates to integers
-        int xStart      = (int)MathF.Round(position.X);
-        int yStart      = (int)MathF.Round(position.Y);
-        int rectWidth   = (int)MathF.Round(size.X);
-        int rectHeight  = (int)MathF.Round(size.Y);
+        // Apply matrix transform to position and size (assuming 2D translation and scaling)
+        Vector2 transformedPos = Vector2.Transform(position, currentTransform);
+        
+        // Scale dimensions using matrix M11 (X-scale) and M22 (Y-scale)
+        Vector2 transformedSize = new Vector2(
+            size.X * currentTransform.M11,
+            size.Y * currentTransform.M22
+        );
+
+        // Convert transformed coordinates to integer space
+        int xStart      = (int)MathF.Round(transformedPos.X);
+        int yStart      = (int)MathF.Round(transformedPos.Y);
+        int rectWidth   = (int)MathF.Round(transformedSize.X);
+        int rectHeight  = (int)MathF.Round(transformedSize.Y);
 
         if (rectWidth <= 0 || rectHeight <= 0) return;
 
-        // Bounds checking and clipping against the Sixel buffer dimensions
-        int xEnd = Math.Min(xStart + rectWidth, width);
-        int yEnd = Math.Min(yStart + rectHeight, height);
+        // Determine scissor region bounds
+        int scissorXStart   = (int)MathF.Round(currentScissor.pos.X);
+        int scissorYStart   = (int)MathF.Round(currentScissor.pos.Y);
+        int scissorXEnd     = (int)MathF.Round(currentScissor.BR.X);
+        int scissorYEnd     = (int)MathF.Round(currentScissor.BR.Y);
 
-        xStart = Math.Max(xStart, 0);
-        yStart = Math.Max(yStart, 0);
+        // Calculate final intersection between screen buffer, transform, and scissor rect
+        int minX = Math.Max(xStart, Math.Max(0, scissorXStart));
+        int minY = Math.Max(yStart, Math.Max(0, scissorYStart));
+        int maxX = Math.Min(xStart + rectWidth,  Math.Min(sixel.width,  scissorXEnd));
+        int maxY = Math.Min(yStart + rectHeight, Math.Min(sixel.height, scissorYEnd));
 
-        if (xStart >= xEnd || yStart >= yEnd) return;
+        // Return if rectangle is completely culled by scissor or buffer bounds
+        if (minX >= maxX || minY >= maxY) return;
 
-        // Convert Color32 to 8-bit R3G3B2 byte index using bit shifts
+        // Convert color to R3G3B2 index (reserving index 0 for transparency)
         byte colorIndex = Color32ToR3G3B2(color);
 
         Span<byte> target = sixel.colorIndexes;
-        int fillLength = xEnd - xStart;
+        int bufferWidth = sixel.width;
+        int fillLength = maxX - minX;
 
-        // Fill horizontal spans using SIMD-optimized Span.Fill
-        for (int y = yStart; y < yEnd; y++)
+        // Draw clipped horizontal spans directly into the 1-byte pixel buffer
+        for (int y = minY; y < maxY; y++)
         {
-            int rowOffset = y * width + xStart;
+            int rowOffset = y * bufferWidth + minX;
             target.Slice(rowOffset, fillLength).Fill(colorIndex);
         }
-        
+
         sixel.UpdatePalette(); // TODO  remove hack
     }
 }

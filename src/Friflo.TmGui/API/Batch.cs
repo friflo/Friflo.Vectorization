@@ -215,12 +215,8 @@ public abstract class TmBatch : IDisposable
     
     public TmDraw BeginTextureDraw(TmTexture texture)
     {
-        var draw = textureDraw;
-        if (draw != null) {
-            return new TmDraw(draw);    
-        }
-        textureDraw ??= new TextureDraw(new HeadlessBackend(), texture);
-        return new TmDraw(textureDraw);
+        var texDraw = textureDraw ??= new TextureDraw(new HeadlessBackend(), texture);
+        return texDraw.BeginDraw(texDraw.sixel.width, texDraw.sixel.height);
     }
     
     public Gui BeginGui(int width, int height)
