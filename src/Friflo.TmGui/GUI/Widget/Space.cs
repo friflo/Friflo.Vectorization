@@ -38,7 +38,6 @@ public readonly ref partial struct GuiWidget
             widgetState     = GetWidgetState(isHover, widgetId);
             isFocused       = RegisterFocusable(widgetId, pos, size);
         }
-        // draw.Tui?.Space(window.Cursor, size);
         MoveCursor(size);
 
         bool isFired = IsFired(widgetState, isFocused);

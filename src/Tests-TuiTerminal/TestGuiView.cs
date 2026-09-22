@@ -69,10 +69,13 @@ public class TestGuiView : IGuiView
         var spriteSize = new Vector2(192, 64);
         if (appState.useTerminalPixels) spriteSize *= gui.TerminalPixelSize;
         
-        using (var space = gui.BeginSpace(spriteSize, "sprite")) {
+        var spaceSize = gui.Draw.Tui.ExpandToCellGrid(spriteSize);
+        // gui.Draw.Tui?.FillRect(gui.widget.Window.Cursor, spaceSize, Color32.Orange);
+
+        using (var space = gui.BeginSpace(spaceSize, "sprite")) {
             // var srcPos  = new Vector2(3 * 64, 0 * 64);  // tile pos in Sheet (3, 0)
             // var tint = gui.Colors.ButtonState(space.widgetState);
-            gui.Draw.DrawSprite(myTexture, space.pos, space.size);
+            gui.Draw.DrawSprite(myTexture, space.pos, spriteSize);
         }
         gui.Spacer();
         gui.Checkbox("checkbox", ref appState.enabled2);

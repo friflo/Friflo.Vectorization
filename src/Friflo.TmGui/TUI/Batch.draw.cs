@@ -106,14 +106,9 @@ public partial class TuiBatch
         FillRectChar(thumbPosition, thumbSize, background, thumbChar, thumbColor); 
     }
     
-    public void Space(Vector2 pos, Vector2 size)
-    {
-        tuiRects.Add(new TuiRect(pos, size, new Color32Span(0xaaaaaaff), ' '));
-    }
-    
     internal void DrawFocus(Vector2 pos, Vector2 size, Color32 color)
     {
-        var height = Math.Max(1, (int)((size.Y + lineHeight) * yScale));
+        var height = Math.Max(1, (int)((size.Y + 0.5f * lineHeight) * yScale));
         const TextStyle bold = TextStyle.Bold;
         if (height == 1) {
             DrawChar(focusBorder.left,  bold, pos,                                      color);
