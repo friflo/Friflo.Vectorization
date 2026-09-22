@@ -100,6 +100,11 @@ public sealed class SixelDrawer
         var height       = sixel.height;
         var colorIndexes = sixel.colorIndexes;
         var palette      = sixel.Palette;
+        
+        if (sixel.isDirty) {
+            sixel.UpdatePalette();
+            sixel.isDirty = false;
+        }
 
         // Subsequent units are in sixel pixels: imagePos, origin & canvas
         var imagePosX = (int)(TuiBatch.FastFloor(drawSixel.pos.X / tuiBatch.CharWidth)  * cellPixelSize.X);

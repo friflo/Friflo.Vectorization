@@ -134,6 +134,11 @@ public readonly ref partial struct TmDraw
     public void StrokeRect(Vector2 position, Vector2 size, float thickness, Color32 color)
     {
         if (color.A == 0) return;
+        var bat = batch;
+        if (bat.isTextureDraw) {
+            ((TextureDraw)bat).StrokeRect(position, size, thickness, color);
+            return;
+        }
         float x = position.X;
         float y = position.Y;
         float w = size.X;

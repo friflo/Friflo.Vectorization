@@ -7,6 +7,7 @@ using System.Runtime.CompilerServices;
 using Friflo.TmGui.TUI;
 using System.Numerics;
 
+// ReSharper disable UseWithExpressionToCopyStruct
 // ReSharper disable SuggestVarOrType_SimpleTypes
 // ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable ConvertToPrimaryConstructor
@@ -91,7 +92,7 @@ internal class TextureDraw : TmBatch
             target.Slice(rowOffset, fillLength).Fill(colorIndex);
         }
 
-        sixel.UpdatePalette(); // TODO  remove hack
+        sixel.isDirty = true;
     }
     
     
@@ -177,7 +178,7 @@ internal class TextureDraw : TmBatch
 
             DrawScanline(target, bufferWidth, y, xA, xB, clipXMin, clipXMax, colorIndex);
         }
-        sixel.UpdatePalette(); // TODO  remove hack
+        sixel.isDirty = true;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -252,7 +253,7 @@ internal class TextureDraw : TmBatch
             int rowOffset = y * bufferWidth + minX;
             target.Slice(rowOffset, fillLength).Fill(colorIndex);
         }
-        sixel.UpdatePalette(); // TODO  remove hack
+        sixel.isDirty = true;
     }
     
     internal void StrokeLine(Vector2 start, Vector2 end, float thickness, Color32 color)
@@ -291,7 +292,7 @@ internal class TextureDraw : TmBatch
             FillTriangle(v0, v1, v2, color);
             FillTriangle(v0, v2, v3, color);
         }
-        sixel.UpdatePalette(); // TODO  remove hack
+        sixel.isDirty = true;
     }
 
     private void DrawBresenhamLine(int x0, int y0, int x1, int y1, Color32 color)
@@ -338,6 +339,27 @@ internal class TextureDraw : TmBatch
                 y0 += sy;
             }
         }
-        sixel.UpdatePalette(); // TODO  remove hack
+        sixel.isDirty = true;
+    }
+    
+    internal void StrokeRect(Vector2 position, Vector2 size, float thickness, Color32 color)
+    {
+        if (color.A < TuiSixel.TransparencyThreshold || thickness <= 0.0f || size.X <= 0.0f || size.Y <= 0.0f) return;
+
+        // Clamp thickness to not exceed half of the dimensions
+        float maxThickness = Math.Min(size.X, size.Y) * 0.5f;
+        float t = Math.Min(thickness, maxThickness);
+
+        // Top edge
+        FillRect(position, new Vector2(size.X, t), color);
+        
+        // Bottom edge
+        FillRect(new Vector2(position.X, position.Y + size.Y - t), new Vector2(size.X, t), color);
+        
+        // Left edge (excluding overlapping corners)
+        FillRect(new Vector2(position.X, position.Y + t), new Vector2(t, size.Y - 2 * t), color);
+        
+        // Right edge (excluding overlapping corners)
+        FillRect(new Vector2(position.X + size.X - t, position.Y + t), new Vector2(t, size.Y - 2 * t), color);
     }
 }
