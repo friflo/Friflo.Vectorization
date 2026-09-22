@@ -21,7 +21,7 @@ public readonly ref partial struct TmDraw
     {
         var bat = batch;
         if (bat.isTextureDraw) {
-            bat.AsTextureDraw.FillRect(position, size, color);
+            bat.AsTextureBatch.FillRect(position, size, color);
             return;
         }
         var texView = bat.currentTexture.hasWhitePixel ? bat.currentTexture : bat.currentFontTexture;
@@ -78,7 +78,7 @@ public readonly ref partial struct TmDraw
     {
         var bat = batch;
         if (bat.isTextureDraw) {
-            bat.AsTextureDraw.FillRectGradientVertical(position, size, top, bottom);
+            bat.AsTextureBatch.FillRectGradientVertical(position, size, top, bottom);
             return;
         }
         FillRectGradient(position, size, top, top, bottom, bottom);
@@ -94,7 +94,7 @@ public readonly ref partial struct TmDraw
         if (color.A == 0) return;
         var bat = batch;
         if (bat.isTextureDraw) {
-            bat.AsTextureDraw.FillTriangle(v0, v1, v2, color);
+            bat.AsTextureBatch.FillTriangle(v0, v1, v2, color);
             return;
         }
         FillQuad(v0, v1, v2, v2, color);
@@ -108,7 +108,7 @@ public readonly ref partial struct TmDraw
         if (color.A == 0) return;
         var bat = batch;
         if (bat.isTextureDraw) {
-            bat.AsTextureDraw.StrokeLine(start, end, thickness, color);
+            bat.AsTextureBatch.StrokeLine(start, end, thickness, color);
             return;
         }
         Vector2 dir = end - start;
@@ -135,7 +135,7 @@ public readonly ref partial struct TmDraw
         if (color.A == 0) return;
         var bat = batch;
         if (bat.isTextureDraw) {
-            bat.AsTextureDraw.StrokeRect(position, size, thickness, color);
+            bat.AsTextureBatch.StrokeRect(position, size, thickness, color);
             return;
         }
         float x = position.X;
@@ -318,7 +318,7 @@ public readonly ref partial struct TmDraw
         
         var bat = batch;
         if (bat.isTextureDraw) {
-            bat.AsTextureDraw.FillArc(center, radius, startAngle, endAngle, color, segments);
+            bat.AsTextureBatch.FillArc(center, radius, startAngle, endAngle, color, segments);
             return;
         }
         
@@ -349,7 +349,7 @@ public readonly ref partial struct TmDraw
         if (color.A == 0) return;
         var bat = batch;
         if (bat.isTextureDraw) {
-            bat.AsTextureDraw.FillCircle(center, radius, color);
+            bat.AsTextureBatch.FillCircle(center, radius, color);
             return;
         }
         
@@ -381,7 +381,7 @@ public readonly ref partial struct TmDraw
         if (color.A == 0) return;
         var bat = batch;
         if (bat.isTextureDraw) {
-            bat.AsTextureDraw.StrokeCircle(center, radius, thickness, color);
+            bat.AsTextureBatch.StrokeCircle(center, radius, thickness, color);
             return;
         }
         

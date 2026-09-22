@@ -96,9 +96,9 @@ public abstract class TmBatch : IDisposable
     internal            TmTexture           currentFontTexture;
     //
     internal            Vector2             terminalPixelSize  = new(1, 1);
-    private             TextureDraw?        textureDraw;
+    private             TextureBatch?       textureBatch;
     internal readonly   bool                isTextureDraw;
-    internal            TextureDraw         AsTextureDraw { [Hide] get => (TextureDraw)this; }
+    internal            TextureBatch        AsTextureBatch { [Hide] get => (TextureBatch)this; }
 
     // --- TmDraw - state
     internal            IFormatProvider     formatProvider;
@@ -217,8 +217,8 @@ public abstract class TmBatch : IDisposable
     
     public TmDraw BeginTextureDraw(TmTexture texture)
     {
-        var texDraw = textureDraw ??= new TextureDraw(new HeadlessBackend(), texture);
-        return texDraw.BeginDraw(texDraw.sixel.width, texDraw.sixel.height);
+        var batch = textureBatch ??= new TextureBatch(new HeadlessBackend(), texture);
+        return batch.BeginDraw(batch.sixel.width, batch.sixel.height);
     }
     
     public Gui BeginGui(int width, int height)

@@ -15,11 +15,11 @@ using System.Numerics;
 namespace Friflo.TmGui.Image;
 
 
-internal sealed class TextureDraw : TmBatch
+internal sealed class TextureBatch : TmBatch
 {
     internal readonly TuiSixel sixel;
     
-    internal TextureDraw(TmGuiBackend backend, TmTexture texture) : base(backend)
+    internal TextureBatch(TmGuiBackend backend, TmTexture texture) : base(backend)
     {
         var tuiTexture = (TuiTexture)texture.native!;
         sixel = tuiTexture.sixel;
