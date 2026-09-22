@@ -38,6 +38,13 @@ internal sealed class TextureDraw : TmBatch
         return colorIndex == 0 ? (byte)1 : colorIndex;
     }
 
+    /// Fast alternative for <see cref="MathF.Round(float)"/>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static int FastRound(float x)
+    {
+        return (int)(x + 0.5f);
+    }
+
 
     internal void FillRect(Vector2 position, Vector2 size, Color32 color)
     {
@@ -56,18 +63,18 @@ internal sealed class TextureDraw : TmBatch
         );
 
         // Convert transformed coordinates to integer space
-        int xStart      = (int)MathF.Round(transformedPos.X);
-        int yStart      = (int)MathF.Round(transformedPos.Y);
-        int rectWidth   = (int)MathF.Round(transformedSize.X);
-        int rectHeight  = (int)MathF.Round(transformedSize.Y);
+        int xStart      = FastRound(transformedPos.X);
+        int yStart      = FastRound(transformedPos.Y);
+        int rectWidth   = FastRound(transformedSize.X);
+        int rectHeight  = FastRound(transformedSize.Y);
 
         if (rectWidth <= 0 || rectHeight <= 0) return;
 
         // Determine scissor region bounds
-        int scissorXStart   = (int)MathF.Round(currentScissor.pos.X);
-        int scissorYStart   = (int)MathF.Round(currentScissor.pos.Y);
-        int scissorXEnd     = (int)MathF.Round(currentScissor.BR.X);
-        int scissorYEnd     = (int)MathF.Round(currentScissor.BR.Y);
+        int scissorXStart   = FastRound(currentScissor.pos.X);
+        int scissorYStart   = FastRound(currentScissor.pos.Y);
+        int scissorXEnd     = FastRound(currentScissor.BR.X);
+        int scissorYEnd     = FastRound(currentScissor.BR.Y);
 
         // Calculate final intersection between screen buffer, transform, and scissor rect
         int minX = Math.Max(xStart, Math.Max(0, scissorXStart));
@@ -112,20 +119,20 @@ internal sealed class TextureDraw : TmBatch
         if (p1.Y > p2.Y) (p1, p2) = (p2, p1);
 
         // Calculate Y bounds
-        int yStart = (int)MathF.Round(p0.Y);
-        int yMid   = (int)MathF.Round(p1.Y);
-        int yEnd   = (int)MathF.Round(p2.Y);
+        int yStart = FastRound(p0.Y);
+        int yMid   = FastRound(p1.Y);
+        int yEnd   = FastRound(p2.Y);
 
         if (yStart == yEnd) return; // Degenerate zero-height triangle
 
         // Calculate Scissor & Buffer intersection bounds
-        int scissorYStart = (int)MathF.Round(currentScissor.pos.Y);
-        int scissorYEnd   = (int)MathF.Round(currentScissor.BR.Y);
+        int scissorYStart = FastRound(currentScissor.pos.Y);
+        int scissorYEnd   = FastRound(currentScissor.BR.Y);
         int clipYMin      = Math.Max(0, scissorYStart);
         int clipYMax      = Math.Min(sixel.height, scissorYEnd);
 
-        int scissorXStart = (int)MathF.Round(currentScissor.pos.X);
-        int scissorXEnd   = (int)MathF.Round(currentScissor.BR.X);
+        int scissorXStart = FastRound(currentScissor.pos.X);
+        int scissorXEnd   = FastRound(currentScissor.BR.X);
         int clipXMin      = Math.Max(0, scissorXStart);
         int clipXMax      = Math.Min(sixel.width, scissorXEnd);
 
@@ -186,8 +193,8 @@ internal sealed class TextureDraw : TmBatch
     {
         if (xA > xB) (xA, xB) = (xB, xA);
 
-        int xStart = Math.Max((int)MathF.Round(xA), clipXMin);
-        int xEnd   = Math.Min((int)MathF.Round(xB), clipXMax);
+        int xStart = Math.Max(FastRound(xA), clipXMin);
+        int xEnd   = Math.Min(FastRound(xB), clipXMax);
 
         int fillLength = xEnd - xStart;
         if (fillLength <= 0) return;
@@ -205,18 +212,18 @@ internal sealed class TextureDraw : TmBatch
             size.Y * currentTransform.M22
         );
 
-        int xStart     = (int)MathF.Round(transformedPos.X);
-        int yStart     = (int)MathF.Round(transformedPos.Y);
-        int rectWidth  = (int)MathF.Round(transformedSize.X);
-        int rectHeight = (int)MathF.Round(transformedSize.Y);
+        int xStart     = FastRound(transformedPos.X);
+        int yStart     = FastRound(transformedPos.Y);
+        int rectWidth  = FastRound(transformedSize.X);
+        int rectHeight = FastRound(transformedSize.Y);
 
         if (rectWidth <= 0 || rectHeight <= 0) return;
 
         // Determine scissor region bounds
-        int scissorXStart = (int)MathF.Round(currentScissor.pos.X);
-        int scissorYStart = (int)MathF.Round(currentScissor.pos.Y);
-        int scissorXEnd   = (int)MathF.Round(currentScissor.BR.X);
-        int scissorYEnd   = (int)MathF.Round(currentScissor.BR.Y);
+        int scissorXStart = FastRound(currentScissor.pos.X);
+        int scissorYStart = FastRound(currentScissor.pos.Y);
+        int scissorXEnd   = FastRound(currentScissor.BR.X);
+        int scissorYEnd   = FastRound(currentScissor.BR.Y);
 
         // Calculate final intersection bounds
         int minX = Math.Max(xStart, Math.Max(0, scissorXStart));
@@ -266,10 +273,10 @@ internal sealed class TextureDraw : TmBatch
             Vector2 p0 = Vector2.Transform(start, currentTransform);
             Vector2 p1 = Vector2.Transform(end, currentTransform);
 
-            int x0 = (int)MathF.Round(p0.X);
-            int y0 = (int)MathF.Round(p0.Y);
-            int x1 = (int)MathF.Round(p1.X);
-            int y1 = (int)MathF.Round(p1.Y);
+            int x0 = FastRound(p0.X);
+            int y0 = FastRound(p0.Y);
+            int x1 = FastRound(p1.X);
+            int y1 = FastRound(p1.Y);
 
             DrawBresenhamLine(x0, y0, x1, y1, color);
         }
@@ -303,10 +310,10 @@ internal sealed class TextureDraw : TmBatch
         int sy = y0 < y1 ? 1 : -1;
         int err = dx - dy;
 
-        int scissorXStart = (int)MathF.Round(currentScissor.pos.X);
-        int scissorYStart = (int)MathF.Round(currentScissor.pos.Y);
-        int scissorXEnd   = (int)MathF.Round(currentScissor.BR.X);
-        int scissorYEnd   = (int)MathF.Round(currentScissor.BR.Y);
+        int scissorXStart = FastRound(currentScissor.pos.X);
+        int scissorYStart = FastRound(currentScissor.pos.Y);
+        int scissorXEnd   = FastRound(currentScissor.BR.X);
+        int scissorYEnd   = FastRound(currentScissor.BR.Y);
 
         int clipXMin = Math.Max(0, scissorXStart);
         int clipYMin = Math.Max(0, scissorYStart);
@@ -376,14 +383,14 @@ internal sealed class TextureDraw : TmBatch
 
         if (radiusX <= 0.0f || radiusY <= 0.0f) return;
 
-        int minY = (int)MathF.Round(transformedCenter.Y - radiusY);
-        int maxY = (int)MathF.Round(transformedCenter.Y + radiusY);
+        int minY = FastRound(transformedCenter.Y - radiusY);
+        int maxY = FastRound(transformedCenter.Y + radiusY);
 
         // Determine scissor region bounds
-        int scissorXStart = (int)MathF.Round(currentScissor.pos.X);
-        int scissorYStart = (int)MathF.Round(currentScissor.pos.Y);
-        int scissorXEnd   = (int)MathF.Round(currentScissor.BR.X);
-        int scissorYEnd   = (int)MathF.Round(currentScissor.BR.Y);
+        int scissorXStart = FastRound(currentScissor.pos.X);
+        int scissorYStart = FastRound(currentScissor.pos.Y);
+        int scissorXEnd   = FastRound(currentScissor.BR.X);
+        int scissorYEnd   = FastRound(currentScissor.BR.Y);
 
         int clipYMin = Math.Max(0, Math.Max(minY, scissorYStart));
         int clipYMax = Math.Min(sixel.height, Math.Min(maxY, scissorYEnd));
@@ -411,8 +418,8 @@ internal sealed class TextureDraw : TmBatch
             // Calculate horizontal span width at this Y level
             float dx = radiusX * MathF.Sqrt(1.0f - dySqrNorm);
 
-            int xStart = (int)MathF.Round(transformedCenter.X - dx);
-            int xEnd   = (int)MathF.Round(transformedCenter.X + dx);
+            int xStart = FastRound(transformedCenter.X - dx);
+            int xEnd   = FastRound(transformedCenter.X + dx);
 
             int minX = Math.Max(xStart, clipXMin);
             int maxX = Math.Min(xEnd, clipXMax);
@@ -453,14 +460,14 @@ internal sealed class TextureDraw : TmBatch
 
         if (outerRadiusX <= 0.0f || outerRadiusY <= 0.0f) return;
 
-        int minY = (int)MathF.Round(transformedCenter.Y - outerRadiusY);
-        int maxY = (int)MathF.Round(transformedCenter.Y + outerRadiusY);
+        int minY = FastRound(transformedCenter.Y - outerRadiusY);
+        int maxY = FastRound(transformedCenter.Y + outerRadiusY);
 
         // Determine scissor region bounds
-        int scissorXStart = (int)MathF.Round(currentScissor.pos.X);
-        int scissorYStart = (int)MathF.Round(currentScissor.pos.Y);
-        int scissorXEnd   = (int)MathF.Round(currentScissor.BR.X);
-        int scissorYEnd   = (int)MathF.Round(currentScissor.BR.Y);
+        int scissorXStart = FastRound(currentScissor.pos.X);
+        int scissorYStart = FastRound(currentScissor.pos.Y);
+        int scissorXEnd   = FastRound(currentScissor.BR.X);
+        int scissorYEnd   = FastRound(currentScissor.BR.Y);
 
         int clipYMin = Math.Max(0, Math.Max(minY, scissorYStart));
         int clipYMax = Math.Min(sixel.height, Math.Min(maxY, scissorYEnd));
@@ -486,8 +493,8 @@ internal sealed class TextureDraw : TmBatch
 
             // Calculate outer span boundaries
             float dxOuter = outerRadiusX * MathF.Sqrt(1.0f - dyOuterSqrNorm);
-            int xOuterStart = (int)MathF.Round(transformedCenter.X - dxOuter);
-            int xOuterEnd   = (int)MathF.Round(transformedCenter.X + dxOuter);
+            int xOuterStart = FastRound(transformedCenter.X - dxOuter);
+            int xOuterEnd   = FastRound(transformedCenter.X + dxOuter);
 
             // Check if Y line intersects the inner hole
             float dyInnerSqrNorm = (dy * dy) * invInnerYSqr;
@@ -496,8 +503,8 @@ internal sealed class TextureDraw : TmBatch
             {
                 // Inner hole exists on this Y line -> draw left and right border segments
                 float dxInner = innerRadiusX * MathF.Sqrt(1.0f - dyInnerSqrNorm);
-                int xInnerStart = (int)MathF.Round(transformedCenter.X - dxInner);
-                int xInnerEnd   = (int)MathF.Round(transformedCenter.X + dxInner);
+                int xInnerStart = FastRound(transformedCenter.X - dxInner);
+                int xInnerEnd   = FastRound(transformedCenter.X + dxInner);
 
                 // Left segment: [xOuterStart, xInnerStart]
                 int leftMinX = Math.Max(xOuterStart, clipXMin);
