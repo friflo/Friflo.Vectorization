@@ -197,11 +197,16 @@ public partial class TuiBatch
         drawSixels[sixelId] = new DrawSixel { sixelId = sixelId, sixel = sixel, pos = position, size = size };
         
         // rasterSize ensures that terminal cells covered by texture are marked for texture rendering 
-        var rasterWidth  = MathF.Ceiling(size.X / CharWidth)  * CharWidth;
-        var rasterHeight = MathF.Ceiling(size.Y / LineHeight) * LineHeight;
-        Vector2 rasterSize = new(rasterWidth, rasterHeight);
+        var rasterSize = ExpandToCellGrid(size);
         
         tuiRects.Add(new TuiRect(sixelId, position, rasterSize));
+    }
+    
+    public Vector2 ExpandToCellGrid(Vector2 size)
+    {
+        var rasterWidth  = MathF.Ceiling(size.X * xScale) * CharWidth;
+        var rasterHeight = MathF.Ceiling(size.Y * yScale) * LineHeight;
+        return new Vector2(rasterWidth, rasterHeight);
     }
     
     internal readonly   DrawSixel[] drawSixels      = new DrawSixel[256];
