@@ -79,6 +79,15 @@ public sealed class SixelDrawer
     
     private byte[] colorBitmasksBuffer = [];
     
+    // required to prevent terminal scrolling if bottom sixel band draws into terminal bottom border.
+    private static int ClipHeightToBottomSixelBand(int canvasHeight, int imagePosY)
+    {
+        return canvasHeight - 5; // Ensures consistent distance of 5 pixel from terminal bottom border.
+        // Note: Alternative clipping code reduces clipping height. But now clip height alternates depending on bottomDist.
+        // var bottomDist = canvasHeight - imagePosY;
+        // return imagePosY + (bottomDist / 6) * 6;
+    }
+    
     internal int AppendSixelToTargetBuffer(
         DrawSixel   drawSixel,
         TuiBatch    tuiBatch,
@@ -108,6 +117,8 @@ public sealed class SixelDrawer
         // Unit of canvasWidth / canvasHeight are sixel pixels
         var canvasWidth  = (int)(cellsWidth  * cellPixelSize.X);
         var canvasHeight = (int)(cellsHeight * cellPixelSize.Y);
+        //
+        canvasHeight = ClipHeightToBottomSixelBand(canvasHeight, imagePosY);
 
         // Scaled pixel bounds based on targetSize. Clamp to at least 1 to prevent DivideByZeroException 
         // in fixed-point scale calculations (scaleX16/scaleY16) when target size is near zero.
@@ -118,25 +129,16 @@ public sealed class SixelDrawer
         int startSrcX = Math.Max(0, originX);
         int startSrcY = Math.Max(0, originY);
         
-        int rawEndSrcX = Math.Min(scaledWidth,  canvasWidth  - imagePosX);
-        int rawEndSrcY = Math.Min(scaledHeight, canvasHeight - imagePosY);
+        int endSrcX   = Math.Min(scaledWidth,  canvasWidth  - imagePosX);
+        int endSrcY   = Math.Min(scaledHeight, canvasHeight - imagePosY);
 
-        int renderWidth = rawEndSrcX - startSrcX;
-        int rawHeight   = rawEndSrcY - startSrcY;
+        int renderWidth  = endSrcX - startSrcX;
+        int renderHeight = endSrcY - startSrcY;
 
-        if (renderWidth <= 0 || rawHeight <= 0) {
+        if (renderWidth <= 0 || renderHeight <= 0) {
             // Nothing to draw
             return 0;
         }
-
-        // Align height strictly down to the last complete 6-pixel SIXEL band to prevent bottom scrolling
-        int renderHeight = (rawHeight / 6) * 6;
-        if (renderHeight <= 0) {
-            // Not enough vertical space for a full SIXEL band
-            return 0;
-        }
-        int endSrcX = rawEndSrcX;
-        int endSrcY = startSrcY + renderHeight;
 
         int writtenBytes = 0;
 

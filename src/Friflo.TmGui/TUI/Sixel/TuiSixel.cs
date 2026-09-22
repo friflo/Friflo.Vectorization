@@ -4,6 +4,7 @@
 
 using System;
 
+// ReSharper disable UnusedMember.Local
 // ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable once CheckNamespace
 namespace Friflo.TmGui.TUI;
@@ -33,7 +34,7 @@ public sealed class TuiSixel
         colorIndexes = new byte[count];
         
         UpdateFromRgb888(width, height, data, colorIndexes, 4);
-        SetDebugCorners(colorIndexes, width, height, 0xffffffff);
+        // SetDebugCorners(colorIndexes, width, height, 0xffffffff);
         
         paletteCount = UpdatePalette(colorIndexes, palette);
     }
