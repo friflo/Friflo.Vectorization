@@ -210,6 +210,8 @@ public class TestGuiView : IGuiView
         draw.StrokeLine(new Vector2(110, 10), new Vector2(120, 50), 2, 0xffffffff);
         
         draw.StrokeRect(new Vector2(130, 10), new Vector2(10, 50), 2, Color32.Yellow);
+        
+        draw.FillRectRounded(new Vector2(150, 10), new Vector2(20, 50), 10, Color32.CornflowerBlue);
     }
     
 }

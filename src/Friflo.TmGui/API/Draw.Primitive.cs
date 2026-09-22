@@ -316,6 +316,13 @@ public readonly ref partial struct TmDraw
     public void FillArc(Vector2 center, float radius, float startAngle, float endAngle, Color32 color, int segments)
     {
         if (color.A == 0) return;
+        
+        var bat = batch;
+        if (bat.isTextureDraw) {
+            ((TextureDraw)bat).FillArc(center, radius, startAngle, endAngle, color, segments);
+            return;
+        }
+        
         if (segments < 1) segments = 1;
         float step = (endAngle - startAngle) / segments;
 

@@ -529,4 +529,39 @@ internal class TextureDraw : TmBatch
 
         sixel.isDirty = true;
     }
+    
+    // Helper to draw a quad using two triangles
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal void FillQuad(Vector2 v0, Vector2 v1, Vector2 v2, Vector2 v3, Color32 color)
+    {
+        // First triangle (v0 -> v1 -> v2)
+        FillTriangle(v0, v1, v2, color);
+        
+        // Second triangle (v0 -> v2 -> v3)
+        FillTriangle(v0, v2, v3, color);
+    }
+
+    // Fallback arc rendering for high segment counts
+    internal void FillArc(Vector2 center, float radius, float startAngle, float endAngle, Color32 color, int segments)
+    {
+        if (color.A < TuiSixel.TransparencyThreshold) return;
+        if (segments < 1) segments = 1;
+        
+        float step = (endAngle - startAngle) / segments;
+
+        for (int i = 0; i < segments; i += 2)
+        {
+            float a0 = startAngle + i * step;
+            float a1 = startAngle + (i + 1) * step;
+            float a2 = startAngle + (i + 2) * step;
+
+            Vector2 p0 = center + new Vector2(MathF.Cos(a0), MathF.Sin(a0)) * radius;
+            Vector2 p1 = center + new Vector2(MathF.Cos(a1), MathF.Sin(a1)) * radius;
+            Vector2 p2 = (i + 2 <= segments)
+                ? center + new Vector2(MathF.Cos(a2), MathF.Sin(a2)) * radius
+                : p1;
+
+            FillQuad(center, p0, p1, p2, color);
+        }
+    }
 }

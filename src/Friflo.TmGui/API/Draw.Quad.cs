@@ -5,6 +5,7 @@ using System;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using Friflo.TmGui.Image;
 
 
 // ReSharper disable ForCanBeConvertedToForeach
@@ -21,6 +22,10 @@ public readonly ref partial struct TmDraw
     public void FillQuad(Vector2 v0, Vector2 v1, Vector2 v2, Vector2 v3, Color32 color)
     {
         var bat = batch;
+        if (bat.isTextureDraw) {
+            ((TextureDraw)bat).FillQuad(v0, v1, v2, v3, color);
+            return;
+        }
         if (bat.vertexCount + 4 > bat.vertexBuffer.Length || !bat.currentTexture.hasWhitePixel) {
             bat.Flush();
             bat.currentTexture = bat.currentFontTexture;
