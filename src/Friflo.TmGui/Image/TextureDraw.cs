@@ -362,4 +362,171 @@ internal class TextureDraw : TmBatch
         // Right edge (excluding overlapping corners)
         FillRect(new Vector2(position.X + size.X - t, position.Y + t), new Vector2(t, size.Y - 2 * t), color);
     }
+    
+    internal void FillCircle(Vector2 center, float radius, Color32 color)
+    {
+        if (color.A < TuiSixel.TransparencyThreshold || radius <= 0.0f) return;
+
+        // Transform center point using current matrix
+        Vector2 transformedCenter = Vector2.Transform(center, currentTransform);
+
+        // Calculate radius along transformed axes
+        float radiusX = radius * MathF.Abs(currentTransform.M11);
+        float radiusY = radius * MathF.Abs(currentTransform.M22);
+
+        if (radiusX <= 0.0f || radiusY <= 0.0f) return;
+
+        int minY = (int)MathF.Round(transformedCenter.Y - radiusY);
+        int maxY = (int)MathF.Round(transformedCenter.Y + radiusY);
+
+        // Determine scissor region bounds
+        int scissorXStart = (int)MathF.Round(currentScissor.pos.X);
+        int scissorYStart = (int)MathF.Round(currentScissor.pos.Y);
+        int scissorXEnd   = (int)MathF.Round(currentScissor.BR.X);
+        int scissorYEnd   = (int)MathF.Round(currentScissor.BR.Y);
+
+        int clipYMin = Math.Max(0, Math.Max(minY, scissorYStart));
+        int clipYMax = Math.Min(sixel.height, Math.Min(maxY, scissorYEnd));
+
+        if (clipYMin >= clipYMax) return;
+
+        int clipXMin = Math.Max(0, scissorXStart);
+        int clipXMax = Math.Min(sixel.width, scissorXEnd);
+
+        byte colorIndex = Color32ToR3G3B2(color);
+        Span<byte> target = sixel.colorIndexes;
+        int bufferWidth = sixel.width;
+
+        float invRadiusYSqr = 1.0f / (radiusY * radiusY);
+
+        for (int y = clipYMin; y < clipYMax; y++)
+        {
+            // Distance from center on Y axis (using pixel mid-point +0.5f)
+            float dy = (y + 0.5f) - transformedCenter.Y;
+            float dySqrNorm = (dy * dy) * invRadiusYSqr;
+
+            // Skip rows outside the circle/ellipse equation
+            if (dySqrNorm >= 1.0f) continue;
+
+            // Calculate horizontal span width at this Y level
+            float dx = radiusX * MathF.Sqrt(1.0f - dySqrNorm);
+
+            int xStart = (int)MathF.Round(transformedCenter.X - dx);
+            int xEnd   = (int)MathF.Round(transformedCenter.X + dx);
+
+            int minX = Math.Max(xStart, clipXMin);
+            int maxX = Math.Min(xEnd, clipXMax);
+
+            if (minX < maxX)
+            {
+                int rowOffset = y * bufferWidth + minX;
+                target.Slice(rowOffset, maxX - minX).Fill(colorIndex);
+            }
+        }
+        sixel.isDirty = true;
+    }
+    
+    internal void StrokeCircle(Vector2 center, float radius, float thickness, Color32 color)
+    {
+        if (color.A < TuiSixel.TransparencyThreshold || radius <= 0.0f || thickness <= 0.0f) return;
+
+        // Outer and inner radii
+        float outerRadius = radius;
+        float innerRadius = MathF.Max(0.0f, radius - thickness);
+
+        // If thickness covers the entire circle, delegate to FillCircle
+        if (innerRadius <= 0.0f)
+        {
+            FillCircle(center, radius, color);
+            return;
+        }
+
+        // Transform center point using current matrix
+        Vector2 transformedCenter = Vector2.Transform(center, currentTransform);
+
+        // Calculate outer and inner axes scaled by current transform
+        float outerRadiusX = outerRadius * MathF.Abs(currentTransform.M11);
+        float outerRadiusY = outerRadius * MathF.Abs(currentTransform.M22);
+
+        float innerRadiusX = innerRadius * MathF.Abs(currentTransform.M11);
+        float innerRadiusY = innerRadius * MathF.Abs(currentTransform.M22);
+
+        if (outerRadiusX <= 0.0f || outerRadiusY <= 0.0f) return;
+
+        int minY = (int)MathF.Round(transformedCenter.Y - outerRadiusY);
+        int maxY = (int)MathF.Round(transformedCenter.Y + outerRadiusY);
+
+        // Determine scissor region bounds
+        int scissorXStart = (int)MathF.Round(currentScissor.pos.X);
+        int scissorYStart = (int)MathF.Round(currentScissor.pos.Y);
+        int scissorXEnd   = (int)MathF.Round(currentScissor.BR.X);
+        int scissorYEnd   = (int)MathF.Round(currentScissor.BR.Y);
+
+        int clipYMin = Math.Max(0, Math.Max(minY, scissorYStart));
+        int clipYMax = Math.Min(sixel.height, Math.Min(maxY, scissorYEnd));
+
+        if (clipYMin >= clipYMax) return;
+
+        int clipXMin = Math.Max(0, scissorXStart);
+        int clipXMax = Math.Min(sixel.width, scissorXEnd);
+
+        byte colorIndex = Color32ToR3G3B2(color);
+        Span<byte> target = sixel.colorIndexes;
+        int bufferWidth = sixel.width;
+
+        float invOuterYSqr = 1.0f / (outerRadiusY * outerRadiusY);
+        float invInnerYSqr = 1.0f / (innerRadiusY * innerRadiusY);
+
+        for (int y = clipYMin; y < clipYMax; y++)
+        {
+            float dy = (y + 0.5f) - transformedCenter.Y;
+
+            float dyOuterSqrNorm = (dy * dy) * invOuterYSqr;
+            if (dyOuterSqrNorm >= 1.0f) continue;
+
+            // Calculate outer span boundaries
+            float dxOuter = outerRadiusX * MathF.Sqrt(1.0f - dyOuterSqrNorm);
+            int xOuterStart = (int)MathF.Round(transformedCenter.X - dxOuter);
+            int xOuterEnd   = (int)MathF.Round(transformedCenter.X + dxOuter);
+
+            // Check if Y line intersects the inner hole
+            float dyInnerSqrNorm = (dy * dy) * invInnerYSqr;
+
+            if (dyInnerSqrNorm < 1.0f)
+            {
+                // Inner hole exists on this Y line -> draw left and right border segments
+                float dxInner = innerRadiusX * MathF.Sqrt(1.0f - dyInnerSqrNorm);
+                int xInnerStart = (int)MathF.Round(transformedCenter.X - dxInner);
+                int xInnerEnd   = (int)MathF.Round(transformedCenter.X + dxInner);
+
+                // Left segment: [xOuterStart, xInnerStart]
+                int leftMinX = Math.Max(xOuterStart, clipXMin);
+                int leftMaxX = Math.Min(xInnerStart, clipXMax);
+                if (leftMinX < leftMaxX)
+                {
+                    target.Slice(y * bufferWidth + leftMinX, leftMaxX - leftMinX).Fill(colorIndex);
+                }
+
+                // Right segment: [xInnerEnd, xOuterEnd]
+                int rightMinX = Math.Max(xInnerEnd, clipXMin);
+                int rightMaxX = Math.Min(xOuterEnd, clipXMax);
+                if (rightMinX < rightMaxX)
+                {
+                    target.Slice(y * bufferWidth + rightMinX, rightMaxX - rightMinX).Fill(colorIndex);
+                }
+            }
+            else
+            {
+                // Top or bottom cap: solid span across full outer width
+                int minX = Math.Max(xOuterStart, clipXMin);
+                int maxX = Math.Min(xOuterEnd, clipXMax);
+                if (minX < maxX)
+                {
+                    target.Slice(y * bufferWidth + minX, maxX - minX).Fill(colorIndex);
+                }
+            }
+        }
+
+        sixel.isDirty = true;
+    }
 }

@@ -341,6 +341,12 @@ public readonly ref partial struct TmDraw
     public void FillCircle(Vector2 center, float radius, Color32 color, int segments = 32)
     {
         if (color.A == 0) return;
+        var bat = batch;
+        if (bat.isTextureDraw) {
+            ((TextureDraw)bat).FillCircle(center, radius, color);
+            return;
+        }
+        
         if (segments < 3) segments = 3;
         float step = MathF.PI * 2f / segments;
 
@@ -367,6 +373,12 @@ public readonly ref partial struct TmDraw
     public void StrokeCircle(Vector2 center, float radius, float thickness, Color32 color, int segments = 32)
     {
         if (color.A == 0) return;
+        var bat = batch;
+        if (bat.isTextureDraw) {
+            ((TextureDraw)bat).StrokeCircle(center, radius, thickness, color);
+            return;
+        }
+        
         if (segments < 3) segments = 3;
         float step = MathF.PI * 2f / segments;
         float halfThick = thickness * 0.5f;
