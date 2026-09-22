@@ -97,6 +97,7 @@ public abstract class TmBatch : IDisposable
     internal            Vector2             terminalPixelSize  = new(1, 1);
     private             TextureDraw?        textureDraw;
     internal readonly   bool                isTextureDraw;
+    internal            TextureDraw         AsTextureDraw => (TextureDraw)this;
     
     // --- TmDraw - state
     internal            IFormatProvider     formatProvider;

@@ -23,7 +23,7 @@ public readonly ref partial struct TmDraw
     {
         var bat = batch;
         if (bat.isTextureDraw) {
-            ((TextureDraw)bat).FillQuad(v0, v1, v2, v3, color);
+            bat.AsTextureDraw.FillQuad(v0, v1, v2, v3, color);
             return;
         }
         if (bat.vertexCount + 4 > bat.vertexBuffer.Length || !bat.currentTexture.hasWhitePixel) {

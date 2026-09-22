@@ -9,7 +9,7 @@ using Friflo.TmGui.Headless;
 namespace Friflo.TmGui.TUI;
 
 
-internal class TuiTexture
+internal sealed class TuiTexture
 {
     internal readonly   int         width;
     internal readonly   int         height;

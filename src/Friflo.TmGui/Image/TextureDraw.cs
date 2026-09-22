@@ -15,7 +15,7 @@ using System.Numerics;
 namespace Friflo.TmGui.Image;
 
 
-internal class TextureDraw : TmBatch
+internal sealed class TextureDraw : TmBatch
 {
     internal readonly TuiSixel sixel;
     
