@@ -194,9 +194,7 @@ public sealed class TuiSixel
             Vector128<uint> maskGreen = Vector128.Create(0x0000E000u); // Bits 15..13
             Vector128<uint> maskBlue  = Vector128.Create(0x00C00000u); // Bits 23..22
             
-            // Derive Bit 31 (Alpha >= TransparencyThreshold) dynamically from constant (128u << 24 = 0x80000000u)
-            uint alphaMaskBit = ((uint)TransparencyThreshold) << 24;
-            Vector128<uint> maskAlpha = Vector128.Create(alphaMaskBit);
+            Vector128<uint> threshold = Vector128.Create((uint)TransparencyThreshold);
 
             Vector128<uint> zero = Vector128<uint>.Zero;
             Vector128<uint> one  = Vector128.Create(1u);
@@ -228,9 +226,9 @@ public sealed class TuiSixel
                 Vector128<uint> isZero = Vector128.Equals(q, zero);
                 Vector128<uint> qAdjusted = Vector128.ConditionalSelect(isZero, one, q);
 
-                // 4. Alpha Masking inside SIMD register: Check if Alpha < 128 (Bit 31 is 0)
-                Vector128<uint> isAlphaSet = rgba & maskAlpha;
-                Vector128<uint> isTransparent = Vector128.Equals(isAlphaSet, zero);
+                // 4. Alpha Masking using explicit Vector128.LessThan: Extract alpha (bits 31..24) and check if Alpha < TransparencyThreshold
+                Vector128<uint> alpha = rgba >> 24;
+                Vector128<uint> isTransparent = Vector128.LessThan(alpha, threshold);
 
                 // Clear palette index to 0 for transparent pixels
                 Vector128<uint> finalIndices = Vector128.AndNot(qAdjusted, isTransparent);
