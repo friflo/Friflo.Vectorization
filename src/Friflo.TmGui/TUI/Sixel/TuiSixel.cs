@@ -8,6 +8,7 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Runtime.Intrinsics;
 
+// ReSharper disable SuggestVarOrType_Elsewhere
 // ReSharper disable ConvertIfStatementToSwitchStatement
 // ReSharper disable UnusedMember.Local
 // ReSharper disable SuggestVarOrType_BuiltInTypes
@@ -38,10 +39,10 @@ public sealed class TuiSixel
         int count = width * height;
         colorIndexes = new byte[count];
         
-        UpdateFromRgb888(width, height, data, colorIndexes, 4);
+        UpdateFromRgb888_SIMD(width, height, data, colorIndexes, 4);
         // SetDebugCorners(colorIndexes, width, height, 0xffffffff);
         
-        paletteCount = UpdatePaletteSimd(colorIndexes, palette);
+        paletteCount = UpdatePalette_SIMD(colorIndexes, palette);
     }
 
 #region MyRegion update palette
@@ -62,7 +63,7 @@ public sealed class TuiSixel
         return paletteCount;
     }
     
-    private static int UpdatePaletteSimd(ReadOnlySpan<byte> colorIndexes, Span<byte> palette)
+    private static int UpdatePalette_SIMD(ReadOnlySpan<byte> colorIndexes, Span<byte> palette)
     {
         // Use four 64-bit integers to represent a 256-bit bitmask (256 color palette slots).
         // This keeps all color usage state entirely inside CPU registers.
@@ -135,8 +136,11 @@ public sealed class TuiSixel
     }
 #endregion
 
+
+#region MyRegion set color indexes from RGB 888
+
     
-    private static void UpdateFromRgb888(int width, int height, ReadOnlySpan<byte> src, byte[] colorIndexes, int bytesPerPixel)
+    private static void UpdateFromRgb888(int width, int height, ReadOnlySpan<byte> src, Span<byte> colorIndexes, int bytesPerPixel)
     {
         for (int y = 0; y < height; y++)
         {
@@ -148,7 +152,7 @@ public sealed class TuiSixel
                 int pixelOffset = srcRowOffset + (x * bytesPerPixel);
 
                 // Check alpha channel for transparency (assuming RGBA format if bytesPerPixel == 4)
-                if (bytesPerPixel >= 4 && src[pixelOffset + 3] < 128)
+                if (bytesPerPixel >= 4 && src[pixelOffset + 3] < TransparencyThreshold)
                 {
                     // Map transparent pixel directly to index 0
                     colorIndexes[rowOffset + x] = 0;
@@ -171,6 +175,97 @@ public sealed class TuiSixel
             }
         }
     }
+    
+    private const float TransparencyThreshold = 128;
+    
+    private static void UpdateFromRgb888_SIMD(int width, int height, ReadOnlySpan<byte> src, Span<byte> colorIndexes, int bytesPerPixel)
+    {
+        int totalPixels = width * height;
+        int pixelIdx = 0;
+
+        ref byte srcRef = ref MemoryMarshal.GetReference(src);
+        ref byte dstRef = ref MemoryMarshal.GetReference(colorIndexes);
+
+        // 100% Pure Vector Fast-Path for 32-bit RGBA (Processes 4 pixels entirely in SIMD registers)
+        if (bytesPerPixel == 4 && Vector128.IsHardwareAccelerated)
+        {
+            // Masks for 32-bit Little-Endian RGBA layout (0xAABBGGRR)
+            Vector128<uint> maskRed   = Vector128.Create(0x000000E0u); // Bits 7..5
+            Vector128<uint> maskGreen = Vector128.Create(0x0000E000u); // Bits 15..13
+            Vector128<uint> maskBlue  = Vector128.Create(0x00C00000u); // Bits 23..22
+            
+            // Derive Bit 31 (Alpha >= TransparencyThreshold) dynamically from constant (128u << 24 = 0x80000000u)
+            uint alphaMaskBit = ((uint)TransparencyThreshold) << 24;
+            Vector128<uint> maskAlpha = Vector128.Create(alphaMaskBit);
+
+            Vector128<uint> zero = Vector128<uint>.Zero;
+            Vector128<uint> one  = Vector128.Create(1u);
+
+            // Cross-platform byte pack shuffle mask (extracts byte 0, 4, 8, 12 to lower 32 bits)
+            Vector128<byte> packBytesMask = Vector128.Create(
+                  0,   4,   8,  12,
+                255, 255, 255, 255,
+                255, 255, 255, 255,
+                255, 255, 255, 255
+            );
+
+            int simdLimit = totalPixels - 4;
+
+            for (; pixelIdx <= simdLimit; pixelIdx += 4)
+            {
+                // 1. Load 4 RGBA pixels (16 bytes) as 4x 32-bit uints in SIMD register
+                Vector128<uint> rgba = Vector128.LoadUnsafe(ref srcRef, (uint)(pixelIdx * 4)).AsUInt32();
+
+                // 2. Isolate & Shift channels directly using 32-bit SIMD lane shifts
+                Vector128<uint> r = rgba & maskRed;
+                Vector128<uint> g = (rgba & maskGreen) >> 11;
+                Vector128<uint> b = (rgba & maskBlue) >> 22;
+
+                // Combine into R3G3B2 index (occupies bits 7..0 of each 32-bit lane)
+                Vector128<uint> q = r | g | b;
+
+                // 3. Remap true black (0) to 1 inside SIMD register
+                Vector128<uint> isZero = Vector128.Equals(q, zero);
+                Vector128<uint> qAdjusted = Vector128.ConditionalSelect(isZero, one, q);
+
+                // 4. Alpha Masking inside SIMD register: Check if Alpha < 128 (Bit 31 is 0)
+                Vector128<uint> isAlphaSet = rgba & maskAlpha;
+                Vector128<uint> isTransparent = Vector128.Equals(isAlphaSet, zero);
+
+                // Clear palette index to 0 for transparent pixels
+                Vector128<uint> finalIndices = Vector128.AndNot(qAdjusted, isTransparent);
+
+                // 5. Pack 4x 32-bit lane results (16 bytes) down to 4 contiguous bytes using SIMD Shuffle
+                Vector128<byte> packed4Bytes = Vector128.Shuffle(finalIndices.AsByte(), packBytesMask);
+
+                // 6. Write 4 index bytes to destination in a single 32-bit store operation
+                uint fourIndexBytes = packed4Bytes.AsUInt32().GetElement(0);
+                Unsafe.WriteUnaligned(ref Unsafe.Add(ref dstRef, pixelIdx), fourIndexBytes);
+            }
+        }
+
+        // Scalar fallback for remaining trailing pixels or RGB24
+        for (; pixelIdx < totalPixels; pixelIdx++)
+        {
+            int pixelOffset = pixelIdx * bytesPerPixel;
+
+            byte a = (bytesPerPixel >= 4) ? Unsafe.Add(ref srcRef, pixelOffset + 3) : (byte)255;
+            if (a < TransparencyThreshold)
+            {
+                Unsafe.Add(ref dstRef, pixelIdx) = 0;
+                continue;
+            }
+
+            byte r = Unsafe.Add(ref srcRef, pixelOffset);
+            byte g = Unsafe.Add(ref srcRef, pixelOffset + 1);
+            byte b = Unsafe.Add(ref srcRef, pixelOffset + 2);
+
+            byte colorIndex = (byte)((r & 0xE0) | ((g & 0xE0) >> 3) | (b >> 6));
+            Unsafe.Add(ref dstRef, pixelIdx) = (colorIndex == 0) ? (byte)1 : colorIndex;
+        }
+    }
+#endregion
+
     
     private static void SetDebugCorners(byte[] colorIndexes, int width, int height, Color32 color)
     {
