@@ -3,7 +3,12 @@
 
 
 using System;
+using System.Numerics;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+using System.Runtime.Intrinsics;
 
+// ReSharper disable ConvertIfStatementToSwitchStatement
 // ReSharper disable UnusedMember.Local
 // ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable once CheckNamespace
@@ -36,13 +41,14 @@ public sealed class TuiSixel
         UpdateFromRgb888(width, height, data, colorIndexes, 4);
         // SetDebugCorners(colorIndexes, width, height, 0xffffffff);
         
-        paletteCount = UpdatePalette(colorIndexes, palette);
+        paletteCount = UpdatePaletteSimd(colorIndexes, palette);
     }
-    
-    private static int UpdatePalette(byte[] colorIndexes, byte[] palette)
+
+#region MyRegion update palette
+    private static int UpdatePalette(ReadOnlySpan<byte> colorIndexes, byte[] palette)
     {
         Span<bool> usedColors = stackalloc bool[256];
-        foreach (var index in colorIndexes.AsSpan()) {
+        foreach (var index in colorIndexes) {
             // Index 0 is reserved for transparent background
             usedColors[index] = true;
         }
@@ -56,6 +62,78 @@ public sealed class TuiSixel
         return paletteCount;
     }
     
+    private static int UpdatePaletteSimd(ReadOnlySpan<byte> colorIndexes, Span<byte> palette)
+    {
+        // Use four 64-bit integers to represent a 256-bit bitmask (256 color palette slots).
+        // This keeps all color usage state entirely inside CPU registers.
+        ulong b0 = 0, b1 = 0, b2 = 0, b3 = 0;
+
+        int i = 0;
+        int length = colorIndexes.Length;
+
+        // SIMD fast-path: Process 32 pixel bytes per iteration when SIMD hardware acceleration is available
+        if (Vector256.IsHardwareAccelerated)
+        {
+            for (; i <= length - Vector256<byte>.Count; i += Vector256<byte>.Count)
+            {
+                // Safely load 32 bytes from the span reference without requiring unsafe pointers
+                var vec = Vector256.LoadUnsafe(ref MemoryMarshal.GetReference(colorIndexes), (uint)i);
+
+                // Set bits in register bitmasks for each encountered palette index
+                for (int v = 0; v < Vector256<byte>.Count; v++)
+                {
+                    byte index = vec.GetElement(v);
+                    // Map index (0..255) to the corresponding 64-bit mask chunk (b0..b3)
+                    // Index 0 represents the transparent background color
+                    if (index < 64)       b0 |= 1UL << index;           // Colors 0..63 (includes index 0 for transparency)
+                    else if (index < 128) b1 |= 1UL << (index - 64);    // Colors 64..127
+                    else if (index < 192) b2 |= 1UL << (index - 128);   // Colors 128..191
+                    else                  b3 |= 1UL << (index - 192);   // Colors 192..255
+                }
+            }
+        }
+
+        // Process remaining trailing pixels (or non-SIMD fallback)
+        for (; i < length; i++)
+        {
+            byte index = colorIndexes[i];
+            if (index < 64)       b0 |= 1UL << index;
+            else if (index < 128) b1 |= 1UL << (index - 64);
+            else if (index < 192) b2 |= 1UL << (index - 128);
+            else                  b3 |= 1UL << (index - 192);
+        }
+
+        // Reserve index 0 for transparent background (clear bit 0 in b0)
+        b0 &= ~1UL;
+
+        int paletteCount = 0;
+
+        // Extract set bit positions using hardware intrinsic instructions
+        paletteCount += ExtractIndices(b0, 0, palette.Slice(paletteCount));
+        paletteCount += ExtractIndices(b1, 64, palette.Slice(paletteCount));
+        paletteCount += ExtractIndices(b2, 128, palette.Slice(paletteCount));
+        paletteCount += ExtractIndices(b3, 192, palette.Slice(paletteCount));
+
+        return paletteCount;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static int ExtractIndices(ulong mask, int baseIndex, Span<byte> destination)
+    {
+        int count = 0;
+        while (mask != 0)
+        {
+            // TrailingZeroCount compiles down to a single hardware instruction (TZCNT/BSF)
+            // to directly locate the next set bit without stepping sequentially.
+            int bitPos = BitOperations.TrailingZeroCount(mask);
+            destination[count++] = (byte)(baseIndex + bitPos);
+            
+            // Clear the lowest set bit
+            mask &= mask - 1;
+        }
+        return count;
+    }
+#endregion
 
     
     private static void UpdateFromRgb888(int width, int height, ReadOnlySpan<byte> src, byte[] colorIndexes, int bytesPerPixel)
