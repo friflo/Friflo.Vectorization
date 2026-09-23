@@ -93,14 +93,15 @@ public sealed partial class TmSessionLoop : IDisposable
         return commandLine.Split(' ', StringSplitOptions.RemoveEmptyEntries);
     }
     
-    private TuiSession CreateSession(ClientEvent evt, out Memory<byte> firstPayload)
+    private TuiSession CreateSession(ClientEvent evt, bool isSync, out Memory<byte> firstPayload)
     {
         var payload     = evt.Payload;
         var firstLine   = payload.Span.IndexOf((byte)'\n');
         var client      = evt.Client;
         var args        = firstLine == -1 ? [] : GetArgs(payload.Span.Slice(0, firstLine));
 
-        var session     = new TuiSession(evt.Client, frameBuffer, sixelDrawer, TuiColorMode.RGB24);
+        var frameTimer  = new FrameTimer(this, evt.Client, 16, isSync);
+        var session     = new TuiSession(evt.Client, frameBuffer, frameTimer, sixelDrawer, TuiColorMode.RGB24);
 
         var connectInfo = new ConnectInfo{ client = client, backend = session.tuiBackend, args = args };
         var guiView     = createGuiView(connectInfo);

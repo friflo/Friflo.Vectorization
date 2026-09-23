@@ -64,7 +64,7 @@ public partial class TmSessionLoop
             switch (evt.Type)
             {
                 case ClientEventType.TerminalConnected: {
-                    var newSession      = CreateSession(evt, out var payload);
+                    var newSession      = CreateSession(evt, true, out var payload);
                     var initialMessage  = newSession.StartSession();
                     
                     evt.Client.Send(initialMessage);
@@ -72,6 +72,8 @@ public partial class TmSessionLoop
                     var sendBuffer      = newSession.ProcessInput(payload.Span);
                     
                     evt.Client.Send(sendBuffer);
+                    
+                    newSession.frameTimer.Start(CancellationToken.None);
                     break;
                 }
                 case ClientEventType.TerminalDisconnected:

@@ -28,15 +28,17 @@ internal sealed partial class TuiSession : TmSession
     private             bool            supportsSixel;
     private             Vector2         cellPixelSize   = new(10, 20);
     private             bool            sessionStart;
+    internal readonly   FrameTimer      frameTimer;
     //
     private             ulong           lastSendHash;
     private             int             sendCounter;
     
-    public TuiSession(TmClient client, FrameBuffer frameBuffer, SixelDrawer sixelDrawer, TuiColorMode colorMode)
+    public TuiSession(TmClient client, FrameBuffer frameBuffer, FrameTimer frameTimer, SixelDrawer sixelDrawer, TuiColorMode colorMode)
     {
         this.client         = client;
         this.colorMode      = colorMode;
         this.frameBuffer    = frameBuffer;
+        this.frameTimer     = frameTimer;
         this.sixelDrawer    = sixelDrawer;
         tuiBackend          = new TuiBackend("Terminal");
         
