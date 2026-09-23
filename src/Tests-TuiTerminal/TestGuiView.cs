@@ -35,8 +35,12 @@ public partial class TestGuiView : IGuiView
         canvasTexture   = info.backend.CreateTexture("canvas", CanvasHeight, CanvasWidth, new byte[CanvasHeight * CanvasWidth * 4]);
     }
     
+    static class Static { internal static void Noop() { } }
+    
     public void RenderGui(TmBatch batch, int targetWidth, int targetHeight)
     {
+        Static.Noop();
+        
         var time   = Stopwatch.GetTimestamp();
         frameTime  = (int)Stopwatch.GetElapsedTime(frameStart, time).TotalMilliseconds;
         frameStart = time;
@@ -87,7 +91,7 @@ public partial class TestGuiView : IGuiView
             if (gui.Button("Red", style: redButtonStyle))       Debug.WriteLine("Clicked: Red");
         gui.EndHorizontal();
         
-        var e = sb.Clear().Append($"frame time: {frameTime,3} ms  alloc: {memDiff}").GetChunks().GetEnumerator();
+        var e = sb.Clear().Append($"frame time: {frameTime,3} ms  alloc: {(int)memDiff}").GetChunks().GetEnumerator();
         e.MoveNext();
         gui.Label(e.Current.Span, Color32.Teal);
         
