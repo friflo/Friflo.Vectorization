@@ -8,7 +8,7 @@ using Friflo.TmGui.TUI;
 namespace TuiTerminal;
 
 
-public class TestGuiView : IGuiView
+public partial class TestGuiView : IGuiView
 {
     private readonly    AppState    appState;
     private readonly    Color32[]   textColors = [0x0000FFFF, 0xFF0000FF, 0x009900FF, 0xFF00FFFF, 0xCC6600FF, 0x000000ff];
@@ -19,8 +19,8 @@ public class TestGuiView : IGuiView
     private             int         frameTime;
     
     
-    private const int CanvasHeight = 400;
-    private const int CanvasWidth  =  70;
+    private const int CanvasHeight = 800;
+    private const int CanvasWidth  = 500;
     
     public TestGuiView(AppState appState, SessionInfo info)
     {
@@ -39,7 +39,8 @@ public class TestGuiView : IGuiView
         batch.EnableStepRendering = true;
         
         var draw = batch.BeginTextureDraw(canvasTexture);
-        ImageDraw(draw);
+        // ImageDraw(draw);
+        DrawExample(draw);
         
         var gui = batch.BeginGui(targetWidth, targetHeight);
         using (gui.BeginWindow("Window 1", new Vector2(0, 0), new Vector2(1000, 850), traits: 0, TuiBorder.Rounded)) { // (500, 450) (1000, 850)
