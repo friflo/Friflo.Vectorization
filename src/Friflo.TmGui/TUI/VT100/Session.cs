@@ -19,7 +19,7 @@ internal sealed partial class TuiSession : TmSession
     private  readonly   FrameBuffer     frameBuffer;
     private  readonly   SixelDrawer     sixelDrawer;
     internal readonly   TuiBackend      tuiBackend;
-    private  readonly   TuiBatch        tuiBatch;
+    internal readonly   TuiBatch        tuiBatch;
     internal            IGuiView?       guiView;
     private  readonly   byte[]          sendBuffer      = new byte[60000];  // TODO grow if needed
     private             int             sendBufferCount;
@@ -28,7 +28,6 @@ internal sealed partial class TuiSession : TmSession
     private             bool            supportsSixel;
     private             Vector2         cellPixelSize   = new(10, 20);
     private             bool            sessionStart;
-    internal readonly   FrameTimer      frameTimer;
     //
     private             ulong           lastSendHash;
     private             int             sendCounter;
@@ -38,38 +37,12 @@ internal sealed partial class TuiSession : TmSession
         this.client         = client;
         this.colorMode      = colorMode;
         this.frameBuffer    = frameBuffer;
-        this.frameTimer     = frameTimer;
         this.sixelDrawer    = sixelDrawer;
         tuiBackend          = new TuiBackend("Terminal");
         
         tuiBatch            = tuiBackend.CreateBatch(colorMode);
         tuiBatch.session    = this;
-    }
-    
-    public override bool TickEnabled
-    {
-        get => frameTimer.isRunning;
-        set {
-            if (value == frameTimer.isRunning) { 
-                return;
-            }
-            if (value) {
-                frameTimer.Restart();
-            } else {
-                frameTimer.Stop();
-            }
-        }
-    }
-    
-    public override int TickRate
-    {
-        get => frameTimer.tickRate;
-        set {
-            if (value == frameTimer.tickRate) { 
-                return;
-            }
-            frameTimer.SetTickRate(value);
-        }
+        tuiBatch.frameTimer = frameTimer;
     }
     
     // --- TmSession

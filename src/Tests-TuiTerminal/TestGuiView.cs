@@ -72,18 +72,18 @@ public class TestGuiView : IGuiView
         
         gui.Label("after horizontal", Color32.Teal);
         
-        var session = gui.Session;
-        if (session != null) {
-            animate = session.TickEnabled;
+        var tui = gui.Tui;
+        if (tui != null) {
+            animate = tui.TickEnabled;
             if (gui.Checkbox("animate", ref animate)) {
-                session.TickEnabled = animate;
+                tui.TickEnabled = animate;
             }
         }
         gui.Checkbox("terminal pixels", ref appState.useTerminalPixels);
         var canvasSize = new Vector2(384, 70);
         if (appState.useTerminalPixels) canvasSize *= gui.TerminalPixelSize;
 
-        using (var space = gui.BeginSpace(gui.Draw.Tui.ExpandToCellGrid(canvasSize), "canvas")) {
+        using (var space = gui.BeginSpace(tui.ExpandToCellGrid(canvasSize), "canvas")) {
             // var srcPos  = new Vector2(3 * 64, 0 * 64);  // tile pos in Sheet (3, 0)
             // var tint = gui.Colors.ButtonState(space.widgetState);
             gui.Draw.DrawSprite(canvasTexture, space.pos, canvasSize);
@@ -93,7 +93,7 @@ public class TestGuiView : IGuiView
         var spriteSize = new Vector2(192, 64);
         if (appState.useTerminalPixels) spriteSize *= gui.TerminalPixelSize;
         
-        var spaceSize = gui.Draw.Tui.ExpandToCellGrid(spriteSize);
+        var spaceSize = tui.ExpandToCellGrid(spriteSize);
         // gui.Draw.Tui?.FillRect(gui.widget.Window.Cursor, spaceSize, Color32.Orange);
 
         using (var space = gui.BeginSpace(spaceSize, "sprite")) {

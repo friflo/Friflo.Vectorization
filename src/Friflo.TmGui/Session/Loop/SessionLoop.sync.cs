@@ -73,7 +73,7 @@ public partial class TmSessionLoop
                     
                     evt.Client.Send(sendBuffer);
                     
-                    newSession.frameTimer.Start(CancellationToken.None);
+                    newSession.tuiBatch.frameTimer.Start(CancellationToken.None);
                     break;
                 }
                 case ClientEventType.TerminalDisconnected:

@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Numerics;
 using System.Runtime.InteropServices;
 using System.Text;
+using Friflo.TmGui.Session;
 
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable UseWithExpressionToCopyStruct
@@ -30,6 +31,8 @@ public sealed partial class TuiBatch : TmBatch
     private  readonly   List<TuiRectCommand>    rectCommands    = [];
     private  readonly   List<char>              textBuffer      = [];
     private  readonly   List<Color32>           colorBuffer     = [];
+    internal            FrameTimer?             frameTimer;
+
     
     public              ReadOnlySpan<char>      Texts       => CollectionsMarshal.AsSpan(textBuffer);
     public              ReadOnlySpan<Color32>   Colors      => CollectionsMarshal.AsSpan(colorBuffer);
@@ -38,6 +41,42 @@ public sealed partial class TuiBatch : TmBatch
     public              float                   LineHeight  => lineHeight;
     public              float                   XScale      => xScale;
     public              float                   YScale      => yScale;
+    
+    /// <summary> Gets or sets a value indicating whether the session's frame ticker is active. </summary>
+    /// <remarks>
+    /// When set to <c>true</c>, continuous frame updates are triggered at the configured <see cref="TickRate"/>.
+    /// Disabling this stops timer-driven ticks without preventing manual or event-driven redraws.
+    /// </remarks>
+    public bool TickEnabled
+    {
+        get => frameTimer?.isRunning ?? false;
+        set {
+            var timer = frameTimer;
+            if (timer == null) return;
+            if (value == timer.isRunning) { 
+                return;
+            }
+            if (value) {
+                timer.Restart();
+            } else {
+                timer.Stop();
+            }
+        }
+    }
+    
+    /// <summary> Gets or sets the execution frequency of the timer in Hertz (ticks per second). </summary>
+    public int TickRate
+    {
+        get => frameTimer?.tickRate ?? 0;
+        set {
+            var timer = frameTimer;
+            if (timer == null) return;
+            if (value == timer.tickRate) { 
+                return;
+            }
+            timer.SetTickRate(value);
+        }
+    }
 
     public   override   string                  ToString()  => batchName;
 
