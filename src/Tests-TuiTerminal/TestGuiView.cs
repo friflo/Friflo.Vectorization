@@ -15,6 +15,8 @@ public class TestGuiView : IGuiView
     private readonly    TmTexture   myTexture;
     private readonly    TmTexture   canvasTexture;
     private readonly    Stopwatch   stopwatch = Stopwatch.StartNew();
+    private             long        frameStart;
+    private             int         frameTime;
     
     public TestGuiView(AppState appState, SessionInfo info)
     {
@@ -27,6 +29,9 @@ public class TestGuiView : IGuiView
     
     public void RenderGui(TmBatch batch, int targetWidth, int targetHeight)
     {
+        var time   = Stopwatch.GetTimestamp();
+        frameTime  = (int)Stopwatch.GetElapsedTime(frameStart, time).TotalMilliseconds;
+        frameStart = time;
         batch.EnableStepRendering = true;
         
         var draw = batch.BeginTextureDraw(canvasTexture);
@@ -69,7 +74,7 @@ public class TestGuiView : IGuiView
             if (gui.Button("Red", style: redButtonStyle))       Debug.WriteLine("Clicked: Red");
         gui.EndHorizontal();
         
-        gui.Label("after horizontal", Color32.Teal);
+        gui.Label($"frame time {frameTime} ms", Color32.Teal);
         
         var batch = gui.Batch;
         var animate = batch.TickEnabled;

@@ -2,6 +2,7 @@
 // See LICENSE file in the project root for full license information.
 
 using System;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -121,4 +122,18 @@ internal sealed class FrameTimer : IDisposable
             loop.TryEnqueueEvent(client, ClientEventType.FrameTick, default);
         }, null, dueTime: 0, period: Period);
     }
+    
+    static FrameTimer()
+    {
+        if (OperatingSystem.IsWindows()) {
+            NativeTimer.timeBeginPeriod(1);
+        }
+    }
+}
+
+
+internal static class NativeTimer
+{
+    [DllImport("winmm.dll")]
+    internal static extern uint timeBeginPeriod(uint uPeriod);
 }
