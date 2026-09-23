@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Numerics;
+using System.Text;
 using Friflo.TmGui;
 using Friflo.TmGui.Session;
 using Friflo.TmGui.TUI;
@@ -10,13 +11,16 @@ namespace TuiTerminal;
 
 public partial class TestGuiView : IGuiView
 {
-    private readonly    AppState    appState;
-    private readonly    Color32[]   textColors = [0x0000FFFF, 0xFF0000FF, 0x009900FF, 0xFF00FFFF, 0xCC6600FF, 0x000000ff];
-    private readonly    TmTexture   myTexture;
-    private readonly    TmTexture   canvasTexture;
-    private readonly    Stopwatch   stopwatch = Stopwatch.StartNew();
-    private             long        frameStart;
-    private             int         frameTime;
+    private readonly    AppState        appState;
+    private readonly    Color32[]       textColors = [0x0000FFFF, 0xFF0000FF, 0x009900FF, 0xFF00FFFF, 0xCC6600FF, 0x000000ff];
+    private readonly    TmTexture       myTexture;
+    private readonly    TmTexture       canvasTexture;
+    private readonly    Stopwatch       stopwatch = Stopwatch.StartNew();
+    private             long            frameStart;
+    private             int             frameTime;
+    private             long            memStart;
+    private             long            memDiff;
+    private readonly    StringBuilder   sb = new(200, 200);
     
     
     private const int CanvasHeight = 800;
@@ -36,6 +40,10 @@ public partial class TestGuiView : IGuiView
         var time   = Stopwatch.GetTimestamp();
         frameTime  = (int)Stopwatch.GetElapsedTime(frameStart, time).TotalMilliseconds;
         frameStart = time;
+        
+        var mem     = GC.GetAllocatedBytesForCurrentThread();
+        memDiff     = mem - memStart;
+        memStart    = mem;
         batch.EnableStepRendering = true;
         
         var draw = batch.BeginTextureDraw(canvasTexture);
@@ -79,7 +87,9 @@ public partial class TestGuiView : IGuiView
             if (gui.Button("Red", style: redButtonStyle))       Debug.WriteLine("Clicked: Red");
         gui.EndHorizontal();
         
-        gui.Label($"frame time {frameTime} ms", Color32.Teal);
+        var e = sb.Clear().Append($"frame time: {frameTime,3} ms  alloc: {memDiff}").GetChunks().GetEnumerator();
+        e.MoveNext();
+        gui.Label(e.Current.Span, Color32.Teal);
         
         var batch = gui.Batch;
         var animate = batch.TickEnabled;
