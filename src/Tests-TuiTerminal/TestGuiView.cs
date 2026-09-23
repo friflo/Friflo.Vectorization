@@ -14,6 +14,7 @@ public class TestGuiView : IGuiView
     private readonly    Color32[]   textColors = [0x0000FFFF, 0xFF0000FF, 0x009900FF, 0xFF00FFFF, 0xCC6600FF, 0x000000ff];
     private readonly    TmTexture   myTexture;
     private readonly    TmTexture   canvasTexture;
+    private readonly    Stopwatch   stopwatch = Stopwatch.StartNew();
     
     public TestGuiView(AppState appState, ConnectInfo info)
     {
@@ -207,9 +208,9 @@ public class TestGuiView : IGuiView
         gui.Button("after scroll area");
     }
     
-    private static void ImageDraw(TmDraw draw)
+    private void ImageDraw(TmDraw draw)
     {
-        draw.FillRect(new Vector2(0, 0), new Vector2(200, 70), 0x000000ff);
+        draw.FillRect(new Vector2(0, 0), new Vector2(384, 70), 0x000000ff);
         
         draw.FillRect(new Vector2(5, 10), new Vector2(20, 20), 0xff0000ff);
         draw.FillCircle(new Vector2(15, 50), 10, 0x0000ffff);
@@ -227,6 +228,12 @@ public class TestGuiView : IGuiView
         draw.FillRectRounded(new Vector2(150, 10), new Vector2(20, 50), 10, Color32.CornflowerBlue);
         
         draw.StrokeRectRounded(new Vector2(150, 10), new Vector2(20, 50), 10, 2, Color32.White);
+
+        var time = (float)stopwatch.Elapsed.TotalSeconds;
+
+        var x = MathF.Sin(time * 4) * 60;
+
+        draw.FillCircle(new Vector2(280 + (int)x, 35), 25, 0xffffffff);
     }
     
 }
