@@ -42,11 +42,11 @@ public abstract class TmGuiBackend : IDisposable
     
     public              TmFont      DefaultFont => defaultFont ??= assets.CreateDefaultFont(this);
 
-    protected internal abstract  TmTexture           CreateTexture(string name, int width, int height, ReadOnlySpan<byte> rgbaPixels);
     protected internal abstract  TmBuffer<Vertex2D>  CreateVertexBuffer(int vertexCount);
     protected internal abstract  TmBuffer<uint>      CreateIndexBuffer(int indexCount);
     
-    public abstract TmTexture LoadTexture(Stream stream, string? label = null, TmTextureUsage usage = TmTextureUsage.TextureBinding | TmTextureUsage.CopyDst);
+    public abstract TmTexture   CreateTexture(string name, int width, int height, ReadOnlySpan<byte> rgbaPixels);
+    public abstract TmTexture   LoadTexture  (Stream stream, string? label = null, TmTextureUsage usage = TmTextureUsage.TextureBinding | TmTextureUsage.CopyDst);
     
     protected TmGuiBackend(IGuiAssets assets)
     {

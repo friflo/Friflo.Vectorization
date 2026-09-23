@@ -37,7 +37,7 @@ public sealed class WgpuGuiBackend : TmGuiBackend
         return batch;
     }
     
-    protected override TmTexture CreateTexture(string name, int width, int height, ReadOnlySpan<byte> rgbaPixels)
+    public override TmTexture CreateTexture(string name, int width, int height, ReadOnlySpan<byte> rgbaPixels)
     {
         var texture = device.CreateTexture(new GpuTextureDescriptor {
             label   = name,

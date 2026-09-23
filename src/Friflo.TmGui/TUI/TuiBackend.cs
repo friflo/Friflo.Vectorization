@@ -3,7 +3,6 @@
 
 using System;
 using System.IO;
-using Friflo.TmGui.Headless;
 
 // ReSharper disable ConvertToPrimaryConstructor
 namespace Friflo.TmGui.TUI;
@@ -28,12 +27,12 @@ internal sealed class TuiTexture
 
 public sealed class TuiBackend : TmGuiBackend
 {
-    internal readonly   string  name;
+    internal readonly   string  backendName;
     
-    public   override   string  ToString()  => name;
+    public   override   string  ToString()  => backendName;
     
     public TuiBackend(string name) : base(new TuiAssets()) {
-        this.name = name;
+        backendName = name;
     }
 
     public TuiBatch CreateBatch(TuiColorMode colorMode)
@@ -43,10 +42,15 @@ public sealed class TuiBackend : TmGuiBackend
         return batch;
     }
     
-    protected internal override TmTexture CreateTexture(string name, int width, int height, ReadOnlySpan<byte> rgbaPixels)
+    public override TmTexture CreateTexture(string name, int width, int height, ReadOnlySpan<byte> rgbaPixels)   // TODO  use byte[]
     {
-        var native = new HeadlessTexture(name, width, height, rgbaPixels);
-        return new TmTexture(native, 0);
+        var array = rgbaPixels.ToArray();
+        var length = width * height * 4;
+        if (array.Length < length) {
+            throw new InvalidOperationException($"texture array too small. Was: {array.Length}. Requires: {length} width: {width} height: {height}");
+        }
+        var tuiTexture = new TuiTexture(width, height, array);
+        return new TmTexture(tuiTexture, 0);
     }
 
     protected internal override TmBuffer<Vertex2D> CreateVertexBuffer(int vertexCount)

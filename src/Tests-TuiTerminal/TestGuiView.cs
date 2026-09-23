@@ -13,6 +13,7 @@ public class TestGuiView : IGuiView
     private readonly    AppState    appState;
     private readonly    Color32[]   textColors = [0x0000FFFF, 0xFF0000FF, 0x009900FF, 0xFF00FFFF, 0xCC6600FF, 0x000000ff];
     private readonly    TmTexture   myTexture;
+    private readonly    TmTexture   canvasTexture;
     
     public TestGuiView(AppState appState, ConnectInfo info)
     {
@@ -20,13 +21,14 @@ public class TestGuiView : IGuiView
         using var stream = typeof(TestGuiView).Assembly.GetManifestResourceStream("TuiTerminal.Assets.sixel_test.png")!;
         myTexture       = info.backend.LoadTexture(stream, "sixel_test.png");
         // var myTextureView    = myTexture.AsImTexture();
+        canvasTexture   = info.backend.CreateTexture("canvas", 384, 70, new byte[384 * 70 * 4]); // TODO  check UpdateFromRgb888_SIMD exception with 400 x 70
     }
     
     public void RenderGui(TmBatch batch, int targetWidth, int targetHeight)
     {
         batch.EnableStepRendering = true;
         
-        var draw = batch.BeginTextureDraw(myTexture);
+        var draw = batch.BeginTextureDraw(canvasTexture);
         ImageDraw(draw);
         
         var gui = batch.BeginGui(targetWidth, targetHeight);
@@ -69,6 +71,16 @@ public class TestGuiView : IGuiView
         gui.Label("after horizontal", Color32.Teal);
         
         gui.Checkbox("terminal pixels", ref appState.useTerminalPixels);
+        var canvasSize = new Vector2(384, 70);
+        if (appState.useTerminalPixels) canvasSize *= gui.TerminalPixelSize;
+
+        using (var space = gui.BeginSpace(gui.Draw.Tui.ExpandToCellGrid(canvasSize), "canvas")) {
+            // var srcPos  = new Vector2(3 * 64, 0 * 64);  // tile pos in Sheet (3, 0)
+            // var tint = gui.Colors.ButtonState(space.widgetState);
+            gui.Draw.DrawSprite(canvasTexture, space.pos, canvasSize);
+        }
+        gui.Spacer();
+        
         var spriteSize = new Vector2(192, 64);
         if (appState.useTerminalPixels) spriteSize *= gui.TerminalPixelSize;
         
@@ -80,7 +92,6 @@ public class TestGuiView : IGuiView
             // var tint = gui.Colors.ButtonState(space.widgetState);
             gui.Draw.DrawSprite(myTexture, space.pos, spriteSize);
         }
-        gui.Spacer();
         gui.Checkbox("checkbox", ref appState.enabled2);
         
         gui.Spacer();
@@ -198,11 +209,13 @@ public class TestGuiView : IGuiView
     
     private static void ImageDraw(TmDraw draw)
     {
-        draw.FillRect(new Vector2(10, 10), new Vector2(20, 20), 0xff0000ff);
-        draw.FillCircle(new Vector2(20, 40), 10, 0x0000ffff);
+        draw.FillRect(new Vector2(0, 0), new Vector2(200, 70), 0x000000ff);
+        
+        draw.FillRect(new Vector2(5, 10), new Vector2(20, 20), 0xff0000ff);
+        draw.FillCircle(new Vector2(15, 50), 10, 0x0000ffff);
 
         draw.FillTriangle(new Vector2(30, 10), new Vector2(50, 10), new Vector2(40, 30), 0x00ff00ff);
-        draw.StrokeCircle(new Vector2(40, 40), 10, 2, Color32.Yellow);
+        draw.StrokeCircle(new Vector2(40, 50), 10, 2, Color32.Yellow);
         
         draw.FillRectGradientVertical(new Vector2(60, 10), new Vector2(30,40), 0xffffffff, 0xff0000ff);
         

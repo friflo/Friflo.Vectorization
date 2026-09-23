@@ -25,7 +25,7 @@ public sealed class HeadlessBackend : TmGuiBackend
         return batch;
     }
     
-    protected internal override TmTexture CreateTexture(string name, int width, int height, ReadOnlySpan<byte> rgbaPixels)
+    public override TmTexture CreateTexture(string name, int width, int height, ReadOnlySpan<byte> rgbaPixels)
     {
         var native = new HeadlessTexture(name, width, height, rgbaPixels);
         return new TmTexture(native, 0);

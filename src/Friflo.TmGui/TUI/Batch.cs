@@ -43,7 +43,7 @@ public sealed partial class TuiBatch : TmBatch
 
     public TuiBatch(TuiBackend backend, TuiColorMode colorMode) : base(backend, 0)
     {
-        batchName = backend.name;
+        batchName = backend.backendName;
         if  (colorMode == TuiColorMode.Monochrome) {
             focusBorder  = new TuiFocusBorder('>', '<');
         } else {
