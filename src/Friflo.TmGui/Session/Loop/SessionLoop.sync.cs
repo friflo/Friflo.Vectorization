@@ -91,7 +91,8 @@ public partial class TmSessionLoop
                 case ClientEventType.FrameTick:
                     if (sessions.TryGetValue(evt.Client, out session))
                     {
-                        evt.Client.Send(default);
+                        var sendBuffer = session.ProcessInput(default);
+                        evt.Client.Send(sendBuffer);
                     }
                     break;
             }
