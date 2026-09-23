@@ -6,6 +6,7 @@ using System;
 using System.Runtime.CompilerServices;
 using Friflo.TmGui.TUI;
 using System.Numerics;
+using Friflo.TmGui.Session;
 
 // ReSharper disable UseWithExpressionToCopyStruct
 // ReSharper disable SuggestVarOrType_SimpleTypes
@@ -19,10 +20,11 @@ internal sealed class TextureBatch : TmBatch
 {
     internal readonly TuiSixel sixel;
     
-    internal TextureBatch(TmGuiBackend backend, TmTexture texture) : base(backend)
+    internal TextureBatch(TmGuiBackend backend, TmTexture texture, FrameTimer frameTimer) : base(backend)
     {
         var tuiTexture = (TuiTexture)texture.native!;
         sixel = tuiTexture.sixel;
+        this.frameTimer = frameTimer;
     }
 
     protected internal override void InitBatch()

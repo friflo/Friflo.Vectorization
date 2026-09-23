@@ -257,7 +257,7 @@ public abstract class TmBatch : IDisposable
     
     public TmDraw BeginTextureDraw(TmTexture texture)
     {
-        var batch = textureBatch ??= new TextureBatch(new HeadlessBackend(), texture);
+        var batch = textureBatch ??= new TextureBatch(new HeadlessBackend(), texture, frameTimer);
         return batch.BeginDraw(batch.sixel.width, batch.sixel.height);
     }
     
