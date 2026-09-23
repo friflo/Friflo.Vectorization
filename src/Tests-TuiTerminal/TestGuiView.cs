@@ -17,7 +17,7 @@ public class TestGuiView : IGuiView
     private readonly    TmTexture   canvasTexture;
     private readonly    Stopwatch   stopwatch = Stopwatch.StartNew();
     
-    public TestGuiView(AppState appState, ConnectInfo info)
+    public TestGuiView(AppState appState, SessionInfo info)
     {
         this.appState   = appState;
         session         = info.session;

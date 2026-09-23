@@ -63,7 +63,7 @@ internal readonly struct Payload
     }
 }
 
-public struct ConnectInfo
+public struct SessionInfo
 {
     public  string[]        args;
     public  TmClient        client;
@@ -71,7 +71,7 @@ public struct ConnectInfo
     public  TmGuiBackend    backend;
 }
 
-public delegate IGuiView CreateGuiView(ConnectInfo info);
+public delegate IGuiView CreateGuiView(SessionInfo info);
 
 
 public abstract class TmClient
