@@ -11,10 +11,21 @@ using System.Threading.Tasks;
 namespace Friflo.TmGui.Session;
 
 
-internal abstract class TmSession
+public abstract class TmSession
 {
     internal virtual GuiReplay? CreateReplay()      => null;
     internal virtual void       SendReplayCommands() { }
+    
+    
+    /// <summary> Gets or sets a value indicating whether the session's frame ticker is active. </summary>
+    /// <remarks>
+    /// When set to <c>true</c>, continuous frame updates are triggered at the configured <see cref="TickRate"/>.
+    /// Disabling this stops timer-driven ticks without preventing manual or event-driven redraws.
+    /// </remarks>
+    public abstract bool TickEnabled { get; set; }
+    
+    /// <summary> Gets or sets the execution frequency of the timer in Hertz (ticks per second). </summary>
+    public abstract int  TickRate    { get; set; }
 }
 
 internal enum ClientEventType : byte
@@ -56,6 +67,7 @@ public struct ConnectInfo
 {
     public  string[]        args;
     public  TmClient        client;
+    public  TmSession       session;
     public  TmGuiBackend    backend;
 }
 

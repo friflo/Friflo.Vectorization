@@ -11,6 +11,7 @@ namespace TuiTerminal;
 public class TestGuiView : IGuiView
 {
     private readonly    AppState    appState;
+    private readonly    TmSession   session;
     private readonly    Color32[]   textColors = [0x0000FFFF, 0xFF0000FF, 0x009900FF, 0xFF00FFFF, 0xCC6600FF, 0x000000ff];
     private readonly    TmTexture   myTexture;
     private readonly    TmTexture   canvasTexture;
@@ -18,7 +19,8 @@ public class TestGuiView : IGuiView
     
     public TestGuiView(AppState appState, ConnectInfo info)
     {
-        this.appState = appState;
+        this.appState   = appState;
+        session         = info.session;
         using var stream = typeof(TestGuiView).Assembly.GetManifestResourceStream("TuiTerminal.Assets.sixel_test.png")!;
         myTexture       = info.backend.LoadTexture(stream, "sixel_test.png");
         // var myTextureView    = myTexture.AsImTexture();
@@ -71,6 +73,10 @@ public class TestGuiView : IGuiView
         
         gui.Label("after horizontal", Color32.Teal);
         
+        var animate = session.TickEnabled;
+        if (gui.Checkbox("animate", ref animate)) {
+            session.TickEnabled = animate;
+        }
         gui.Checkbox("terminal pixels", ref appState.useTerminalPixels);
         var canvasSize = new Vector2(384, 70);
         if (appState.useTerminalPixels) canvasSize *= gui.TerminalPixelSize;
@@ -231,7 +237,7 @@ public class TestGuiView : IGuiView
 
         var time = (float)stopwatch.Elapsed.TotalSeconds;
 
-        var x = MathF.Sin(time * 4) * 60;
+        var x = session.TickEnabled ? MathF.Sin(time * 4) * 60 : 0;
 
         draw.FillCircle(new Vector2(280 + (int)x, 35), 25, 0xffffffff);
     }

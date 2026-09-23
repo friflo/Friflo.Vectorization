@@ -33,7 +33,7 @@ internal sealed partial class TuiSession : TmSession
     private             ulong           lastSendHash;
     private             int             sendCounter;
     
-    public TuiSession(TmClient client, FrameBuffer frameBuffer, FrameTimer frameTimer, SixelDrawer sixelDrawer, TuiColorMode colorMode)
+    internal TuiSession(TmClient client, FrameBuffer frameBuffer, FrameTimer frameTimer, SixelDrawer sixelDrawer, TuiColorMode colorMode)
     {
         this.client         = client;
         this.colorMode      = colorMode;
@@ -44,6 +44,32 @@ internal sealed partial class TuiSession : TmSession
         
         tuiBatch            = tuiBackend.CreateBatch(colorMode);
         tuiBatch.session    = this;
+    }
+    
+    public override bool TickEnabled
+    {
+        get => frameTimer.isRunning;
+        set {
+            if (value == frameTimer.isRunning) { 
+                return;
+            }
+            if (value) {
+                frameTimer.Restart();
+            } else {
+                frameTimer.Stop();
+            }
+        }
+    }
+    
+    public override int TickRate
+    {
+        get => frameTimer.tickRate;
+        set {
+            if (value == frameTimer.tickRate) { 
+                return;
+            }
+            frameTimer.SetTickRate(value);
+        }
     }
     
     // --- TmSession

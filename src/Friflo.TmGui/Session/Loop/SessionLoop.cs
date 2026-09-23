@@ -100,10 +100,10 @@ public sealed partial class TmSessionLoop : IDisposable
         var client      = evt.Client;
         var args        = firstLine == -1 ? [] : GetArgs(payload.Span.Slice(0, firstLine));
 
-        var frameTimer  = new FrameTimer(this, evt.Client, 16, isSync);
+        var frameTimer  = new FrameTimer(this, evt.Client, 60, isSync);
         var session     = new TuiSession(evt.Client, frameBuffer, frameTimer, sixelDrawer, TuiColorMode.RGB24);
 
-        var connectInfo = new ConnectInfo{ client = client, backend = session.tuiBackend, args = args };
+        var connectInfo = new ConnectInfo{ client = client, session = session, backend = session.tuiBackend, args = args };
         var guiView     = createGuiView(connectInfo);
         
         session.guiView = guiView;

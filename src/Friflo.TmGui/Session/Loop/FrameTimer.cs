@@ -12,32 +12,33 @@ namespace Friflo.TmGui.Session;
 
 internal sealed class FrameTimer : IDisposable
 {
-    private readonly    TmSessionLoop   loop;
-    private readonly    TmClient        client;
+    private  readonly   TmSessionLoop   loop;
+    private  readonly   TmClient        client;
     private             Timer?          syncTimer;
     private             PeriodicTimer?  asyncTimer;
-    private             int             framePeriod; // ms
-    private readonly    bool            isSync;
-    private volatile    bool            isPaused;
+    private  readonly   bool            isSync;
+    private             int             Period  => 1000 / tickRate; // ms
+    internal            int             tickRate;                   // Hz
+    internal volatile   bool            isRunning;
 
-    internal FrameTimer(TmSessionLoop loop, TmClient client, int framePeriod, bool isSync)
+    internal FrameTimer(TmSessionLoop loop, TmClient client, int tickRate, bool isSync)
     {
-        this.loop           = loop;
-        this.client         = client;
-        this.framePeriod    = framePeriod;
-        this.isSync         = isSync;
+        this.loop       = loop;
+        this.client     = client;
+        this.tickRate   = tickRate;
+        this.isSync     = isSync;
     }
 
     public void Dispose()
     {
-        isPaused = true;
+        isRunning = false;
         syncTimer?.Dispose();
         asyncTimer?.Dispose();
     }
 
     internal void Stop()
     {
-        isPaused = true;
+        isRunning = false;
 
         if (isSync) {
             // Disables future ticks for the OS/ThreadPool timer
@@ -47,30 +48,30 @@ internal sealed class FrameTimer : IDisposable
 
     internal void Restart()
     {
-        isPaused = false;
+        isRunning = true;
 
         if (isSync) {
             // Reschedules the timer to tick immediately and then resume with framePeriod
-            syncTimer?.Change(0, framePeriod);
+            syncTimer?.Change(0, Period);
         }
     }
 
-    internal void SetPeriod(int period)
+    internal void SetTickRate(int rate)
     {
-        framePeriod = period;
-
+        tickRate = rate;
+        
         if (isSync) {
-            if (!isPaused) {
-                syncTimer?.Change(0, period);
+            if (isRunning) {
+                syncTimer?.Change(0, Period);
             }
         } else if (asyncTimer != null) {
-            asyncTimer.Period = TimeSpan.FromMilliseconds(period);
+            asyncTimer.Period = TimeSpan.FromMilliseconds(Period);
         }
     }
     
     internal void Start(CancellationToken cancellationToken)
     {
-        isPaused = false;
+        isRunning = true;
 
         if (isSync) {
             StartFrameTickerSync(cancellationToken);
@@ -82,12 +83,12 @@ internal sealed class FrameTimer : IDisposable
 
     private async Task StartFrameTickerAsync(CancellationToken cancellationToken)
     {
-        asyncTimer = new PeriodicTimer(TimeSpan.FromMilliseconds(framePeriod));
+        asyncTimer = new PeriodicTimer(TimeSpan.FromMilliseconds(Period));
         try
         {
             while (await asyncTimer.WaitForNextTickAsync(cancellationToken))
             {
-                if (!isPaused) {
+                if (isRunning) {
                     // Clean, non-blocking, and zero-allocation
                     loop.TryEnqueueEvent(client, ClientEventType.FrameTick, default);
                 }
@@ -103,9 +104,9 @@ internal sealed class FrameTimer : IDisposable
     {
         syncTimer = new Timer(_ =>
         {
-            if (cancellationToken.IsCancellationRequested || isPaused) return;
+            if (cancellationToken.IsCancellationRequested || !isRunning) return;
 
             loop.TryEnqueueEvent(client, ClientEventType.FrameTick, default);
-        }, null, dueTime: 0, period: framePeriod);
+        }, null, dueTime: 0, period: Period);
     }
 }
