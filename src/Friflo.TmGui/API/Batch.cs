@@ -80,6 +80,9 @@ public abstract class TmBatch : IDisposable
     internal  readonly  Stack<SamplerFilter>samplerFilterStack  = [];
     private   readonly  StringBuilder       stringBuilder       = new(512,512); // => first chunk: 512 chars
     internal  readonly  GuiState            guiState            = new();
+    
+    internal            FrameTimer?         frameTimer;
+
     // --- replay
     internal            TmSession?          session;
     internal            GuiRecorder?        recorder; // gui recording requires a session
@@ -179,6 +182,43 @@ public abstract class TmBatch : IDisposable
         gpuVertexBuffer.Dispose();
         gpuIndexBuffer.Dispose();
     }
+    
+    /// <summary> Gets or sets a value indicating whether the session's frame ticker is active. </summary>
+    /// <remarks>
+    /// When set to <c>true</c>, continuous frame updates are triggered at the configured <see cref="TickRate"/>.
+    /// Disabling this stops timer-driven ticks without preventing manual or event-driven redraws.
+    /// </remarks>
+    public bool TickEnabled
+    {
+        get => frameTimer?.isRunning ?? false;
+        set {
+            var timer = frameTimer;
+            if (timer == null) return;
+            if (value == timer.isRunning) { 
+                return;
+            }
+            if (value) {
+                timer.Restart();
+            } else {
+                timer.Stop();
+            }
+        }
+    }
+    
+    /// <summary> Gets or sets the execution frequency of the timer in Hertz (ticks per second). </summary>
+    public int TickRate
+    {
+        get => frameTimer?.tickRate ?? 0;
+        set {
+            var timer = frameTimer;
+            if (timer == null) return;
+            if (value == timer.tickRate) { 
+                return;
+            }
+            timer.SetTickRate(value);
+        }
+    }
+
     
     public void SetFont(TmFont font) {
         currentFont         = font;

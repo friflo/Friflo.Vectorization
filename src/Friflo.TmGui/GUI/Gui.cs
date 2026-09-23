@@ -29,7 +29,7 @@ public readonly ref struct Gui
     public              float       LineHeight          => widget.draw.Font.lineHeight;
     public              GuiInput    Input               => widget.input;
     public              Vector2     TerminalPixelSize   => widget.draw.batch.terminalPixelSize;
-    public              TuiBatch?   Tui                 => widget.draw.batch.tui;
+    public              TmBatch     Batch               => widget.draw.batch;
 
 
     public override     string?     ToString() {

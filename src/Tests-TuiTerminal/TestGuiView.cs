@@ -15,7 +15,6 @@ public class TestGuiView : IGuiView
     private readonly    TmTexture   myTexture;
     private readonly    TmTexture   canvasTexture;
     private readonly    Stopwatch   stopwatch = Stopwatch.StartNew();
-    private             bool        animate;
     
     public TestGuiView(AppState appState, SessionInfo info)
     {
@@ -72,18 +71,16 @@ public class TestGuiView : IGuiView
         
         gui.Label("after horizontal", Color32.Teal);
         
-        var tui = gui.Tui;
-        if (tui != null) {
-            animate = tui.TickEnabled;
-            if (gui.Checkbox("animate", ref animate)) {
-                tui.TickEnabled = animate;
-            }
+        var batch = gui.Batch;
+        var animate = batch.TickEnabled;
+        if (gui.Checkbox("animate", ref animate)) {
+            batch.TickEnabled = animate;
         }
         gui.Checkbox("terminal pixels", ref appState.useTerminalPixels);
         var canvasSize = new Vector2(384, 70);
         if (appState.useTerminalPixels) canvasSize *= gui.TerminalPixelSize;
 
-        using (var space = gui.BeginSpace(tui.ExpandToCellGrid(canvasSize), "canvas")) {
+        using (var space = gui.BeginSpace(gui.Draw.Tui.ExpandToCellGrid(canvasSize), "canvas")) {
             // var srcPos  = new Vector2(3 * 64, 0 * 64);  // tile pos in Sheet (3, 0)
             // var tint = gui.Colors.ButtonState(space.widgetState);
             gui.Draw.DrawSprite(canvasTexture, space.pos, canvasSize);
@@ -93,7 +90,7 @@ public class TestGuiView : IGuiView
         var spriteSize = new Vector2(192, 64);
         if (appState.useTerminalPixels) spriteSize *= gui.TerminalPixelSize;
         
-        var spaceSize = tui.ExpandToCellGrid(spriteSize);
+        var spaceSize = gui.Draw.Tui.ExpandToCellGrid(spriteSize);
         // gui.Draw.Tui?.FillRect(gui.widget.Window.Cursor, spaceSize, Color32.Orange);
 
         using (var space = gui.BeginSpace(spaceSize, "sprite")) {
@@ -239,7 +236,7 @@ public class TestGuiView : IGuiView
 
         var time = (float)stopwatch.Elapsed.TotalSeconds;
 
-        var x = animate ? MathF.Sin(time * 4) * 60 : 0;
+        var x = draw.Batch.TickEnabled ? MathF.Sin(time * 4) * 60 : 0;
 
         draw.FillCircle(new Vector2(280 + (int)x, 35), 25, 0xffffffff);
     }
