@@ -103,7 +103,7 @@ public sealed partial class TmSessionLoop : IDisposable
         var frameTimer  = new FrameTimer(this, evt.Client, 60, isSync);
         var session     = new TuiSession(evt.Client, frameBuffer, frameTimer, sixelDrawer, TuiColorMode.RGB24);
 
-        var sessionInfo = new SessionInfo{ client = client, session = session, backend = session.tuiBackend, args = args };
+        var sessionInfo = new SessionInfo{ client = client, backend = session.tuiBackend, args = args };
         var guiView     = createGuiView(sessionInfo);
         
         session.guiView = guiView;

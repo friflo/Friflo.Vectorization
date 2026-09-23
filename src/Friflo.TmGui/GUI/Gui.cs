@@ -4,6 +4,7 @@
 using System;
 using System.Diagnostics;
 using System.Numerics;
+using Friflo.TmGui.Session;
 using Friflo.TmGui.TUI;
 
 // ReSharper disable InconsistentNaming
@@ -29,6 +30,8 @@ public readonly ref struct Gui
     public              float       LineHeight          => widget.draw.Font.lineHeight;
     public              GuiInput    Input               => widget.input;
     public              Vector2     TerminalPixelSize   => widget.draw.batch.terminalPixelSize;
+    public              TmSession?  Session             => widget.draw.batch.session;
+
 
     public override     string?     ToString() {
         var recorder = widget.Recorder;

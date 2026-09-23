@@ -67,7 +67,6 @@ public struct SessionInfo
 {
     public  string[]        args;
     public  TmClient        client;
-    public  TmSession       session;
     public  TmGuiBackend    backend;
 }
 
