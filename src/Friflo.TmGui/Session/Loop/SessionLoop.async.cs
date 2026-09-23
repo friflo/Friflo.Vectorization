@@ -89,6 +89,12 @@ public partial class TmSessionLoop
                         await evt.Client.SendAsync(sendBuffer, CancellationToken.None);
                     }
                     break;
+                case ClientEventType.FrameTick:
+                    if (sessions.TryGetValue(evt.Client, out session))
+                    {
+                        await evt.Client.SendAsync(default, CancellationToken.None);
+                    }
+                    break;
             }
         } catch (Exception e) {
             Debug.Fail(e.ToString());

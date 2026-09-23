@@ -61,6 +61,12 @@ public sealed partial class TmSessionLoop : IDisposable
         await eventChannel.Writer.WriteAsync(new ClientEvent { Client = client, Type = type, Payload = payload });
     }
     
+    internal bool TryEnqueueEvent(TmClient client, ClientEventType type, Payload payload)
+    {
+        ObjectDisposedException.ThrowIf(isDisposed, this);
+        return eventChannel.Writer.TryWrite(new ClientEvent { Client = client, Type = type, Payload = payload });
+    }
+    
     public void Dispose()
     {
         if (isDisposed) return;

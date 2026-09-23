@@ -21,7 +21,8 @@ internal enum ClientEventType : byte
 {
     TerminalConnected,
     TerminalDisconnected,
-    TerminalInput
+    TerminalInput,
+    FrameTick
 }
 
 internal readonly struct ClientEvent

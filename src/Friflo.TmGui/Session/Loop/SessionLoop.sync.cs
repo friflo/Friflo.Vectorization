@@ -86,6 +86,12 @@ public partial class TmSessionLoop
                         evt.Client.Send(sendBuffer);
                     }
                     break;
+                case ClientEventType.FrameTick:
+                    if (sessions.TryGetValue(evt.Client, out session))
+                    {
+                        evt.Client.Send(default);
+                    }
+                    break;
             }
         } catch (Exception e) {
             Debug.Fail(e.ToString());
