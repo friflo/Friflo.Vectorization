@@ -82,7 +82,7 @@ public class TestGuiView : IGuiView
             batch.TickEnabled = animate;
         }
         gui.Checkbox("terminal pixels", ref appState.useTerminalPixels);
-        var canvasSize = new Vector2(384, 70);
+        var canvasSize = new Vector2(400, 70);
         if (appState.useTerminalPixels) canvasSize *= gui.TerminalPixelSize;
 
         using (var space = gui.BeginSpace(gui.Draw.Tui.ExpandToCellGrid(canvasSize), "canvas")) {
