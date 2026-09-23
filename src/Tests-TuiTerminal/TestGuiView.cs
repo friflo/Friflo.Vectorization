@@ -23,7 +23,7 @@ public class TestGuiView : IGuiView
         using var stream = typeof(TestGuiView).Assembly.GetManifestResourceStream("TuiTerminal.Assets.sixel_test.png")!;
         myTexture       = info.backend.LoadTexture(stream, "sixel_test.png");
         // var myTextureView    = myTexture.AsImTexture();
-        canvasTexture   = info.backend.CreateTexture("canvas", 384, 70, new byte[384 * 70 * 4]); // TODO  check UpdateFromRgb888_SIMD exception with 400 x 70
+        canvasTexture   = info.backend.CreateTexture("canvas", 400, 70, new byte[400 * 70 * 4]);
     }
     
     public void RenderGui(TmBatch batch, int targetWidth, int targetHeight)
@@ -218,7 +218,7 @@ public class TestGuiView : IGuiView
     
     private void ImageDraw(TmDraw draw)
     {
-        draw.FillRect(new Vector2(0, 0), new Vector2(384, 70), 0x000000ff);
+        draw.FillRect(new Vector2(0, 0), new Vector2(400, 70), 0x000000ff);
         
         draw.FillRect(new Vector2(5, 10), new Vector2(20, 20), 0xff0000ff);
         draw.FillCircle(new Vector2(15, 50), 10, 0x0000ffff);
