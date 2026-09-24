@@ -17,7 +17,7 @@ public partial class TestGuiView : IGuiView
     private readonly    TmTexture       canvasTexture;
     private readonly    Stopwatch       stopwatch = Stopwatch.StartNew();
     private             long            frameStart;
-    private             int             frameTime;
+    private             double          frameTime;
     private             long            memStart;
     private             long            memDiff;
     private readonly    StringBuilder   sb = new(200, 200);
@@ -39,10 +39,11 @@ public partial class TestGuiView : IGuiView
     
     public void RenderGui(TmBatch batch, int targetWidth, int targetHeight)
     {
+        batch.TickRate = 60;
         Static.Noop();
         
         var time   = Stopwatch.GetTimestamp();
-        frameTime  = (int)Stopwatch.GetElapsedTime(frameStart, time).TotalMilliseconds;
+        frameTime  = Stopwatch.GetElapsedTime(frameStart, time).TotalMilliseconds;
         frameStart = time;
         
         var mem     = GC.GetAllocatedBytesForCurrentThread();
@@ -91,7 +92,7 @@ public partial class TestGuiView : IGuiView
             if (gui.Button("Red", style: redButtonStyle))       Debug.WriteLine("Clicked: Red");
         gui.EndHorizontal();
         
-        var e = sb.Clear().Append($"frame time: {frameTime,3} ms  alloc: {memDiff}").GetChunks().GetEnumerator();
+        var e = sb.Clear().Append($"frame time: {frameTime,5:F1} ms  alloc: {memDiff}").GetChunks().GetEnumerator();
         e.MoveNext();
         gui.Label(e.Current.Span, Color32.Teal);
         
