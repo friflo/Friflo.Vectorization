@@ -31,14 +31,7 @@ internal sealed class TextureBatch : TmBatch
     {
     }
     
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static byte Color32ToR3G3B2(Color32 color)
-    {
-        byte colorIndex = (byte)((color.R & 0xE0) | ((color.G & 0xE0) >> 3) | (color.B >> 6));
 
-        // Reserve index 0 for transparency across the entire engine
-        return colorIndex == 0 ? (byte)1 : colorIndex;
-    }
 
     /// Fast alternative for <see cref="MathF.Round(float)"/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -88,7 +81,7 @@ internal sealed class TextureBatch : TmBatch
         if (minX >= maxX || minY >= maxY) return;
 
         // Convert color to R3G3B2 index (reserving index 0 for transparency)
-        byte colorIndex = Color32ToR3G3B2(color);
+        byte colorIndex = TuiSixel.Color32ToR3G3B2(color);
 
         Span<byte> target = sixel.colorIndexes;
         int bufferWidth = sixel.width;
@@ -141,7 +134,7 @@ internal sealed class TextureBatch : TmBatch
         // Early out if completely culled vertically
         if (yEnd <= clipYMin || yStart >= clipYMax) return;
 
-        byte colorIndex = Color32ToR3G3B2(color);
+        byte colorIndex = TuiSixel.Color32ToR3G3B2(color);
         Span<byte> target = sixel.colorIndexes;
         int bufferWidth = sixel.width;
 
@@ -257,7 +250,7 @@ internal sealed class TextureBatch : TmBatch
             // Skip fully transparent lines
             if (a < TuiSixel.TransparencyThreshold) continue;
 
-            byte colorIndex = Color32ToR3G3B2(new Color32(r, g, b, a));
+            byte colorIndex = TuiSixel.Color32ToR3G3B2(new Color32(r, g, b, a));
 
             int rowOffset = y * bufferWidth + minX;
             target.Slice(rowOffset, fillLength).Fill(colorIndex);
@@ -322,7 +315,7 @@ internal sealed class TextureBatch : TmBatch
         int clipXMax = Math.Min(sixel.width, scissorXEnd);
         int clipYMax = Math.Min(sixel.height, scissorYEnd);
 
-        byte colorIndex = Color32ToR3G3B2(color);
+        byte colorIndex = TuiSixel.Color32ToR3G3B2(color);
         Span<byte> target = sixel.colorIndexes;
         int bufferWidth = sixel.width;
 
@@ -402,7 +395,7 @@ internal sealed class TextureBatch : TmBatch
         int clipXMin = Math.Max(0, scissorXStart);
         int clipXMax = Math.Min(sixel.width, scissorXEnd);
 
-        byte colorIndex = Color32ToR3G3B2(color);
+        byte colorIndex = TuiSixel.Color32ToR3G3B2(color);
         Span<byte> target = sixel.colorIndexes;
         int bufferWidth = sixel.width;
 
@@ -479,7 +472,7 @@ internal sealed class TextureBatch : TmBatch
         int clipXMin = Math.Max(0, scissorXStart);
         int clipXMax = Math.Min(sixel.width, scissorXEnd);
 
-        byte colorIndex = Color32ToR3G3B2(color);
+        byte colorIndex = TuiSixel.Color32ToR3G3B2(color);
         Span<byte> target = sixel.colorIndexes;
         int bufferWidth = sixel.width;
 

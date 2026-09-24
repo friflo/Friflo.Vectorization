@@ -51,7 +51,7 @@ public partial class TestGuiView : IGuiView
         memStart    = mem;
         batch.EnableStepRendering = true;
         
-        var draw = batch.BeginTextureDraw(canvasTexture);
+        var draw = batch.BeginTextureDraw(canvasTexture, Color32.Transparent);
         // ImageDraw(draw);
         DrawExample(draw);
         

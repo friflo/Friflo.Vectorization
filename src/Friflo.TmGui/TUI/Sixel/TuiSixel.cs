@@ -46,6 +46,21 @@ public sealed class TuiSixel
         
         UpdatePalette();
     }
+    
+    internal void Clear(Color32 color)
+    {
+        var fillIndex = color.A < TransparencyThreshold  ? (byte)0 : Color32ToR3G3B2(color);
+        colorIndexes.AsSpan().Fill(fillIndex);
+    }
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static byte Color32ToR3G3B2(Color32 color)
+    {
+        byte colorIndex = (byte)((color.R & 0xE0) | ((color.G & 0xE0) >> 3) | (color.B >> 6));
+
+        // Reserve index 0 for transparency across the entire engine
+        return colorIndex == 0 ? (byte)1 : colorIndex;
+    }
 
 #region MyRegion update palette
     internal void UpdatePalette () => paletteCount = UpdatePalette_SIMD(colorIndexes, palette);

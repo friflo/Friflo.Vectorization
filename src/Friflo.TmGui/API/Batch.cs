@@ -255,9 +255,10 @@ public abstract class TmBatch : IDisposable
         }
     }
     
-    public TmDraw BeginTextureDraw(TmTexture texture)
+    public TmDraw BeginTextureDraw(TmTexture texture, Color32 color)
     {
         var batch = textureBatch ??= new TextureBatch(new HeadlessBackend(), texture, frameTimer);
+        batch.sixel.Clear(color);
         return batch.BeginDraw(batch.sixel.width, batch.sixel.height);
     }
     

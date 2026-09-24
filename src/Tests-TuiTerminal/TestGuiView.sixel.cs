@@ -24,7 +24,7 @@ public partial class TestGuiView
     private void DrawExample(TmDraw draw)
     {
         // Canvas-Hintergrund
-        draw.FillRect(new Vector2(0, 0), new Vector2(CanvasWidth, CanvasHeight), 0x050b14ff);
+        // draw.FillRect(new Vector2(0, 0), new Vector2(CanvasWidth, CanvasHeight), 0x050b14ff);
 
         float time = (float)stopwatch.Elapsed.TotalSeconds;
 
