@@ -566,4 +566,11 @@ internal sealed class TextureBatch : TmBatch
             FillQuad(center, p0, p1, p2, color);
         }
     }
+
+    internal void DrawSprite(in TmTexture texture, in VertexQuad quad, Color32 color)
+    {
+        vertexCount = 0;
+        
+        
+    }
 }

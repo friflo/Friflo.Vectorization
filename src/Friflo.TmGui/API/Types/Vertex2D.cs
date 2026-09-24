@@ -16,7 +16,9 @@ public struct Vertex2D
     public  Vector2 position;   // 8
     public  Vector2 uv;         // 8
     public  uint    color;      // 4 (Rgba8Pack)
-    
+
+    public override string ToString() => position.ToString();
+
     public Vertex2D(Vector2 position, Vector2 uv, Color32 color)
     {
         this.position = position;

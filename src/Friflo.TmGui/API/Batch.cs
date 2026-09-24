@@ -121,7 +121,7 @@ public abstract class TmBatch : IDisposable
     internal            int                 vertexCount;
     internal            TmTexture           currentTexture;
     
-    protected TmBatch(TmGuiBackend backend) : this(backend, 0)
+    protected TmBatch(TmGuiBackend backend) : this(backend, 4)
     {
         isTextureDraw = true;
     }

@@ -262,6 +262,8 @@ public partial class TestGuiView : IGuiView
         var x = draw.Batch.TickEnabled ? MathF.Sin(time * 4) * 60 : 0;
 
         draw.FillCircle(new Vector2(280 + (int)x, 35), 25, 0xff88ffff);
+        
+        draw.DrawText("ABC", new Vector2(10, 80), Color32.Black);
     }
     
 }
