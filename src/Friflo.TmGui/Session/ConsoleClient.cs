@@ -58,7 +58,7 @@ public class ConsoleClient : TmClient
     {
         try
         {
-            await loop.EnqueueEventAsync(client, ClientEventType.TerminalConnected, default);
+            loop.EnqueueEvent(client, ClientEventType.TerminalConnected, default);
 
             while (!cancellationToken.IsCancellationRequested)
             {
@@ -68,12 +68,12 @@ public class ConsoleClient : TmClient
 
                 var payload = new Payload(buffer, bytesRead);
 
-                await loop.EnqueueEventAsync(client, ClientEventType.TerminalInput, payload);
+                loop.EnqueueEvent(client, ClientEventType.TerminalInput, payload);
             }
         }
         finally
         {
-            await loop.EnqueueEventAsync(client, ClientEventType.TerminalDisconnected, default);
+            loop.EnqueueEvent(client, ClientEventType.TerminalDisconnected, default);
         }
     }
 }

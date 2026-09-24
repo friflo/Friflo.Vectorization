@@ -2,11 +2,11 @@
 // See LICENSE file in the project root for full license information.
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading;
 using System.Threading.Channels;
-using System.Threading.Tasks;
 using Friflo.TmGui.TUI;
 using Friflo.TmGui.TUI.VT100;
 
@@ -18,6 +18,9 @@ namespace Friflo.TmGui.Session;
 
 public sealed partial class TmSessionLoop : IDisposable
 {
+    private readonly    bool                                isAsync;
+    private readonly    ConcurrentQueue<ClientEvent>        eventQueue;
+    private readonly    AutoResetEvent                      eventReady;
     private readonly    Channel<ClientEvent>                eventChannel;   // Single reader channel guarantees zero-sync single-thread execution
     private readonly    Dictionary<TmClient, TuiSession>    sessions;       // Raw non-thread-safe state (accessed exclusively by _shardThread)
     private readonly    FrameBuffer                         frameBuffer;    // shared among all sessions - is accessed single threaded
@@ -29,10 +32,19 @@ public sealed partial class TmSessionLoop : IDisposable
     private readonly    Action                              exitHandler;
 
     
-    public TmSessionLoop(CreateGuiView createGuiView)
+    public TmSessionLoop(bool isAsync, CreateGuiView createGuiView)
     {
+        this.isAsync        = isAsync;
         this.createGuiView  = createGuiView;
-        eventChannel        = Channel.CreateUnbounded<ClientEvent>(new UnboundedChannelOptions { SingleReader = true, SingleWriter = false });
+        if (isAsync) {
+            eventChannel    = Channel.CreateUnbounded<ClientEvent>(new UnboundedChannelOptions { SingleReader = true, SingleWriter = false });
+            eventQueue      = null!;
+            eventReady      = null!;
+        } else {
+            eventChannel    = null!;
+            eventQueue      = new ConcurrentQueue<ClientEvent>();
+            eventReady      = new AutoResetEvent(false);
+        }
         sessions            = new Dictionary<TmClient, TuiSession>();
         frameBuffer         = new FrameBuffer();
         sixelDrawer         = new SixelDrawer();
@@ -55,16 +67,16 @@ public sealed partial class TmSessionLoop : IDisposable
         }
     }
     
-    internal async ValueTask EnqueueEventAsync(TmClient client, ClientEventType type, Payload payload)
+    internal void EnqueueEvent(TmClient client, ClientEventType type, Payload payload)
     {
-        ObjectDisposedException.ThrowIf(isDisposed, this);
-        await eventChannel.Writer.WriteAsync(new ClientEvent { Client = client, Type = type, Payload = payload });
-    }
-    
-    internal bool TryEnqueueEvent(TmClient client, ClientEventType type, Payload payload)
-    {
-        ObjectDisposedException.ThrowIf(isDisposed, this);
-        return eventChannel.Writer.TryWrite(new ClientEvent { Client = client, Type = type, Payload = payload });
+        var evt = new ClientEvent { Client = client, Type = type, Payload = payload };
+        if (isAsync) {
+            ObjectDisposedException.ThrowIf(isDisposed, this);
+            eventChannel.Writer.TryWrite(evt);
+            return;
+        }
+        eventQueue.Enqueue(evt);
+        eventReady.Set(); // wake up Thread
     }
     
     public void Dispose()

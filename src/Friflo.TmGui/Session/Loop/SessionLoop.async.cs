@@ -49,8 +49,6 @@ public partial class TmSessionLoop
     {
         var reader = eventChannel.Reader;
 
-
-
         while (await reader.WaitToReadAsync(cancellationToken))
         {
             while (reader.TryRead(out ClientEvent evt))
@@ -76,7 +74,7 @@ public partial class TmSessionLoop
                     
                     await evt.Client.SendAsync(sendBuffer, CancellationToken.None);
                     
-                    newSession.tuiBatch.frameTimer.Start(CancellationToken.None);
+                    newSession.tuiBatch.frameTimer!.Start(CancellationToken.None);
                     break;
                 }
                 case ClientEventType.TerminalDisconnected:

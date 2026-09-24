@@ -91,7 +91,7 @@ public partial class TestGuiView : IGuiView
             if (gui.Button("Red", style: redButtonStyle))       Debug.WriteLine("Clicked: Red");
         gui.EndHorizontal();
         
-        var e = sb.Clear().Append($"frame time: {frameTime,3} ms  alloc: {(int)memDiff}").GetChunks().GetEnumerator();
+        var e = sb.Clear().Append($"frame time: {frameTime,3} ms  alloc: {memDiff}").GetChunks().GetEnumerator();
         e.MoveNext();
         gui.Label(e.Current.Span, Color32.Teal);
         

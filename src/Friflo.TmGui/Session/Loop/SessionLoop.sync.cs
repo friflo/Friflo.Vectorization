@@ -44,19 +44,21 @@ public partial class TmSessionLoop
     // run event loop
     private void RunEventLoopSync(CancellationToken cancellationToken)
     {
-        var reader = eventChannel.Reader;
+        WaitHandle[] handles = [eventReady, cancellationToken.WaitHandle];
 
-        // Synchronous waiting via WaitToReadAsync + GetAwaiter().GetResult()
-        // keeps execution tied strictly to this thread without ThreadPool switching
-        while (reader.WaitToReadAsync(cancellationToken).AsTask().GetAwaiter().GetResult())
+        while (!cancellationToken.IsCancellationRequested)
         {
-            while (reader.TryRead(out ClientEvent evt))
-            {
+            // Blocks thread cleanly with 0% CPU usage when empty
+            // Wakes up immediately when an event arrives or cancellation is requested
+            // ZERO allocations
+            WaitHandle.WaitAny(handles);
+
+            while (eventQueue.TryDequeue(out ClientEvent evt)) {
                 ProcessEventSync(evt);
             }
         }
     }
-
+    
     // process event
     private void ProcessEventSync(ClientEvent evt)
     {
@@ -73,7 +75,7 @@ public partial class TmSessionLoop
                     
                     evt.Client.Send(sendBuffer);
                     
-                    newSession.tuiBatch.frameTimer.Start(CancellationToken.None);
+                    newSession.tuiBatch.frameTimer!.Start(CancellationToken.None);
                     break;
                 }
                 case ClientEventType.TerminalDisconnected:

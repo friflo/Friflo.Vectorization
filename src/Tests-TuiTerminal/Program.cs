@@ -30,13 +30,15 @@ using TuiTerminal;
 Console.WriteLine("TUI Terminal Server");
 
 var appState = new AppState();
-var loop     = new TmSessionLoop(info => new TestGuiView(appState, info));
+
 
 
 // Flag toggles execution mode:
 // true  => UI Loop runs in dedicated background Thread, Main-Thread runs TCP server.
 // false => TCP server runs on ThreadPool, Main-Thread is blocked by UI Loop.
 bool runAsync = false;
+
+var loop = new TmSessionLoop(runAsync, info => new TestGuiView(appState, info));
 
 if (runAsync) {
     loop.StartAsync(); // Spawns dedicated "ShardLoopThread"

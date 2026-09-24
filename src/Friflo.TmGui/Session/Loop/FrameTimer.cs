@@ -100,7 +100,7 @@ internal sealed class FrameTimer : IDisposable
         {
             while (await asyncTimer.WaitForNextTickAsync(ct))
             {
-                loop.TryEnqueueEvent(client, ClientEventType.FrameTick, default);
+                loop.EnqueueEvent(client, ClientEventType.FrameTick, default);
             }
         }
         catch (OperationCanceledException)
@@ -119,7 +119,7 @@ internal sealed class FrameTimer : IDisposable
         {
             if (ct.IsCancellationRequested || !isRunning) return;
 
-            loop.TryEnqueueEvent(client, ClientEventType.FrameTick, default);
+            loop.EnqueueEvent(client, ClientEventType.FrameTick, default);
         }, null, dueTime: 0, period: Period);
     }
     
