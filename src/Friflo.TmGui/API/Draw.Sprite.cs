@@ -140,6 +140,9 @@ public readonly ref partial struct TmDraw
         quad[1] = new Vertex2D(new Vector2(position.X + r * cos - t * sin, position.Y + r * sin + t * cos), new Vector2(uvMax.X, uvMin.Y), packed);
         quad[2] = new Vertex2D(new Vector2(position.X + r * cos - b * sin, position.Y + r * sin + b * cos), uvMax,                         packed);
         quad[3] = new Vertex2D(new Vector2(position.X + l * cos - b * sin, position.Y + l * sin + b * cos), new Vector2(uvMin.X, uvMax.Y), packed);
+        if (bat.isTextureDraw) {
+            bat.AsTextureBatch.DrawSprite(texture, quad, colorVal);
+        }
     }
 
     /// <summary>
