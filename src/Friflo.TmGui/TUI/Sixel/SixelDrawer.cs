@@ -99,8 +99,6 @@ public sealed class SixelDrawer
         var width        = sixel.width;
         var height       = sixel.height;
         var colorIndexes = sixel.colorIndexes;
-        var palette      = sixel.Palette;
-        
         if (sixel.isDirty) {
             sixel.UpdatePalette();
             sixel.isDirty = false;
@@ -155,7 +153,7 @@ public sealed class SixelDrawer
         writtenBytes += WriteIntToSpan(cursorX + 1, target.Slice(writtenBytes));
         target[writtenBytes++] = (byte)'H';
 
-        writtenBytes += AppendHeaderToTargetBuffer(target.Slice(writtenBytes), palette);
+        writtenBytes += AppendHeaderToTargetBuffer(target.Slice(writtenBytes), sixel.Palette);
 
         writtenBytes += RasterizeBands(
             colorIndexes,
