@@ -9,6 +9,7 @@ using System.Numerics;
 using Friflo.TmGui.Headless;
 using Friflo.TmGui.Session;
 
+// ReSharper disable InconsistentNaming
 // ReSharper disable UseWithExpressionToCopyStruct
 // ReSharper disable SuggestVarOrType_SimpleTypes
 // ReSharper disable SuggestVarOrType_BuiltInTypes
@@ -573,26 +574,36 @@ internal sealed class TextureBatch : TmBatch
     // --------------------------------------------------- Sprite ---------------------------------------------------
     internal void DrawSprite(in TmTexture texture, in VertexQuad quad, Color32 color)
     {
-        vertexCount = 0; // NOTE! prevent growing of vertices
+        vertexCount = 0; // NOTE! Prevent growing of vertices
         
         // Check global color alpha early
         if (color.A < TuiSixel.TransparencyThreshold) return;
 
+        // Invert transformation matrix to map screen pixels back to local quad space
+        if (!Matrix4x4.Invert(currentTransform, out Matrix4x4 invTransform)) return;
+
         var tex = (HeadlessTexture)texture.native!;
 
         ReadOnlySpan<byte> srcPixels = tex.rgbaPixels;
-        int texWidth = tex.width;
+        int texWidth  = tex.width;
         int texHeight = tex.height;
 
-        // Get screen bounds from Quad corners (Quad layout: 0: TL, 1: TR, 2: BR, 3: BL)
-        Vector2 p0 = quad[0].position;
-        Vector2 p2 = quad[2].position;
+        // Transform ALL 4 corners to find true screen AABB
+        Vector2 p0 = Vector2.Transform(quad[0].position, currentTransform);
+        Vector2 p1 = Vector2.Transform(quad[1].position, currentTransform);
+        Vector2 p2 = Vector2.Transform(quad[2].position, currentTransform);
+        Vector2 p3 = Vector2.Transform(quad[3].position, currentTransform);
 
-        // Fast integer conversion for AABB
-        int xStart = FastRound(p0.X);
-        int yStart = FastRound(p0.Y);
-        int xEnd   = FastRound(p2.X);
-        int yEnd   = FastRound(p2.Y);
+        // Get true AABB min/max bounds
+        float minXFloat = MathF.Min(MathF.Min(p0.X, p1.X), MathF.Min(p2.X, p3.X));
+        float maxXFloat = MathF.Max(MathF.Max(p0.X, p1.X), MathF.Max(p2.X, p3.X));
+        float minYFloat = MathF.Min(MathF.Min(p0.Y, p1.Y), MathF.Min(p2.Y, p3.Y));
+        float maxYFloat = MathF.Max(MathF.Max(p0.Y, p1.Y), MathF.Max(p2.Y, p3.Y));
+
+        int xStart = FastRound(minXFloat);
+        int yStart = FastRound(minYFloat);
+        int xEnd   = FastRound(maxXFloat);
+        int yEnd   = FastRound(maxYFloat);
 
         if (xStart >= xEnd || yStart >= yEnd) return;
 
@@ -602,7 +613,7 @@ internal sealed class TextureBatch : TmBatch
         int scissorXEnd   = FastRound(currentScissor.BR.X);
         int scissorYEnd   = FastRound(currentScissor.BR.Y);
 
-        // Calculate intersection between screen buffer, quad bounds, and scissor rect
+        // Calculate intersection between screen buffer, transformed quad bounds, and scissor rect
         int minX = Math.Max(xStart, Math.Max(0, scissorXStart));
         int minY = Math.Max(yStart, Math.Max(0, scissorYStart));
         int maxX = Math.Min(xEnd,   Math.Min(sixel.width,  scissorXEnd));
@@ -610,39 +621,48 @@ internal sealed class TextureBatch : TmBatch
 
         if (minX >= maxX || minY >= maxY) return;
 
-        // Prepare UVs (Quad UVs map to 0.0f - 1.0f range, X = U, Y = V)
+        // Local un-transformed Quad dimensions and origin (from quad[0] TL and quad[2] BR)
+        Vector2 localTL = quad[0].position;
+        Vector2 localBR = quad[2].position;
+        
         Vector2 uv0 = quad[0].uv;
         Vector2 uv2 = quad[2].uv;
 
-        float quadWidthRecip  = 1.0f / (p2.X - p0.X);
-        float quadHeightRecip = 1.0f / (p2.Y - p0.Y);
+        float localWidthRecip  = 1.0f / (localBR.X - localTL.X);
+        float localHeightRecip = 1.0f / (localBR.Y - localTL.Y);
 
         Span<byte> target = sixel.colorIndexes;
         int bufferWidth   = sixel.width;
 
-        // Pre-extract tint color components
         byte tintR = color.R;
         byte tintG = color.G;
         byte tintB = color.B;
 
         for (int y = minY; y < maxY; y++)
         {
-            // Interpolate normalized V coordinate along height
-            float vNorm = (y - p0.Y) * quadHeightRecip;
-            float v = uv0.Y + vNorm * (uv2.Y - uv0.Y);
-            int texY = Math.Clamp((int)(v * texHeight), 0, texHeight - 1);
-            int texRowOffset = texY * texWidth * 4;
-
             int rowOffset = y * bufferWidth;
 
             for (int x = minX; x < maxX; x++)
             {
-                // Interpolate normalized U coordinate along width (uv0.X = U_start, uv2.X = U_end)
-                float uNorm = (x - p0.X) * quadWidthRecip;
-                float u = uv0.X + uNorm * (uv2.X - uv0.X);
-                int texX = Math.Clamp((int)(u * texWidth), 0, texWidth - 1);
+                // Map current screen pixel (x, y) back to local un-transformed space
+                Vector2 screenPos = new Vector2(x + 0.5f, y + 0.5f);
+                Vector2 localPos  = Vector2.Transform(screenPos, invTransform);
 
-                int pixelIdx = texRowOffset + (texX * 4);
+                // Calculate normalized local coordinates [0.0 - 1.0]
+                float uNorm = (localPos.X - localTL.X) * localWidthRecip;
+                float vNorm = (localPos.Y - localTL.Y) * localHeightRecip;
+
+                // Reject pixels outside local quad boundaries
+                if (uNorm < 0.0f || uNorm > 1.0f || vNorm < 0.0f || vNorm > 1.0f) continue;
+
+                // Map to UV coordinates
+                float u = uv0.X + uNorm * (uv2.X - uv0.X);
+                float v = uv0.Y + vNorm * (uv2.Y - uv0.Y);
+
+                int texX = Math.Clamp((int)(u * texWidth),  0, texWidth - 1);
+                int texY = Math.Clamp((int)(v * texHeight), 0, texHeight - 1);
+
+                int pixelIdx = (texY * texWidth + texX) * 4;
 
                 // Fetch RGBA
                 byte a = srcPixels[pixelIdx + 3];

@@ -263,7 +263,13 @@ public partial class TestGuiView : IGuiView
 
         draw.FillCircle(new Vector2(280 + (int)x, 35), 25, 0xff88ffff);
         
-        draw.DrawText("sixel text", new Vector2(10, 70), textColors);
+        draw.DrawText("sixel", new Vector2(10, 70), textColors);
+        
+        
+        var rotation = Matrix4x4.CreateRotationZ(-MathF.PI / 4f);  // rotate 45 degree left
+        draw.PushTransform(rotation);
+        draw.DrawText("text", new Vector2(0, 150), Color32.Black);
+        draw.PopTransform();
     }
     
 }
