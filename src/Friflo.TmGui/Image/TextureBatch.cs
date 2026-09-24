@@ -6,6 +6,7 @@ using System;
 using System.Runtime.CompilerServices;
 using Friflo.TmGui.TUI;
 using System.Numerics;
+using Friflo.TmGui.Headless;
 using Friflo.TmGui.Session;
 
 // ReSharper disable UseWithExpressionToCopyStruct
@@ -567,10 +568,96 @@ internal sealed class TextureBatch : TmBatch
         }
     }
 
+
+    
+    // --------------------------------------------------- Sprite ---------------------------------------------------
     internal void DrawSprite(in TmTexture texture, in VertexQuad quad, Color32 color)
     {
-        vertexCount = 0;
+        vertexCount = 0; // NOTE! prevent growing of vertices
         
-        
+        // Check global color alpha early
+        if (color.A < TuiSixel.TransparencyThreshold) return;
+
+        var tex = (HeadlessTexture)texture.native!;
+
+        ReadOnlySpan<byte> srcPixels = tex.rgbaPixels;
+        int texWidth = tex.width;
+        int texHeight = tex.height;
+
+        // Get screen bounds from Quad corners (Quad layout: 0: TL, 1: TR, 2: BR, 3: BL)
+        Vector2 p0 = quad[0].position;
+        Vector2 p2 = quad[2].position;
+
+        // Fast integer conversion for AABB
+        int xStart = FastRound(p0.X);
+        int yStart = FastRound(p0.Y);
+        int xEnd   = FastRound(p2.X);
+        int yEnd   = FastRound(p2.Y);
+
+        if (xStart >= xEnd || yStart >= yEnd) return;
+
+        // Determine scissor region bounds
+        int scissorXStart = FastRound(currentScissor.pos.X);
+        int scissorYStart = FastRound(currentScissor.pos.Y);
+        int scissorXEnd   = FastRound(currentScissor.BR.X);
+        int scissorYEnd   = FastRound(currentScissor.BR.Y);
+
+        // Calculate intersection between screen buffer, quad bounds, and scissor rect
+        int minX = Math.Max(xStart, Math.Max(0, scissorXStart));
+        int minY = Math.Max(yStart, Math.Max(0, scissorYStart));
+        int maxX = Math.Min(xEnd,   Math.Min(sixel.width,  scissorXEnd));
+        int maxY = Math.Min(yEnd,   Math.Min(sixel.height, scissorYEnd));
+
+        if (minX >= maxX || minY >= maxY) return;
+
+        // Prepare UVs (Quad UVs map to 0.0f - 1.0f range, X = U, Y = V)
+        Vector2 uv0 = quad[0].uv;
+        Vector2 uv2 = quad[2].uv;
+
+        float quadWidthRecip  = 1.0f / (p2.X - p0.X);
+        float quadHeightRecip = 1.0f / (p2.Y - p0.Y);
+
+        Span<byte> target = sixel.colorIndexes;
+        int bufferWidth   = sixel.width;
+
+        // Pre-extract tint color components
+        byte tintR = color.R;
+        byte tintG = color.G;
+        byte tintB = color.B;
+
+        for (int y = minY; y < maxY; y++)
+        {
+            // Interpolate normalized V coordinate along height
+            float vNorm = (y - p0.Y) * quadHeightRecip;
+            float v = uv0.Y + vNorm * (uv2.Y - uv0.Y);
+            int texY = Math.Clamp((int)(v * texHeight), 0, texHeight - 1);
+            int texRowOffset = texY * texWidth * 4;
+
+            int rowOffset = y * bufferWidth;
+
+            for (int x = minX; x < maxX; x++)
+            {
+                // Interpolate normalized U coordinate along width (uv0.X = U_start, uv2.X = U_end)
+                float uNorm = (x - p0.X) * quadWidthRecip;
+                float u = uv0.X + uNorm * (uv2.X - uv0.X);
+                int texX = Math.Clamp((int)(u * texWidth), 0, texWidth - 1);
+
+                int pixelIdx = texRowOffset + (texX * 4);
+
+                // Fetch RGBA
+                byte a = srcPixels[pixelIdx + 3];
+                if (a < TuiSixel.TransparencyThreshold) continue;
+
+                // Apply tint
+                byte r = (byte)((srcPixels[pixelIdx]     * tintR) >> 8);
+                byte g = (byte)((srcPixels[pixelIdx + 1] * tintG) >> 8);
+                byte b = (byte)((srcPixels[pixelIdx + 2] * tintB) >> 8);
+
+                // Convert to R3G3B2 Sixel color index
+                target[rowOffset + x] = TuiSixel.Color32ToR3G3B2(new Color32(r, g, b, a));
+            }
+        }
+
+        sixel.isDirty = true;
     }
 }

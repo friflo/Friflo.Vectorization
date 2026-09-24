@@ -99,6 +99,7 @@ public abstract class TmBatch : IDisposable
     internal            TmTexture           currentFontTexture;
     //
     internal            Vector2             terminalPixelSize  = new(1, 1);
+    private  readonly   IGuiAssets?         textureAssets;
     private             TextureBatch?       textureBatch;
     internal readonly   bool                isTextureDraw;
     internal            TextureBatch        AsTextureBatch { [Hide] get => (TextureBatch)this; }
@@ -158,6 +159,8 @@ public abstract class TmBatch : IDisposable
         backendDefaultFont      = backend.DefaultFont;
         currentFont             = backend.DefaultFont;
         currentFontTexture      = backend.DefaultFont.texture;
+        
+        textureAssets           = backend.Assets;
     }
     
     internal StringBuilder StringBuilder()
@@ -257,7 +260,7 @@ public abstract class TmBatch : IDisposable
     
     public TmDraw BeginTextureDraw(TmTexture texture, Color32 color)
     {
-        var batch = textureBatch ??= new TextureBatch(new HeadlessBackend(), texture, frameTimer);
+        var batch = textureBatch ??= new TextureBatch(new HeadlessBackend(textureAssets), texture, frameTimer);
         batch.sixel.Clear(color);
         return batch.BeginDraw(batch.sixel.width, batch.sixel.height);
     }

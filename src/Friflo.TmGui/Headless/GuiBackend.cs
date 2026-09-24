@@ -12,7 +12,7 @@ namespace Friflo.TmGui.Headless;
 
 public sealed class HeadlessBackend : TmGuiBackend
 {
-    public HeadlessBackend() : base(new HeadlessAssets()) {
+    public HeadlessBackend(IGuiAssets? assets = null) : base(assets ?? new HeadlessAssets()) {
     }
     
     public override void Dispose() {
