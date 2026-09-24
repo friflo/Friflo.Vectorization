@@ -23,8 +23,8 @@ public partial class TestGuiView : IGuiView
     private readonly    StringBuilder   sb = new(200, 200);
     
     
-    private const int CanvasHeight = 800;
-    private const int CanvasWidth  = 500;
+    private const int CanvasWidth   = 800;
+    private const int CanvasHeight  = 500;
     
     public TestGuiView(AppState appState, SessionInfo info)
     {
@@ -32,7 +32,7 @@ public partial class TestGuiView : IGuiView
         using var stream = typeof(TestGuiView).Assembly.GetManifestResourceStream("TuiTerminal.Assets.sixel_test.png")!;
         myTexture       = info.backend.LoadTexture(stream, "sixel_test.png");
         // var myTextureView    = myTexture.AsImTexture();
-        canvasTexture   = info.backend.CreateTexture("canvas", CanvasHeight, CanvasWidth, new byte[CanvasHeight * CanvasWidth * 4]);
+        canvasTexture   = info.backend.CreateTexture("canvas", CanvasWidth, CanvasHeight, new byte[CanvasWidth * CanvasHeight * 4]);
     }
     
     static class Static { internal static void Noop() { } }
@@ -102,7 +102,7 @@ public partial class TestGuiView : IGuiView
             batch.TickEnabled = animate;
         }
         gui.Checkbox("terminal pixels", ref appState.useTerminalPixels);
-        var canvasSize = new Vector2(CanvasHeight, CanvasWidth);
+        var canvasSize = new Vector2(CanvasWidth, CanvasHeight);
         if (appState.useTerminalPixels) canvasSize *= gui.TerminalPixelSize;
 
         using (var space = gui.BeginSpace(gui.Draw.Tui.ExpandToCellGrid(canvasSize), "canvas")) {
@@ -240,7 +240,7 @@ public partial class TestGuiView : IGuiView
     
     private void ImageDraw(TmDraw draw)
     {
-        draw.FillRect(new Vector2(0, 0), new Vector2(CanvasHeight, CanvasWidth), 0x000000ff);
+        draw.FillRect(new Vector2(0, 0), new Vector2(CanvasWidth, CanvasHeight), 0x000000ff);
         
         draw.FillRect(new Vector2(5, 10), new Vector2(20, 20), 0xff0000ff);
         draw.FillCircle(new Vector2(15, 50), 10, 0x0000ffff);

@@ -24,7 +24,7 @@ public partial class TestGuiView
     private void DrawExample(TmDraw draw)
     {
         // Canvas-Hintergrund
-        draw.FillRect(new Vector2(0, 0), new Vector2(CanvasHeight, CanvasWidth), 0x050b14ff);
+        draw.FillRect(new Vector2(0, 0), new Vector2(CanvasWidth, CanvasHeight), 0xffaaffff); // 0x050b14ff);
 
         float time = (float)stopwatch.Elapsed.TotalSeconds;
 
@@ -34,13 +34,13 @@ public partial class TestGuiView
         ];
 
         Vector3 lightDir = Vector3.Normalize(new Vector3(0.2f, -1.0f, -0.5f));
-        Vector2 center = new(CanvasHeight * 0.5f, CanvasWidth * 0.5f);
+        Vector2 center = new(CanvasWidth * 0.5f, CanvasHeight * 0.5f);
 
         const int cubeCount = 16;
         
         // Radien in Bildschirmpixeln abgestimmt auf Canvas (800x500)
-        float radiusX = CanvasHeight * 0.40f; // Nutzt die Breite aus
-        float radiusY = CanvasWidth * 0.22f;  // Erzeugt die Draufsicht/Kippung (~30°-40° Look)
+        float radiusX = CanvasWidth  * 0.40f; // Nutzt die Breite aus
+        float radiusY = CanvasHeight * 0.22f; // Erzeugt die Draufsicht/Kippung (~30°-40° Look)
         float cubeSize = 32.0f;               // Angemessene Würfelgröße
 
         // Z-Sorting Buffer (Painter's Algorithm)
