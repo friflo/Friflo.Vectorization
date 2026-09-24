@@ -272,11 +272,13 @@ public partial class TestGuiView : IGuiView
 
         draw.FillCircle(new Vector2(280 + (int)x, 35), 25, 0xff88ffff);
         
-        draw.DrawText("sixel", new Vector2(10, 70), textColors);
+        draw.DrawText("sixel", new Vector2(0, 70), textColors);
         
         var srcPos  = new Vector2(3 * 64, 0 * 64);  // tile pos in Sheet (3, 0)        
         var texSize = new Vector2(128, 64);
-        draw.DrawSpriteRegion(worldTileset, new Vector2(120, 80), texSize, srcPos, texSize, new(1024, 1024));
+        draw.DrawSpriteRegion(worldTileset, new Vector2(110, 80), texSize, srcPos, texSize, new(1024, 1024));
+        
+        draw.DrawSprite(myTexture, new Vector2(260, 80), new Vector2(192, 64), 0xbbbbbbff);
 
         draw.PopTransform();
     }
