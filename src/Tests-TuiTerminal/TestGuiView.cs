@@ -54,7 +54,7 @@ public partial class TestGuiView : IGuiView
         memStart    = mem;
         batch.EnableStepRendering = true;
         
-        var draw = batch.BeginTextureDraw(canvasTexture, Color32.Transparent);
+        var draw = batch.BeginTextureDraw(canvasTexture, Color32.LightGray);
         ImageDraw(draw);
         // DrawExample(draw);
         
@@ -79,7 +79,8 @@ public partial class TestGuiView : IGuiView
         }
 
         gui.Spacer();
-        if(gui.Checkbox("rotate texture", ref appState.rotateTexture)) { }
+        gui.Checkbox("texture scissor", ref appState.textureScissor);
+        gui.Checkbox("rotate texture", ref appState.rotateTexture);
         gui.Spacer();
         if (gui.Slider("Volume", ref appState.rotation, 0f, 1f, 300)) { Debug.WriteLine($"Volume: changed"); }
         gui.Spacer();
@@ -241,10 +242,18 @@ public partial class TestGuiView : IGuiView
     
     private void ImageDraw(TmDraw draw)
     {
+        var time = (float)stopwatch.Elapsed.TotalSeconds;
+        if (appState.textureScissor)
+        {
+            draw.StrokeRect (new Vector2(50, 30), new(300, 300), 1, Color32.Gray);
+            draw.PushScissor(new Vector2(50, 30), new(300, 300));
+        }
+
         Matrix4x4 translation = Matrix4x4.CreateTranslation(100f, 0f, 0f);
         Matrix4x4 transform = translation;
         if (appState.rotateTexture) {
-            var rotation = Matrix4x4.CreateRotationZ(appState.rotation * MathF.PI / 2f);
+            var rotate = 0.5f * MathF.Sin(time) + 0.5f;
+            var rotation = Matrix4x4.CreateRotationZ(rotate * MathF.PI / 2f);
             transform = translation * rotation;
         }
         draw.PushTransform(transform);
@@ -266,8 +275,6 @@ public partial class TestGuiView : IGuiView
         
         draw.StrokeRectRounded(new Vector2(150, 10), new Vector2(20, 50), 10, 2, 0x000080ff);
 
-        var time = (float)stopwatch.Elapsed.TotalSeconds;
-
         var x = draw.Batch.TickEnabled ? MathF.Sin(time * 4) * 60 : 0;
 
         draw.FillCircle(new Vector2(280 + (int)x, 35), 25, 0xff88ffff);
@@ -281,5 +288,6 @@ public partial class TestGuiView : IGuiView
         draw.DrawSprite(myTexture, new Vector2(260, 80), new Vector2(192, 64), 0xbbbbbbff);
 
         draw.PopTransform();
+        if (appState.textureScissor) draw.PopScissor();
     }
 }
