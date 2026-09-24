@@ -17,6 +17,7 @@ public partial class TestGuiView : IGuiView
     private readonly    TmTexture       worldTileset;
     private readonly    TmTexture       canvasTexture;
     private readonly    Stopwatch       stopwatch = Stopwatch.StartNew();
+    private             float           time;
     private             long            frameStart;
     private             double          frameTime;
     private             long            memStart;
@@ -45,9 +46,11 @@ public partial class TestGuiView : IGuiView
         batch.TickRate = 60;
         Static.Noop();
         
-        var time   = Stopwatch.GetTimestamp();
-        frameTime  = Stopwatch.GetElapsedTime(frameStart, time).TotalMilliseconds;
-        frameStart = time;
+        var timestamp   = Stopwatch.GetTimestamp();
+        frameTime       = Stopwatch.GetElapsedTime(frameStart, timestamp).TotalMilliseconds;
+        frameStart      = timestamp;
+        
+        if (batch.TickEnabled) time += (float)frameTime * appState.speed * 2f * 0.001f;
         
         var mem     = GC.GetAllocatedBytesForCurrentThread();
         memDiff     = mem - memStart;
@@ -92,7 +95,7 @@ public partial class TestGuiView : IGuiView
         gui.Checkbox("texture scissor", ref appState.textureScissor);
         gui.Checkbox("rotate texture", ref appState.rotateTexture);
         gui.Spacer();
-        if (gui.Slider("Volume", ref appState.rotation, 0f, 1f, 300)) { Debug.WriteLine($"Volume: changed"); }
+        if (gui.Slider("Volume", ref appState.speed, 0f, 1f, 300)) { Debug.WriteLine($"Volume: changed"); }
         gui.Spacer();
         
         gui.BeginHorizontal();
@@ -243,7 +246,6 @@ public partial class TestGuiView : IGuiView
     
     private void ImageDraw(TmDraw draw)
     {
-        var time = (float)stopwatch.Elapsed.TotalSeconds;
         if (appState.textureScissor)
         {
             draw.StrokeRect (new Vector2(50, 30), new(300, 300), 3, 0x999999ff);

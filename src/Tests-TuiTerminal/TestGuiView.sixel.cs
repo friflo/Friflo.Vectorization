@@ -26,8 +26,6 @@ public partial class TestGuiView
         // Canvas-Hintergrund
         // draw.FillRect(new Vector2(0, 0), new Vector2(CanvasWidth, CanvasHeight), Color32.Black);
 
-        float time = (float)stopwatch.Elapsed.TotalSeconds;
-
         ReadOnlySpan<Vector3> vertices = [
             new(-1, -1, -1), new( 1, -1, -1), new( 1,  1, -1), new(-1,  1, -1),
             new(-1, -1,  1), new( 1, -1,  1), new( 1,  1,  1), new(-1,  1,  1)
