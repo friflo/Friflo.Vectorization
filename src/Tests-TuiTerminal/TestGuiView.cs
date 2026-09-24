@@ -58,8 +58,7 @@ public partial class TestGuiView : IGuiView
         batch.EnableStepRendering = true;
         
         var draw = batch.BeginTextureDraw(canvasTexture, Color32.Transparent);
-        ImageDraw(draw);
-        // DrawExample(draw);
+        if (appState.showCubes) DrawCubes(draw); else ImageDraw(draw);
         
         var gui = batch.BeginGui(targetWidth, targetHeight);
         using (gui.BeginWindow("Window 1", new Vector2(0, 0), new Vector2(1000, 850), traits: 0, TuiBorder.Rounded)) { // (500, 450) (1000, 850)
@@ -86,6 +85,7 @@ public partial class TestGuiView : IGuiView
         e.MoveNext();
         gui.Label(e.Current.Span, Color32.Teal);
         
+        gui.Checkbox("cubes", ref appState.showCubes);
         var batch = gui.Batch;
         var animate = batch.TickEnabled;
         if (gui.Checkbox("animate", ref animate)) {
@@ -129,7 +129,6 @@ public partial class TestGuiView : IGuiView
             // var tint = gui.Colors.ButtonState(space.widgetState);
             gui.Draw.DrawSprite(myTexture, space.pos, spriteSize);
         }
-        gui.Checkbox("checkbox", ref appState.enabled2);
         
         gui.Spacer();
         

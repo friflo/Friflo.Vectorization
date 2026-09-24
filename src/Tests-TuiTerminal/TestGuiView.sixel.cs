@@ -21,7 +21,7 @@ public partial class TestGuiView
         0x7700ff00, 0x00fff000, 0xff007700, 0xffb70000
     ];
         
-    private void DrawExample(TmDraw draw)
+    private void DrawCubes(TmDraw draw)
     {
         // Canvas-Hintergrund
         // draw.FillRect(new Vector2(0, 0), new Vector2(CanvasWidth, CanvasHeight), Color32.Black);
