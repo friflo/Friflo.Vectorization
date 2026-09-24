@@ -2,7 +2,6 @@
 
 public class AppState
 {
-    internal    bool    mouseCircle;
     internal    bool    rotateTexture;
     internal    bool    enabled2;
     internal    bool    useTerminalPixels;

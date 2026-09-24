@@ -79,9 +79,7 @@ public partial class TestGuiView : IGuiView
         }
 
         gui.Spacer();
-        gui.Checkbox("mouse circle", ref appState.mouseCircle);
-        if(gui.Checkbox("rotate texture", ref appState.rotateTexture)) {
-        }
+        if(gui.Checkbox("rotate texture", ref appState.rotateTexture)) { }
         gui.Spacer();
         if (gui.Slider("Volume", ref appState.rotation, 0f, 1f, 300)) { Debug.WriteLine($"Volume: changed"); }
         gui.Spacer();
