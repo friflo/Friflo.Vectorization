@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading;
 using System.Threading.Channels;
+using System.Threading.Tasks;
 using Friflo.TmGui.TUI;
 using Friflo.TmGui.TUI.VT100;
 
@@ -59,12 +60,12 @@ public sealed partial class TmSessionLoop : IDisposable
         PosixSignalUtils.AddExitHandler(exitHandler);
     }
     
-    internal void EnqueueEvent(TmClient client, ClientEventType type, Payload payload)
+    internal async ValueTask EnqueueEventAsync(TmClient client, ClientEventType type, Payload payload)
     {
         var evt = new ClientEvent { Client = client, Type = type, Payload = payload };
         if (isAsync) {
             ObjectDisposedException.ThrowIf(isDisposed, this);
-            eventChannel.Writer.TryWrite(evt);
+            await eventChannel.Writer.WriteAsync(evt);
             return;
         }
         eventQueue.Enqueue(evt);
