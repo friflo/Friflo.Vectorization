@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Numerics;
+using System.Runtime.InteropServices;
 using System.Text;
 using Friflo.TmGui;
 using Friflo.TmGui.Session;
@@ -81,7 +82,12 @@ public partial class TestGuiView : IGuiView
         }
 
         gui.Spacer();
-        var e = sb.Clear().Append($"frame time: {frameTime,5:F1} ms  alloc: {memDiff}").GetChunks().GetEnumerator();
+
+        var e = sb.Clear().Append($"{RuntimeInformation.OSArchitecture} - {RuntimeInformation.OSDescription}").GetChunks().GetEnumerator();
+        e.MoveNext();
+        gui.Label(e.Current.Span, Color32.Gray);
+        
+        e = sb.Clear().Append($"frame time: {frameTime,5:F1} ms  alloc: {memDiff}").GetChunks().GetEnumerator();
         e.MoveNext();
         gui.Label(e.Current.Span, Color32.Teal);
         
