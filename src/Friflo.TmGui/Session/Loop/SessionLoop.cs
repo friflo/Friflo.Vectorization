@@ -19,9 +19,9 @@ namespace Friflo.TmGui.Session;
 public sealed partial class TmSessionLoop : IDisposable
 {
     private readonly    bool                                isAsync;
-    private readonly    ConcurrentQueue<ClientEvent>        eventQueue;
-    private readonly    AutoResetEvent                      eventReady;
-    private readonly    Channel<ClientEvent>                eventChannel;   // Single reader channel guarantees zero-sync single-thread execution
+    private readonly    ConcurrentQueue<ClientEvent>        eventQueue;     // used by: sync loop
+    private readonly    AutoResetEvent                      eventReady;     // used by: sync loop
+    private readonly    Channel<ClientEvent>                eventChannel;   // used by: async loop
     private readonly    Dictionary<TmClient, TuiSession>    sessions;       // Raw non-thread-safe state (accessed exclusively by _shardThread)
     private readonly    FrameBuffer                         frameBuffer;    // shared among all sessions - is accessed single threaded
     private readonly    SixelDrawer                         sixelDrawer;    // shared among all sessions
