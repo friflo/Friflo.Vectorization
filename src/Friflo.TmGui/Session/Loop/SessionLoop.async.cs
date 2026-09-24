@@ -51,15 +51,22 @@ public partial class TmSessionLoop
 
         while (await reader.WaitToReadAsync(cancellationToken))
         {
-            while (reader.TryRead(out ClientEvent evt))
-            {
-                await ProcessEventAsync(evt);
+            if (!reader.TryRead(out ClientEvent evt)) {
+                continue;
             }
+            // Try reading the next event to check if currentEvt is the last in the batch
+            while (reader.TryRead(out ClientEvent nextEvt))
+            {
+                // accumulate queued inputs - late-rendering
+                await ProcessEventAsync(evt, isQueueEmpty: false);
+                evt = nextEvt;
+            }
+            await ProcessEventAsync(evt, isQueueEmpty: true);
         }
     }
     
     // process event
-    private async ValueTask ProcessEventAsync(ClientEvent evt)
+    private async ValueTask ProcessEventAsync(ClientEvent evt, bool isQueueEmpty)
     {
         try {
             switch (evt.Type)
@@ -70,7 +77,8 @@ public partial class TmSessionLoop
                     
                     await evt.Client.SendAsync(initialMessage, CancellationToken.None);
                     
-                    var sendBuffer = newSession.ProcessInput(payload.Span);
+                    newSession.ProcessInput(payload.Span);
+                    var sendBuffer = newSession.IterateTui();
                     
                     await evt.Client.SendAsync(sendBuffer, CancellationToken.None);
                     
@@ -85,14 +93,17 @@ public partial class TmSessionLoop
                     if (sessions.TryGetValue(evt.Client, out TuiSession? session))
                     {
                         var payload     = evt.Payload.Span;
-                        var sendBuffer  = session.ProcessInput(payload);
-                        await evt.Client.SendAsync(sendBuffer, CancellationToken.None);
+                        session.ProcessInput(payload);
+                        if (isQueueEmpty) {
+                            var sendBuffer  = session.IterateTui();
+                            await evt.Client.SendAsync(sendBuffer, CancellationToken.None);
+                        }
                     }
                     break;
                 case ClientEventType.FrameTick:
                     if (sessions.TryGetValue(evt.Client, out session))
                     {
-                        var sendBuffer = session.ProcessInput(default);
+                        var sendBuffer = session.IterateTui();
                         await evt.Client.SendAsync(sendBuffer, CancellationToken.None);
                     }
                     break;

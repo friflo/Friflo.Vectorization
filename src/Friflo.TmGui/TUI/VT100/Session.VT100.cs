@@ -29,7 +29,7 @@ internal sealed partial class TuiSession
     private RS          readState;
     private CharBuffer  csi = new(32);
         
-    public Memory<byte> ProcessInput(ReadOnlySpan<byte> input)
+    public void ProcessInput(ReadOnlySpan<byte> input)
     {
         int pos = 0;
         var rs  = readState;
@@ -40,7 +40,6 @@ internal sealed partial class TuiSession
             rs = ReadInput(rs, character);
         }
         readState = rs;
-        return IterateTui();
     }
      
     private RS ReadInput(RS rs, char character)

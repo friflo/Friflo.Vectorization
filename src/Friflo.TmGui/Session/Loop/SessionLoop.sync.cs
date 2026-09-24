@@ -54,13 +54,15 @@ public partial class TmSessionLoop
             WaitHandle.WaitAny(handles);
 
             while (eventQueue.TryDequeue(out ClientEvent evt)) {
-                ProcessEventSync(evt);
+                // accumulate queued inputs - late-rendering
+                var isQueueEmpty = eventQueue.IsEmpty;
+                ProcessEventSync(evt, isQueueEmpty);
             }
         }
     }
     
     // process event
-    private void ProcessEventSync(ClientEvent evt)
+    private void ProcessEventSync(ClientEvent evt, bool isQueueEmpty)
     {
         try {
             switch (evt.Type)
@@ -71,7 +73,8 @@ public partial class TmSessionLoop
                     
                     evt.Client.Send(initialMessage);
                     
-                    var sendBuffer      = newSession.ProcessInput(payload.Span);
+                    newSession.ProcessInput(payload.Span);
+                    var sendBuffer = newSession.IterateTui();
                     
                     evt.Client.Send(sendBuffer);
                     
@@ -86,14 +89,17 @@ public partial class TmSessionLoop
                     if (sessions.TryGetValue(evt.Client, out TuiSession? session))
                     {
                         var payload     = evt.Payload.Span;
-                        var sendBuffer  = session.ProcessInput(payload);
-                        evt.Client.Send(sendBuffer);
+                        session.ProcessInput(payload);
+                        if (isQueueEmpty) {
+                            var sendBuffer  = session.IterateTui();
+                            evt.Client.Send(sendBuffer);
+                        }
                     }
                     break;
                 case ClientEventType.FrameTick:
                     if (sessions.TryGetValue(evt.Client, out session))
                     {
-                        var sendBuffer = session.ProcessInput(default);
+                        var sendBuffer = session.IterateTui();
                         evt.Client.Send(sendBuffer);
                     }
                     break;
