@@ -52,8 +52,8 @@ public partial class TestGuiView : IGuiView
         batch.EnableStepRendering = true;
         
         var draw = batch.BeginTextureDraw(canvasTexture, Color32.Transparent);
-        // ImageDraw(draw);
-        DrawExample(draw);
+        ImageDraw(draw);
+        // DrawExample(draw);
         
         var gui = batch.BeginGui(targetWidth, targetHeight);
         using (gui.BeginWindow("Window 1", new Vector2(0, 0), new Vector2(1000, 850), traits: 0, TuiBorder.Rounded)) { // (500, 450) (1000, 850)
@@ -240,30 +240,28 @@ public partial class TestGuiView : IGuiView
     
     private void ImageDraw(TmDraw draw)
     {
-        draw.FillRect(new Vector2(0, 0), new Vector2(CanvasWidth, CanvasHeight), 0x000000ff);
-        
         draw.FillRect(new Vector2(5, 10), new Vector2(20, 20), 0xff0000ff);
         draw.FillCircle(new Vector2(15, 50), 10, 0x0000ffff);
 
         draw.FillTriangle(new Vector2(30, 10), new Vector2(50, 10), new Vector2(40, 30), 0x00ff00ff);
-        draw.StrokeCircle(new Vector2(40, 50), 10, 2, Color32.Yellow);
+        draw.StrokeCircle(new Vector2(40, 50), 10, 2, Color32.Purple);
         
         draw.FillRectGradientVertical(new Vector2(60, 10), new Vector2(30,40), 0xffffffff, 0xff0000ff);
         
-        draw.StrokeLine(new Vector2(100, 10), new Vector2(110, 50), 1, 0xffffffff);
-        draw.StrokeLine(new Vector2(110, 10), new Vector2(120, 50), 2, 0xffffffff);
+        draw.StrokeLine(new Vector2(100, 10), new Vector2(110, 50), 1, 0x000000ff);
+        draw.StrokeLine(new Vector2(110, 10), new Vector2(120, 50), 2, 0x000000ff);
         
-        draw.StrokeRect(new Vector2(130, 10), new Vector2(10, 50), 2, Color32.Yellow);
+        draw.StrokeRect(new Vector2(130, 10), new Vector2(10, 50), 2, Color32.Orange);
         
         draw.FillRectRounded(new Vector2(150, 10), new Vector2(20, 50), 10, Color32.CornflowerBlue);
         
-        draw.StrokeRectRounded(new Vector2(150, 10), new Vector2(20, 50), 10, 2, Color32.White);
+        draw.StrokeRectRounded(new Vector2(150, 10), new Vector2(20, 50), 10, 2, 0x000080ff);
 
         var time = (float)stopwatch.Elapsed.TotalSeconds;
 
         var x = draw.Batch.TickEnabled ? MathF.Sin(time * 4) * 60 : 0;
 
-        draw.FillCircle(new Vector2(280 + (int)x, 35), 25, 0xffffffff);
+        draw.FillCircle(new Vector2(280 + (int)x, 35), 25, 0xff88ffff);
     }
     
 }
