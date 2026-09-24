@@ -79,6 +79,16 @@ public partial class TestGuiView : IGuiView
         }
 
         gui.Spacer();
+        var e = sb.Clear().Append($"frame time: {frameTime,5:F1} ms  alloc: {memDiff}").GetChunks().GetEnumerator();
+        e.MoveNext();
+        gui.Label(e.Current.Span, Color32.Teal);
+        
+        var batch = gui.Batch;
+        var animate = batch.TickEnabled;
+        if (gui.Checkbox("animate", ref animate)) {
+            batch.TickEnabled = animate;
+            if (animate) stopwatch.Start(); else stopwatch.Stop();
+        }
         gui.Checkbox("texture scissor", ref appState.textureScissor);
         gui.Checkbox("rotate texture", ref appState.rotateTexture);
         gui.Spacer();
@@ -94,15 +104,6 @@ public partial class TestGuiView : IGuiView
             if (gui.Button("Red", style: redButtonStyle))       Debug.WriteLine("Clicked: Red");
         gui.EndHorizontal();
         
-        var e = sb.Clear().Append($"frame time: {frameTime,5:F1} ms  alloc: {memDiff}").GetChunks().GetEnumerator();
-        e.MoveNext();
-        gui.Label(e.Current.Span, Color32.Teal);
-        
-        var batch = gui.Batch;
-        var animate = batch.TickEnabled;
-        if (gui.Checkbox("animate", ref animate)) {
-            batch.TickEnabled = animate;
-        }
         gui.Checkbox("terminal pixels", ref appState.useTerminalPixels);
         var canvasSize = new Vector2(CanvasWidth, CanvasHeight);
         if (appState.useTerminalPixels) canvasSize *= gui.TerminalPixelSize;
@@ -275,9 +276,9 @@ public partial class TestGuiView : IGuiView
         
         draw.StrokeRectRounded(new Vector2(150, 10), new Vector2(20, 50), 10, 2, 0x000080ff);
 
-        var x = draw.Batch.TickEnabled ? MathF.Sin(time * 4) * 60 : 0;
+        var circleOffset = MathF.Sin(time * 4) * 60;
 
-        draw.FillCircle(new Vector2(280 + (int)x, 35), 25, 0xff88ffff);
+        draw.FillCircle(new Vector2(280 + (int)circleOffset, 35), 25, 0xff88ffff);
         
         draw.DrawText("sixel", new Vector2(0, 70), textColors);
         
