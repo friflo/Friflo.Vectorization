@@ -77,10 +77,10 @@ public partial class TestGuiView : IGuiView
 
         gui.Spacer();
         gui.Checkbox("mouse circle", ref appState.mouseCircle);
-        if(gui.Checkbox("Monocraft", ref appState.monocraft)) {
+        if(gui.Checkbox("rotate texture", ref appState.rotateTexture)) {
         }
         gui.Spacer();
-        if (gui.Slider("Volume", ref appState.volume, 0f, 1f, 300)) { Debug.WriteLine($"Volume: changed"); }
+        if (gui.Slider("Volume", ref appState.rotation, 0f, 1f, 300)) { Debug.WriteLine($"Volume: changed"); }
         gui.Spacer();
         
         gui.BeginHorizontal();
@@ -240,6 +240,14 @@ public partial class TestGuiView : IGuiView
     
     private void ImageDraw(TmDraw draw)
     {
+        Matrix4x4 translation = Matrix4x4.CreateTranslation(100f, 0f, 0f);
+        Matrix4x4 transform = translation;
+        if (appState.rotateTexture) {
+            var rotation = Matrix4x4.CreateRotationZ(appState.rotation * MathF.PI / 2f);
+            transform = translation * rotation;
+        }
+        draw.PushTransform(transform);
+        
         draw.FillRect(new Vector2(5, 10), new Vector2(20, 20), 0xff0000ff);
         draw.FillCircle(new Vector2(15, 50), 10, 0x0000ffff);
 
@@ -264,12 +272,7 @@ public partial class TestGuiView : IGuiView
         draw.FillCircle(new Vector2(280 + (int)x, 35), 25, 0xff88ffff);
         
         draw.DrawText("sixel", new Vector2(10, 70), textColors);
-        
-        
-        var rotation = Matrix4x4.CreateRotationZ(-MathF.PI / 4f);  // rotate 45 degree left
-        draw.PushTransform(rotation);
-        draw.DrawText("text", new Vector2(0, 150), Color32.Black);
+
         draw.PopTransform();
     }
-    
 }

@@ -9,6 +9,8 @@ using System.Numerics;
 using Friflo.TmGui.Headless;
 using Friflo.TmGui.Session;
 
+// ReSharper disable CompareOfFloatsByEqualityOperator
+// ReSharper disable MergeIntoPattern
 // ReSharper disable InconsistentNaming
 // ReSharper disable UseWithExpressionToCopyStruct
 // ReSharper disable SuggestVarOrType_SimpleTypes
@@ -579,72 +581,125 @@ internal sealed class TextureBatch : TmBatch
         // Check global color alpha early
         if (color.A < TuiSixel.TransparencyThreshold) return;
 
-        // Invert transformation matrix to map screen pixels back to local quad space
-        if (!Matrix4x4.Invert(currentTransform, out Matrix4x4 invTransform)) return;
-
         var tex = (HeadlessTexture)texture.native!;
-
         ReadOnlySpan<byte> srcPixels = tex.rgbaPixels;
         int texWidth  = tex.width;
         int texHeight = tex.height;
-
-        // Transform ALL 4 corners to find true screen AABB
-        Vector2 p0 = Vector2.Transform(quad[0].position, currentTransform);
-        Vector2 p1 = Vector2.Transform(quad[1].position, currentTransform);
-        Vector2 p2 = Vector2.Transform(quad[2].position, currentTransform);
-        Vector2 p3 = Vector2.Transform(quad[3].position, currentTransform);
-
-        // Get true AABB min/max bounds
-        float minXFloat = MathF.Min(MathF.Min(p0.X, p1.X), MathF.Min(p2.X, p3.X));
-        float maxXFloat = MathF.Max(MathF.Max(p0.X, p1.X), MathF.Max(p2.X, p3.X));
-        float minYFloat = MathF.Min(MathF.Min(p0.Y, p1.Y), MathF.Min(p2.Y, p3.Y));
-        float maxYFloat = MathF.Max(MathF.Max(p0.Y, p1.Y), MathF.Max(p2.Y, p3.Y));
-
-        int xStart = FastRound(minXFloat);
-        int yStart = FastRound(minYFloat);
-        int xEnd   = FastRound(maxXFloat);
-        int yEnd   = FastRound(maxYFloat);
-
-        if (xStart >= xEnd || yStart >= yEnd) return;
-
-        // Determine scissor region bounds
-        int scissorXStart = FastRound(currentScissor.pos.X);
-        int scissorYStart = FastRound(currentScissor.pos.Y);
-        int scissorXEnd   = FastRound(currentScissor.BR.X);
-        int scissorYEnd   = FastRound(currentScissor.BR.Y);
-
-        // Calculate intersection between screen buffer, transformed quad bounds, and scissor rect
-        int minX = Math.Max(xStart, Math.Max(0, scissorXStart));
-        int minY = Math.Max(yStart, Math.Max(0, scissorYStart));
-        int maxX = Math.Min(xEnd,   Math.Min(sixel.width,  scissorXEnd));
-        int maxY = Math.Min(yEnd,   Math.Min(sixel.height, scissorYEnd));
-
-        if (minX >= maxX || minY >= maxY) return;
-
-        // Local un-transformed Quad dimensions and origin (from quad[0] TL and quad[2] BR)
-        Vector2 localTL = quad[0].position;
-        Vector2 localBR = quad[2].position;
-        
-        Vector2 uv0 = quad[0].uv;
-        Vector2 uv2 = quad[2].uv;
-
-        float localWidthRecip  = 1.0f / (localBR.X - localTL.X);
-        float localHeightRecip = 1.0f / (localBR.Y - localTL.Y);
-
-        Span<byte> target = sixel.colorIndexes;
-        int bufferWidth   = sixel.width;
 
         byte tintR = color.R;
         byte tintG = color.G;
         byte tintB = color.B;
 
-        for (int y = minY; y < maxY; y++)
+        Span<byte> target = sixel.colorIndexes;
+        int bufferWidth   = sixel.width;
+
+        // =========================================================================
+        // FAST PATH: Axis-Aligned (Translation & Scale only, no rotation/skew)
+        // =========================================================================
+        if (currentTransform.IsAxisAligned())
+        {
+            // Transform only 2 diagonal corners to get AABB
+            Vector2 p0 = Vector2.Transform(quad[0].position, currentTransform);
+            Vector2 p2 = Vector2.Transform(quad[2].position, currentTransform);
+
+            int xStart = FastRound(p0.X);
+            int yStart = FastRound(p0.Y);
+            int xEnd   = FastRound(p2.X);
+            int yEnd   = FastRound(p2.Y);
+
+            if (xStart >= xEnd || yStart >= yEnd) return;
+
+            // Scissor & Screen bounds clipping
+            int minX = Math.Max(xStart, Math.Max(0, FastRound(currentScissor.pos.X)));
+            int minY = Math.Max(yStart, Math.Max(0, FastRound(currentScissor.pos.Y)));
+            int maxX = Math.Min(xEnd,   Math.Min(sixel.width,  FastRound(currentScissor.BR.X)));
+            int maxY = Math.Min(yEnd,   Math.Min(sixel.height, FastRound(currentScissor.BR.Y)));
+
+            if (minX >= maxX || minY >= maxY) return;
+
+            Vector2 uv0 = quad[0].uv;
+            Vector2 uv2 = quad[2].uv;
+
+            float quadWidthRecip  = 1.0f / (p2.X - p0.X);
+            float quadHeightRecip = 1.0f / (p2.Y - p0.Y);
+
+            for (int y = minY; y < maxY; y++)
+            {
+                float vNorm = (y - p0.Y) * quadHeightRecip;
+                float v = uv0.Y + vNorm * (uv2.Y - uv0.Y);
+                int texY = Math.Clamp((int)(v * texHeight), 0, texHeight - 1);
+                int texRowOffset = texY * texWidth * 4;
+                int rowOffset = y * bufferWidth;
+
+                for (int x = minX; x < maxX; x++)
+                {
+                    float uNorm = (x - p0.X) * quadWidthRecip;
+                    float u = uv0.X + uNorm * (uv2.X - uv0.X);
+                    int texX = Math.Clamp((int)(u * texWidth), 0, texWidth - 1);
+
+                    int pixelIdx = texRowOffset + (texX * 4);
+
+                    byte a = srcPixels[pixelIdx + 3];
+                    if (a < TuiSixel.TransparencyThreshold) continue;
+
+                    byte r = (byte)((srcPixels[pixelIdx]     * tintR) >> 8);
+                    byte g = (byte)((srcPixels[pixelIdx + 1] * tintG) >> 8);
+                    byte b = (byte)((srcPixels[pixelIdx + 2] * tintB) >> 8);
+
+                    target[rowOffset + x] = TuiSixel.Color32ToR3G3B2(new Color32(r, g, b));
+                }
+            }
+
+            sixel.isDirty = true;
+            return;
+        }
+
+        // =========================================================================
+        // GENERIC PATH: Arbitrary Transforms (Rotation, Shear, Complex Matrices)
+        // =========================================================================
+        if (!Matrix4x4.Invert(currentTransform, out Matrix4x4 invTransform)) return;
+
+        // Transform ALL 4 corners to find true screen AABB
+        Vector2 gP0 = Vector2.Transform(quad[0].position, currentTransform);
+        Vector2 gP1 = Vector2.Transform(quad[1].position, currentTransform);
+        Vector2 gP2 = Vector2.Transform(quad[2].position, currentTransform);
+        Vector2 gP3 = Vector2.Transform(quad[3].position, currentTransform);
+
+        float minXFloat = MathF.Min(MathF.Min(gP0.X, gP1.X), MathF.Min(gP2.X, gP3.X));
+        float maxXFloat = MathF.Max(MathF.Max(gP0.X, gP1.X), MathF.Max(gP2.X, gP3.X));
+        float minYFloat = MathF.Min(MathF.Min(gP0.Y, gP1.Y), MathF.Min(gP2.Y, gP3.Y));
+        float maxYFloat = MathF.Max(MathF.Max(gP0.Y, gP1.Y), MathF.Max(gP2.Y, gP3.Y));
+
+        int gXStart = FastRound(minXFloat);
+        int gYStart = FastRound(minYFloat);
+        int gXEnd   = FastRound(maxXFloat);
+        int gYEnd   = FastRound(maxYFloat);
+
+        if (gXStart >= gXEnd || gYStart >= gYEnd) return;
+
+        int gMinX = Math.Max(gXStart, Math.Max(0, FastRound(currentScissor.pos.X)));
+        int gMinY = Math.Max(gYStart, Math.Max(0, FastRound(currentScissor.pos.Y)));
+        int gMaxX = Math.Min(gXEnd,   Math.Min(sixel.width,  FastRound(currentScissor.BR.X)));
+        int gMaxY = Math.Min(gYEnd,   Math.Min(sixel.height, FastRound(currentScissor.BR.Y)));
+
+        if (gMinX >= gMaxX || gMinY >= gMaxY) return;
+
+        Vector2 localTL = quad[0].position;
+        Vector2 localBR = quad[2].position;
+
+        Vector2 gUv0 = quad[0].uv;
+        Vector2 gUv2 = quad[2].uv;
+
+        float localWidthRecip  = 1.0f / (localBR.X - localTL.X);
+        float localHeightRecip = 1.0f / (localBR.Y - localTL.Y);
+
+        for (int y = gMinY; y < gMaxY; y++)
         {
             int rowOffset = y * bufferWidth;
 
-            for (int x = minX; x < maxX; x++)
+            for (int x = gMinX; x < gMaxX; x++)
             {
-                // Map current screen pixel (x, y) back to local un-transformed space
+                // Map current screen pixel back to local untransformed quad space
                 Vector2 screenPos = new Vector2(x + 0.5f, y + 0.5f);
                 Vector2 localPos  = Vector2.Transform(screenPos, invTransform);
 
@@ -652,32 +707,44 @@ internal sealed class TextureBatch : TmBatch
                 float uNorm = (localPos.X - localTL.X) * localWidthRecip;
                 float vNorm = (localPos.Y - localTL.Y) * localHeightRecip;
 
-                // Reject pixels outside local quad boundaries
+                // Reject pixels outside local quad bounds
                 if (uNorm < 0.0f || uNorm > 1.0f || vNorm < 0.0f || vNorm > 1.0f) continue;
 
-                // Map to UV coordinates
-                float u = uv0.X + uNorm * (uv2.X - uv0.X);
-                float v = uv0.Y + vNorm * (uv2.Y - uv0.Y);
+                float u = gUv0.X + uNorm * (gUv2.X - gUv0.X);
+                float v = gUv0.Y + vNorm * (gUv2.Y - gUv0.Y);
 
                 int texX = Math.Clamp((int)(u * texWidth),  0, texWidth - 1);
                 int texY = Math.Clamp((int)(v * texHeight), 0, texHeight - 1);
 
                 int pixelIdx = (texY * texWidth + texX) * 4;
 
-                // Fetch RGBA
                 byte a = srcPixels[pixelIdx + 3];
                 if (a < TuiSixel.TransparencyThreshold) continue;
 
-                // Apply tint
                 byte r = (byte)((srcPixels[pixelIdx]     * tintR) >> 8);
                 byte g = (byte)((srcPixels[pixelIdx + 1] * tintG) >> 8);
                 byte b = (byte)((srcPixels[pixelIdx + 2] * tintB) >> 8);
 
-                // Convert to R3G3B2 Sixel color index
-                target[rowOffset + x] = TuiSixel.Color32ToR3G3B2(new Color32(r, g, b, a));
+                target[rowOffset + x] = TuiSixel.Color32ToR3G3B2(new Color32(r, g, b));
             }
         }
 
         sixel.isDirty = true;
+    }
+}
+
+internal static class TransformExtensions
+{
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static bool IsAxisAligned(in this Matrix4x4 m)
+    {
+        // No rotation/skew components
+        return m.M12 == 0f && m.M21 == 0f;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static bool IsTranslationOnly(in this Matrix4x4 m)
+    {
+        return m.M11 == 1f && m.M22 == 1f && m.M12 == 0f && m.M21 == 0f;
     }
 }
