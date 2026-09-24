@@ -263,7 +263,7 @@ public partial class TestGuiView : IGuiView
 
         draw.FillCircle(new Vector2(280 + (int)x, 35), 25, 0xff88ffff);
         
-        draw.DrawText("ABC", new Vector2(10, 80), Color32.Black);
+        draw.DrawText("ABC", new Vector2(10, 80), textColors);
     }
     
 }

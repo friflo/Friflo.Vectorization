@@ -29,9 +29,11 @@ public readonly ref partial struct TmDraw
         font ??= batch.currentFont;
 
         Vector2 currentPos = position;
+        int textPos = -1;
 
         foreach (Rune rune in text.EnumerateRunes())
         {
+            textPos++;
             var runeValue = rune.Value;
             // Ignore carriage return (\r\n Windows line endings)
             if (runeValue == '\r') {
@@ -51,7 +53,7 @@ public readonly ref partial struct TmDraw
             if (glyph.sourceSize.X > 0f && glyph.sourceSize.Y > 0f) {
                 Vector2 renderPos = currentPos + (glyph.offset * scale);
                 Vector2 renderSize = glyph.sourceSize * scale;
-                DrawSpriteRegion(font.texture, renderPos, renderSize, glyph.sourcePos, glyph.sourceSize, font.textureSize, color[runeValue]);
+                DrawSpriteRegion(font.texture, renderPos, renderSize, glyph.sourcePos, glyph.sourceSize, font.textureSize, color[textPos]);
             }
             currentPos.X += glyph.advance * scale;
         }
