@@ -47,58 +47,60 @@ internal sealed class TextureBatch : TmBatch
 
     internal void FillRect(Vector2 position, Vector2 size, Color32 color)
     {
-        // Check alpha early for full transparency
-        if (color.A < TuiSixel.TransparencyThreshold) {
+        // Early exit for fully transparent rectangles
+        if (color.A < TuiSixel.TransparencyThreshold) return;
+
+        // =========================================================================
+        // FAST PATH: Axis-Aligned Rectangles (Translation & Scale, no Rotation)
+        // =========================================================================
+        if (currentTransform.IsAxisAligned())
+        {
+            // Transform only 2 diagonal corners (TL and BR)
+            Vector2 p0 = Vector2.Transform(position, currentTransform);
+            Vector2 p2 = Vector2.Transform(position + size, currentTransform);
+
+            // Calculate AABB min/max (handles potential negative scaling/flips)
+            int xStart = FastRound(MathF.Min(p0.X, p2.X));
+            int yStart = FastRound(MathF.Min(p0.Y, p2.Y));
+            int xEnd   = FastRound(MathF.Max(p0.X, p2.X));
+            int yEnd   = FastRound(MathF.Max(p0.Y, p2.Y));
+
+            if (xStart >= xEnd || yStart >= yEnd) return;
+
+            // Clip against current scissor rect and screen boundaries
+            int minX = Math.Max(xStart, Math.Max(0, FastRound(currentScissor.pos.X)));
+            int minY = Math.Max(yStart, Math.Max(0, FastRound(currentScissor.pos.Y)));
+            int maxX = Math.Min(xEnd,   Math.Min(sixel.width,  FastRound(currentScissor.BR.X)));
+            int maxY = Math.Min(yEnd,   Math.Min(sixel.height, FastRound(currentScissor.BR.Y)));
+
+            if (minX >= maxX || minY >= maxY) return;
+
+            byte colorIndex = TuiSixel.Color32ToR3G3B2(color);
+            Span<byte> target = sixel.colorIndexes;
+            int bufferWidth   = sixel.width;
+            int fillWidth     = maxX - minX;
+
+            // Direct memory fill per scanline (ultra fast, no edge equations)
+            for (int y = minY; y < maxY; y++)
+            {
+                int rowOffset = y * bufferWidth + minX;
+                target.Slice(rowOffset, fillWidth).Fill(colorIndex);
+            }
+
+            sixel.isDirty = true;
             return;
         }
 
-        // Apply matrix transform to position and size (assuming 2D translation and scaling)
-        Vector2 transformedPos = Vector2.Transform(position, currentTransform);
-        
-        // Scale dimensions using matrix M11 (X-scale) and M22 (Y-scale)
-        Vector2 transformedSize = new Vector2(
-            size.X * currentTransform.M11,
-            size.Y * currentTransform.M22
-        );
+        // =========================================================================
+        // GENERIC PATH: Arbitrary Transforms (Rotation / Shear)
+        // =========================================================================
+        Vector2 v0 = position;
+        Vector2 v1 = new Vector2(position.X + size.X, position.Y);
+        Vector2 v2 = position + size;
+        Vector2 v3 = new Vector2(position.X, position.Y + size.Y);
 
-        // Convert transformed coordinates to integer space
-        int xStart      = FastRound(transformedPos.X);
-        int yStart      = FastRound(transformedPos.Y);
-        int rectWidth   = FastRound(transformedSize.X);
-        int rectHeight  = FastRound(transformedSize.Y);
-
-        if (rectWidth <= 0 || rectHeight <= 0) return;
-
-        // Determine scissor region bounds
-        int scissorXStart   = FastRound(currentScissor.pos.X);
-        int scissorYStart   = FastRound(currentScissor.pos.Y);
-        int scissorXEnd     = FastRound(currentScissor.BR.X);
-        int scissorYEnd     = FastRound(currentScissor.BR.Y);
-
-        // Calculate final intersection between screen buffer, transform, and scissor rect
-        int minX = Math.Max(xStart, Math.Max(0, scissorXStart));
-        int minY = Math.Max(yStart, Math.Max(0, scissorYStart));
-        int maxX = Math.Min(xStart + rectWidth,  Math.Min(sixel.width,  scissorXEnd));
-        int maxY = Math.Min(yStart + rectHeight, Math.Min(sixel.height, scissorYEnd));
-
-        // Return if rectangle is completely culled by scissor or buffer bounds
-        if (minX >= maxX || minY >= maxY) return;
-
-        // Convert color to R3G3B2 index (reserving index 0 for transparency)
-        byte colorIndex = TuiSixel.Color32ToR3G3B2(color);
-
-        Span<byte> target = sixel.colorIndexes;
-        int bufferWidth = sixel.width;
-        int fillLength = maxX - minX;
-
-        // Draw clipped horizontal spans directly into the 1-byte pixel buffer
-        for (int y = minY; y < maxY; y++)
-        {
-            int rowOffset = y * bufferWidth + minX;
-            target.Slice(rowOffset, fillLength).Fill(colorIndex);
-        }
-
-        sixel.isDirty = true;
+        // Delegate rotated rect drawing to FillQuad
+        FillQuad(v0, v1, v2, v3, color);
     }
     
     
@@ -371,64 +373,124 @@ internal sealed class TextureBatch : TmBatch
     
     internal void FillCircle(Vector2 center, float radius, Color32 color)
     {
-        if (color.A < TuiSixel.TransparencyThreshold || radius <= 0.0f) return;
+        // Check alpha early
+        if (color.A < TuiSixel.TransparencyThreshold || radius <= 0f) return;
 
-        // Transform center point using current matrix
-        Vector2 transformedCenter = Vector2.Transform(center, currentTransform);
-
-        // Calculate radius along transformed axes
-        float radiusX = radius * MathF.Abs(currentTransform.M11);
-        float radiusY = radius * MathF.Abs(currentTransform.M22);
-
-        if (radiusX <= 0.0f || radiusY <= 0.0f) return;
-
-        int minY = FastRound(transformedCenter.Y - radiusY);
-        int maxY = FastRound(transformedCenter.Y + radiusY);
-
-        // Determine scissor region bounds
-        int scissorXStart = FastRound(currentScissor.pos.X);
-        int scissorYStart = FastRound(currentScissor.pos.Y);
-        int scissorXEnd   = FastRound(currentScissor.BR.X);
-        int scissorYEnd   = FastRound(currentScissor.BR.Y);
-
-        int clipYMin = Math.Max(0, Math.Max(minY, scissorYStart));
-        int clipYMax = Math.Min(sixel.height, Math.Min(maxY, scissorYEnd));
-
-        if (clipYMin >= clipYMax) return;
-
-        int clipXMin = Math.Max(0, scissorXStart);
-        int clipXMax = Math.Min(sixel.width, scissorXEnd);
-
-        byte colorIndex = TuiSixel.Color32ToR3G3B2(color);
-        Span<byte> target = sixel.colorIndexes;
-        int bufferWidth = sixel.width;
-
-        float invRadiusYSqr = 1.0f / (radiusY * radiusY);
-
-        for (int y = clipYMin; y < clipYMax; y++)
+        // =========================================================================
+        // FAST PATH: Axis-Aligned / Uniform Scale (Circle stays a Circle)
+        // =========================================================================
+        if (currentTransform.IsAxisAligned())
         {
-            // Distance from center on Y axis (using pixel mid-point +0.5f)
-            float dy = (y + 0.5f) - transformedCenter.Y;
-            float dySqrNorm = (dy * dy) * invRadiusYSqr;
+            // Transform center point to screen space
+            Vector2 screenCenter = Vector2.Transform(center, currentTransform);
 
-            // Skip rows outside the circle/ellipse equation
-            if (dySqrNorm >= 1.0f) continue;
+            // Scale radius using matrix scale factor (handles uniform scale correctly)
+            float scaleX = MathF.Abs(currentTransform.M11);
+            float scaleY = MathF.Abs(currentTransform.M22);
 
-            // Calculate horizontal span width at this Y level
-            float dx = radiusX * MathF.Sqrt(1.0f - dySqrNorm);
-
-            int xStart = FastRound(transformedCenter.X - dx);
-            int xEnd   = FastRound(transformedCenter.X + dx);
-
-            int minX = Math.Max(xStart, clipXMin);
-            int maxX = Math.Min(xEnd, clipXMax);
-
-            if (minX < maxX)
+            // Fast path requires roughly uniform scale to remain a perfect circle
+            if (MathF.Abs(scaleX - scaleY) < 0.001f)
             {
-                int rowOffset = y * bufferWidth + minX;
-                target.Slice(rowOffset, maxX - minX).Fill(colorIndex);
+                float scaledRadius = radius * scaleX;
+                float r2 = scaledRadius * scaledRadius;
+
+                // Compute screen AABB bounds
+                int xStart = FastRound(screenCenter.X - scaledRadius);
+                int yStart = FastRound(screenCenter.Y - scaledRadius);
+                int xEnd   = FastRound(screenCenter.X + scaledRadius);
+                int yEnd   = FastRound(screenCenter.Y + scaledRadius);
+
+                if (xStart >= xEnd || yStart >= yEnd) return;
+
+                // Clip against scissor rect and screen bounds
+                int minX = Math.Max(xStart, Math.Max(0, FastRound(currentScissor.pos.X)));
+                int minY = Math.Max(yStart, Math.Max(0, FastRound(currentScissor.pos.Y)));
+                int maxX = Math.Min(xEnd,   Math.Min(sixel.width,  FastRound(currentScissor.BR.X)));
+                int maxY = Math.Min(yEnd,   Math.Min(sixel.height, FastRound(currentScissor.BR.Y)));
+
+                if (minX >= maxX || minY >= maxY) return;
+
+                byte colorIndex = TuiSixel.Color32ToR3G3B2(color);
+                Span<byte> target = sixel.colorIndexes;
+                int bufferWidth   = sixel.width;
+
+                // Fast circle rasterization using squared distance check (dx^2 + dy^2 <= r^2)
+                for (int y = minY; y < maxY; y++)
+                {
+                    float dy = (y + 0.5f) - screenCenter.Y;
+                    float dy2 = dy * dy;
+                    int rowOffset = y * bufferWidth;
+
+                    for (int x = minX; x < maxX; x++)
+                    {
+                        float dx = (x + 0.5f) - screenCenter.X;
+                        if (dx * dx + dy2 <= r2)
+                        {
+                            target[rowOffset + x] = colorIndex;
+                        }
+                    }
+                }
+
+                sixel.isDirty = true;
+                return;
             }
         }
+
+        // =========================================================================
+        // GENERIC PATH: Arbitrary Transforms (Circle becomes Ellipse/Sheared)
+        // =========================================================================
+        if (!Matrix4x4.Invert(currentTransform, out Matrix4x4 invTransform)) return;
+
+        // Estimate screen AABB by transforming 4 bounding box corners of the local circle
+        Vector2 localMin = center - new Vector2(radius);
+        Vector2 localMax = center + new Vector2(radius);
+
+        Vector2 p0 = Vector2.Transform(new Vector2(localMin.X, localMin.Y), currentTransform);
+        Vector2 p1 = Vector2.Transform(new Vector2(localMax.X, localMin.Y), currentTransform);
+        Vector2 p2 = Vector2.Transform(new Vector2(localMax.X, localMax.Y), currentTransform);
+        Vector2 p3 = Vector2.Transform(new Vector2(localMin.X, localMax.Y), currentTransform);
+
+        float minXFloat = MathF.Min(MathF.Min(p0.X, p1.X), MathF.Min(p2.X, p3.X));
+        float maxXFloat = MathF.Max(MathF.Max(p0.X, p1.X), MathF.Max(p2.X, p3.X));
+        float minYFloat = MathF.Min(MathF.Min(p0.Y, p1.Y), MathF.Min(p2.Y, p3.Y));
+        float maxYFloat = MathF.Max(MathF.Max(p0.Y, p1.Y), MathF.Max(p2.Y, p3.Y));
+
+        int gXStart = FastRound(minXFloat);
+        int gYStart = FastRound(minYFloat);
+        int gXEnd   = FastRound(maxXFloat);
+        int gYEnd   = FastRound(maxYFloat);
+
+        if (gXStart >= gXEnd || gYStart >= gYEnd) return;
+
+        int gMinX = Math.Max(gXStart, Math.Max(0, FastRound(currentScissor.pos.X)));
+        int gMinY = Math.Max(gYStart, Math.Max(0, FastRound(currentScissor.pos.Y)));
+        int gMaxX = Math.Min(gXEnd,   Math.Min(sixel.width,  FastRound(currentScissor.BR.X)));
+        int gMaxY = Math.Min(gYEnd,   Math.Min(sixel.height, FastRound(currentScissor.BR.Y)));
+
+        if (gMinX >= gMaxX || gMinY >= gMaxY) return;
+
+        float rSq = radius * radius;
+        byte gColorIndex = TuiSixel.Color32ToR3G3B2(color);
+        Span<byte> gTarget = sixel.colorIndexes;
+        int gBufferWidth   = sixel.width;
+
+        // Inverse mapping: Map screen pixel back to local space and test distance to local center
+        for (int y = gMinY; y < gMaxY; y++)
+        {
+            int rowOffset = y * gBufferWidth;
+
+            for (int x = gMinX; x < gMaxX; x++)
+            {
+                Vector2 screenPos = new Vector2(x + 0.5f, y + 0.5f);
+                Vector2 localPos  = Vector2.Transform(screenPos, invTransform);
+
+                if (Vector2.DistanceSquared(localPos, center) <= rSq)
+                {
+                    gTarget[rowOffset + x] = gColorIndex;
+                }
+            }
+        }
+
         sixel.isDirty = true;
     }
     
