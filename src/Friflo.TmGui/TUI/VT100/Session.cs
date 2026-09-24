@@ -32,13 +32,13 @@ internal sealed partial class TuiSession : TmSession
     private             ulong           lastSendHash;
     private             int             sendCounter;
     
-    internal TuiSession(TmClient client, FrameBuffer frameBuffer, FrameTimer frameTimer, SixelDrawer sixelDrawer, TuiColorMode colorMode)
+    internal TuiSession(TmClient client, FrameBuffer frameBuffer, FrameTimer frameTimer, SixelDrawer sixelDrawer, IGuiAssets assets, TuiColorMode colorMode)
     {
         this.client         = client;
         this.colorMode      = colorMode;
         this.frameBuffer    = frameBuffer;
         this.sixelDrawer    = sixelDrawer;
-        tuiBackend          = new TuiBackend("Terminal");
+        tuiBackend          = new TuiBackend("Terminal", assets);
         
         tuiBatch            = tuiBackend.CreateBatch(colorMode);
         tuiBatch.session    = this;
@@ -48,7 +48,7 @@ internal sealed partial class TuiSession : TmSession
     // --- TmSession
     internal override GuiReplay CreateReplay()
     {
-        var replayBackend   = new TuiBackend("Replay");
+        var replayBackend   = new TuiBackend("Replay", tuiBackend.Assets);
         var replayBatch     = replayBackend.CreateBatch(colorMode);
         return new GuiReplay(replayBackend, replayBatch, this);
     }

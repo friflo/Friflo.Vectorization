@@ -39,6 +39,7 @@ public abstract class TmGuiBackend : IDisposable
     protected readonly  IGuiAssets  assets;
     public    readonly  GuiInput    input;
     internal  readonly  GuiHost     host;
+    internal            IGuiAssets  Assets => assets;
     
     public              TmFont      DefaultFont => defaultFont ??= assets.CreateDefaultFont(this);
 

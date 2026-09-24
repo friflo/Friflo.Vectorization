@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using System.Net.Sockets;
+using Friflo.TmGui;
 using Friflo.TmGui.Session;
 using TuiTerminal;
 
@@ -38,7 +39,7 @@ var appState = new AppState();
 // false => TCP server runs on ThreadPool, Main-Thread is blocked by UI Loop.
 bool runAsync = false;
 
-var loop = new TmSessionLoop(runAsync, info => new TestGuiView(appState, info));
+var loop = new TmSessionLoop(runAsync, new DefaultGuiAssets(), info => new TestGuiView(appState, info));
 
 if (runAsync) {
     loop.StartAsync(); // Spawns dedicated "ShardLoopThread"

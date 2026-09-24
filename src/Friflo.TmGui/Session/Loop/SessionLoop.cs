@@ -27,6 +27,7 @@ public sealed partial class TmSessionLoop : IDisposable
     private readonly    FrameBuffer                         frameBuffer;    // shared among all sessions - is accessed single threaded
     private readonly    SixelDrawer                         sixelDrawer;    // shared among all sessions
     private readonly    CreateGuiView                       createGuiView;  // IBatchRenderer factory
+    private readonly    IGuiAssets                          assets;         // shared among all sessions
     private readonly    CancellationTokenSource             cts = new();
     private             Thread?                             shardThread;
     private             bool                                isDisposed;
@@ -34,10 +35,11 @@ public sealed partial class TmSessionLoop : IDisposable
 
     private const int MaxSyncQueueCapacity = 32;
     
-    public TmSessionLoop(bool isAsync, CreateGuiView createGuiView)
+    public TmSessionLoop(bool isAsync, IGuiAssets? assets, CreateGuiView createGuiView)
     {
         this.isAsync        = isAsync;
         this.createGuiView  = createGuiView;
+        this.assets         = assets ?? new TuiAssets(); 
         if (isAsync) {
             // Bounded channel to enforce non-blocking backpressure via TryWrite
             var options = new BoundedChannelOptions(MaxSyncQueueCapacity) {
@@ -154,7 +156,7 @@ public sealed partial class TmSessionLoop : IDisposable
         var args        = firstLine == -1 ? [] : GetArgs(payload.Span.Slice(0, firstLine));
 
         var frameTimer  = new FrameTimer(this, evt.Client, 60, isSync);
-        var session     = new TuiSession(evt.Client, frameBuffer, frameTimer, sixelDrawer, TuiColorMode.RGB24);
+        var session     = new TuiSession(evt.Client, frameBuffer, frameTimer, sixelDrawer, assets, TuiColorMode.RGB24);
 
         var sessionInfo = new SessionInfo{ client = client, backend = session.tuiBackend, args = args };
         var guiView     = createGuiView(sessionInfo);

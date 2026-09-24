@@ -1,6 +1,6 @@
+using System;
 using System.IO;
 using Friflo.TmGui.Headless;
-using StbImageSharp;
 
 
 namespace Friflo.TmGui.TUI;
@@ -14,16 +14,16 @@ public class TuiAssets : IGuiAssets
 
     public TmImageAsset LoadImage(Stream stream, TmColorComponents colorComponents)
     {
-        var result = ImageResult.FromStream(stream, (ColorComponents)colorComponents);
-        return new TmImageAsset {
-            width   = result.Width,
-            height  = result.Height,
-            data    = result.Data,
-        };  
+        throw Requires_Friflo_TmGui_Assets_Exception(nameof(LoadImage));
     }
 
     public TmTrueTypeFontAsset LoadTrueTypeFont(Stream ttfStream, float fontSize, int atlasWidth, int atlasHeight, byte[] alphaBitmapTarget, int firstChar, int charCount)
     {
-        throw new System.NotImplementedException();
+        throw Requires_Friflo_TmGui_Assets_Exception(nameof(LoadTrueTypeFont));
+    }
+    
+    private static InvalidOperationException Requires_Friflo_TmGui_Assets_Exception(string symbol)
+    {
+        return new InvalidOperationException($"{symbol}() requires IGuiAssets from package: Friflo.TmGui.Assets - instance: new DefaultGuiAssets()");
     }
 }

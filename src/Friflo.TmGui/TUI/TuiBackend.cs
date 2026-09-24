@@ -30,8 +30,12 @@ public sealed class TuiBackend : TmGuiBackend
     internal readonly   string  backendName;
     
     public   override   string  ToString()  => backendName;
-    
-    public TuiBackend(string name) : base(new TuiAssets()) {
+
+    public TuiBackend(string name) : this(name, new TuiAssets()) {
+        backendName = name;
+    }
+
+    public TuiBackend(string name, IGuiAssets assets) : base(assets) {
         backendName = name;
     }
 
