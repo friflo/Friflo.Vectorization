@@ -53,13 +53,15 @@ public sealed class TuiSixel
         colorIndexes.AsSpan().Fill(fillIndex);
     }
     
+    public const byte SubstituteBack = 0x20; // dark red is drawn as real black
+    
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static byte Color32ToR3G3B2(Color32 color)
     {
         byte colorIndex = (byte)((color.R & 0xE0) | ((color.G & 0xE0) >> 3) | (color.B >> 6));
 
         // Reserve index 0 for transparency across the entire engine
-        return colorIndex == 0 ? (byte)1 : colorIndex;
+        return colorIndex == 0 ? SubstituteBack : colorIndex;
     }
 
 #region MyRegion update palette

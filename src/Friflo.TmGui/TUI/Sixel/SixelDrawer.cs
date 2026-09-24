@@ -30,16 +30,24 @@ public sealed class SixelDrawer
         target[writtenBytes++] = (byte)'q';
 
         // 2. Define R3G3B2 Color Palette (#index;2;r%;g%;b%)
-        foreach (var color in palette)
+        foreach (byte color in palette)
         {
-            int r = (color >> 5) & 0x07;
-            int g = (color >> 2) & 0x07;
-            int b = color & 0x03;
+            int rPct, gPct, bPct;
 
-            int rPct = (r * 100) / 7;
-            int gPct = (g * 100) / 7;
-            int bPct = (b * 100) / 3;
+            if (color == TuiSixel.SubstituteBack) {
+                // Force SubstituteBack (0x20) to represent pure 0% RGB black in the Sixel header
+                rPct = 0;
+                gPct = 0;
+                bPct = 0;
+            } else {
+                int r = (color >> 5) & 0x07;
+                int g = (color >> 2) & 0x07;
+                int b = color & 0x03;
 
+                rPct = (r * 100) / 7;
+                gPct = (g * 100) / 7;
+                bPct = (b * 100) / 3;
+            }
             target[writtenBytes++] = (byte)'#';
             writtenBytes += WriteIntToSpan(color, target.Slice(writtenBytes));
             target[writtenBytes++] = (byte)';';
