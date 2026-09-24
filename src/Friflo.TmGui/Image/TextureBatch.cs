@@ -206,61 +206,130 @@ internal sealed class TextureBatch : TmBatch
     
     internal void FillRectGradientVertical(Vector2 position, Vector2 size, Color32 topColor, Color32 bottomColor)
     {
-        // Apply matrix transformation to position and size
-        Vector2 transformedPos = Vector2.Transform(position, currentTransform);
-        Vector2 transformedSize = new Vector2(
-            size.X * currentTransform.M11,
-            size.Y * currentTransform.M22
-        );
+        // Early exit if both top and bottom colors are fully transparent
+        if (topColor.A < TuiSixel.TransparencyThreshold && bottomColor.A < TuiSixel.TransparencyThreshold) return;
+        if (size.X <= 0.0f || size.Y <= 0.0f) return;
 
-        int xStart     = FastRound(transformedPos.X);
-        int yStart     = FastRound(transformedPos.Y);
-        int rectWidth  = FastRound(transformedSize.X);
-        int rectHeight = FastRound(transformedSize.Y);
-
-        if (rectWidth <= 0 || rectHeight <= 0) return;
-
-        // Determine scissor region bounds
-        int scissorXStart = FastRound(currentScissor.pos.X);
-        int scissorYStart = FastRound(currentScissor.pos.Y);
-        int scissorXEnd   = FastRound(currentScissor.BR.X);
-        int scissorYEnd   = FastRound(currentScissor.BR.Y);
-
-        // Calculate final intersection bounds
-        int minX = Math.Max(xStart, Math.Max(0, scissorXStart));
-        int minY = Math.Max(yStart, Math.Max(0, scissorYStart));
-        int maxX = Math.Min(xStart + rectWidth,  Math.Min(sixel.width,  scissorXEnd));
-        int maxY = Math.Min(yStart + rectHeight, Math.Min(sixel.height, scissorYEnd));
-
-        if (minX >= maxX || minY >= maxY) return;
-
-        Span<byte> target = sixel.colorIndexes;
-        int bufferWidth = sixel.width;
-        int fillLength = maxX - minX;
-
-        // Pre-calculate interpolation bounds (relative to unclipped rectangle height)
-        float heightInv = 1.0f / (rectHeight > 1 ? rectHeight - 1 : 1);
-
-        for (int y = minY; y < maxY; y++)
+        // =========================================================================
+        // FAST PATH: Axis-Aligned Rectangles (Scale & Translation, no Rotation)
+        // =========================================================================
+        if (currentTransform.IsAxisAligned())
         {
-            // Linear interpolation factor t between 0.0 (top) and 1.0 (bottom)
-            float t = (y - yStart) * heightInv;
-            t = Math.Clamp(t, 0.0f, 1.0f);
+            Vector2 p0 = Vector2.Transform(position, currentTransform);
+            Vector2 p2 = Vector2.Transform(position + size, currentTransform);
 
-            // Interpolate RGBA channels
-            byte r = (byte)(topColor.R + t * (bottomColor.R - topColor.R));
-            byte g = (byte)(topColor.G + t * (bottomColor.G - topColor.G));
-            byte b = (byte)(topColor.B + t * (bottomColor.B - topColor.B));
-            byte a = (byte)(topColor.A + t * (bottomColor.A - topColor.A));
+            int xStart = FastRound(MathF.Min(p0.X, p2.X));
+            int yStart = FastRound(MathF.Min(p0.Y, p2.Y));
+            int xEnd   = FastRound(MathF.Max(p0.X, p2.X));
+            int yEnd   = FastRound(MathF.Max(p0.Y, p2.Y));
 
-            // Skip fully transparent lines
-            if (a < TuiSixel.TransparencyThreshold) continue;
+            if (xStart >= xEnd || yStart >= yEnd) return;
 
-            byte colorIndex = TuiSixel.Color32ToR3G3B2(new Color32(r, g, b, a));
+            // Clip against current scissor rect and screen boundaries
+            int minX = Math.Max(xStart, Math.Max(0, FastRound(currentScissor.pos.X)));
+            int minY = Math.Max(yStart, Math.Max(0, FastRound(currentScissor.pos.Y)));
+            int maxX = Math.Min(xEnd,   Math.Min(sixel.width,  FastRound(currentScissor.BR.X)));
+            int maxY = Math.Min(yEnd,   Math.Min(sixel.height, FastRound(currentScissor.BR.Y)));
 
-            int rowOffset = y * bufferWidth + minX;
-            target.Slice(rowOffset, fillLength).Fill(colorIndex);
+            if (minX >= maxX || minY >= maxY) return;
+
+            Span<byte> target = sixel.colorIndexes;
+            int bufferWidth   = sixel.width;
+            int fillLength    = maxX - minX;
+
+            float heightInv = 1.0f / MathF.Max(1.0f, p2.Y - p0.Y);
+
+            for (int y = minY; y < maxY; y++)
+            {
+                float t = Math.Clamp((y + 0.5f - p0.Y) * heightInv, 0.0f, 1.0f);
+
+                byte a = (byte)(topColor.A + t * (bottomColor.A - topColor.A));
+                if (a < TuiSixel.TransparencyThreshold) continue;
+
+                byte r = (byte)(topColor.R + t * (bottomColor.R - topColor.R));
+                byte g = (byte)(topColor.G + t * (bottomColor.G - topColor.G));
+                byte b = (byte)(topColor.B + t * (bottomColor.B - topColor.B));
+
+                byte colorIndex = TuiSixel.Color32ToR3G3B2(new Color32(r, g, b));
+
+                int rowOffset = y * bufferWidth + minX;
+                target.Slice(rowOffset, fillLength).Fill(colorIndex);
+            }
+
+            sixel.isDirty = true;
+            return;
         }
+
+        // =========================================================================
+        // GENERIC PATH: Arbitrary Transforms (Rotation / Shear via Inverse Mapping)
+        // =========================================================================
+        if (!Matrix4x4.Invert(currentTransform, out Matrix4x4 invTransform)) return;
+
+        // Transform all 4 corners to find screen AABB
+        Vector2 v0 = position;
+        Vector2 v1 = new Vector2(position.X + size.X, position.Y);
+        Vector2 v2 = position + size;
+        Vector2 v3 = new Vector2(position.X, position.Y + size.Y);
+
+        Vector2 gP0 = Vector2.Transform(v0, currentTransform);
+        Vector2 gP1 = Vector2.Transform(v1, currentTransform);
+        Vector2 gP2 = Vector2.Transform(v2, currentTransform);
+        Vector2 gP3 = Vector2.Transform(v3, currentTransform);
+
+        float minXFloat = MathF.Min(MathF.Min(gP0.X, gP1.X), MathF.Min(gP2.X, gP3.X));
+        float maxXFloat = MathF.Max(MathF.Max(gP0.X, gP1.X), MathF.Max(gP2.X, gP3.X));
+        float minYFloat = MathF.Min(MathF.Min(gP0.Y, gP1.Y), MathF.Min(gP2.Y, gP3.Y));
+        float maxYFloat = MathF.Max(MathF.Max(gP0.Y, gP1.Y), MathF.Max(gP2.Y, gP3.Y));
+
+        int gXStart = FastRound(minXFloat);
+        int gYStart = FastRound(minYFloat);
+        int gXEnd   = FastRound(maxXFloat);
+        int gYEnd   = FastRound(maxYFloat);
+
+        if (gXStart >= gXEnd || gYStart >= gYEnd) return;
+
+        int gMinX = Math.Max(gXStart, Math.Max(0, FastRound(currentScissor.pos.X)));
+        int gMinY = Math.Max(gYStart, Math.Max(0, FastRound(currentScissor.pos.Y)));
+        int gMaxX = Math.Min(gXEnd,   Math.Min(sixel.width,  FastRound(currentScissor.BR.X)));
+        int gMaxY = Math.Min(gYEnd,   Math.Min(sixel.height, FastRound(currentScissor.BR.Y)));
+
+        if (gMinX >= gMaxX || gMinY >= gMaxY) return;
+
+        Span<byte> gTarget = sixel.colorIndexes;
+        int gBufferWidth   = sixel.width;
+
+        float localMinY = position.Y;
+        float localMaxY = position.Y + size.Y;
+        float localMinX = position.X;
+        float localMaxX = position.X + size.X;
+        float heightRecip = 1.0f / size.Y;
+
+        for (int y = gMinY; y < gMaxY; y++)
+        {
+            int rowOffset = y * gBufferWidth;
+
+            for (int x = gMinX; x < gMaxX; x++)
+            {
+                Vector2 screenPos = new Vector2(x + 0.5f, y + 0.5f);
+                Vector2 localPos  = Vector2.Transform(screenPos, invTransform);
+
+                // Bounds check in local space
+                if (localPos.X < localMinX || localPos.X > localMaxX ||
+                    localPos.Y < localMinY || localPos.Y > localMaxY) continue;
+
+                float t = Math.Clamp((localPos.Y - localMinY) * heightRecip, 0.0f, 1.0f);
+
+                byte a = (byte)(topColor.A + t * (bottomColor.A - topColor.A));
+                if (a < TuiSixel.TransparencyThreshold) continue;
+
+                byte r = (byte)(topColor.R + t * (bottomColor.R - topColor.R));
+                byte g = (byte)(topColor.G + t * (bottomColor.G - topColor.G));
+                byte b = (byte)(topColor.B + t * (bottomColor.B - topColor.B));
+
+                gTarget[rowOffset + x] = TuiSixel.Color32ToR3G3B2(new Color32(r, g, b));
+            }
+        }
+
         sixel.isDirty = true;
     }
     
