@@ -31,13 +31,20 @@ public sealed partial class TmSessionLoop : IDisposable
     private             bool                                isDisposed;
     private readonly    Action                              exitHandler;
 
+    private const int MaxSyncQueueCapacity = 32;
     
     public TmSessionLoop(bool isAsync, CreateGuiView createGuiView)
     {
         this.isAsync        = isAsync;
         this.createGuiView  = createGuiView;
         if (isAsync) {
-            eventChannel    = Channel.CreateUnbounded<ClientEvent>(new UnboundedChannelOptions { SingleReader = true, SingleWriter = false });
+            // Bounded channel to enforce non-blocking backpressure via TryWrite
+            var options = new BoundedChannelOptions(MaxSyncQueueCapacity) {
+                SingleReader = true,
+                SingleWriter = false,
+                FullMode     = BoundedChannelFullMode.DropWrite // TryWrite fails fast when full
+            };
+            eventChannel    = Channel.CreateBounded<ClientEvent>(options);
             eventQueue      = null!;
             eventReady      = null!;
         } else {
@@ -50,6 +57,51 @@ public sealed partial class TmSessionLoop : IDisposable
         sixelDrawer         = new SixelDrawer();
         exitHandler         = ExitHandler;
         PosixSignalUtils.AddExitHandler(exitHandler);
+    }
+    
+    internal void EnqueueEvent(TmClient client, ClientEventType type, Payload payload)
+    {
+        var evt = new ClientEvent { Client = client, Type = type, Payload = payload };
+        if (isAsync) {
+            ObjectDisposedException.ThrowIf(isDisposed, this);
+            eventChannel.Writer.TryWrite(evt);
+            return;
+        }
+        eventQueue.Enqueue(evt);
+        eventReady.Set(); // wake up Thread
+    }
+
+    /// <summary>
+    /// Tries to enqueue an event without blocking. 
+    /// If the queue is saturated, the event is dropped and its payload is returned to the pool.
+    /// </summary>
+    /// <returns>True if the event was queued; false if it was dropped due to backpressure.</returns>
+    internal bool TryEnqueueEvent(TmClient client, ClientEventType type, Payload payload)
+    {
+        ObjectDisposedException.ThrowIf(isDisposed, this);
+
+        var evt = new ClientEvent { Client = client, Type = type, Payload = payload };
+
+        if (isAsync)
+        {
+            // Non-blocking try-write to the channel
+            if (eventChannel.Writer.TryWrite(evt)) {
+                return true;
+            }
+            // Backpressure triggered: drop event and release memory back to pool
+            payload.Return();
+            return false;
+        }
+
+        // Synchronous path backpressure check
+        if (eventQueue.Count >= MaxSyncQueueCapacity) {
+            // Queue capacity reached: drop event and release memory back to pool
+            payload.Return();
+            return false;
+        }
+        eventQueue.Enqueue(evt);
+        eventReady.Set(); // Wake up worker thread
+        return true;
     }
     
     private void ExitHandler()
@@ -65,18 +117,6 @@ public sealed partial class TmSessionLoop : IDisposable
                 // nothing useful can be done here
             }
         }
-    }
-    
-    internal void EnqueueEvent(TmClient client, ClientEventType type, Payload payload)
-    {
-        var evt = new ClientEvent { Client = client, Type = type, Payload = payload };
-        if (isAsync) {
-            ObjectDisposedException.ThrowIf(isDisposed, this);
-            eventChannel.Writer.TryWrite(evt);
-            return;
-        }
-        eventQueue.Enqueue(evt);
-        eventReady.Set(); // wake up Thread
     }
     
     public void Dispose()
