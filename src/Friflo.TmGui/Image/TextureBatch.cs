@@ -766,6 +766,24 @@ internal sealed class TextureBatch : TmBatch
 
     
     // --------------------------------------------------- Sprite ---------------------------------------------------
+    
+    private static void GetImageProperties (in TmTexture texture, out byte[] rgbaPixels, out int width, out int height)
+    {
+        if (texture.native is HeadlessTexture tex) {
+            rgbaPixels  = tex.rgbaPixels;
+            width       = tex.width;
+            height      = tex.height;
+            return;
+        }
+        if (texture.native is TuiTexture tuiTex) {
+            rgbaPixels  = tuiTex.data;
+            width       = tuiTex.width;
+            height      = tuiTex.height;
+            return;
+        }
+        throw new NotSupportedException("texture not supported");
+    }
+    
     internal void DrawSprite(in TmTexture texture, in VertexQuad quad, Color32 color)
     {
         vertexCount = 0; // NOTE! Prevent growing of vertices
@@ -773,10 +791,8 @@ internal sealed class TextureBatch : TmBatch
         // Check global color alpha early
         if (color.A < TuiSixel.TransparencyThreshold) return;
 
-        var tex = (HeadlessTexture)texture.native!;
-        ReadOnlySpan<byte> srcPixels = tex.rgbaPixels;
-        int texWidth  = tex.width;
-        int texHeight = tex.height;
+        GetImageProperties (texture, out byte[] rgbaPixels, out int texWidth, out int texHeight);
+        ReadOnlySpan<byte> srcPixels = rgbaPixels;
 
         byte tintR = color.R;
         byte tintG = color.G;
