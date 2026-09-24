@@ -54,7 +54,7 @@ public partial class TestGuiView : IGuiView
         memStart    = mem;
         batch.EnableStepRendering = true;
         
-        var draw = batch.BeginTextureDraw(canvasTexture, Color32.LightGray);
+        var draw = batch.BeginTextureDraw(canvasTexture, Color32.Transparent);
         ImageDraw(draw);
         // DrawExample(draw);
         
@@ -245,7 +245,7 @@ public partial class TestGuiView : IGuiView
         var time = (float)stopwatch.Elapsed.TotalSeconds;
         if (appState.textureScissor)
         {
-            draw.StrokeRect (new Vector2(50, 30), new(300, 300), 1, Color32.Gray);
+            draw.StrokeRect (new Vector2(50, 30), new(300, 300), 3, 0x999999ff);
             draw.PushScissor(new Vector2(50, 30), new(300, 300));
         }
 
