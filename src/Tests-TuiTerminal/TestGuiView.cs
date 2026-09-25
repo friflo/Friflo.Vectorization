@@ -59,7 +59,7 @@ public partial class TestGuiView : IGuiView
         batch.EnableStepRendering = true;
         
         var draw = batch.BeginTextureDraw(canvasTexture, Color32.Transparent);
-        if (appState.showCubes) DrawCubes(draw); else ImageDraw(draw);
+        TextureDraw(draw);
         
         var gui = batch.BeginGui(targetWidth, targetHeight);
         using (gui.BeginWindow("Window 1", new Vector2(0, 0), new Vector2(1000, 850), traits: 0, TuiBorder.Rounded)) { // (500, 450) (1000, 850)
@@ -249,14 +249,22 @@ public partial class TestGuiView : IGuiView
         gui.Button("after scroll area");
     }
     
-    private void ImageDraw(TmDraw draw)
+    private void TextureDraw(TmDraw draw)
     {
-        if (appState.textureScissor)
-        {
-            draw.StrokeRect (new Vector2(50, 30), new(300, 300), 3, 0x999999ff);
-            draw.PushScissor(new Vector2(50, 30), new(300, 300));
+        if (appState.textureScissor) {
+            draw.StrokeRect (new Vector2(50, 30), new(500, 300), 3, 0x999999ff);
+            draw.PushScissor(new Vector2(50, 30), new(500, 300));
         }
-
+        if (appState.showCubes) {
+            DrawCubes(draw);
+        } else {
+            DrawPrimitives(draw);
+        }
+        if (appState.textureScissor) draw.PopScissor();
+    }
+    
+    private void DrawPrimitives(TmDraw draw)
+    {
         Matrix4x4 translation = Matrix4x4.CreateTranslation(100f, 0f, 0f);
         Matrix4x4 transform = translation;
         if (appState.rotateTexture) {
@@ -296,6 +304,5 @@ public partial class TestGuiView : IGuiView
         draw.DrawSprite(myTexture, new Vector2(260, 80), new Vector2(192, 64), 0xbbbbbbff);
 
         draw.PopTransform();
-        if (appState.textureScissor) draw.PopScissor();
     }
 }
