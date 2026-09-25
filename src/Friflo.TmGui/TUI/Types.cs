@@ -125,6 +125,11 @@ public readonly struct Color32Span
     }
 }
 
+public enum TuiRectFill
+{
+    Solid
+}
+
 /// <summary> A draw command within a <see cref="TuiBatch"/>.</summary>
 /// <remarks>
 /// Either a filled rectangle with passed background <see cref="color"/>.<br/>
@@ -145,11 +150,12 @@ public struct TuiRect
     public override string ToString()       => $"[{TL.X}, {TL.Y} | {Size.X}, {Size.Y}]";
     
     /// <summary> A filled rectangle with given background <see cref="color"/>. </summary>
-    internal TuiRect(Vector2 pos, Vector2 size, Color32Span background, char fillChar) {
+    internal TuiRect(Vector2 pos, Vector2 size, Color32Span background, char fillChar, TuiRectFill fill) {
         text.fillChar   = fillChar;
         this.TL         = pos;
         this.BR         = pos + size;
         this.color      = background;
+        text.len        = (int)fill;
     }
     
     /// <summary> A sixel rectangle with given sixel id. </summary>

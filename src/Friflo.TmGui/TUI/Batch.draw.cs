@@ -18,7 +18,7 @@ public partial class TuiBatch
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void FillRect(Vector2 position, Vector2 size, Color32 background)
     {
-        tuiRects.Add(new TuiRect(position, size, new Color32Span(background), ' '));
+        tuiRects.Add(new TuiRect(position, size, new Color32Span(background), ' ', TuiRectFill.Solid));
     }
     
     public void FillRectGradientVertical(Vector2 position, Vector2 size, Color32 top, Color32 bottom)
@@ -30,7 +30,7 @@ public partial class TuiBatch
         var colorSpan = new Color32Span(colorBuffer.Count, colors.Length);
         colorBuffer.AddRange(colors);
         
-        tuiRects.Add(new TuiRect(position, size, colorSpan, ' '));
+        tuiRects.Add(new TuiRect(position, size, colorSpan, ' ', TuiRectFill.Solid));
     }
     
     /// If fillChar is 0. The rect is used for color blending (shadow)
@@ -42,7 +42,7 @@ public partial class TuiBatch
         colors[1] = textColor;
         var colorSpan = new Color32Span(colorBuffer.Count, colors.Length);
         colorBuffer.AddRange(colors);
-        tuiRects.Add(new TuiRect(position, size, colorSpan, fillChar));
+        tuiRects.Add(new TuiRect(position, size, colorSpan, fillChar, TuiRectFill.Solid));
     }
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

@@ -187,7 +187,7 @@ public sealed partial class TuiBatch : TmBatch
                     // Early exit for fully clipped rectangles
                     if (startX >= endX || startY >= endY) continue;
                     
-                    if (rect.text.len == 0)
+                    if (rect.text.len == (int)TuiRectFill.Solid)
                     {
                         // -----------------------------------------------------------
                         // case: Fill clipped background area row by row with split-wide cell repairs
