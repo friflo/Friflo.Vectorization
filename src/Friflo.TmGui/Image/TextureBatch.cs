@@ -489,20 +489,27 @@ internal sealed class TextureBatch : TmBatch
                 Span<byte> target = sixel.colorIndexes;
                 int bufferWidth   = sixel.width;
 
-                // Fast circle rasterization using squared distance check (dx^2 + dy^2 <= r^2)
+                // Fast circle scanline rasterization using Span.Fill()
                 for (int y = minY; y < maxY; y++)
                 {
                     float dy = (y + 0.5f) - screenCenter.Y;
                     float dy2 = dy * dy;
-                    int rowOffset = y * bufferWidth;
 
-                    for (int x = minX; x < maxX; x++)
+                    if (dy2 >= r2) continue;
+
+                    // Calculate exact horizontal span bounds for this scanline
+                    float dx = MathF.Sqrt(r2 - dy2);
+                    int xCircleStart = FastRound(screenCenter.X - dx);
+                    int xCircleEnd   = FastRound(screenCenter.X + dx);
+
+                    // Clip scanline against scissor / screen bounds
+                    int lineMinX = Math.Max(xCircleStart, minX);
+                    int lineMaxX = Math.Min(xCircleEnd, maxX);
+
+                    int fillLength = lineMaxX - lineMinX;
+                    if (fillLength > 0)
                     {
-                        float dx = (x + 0.5f) - screenCenter.X;
-                        if (dx * dx + dy2 <= r2)
-                        {
-                            target[rowOffset + x] = colorIndex;
-                        }
+                        target.Slice(y * bufferWidth + lineMinX, fillLength).Fill(colorIndex);
                     }
                 }
 
