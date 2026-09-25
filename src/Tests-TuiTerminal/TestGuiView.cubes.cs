@@ -23,7 +23,7 @@ public partial class TestGuiView
         
     private void DrawCubes(TmDraw draw)
     {
-        // Canvas-Hintergrund
+        // Canvas background
         // draw.FillRect(new Vector2(0, 0), new Vector2(CanvasWidth, CanvasHeight), Color32.Black);
 
         ReadOnlySpan<Vector3> vertices = [
@@ -36,10 +36,10 @@ public partial class TestGuiView
 
         const int cubeCount = 16;
         
-        // Radien in Bildschirmpixeln abgestimmt auf Canvas (800x500)
-        float radiusX = CanvasWidth  * 0.40f; // Nutzt die Breite aus
-        float radiusY = CanvasHeight * 0.22f; // Erzeugt die Draufsicht/Kippung (~30°-40° Look)
-        float cubeSize = 32.0f;               // Angemessene Würfelgröße
+        // Radii in screen pixels matched to canvas (800x500)
+        float radiusX = CanvasWidth  * 0.40f; // Uses available width
+        float radiusY = CanvasHeight * 0.22f; // Creates top-down/tilt angle (~30°-40° look)
+        float cubeSize = 32.0f;               // Appropriate cube size
 
         // Z-Sorting Buffer (Painter's Algorithm)
         Span<(int index, float depth)> cubeDepths = stackalloc (int, float)[cubeCount];
@@ -47,12 +47,12 @@ public partial class TestGuiView
         for (int i = 0; i < cubeCount; i++)
         {
             float ringAngle = time * 0.5f + (i * MathF.PI * 2.0f / cubeCount);
-            // Tiefe ergibt sich aus der Y-Position auf der Ellipse
+            // Depth comes from Y position on the ellipse
             float depth = MathF.Cos(ringAngle); 
             cubeDepths[i] = (i, depth);
         }
 
-        // Von hinten nach vorne sortieren
+        // Sort back to front
         for (int i = 0; i < cubeCount - 1; i++)
         {
             for (int j = i + 1; j < cubeCount; j++)
@@ -67,22 +67,22 @@ public partial class TestGuiView
         }
         Span<Vector2> projected = stackalloc Vector2[8];
         
-        // 16 Würfel rendern
+        // Render 16 cubes
         foreach (var (cubeIdx, _) in cubeDepths)
         {
             float ringAngle = time * 0.5f + (cubeIdx * MathF.PI * 2.0f / cubeCount);
 
-            // Position des Würfels im Ring (Gekippte Kreisbahn)
+            // Position of the cube in the ring (tilted orbital path)
             Vector2 cubeCenter = new(
                 center.X + MathF.Sin(ringAngle) * radiusX,
                 center.Y + MathF.Cos(ringAngle) * radiusY
             );
 
-            // Perspektivische Skalierung: Vorderseite etwas größer als Hinterseite
+            // Perspective scaling: Front side slightly larger than back side
             float scaleFactor = 0.82f + (MathF.Cos(ringAngle) + 1.0f) * 0.22f;
             float currentScale = cubeSize * scaleFactor;
 
-            // Eigendrehung des Würfels
+            // Self-rotation of the cube
             float rotX = time * 1.0f + cubeIdx;
             float rotY = time * 1.4f + cubeIdx;
 
@@ -95,13 +95,13 @@ public partial class TestGuiView
             {
                 Vector3 v = vertices[i];
 
-                // 3D-Eigenrotation
+                // 3D self-rotation
                 float x1 = v.X * cosY + v.Z * sinY;
                 float z1 = -v.X * sinY + v.Z * cosY;
                 float y2 = v.Y * cosX - z1 * sinX;
                 float z2 = v.Y * sinX + z1 * cosX;
 
-                // Direkt in 2D Screen-Space projizieren
+                // Project directly into 2D screen space
                 projected[i] = new Vector2(
                     cubeCenter.X + x1 * currentScale,
                     cubeCenter.Y + y2 * currentScale
@@ -119,13 +119,13 @@ public partial class TestGuiView
                 float cross = (p1.X - p0.X) * (p2.Y - p0.Y) - (p1.Y - p0.Y) * (p2.X - p0.X);
                 if (cross <= 0) continue;
 
-                // Normale rotieren
+                // Rotate normal
                 Vector3 n = face.norm;
                 float nx = n.X * cosY + n.Z * sinY;
                 float nz = -n.X * sinY + n.Z * cosY;
                 float ny = n.Y * cosX - nz * sinX;
 
-                // Hohe Grundhelligkeit (Ambient 0.5f)
+                // High base brightness (Ambient 0.5f)
                 float intensity = MathF.Max(0.50f, Vector3.Dot(new Vector3(nx, ny, nz), -lightDir));
 
                 byte r = (byte)(((baseColor >> 24) & 0xFF) * intensity);
@@ -137,7 +137,7 @@ public partial class TestGuiView
                 draw.FillTriangle(p0, p1, p2, fillColor);
                 draw.FillTriangle(p0, p2, p3, fillColor);
 
-                // Saubere, knackige weiße Kontur
+                // Clean, crisp white outline
                 draw.StrokeLine(p0, p1, 1, 0xffffffff);
                 draw.StrokeLine(p1, p2, 1, 0xffffffff);
                 draw.StrokeLine(p2, p3, 1, 0xffffffff);
