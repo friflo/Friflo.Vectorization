@@ -118,7 +118,8 @@ public partial class TestGuiView : IGuiView
         using (var space = gui.BeginSpace(gui.Draw.Tui.ExpandToCellGrid(canvasSize), "canvas")) {
             // var srcPos  = new Vector2(3 * 64, 0 * 64);  // tile pos in Sheet (3, 0)
             // var tint = gui.Colors.ButtonState(space.widgetState);
-            gui.Draw.DrawSprite(canvasTexture, space.pos, canvasSize);
+            // gui.Draw.FillRect(space.Pos, canvasSize, 0x880000ff);
+            gui.Draw.DrawSprite(canvasTexture, space.Pos, canvasSize);
         }
         gui.Spacer();
         
@@ -131,7 +132,7 @@ public partial class TestGuiView : IGuiView
         using (var space = gui.BeginSpace(spaceSize, "sprite")) {
             // var srcPos  = new Vector2(3 * 64, 0 * 64);  // tile pos in Sheet (3, 0)
             // var tint = gui.Colors.ButtonState(space.widgetState);
-            gui.Draw.DrawSprite(myTexture, space.pos, spriteSize);
+            gui.Draw.DrawSprite(myTexture, space.Pos, spriteSize);
         }
         
         gui.Spacer();

@@ -3,6 +3,7 @@
 
 
 using System.Numerics;
+using Hide = System.Diagnostics.DebuggerHiddenAttribute;
 
 // ReSharper disable once CheckNamespace
 namespace Friflo.TmGui;
@@ -179,10 +180,10 @@ public readonly ref struct SpaceScope
     private  readonly   GuiWidget   widget;
     internal readonly   SpaceEnd    end;
     
-    public              Vector2     pos         => end.pos;
-    public              Vector2     size        => end.size;
-    public              bool        isFired     => end.isFired;
-    public              WidgetState widgetState => end.widgetState;
+    public              Vector2     Pos         { [Hide] get => end.pos;         }
+    public              Vector2     Size        { [Hide] get => end.size;        }
+    public              bool        IsFired     { [Hide] get => end.isFired;     }
+    public              WidgetState WidgetState { [Hide] get => end.widgetState; }
            
 
     internal SpaceScope(GuiWidget widget, SpaceEnd end)

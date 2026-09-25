@@ -186,7 +186,7 @@ public class Tests_TmGui_window1
         
         gui.Label("after horizontal");
         using (var space = gui.BeginSpace(new(64, 64), "sprite")) {
-            if (space.isFired) Console.WriteLine("Clicked: Sprite");
+            if (space.IsFired) Console.WriteLine("Clicked: Sprite");
         }
         gui.Spacer();
         gui.Checkbox("checkbox", ref enabled2);
