@@ -17,7 +17,6 @@ public partial class TestGuiView : IGuiView
     private readonly    TmTexture       myTexture;
     private readonly    TmTexture       worldTileset;
     private readonly    TmTexture       canvasTexture;
-    private readonly    Stopwatch       stopwatch = Stopwatch.StartNew();
     private             float           time;
     private             long            frameStart;
     private             double          frameTime;
@@ -96,7 +95,6 @@ public partial class TestGuiView : IGuiView
         var animate = batch.TickEnabled;
         if (gui.Checkbox("animate", ref animate)) {
             batch.TickEnabled = animate;
-            if (animate) stopwatch.Start(); else stopwatch.Stop();
         }
         gui.Checkbox("texture scissor", ref appState.textureScissor);
         gui.Checkbox("rotate texture", ref appState.rotateTexture);
