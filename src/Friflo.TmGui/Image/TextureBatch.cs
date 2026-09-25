@@ -261,8 +261,14 @@ internal sealed class TextureBatch : TmBatch
         }
 
         // =========================================================================
-        // GENERIC PATH: Arbitrary Transforms (Rotation / Shear via Inverse Mapping)
+        // GENERIC PATH: Arbitrary Transforms (Out-of-line)
         // =========================================================================
+        FillRectGradientVerticalGeneric(position, size, topColor, bottomColor);
+    }
+
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    private void FillRectGradientVerticalGeneric(Vector2 position, Vector2 size, Color32 topColor, Color32 bottomColor)
+    {
         if (!Matrix4x4.Invert(currentTransform, out Matrix4x4 invTransform)) return;
 
         // Transform all 4 corners to find screen AABB
