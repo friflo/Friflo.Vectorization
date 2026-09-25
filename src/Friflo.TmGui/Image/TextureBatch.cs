@@ -791,7 +791,7 @@ internal sealed class TextureBatch : TmBatch
         // Check global color alpha early
         if (color.A < TuiSixel.TransparencyThreshold) return;
 
-        GetImageProperties (texture, out byte[] rgbaPixels, out int texWidth, out int texHeight);
+        GetImageProperties(texture, out byte[] rgbaPixels, out int texWidth, out int texHeight);
         ReadOnlySpan<byte> srcPixels = rgbaPixels;
 
         byte tintR = color.R;
@@ -863,8 +863,23 @@ internal sealed class TextureBatch : TmBatch
         }
 
         // =========================================================================
-        // GENERIC PATH: Arbitrary Transforms (Rotation, Shear, Complex Matrices)
+        // GENERIC PATH: Arbitrary Transforms
         // =========================================================================
+        DrawSpriteGeneric(srcPixels, texWidth, texHeight, quad, tintR, tintG, tintB, target, bufferWidth);
+    }
+
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    private void DrawSpriteGeneric(
+        ReadOnlySpan<byte> srcPixels, 
+        int texWidth, 
+        int texHeight, 
+        in VertexQuad quad, 
+        byte tintR, 
+        byte tintG, 
+        byte tintB, 
+        Span<byte> target, 
+        int bufferWidth)
+    {
         if (!Matrix4x4.Invert(currentTransform, out Matrix4x4 invTransform)) return;
 
         // Transform ALL 4 corners to find true screen AABB
