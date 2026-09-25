@@ -86,9 +86,8 @@ public readonly ref partial struct TmDraw
             bat.AsTextureBatch.FillRectGradientVertical(position, size, top, bottom);
             return;
         }
-        var tui = Tui;
-        if (tui != null) {
-            tui.FillRectGradientVertical(position, size, top, bottom);
+        if (Tui != null) {
+            // tui.FillRectGradientVertical(position, size, top, bottom);
             return;
         }
         FillRectGradient(position, size, top, top, bottom, bottom);

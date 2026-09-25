@@ -116,8 +116,7 @@ public partial class TestGuiView : IGuiView
         if (appState.useTerminalPixels) canvasSize *= gui.TerminalPixelSize;
 
         using (var space = gui.BeginSpace(gui.Draw.Tui.ExpandToCellGrid(canvasSize), "canvas")) {
-            // gui.Draw.FillRect(space.Pos, canvasSize, 0xffffffff);
-            gui.Draw.FillRectGradientVertical(space.Pos, canvasSize, 0xffffffff, 0xccccccff);
+            gui.Draw.FillRect(space.Pos, canvasSize, 0xffffffff);
             gui.Draw.DrawSprite(canvasTexture, space.Pos, canvasSize);
         }
         gui.Spacer();
@@ -250,8 +249,8 @@ public partial class TestGuiView : IGuiView
     private void TextureDraw(TmDraw draw)
     {
         if (appState.textureScissor) {
-            draw.StrokeRect (new Vector2(50, 30), new(500, 300), 3, 0x999999ff);
-            draw.PushScissor(new Vector2(50, 30), new(500, 300));
+            draw.StrokeRect (new Vector2(50, 30), new(450, 350), 3, 0x999999ff);
+            draw.PushScissor(new Vector2(50, 30), new(450, 350));
         }
         if (appState.showCubes) {
             DrawCubes(draw);

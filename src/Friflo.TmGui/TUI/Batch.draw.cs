@@ -21,17 +21,18 @@ public partial class TuiBatch
         tuiRects.Add(new TuiRect(position, size, new Color32Span(background), ' ', TuiRectFill.Solid));
     }
     
+    /*
+    // Terminal gradients look ugly in all cases
     public void FillRectGradientVertical(Vector2 position, Vector2 size, Color32 top, Color32 bottom)
     {
-        return;
         Span<Color32> colors = stackalloc Color32[2];
         colors[0] = top;
         colors[1] = bottom;
         var colorSpan = new Color32Span(colorBuffer.Count, colors.Length);
         colorBuffer.AddRange(colors);
         
-        tuiRects.Add(new TuiRect(position, size, colorSpan, ' ', TuiRectFill.Solid));
-    }
+        tuiRects.Add(new TuiRect(position, size, colorSpan, ' ', TuiRectFill.Gradient));
+    } */
     
     /// If fillChar is 0. The rect is used for color blending (shadow)
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

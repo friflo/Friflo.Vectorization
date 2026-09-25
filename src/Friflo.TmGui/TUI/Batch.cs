@@ -229,6 +229,11 @@ public sealed partial class TuiBatch : TmBatch
                             }
                             var fillRow = fullRow.Slice(startX, width);
                             if (rect.sixelId == 0) {
+                                /* if (fillType == TuiRectFill.Gradient) {
+                                    var tint = colors[rect.color.start + 1];
+                                    tint.A = (byte)(256 * (y - rectT) / (rect.Size.Y * yScale));
+                                    fill.background = Color32.BlendFast(colors[rect.color.start], tint);
+                                } */
                                 fillRow.Fill(fill);
                             } else {
                                 // Preserve rune, color, background, ... of cells covered by a sixel

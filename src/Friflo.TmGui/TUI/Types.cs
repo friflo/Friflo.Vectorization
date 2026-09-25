@@ -127,7 +127,7 @@ public readonly struct Color32Span
 
 public enum TuiRectFill
 {
-    Solid
+    Solid = 0
 }
 
 /// <summary> A draw command within a <see cref="TuiBatch"/>.</summary>
