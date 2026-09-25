@@ -204,6 +204,7 @@ internal sealed class TextureBatch : TmBatch
         target.Slice(rowOffset, fillLength).Fill(colorIndex);
     }
     
+    [MethodImpl(MethodImplOptions.NoInlining)]
     internal void FillTriangleStrip(ReadOnlySpan<Vector2> vertices, Color32 color)
     {
         if (vertices.Length < 3 || color.A < TuiSixel.TransparencyThreshold) return;
@@ -227,6 +228,7 @@ internal sealed class TextureBatch : TmBatch
         }
     }
     
+    [MethodImpl(MethodImplOptions.NoInlining)]
     internal void FillRectGradientVertical(Vector2 position, Vector2 size, Color32 topColor, Color32 bottomColor)
     {
         // Early exit if both top and bottom colors are fully transparent
@@ -362,6 +364,7 @@ internal sealed class TextureBatch : TmBatch
         sixel.isDirty = true;
     }
     
+    [MethodImpl(MethodImplOptions.NoInlining)]
     internal void StrokeLine(Vector2 start, Vector2 end, float thickness, Color32 color)
     {
         if (color.A < TuiSixel.TransparencyThreshold || thickness <= 0.0f) return;
@@ -448,6 +451,7 @@ internal sealed class TextureBatch : TmBatch
         sixel.isDirty = true;
     }
     
+    [MethodImpl(MethodImplOptions.NoInlining)]
     internal void StrokeRect(Vector2 position, Vector2 size, float thickness, Color32 color)
     {
         if (color.A < TuiSixel.TransparencyThreshold || thickness <= 0.0f || size.X <= 0.0f || size.Y <= 0.0f) return;
@@ -469,6 +473,7 @@ internal sealed class TextureBatch : TmBatch
         FillRect(new Vector2(position.X + size.X - t, position.Y + t), new Vector2(t, size.Y - 2 * t), color);
     }
     
+    [MethodImpl(MethodImplOptions.NoInlining)]
     internal void FillCircle(Vector2 center, float radius, Color32 color)
     {
         // Check alpha early
@@ -605,6 +610,7 @@ internal sealed class TextureBatch : TmBatch
         sixel.isDirty = true;
     }
     
+    [MethodImpl(MethodImplOptions.NoInlining)]
     internal void StrokeCircle(Vector2 center, float radius, float thickness, Color32 color)
     {
         if (color.A < TuiSixel.TransparencyThreshold || radius <= 0.0f || thickness <= 0.0f) return;
@@ -788,6 +794,7 @@ internal sealed class TextureBatch : TmBatch
     }
 
     // Fallback arc rendering for high segment counts
+    [MethodImpl(MethodImplOptions.NoInlining)]
     internal void FillArc(Vector2 center, float radius, float startAngle, float endAngle, Color32 color, int segments)
     {
         if (color.A < TuiSixel.TransparencyThreshold) return;
