@@ -24,6 +24,11 @@ public readonly ref partial struct TmDraw
             bat.AsTextureBatch.FillRect(position, size, color);
             return;
         }
+        var tui = Tui;
+        if (tui != null) {
+            tui.FillRect(position, size, color);
+            return;
+        }
         var texView = bat.currentTexture.hasWhitePixel ? bat.currentTexture : bat.currentFontTexture;
         if (bat.vertexCount + 4 > bat.vertexBuffer.Length || bat.currentTexture != texView) {
             bat.Flush();

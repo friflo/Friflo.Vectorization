@@ -116,9 +116,8 @@ public partial class TestGuiView : IGuiView
         if (appState.useTerminalPixels) canvasSize *= gui.TerminalPixelSize;
 
         using (var space = gui.BeginSpace(gui.Draw.Tui.ExpandToCellGrid(canvasSize), "canvas")) {
-            // var srcPos  = new Vector2(3 * 64, 0 * 64);  // tile pos in Sheet (3, 0)
-            // var tint = gui.Colors.ButtonState(space.widgetState);
-            // gui.Draw.FillRect(space.Pos, canvasSize, 0x880000ff);
+            gui.Draw.FillRect(space.Pos, canvasSize, 0xffffffff);
+            // gui.Draw.FillRectGradientVertical(space.Pos, canvasSize, 0xffffffff, 0xccccccff);
             gui.Draw.DrawSprite(canvasTexture, space.Pos, canvasSize);
         }
         gui.Spacer();
