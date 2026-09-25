@@ -506,8 +506,14 @@ internal sealed class TextureBatch : TmBatch
         }
 
         // =========================================================================
-        // GENERIC PATH: Arbitrary Transforms (Circle becomes Ellipse/Sheared)
+        // GENERIC PATH: Arbitrary Transforms (Out-of-line)
         // =========================================================================
+        FillCircleGeneric(center, radius, color);
+    }
+
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    private void FillCircleGeneric(Vector2 center, float radius, Color32 color)
+    {
         if (!Matrix4x4.Invert(currentTransform, out Matrix4x4 invTransform)) return;
 
         // Estimate screen AABB by transforming 4 bounding box corners of the local circle
@@ -667,8 +673,14 @@ internal sealed class TextureBatch : TmBatch
         }
 
         // =========================================================================
-        // GENERIC PATH: Arbitrary Transforms (Rotation / Shear via Inverse Mapping)
+        // GENERIC PATH: Arbitrary Transforms (Out-of-line)
         // =========================================================================
+        StrokeCircleGeneric(center, outerRadius, innerRadius, color);
+    }
+
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    private void StrokeCircleGeneric(Vector2 center, float outerRadius, float innerRadius, Color32 color)
+    {
         if (!Matrix4x4.Invert(currentTransform, out Matrix4x4 invTransform)) return;
 
         // Estimate screen AABB bounds of the rotated circle outer edge
