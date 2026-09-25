@@ -5,7 +5,8 @@ enum DrawType
 {
     Primitives,
     Cubes,
-    Donut
+    Donut,
+    LiveDiagram,
 }
 
 public class AppState

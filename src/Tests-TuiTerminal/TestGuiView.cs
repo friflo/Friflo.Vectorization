@@ -23,10 +23,11 @@ public partial class TestGuiView : IGuiView
     private             long            memStart;
     private             long            memDiff;
     private readonly    StringBuilder   sb = new(200, 200);
+    private readonly    LiveDiagram     diagram = new ();
     
     
-    private const int CanvasWidth   = 800;
-    private const int CanvasHeight  = 500;
+    internal const int CanvasWidth   = 800;
+    internal const int CanvasHeight  = 500;
     
     public TestGuiView(AppState appState, SessionInfo info)
     {
@@ -92,14 +93,17 @@ public partial class TestGuiView : IGuiView
         
         using (gui.BeginHorizontal()) {
             ref var drawType = ref appState.drawType;
-            var primitives = drawType == DrawType.Primitives;
-            var cubes      = drawType == DrawType.Cubes;
-            var donat      = drawType == DrawType.Donut;
+            var primitives  = drawType == DrawType.Primitives;
+            var cubes       = drawType == DrawType.Cubes;
+            var donat       = drawType == DrawType.Donut;
+            var live        = drawType == DrawType.LiveDiagram;
             if (gui.Checkbox("primitives",  ref primitives) && primitives)  drawType = DrawType.Primitives;
             gui.Spacer();
             if (gui.Checkbox("cubes",       ref cubes)      && cubes)       drawType = DrawType.Cubes;
             gui.Spacer();
             if (gui.Checkbox("donat",       ref donat)      && donat)       drawType = DrawType.Donut;
+            gui.Spacer();
+            if (gui.Checkbox("live",        ref live)       && live)        drawType = DrawType.LiveDiagram;
         }
         
         var batch = gui.Batch;
@@ -127,7 +131,7 @@ public partial class TestGuiView : IGuiView
         if (appState.useTerminalPixels) canvasSize *= gui.TerminalPixelSize;
 
         using (var space = gui.BeginSpace(gui.Draw.Tui.ExpandToCellGrid(canvasSize), "canvas")) {
-            gui.Draw.FillRect(space.Pos, canvasSize, 0xffffffff);
+            // gui.Draw.FillRect(space.Pos, canvasSize, 0xffffffff);
             gui.Draw.DrawSprite(canvasTexture, space.Pos, canvasSize);
         }
         gui.Spacer();
@@ -268,6 +272,7 @@ public partial class TestGuiView : IGuiView
             case DrawType.Primitives:   DrawPrimitives(draw);   break;
             case DrawType.Cubes:        DrawCubes(draw);        break;
             case DrawType.Donut:        DrawDonut(draw);        break;
+            case DrawType.LiveDiagram:  diagram.UpdateAndDraw(draw, time); break;
         }
         if (appState.textureScissor) draw.PopScissor();
     }
