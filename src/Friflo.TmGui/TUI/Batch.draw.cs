@@ -72,13 +72,13 @@ public partial class TuiBatch
         return isFocused ? TextStyle.Bold : TextStyle.None;
     }
     
-    public void Button(ReadOnlySpan<char> text, Vector2 position, Vector2 size, in TextColor color, Color32 background, bool isFocused)
+    public void DrawButton(ReadOnlySpan<char> text, Vector2 position, Vector2 size, in TextColor color, Color32 background, bool isFocused)
     {
         FillRect(position, size, background);
         DrawText(text, GetStyle(isFocused), position + new Vector2(charWidth, 0), color);
     }
     
-    public void Checkbox(bool value, ReadOnlySpan<char> text, Vector2 position, Vector2 size, Color32 color, Color32 boxColor, bool isFocused)
+    public void DrawCheckbox(bool value, ReadOnlySpan<char> text, Vector2 position, Vector2 size, Color32 color, Color32 boxColor, bool isFocused)
     {
         var boxText = value ? "[x]" : "[ ]";
         var boxSize = new Vector2(3 * charWidth, lineHeight);
@@ -89,7 +89,7 @@ public partial class TuiBatch
         DrawText(text, style, position + new Vector2(4 * charWidth, 0), color);
     }
 
-    public void Slider(ReadOnlySpan<char> name, Vector2 position, Vector2 size, Vector2 fillSize, Color32 color, Color32 sliderColor, Color32 fillColor, bool isFocused)
+    public void DrawSlider(ReadOnlySpan<char> name, Vector2 position, Vector2 size, Vector2 fillSize, Color32 color, Color32 sliderColor, Color32 fillColor, bool isFocused)
     {
         FillRect(position, size,     sliderColor);
         FillRect(position, fillSize, fillColor);

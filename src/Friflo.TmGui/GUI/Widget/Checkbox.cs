@@ -40,7 +40,7 @@ public readonly ref partial struct GuiWidget
         }
         var boxColor = Colors.ButtonState(widgetState);
         if (tui != null) {
-            tui.Checkbox(value, name, pos, totalSize, Colors.TextColor, boxColor, isFocused);
+            tui.DrawCheckbox(value, name, pos, totalSize, Colors.TextColor, boxColor, isFocused);
         } else {
             draw.FillRectRounded  (pos, boxRectSize, Sizes.CornerRadius, boxColor, GuiSizes.CornerSegments); // background
             draw.StrokeRectRounded(pos, boxRectSize, Sizes.CornerRadius, 2, Colors.ButtonBorder, GuiSizes.CornerSegments);

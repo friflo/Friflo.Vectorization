@@ -255,7 +255,7 @@ public static class GuiExtensions
 
         var tui = draw.Tui;
         if (tui != null) {
-            tui.Button(name, pos, finalSize, widget.Colors.ButtonText, widget.Colors.ButtonState(widgetState), isFocused);
+            tui.DrawButton(name, pos, finalSize, widget.Colors.ButtonText, widget.Colors.ButtonState(widgetState), isFocused);
         } else {
             draw.FillRectRounded  (pos, finalSize, widget.Sizes.CornerRadius, widget.Colors.ButtonState(widgetState), GuiSizes.CornerSegments); // background
             draw.StrokeRectRounded(pos, finalSize, widget.Sizes.CornerRadius, 2, widget.Colors.ButtonBorder, GuiSizes.CornerSegments);
