@@ -21,6 +21,18 @@ public partial class TuiBatch
         tuiRects.Add(new TuiRect(position, size, new Color32Span(background), ' '));
     }
     
+    public void FillRectGradientVertical(Vector2 position, Vector2 size, Color32 top, Color32 bottom)
+    {
+        return;
+        Span<Color32> colors = stackalloc Color32[2];
+        colors[0] = top;
+        colors[1] = bottom;
+        var colorSpan = new Color32Span(colorBuffer.Count, colors.Length);
+        colorBuffer.AddRange(colors);
+        
+        tuiRects.Add(new TuiRect(position, size, colorSpan, ' '));
+    }
+    
     /// If fillChar is 0. The rect is used for color blending (shadow)
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void FillRectChar(Vector2 position, Vector2 size, Color32 background, char fillChar, Color32 textColor)

@@ -116,8 +116,8 @@ public partial class TestGuiView : IGuiView
         if (appState.useTerminalPixels) canvasSize *= gui.TerminalPixelSize;
 
         using (var space = gui.BeginSpace(gui.Draw.Tui.ExpandToCellGrid(canvasSize), "canvas")) {
-            gui.Draw.FillRect(space.Pos, canvasSize, 0xffffffff);
-            // gui.Draw.FillRectGradientVertical(space.Pos, canvasSize, 0xffffffff, 0xccccccff);
+            // gui.Draw.FillRect(space.Pos, canvasSize, 0xffffffff);
+            gui.Draw.FillRectGradientVertical(space.Pos, canvasSize, 0xffffffff, 0xccccccff);
             gui.Draw.DrawSprite(canvasTexture, space.Pos, canvasSize);
         }
         gui.Spacer();
