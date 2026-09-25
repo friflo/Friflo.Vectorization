@@ -2,9 +2,9 @@
 // See LICENSE file in the project root for full license information.
 
 using System;
-using System.Diagnostics;
 using System.Numerics;
 using Friflo.TmGui.TUI;
+using Hide = System.Diagnostics.DebuggerHiddenAttribute;
 
 // ReSharper disable InconsistentNaming
 // ReSharper disable once CheckNamespace
@@ -23,13 +23,13 @@ public readonly ref struct Gui
 {
     public readonly     GuiWidget   widget;     // 32 bytes
     
-    public ref readonly GuiColors   Colors              { [DebuggerStepThrough] get => ref widget.Colors; }
-    public ref readonly GuiSizes    Sizes               { [DebuggerStepThrough] get => ref widget.Sizes; }
-    public              TmDraw      Draw                => widget.draw;
-    public              float       LineHeight          => widget.draw.Font.lineHeight;
-    public              GuiInput    Input               => widget.input;
-    public              Vector2     TerminalPixelSize   => widget.draw.batch.terminalPixelSize;
-    public              TmBatch     Batch               => widget.draw.batch;
+    public ref readonly GuiColors   Colors              { [Hide] get => ref widget.Colors;                      }
+    public ref readonly GuiSizes    Sizes               { [Hide] get => ref widget.Sizes;                       }
+    public              TmDraw      Draw                { [Hide] get => widget.draw;                            }
+    public              float       LineHeight          { [Hide] get => widget.draw.Font.lineHeight;            }
+    public              GuiInput    Input               { [Hide] get => widget.input;                           }
+    public              Vector2     TerminalPixelSize   { [Hide] get => widget.draw.batch.terminalPixelSize;    }
+    public              TmBatch     Batch               { [Hide] get => widget.draw.batch;                      }
 
 
     public override     string?     ToString() {
