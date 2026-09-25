@@ -265,7 +265,7 @@ public partial class TestGuiView : IGuiView
         Matrix4x4 translation = Matrix4x4.CreateTranslation(100f, 0f, 0f);
         Matrix4x4 transform = translation;
         if (appState.rotateTexture) {
-            var rotate = 0.5f * MathF.Sin(time) + 0.5f;
+            var rotate = 0.4f * MathF.Sin(time) + 0.4f;
             var rotation = Matrix4x4.CreateRotationZ(rotate * MathF.PI / 2f);
             transform = translation * rotation;
         }
@@ -287,10 +287,20 @@ public partial class TestGuiView : IGuiView
         draw.FillRectRounded(new Vector2(150, 10), new Vector2(20, 50), 10, Color32.CornflowerBlue);
         
         draw.StrokeRectRounded(new Vector2(150, 10), new Vector2(20, 50), 10, 2, 0x000080ff);
+        
+        Span<Vector2> stripVertices = [
+            new (200, 50), // v0: Base start
+            new (230, 10), // v1: First sharp peak
+            new (260, 70), // v2: Base valley 1
+            new (280, 30), // v3: Lower peak
+            new (320, 60), // v4: Wide base valley 2
+            new (340, 10)  // v5: High outer peak
+        ];
+        draw.FillTriangleStrip(stripVertices, color: 0xff88ffff);
 
-        var circleOffset = MathF.Sin(time * 4) * 60;
+        var circleOffset = MathF.Sin(time * 4) * 100;
 
-        draw.FillCircle(new Vector2(280 + (int)circleOffset, 35), 25, 0xff88ffff);
+        draw.FillCircle(new Vector2(320 + (int)circleOffset, 35), 25, 0xbb00bbff);
         
         draw.DrawText("sixel", new Vector2(0, 70), textColors);
         

@@ -121,7 +121,7 @@ public readonly ref partial struct TmDraw
 
         var bat = batch;
         if (bat.isTextureDraw) {
-            // bat.AsTextureBatch.FillTriangleStrip(vertices, color);
+            bat.AsTextureBatch.FillTriangleStrip(vertices, color);
             return;
         }
 

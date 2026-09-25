@@ -204,6 +204,29 @@ internal sealed class TextureBatch : TmBatch
         target.Slice(rowOffset, fillLength).Fill(colorIndex);
     }
     
+    internal void FillTriangleStrip(ReadOnlySpan<Vector2> vertices, Color32 color)
+    {
+        if (vertices.Length < 3 || color.A < TuiSixel.TransparencyThreshold) return;
+
+        // Process each triangle in the strip (supports odd and even triangle counts)
+        for (int i = 0; i < vertices.Length - 2; i++)
+        {
+            Vector2 v0 = vertices[i];
+            Vector2 v1;
+            Vector2 v2;
+
+            // Alternate winding order for odd triangles to maintain consistent front-face orientation
+            if ((i & 1) == 0) {
+                v1 = vertices[i + 1];
+                v2 = vertices[i + 2];
+            } else {
+                v1 = vertices[i + 2];
+                v2 = vertices[i + 1];
+            }
+            FillTriangle(v0, v1, v2, color);
+        }
+    }
+    
     internal void FillRectGradientVertical(Vector2 position, Vector2 size, Color32 topColor, Color32 bottomColor)
     {
         // Early exit if both top and bottom colors are fully transparent
