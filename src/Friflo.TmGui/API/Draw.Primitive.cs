@@ -108,6 +108,52 @@ public readonly ref partial struct TmDraw
         }
         FillQuad(v0, v1, v2, v2, color);
     }
+    
+    /// <summary> Renders a strip of connected triangles. </summary>
+    /// <remarks>
+    /// The vertex points forming the strip. Requires at least 3 vertices.<br/>
+    /// The first three vertices (v0, v1, v2) define the initial triangle orientation (Clockwise).<br/>
+    /// Subsequent triangles automatically alternate winding to maintain consistent front-facing geometry.
+    /// </remarks>
+    public void FillTriangleStrip(ReadOnlySpan<Vector2> vertices, Color32 color)
+    {
+        if (vertices.Length < 3 || color.A == 0) return;
+
+        var bat = batch;
+        if (bat.isTextureDraw) {
+            // bat.AsTextureBatch.FillTriangleStrip(vertices, color);
+            return;
+        }
+
+        var texView = bat.currentTexture.hasWhitePixel ? bat.currentTexture : bat.currentFontTexture;
+        var uv      = texView.whiteUv;
+        var packed  = color.Packed;
+
+        int numTriangles = vertices.Length - 2;
+
+        for (int i = 0; i < numTriangles; i += 2)
+        {
+            if (bat.vertexCount + 4 > bat.vertexBuffer.Length || bat.currentTexture != texView) {
+                bat.Flush();
+                bat.currentTexture = texView;
+            }
+            ref var quad = ref AddQuad();
+            if (i + 1 < numTriangles) {
+                // Pack 2 strip triangles into 1 quad:
+                // [0] Top-Left (v_i), [1] Top-Right (v_{i+2}), [2] Bottom-Right (v_{i+3}), [3] Bottom-Left (v_{i+1})
+                quad[0] = new Vertex2D(vertices[i],     uv, packed);
+                quad[1] = new Vertex2D(vertices[i + 2], uv, packed);
+                quad[2] = new Vertex2D(vertices[i + 3], uv, packed);
+                quad[3] = new Vertex2D(vertices[i + 1], uv, packed);
+            } else {
+                // Odd remaining triangle: degenerate quad with collapsed bottom-left/bottom-right vertices
+                quad[0] = new Vertex2D(vertices[i],     uv, packed);
+                quad[1] = new Vertex2D(vertices[i + 2], uv, packed);
+                quad[2] = new Vertex2D(vertices[i + 1], uv, packed);
+                quad[3] = new Vertex2D(vertices[i + 1], uv, packed);
+            }
+        }
+    }
 
     /// <summary>
     /// Draws a thick line segment between two points.

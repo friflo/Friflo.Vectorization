@@ -127,6 +127,17 @@ public class TmDrawRenderer : IRenderer
         draw.StrokeRect(new Vector2(500, 400), new Vector2(50, 80), thickness: 2f, color: 0x00FF00FF);
         
         draw.FillTriangle(new Vector2(600, 450), new Vector2(650, 420), new Vector2(650, 480), color: 0x0000FFFF);
+        
+        // Triangle Strip with 4 connected triangles (6 vertices)
+        Span<Vector2> stripVertices = [
+            new (500, 580), // v0: Base start
+            new (530, 510), // v1: First sharp peak
+            new (560, 580), // v2: Base valley 1
+            new (580, 530), // v3: Lower peak
+            new (620, 580), // v4: Wide base valley 2
+            new (660, 490)  // v5: High outer peak
+        ];
+        draw.FillTriangleStrip(stripVertices, color: 0xbb00bbff);
     }
     
     public static void DrawText(TmDraw draw)
