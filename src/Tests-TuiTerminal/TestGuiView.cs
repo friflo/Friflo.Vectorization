@@ -90,7 +90,18 @@ public partial class TestGuiView : IGuiView
         e.MoveNext();
         gui.Label(e.Current.Span, Color32.Teal);
         
-        gui.Checkbox("cubes", ref appState.showCubes);
+        using (gui.BeginHorizontal()) {
+            ref var drawType = ref appState.drawType;
+            var primitives = drawType == DrawType.Primitives;
+            var cubes      = drawType == DrawType.Cubes;
+            var donat      = drawType == DrawType.Donut;
+            if (gui.Checkbox("primitives",  ref primitives) && primitives)  drawType = DrawType.Primitives;
+            gui.Spacer();
+            if (gui.Checkbox("cubes",       ref cubes)      && cubes)       drawType = DrawType.Cubes;
+            gui.Spacer();
+            if (gui.Checkbox("donat",       ref donat)      && donat)       drawType = DrawType.Donut;
+        }
+        
         var batch = gui.Batch;
         var animate = batch.TickEnabled;
         if (gui.Checkbox("animate", ref animate)) {
@@ -252,10 +263,11 @@ public partial class TestGuiView : IGuiView
             draw.StrokeRect (new Vector2(50, 30), new(450, 350), 3, 0x999999ff);
             draw.PushScissor(new Vector2(50, 30), new(450, 350));
         }
-        if (appState.showCubes) {
-            DrawCubes(draw);
-        } else {
-            DrawPrimitives(draw);
+
+        switch (appState.drawType) {
+            case DrawType.Primitives:   DrawPrimitives(draw);   break;
+            case DrawType.Cubes:        DrawCubes(draw);        break;
+            case DrawType.Donut:        DrawDonut(draw);        break;
         }
         if (appState.textureScissor) draw.PopScissor();
     }
