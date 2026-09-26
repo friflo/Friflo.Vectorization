@@ -110,6 +110,7 @@ public sealed class SixelDrawer
         if (sixel.isDirty) {
             sixel.UpdatePalette();
             sixel.isDirty = false;
+            sixel.version++;
         }
 
         // Subsequent units are in sixel pixels: imagePos, origin & canvas

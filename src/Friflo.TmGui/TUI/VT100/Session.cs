@@ -30,6 +30,7 @@ internal sealed partial class TuiSession : TmSession
     private             bool            sessionStart;
     //
     private             ulong           lastFrameHash;
+    private             ulong[]         lastLineHashes  = new ulong[10];
     private             int             sendCounter;
     
     internal TuiSession(TmClient client, FrameBuffer frameBuffer, FrameTimer frameTimer, SixelDrawer sixelDrawer, IGuiAssets assets, TuiColorMode colorMode)
@@ -159,6 +160,9 @@ internal sealed partial class TuiSession : TmSession
         return sendMemory;
     }
     
+    private const uint FnvOffsetBasis32 = 0x811C9DC5;
+    private const uint FnvPrime32       = 0x01000193;
+    
     private void AppendFrameBuffer(TmGuiBackend backend, TuiBatch batch, int width, int height)
     {
         // color / background are only sent if changed 
@@ -175,10 +179,22 @@ internal sealed partial class TuiSession : TmSession
         
         var cells = frameBuffer.ColorCells;
         sixelDrawer.SetClipCells(cells, width, height);
+        
+        var drawSixels = tuiBatch.drawSixels.AsSpan(0, tuiBatch.drawSixelCount + 1);
+        
+        if (height > lastLineHashes.Length) {
+            var newHashes = new ulong[Math.Max(height, 2 * lastLineHashes.Length)];
+            Array.Copy(lastLineHashes, 0, newHashes, 0, lastLineHashes.Length);
+            lastLineHashes = newHashes;
+        }
 
         for (int y = 0; y < height; y++)
         {
+            var lineStart     = sendBufferCount;
+            var drawSixelHash = FnvOffsetBasis32;
+
             SetCursor(y + 1);
+            
             for (int x = 0; x < width; x++)
             {
                 var cell = cells[y * width + x];
@@ -197,13 +213,24 @@ internal sealed partial class TuiSession : TmSession
                 }
                 AppendRune(cell.rune);
                 if (cell.sixelId != 0) {
-                    tuiBatch.drawSixels[cell.sixelId].isDrawn = true;
+                    ref var drawSixel = ref drawSixels[cell.sixelId];
+                    drawSixel.isDrawn = true;
+                    drawSixelHash = (drawSixelHash ^ drawSixel.hash) * FnvPrime32;
                 }
             }
             /* AppendSpan("\x1b[K"u8); // EraseInLine - erase everything right from current cursor
             if (y < height - 1) {
                 AppendSpan("\r\n"u8);
             } */
+            
+            // --- send only modified lines
+            var lineMemory  = sendBuffer.AsSpan(lineStart, sendBufferCount - lineStart);
+            var lineHash    = HashUtils.XxHash3(lineMemory) ^ drawSixelHash;
+            if (lineHash == lastLineHashes[y]) {
+                sendBufferCount = lineStart;
+            } else {
+                lastLineHashes[y] = lineHash;
+            }
         }
         
         AppendSixels();

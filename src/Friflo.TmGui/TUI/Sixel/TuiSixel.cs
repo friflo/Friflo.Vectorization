@@ -21,6 +21,7 @@ public sealed class TuiSixel
     internal readonly   int     height;
     internal readonly   byte[]  data;
     internal            bool    isDirty;
+    internal            int     version;
     
     /// <summary> Linear 1-byte-per-pixel buffer containing R3G3B2 indexed color values. </summary>
     /// <remarks> Total size is exactly <c>width * height</c> bytes. </remarks>

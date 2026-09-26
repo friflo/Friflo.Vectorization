@@ -202,7 +202,8 @@ public partial class TuiBatch
         var sixel = tuiTexture.sixel;
         
         var sixelId = ++drawSixelCount;
-        drawSixels[sixelId] = new DrawSixel { sixelId = sixelId, sixel = sixel, pos = position, size = size };
+        var hash    = sixel.GetHashCode() ^ sixel.version ^ position.GetHashCode() ^ size.GetHashCode() ;
+        drawSixels[sixelId] = new DrawSixel { sixelId = sixelId, sixel = sixel, pos = position, size = size, hash = (uint)hash};
         
         // rasterSize ensures that terminal cells covered by texture are marked for texture rendering 
         var rasterSize = ExpandToCellGrid(size);
@@ -225,7 +226,8 @@ public partial class TuiBatch
 internal struct DrawSixel
 {
     internal byte       sixelId;
-    internal TuiSixel   sixel; 
+    internal TuiSixel   sixel;
+    internal uint       hash; 
     internal bool       isDrawn;
     internal Vector2    pos;  // screen space. Not terminal pixel position
     internal Vector2    size; // screen space. Not terminal pixel position
