@@ -51,6 +51,7 @@ public sealed class TuiSixel
     {
         var fillIndex = color.A < TransparencyThreshold  ? (byte)0 : Color32ToR3G3B2(color);
         colorIndexes.AsSpan().Fill(fillIndex);
+        isDirty = true;
     }
     
     public const byte SubstituteBack = 0x20; // dark red is drawn as real black

@@ -67,8 +67,10 @@ public class TestGuiView : IGuiView
             Window2(gui);
         }
         
-        var draw = batch.BeginTextureDraw(canvasTexture, Color32.Transparent);
-        TextureDraw(draw);
+        if (appState.drawType != DrawType.None) {
+            var draw = batch.BeginTextureDraw(canvasTexture, Color32.Transparent);
+            TextureDraw(draw);
+        }
     }
     
     private void Window1(Gui gui)
@@ -98,6 +100,8 @@ public class TestGuiView : IGuiView
             var cubes       = drawType == DrawType.Cubes;
             var donat       = drawType == DrawType.Donut;
             var live        = drawType == DrawType.LiveDiagram;
+            var none        = drawType == DrawType.None;
+            
             if (gui.Checkbox("primitives",  ref primitives) && primitives)  drawType = DrawType.Primitives;
             gui.Spacer();
             if (gui.Checkbox("cubes",       ref cubes)      && cubes)       drawType = DrawType.Cubes;
@@ -105,6 +109,8 @@ public class TestGuiView : IGuiView
             if (gui.Checkbox("donat",       ref donat)      && donat)       drawType = DrawType.Donut;
             gui.Spacer();
             if (gui.Checkbox("live",        ref live)       && live)        drawType = DrawType.LiveDiagram;
+            gui.Spacer();
+            if (gui.Checkbox("none",        ref none)       && none)        drawType = DrawType.None;
         }
         
         var batch = gui.Batch;
@@ -132,8 +138,10 @@ public class TestGuiView : IGuiView
         if (appState.useTerminalPixels) canvasSize *= gui.TerminalPixelSize;
 
         using (var space = gui.BeginSpace(gui.Draw.Tui.ExpandToCellGrid(canvasSize), "canvas")) {
-            // gui.Draw.FillRect(space.Pos, canvasSize, 0xffffffff);
-            gui.Draw.DrawSprite(canvasTexture, space.Pos, canvasSize);
+            if (appState.drawType != DrawType.None) {
+                // gui.Draw.FillRect(space.Pos, canvasSize, 0xffffffff);
+                gui.Draw.DrawSprite(canvasTexture, space.Pos, canvasSize);
+            }
         }
         gui.Spacer();
         

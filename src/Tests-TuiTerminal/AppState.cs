@@ -3,6 +3,7 @@
 
 enum DrawType
 {
+    None,
     Primitives,
     Cubes,
     Donut,
@@ -12,7 +13,7 @@ enum DrawType
 public class AppState
 {
     internal    bool        rotateTexture;
-    internal    DrawType    drawType;
+    internal    DrawType    drawType = DrawType.Donut;
     internal    bool        useTerminalPixels;
     internal    bool        textureScissor;
     internal    float       speed = 0.1f;
