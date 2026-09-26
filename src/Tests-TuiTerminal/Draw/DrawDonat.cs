@@ -1,11 +1,11 @@
 using System.Numerics;
 using Friflo.TmGui;
 
-namespace TuiTerminal;
+namespace TuiTerminal.Draw;
 
-public partial class TestGuiView
+public static class DrawDonat
 {
-    private void DrawDonut(TmDraw draw)
+    internal static void Draw(TmDraw draw, float time, float canvasWidth,  float canvasHeight)
     {
         const int numMajor = 32;
         const int numMinor = 20;
@@ -14,7 +14,7 @@ public partial class TestGuiView
         const float R = 130.0f;
         const float tubeRadius = 55.0f;
 
-        Vector2 center = new(CanvasWidth * 0.5f, CanvasHeight * 0.5f);
+        Vector2 center = new(canvasWidth * 0.5f, canvasHeight * 0.5f);
         Vector3 lightDir = Vector3.Normalize(new Vector3(0.4f, -0.9f, -0.6f));
 
         // 3-Axis rotation (X, Y, and slow continuous Z axis roll)

@@ -5,12 +5,13 @@ using System.Text;
 using Friflo.TmGui;
 using Friflo.TmGui.Session;
 using Friflo.TmGui.TUI;
+using TuiTerminal.Draw;
 
 // ReSharper disable ConvertToPrimaryConstructor
 namespace TuiTerminal;
 
 
-public partial class TestGuiView : IGuiView
+public class TestGuiView : IGuiView
 {
     private readonly    AppState        appState;
     private readonly    Color32[]       textColors = [0x0000FFFF, 0xFF0000FF, 0x009900FF, 0xFF00FFFF, 0xCC6600FF, 0x000000ff];
@@ -23,11 +24,11 @@ public partial class TestGuiView : IGuiView
     private             long            memStart;
     private             long            memDiff;
     private readonly    StringBuilder   sb = new(200, 200);
-    private readonly    LiveDiagram     diagram = new ();
+    private readonly    DrawDiagram     diagram = new ();
     
     
-    internal const int CanvasWidth   = 800;
-    internal const int CanvasHeight  = 500;
+    private const int CanvasWidth   = 800;
+    private const int CanvasHeight  = 500;
     
     public TestGuiView(AppState appState, SessionInfo info)
     {
@@ -269,10 +270,10 @@ public partial class TestGuiView : IGuiView
         }
 
         switch (appState.drawType) {
-            case DrawType.Primitives:   DrawPrimitives(draw);   break;
-            case DrawType.Cubes:        DrawCubes(draw);        break;
-            case DrawType.Donut:        DrawDonut(draw);        break;
-            case DrawType.LiveDiagram:  diagram.UpdateAndDraw(draw, time); break;
+            case DrawType.Primitives:   DrawPrimitives(draw);                                           break;
+            case DrawType.Cubes:        DrawCubes.Draw(draw,        time, CanvasWidth, CanvasHeight);   break;
+            case DrawType.Donut:        DrawDonat.Draw(draw,        time, CanvasWidth, CanvasHeight);   break;
+            case DrawType.LiveDiagram:  diagram.UpdateAndDraw(draw, time, CanvasWidth, CanvasHeight);   break;
         }
         if (appState.textureScissor) draw.PopScissor();
     }

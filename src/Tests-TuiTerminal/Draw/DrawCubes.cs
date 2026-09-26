@@ -1,11 +1,11 @@
 using System.Numerics;
 using Friflo.TmGui;
 
-namespace TuiTerminal;
+namespace TuiTerminal.Draw;
 
-public partial class TestGuiView
+public static class DrawCubes
 {
-    private readonly (int i0, int i1, int i2, int i3, Vector3 norm)[] faces = [
+    private static readonly (int i0, int i1, int i2, int i3, Vector3 norm)[] Faces = [
         (0, 1, 2, 3, new(0, 0, -1)), // Front
         (5, 4, 7, 6, new(0, 0,  1)), // Back
         (4, 0, 3, 7, new(-1, 0, 0)), // Left
@@ -14,14 +14,14 @@ public partial class TestGuiView
         (3, 2, 6, 7, new(0, 1, 0))   // Bottom
     ];
 
-    private readonly uint[] cubePalette = [
+    private static readonly uint[] CubePalette = [
         0x00f0ff00, 0xff008800, 0xffaa0000, 0x00ff6600,
         0xaa00ff00, 0xffe60000, 0xff000000, 0x0088ff00,
         0x00ffcc00, 0xff00aa00, 0xd4ff0000, 0xff550000,
         0x7700ff00, 0x00fff000, 0xff007700, 0xffb70000
     ];
         
-    private void DrawCubes(TmDraw draw)
+    public static void Draw(TmDraw draw, float time, float canvasWidth,  float canvasHeight)
     {
         // Canvas background
         // draw.FillRect(new Vector2(0, 0), new Vector2(CanvasWidth, CanvasHeight), Color32.Black);
@@ -32,13 +32,13 @@ public partial class TestGuiView
         ];
 
         Vector3 lightDir = Vector3.Normalize(new Vector3(0.2f, -1.0f, -0.5f));
-        Vector2 center = new(CanvasWidth * 0.5f, CanvasHeight * 0.5f);
+        Vector2 center = new(canvasWidth * 0.5f, canvasHeight * 0.5f);
 
         const int cubeCount = 16;
         
         // Radii in screen pixels matched to canvas (800x500)
-        float radiusX = CanvasWidth  * 0.40f; // Uses available width
-        float radiusY = CanvasHeight * 0.22f; // Creates top-down/tilt angle (~30°-40° look)
+        float radiusX = canvasWidth  * 0.40f; // Uses available width
+        float radiusY = canvasHeight * 0.22f; // Creates top-down/tilt angle (~30°-40° look)
         float cubeSize = 32.0f;               // Appropriate cube size
 
         // Z-Sorting Buffer (Painter's Algorithm)
@@ -89,7 +89,7 @@ public partial class TestGuiView
             float cosX = MathF.Cos(rotX), sinX = MathF.Sin(rotX);
             float cosY = MathF.Cos(rotY), sinY = MathF.Sin(rotY);
 
-            uint baseColor = cubePalette[cubeIdx % cubePalette.Length];
+            uint baseColor = CubePalette[cubeIdx % CubePalette.Length];
 
             for (int i = 0; i < vertices.Length; i++)
             {
@@ -108,7 +108,7 @@ public partial class TestGuiView
                 );
             }
 
-            foreach (var face in faces)
+            foreach (var face in Faces)
             {
                 Vector2 p0 = projected[face.i0];
                 Vector2 p1 = projected[face.i1];

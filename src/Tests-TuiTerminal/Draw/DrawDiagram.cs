@@ -1,9 +1,9 @@
 using System.Numerics;
 using Friflo.TmGui;
 
-namespace TuiTerminal;
+namespace TuiTerminal.Draw;
 
-public class LiveDiagram
+public class DrawDiagram
 {
     private const int HistorySize = 120;
     private readonly float[] redValues = new float[HistorySize];
@@ -22,11 +22,11 @@ public class LiveDiagram
     private const uint AxisColor = 0x000000FF;   // Black X-Axis
     private const uint GridColor = 0xffffffFF;
 
-    internal void UpdateAndDraw(TmDraw draw, float currentTime)
+    public void UpdateAndDraw(TmDraw draw, float currentTime, float canvasWidth,  float canvasHeight)
     {
         const float updateInterval = 0.05f; // 20 updates per second
         const float timeWindow = 6.0f;      // Graph spans 6 seconds across screen
-        const float scrollSpeed = TestGuiView.CanvasWidth / timeWindow;
+        var scrollSpeed = canvasWidth / timeWindow;
 
         // Push new data point onto ring buffer
         if (currentTime - lastUpdateTime >= updateInterval)
@@ -46,8 +46,8 @@ public class LiveDiagram
             head = (head + 1) % HistorySize;
         }
 
-        float width = TestGuiView.CanvasWidth;
-        float height = TestGuiView.CanvasHeight;
+        float width  = canvasWidth;
+        float height = canvasHeight;
 
         float plotTop = 20.0f;
         float plotBottom = height - 20.0f;
