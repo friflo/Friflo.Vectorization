@@ -6,6 +6,7 @@ using System.Numerics;
 using System.Text;
 using Friflo.TmGui.Session;
 
+// ReSharper disable InconsistentNaming
 // ReSharper disable InlineTemporaryVariable
 // ReSharper disable CanSimplifyStringEscapeSequence
 // ReSharper disable ConvertToPrimaryConstructor
@@ -155,6 +156,7 @@ internal sealed partial class TuiSession : TmSession
             return default;
         }
         sendCounter++;
+        // Debug.WriteLine(sendBufferCount);
         // Debug.Write(sendCounter); Debug.WriteLine(" - send buffer");
         lastFrameHash = frameHash;
         return sendMemory;
@@ -165,10 +167,12 @@ internal sealed partial class TuiSession : TmSession
     
     private void AppendFrameBuffer(TmGuiBackend backend, TuiBatch batch, int width, int height)
     {
-        // color / background are only sent if changed 
-        var color       = new Color32();
-        var background  = new Color32();
-        var textStyle   = TextStyle.None;
+        // color / background are only sent if changed
+        var stateChanged    = false;
+        var color           = new Color32();
+        var background      = new Color32();
+        var textStyle       = TextStyle.None;
+        AppendSpan("\x1b[0;30;40m"u8); // \x1b[0 Reset All;  30 Foreground Black;  40 Background Black  m SGR Command Terminator
         
         var clear =  new TuiColorCell { Character = ' ', color = 0x000000ff, background = 0x888888ff };
         batch.DrawRectCommands(frameBuffer, width, height, clear);
@@ -200,16 +204,20 @@ internal sealed partial class TuiSession : TmSession
                 var cell = cells[y * width + x];
 
                 if (cell.color.A != 0) {
-                    if ((cell.color.Packed & 0x00ffffff) != (color.Packed & 0x00ffffff)) {
-                        SetColor(color = cell.color);
+                    var colorRGB = cell.color.Packed & 0x00ffffff;
+                    if (colorRGB != color.Packed) {
+                        SetColor(cell.color);
+                        color.Packed = colorRGB;
                     }
                 }
                 if (cell.textStyle != textStyle) {
                     ApplyStyleDiff(textStyle, cell.textStyle);
                     textStyle = cell.textStyle;
                 }
-                if ((cell.background.Packed & 0x00ffffff) != (background.Packed & 0x00ffffff)) {
-                    SetBackground(background = cell.background);
+                var backgroundRGB = cell.background.Packed & 0x00ffffff;
+                if (backgroundRGB != background.Packed) {
+                    SetBackground(cell.background);
+                    background.Packed = backgroundRGB;
                 }
                 AppendRune(cell.rune);
                 if (cell.sixelId != 0) {
@@ -224,11 +232,20 @@ internal sealed partial class TuiSession : TmSession
             } */
             
             // --- send only modified lines
-            var lineMemory  = sendBuffer.AsSpan(lineStart, sendBufferCount - lineStart);
-            var lineHash    = HashUtils.XxHash3(lineMemory) ^ drawSixelHash;
+            var lineSpan    = sendBuffer.AsSpan(lineStart, sendBufferCount - lineStart);
+            var lineHash    = HashUtils.XxHash3(lineSpan) ^ drawSixelHash;
             if (lineHash == lastLineHashes[y]) {
                 sendBufferCount = lineStart;
+                // reset state for next line. Next line cannot relay on a specific state
+                if (stateChanged) {
+                    AppendSpan("\x1b[0;30;40m"u8); // \x1b[0 Reset All;  30 Foreground Black;  40 Background Black  m SGR Command Terminator
+                }
+                stateChanged    = false;
+                color           = new Color32();
+                background      = new Color32();
+                textStyle       = TextStyle.None;
             } else {
+                stateChanged      = true;
                 lastLineHashes[y] = lineHash;
             }
         }
