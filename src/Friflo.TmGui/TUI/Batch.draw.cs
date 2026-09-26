@@ -219,8 +219,8 @@ public partial class TuiBatch
         return new Vector2(rasterWidth, rasterHeight);
     }
     
-    internal readonly   DrawSixel[] drawSixels      = new DrawSixel[256];
-    internal            byte        drawSixelCount;
+    internal readonly   DrawSixel[]     drawSixels      = new DrawSixel[256];
+    internal            byte            drawSixelCount;
 }
 
 internal struct DrawSixel
@@ -229,7 +229,7 @@ internal struct DrawSixel
     internal TuiSixel   sixel;
     /// <summary> The hash changes if sixel pixels are modified or its position or size is changed. </summary>
     internal uint       sixelHash;
-    internal bool       isVisible;
+    internal bool       draw;
     internal Vector2    pos;  // screen space. Not terminal pixel position
     internal Vector2    size; // screen space. Not terminal pixel position
 

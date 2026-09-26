@@ -221,15 +221,10 @@ internal sealed partial class TuiSession : TmSession
                 }
                 AppendRune(cell.rune);
                 if (cell.sixelId != 0) {
-                    ref var drawSixel = ref drawSixels[cell.sixelId];
-                    drawSixel.isVisible = true;
-                    drawSixelHash = (drawSixelHash ^ drawSixel.sixelHash) * FnvPrime32;
+                    var sixelHash   = drawSixels[cell.sixelId].sixelHash;
+                    drawSixelHash   = (drawSixelHash ^ sixelHash) * FnvPrime32;
                 }
             }
-            /* AppendSpan("\x1b[K"u8); // EraseInLine - erase everything right from current cursor
-            if (y < height - 1) {
-                AppendSpan("\r\n"u8);
-            } */
             
             // --- send only modified lines
             var lineSpan    = sendBuffer.AsSpan(lineStart, sendBufferCount - lineStart);
@@ -247,6 +242,12 @@ internal sealed partial class TuiSession : TmSession
             } else {
                 stateChanged      = true;
                 lastLineHashes[y] = lineHash;
+                for (int x = 0; x < width; x++) {
+                    var sixelId = cells[y * width + x].sixelId;
+                    if (sixelId != 0) {
+                        drawSixels[sixelId].draw = true;
+                    }
+                }
             }
         }
         
@@ -367,14 +368,19 @@ internal sealed partial class TuiSession : TmSession
         if (!supportsSixel) {
             return;
         }
-        for (int n = 1; n <= tuiBatch.drawSixelCount; n++)
+        var batch = tuiBatch;
+        
+        for (int n = 1; n <= batch.drawSixelCount; n++)
         {
-            var drawSixel = tuiBatch.drawSixels[n];
-            if (!drawSixel.isVisible) {
+            var drawSixel = batch.drawSixels[n];
+            if (!drawSixel.draw && !drawSixel.sixel.isDirty) {
                 continue;
             }
+            // draw image only if:
+            // - it dirty
+            // - a line covering the sixel was updated
             var target  = sendBuffer.AsSpan(sendBufferCount, sendBuffer.Length - sendBufferCount);
-            var bytesWritten = sixelDrawer.AppendSixelToTargetBuffer(drawSixel, tuiBatch, target, cellPixelSize);
+            var bytesWritten = sixelDrawer.AppendSixelToTargetBuffer(drawSixel, batch, target, cellPixelSize);
             sendBufferCount += bytesWritten;
         }
     }
