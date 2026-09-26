@@ -29,7 +29,7 @@ internal sealed partial class TuiSession : TmSession
     private             Vector2         cellPixelSize   = new(10, 20);
     private             bool            sessionStart;
     //
-    private             ulong           lastSendHash;
+    private             ulong           lastFrameHash;
     private             int             sendCounter;
     
     internal TuiSession(TmClient client, FrameBuffer frameBuffer, FrameTimer frameTimer, SixelDrawer sixelDrawer, IGuiAssets assets, TuiColorMode colorMode)
@@ -69,7 +69,7 @@ internal sealed partial class TuiSession : TmSession
     {
         frameWidth      = width;
         frameHeight     = height;
-        lastSendHash    = 0; // force send frame
+        lastFrameHash   = 0; // force send frame
     }
     
     private void SetCellPixelSize(int width, int height)
@@ -149,13 +149,13 @@ internal sealed partial class TuiSession : TmSession
         AppendSpan("\x1b[H"u8);             // Set Cursor Home Report - if user writes to console e.g. Console.WriteLine()
         
         var sendMemory  = sendBuffer.AsMemory(0, sendBufferCount);
-        var sendHash    = HashUtils.XxHash3(sendMemory.Span);
-        if (sendHash == lastSendHash) {
+        var frameHash   = HashUtils.XxHash3(sendMemory.Span);
+        if (frameHash == lastFrameHash) {
             return default;
         }
         sendCounter++;
         // Debug.Write(sendCounter); Debug.WriteLine(" - send buffer");
-        lastSendHash = sendHash;
+        lastFrameHash = frameHash;
         return sendMemory;
     }
     
