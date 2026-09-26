@@ -228,7 +228,7 @@ internal struct DrawSixel
     internal byte       sixelId;
     internal TuiSixel   sixel;
     internal uint       hash; 
-    internal bool       isDrawn;
+    internal bool       isVisible;
     internal Vector2    pos;  // screen space. Not terminal pixel position
     internal Vector2    size; // screen space. Not terminal pixel position
 

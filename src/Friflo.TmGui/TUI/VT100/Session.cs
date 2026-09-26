@@ -222,7 +222,7 @@ internal sealed partial class TuiSession : TmSession
                 AppendRune(cell.rune);
                 if (cell.sixelId != 0) {
                     ref var drawSixel = ref drawSixels[cell.sixelId];
-                    drawSixel.isDrawn = true;
+                    drawSixel.isVisible = true;
                     drawSixelHash = (drawSixelHash ^ drawSixel.hash) * FnvPrime32;
                 }
             }
@@ -370,7 +370,7 @@ internal sealed partial class TuiSession : TmSession
         for (int n = 1; n <= tuiBatch.drawSixelCount; n++)
         {
             var drawSixel = tuiBatch.drawSixels[n];
-            if (!drawSixel.isDrawn) {
+            if (!drawSixel.isVisible) {
                 continue;
             }
             var target  = sendBuffer.AsSpan(sendBufferCount, sendBuffer.Length - sendBufferCount);
