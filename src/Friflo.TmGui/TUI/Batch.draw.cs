@@ -201,9 +201,8 @@ public partial class TuiBatch
         var tuiTexture = (TuiTexture)texture.native!;
         var sixel = tuiTexture.sixel;
         
-        var sixelId     = ++drawSixelCount;
-        var sixelHash   = sixel.GetHashCode() ^ sixel.Version ^ position.GetHashCode() ^ size.GetHashCode() ;
-        drawSixels[sixelId] = new DrawSixel { sixelId = sixelId, sixel = sixel, pos = position, size = size, sixelHash = (uint)sixelHash};
+        var sixelId = ++drawSixelCount;
+        drawSixels[sixelId] = new DrawSixel { sixelId = sixelId, sixel = sixel, pos = position, size = size };
         
         // rasterSize ensures that terminal cells covered by texture are marked for texture rendering 
         var rasterSize = ExpandToCellGrid(size);

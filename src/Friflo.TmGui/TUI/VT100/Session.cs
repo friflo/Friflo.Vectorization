@@ -184,7 +184,13 @@ internal sealed partial class TuiSession : TmSession
         var cells = frameBuffer.ColorCells;
         sixelDrawer.SetClipCells(cells, width, height);
         
+        // Set sixelHash's to reflect new version (modified image) new render size or position
         var drawSixels = tuiBatch.drawSixels.AsSpan(0, tuiBatch.drawSixelCount + 1);
+        for (var n = 1; n < drawSixels.Length; n++) {
+            ref var drawSixel = ref drawSixels[n];
+            var sixel = drawSixel.sixel;
+            drawSixel.sixelHash = (uint)(sixel.GetHashCode() ^ sixel.Version ^ drawSixel.pos.GetHashCode() ^ drawSixel.size.GetHashCode());
+        }
         
         if (height > lastLineHashes.Length) {
             var newHashes = new ulong[Math.Max(height, 2 * lastLineHashes.Length)];

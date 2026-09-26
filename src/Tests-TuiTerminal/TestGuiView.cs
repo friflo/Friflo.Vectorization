@@ -68,7 +68,7 @@ public class TestGuiView : IGuiView
             Window2(gui);
         }
         
-        if (oldDrawType != appState.drawType || (batch.TickEnabled && appState.drawType != DrawType.None)) {
+        if (oldDrawType != appState.drawType || batch.TickEnabled) {
             var draw = batch.BeginTextureDraw(canvasTexture, Color32.Transparent);
             TextureDraw(draw);
         }
