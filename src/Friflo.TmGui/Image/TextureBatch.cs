@@ -87,7 +87,7 @@ internal sealed class TextureBatch : TmBatch
                 target.Slice(rowOffset, fillWidth).Fill(colorIndex);
             }
 
-            sixel.isDirty = true;
+            sixel.SetDirty();
             return;
         }
 
@@ -186,7 +186,7 @@ internal sealed class TextureBatch : TmBatch
 
             DrawScanline(target, bufferWidth, y, xA, xB, clipXMin, clipXMax, colorIndex);
         }
-        sixel.isDirty = true;
+        sixel.SetDirty();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -281,7 +281,7 @@ internal sealed class TextureBatch : TmBatch
                 target.Slice(rowOffset, fillLength).Fill(colorIndex);
             }
 
-            sixel.isDirty = true;
+            sixel.SetDirty();
             return;
         }
 
@@ -361,7 +361,7 @@ internal sealed class TextureBatch : TmBatch
             }
         }
 
-        sixel.isDirty = true;
+        sixel.SetDirty();
     }
     
     [MethodImpl(MethodImplOptions.NoInlining)]
@@ -401,7 +401,7 @@ internal sealed class TextureBatch : TmBatch
             FillTriangle(v0, v1, v2, color);
             FillTriangle(v0, v2, v3, color);
         }
-        sixel.isDirty = true;
+        sixel.SetDirty();
     }
 
     private void DrawBresenhamLine(int x0, int y0, int x1, int y1, Color32 color)
@@ -448,7 +448,7 @@ internal sealed class TextureBatch : TmBatch
                 y0 += sy;
             }
         }
-        sixel.isDirty = true;
+        sixel.SetDirty();
     }
     
     [MethodImpl(MethodImplOptions.NoInlining)]
@@ -541,7 +541,7 @@ internal sealed class TextureBatch : TmBatch
                     }
                 }
 
-                sixel.isDirty = true;
+                sixel.SetDirty();
                 return;
             }
         }
@@ -607,7 +607,7 @@ internal sealed class TextureBatch : TmBatch
             }
         }
 
-        sixel.isDirty = true;
+        sixel.SetDirty();
     }
     
     [MethodImpl(MethodImplOptions.NoInlining)]
@@ -710,7 +710,7 @@ internal sealed class TextureBatch : TmBatch
                 }
             }
 
-            sixel.isDirty = true;
+            sixel.SetDirty();
             return;
         }
 
@@ -779,7 +779,7 @@ internal sealed class TextureBatch : TmBatch
             }
         }
 
-        sixel.isDirty = true;
+        sixel.SetDirty();
     }
     
     // Helper to draw a quad using two triangles
@@ -913,7 +913,7 @@ internal sealed class TextureBatch : TmBatch
                 }
             }
 
-            sixel.isDirty = true;
+            sixel.SetDirty();
             return;
         }
 
@@ -1007,7 +1007,7 @@ internal sealed class TextureBatch : TmBatch
             }
         }
 
-        sixel.isDirty = true;
+        sixel.SetDirty();
     }
 }
 

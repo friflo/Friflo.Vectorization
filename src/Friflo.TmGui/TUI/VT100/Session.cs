@@ -373,7 +373,7 @@ internal sealed partial class TuiSession : TmSession
         for (int n = 1; n <= batch.drawSixelCount; n++)
         {
             var drawSixel = batch.drawSixels[n];
-            if (!drawSixel.draw && !drawSixel.sixel.isDirty) {
+            if (!drawSixel.draw && !drawSixel.sixel.IsDirty) {
                 continue;
             }
             // draw image only if:

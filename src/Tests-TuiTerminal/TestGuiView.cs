@@ -45,6 +45,7 @@ public class TestGuiView : IGuiView
     
     public void RenderGui(TmBatch batch, int targetWidth, int targetHeight)
     {
+        var oldDrawType = appState.drawType;
         batch.TickRate = 60;
         Static.Noop();
         
@@ -67,7 +68,7 @@ public class TestGuiView : IGuiView
             Window2(gui);
         }
         
-        if (appState.drawType != DrawType.None) {
+        if (oldDrawType != appState.drawType || (batch.TickEnabled && appState.drawType != DrawType.None)) {
             var draw = batch.BeginTextureDraw(canvasTexture, Color32.Transparent);
             TextureDraw(draw);
         }

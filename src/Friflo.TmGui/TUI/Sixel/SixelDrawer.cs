@@ -107,10 +107,8 @@ public sealed class SixelDrawer
         var width        = sixel.width;
         var height       = sixel.height;
         var colorIndexes = sixel.colorIndexes;
-        if (sixel.isDirty) {
+        if (sixel.IsDirty) {
             sixel.UpdatePalette();
-            sixel.isDirty = false;
-            sixel.version++;
         }
 
         // Subsequent units are in sixel pixels: imagePos, origin & canvas

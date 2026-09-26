@@ -20,9 +20,12 @@ public sealed class TuiSixel
     internal readonly   int     width;
     internal readonly   int     height;
     internal readonly   byte[]  data;
-    internal            bool    isDirty;
-    internal            int     version;
-    
+    private             bool    isDirty;
+    private             int     version;
+
+    public              bool    IsDirty => isDirty;
+    public              int     Version => version;
+
     /// <summary> Linear 1-byte-per-pixel buffer containing R3G3B2 indexed color values. </summary>
     /// <remarks> Total size is exactly <c>width * height</c> bytes. </remarks>
     internal readonly   byte[]  colorIndexes;
@@ -48,11 +51,19 @@ public sealed class TuiSixel
         UpdatePalette();
     }
     
+    internal void SetDirty()
+    {
+        if (!isDirty) {
+            version++;
+        }
+        isDirty = true;
+    }
+    
     internal void Clear(Color32 color)
     {
         var fillIndex = color.A < TransparencyThreshold  ? (byte)0 : Color32ToR3G3B2(color);
         colorIndexes.AsSpan().Fill(fillIndex);
-        isDirty = true;
+        SetDirty();
     }
     
     public const byte SubstituteBack = 0x20; // dark red is drawn as real black
@@ -67,8 +78,11 @@ public sealed class TuiSixel
     }
 
 #region MyRegion update palette
-    internal void UpdatePalette () => paletteCount = UpdatePalette_SIMD(colorIndexes, palette);
-    
+    internal void UpdatePalette () {
+        isDirty      = false;
+        paletteCount = UpdatePalette_SIMD(colorIndexes, palette);
+    }
+
     private static int UpdatePalette_scalar(ReadOnlySpan<byte> colorIndexes, byte[] palette)
     {
         Span<bool> usedColors = stackalloc bool[256];

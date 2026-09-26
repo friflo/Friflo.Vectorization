@@ -202,7 +202,7 @@ public partial class TuiBatch
         var sixel = tuiTexture.sixel;
         
         var sixelId     = ++drawSixelCount;
-        var sixelHash   = sixel.GetHashCode() ^ sixel.version ^ position.GetHashCode() ^ size.GetHashCode() ;
+        var sixelHash   = sixel.GetHashCode() ^ sixel.Version ^ position.GetHashCode() ^ size.GetHashCode() ;
         drawSixels[sixelId] = new DrawSixel { sixelId = sixelId, sixel = sixel, pos = position, size = size, sixelHash = (uint)sixelHash};
         
         // rasterSize ensures that terminal cells covered by texture are marked for texture rendering 
