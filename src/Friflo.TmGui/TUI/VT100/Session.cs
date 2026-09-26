@@ -223,7 +223,7 @@ internal sealed partial class TuiSession : TmSession
                 if (cell.sixelId != 0) {
                     ref var drawSixel = ref drawSixels[cell.sixelId];
                     drawSixel.isVisible = true;
-                    drawSixelHash = (drawSixelHash ^ drawSixel.hash) * FnvPrime32;
+                    drawSixelHash = (drawSixelHash ^ drawSixel.sixelHash) * FnvPrime32;
                 }
             }
             /* AppendSpan("\x1b[K"u8); // EraseInLine - erase everything right from current cursor
