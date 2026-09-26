@@ -58,9 +58,6 @@ public partial class TestGuiView : IGuiView
         memStart    = mem;
         batch.EnableStepRendering = true;
         
-        var draw = batch.BeginTextureDraw(canvasTexture, Color32.Transparent);
-        TextureDraw(draw);
-        
         var gui = batch.BeginGui(targetWidth, targetHeight);
         using (gui.BeginWindow("Window 1", new Vector2(0, 0), new Vector2(1000, 850), traits: 0, TuiBorder.Rounded)) { // (500, 450) (1000, 850)
             Window1(gui);
@@ -68,6 +65,9 @@ public partial class TestGuiView : IGuiView
         using (gui.BeginWindow("Window 2", new(550, 50), new(500, 900))) {
             Window2(gui);
         }
+        
+        var draw = batch.BeginTextureDraw(canvasTexture, Color32.Transparent);
+        TextureDraw(draw);
     }
     
     private void Window1(Gui gui)
