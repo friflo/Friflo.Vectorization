@@ -17,7 +17,7 @@ public static class Tests_TmGui_Utils
     {
         var array = CreateByteArray(1000);
         var hash = HashUtils.XxHash3(array);
-        Assert.That(hash, Is.EqualTo(14228893083880859301));
+        Assert.That(hash, Is.EqualTo(11126509305010094753));
         
         ulong last = 0;
         
@@ -36,7 +36,7 @@ public static class Tests_TmGui_Utils
     {
         var array = CreateByteArray(3200);
         
-        int repeat = 10;   // 100_000_000 - 3.1 sec  length: 3200
+        int repeat = 10;   // 100_000_000 - 4.1 sec  length: 3200
         ulong accu = 0;
         
         for (int n = 0; n < repeat; n++) {

@@ -23,7 +23,7 @@ public static class HashUtils
         0x402927299a9442b1UL, 0xd7b58e393992440bUL
     ];
 
-    // Alternative to:  System.IO.Hashing.XxHash3.HashToUInt64()
+    // Alternative to: System.IO.Hashing.XxHash3.HashToUInt64()
     // data.Length should be >= 64
     public static ulong XxHash3(ReadOnlySpan<byte> data)
     {
@@ -36,24 +36,27 @@ public static class HashUtils
             ref byte ptr = ref MemoryMarshal.GetReference(data);
             ref byte keyPtr = ref Unsafe.As<ulong, byte>(ref SecretKey[0]);
 
-            Vector256<ulong> keyVec = Unsafe.ReadUnaligned<Vector256<ulong>>(ref keyPtr);
             Vector256<ulong> acc = Vector256<ulong>.Zero;
 
             int limit = length - 64;
 
             while (index <= limit)
             {
+                // Advance key vector with index offset
+                Vector256<ulong> keyVec = Unsafe.ReadUnaligned<Vector256<ulong>>(ref Unsafe.Add(ref keyPtr, index & 0x1F));
+
                 Vector256<ulong> dataA = Unsafe.ReadUnaligned<Vector256<ulong>>(ref Unsafe.Add(ref ptr, index));
                 Vector256<ulong> dataB = Unsafe.ReadUnaligned<Vector256<ulong>>(ref Unsafe.Add(ref ptr, index + 32));
 
                 Vector256<ulong> keyedA = dataA ^ keyVec;
                 Vector256<ulong> keyedB = dataB ^ keyVec;
 
+                // Shift 64-bit elements before reinterpreting as 32-bit uints
                 Vector256<uint> lowA = keyedA.AsUInt32();
                 Vector256<uint> lowB = keyedB.AsUInt32();
 
-                Vector256<uint> shiftedA = Vector256.ShiftRightLogical(lowA, 32);
-                Vector256<uint> shiftedB = Vector256.ShiftRightLogical(lowB, 32);
+                Vector256<uint> shiftedA = Vector256.ShiftRightLogical(keyedA, 32).AsUInt32();
+                Vector256<uint> shiftedB = Vector256.ShiftRightLogical(keyedB, 32).AsUInt32();
 
                 Vector256<ulong> productA = Avx2.IsSupported 
                     ? Avx2.Multiply(lowA, shiftedA) 
@@ -68,6 +71,13 @@ public static class HashUtils
             }
 
             ulong result = acc.GetElement(0) ^ acc.GetElement(1) ^ acc.GetElement(2) ^ acc.GetElement(3);
+
+            // Process tail bytes if payload length is not a multiple of 64
+            if (index < length)
+            {
+                result ^= FastScalarHash(data.Slice(index));
+            }
+
             return FoldAvalanche(result, (ulong)length);
         }
         // 2. Fallback Path for 128-Bit Hardware (e.g. ARM64 / NEON / SSE2)
@@ -76,18 +86,21 @@ public static class HashUtils
             ref byte ptr = ref MemoryMarshal.GetReference(data);
             ref byte keyPtr = ref Unsafe.As<ulong, byte>(ref SecretKey[0]);
 
-            Vector128<ulong> keyVec = Unsafe.ReadUnaligned<Vector128<ulong>>(ref keyPtr);
             Vector128<ulong> acc = Vector128<ulong>.Zero;
 
             int limit = length - 32;
 
             while (index <= limit)
             {
+                // Advance key vector with index offset
+                Vector128<ulong> keyVec = Unsafe.ReadUnaligned<Vector128<ulong>>(ref Unsafe.Add(ref keyPtr, index & 0x1F));
+
                 Vector128<ulong> dataA = Unsafe.ReadUnaligned<Vector128<ulong>>(ref Unsafe.Add(ref ptr, index));
                 Vector128<ulong> keyedA = dataA ^ keyVec;
 
+                // Shift 64-bit elements before reinterpreting as 32-bit uints
                 Vector128<uint> lowA = keyedA.AsUInt32();
-                Vector128<uint> shiftedA = Vector128.ShiftRightLogical(lowA, 32);
+                Vector128<uint> shiftedA = Vector128.ShiftRightLogical(keyedA, 32).AsUInt32();
 
                 Vector128<ulong> productA = Sse2.IsSupported
                     ? Sse2.Multiply(lowA, shiftedA)
@@ -98,6 +111,13 @@ public static class HashUtils
             }
 
             ulong result = acc.GetElement(0) ^ acc.GetElement(1);
+
+            // Process tail bytes if payload length is not a multiple of 32
+            if (index < length)
+            {
+                result ^= FastScalarHash(data.Slice(index));
+            }
+
             return FoldAvalanche(result, (ulong)length);
         }
 
@@ -123,6 +143,6 @@ public static class HashUtils
         {
             h = (h ^ b) * 0xbf58476d1ce4e5b9UL;
         }
-        return h;
+        return FoldAvalanche(h, (ulong)data.Length);
     }
 }
