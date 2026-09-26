@@ -11,8 +11,8 @@ public static class DrawDonat
         const int numMinor = 20;
         const int totalQuads = numMajor * numMinor;
 
-        const float R = 130.0f;
-        const float tubeRadius = 55.0f;
+        const float donatRadius = 130.0f;
+        const float tubeRadius  = 55.0f;
 
         Vector2 center = new(canvasWidth * 0.5f, canvasHeight * 0.5f);
         Vector3 lightDir = Vector3.Normalize(new Vector3(0.4f, -0.9f, -0.6f));
@@ -26,8 +26,8 @@ public static class DrawDonat
         float cosY = MathF.Cos(rotY), sinY = MathF.Sin(rotY);
         float cosZ = MathF.Cos(rotZ), sinZ = MathF.Sin(rotZ);
 
-        const uint DoughColor = 0xF8B040FF;
-        const uint IcingColor = 0xFF2898FF;
+        const uint doughColor = 0xF8B040FF;
+        const uint icingColor = 0xFF2898FF;
 
         Span<Vector3> worldPoints = stackalloc Vector3[(numMajor + 1) * (numMinor + 1)];
         Span<Vector2> projected = stackalloc Vector2[(numMajor + 1) * (numMinor + 1)];
@@ -43,7 +43,7 @@ public static class DrawDonat
                 float phi = j * MathF.PI * 2.0f / numMinor;
                 float cosPhi = MathF.Cos(phi), sinPhi = MathF.Sin(phi);
 
-                Vector3 pos = new((R + tubeRadius * cosPhi) * cosTheta, tubeRadius * sinPhi, (R + tubeRadius * cosPhi) * sinTheta);
+                Vector3 pos = new((donatRadius + tubeRadius * cosPhi) * cosTheta, tubeRadius * sinPhi, (donatRadius + tubeRadius * cosPhi) * sinTheta);
 
                 // 3D Rotation across 3 axes (Y -> X -> Z)
                 float x1 = pos.X * cosY + pos.Z * sinY;
@@ -89,9 +89,7 @@ public static class DrawDonat
             {
                 if (quadList[i].depth < quadList[k].depth)
                 {
-                    var temp = quadList[i];
-                    quadList[i] = quadList[k];
-                    quadList[k] = temp;
+                    (quadList[i], quadList[k]) = (quadList[k], quadList[i]);
                 }
             }
         }
@@ -129,7 +127,7 @@ public static class DrawDonat
             // Icing mask on top outer surface
             float phi = j * MathF.PI * 2.0f / numMinor;
             bool isIcing = phi >= MathF.PI * 0.10f && phi <= MathF.PI * 0.70f;
-            uint baseColor = isIcing ? IcingColor : DoughColor;
+            uint baseColor = isIcing ? icingColor : doughColor;
 
             byte red   = (byte)(((baseColor >> 24) & 0xFF) * intensity);
             byte green = (byte)(((baseColor >> 16) & 0xFF) * intensity);

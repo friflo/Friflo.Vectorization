@@ -59,9 +59,7 @@ public static class DrawCubes
             {
                 if (cubeDepths[i].depth > cubeDepths[j].depth)
                 {
-                    var temp = cubeDepths[i];
-                    cubeDepths[i] = cubeDepths[j];
-                    cubeDepths[j] = temp;
+                    (cubeDepths[i], cubeDepths[j]) = (cubeDepths[j], cubeDepths[i]);
                 }
             }
         }
