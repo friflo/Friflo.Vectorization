@@ -181,10 +181,8 @@ internal sealed partial class TuiSession : TmSession
             DrawMouseCursor(backend);
         }
         
-        var cells = frameBuffer.ColorCells;
-        sixelDrawer.SetClipCells(cells, width, height);
-        
         // Set sixelHash's to reflect new version (modified image) new render size or position
+        // These hashes contribute to lineSixelHash below
         var drawSixels = tuiBatch.drawSixels.AsSpan(0, tuiBatch.drawSixelCount + 1);
         for (var n = 1; n < drawSixels.Length; n++) {
             ref var drawSixel = ref drawSixels[n];
@@ -198,10 +196,12 @@ internal sealed partial class TuiSession : TmSession
             lastLineHashes = newHashes;
         }
 
+        var cells = frameBuffer.ColorCells;
+
         for (int y = 0; y < height; y++)
         {
             var lineStart     = sendBufferCount;
-            var drawSixelHash = FnvOffsetBasis32;
+            var lineSixelHash = FnvOffsetBasis32;
 
             SetCursor(y + 1);
             
@@ -228,13 +228,13 @@ internal sealed partial class TuiSession : TmSession
                 AppendRune(cell.rune);
                 if (cell.sixelId != 0) {
                     var sixelHash   = drawSixels[cell.sixelId].sixelHash;
-                    drawSixelHash   = (drawSixelHash ^ sixelHash) * FnvPrime32;
+                    lineSixelHash   = (lineSixelHash ^ sixelHash) * FnvPrime32;
                 }
             }
             
             // --- send only modified lines
             var lineSpan    = sendBuffer.AsSpan(lineStart, sendBufferCount - lineStart);
-            var lineHash    = HashUtils.XxHash3(lineSpan) ^ drawSixelHash;
+            var lineHash    = HashUtils.XxHash3(lineSpan) ^ lineSixelHash;
             if (lineHash == lastLineHashes[y]) {
                 sendBufferCount = lineStart;
                 // reset state for next line. Next line cannot relay on a specific state
@@ -257,7 +257,31 @@ internal sealed partial class TuiSession : TmSession
             }
         }
         
-        AppendSixels();
+        AppendSixels(cells, width, height);
+    }
+    
+    private void AppendSixels(ReadOnlySpan<TuiColorCell> cells, int width, int height)
+    {
+        if (!supportsSixel) {
+            return;
+        }
+
+        sixelDrawer.SetClipCells(cells, width, height);
+        var batch = tuiBatch;
+        
+        for (int n = 1; n <= batch.drawSixelCount; n++)
+        {
+            var drawSixel = batch.drawSixels[n];
+            if (!drawSixel.draw && !drawSixel.sixel.IsDirty) {
+                continue;
+            }
+            // draw image only if:
+            // - it dirty
+            // - a line covering the sixel was updated
+            var target  = sendBuffer.AsSpan(sendBufferCount, sendBuffer.Length - sendBufferCount);
+            var bytesWritten = sixelDrawer.AppendSixelToTargetBuffer(drawSixel, batch, target, cellPixelSize);
+            sendBufferCount += bytesWritten;
+        }
     }
     
     private void SetCursor(int row)
@@ -367,27 +391,5 @@ internal sealed partial class TuiSession : TmSession
         buffer.SetCell(x - 1, y, cell with { rune = new Rune(shape.left)   });
         buffer.SetCell(x,     y, cell with { rune = new Rune(shape.center) });
         buffer.SetCell(x + 1, y, cell with { rune = new Rune(shape.right)  });
-    }
-    
-    private void AppendSixels()
-    {
-        if (!supportsSixel) {
-            return;
-        }
-        var batch = tuiBatch;
-        
-        for (int n = 1; n <= batch.drawSixelCount; n++)
-        {
-            var drawSixel = batch.drawSixels[n];
-            if (!drawSixel.draw && !drawSixel.sixel.IsDirty) {
-                continue;
-            }
-            // draw image only if:
-            // - it dirty
-            // - a line covering the sixel was updated
-            var target  = sendBuffer.AsSpan(sendBufferCount, sendBuffer.Length - sendBufferCount);
-            var bytesWritten = sixelDrawer.AppendSixelToTargetBuffer(drawSixel, batch, target, cellPixelSize);
-            sendBufferCount += bytesWritten;
-        }
     }
 }

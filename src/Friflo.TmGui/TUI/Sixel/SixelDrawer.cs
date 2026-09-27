@@ -70,7 +70,7 @@ public sealed class SixelDrawer
     /// </summary>
     private byte[]  clipCellsBuffer = [];
 
-    public void SetClipCells(Span<TuiColorCell> cells, int width, int height)
+    public void SetClipCells(ReadOnlySpan<TuiColorCell> cells, int width, int height)
     {
         cellsWidth  = width;
         cellsHeight = height;
