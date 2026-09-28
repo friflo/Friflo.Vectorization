@@ -3,7 +3,7 @@ using Friflo.TmGui;
 
 namespace TuiTerminal.Draw;
 
-public static class DrawDonat
+public static class DrawDonut
 {
     internal static void Draw(TmDraw draw, float time, float canvasWidth,  float canvasHeight)
     {

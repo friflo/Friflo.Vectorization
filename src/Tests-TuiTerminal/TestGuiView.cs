@@ -99,7 +99,7 @@ public class TestGuiView : IGuiView
             ref var drawType = ref appState.drawType;
             var primitives  = drawType == DrawType.Primitives;
             var cubes       = drawType == DrawType.Cubes;
-            var donat       = drawType == DrawType.Donut;
+            var donut       = drawType == DrawType.Donut;
             var live        = drawType == DrawType.LiveDiagram;
             var none        = drawType == DrawType.None;
             
@@ -107,7 +107,7 @@ public class TestGuiView : IGuiView
             gui.Spacer();
             if (gui.Checkbox("cubes",       ref cubes)      && cubes)       drawType = DrawType.Cubes;
             gui.Spacer();
-            if (gui.Checkbox("donat",       ref donat)      && donat)       drawType = DrawType.Donut;
+            if (gui.Checkbox("donut",       ref donut)      && donut)       drawType = DrawType.Donut;
             gui.Spacer();
             if (gui.Checkbox("live",        ref live)       && live)        drawType = DrawType.LiveDiagram;
             gui.Spacer();
@@ -281,7 +281,7 @@ public class TestGuiView : IGuiView
         switch (appState.drawType) {
             case DrawType.Primitives:   DrawPrimitives(draw);                                           break;
             case DrawType.Cubes:        DrawCubes.Draw(draw,        time, CanvasWidth, CanvasHeight);   break;
-            case DrawType.Donut:        DrawDonat.Draw(draw,        time, CanvasWidth, CanvasHeight);   break;
+            case DrawType.Donut:        DrawDonut.Draw(draw,        time, CanvasWidth, CanvasHeight);   break;
             case DrawType.LiveDiagram:  diagram.UpdateAndDraw(draw, time, CanvasWidth, CanvasHeight);   break;
         }
         if (appState.textureScissor) draw.PopScissor();
