@@ -6,12 +6,12 @@ using System.Collections.Generic;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 
-
+// ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable ConditionalTernaryEqualBranch
 // ReSharper disable UseWithExpressionToCopyStruct
-// ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable ConvertIfStatementToConditionalTernaryExpression
 namespace Friflo.TmGui.TUI;
+
 
 public partial class TuiBatch
 {
@@ -202,7 +202,7 @@ public partial class TuiBatch
         var sixel = tuiTexture.sixel;
         
         var sixelId = ++drawSixelCount;
-        drawSixels[sixelId] = new DrawSixel { sixelId = sixelId, sixel = sixel, pos = position, size = size };
+        drawSixels[sixelId] = new DrawSixel(sixelId, sixel, position, size);
         
         // rasterSize ensures that terminal cells covered by texture are marked for texture rendering 
         var rasterSize = ExpandToCellGrid(size);
@@ -220,18 +220,5 @@ public partial class TuiBatch
     
     internal readonly   DrawSixel[]     drawSixels      = new DrawSixel[256];
     internal            byte            drawSixelCount;
-}
-
-internal struct DrawSixel
-{
-    internal byte       sixelId;
-    internal TuiSixel   sixel;
-    /// <summary> The hash changes if sixel pixels are modified or its position or size is changed. </summary>
-    internal uint       sixelHash;
-    internal bool       draw;
-    internal Vector2    pos;  // screen space. Not terminal pixel position
-    internal Vector2    size; // screen space. Not terminal pixel position
-
-    public   override string ToString() => sixel == null ? "null" : $"x: {pos.X} y: {pos.Y}  {sixel}";
 }
 

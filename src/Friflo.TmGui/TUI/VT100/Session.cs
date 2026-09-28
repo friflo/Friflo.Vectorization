@@ -2,6 +2,7 @@
 // See LICENSE file in the project root for full license information.
 
 using System;
+using System.Collections.Generic;
 using System.Numerics;
 using System.Text;
 using Friflo.TmGui.Session;
@@ -162,18 +163,8 @@ internal sealed partial class TuiSession : TmSession
         return sendMemory;
     }
     
-    private const uint FnvOffsetBasis32 = 0x811C9DC5;
-    private const uint FnvPrime32       = 0x01000193;
-    
     private void AppendFrameBuffer(TmGuiBackend backend, TuiBatch batch, int width, int height)
     {
-        // color / background are only sent if changed
-        var stateChanged    = false;
-        var color           = new Color32();
-        var background      = new Color32();
-        var textStyle       = TextStyle.None;
-        AppendSpan("\x1b[0;30;40m"u8); // \x1b[0 Reset All;  30 Foreground Black;  40 Background Black  m SGR Command Terminator
-        
         var clear =  new TuiColorCell { Character = ' ', color = 0x000000ff, background = 0x888888ff };
         batch.DrawRectCommands(frameBuffer, width, height, clear);
         
@@ -181,14 +172,7 @@ internal sealed partial class TuiSession : TmSession
             DrawMouseCursor(backend);
         }
         
-        // Set sixelHash's to reflect new version (modified image) new render size or position
-        // These hashes contribute to lineSixelHash below
         var drawSixels = tuiBatch.drawSixels.AsSpan(0, tuiBatch.drawSixelCount + 1);
-        for (var n = 1; n < drawSixels.Length; n++) {
-            ref var drawSixel = ref drawSixels[n];
-            var sixel = drawSixel.sixel;
-            drawSixel.sixelHash = (uint)(sixel.GetHashCode() ^ sixel.Version ^ drawSixel.pos.GetHashCode() ^ drawSixel.size.GetHashCode());
-        }
         
         if (height > lastLineHashes.Length) {
             var newHashes = new ulong[Math.Max(height, 2 * lastLineHashes.Length)];
@@ -196,16 +180,32 @@ internal sealed partial class TuiSession : TmSession
             lastLineHashes = newHashes;
         }
 
+        // draw all cells not covered by a sixel
+        DrawCellRect(0, 0, width, height, width, drawSixels, lastLineHashes);
+        
+        // draw all sixels and the cells covered by those sixels
+        AppendSixels(width, height);
+    }
+    
+    private void DrawCellRect(int left, int top, int right, int bottom, int width, Span<DrawSixel> drawSixels, Span<ulong> lineHashes)
+    {
+        var drawAlways = drawSixels.IsEmpty;
+            
+        // color / background are only sent if changed
+        var stateChanged    = false;
+        var color           = new Color32();
+        var background      = new Color32();
+        var textStyle       = TextStyle.None;
+        AppendSpan("\x1b[0;30;40m"u8); // \x1b[0 Reset All;  30 Foreground Black;  40 Background Black  m SGR Command Terminator
         var cells = frameBuffer.ColorCells;
 
-        for (int y = 0; y < height; y++)
+        for (int y = top; y < bottom; y++)
         {
             var lineStart     = sendBufferCount;
-            var lineSixelHash = FnvOffsetBasis32;
 
-            SetCursor(y + 1);
+            SetCursor(left + 1, y + 1);
             
-            for (int x = 0; x < width; x++)
+            for (int x = left; x < right; x++)
             {
                 var cell = cells[y * width + x];
 
@@ -225,70 +225,86 @@ internal sealed partial class TuiSession : TmSession
                     SetBackground(cell.background);
                     background.Packed = backgroundRGB;
                 }
-                AppendRune(cell.rune);
-                if (cell.sixelId != 0) {
-                    var sixelHash   = drawSixels[cell.sixelId].sixelHash;
-                    lineSixelHash   = (lineSixelHash ^ sixelHash) * FnvPrime32;
+                
+                if (cell.sixelId == 0 || drawAlways) { 
+                     AppendRune(cell.rune);
+                } else {
+                    drawSixels[cell.sixelId].Draw(x, y, backgroundRGB ^ (uint)cell.rune.Value ^ cell.color.Packed);
+
+                    AppendSpan("\x1b[C"u8); // move cursor one cell right
                 }
             }
             
-            // --- send only modified lines
-            var lineSpan    = sendBuffer.AsSpan(lineStart, sendBufferCount - lineStart);
-            var lineHash    = HashUtils.XxHash3(lineSpan) ^ lineSixelHash;
-            if (lineHash == lastLineHashes[y]) {
-                sendBufferCount = lineStart;
-                // reset state for next line. Next line cannot relay on a specific state
-                if (stateChanged) {
-                    AppendSpan("\x1b[0;30;40m"u8); // \x1b[0 Reset All;  30 Foreground Black;  40 Background Black  m SGR Command Terminator
-                }
-                stateChanged    = false;
-                color           = new Color32();
-                background      = new Color32();
-                textStyle       = TextStyle.None;
-            } else {
-                stateChanged      = true;
-                lastLineHashes[y] = lineHash;
-                for (int x = 0; x < width; x++) {
-                    var sixelId = cells[y * width + x].sixelId;
-                    if (sixelId != 0) {
-                        drawSixels[sixelId].draw = true;
-                    }
-                }
+            if (lineHashes.IsEmpty) {
+                continue;
             }
+            
+            // --- send only changed lines
+            var lineSpan    = sendBuffer.AsSpan(lineStart, sendBufferCount - lineStart);
+            var lineHash    = HashUtils.XxHash3(lineSpan);
+            var sendLine    = lineHash != lineHashes[y];
+            if (sendLine) {
+                lineHashes[y]   = lineHash;
+                stateChanged    = true;
+                continue;
+            }
+            // case:  line is unchanged - skip sending
+            sendBufferCount = lineStart;
+            // reset state for next line. Next line cannot relay on a specific state
+            if (stateChanged) {
+                AppendSpan("\x1b[0;30;40m"u8); // \x1b[0 Reset All;  30 Foreground Black;  40 Background Black  m SGR Command Terminator
+            }
+            stateChanged    = false;
+            color           = new Color32();
+            background      = new Color32();
+            textStyle       = TextStyle.None;
         }
-        
-        AppendSixels(cells, width, height);
     }
     
-    private void AppendSixels(ReadOnlySpan<TuiColorCell> cells, int width, int height)
+    private readonly List<uint> sixelHashes = [];
+    
+    private void AppendSixels(int width, int height)
     {
         if (!supportsSixel) {
             return;
         }
+        var cells = frameBuffer.ColorCells;
 
         sixelDrawer.SetClipCells(cells, width, height);
         var batch = tuiBatch;
         
         for (int n = 1; n <= batch.drawSixelCount; n++)
         {
-            var drawSixel = batch.drawSixels[n];
-            if (!drawSixel.draw && !drawSixel.sixel.IsDirty) {
+            ref var drawSixel = ref batch.drawSixels[n];
+            if (!drawSixel.draw) {
                 continue;
             }
-            // draw image only if:
-            // - it dirty
-            // - a line covering the sixel was updated
+            drawSixel.sixelHash = drawSixel.UpdateHash();
+            
+            if (sixelHashes.Contains(drawSixel.sixelHash)) {
+                continue;
+            }
+            DrawCellRect(drawSixel.left, drawSixel.top, drawSixel.right + 1, drawSixel.bottom + 1, width, default, default);
+            
             var target  = sendBuffer.AsSpan(sendBufferCount, sendBuffer.Length - sendBufferCount);
             var bytesWritten = sixelDrawer.AppendSixelToTargetBuffer(drawSixel, batch, target, cellPixelSize);
             sendBufferCount += bytesWritten;
+            // Debug.WriteLine($"Draw Sixel: {drawSixel.sixelId}");
+        }
+        
+        sixelHashes.Clear();
+        for (int n = 1; n <= batch.drawSixelCount; n++) {
+            sixelHashes.Add(batch.drawSixels[n].sixelHash);
         }
     }
     
-    private void SetCursor(int row)
+    private void SetCursor(int x, int y)
     {
         AppendSpan("\x1b["u8);
-        AppendNumber((byte)row);
-        AppendSpan(";1H"u8);
+        AppendNumber((byte)y); // Row (Y)
+        AppendSpan(";"u8);
+        AppendNumber((byte)x); // Column (X)
+        AppendSpan("H"u8);
     }
     
     private void SetColor(Color32 color)
