@@ -904,7 +904,7 @@ internal sealed class TextureBatch : TmBatch
                     int texX = Math.Clamp((int)(u * texWidth), 0, texWidth - 1);
 
                     // Single 32-bit DWORD read (RGBA) via Color32 span
-                    ref readonly var pixel = ref srcColors[texRowOffset + texX];
+                    var pixel = srcColors[texRowOffset + texX];
 
                     if (pixel.A < TuiSixel.TransparencyThreshold) continue;
 
@@ -1000,7 +1000,7 @@ internal sealed class TextureBatch : TmBatch
                 int texX = Math.Clamp((int)(u * texWidth),  0, texWidth - 1);
                 int texY = Math.Clamp((int)(v * texHeight), 0, texHeight - 1);
 
-                ref readonly var pixel = ref srcColors[texY * texWidth + texX];
+                var pixel = srcColors[texY * texWidth + texX];
 
                 if (pixel.A < TuiSixel.TransparencyThreshold) continue;
 
