@@ -31,5 +31,6 @@
 
     "dotnet.server.sourceGeneratorExecution": "Automatic",
 
-    "csharp.debug.console": "integratedTerminal" // required to run TUI App in Terminal (instead of 'Debug Console' which throw an exception)
+    "csharp.debug.console": "integratedTerminal",   // required to run TUI App in Terminal (instead of 'Debug Console' which throw an exception)
+    "terminal.integrated.enableImages": true        // enable Sixel graphics support in Terminal
 }
