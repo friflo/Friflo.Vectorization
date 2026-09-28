@@ -6,6 +6,7 @@ using System;
 using System.Runtime.CompilerServices;
 using Friflo.TmGui.TUI;
 using System.Numerics;
+using System.Runtime.InteropServices;
 using Friflo.TmGui.Headless;
 using Friflo.TmGui.Session;
 
@@ -847,7 +848,9 @@ internal sealed class TextureBatch : TmBatch
         if (color.A < TuiSixel.TransparencyThreshold) return;
 
         GetImageProperties(texture, out byte[] rgbaPixels, out int texWidth, out int texHeight);
-        ReadOnlySpan<byte> srcPixels = rgbaPixels;
+        
+        // Zero-allocation reinterpret cast from byte span to Color32 span
+        ReadOnlySpan<Color32> srcColors = MemoryMarshal.Cast<byte, Color32>(rgbaPixels);
 
         byte tintR = color.R;
         byte tintG = color.G;
@@ -891,7 +894,7 @@ internal sealed class TextureBatch : TmBatch
                 float vNorm = (y - p0.Y) * quadHeightRecip;
                 float v = uv0.Y + vNorm * (uv2.Y - uv0.Y);
                 int texY = Math.Clamp((int)(v * texHeight), 0, texHeight - 1);
-                int texRowOffset = texY * texWidth * 4;
+                int texRowOffset = texY * texWidth;
                 int rowOffset = y * bufferWidth;
 
                 for (int x = minX; x < maxX; x++)
@@ -900,16 +903,16 @@ internal sealed class TextureBatch : TmBatch
                     float u = uv0.X + uNorm * (uv2.X - uv0.X);
                     int texX = Math.Clamp((int)(u * texWidth), 0, texWidth - 1);
 
-                    int pixelIdx = texRowOffset + (texX * 4);
+                    // Single 32-bit DWORD read (RGBA) via Color32 span
+                    ref readonly var pixel = ref srcColors[texRowOffset + texX];
 
-                    byte a = srcPixels[pixelIdx + 3];
-                    if (a < TuiSixel.TransparencyThreshold) continue;
+                    if (pixel.A < TuiSixel.TransparencyThreshold) continue;
 
-                    byte r = (byte)((srcPixels[pixelIdx]     * tintR) >> 8);
-                    byte g = (byte)((srcPixels[pixelIdx + 1] * tintG) >> 8);
-                    byte b = (byte)((srcPixels[pixelIdx + 2] * tintB) >> 8);
-
-                    target[rowOffset + x] = TuiSixel.Color32ToR3G3B2(new Color32(r, g, b));
+                    target[rowOffset + x] = TuiSixel.Color32ToR3G3B2(new Color32(
+                        (byte)((pixel.R * tintR) >> 8),
+                        (byte)((pixel.G * tintG) >> 8),
+                        (byte)((pixel.B * tintB) >> 8)
+                    ));
                 }
             }
 
@@ -920,7 +923,7 @@ internal sealed class TextureBatch : TmBatch
         // =========================================================================
         // GENERIC PATH: Arbitrary Transforms
         // =========================================================================
-        DrawSpriteGeneric(srcPixels, texWidth, texHeight, quad, tintR, tintG, tintB, target, bufferWidth);
+        DrawSpriteGeneric(rgbaPixels, texWidth, texHeight, quad, tintR, tintG, tintB, target, bufferWidth);
     }
 
     [MethodImpl(MethodImplOptions.NoInlining)]
@@ -971,6 +974,9 @@ internal sealed class TextureBatch : TmBatch
         float localWidthRecip  = 1.0f / (localBR.X - localTL.X);
         float localHeightRecip = 1.0f / (localBR.Y - localTL.Y);
 
+        // Zero-allocation reinterpret cast from byte span to Color32 span
+        ReadOnlySpan<Color32> srcColors = MemoryMarshal.Cast<byte, Color32>(srcPixels);
+
         for (int y = gMinY; y < gMaxY; y++)
         {
             int rowOffset = y * bufferWidth;
@@ -994,16 +1000,18 @@ internal sealed class TextureBatch : TmBatch
                 int texX = Math.Clamp((int)(u * texWidth),  0, texWidth - 1);
                 int texY = Math.Clamp((int)(v * texHeight), 0, texHeight - 1);
 
-                int pixelIdx = (texY * texWidth + texX) * 4;
+                ref readonly var pixel = ref srcColors[texY * texWidth + texX];
 
-                byte a = srcPixels[pixelIdx + 3];
-                if (a < TuiSixel.TransparencyThreshold) continue;
+                if (pixel.A < TuiSixel.TransparencyThreshold) continue;
 
-                byte r = (byte)((srcPixels[pixelIdx]     * tintR) >> 8);
-                byte g = (byte)((srcPixels[pixelIdx + 1] * tintG) >> 8);
-                byte b = (byte)((srcPixels[pixelIdx + 2] * tintB) >> 8);
+                var tintedColor = new Color32(
+                    (byte)((pixel.R * tintR) >> 8),
+                    (byte)((pixel.G * tintG) >> 8),
+                    (byte)((pixel.B * tintB) >> 8),
+                    pixel.A
+                );
 
-                target[rowOffset + x] = TuiSixel.Color32ToR3G3B2(new Color32(r, g, b));
+                target[rowOffset + x] = TuiSixel.Color32ToR3G3B2(tintedColor);
             }
         }
 
