@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Numerics;
+using System.Runtime.CompilerServices;
 using System.Text;
 using Friflo.TmGui.Session;
 
@@ -179,12 +180,18 @@ internal sealed partial class TuiSession : TmSession
             Array.Copy(lastLineHashes, 0, newHashes, 0, lastLineHashes.Length);
             lastLineHashes = newHashes;
         }
+        
+        if (!supportsSixel) {
+            drawSixels = default;
+        }
 
         // draw all cells not covered by a sixel
         DrawCellRect(0, 0, width, height, width, drawSixels, lastLineHashes);
         
         // draw all sixels and the cells covered by those sixels
-        AppendSixels(width, height);
+        if (supportsSixel) {
+            AppendSixels(width, height);
+        }
     }
     
     private void DrawCellRect(int left, int top, int right, int bottom, int width, Span<DrawSixel> drawSixels, Span<ulong> lineHashes)
@@ -265,9 +272,6 @@ internal sealed partial class TuiSession : TmSession
     
     private void AppendSixels(int width, int height)
     {
-        if (!supportsSixel) {
-            return;
-        }
         var cells = frameBuffer.ColorCells;
 
         sixelDrawer.SetClipCells(cells, width, height);
@@ -354,6 +358,7 @@ internal sealed partial class TuiSession : TmSession
         sendBuffer[sendBufferCount++] = value; 
     }
     
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void AppendRune(Rune rune)
     {
         if (rune.Value == 0) {
@@ -364,6 +369,7 @@ internal sealed partial class TuiSession : TmSession
         sendBufferCount += bytesWritten;
     }
     
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void AppendSpan(ReadOnlySpan<byte> buffer)
     {
         buffer.CopyTo(sendBuffer.AsSpan(sendBufferCount, buffer.Length));
