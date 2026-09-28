@@ -52,13 +52,6 @@ internal readonly struct Payload
     }
 }
 
-public struct SessionInfo
-{
-    public  string[]        args;
-    public  TmClient        client;
-    public  TmGuiBackend    backend;
-}
-
 public delegate IGuiView CreateGuiView(SessionInfo info);
 
 

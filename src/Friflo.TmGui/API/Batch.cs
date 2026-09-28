@@ -24,6 +24,13 @@ public interface IGuiView
     void RenderGui(TmBatch batch, int targetWidth, int targetHeight);
 }
 
+public struct SessionInfo
+{
+    public  string[]        args;
+    public  TmClient        client;
+    public  TmGuiBackend    backend;
+}
+
 /// <summary>
 /// Provides <see cref="TmDraw"/> for low-level geometry drawing and <see cref="Gui"/> for high-level widgets and interaction.<br/>
 /// Stores vertex/index buffers and sorts draw commands for backend rendering.
