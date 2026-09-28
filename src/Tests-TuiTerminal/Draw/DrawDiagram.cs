@@ -22,7 +22,7 @@ public class DrawDiagram
     private const uint AxisColor = 0x000000FF;   // Black X-Axis
     private const uint GridColor = 0xffffffFF;
 
-    public void UpdateAndDraw(TmDraw draw, float currentTime, float canvasWidth,  float canvasHeight)
+    public void UpdateAndDraw(TmDraw draw, float currentTime, float canvasWidth, float canvasHeight)
     {
         const float updateInterval = 0.05f; // 20 updates per second
         const float timeWindow = 6.0f;      // Graph spans 6 seconds across screen
