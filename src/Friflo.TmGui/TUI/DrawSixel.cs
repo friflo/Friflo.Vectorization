@@ -11,16 +11,16 @@ internal struct DrawSixel
 {
     internal readonly   byte        sixelId;
     internal readonly   TuiSixel    sixel;
-    /// <summary> The hash changes if sixel pixels are modified or its position or size is changed. </summary>
+    /// <summary> sixelHash changes if sixel pixels are modified, position or size changes or the coverage by terminal cells changes. </summary>
     internal            uint        sixelHash;
     private             uint        drawCellsHash;
     internal            bool        draw;
-    internal            int         left;
-    internal            int         top;
-    internal            int         right;
-    internal            int         bottom;
-    internal            Vector2     pos;  // screen space. Not terminal pixel position
-    internal            Vector2     size; // screen space. Not terminal pixel position
+    internal            int         left;   // terminal cell space
+    internal            int         top;    // terminal cell space
+    internal            int         right;  // terminal cell space
+    internal            int         bottom; // terminal cell space
+    internal            Vector2     pos;    // screen space. Not terminal pixel position
+    internal            Vector2     size;   // screen space. Not terminal pixel position
 
     public   override   string      ToString() => sixel == null ? "null" : $"x: {pos.X} y: {pos.Y}  {sixel}";
 
