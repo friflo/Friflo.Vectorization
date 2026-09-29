@@ -74,6 +74,7 @@ internal sealed partial class TuiSession : TmSession
         frameWidth      = width;
         frameHeight     = height;
         lastFrameHash   = 0; // force send frame
+        Array.Clear(lastLineHashes);
     }
     
     private void SetCellPixelSize(int width, int height)
