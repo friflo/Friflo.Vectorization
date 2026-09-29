@@ -86,7 +86,10 @@ public sealed class KestrelHttpServer
                 webBuilder.UseKestrel(options =>
                 {
                     // Binding solely to localhost (no admin privileges required)
-                    options.Listen(IPAddress.Loopback, port);
+                    // - IPAddress.Loopback for localhost only
+                    options.Listen(IPAddress.Any, port, listenOptions => {  
+                        listenOptions.UseHttps(); // uses automatically dotnet dev-certs
+                    });
                     
                     // Optional: If remote network access is needed:
                     // options.Listen(IPAddress.Any, port);
