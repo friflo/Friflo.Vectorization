@@ -12,75 +12,142 @@ using System.Threading.Tasks;
 // ReSharper disable CheckNamespace
 namespace Friflo.TmGui.Session.HTTP;
 
-public static class TmHttpServer
+public sealed class HttpServer
 {
-    private static readonly string WebRoot = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "wwwroot");
+    private readonly string             webRoot = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "wwwroot");
+    private readonly TmSessionLoop      loop;
+    private readonly int                port;
+    
+    private CancellationTokenSource?    cts;
+    private Task?                       serverTask;
 
-    public static async Task RunHttpServerAsync(TmSessionLoop loop, int port)
+    public HttpServer(TmSessionLoop loop, int port)
     {
-        using var listener = new HttpListener();
-        listener.Prefixes.Add($"http://*:{port}/");
-        listener.Start();
+        this.loop = loop;
+        this.port = port;
+    }
 
-        Console.WriteLine($"[+] HTTP/WebSocket Listener active on port {port}...");
+    /// <summary>
+    /// Starts the HTTP/WebSocket listener on a dedicated background thread.
+    /// </summary>
+    public void Start()
+    {
+        if (serverTask != null) return;
 
-        while (true)
+        cts = new CancellationTokenSource();
+        
+        // TaskCreationOptions.LongRunning ensures the scheduler spawns a dedicated OS Thread
+        serverTask = Task.Factory.StartNew(
+            () => RunAsync(cts.Token),
+            cts.Token,
+            TaskCreationOptions.LongRunning,
+            TaskScheduler.Default
+        ).Unwrap();
+    }
+
+    /// <summary>
+    /// Stops the server gracefully.
+    /// </summary>
+    public async Task StopAsync()
+    {
+        if (cts == null || serverTask == null) return;
+
+        cts.Cancel();
+        try
         {
-            HttpListenerContext context = await listener.GetContextAsync();
-
-            if (context.Request.IsWebSocketRequest)
-            {
-                _ = Task.Run(async () =>
-                {
-                    try
-                    {
-                        // Accept WebSocket handshake
-                        var wsContext = await context.AcceptWebSocketAsync(subProtocol: null);
-                        
-                        var client = new WebSocketClient(wsContext.WebSocket);
-                        await WebSocketClient.HandleClientSessionAsync(client, loop, CancellationToken.None);
-                    }
-                    catch (Exception ex)
-                    {
-                        // Log or handle handshake/session exceptions quietly
-                        Console.Error.WriteLine($"[-] WebSocket error: {ex.Message}");
-                    }
-                });
-            }
-            else
-            {
-                // Serve static files asynchronously
-                _ = Task.Run(async () =>
-                {
-                    try
-                    {
-                        await ServeStaticFileAsync(context);
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.Error.WriteLine($"[-] Static File error: {ex.Message}");
-                    }
-                });
-            }
+            await serverTask;
+        }
+        catch (OperationCanceledException) { }
+        finally
+        {
+            cts.Dispose();
+            cts = null;
+            serverTask = null;
         }
     }
 
-    private static async Task ServeStaticFileAsync(HttpListenerContext context)
+    private async Task RunAsync(CancellationToken cancellationToken)
     {
-        var request  = context.Request;
+        using var listener = new HttpListener();
+        // listener.Prefixes.Add($"http://*:{port}/");
+        listener.Prefixes.Add($"http://localhost:{port}/");
+        
+        try
+        {
+            listener.Start();
+            Console.WriteLine($"[+] HTTP/WebSocket Listener active on port {port}...");
+
+            // Unregister listener on cancellation to unblock GetContextAsync
+            using var reg = cancellationToken.Register(() => listener.Stop());
+
+            while (!cancellationToken.IsCancellationRequested)
+            {
+                HttpListenerContext context;
+                try
+                {
+                    context = await listener.GetContextAsync();
+                }
+                catch (HttpListenerException) when (cancellationToken.IsCancellationRequested)
+                {
+                    break; // Listener stopped via cancellation
+                }
+                catch (ObjectDisposedException)
+                {
+                    break;
+                }
+
+                if (context.Request.IsWebSocketRequest)
+                {
+                    _ = Task.Run(async () =>
+                    {
+                        try
+                        {
+                            var wsContext = await context.AcceptWebSocketAsync(subProtocol: null);
+                            var client = new WebSocketClient(wsContext.WebSocket);
+                            await WebSocketClient.HandleClientSessionAsync(client, loop, cancellationToken);
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.Error.WriteLine($"[-] WebSocket error: {ex.Message}");
+                        }
+                    }, cancellationToken);
+                }
+                else
+                {
+                    _ = Task.Run(async () =>
+                    {
+                        try
+                        {
+                            await ServeStaticFileAsync(context);
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.Error.WriteLine($"[-] Static File error: {ex.Message}");
+                        }
+                    }, cancellationToken);
+                }
+            }
+        }
+        catch (Exception ex) when (!cancellationToken.IsCancellationRequested)
+        {
+            Console.Error.WriteLine($"[-] Critical Server error: {ex.Message}");
+        }
+    }
+
+    private async Task ServeStaticFileAsync(HttpListenerContext context)
+    {
+        var request = context.Request;
         var response = context.Response;
 
-        // Resolve local file path and map root '/' to 'index.html'
         string rawPath = request.Url?.AbsolutePath.TrimStart('/') ?? string.Empty;
         if (string.IsNullOrEmpty(rawPath))
         {
             rawPath = "index.html";
         }
 
-        var filePath = Path.GetFullPath(Path.Combine(WebRoot, rawPath));
+        string filePath = Path.GetFullPath(Path.Combine(webRoot, rawPath));
 
-        // Prevent directory traversal attacks (e.g. '/../../secret.txt')
-        if (!filePath.StartsWith(WebRoot, StringComparison.OrdinalIgnoreCase))
+        if (!filePath.StartsWith(webRoot, StringComparison.OrdinalIgnoreCase))
         {
             response.StatusCode = (int)HttpStatusCode.Forbidden;
             response.Close();
@@ -94,10 +161,8 @@ public static class TmHttpServer
             return;
         }
 
-        // Set MIME type
         response.ContentType = GetContentType(Path.GetExtension(filePath));
 
-        // Open file using high-performance FileOptions.Asynchronous
         await using var fileStream = new FileStream(
             filePath,
             FileMode.Open,
