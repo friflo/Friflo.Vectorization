@@ -5,17 +5,25 @@ if (!navigator.gpu) {
 }
 
 const canvas = document.getElementById('gpu-canvas');
+
+// WebGPU Core Objects
 let device = null;
 let context = null;
 let presentationFormat = null;
-let vertexBuffer = null;
+
+// WebGPU Pipeline & Buffer Resources (Global Module Scope)
 let pipeline = null;
+let vertexBuffer = null;
+let uniformBuffer = null;
+let bindGroup = null;
+let dummyTextureView = null;
+let dummySampler = null;
 
 // Sizes matching C# Unsafe.SizeOf<T>() in bytes
 const SIZEOF_INT = 4;
 const SIZEOF_WS_DRAW_COMMAND = 64; // Adjust to match C# WsDrawCommand struct layout exactly
 
-// Initialize WebGPU context, fetch WGSL shader, and build render pipeline
+// Initialize WebGPU context, fetch WGSL shader, create buffers & bind groups, and build render pipeline
 async function initWebGPU() {
     const adapter = await navigator.gpu.requestAdapter();
     if (!adapter) {
@@ -33,13 +41,47 @@ async function initWebGPU() {
         alphaMode: 'premultiplied'
     });
 
-    // Initial vertex buffer allocation
+    // Handle canvas resizing
+    function resizeCanvas() {
+        const width = Math.max(1, window.innerWidth);
+        const height = Math.max(1, window.innerHeight);
+        canvas.width = width;
+        canvas.height = height;
+    }
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+
+    // 1. Create Initial Vertex Buffer
     vertexBuffer = device.createBuffer({
         size: 65536,
         usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST,
     });
 
-    // Fetch WGSL shader file from wwwroot
+    // 2. Create Uniform Buffer for ImUniforms struct (mat4x4<f32> = 64 bytes)
+    uniformBuffer = device.createBuffer({
+        size: 64,
+        usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+    });
+
+    // 3. Create 1x1 White Fallback Texture & Sampler for u_texture & u_sampler
+    const dummyTexture = device.createTexture({
+        size: [1, 1],
+        format: 'rgba8unorm',
+        usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_DST,
+    });
+    device.queue.writeTexture(
+        { texture: dummyTexture },
+        new Uint8Array([255, 255, 255, 255]),
+        { bytesPerRow: 4 },
+        [1, 1]
+    );
+    dummyTextureView = dummyTexture.createView();
+    dummySampler = device.createSampler({
+        magFilter: 'linear',
+        minFilter: 'linear'
+    });
+
+    // 4. Fetch WGSL shader file from wwwroot
     let shaderCode = "";
     try {
         const response = await fetch("draw2d.wgsl");
@@ -52,38 +94,22 @@ async function initWebGPU() {
         return false;
     }
 
-    // Create WebGPU shader module from WGSL source
     const shaderModule = device.createShaderModule({
         label: "Draw2D Shader Module",
         code: shaderCode
     });
 
-    // Configure vertex buffer layout matching Vertex2D (position: vec2f, uv: vec2f, color: unorm8x4)
+    // 5. Configure vertex buffer layout (Vertex2D: pos=8B, uv=8B, color=4B)
     const vertexBufferLayout = {
-        arrayStride: 20, // 8 bytes (pos) + 8 bytes (uv) + 4 bytes (color) = 20 bytes
+        arrayStride: 20,
         attributes: [
-            {
-                // position: vec2<f32>
-                shaderLocation: 0,
-                offset: 0,
-                format: 'float32x2'
-            },
-            {
-                // uv: vec2<f32>
-                shaderLocation: 1,
-                offset: 8,
-                format: 'float32x2'
-            },
-            {
-                // color: vec4<f32> (unorm8x4 auto-converts 4 bytes to vec4 normalized floats in WGSL)
-                shaderLocation: 2,
-                offset: 16,
-                format: 'unorm8x4'
-            }
+            { shaderLocation: 0, offset: 0, format: 'float32x2' }, // position
+            { shaderLocation: 1, offset: 8, format: 'float32x2' }, // uv
+            { shaderLocation: 2, offset: 16, format: 'unorm8x4' }   // color
         ]
     };
 
-    // Create Render Pipeline
+    // 6. Create Render Pipeline
     pipeline = device.createRenderPipeline({
         label: "Draw2D Render Pipeline",
         layout: 'auto',
@@ -117,7 +143,17 @@ async function initWebGPU() {
         }
     });
 
-    console.log("[+] WebGPU device and WGSL render pipeline initialized successfully.");
+    // 7. Create Bind Group matching WGSL @group(0) bindings
+    bindGroup = device.createBindGroup({
+        layout: pipeline.getBindGroupLayout(0),
+        entries: [
+            { binding: 0, resource: { buffer: uniformBuffer } },
+            { binding: 1, resource: dummyTextureView },
+            { binding: 2, resource: dummySampler }
+        ]
+    });
+
+    console.log("[+] WebGPU device, Uniforms, and BindGroup initialized successfully.");
     return true;
 }
 
@@ -156,7 +192,7 @@ function initWebSocket() {
 
 // Process incoming binary DrawList frame and render via WebGPU
 function processDrawList(arrayBuffer) {
-    if (!device || !context || !pipeline) return;
+    if (!device || !context || !pipeline || !bindGroup || !uniformBuffer) return;
 
     let offset = 0;
     const view = new DataView(arrayBuffer);
@@ -198,15 +234,25 @@ function processDrawList(arrayBuffer) {
     });
 
     pass.setPipeline(pipeline);
+    pass.setBindGroup(0, bindGroup);
     pass.setVertexBuffer(0, vertexBuffer);
 
     let cmdOffset = 0;
     const cmdView = new DataView(drawCommandsBuffer.buffer, drawCommandsBuffer.byteOffset, drawCommandsByteLength);
 
     for (let i = 0; i < drawCommandCount; i++) {
+        // Extract vertex view fields matching C# WsDrawCommand layout
         const vertexOffset = cmdView.getUint32(cmdOffset + 0, true);
         const vertexDrawCount = cmdView.getUint32(cmdOffset + 4, true);
 
+        // Extract projection matrix (16 floats = 64 bytes) directly from WsDrawCommand (offset 8)
+        const matrixByteOffset = drawCommandsBuffer.byteOffset + cmdOffset + 8;
+        const projectionMatrix = new Float32Array(arrayBuffer, matrixByteOffset, 16);
+
+        // Upload command's projection matrix directly to GPU uniform buffer
+        device.queue.writeBuffer(uniformBuffer, 0, projectionMatrix);
+
+        // Draw vertices
         pass.draw(vertexDrawCount, 1, vertexOffset, 0);
 
         cmdOffset += SIZEOF_WS_DRAW_COMMAND;

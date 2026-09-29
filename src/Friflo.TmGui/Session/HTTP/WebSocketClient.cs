@@ -32,10 +32,14 @@ internal class WebSocketClient : TmClient
     protected internal override int Send(ReadOnlyMemory<byte> buffer)
     {
         if (webSocket.State == WebSocketState.Open) {
-            webSocket.SendAsync(buffer, WebSocketMessageType.Binary, true, CancellationToken.None)
-                     .GetAwaiter()
-                     .GetResult();
-            return buffer.Length;
+            try {
+                webSocket.SendAsync(buffer, WebSocketMessageType.Binary, true, CancellationToken.None)
+                         .GetAwaiter()
+                         .GetResult();
+                return buffer.Length;
+            } catch (WebSocketException e) {
+                Console.WriteLine(e);
+            }
         }
         return 0;
     }
