@@ -180,6 +180,7 @@ public sealed class HttpServer
     {
         ".html" or ".htm" => "text/html; charset=utf-8",
         ".js" or ".mjs"   => "text/javascript; charset=utf-8",
+        ".wgsl"           => "text/wgsl; charset=utf-8",
         ".css"            => "text/css; charset=utf-8",
         ".json"           => "application/json; charset=utf-8",
         ".png"            => "image/png",
