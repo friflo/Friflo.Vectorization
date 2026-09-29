@@ -51,6 +51,10 @@
     <!-- Enables use of Kestrel without additional NuGet-Packages -->
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
+    
+  <ItemGroup>
+    <ProjectReference Include="..\Friflo.TmGui\Friflo.TmGui.csproj" />
+  </ItemGroup>
 
   <ItemGroup>
     <None Include="..\package-icon.png" Pack="true" PackagePath="" />
@@ -64,20 +68,16 @@
   <!-- packaging: end -->
   
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
     <DefineConstants>TRACE</DefineConstants>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
   </PropertyGroup>
   
   <ItemGroup>
     <None Remove="*.csproj.lscache" />
-  </ItemGroup>
-  
-  <ItemGroup>
-    <ProjectReference Include="..\Friflo.TmGui\Friflo.TmGui.csproj" />
   </ItemGroup>
   
 </Project>
