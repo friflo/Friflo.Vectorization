@@ -118,7 +118,7 @@ public partial class TmSessionLoop
     /// <summary>
     /// Processes all currently pending events in the queue synchronously on the calling thread.
     /// </summary>
-    public void ProcessPendingEventsSync()
+    public void IterateSessions()
     {
         ObjectDisposedException.ThrowIf(isDisposed, this);
 
@@ -130,7 +130,8 @@ public partial class TmSessionLoop
         }
 
         foreach (var (client, session) in sessions) {
-            session.IterateTui();
+            var sendBuffer = session.IterateTui();
+            client.Send(sendBuffer);
         }
     }
 }

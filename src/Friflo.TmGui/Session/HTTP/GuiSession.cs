@@ -6,6 +6,8 @@
 
 using System;
 using System.Numerics;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 
 namespace Friflo.TmGui.Session.HTTP;
 
@@ -16,6 +18,7 @@ internal sealed class GuiSession : TmSession
     internal readonly   WsBackend       wsBackend;
     private  readonly   WsBatch         wsBatch;        // instance: creates / owns
     private             WsDrawCommand[] wsDrawList = [];
+    private             byte[]          sendBuffer = [];
     
     
     internal GuiSession(TmClient client, IGuiAssets assets)
@@ -48,19 +51,49 @@ internal sealed class GuiSession : TmSession
                 scissor     = cmd.scissor,
             };
         }
-        return default;
+        var vertices = wsBatch.Vertices;
+        
+        var sendLength = 4 + drawCommands.Count  * Unsafe.SizeOf<WsDrawCommand>() +
+                         4 + vertices.Length     * Unsafe.SizeOf<Vertex2D>();
+        if (sendBuffer.Length < sendLength) {
+            sendBuffer = new byte[sendLength];
+        }
+        Span<byte> span = sendBuffer;
+        int bytesWritten = 0;
+
+        // 1. Write drawCommands.Count (int)
+        MemoryMarshal.Write(span[bytesWritten..], drawCommands.Count);
+        bytesWritten += sizeof(int);
+        
+        // 2. Write vertices.Length (int)
+        MemoryMarshal.Write(span[bytesWritten..], vertices.Length);
+        bytesWritten += sizeof(int);
+
+        // 3. Write wsDrawList elements
+        var drawListBytes = MemoryMarshal.AsBytes(wsDrawList.AsSpan(0, drawCommands.Count));
+        drawListBytes.CopyTo(span[bytesWritten..]);
+        bytesWritten += drawListBytes.Length;
+
+        // 4. Write vertices elements
+        var vertexBytes = MemoryMarshal.AsBytes(vertices);
+        vertexBytes.CopyTo(span[bytesWritten..]);
+        bytesWritten += vertexBytes.Length;
+        
+        if (bytesWritten != sendLength) throw new InvalidOperationException("invalid length");
+            
+        return new Memory<byte>(sendBuffer, 0, sendLength);
     }
 }
 
 public struct WsDrawCommand
 {
-    public  ulong           zIndex;
-    public  int             sequence;
-    public  TmTexture       texture;
+//  public  ulong           zIndex;
+//  public  int             sequence;
+//  public  TmTexture       texture;
     public  MemoryView      vertexView;
-    public  MemoryView      indexView;
-    public  BlendState      blendState;
+//  public  MemoryView      indexView;
+//  public  BlendState      blendState;
     public  Matrix4x4       projection;
-    public  SamplerFilter   samplerFilter;
+//  public  SamplerFilter   samplerFilter;
     public  RectVector2     scissor;
 }

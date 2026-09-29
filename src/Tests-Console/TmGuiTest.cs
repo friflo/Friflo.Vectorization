@@ -97,12 +97,16 @@ public class TmGuiRenderer : IRenderer, IGuiView
             clearValue  = new GpuColor(0.6f, 0.61f, 0.62f, 1f)
         };
     }
+    
+    private readonly Stopwatch   stopwatch = Stopwatch.StartNew();
 
     public void OnFrame(in RenderTarget target)
     {
         perfLog.Trace(10000);
-        loop.ProcessPendingEventsSync();
-            
+        if (stopwatch.ElapsedMilliseconds >= 16) {
+            loop.IterateSessions();
+            stopwatch.Restart();
+        }
         RenderGui(batch, target.Width, target.Height);
 
         batch.DrawCommandList(target, renderPassDescriptor);
