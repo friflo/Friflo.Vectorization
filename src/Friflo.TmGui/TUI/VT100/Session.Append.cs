@@ -14,31 +14,31 @@ internal sealed partial class TuiSession
     {
         AppendSpan("\x1b["u8);
         AppendNumber(y); // Row (Y)
-        AppendSpan(";"u8);
+        AppendAscii(';');
         AppendNumber(x); // Column (X)
-        AppendSpan("H"u8);
+        AppendAscii('H');
     }
     
     private void AppendColor(Color32 color)
     {
         AppendSpan("\x1b[38;2;"u8);
         AppendNumber(color.R);
-        AppendAscii((byte)';');
+        AppendAscii(';');
         AppendNumber(color.G);
-        AppendAscii((byte)';');
+        AppendAscii(';');
         AppendNumber(color.B);
-        AppendAscii((byte)'m');
+        AppendAscii('m');
     }
     
     private void AppendBackground(Color32 background)
     {
         AppendSpan("\x1b[48;2;"u8);
         AppendNumber(background.R);
-        AppendAscii((byte)';');
+        AppendAscii(';');
         AppendNumber(background.G);
-        AppendAscii((byte)';');
+        AppendAscii(';');
         AppendNumber(background.B);
-        AppendAscii((byte)'m');
+        AppendAscii('m');
     }
 
     // Allocation-free byte-to-ASCII integer formatting directly into send buffer
@@ -85,9 +85,9 @@ internal sealed partial class TuiSession
         buffer[index] = (byte)('0' + value);
     }
     
-    private void AppendAscii(byte value)
+    private void AppendAscii(char value)
     {
-        sendBuffer[sendBufferCount++] = value; 
+        sendBuffer[sendBufferCount++] = (byte)value; 
     }
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
