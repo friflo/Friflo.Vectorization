@@ -1,6 +1,8 @@
 ﻿using System.Diagnostics;
 using System.Numerics;
 using Friflo.TmGui;
+using Friflo.TmGui.Session;
+using Friflo.TmGui.Session.HTTP;
 using Friflo.WGPU;
 using Friflo.WGPU.TmGui;
 
@@ -26,6 +28,7 @@ public class TmGuiRenderer : IRenderer
     private             float                   volume = 0.8f;
     private readonly    List<string>            scrollAreaButtons = [];
     private readonly    Color32[]               textColors = [0x0000FFFF, 0xFF0000FF, 0x009900FF, 0xFF00FFFF, 0xCC6600FF, 0x000000ff];
+    private readonly    TmSessionLoop           loop;
     
     private readonly GuiStyle redButtonStyle = new() {
         colors = new GuiColors {
@@ -68,6 +71,12 @@ public class TmGuiRenderer : IRenderer
         using var stream = typeof(SdlWindow).Assembly.GetManifestResourceStream("Tests-Console.Assets.img.world_tileset.png")!;
         myTexture        = guiBackend.LoadTexture(stream, "world_tileset.png").AsGpuTexture(); 
         myTextureView    = myTexture.CreateView().AsTmTexture();
+        
+        loop = new TmSessionLoop(false, null, info => {
+            return null!;
+        });
+        var httpServer = new HttpServer(loop, 8080);
+        httpServer.Start();
     }
     
     public void OnWindowChanged(int width, int height)
@@ -82,7 +91,8 @@ public class TmGuiRenderer : IRenderer
     public void OnFrame(in RenderTarget target)
     {
         perfLog.Trace(10000);
-        
+        loop.ProcessPendingEventsSync();
+            
         var gui = batch.BeginGui(target.Width, target.Height);
         
         using (gui.BeginWindow("Window 1", new(100, 20), new(400, 950))) {

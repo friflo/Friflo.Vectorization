@@ -4,7 +4,7 @@
 using System;
 using System.Diagnostics;
 using System.Threading;
-using Friflo.TmGui.TUI.VT100;
+
 
 // ReSharper disable CheckNamespace
 namespace Friflo.TmGui.Session;
@@ -22,7 +22,7 @@ public partial class TmSessionLoop
         
         // Block main caller thread directly or start dedicated loop thread
         RunSyncThreadLoop();
-    }    
+    }
 
 
     // run loop
@@ -67,8 +67,12 @@ public partial class TmSessionLoop
         try {
             switch (evt.Type)
             {
+                case ClientEventType.WebsocketConnected: {
+                    var newSession = CreateGuiSession(evt, true, out var _);
+                    break;
+                }
                 case ClientEventType.TerminalConnected: {
-                    var newSession      = CreateSession(evt, true, out var payload);
+                    var newSession      = CreateTuiSession(evt, true, out var payload);
                     var initialMessage  = newSession.StartSession();
                     
                     evt.Client.Send(initialMessage);
@@ -86,7 +90,7 @@ public partial class TmSessionLoop
                     break;
 
                 case ClientEventType.TerminalInput:
-                    if (sessions.TryGetValue(evt.Client, out TuiSession? session))
+                    if (sessions.TryGetValue(evt.Client, out TmSession? session))
                     {
                         var payload     = evt.Payload.Span;
                         session.ProcessInput(payload);
@@ -108,6 +112,21 @@ public partial class TmSessionLoop
             Debug.Fail(e.ToString());
         } finally {
             evt.Payload.Return();
+        }
+    }
+    
+    /// <summary>
+    /// Processes all currently pending events in the queue synchronously on the calling thread.
+    /// </summary>
+    public void ProcessPendingEventsSync()
+    {
+        ObjectDisposedException.ThrowIf(isDisposed, this);
+
+        while (eventQueue.TryDequeue(out ClientEvent evt))
+        {
+            // Accumulate queued inputs - late-rendering check
+            bool isQueueEmpty = eventQueue.IsEmpty;
+            ProcessEventSync(evt, isQueueEmpty);
         }
     }
 }

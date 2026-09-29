@@ -61,6 +61,6 @@ internal class WebSocketClient : TmClient
 
     internal static async Task HandleClientSessionAsync(WebSocketClient client, TmSessionLoop loop, CancellationToken cancellationToken)
     {
-        await loop.EnqueueEventAsync(client, ClientEventType.TerminalConnected, default);
+        await loop.EnqueueEventAsync(client, ClientEventType.WebsocketConnected, default);
     }
 }

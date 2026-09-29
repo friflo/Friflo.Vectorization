@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Channels;
 using System.Threading.Tasks;
+using Friflo.TmGui.Session.HTTP;
 using Friflo.TmGui.TUI;
 using Friflo.TmGui.TUI.VT100;
 
@@ -23,7 +24,7 @@ public sealed partial class TmSessionLoop : IDisposable
     private readonly    ConcurrentQueue<ClientEvent>        eventQueue;     // used by: sync loop
     private readonly    AutoResetEvent                      eventReady;     // used by: sync loop
     private readonly    Channel<ClientEvent>                eventChannel;   // used by: async loop
-    private readonly    Dictionary<TmClient, TuiSession>    sessions;       // Raw non-thread-safe state (accessed exclusively by _shardThread)
+    private readonly    Dictionary<TmClient, TmSession>     sessions;       // Raw non-thread-safe state (accessed exclusively by _shardThread)
     private readonly    FrameBuffer                         frameBuffer;    // shared among all sessions - is accessed single threaded
     private readonly    SixelDrawer                         sixelDrawer;    // shared among all sessions
     private readonly    CreateGuiView                       createGuiView;  // IBatchRenderer factory
@@ -55,7 +56,7 @@ public sealed partial class TmSessionLoop : IDisposable
             eventQueue      = new ConcurrentQueue<ClientEvent>();
             eventReady      = new AutoResetEvent(false);
         }
-        sessions            = new Dictionary<TmClient, TuiSession>();
+        sessions            = new Dictionary<TmClient, TmSession>();
         frameBuffer         = new FrameBuffer();
         sixelDrawer         = new SixelDrawer();
         exitHandler         = ExitHandler;
@@ -148,7 +149,7 @@ public sealed partial class TmSessionLoop : IDisposable
         return commandLine.Split(' ', StringSplitOptions.RemoveEmptyEntries);
     }
     
-    private TuiSession CreateSession(ClientEvent evt, bool isSync, out Memory<byte> firstPayload)
+    private TuiSession CreateTuiSession(ClientEvent evt, bool isSync, out Memory<byte> firstPayload)
     {
         var payload     = evt.Payload;
         var firstLine   = payload.Span.IndexOf((byte)'\n');
@@ -165,6 +166,20 @@ public sealed partial class TmSessionLoop : IDisposable
         sessions[client]= session;
         var msgStart    = firstLine == -1 ? 0 : firstLine + 1;
         firstPayload    = payload.GetMemory(msgStart);
+        return session;
+    }
+    
+    private GuiSession CreateGuiSession(ClientEvent evt, bool isSync, out Memory<byte> firstPayload)
+    {
+        var client      = evt.Client;
+        var session     = new GuiSession(client);
+
+        var sessionInfo = new SessionInfo{ client = client, backend = null, args = [] };  // TODO  assign backend
+        var guiView     = createGuiView(sessionInfo);
+        
+        // session.guiView = guiView;
+        sessions[client]= session;
+        firstPayload    = default;
         return session;
     }
 }

@@ -12,9 +12,6 @@ using TestConsole;
 Console.OutputEncoding = System.Text.Encoding.UTF8; // support UTF-8 chars like 🙂
 
 
-// var httpServer = new HttpServer(null!, 8080);
-// httpServer.Start();
-
 SdlWindow.Run("TmGui",         1280, 1200, wgpu => new TmGuiRenderer(wgpu));
 SdlWindow.Run("TmDraw",        1280,  720, wgpu => new TmDrawRenderer(wgpu));
 

@@ -29,7 +29,7 @@ internal sealed partial class TuiSession
     private RS          readState;
     private CharBuffer  csi = new(32);
         
-    public void ProcessInput(ReadOnlySpan<byte> input)
+    public override void ProcessInput(ReadOnlySpan<byte> input)
     {
         int pos = 0;
         var rs  = readState;

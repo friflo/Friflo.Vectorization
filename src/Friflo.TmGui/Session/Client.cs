@@ -13,8 +13,11 @@ namespace Friflo.TmGui.Session;
 
 internal abstract class TmSession
 {
-    internal virtual GuiReplay? CreateReplay()      => null;
-    internal virtual void       SendReplayCommands() { }
+    internal virtual    GuiReplay?      CreateReplay()      => null;
+    internal virtual    void            SendReplayCommands() { }
+    
+    public   abstract   void            ProcessInput(ReadOnlySpan<byte> input);     // todo make internal
+    public   abstract   Memory<byte>    IterateTui();                               // todo make internal
 }
 
 internal enum ClientEventType : byte
@@ -22,7 +25,8 @@ internal enum ClientEventType : byte
     TerminalConnected,
     TerminalDisconnected,
     TerminalInput,
-    FrameTick
+    FrameTick,
+    WebsocketConnected,
 }
 
 internal readonly struct ClientEvent

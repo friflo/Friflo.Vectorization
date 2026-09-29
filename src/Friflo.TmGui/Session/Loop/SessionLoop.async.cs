@@ -5,7 +5,7 @@ using System;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
-using Friflo.TmGui.TUI.VT100;
+
 
 // ReSharper disable CheckNamespace
 namespace Friflo.TmGui.Session;
@@ -72,7 +72,7 @@ public partial class TmSessionLoop
             switch (evt.Type)
             {
                 case ClientEventType.TerminalConnected: {
-                    var newSession      = CreateSession(evt, false, out var payload);
+                    var newSession      = CreateTuiSession(evt, false, out var payload);
                     var initialMessage  = newSession.StartSession();
                     
                     await evt.Client.SendAsync(initialMessage, CancellationToken.None);
@@ -90,7 +90,7 @@ public partial class TmSessionLoop
                     break;
 
                 case ClientEventType.TerminalInput:
-                    if (sessions.TryGetValue(evt.Client, out TuiSession? session))
+                    if (sessions.TryGetValue(evt.Client, out TmSession? session))
                     {
                         var payload     = evt.Payload.Span;
                         session.ProcessInput(payload);
