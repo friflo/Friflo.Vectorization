@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 namespace Friflo.TmGui.Session.HTTP;
 
 
-internal class WebSocketClient
+internal class WebSocketClient : TmClient
 {
     private readonly WebSocket webSocket;
 
@@ -19,12 +19,30 @@ internal class WebSocketClient
         this.webSocket = webSocket;
     }
 
-    internal async ValueTask SendAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken)
+    protected internal override async ValueTask<int> SendAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken)
     {
         if (webSocket.State == WebSocketState.Open)
         {
             await webSocket.SendAsync(buffer, WebSocketMessageType.Binary, true, cancellationToken);
+            return buffer.Length;
         }
+        return 0;
+    }
+    
+    protected internal override int Send(ReadOnlyMemory<byte> buffer)
+    {
+        if (webSocket.State == WebSocketState.Open) {
+            webSocket.SendAsync(buffer, WebSocketMessageType.Binary, true, CancellationToken.None)
+                     .GetAwaiter()
+                     .GetResult();
+            return buffer.Length;
+        }
+        return 0;
+    }
+
+    protected internal override void RestoreTerminal()
+    {
+        throw new NotSupportedException();
     }
 
     internal async ValueTask<int> ReceiveAsync(Memory<byte> buffer, CancellationToken cancellationToken)
@@ -43,6 +61,6 @@ internal class WebSocketClient
 
     internal static async Task HandleClientSessionAsync(WebSocketClient client, TmSessionLoop loop, CancellationToken cancellationToken)
     {
-        // Session lifetime management analogous to SocketClient
+        await loop.EnqueueEventAsync(client, ClientEventType.TerminalConnected, default);
     }
 }
