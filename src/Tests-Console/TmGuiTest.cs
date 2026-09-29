@@ -2,7 +2,7 @@
 using System.Numerics;
 using Friflo.TmGui;
 using Friflo.TmGui.Session;
-using Friflo.TmGui.Session.HTTP;
+using Friflo.TmGui.Http;
 using Friflo.WGPU;
 using Friflo.WGPU.TmGui;
 

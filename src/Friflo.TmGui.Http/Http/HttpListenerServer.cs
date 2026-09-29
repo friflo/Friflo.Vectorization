@@ -6,11 +6,12 @@ using System.IO;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using Friflo.TmGui.Session;
 
 
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable CheckNamespace
-namespace Friflo.TmGui.Session.HTTP;
+namespace Friflo.TmGui.Http;
 
 public sealed class HttpListenerServer
 {

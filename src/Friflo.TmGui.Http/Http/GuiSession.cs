@@ -2,15 +2,16 @@
 // See LICENSE file in the project root for full license information.
 
 
-// ReSharper disable CheckNamespace
 
 using System;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
+using Friflo.TmGui.Session;
 
-namespace Friflo.TmGui.Session.HTTP;
+// ReSharper disable CheckNamespace
+namespace Friflo.TmGui.Http;
 
 public sealed class GuiSession : TmSession
 {

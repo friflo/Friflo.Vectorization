@@ -6,9 +6,10 @@ using System.Buffers;
 using System.Net.WebSockets;
 using System.Threading;
 using System.Threading.Tasks;
+using Friflo.TmGui.Session;
 
 // ReSharper disable CheckNamespace
-namespace Friflo.TmGui.Session.HTTP;
+namespace Friflo.TmGui.Http;
 
 
 internal class WebSocketClient : TmClient

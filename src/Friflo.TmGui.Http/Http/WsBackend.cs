@@ -6,7 +6,8 @@ using System.IO;
 using Friflo.TmGui.Headless;
 
 // ReSharper disable ConvertToPrimaryConstructor
-namespace Friflo.TmGui.Session.HTTP;
+// ReSharper disable CheckNamespace
+namespace Friflo.TmGui.Http;
 
 internal class WsBackend : TmGuiBackend
 {
