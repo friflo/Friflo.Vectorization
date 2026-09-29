@@ -8,8 +8,14 @@ const canvas = document.getElementById('gpu-canvas');
 let device = null;
 let context = null;
 let presentationFormat = null;
+let vertexBuffer = null;
+let pipeline = null;
 
-// Initialize WebGPU context
+// Sizes matching C# Unsafe.SizeOf<T>() in bytes
+const SIZEOF_INT = 4;
+const SIZEOF_WS_DRAW_COMMAND = 64; // Adjust to match C# WsDrawCommand struct layout exactly
+
+// Initialize WebGPU context, buffers, and pipeline
 async function initWebGPU() {
     const adapter = await navigator.gpu.requestAdapter();
     if (!adapter) {
@@ -20,13 +26,20 @@ async function initWebGPU() {
     device = await adapter.requestDevice();
     context = canvas.getContext('webgpu');
     
-    // Configure canvas swapchain format (typically 'bgra8unorm' or 'rgba8unorm')
     presentationFormat = navigator.gpu.getPreferredCanvasFormat();
     context.configure({
         device: device,
         format: presentationFormat,
         alphaMode: 'premultiplied'
     });
+
+    // Initial vertex buffer allocation (e.g. 64KB)
+    vertexBuffer = device.createBuffer({
+        size: 65536,
+        usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST,
+    });
+
+    // TODO: Create your WebGPU render pipeline here and assign it to `pipeline`
 
     console.log("[+] WebGPU device initialized successfully.");
     return true;
@@ -50,7 +63,7 @@ function initWebSocket() {
             const drawListBuffer = new Uint8Array(event.data);
             
             // Execute WebGPU render pass using incoming DrawList
-            renderDrawList(drawListBuffer);
+            processDrawList(drawListBuffer.buffer);
         }
     };
 
@@ -70,33 +83,68 @@ function initWebSocket() {
     });
 }
 
-// Render loop for incoming binary DrawList frame
-function renderDrawList(buffer) {
-    if (!device || !context) return;
+// Process incoming binary DrawList frame and render via WebGPU
+function processDrawList(arrayBuffer) {
+    if (!device || !context || !pipeline) return;
 
-    // Create command encoder for the current frame
+    let offset = 0;
+    const view = new DataView(arrayBuffer);
+
+    // 1. Read drawCommands.Count
+    const drawCommandCount = view.getInt32(offset, true); // true = Little-Endian (C#)
+    offset += SIZEOF_INT;
+
+    // 2. View on WsDrawCommand array (Zero-Copy)
+    const drawCommandsByteLength = drawCommandCount * SIZEOF_WS_DRAW_COMMAND;
+    const drawCommandsBuffer = new Uint8Array(arrayBuffer, offset, drawCommandsByteLength);
+    offset += drawCommandsByteLength;
+
+    // 3. Read vertices.Length
+    const vertexCount = view.getInt32(offset, true);
+    offset += SIZEOF_INT;
+
+    // 4. View on Vertex2D array (Zero-Copy slice directly uploaded to GPU)
+    const verticesSlice = new Uint8Array(arrayBuffer, offset);
+
+    // Upload vertices directly into GPU Vertex Buffer
+    if (vertexBuffer.size < verticesSlice.byteLength) {
+        vertexBuffer = device.createBuffer({
+            size: verticesSlice.byteLength,
+            usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST,
+        });
+    }
+    device.queue.writeBuffer(vertexBuffer, 0, verticesSlice);
+
+
+    // Encode Render Pass
     const commandEncoder = device.createCommandEncoder();
     const textureView = context.getCurrentTexture().createView();
+    
+    const pass = commandEncoder.beginRenderPass({
+        colorAttachments: [{
+            view: textureView,
+            clearValue: { r: 0.12, g: 0.12, b: 0.12, a: 1.0 },
+            loadOp: 'clear',
+            storeOp: 'store'
+        }]
+    });
 
-    // Define standard render pass descriptor
-    const renderPassDescriptor = {
-        colorAttachments: [
-            {
-                view: textureView,
-                clearValue: { r: 0.12, g: 0.12, b: 0.12, a: 1.0 },
-                loadOp: 'clear',
-                storeOp: 'store'
-            }
-        ]
-    };
+    pass.setPipeline(pipeline);
+    pass.setVertexBuffer(0, vertexBuffer);
 
-    const passEncoder = commandEncoder.beginRenderPass(renderPassDescriptor);
+    let cmdOffset = 0;
+    const cmdView = new DataView(drawCommandsBuffer.buffer, drawCommandsBuffer.byteOffset, drawCommandsByteLength);
 
-    // TODO: Parse draw commands from buffer, update GPU buffers (vertex/index), and submit draw calls
-    // e.g., passEncoder.setPipeline(pipeline);
-    // e.g., passEncoder.draw(vertexCount);
+    for (let i = 0; i < drawCommandCount; i++) {
+        const vertexOffset = cmdView.getUint32(cmdOffset + 0, true);
+        const vertexDrawCount = cmdView.getUint32(cmdOffset + 4, true);
 
-    passEncoder.end();
+        pass.draw(vertexDrawCount, 1, vertexOffset, 0);
+
+        cmdOffset += SIZEOF_WS_DRAW_COMMAND;
+    }
+
+    pass.end();
     device.queue.submit([commandEncoder.finish()]);
 }
 
