@@ -90,18 +90,18 @@ function processDrawList(arrayBuffer) {
     let offset = 0;
     const view = new DataView(arrayBuffer);
 
-    // 1. Read drawCommands.Count
-    const drawCommandCount = view.getInt32(offset, true); // true = Little-Endian (C#)
+    // 1. Read drawCommands.Count (int)
+    const drawCommandCount = view.getInt32(offset, true); // true = Little-Endian
     offset += SIZEOF_INT;
 
-    // 2. View on WsDrawCommand array (Zero-Copy)
+    // 2. Read vertices.Length (int)
+    const vertexCount = view.getInt32(offset, true);
+    offset += SIZEOF_INT;
+
+    // 3. View on WsDrawCommand array (Zero-Copy)
     const drawCommandsByteLength = drawCommandCount * SIZEOF_WS_DRAW_COMMAND;
     const drawCommandsBuffer = new Uint8Array(arrayBuffer, offset, drawCommandsByteLength);
     offset += drawCommandsByteLength;
-
-    // 3. Read vertices.Length
-    const vertexCount = view.getInt32(offset, true);
-    offset += SIZEOF_INT;
 
     // 4. View on Vertex2D array (Zero-Copy slice directly uploaded to GPU)
     const verticesSlice = new Uint8Array(arrayBuffer, offset);
@@ -115,14 +115,11 @@ function processDrawList(arrayBuffer) {
     }
     device.queue.writeBuffer(vertexBuffer, 0, verticesSlice);
 
-
     // Encode Render Pass
     const commandEncoder = device.createCommandEncoder();
-    const textureView = context.getCurrentTexture().createView();
-    
     const pass = commandEncoder.beginRenderPass({
         colorAttachments: [{
-            view: textureView,
+            view: context.getCurrentTexture().createView(),
             clearValue: { r: 0.12, g: 0.12, b: 0.12, a: 1.0 },
             loadOp: 'clear',
             storeOp: 'store'
