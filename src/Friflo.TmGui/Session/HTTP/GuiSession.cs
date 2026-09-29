@@ -57,9 +57,9 @@ internal sealed class GuiSession : TmSession
     
     private void DispatchParam(ReadOnlySpan<char> key, ReadOnlySpan<char> value)
     {
-        if (key.SequenceEqual("w") && int.TryParse(value, out canvasWidth)) {
+        if (key.SequenceEqual("canvasWidth") && int.TryParse(value, out canvasWidth)) {
         }
-        else if (key.SequenceEqual("h") && int.TryParse(value, out canvasHeight)) {
+        else if (key.SequenceEqual("canvasHeight") && int.TryParse(value, out canvasHeight)) {
         }
     }
 

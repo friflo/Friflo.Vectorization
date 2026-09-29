@@ -229,7 +229,7 @@ function sendInitGui(socket) {
     const height = canvas.height;
     
     // Key-value text payload matching C# ReadOnlySpan parser
-    socket.send(`w=${width};h=${height};`);
+    socket.send(`canvasWidth=${width};canvasHeight=${height};`);
 }
 
 // Process incoming binary DrawList frame and render via WebGPU
