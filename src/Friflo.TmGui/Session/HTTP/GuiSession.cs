@@ -8,6 +8,7 @@ using System;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Text;
 
 namespace Friflo.TmGui.Session.HTTP;
 
@@ -17,8 +18,10 @@ internal sealed class GuiSession : TmSession
     internal            IGuiView?       guiView;
     internal readonly   WsBackend       wsBackend;
     private  readonly   WsBatch         wsBatch;        // instance: creates / owns
-    private             WsDrawCommand[] wsDrawList = [];
-    private             byte[]          sendBuffer = [];
+    private             WsDrawCommand[] wsDrawList      = [];
+    private             byte[]          sendBuffer      = [];
+    private             int             canvasWidth     = 500;
+    private             int             canvasHeight    = 300;
     
     
     internal GuiSession(TmClient client, IGuiAssets assets)
@@ -28,14 +31,41 @@ internal sealed class GuiSession : TmSession
         this.client = client;
     }
 
-    public override void ProcessInput(ReadOnlySpan<byte> input)
+    public override void ProcessInput(ReadOnlySpan<byte> utf8Bytes)
     {
-        throw new NotImplementedException("*********** TEST");
+        Span<char> chars = stackalloc char[utf8Bytes.Length];
+        int charCount = Encoding.UTF8.GetChars(utf8Bytes, chars);
+        ReadOnlySpan<char> span = chars.Slice(0, charCount);
+
+        // Max 16 Key-Value Paare auf dem Stack zulassen
+        Span<Range> ranges = stackalloc Range[16];
+        int count = span.Split(ranges, ';', StringSplitOptions.RemoveEmptyEntries);
+
+        for (int i = 0; i < count; i++)
+        {
+            ReadOnlySpan<char> pair = span[ranges[i]];
+
+            int eqIndex = pair.IndexOf('=');
+            if (eqIndex < 0) continue;
+
+            ReadOnlySpan<char> key = pair.Slice(0, eqIndex);
+            ReadOnlySpan<char> value = pair.Slice(eqIndex + 1);
+
+            DispatchParam(key, value);
+        }
+    }
+    
+    private void DispatchParam(ReadOnlySpan<char> key, ReadOnlySpan<char> value)
+    {
+        if (key.SequenceEqual("w") && int.TryParse(value, out canvasWidth)) {
+        }
+        else if (key.SequenceEqual("h") && int.TryParse(value, out canvasHeight)) {
+        }
     }
 
     public override Memory<byte> IterateTui()
     {
-        guiView!.RenderGui(wsBatch, 500, 300);
+        guiView!.RenderGui(wsBatch, canvasWidth, canvasHeight);
 
         var drawCommands = wsBatch.drawCommands;
 

@@ -71,6 +71,14 @@ public partial class TmSessionLoop
                     var newSession = CreateGuiSession(evt, true, out var _);
                     break;
                 }
+                case ClientEventType.WebsocketInput:
+                    if (sessions.TryGetValue(evt.Client, out TmSession? session))
+                    {
+                        var payload = evt.Payload.Span;
+                        session.ProcessInput(payload);
+                    }
+                    break;
+    
                 case ClientEventType.TerminalConnected: {
                     var newSession      = CreateTuiSession(evt, true, out var payload);
                     var initialMessage  = newSession.StartSession();
@@ -90,7 +98,7 @@ public partial class TmSessionLoop
                     break;
 
                 case ClientEventType.TerminalInput:
-                    if (sessions.TryGetValue(evt.Client, out TmSession? session))
+                    if (sessions.TryGetValue(evt.Client, out session))
                     {
                         var payload     = evt.Payload.Span;
                         session.ProcessInput(payload);

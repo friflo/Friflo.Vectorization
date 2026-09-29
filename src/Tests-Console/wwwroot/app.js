@@ -186,7 +186,7 @@ function createStaticIndexBuffer(maxVertices = 65536) {
     indexBuffer.unmap();
 }
 
-// Initialize WebSocket connection to C# HttpServer
+// Send initial canvas resolution to C# backend immediately after WebSocket handshake
 function initWebSocket() {
     const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
     const wsUrl = `${wsProtocol}//${window.location.host}/ws`;
@@ -195,7 +195,10 @@ function initWebSocket() {
     socket.binaryType = "arraybuffer";
 
     socket.onopen = () => {
-        console.log("[+] WebSocket connected to server.");
+        console.log("[+] WebSocket connected. Sending WsInitGui event...");
+        
+        // Send initial canvas resolution in zero-allocation key-value format
+        sendInitGui(socket);
     };
 
     socket.onmessage = (event) => {
@@ -212,11 +215,21 @@ function initWebSocket() {
         console.error("WebSocket error:", err);
     };
 
-    window.addEventListener('keydown', (e) => {
+    // Send resize events dynamically when window dimensions change
+    window.addEventListener('resize', () => {
         if (socket.readyState === WebSocket.OPEN) {
-            socket.send(JSON.stringify({ type: 'keydown', key: e.key, code: e.code }));
+            sendInitGui(socket);
         }
     });
+}
+
+// Send current canvas dimensions as text stream
+function sendInitGui(socket) {
+    const width = canvas.width;
+    const height = canvas.height;
+    
+    // Key-value text payload matching C# ReadOnlySpan parser
+    socket.send(`w=${width};h=${height};`);
 }
 
 // Process incoming binary DrawList frame and render via WebGPU

@@ -27,6 +27,7 @@ internal enum ClientEventType : byte
     TerminalInput,
     FrameTick,
     WebsocketConnected,
+    WebsocketInput,
 }
 
 internal readonly struct ClientEvent

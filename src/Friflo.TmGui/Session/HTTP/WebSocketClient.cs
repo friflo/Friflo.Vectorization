@@ -2,6 +2,7 @@
 // See LICENSE file in the project root for full license information.
 
 using System;
+using System.Buffers;
 using System.Net.WebSockets;
 using System.Threading;
 using System.Threading.Tasks;
@@ -48,7 +49,7 @@ internal class WebSocketClient : TmClient
     {
         throw new NotSupportedException();
     }
-
+    /*
     internal async ValueTask<int> ReceiveAsync(Memory<byte> buffer, CancellationToken cancellationToken)
     {
         if (webSocket.State != WebSocketState.Open) return 0;
@@ -61,10 +62,37 @@ internal class WebSocketClient : TmClient
         }
 
         return result.Count;
-    }
+    } */
 
     internal static async Task HandleClientSessionAsync(WebSocketClient client, TmSessionLoop loop, CancellationToken cancellationToken)
     {
         await loop.EnqueueEventAsync(client, ClientEventType.WebsocketConnected, default);
+
+        while (client.webSocket.State == WebSocketState.Open && !cancellationToken.IsCancellationRequested)
+        {
+            byte[] buffer = ArrayPool<byte>.Shared.Rent(256);
+            WebSocketReceiveResult result;
+            try
+            {
+                result = await client.webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), cancellationToken);
+            }
+            catch (WebSocketException)
+            {
+                break;
+            }
+
+            if (result.MessageType == WebSocketMessageType.Close)
+            {
+                await client.webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Closing", cancellationToken);
+                break;
+            }
+
+            if (result.MessageType == WebSocketMessageType.Text || result.MessageType == WebSocketMessageType.Binary)
+            {
+                var payload = new Payload(buffer, result.Count);
+
+                await loop.EnqueueEventAsync(client, ClientEventType.WebsocketInput, payload);
+            }
+        }
     }
 }
