@@ -15,7 +15,7 @@ let pipeline = null;
 const SIZEOF_INT = 4;
 const SIZEOF_WS_DRAW_COMMAND = 64; // Adjust to match C# WsDrawCommand struct layout exactly
 
-// Initialize WebGPU context, buffers, and pipeline
+// Initialize WebGPU context, fetch WGSL shader, and build render pipeline
 async function initWebGPU() {
     const adapter = await navigator.gpu.requestAdapter();
     if (!adapter) {
@@ -33,15 +33,91 @@ async function initWebGPU() {
         alphaMode: 'premultiplied'
     });
 
-    // Initial vertex buffer allocation (e.g. 64KB)
+    // Initial vertex buffer allocation
     vertexBuffer = device.createBuffer({
         size: 65536,
         usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST,
     });
 
-    // TODO: Create your WebGPU render pipeline here and assign it to `pipeline`
+    // Fetch WGSL shader file from wwwroot
+    let shaderCode = "";
+    try {
+        const response = await fetch("draw2d.wgsl");
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        shaderCode = await response.text();
+    } catch (err) {
+        console.error("Failed to load WGSL shader file:", err);
+        return false;
+    }
 
-    console.log("[+] WebGPU device initialized successfully.");
+    // Create WebGPU shader module from WGSL source
+    const shaderModule = device.createShaderModule({
+        label: "Draw2D Shader Module",
+        code: shaderCode
+    });
+
+    // Configure vertex buffer layout matching Vertex2D (position: vec2f, uv: vec2f, color: unorm8x4)
+    const vertexBufferLayout = {
+        arrayStride: 20, // 8 bytes (pos) + 8 bytes (uv) + 4 bytes (color) = 20 bytes
+        attributes: [
+            {
+                // position: vec2<f32>
+                shaderLocation: 0,
+                offset: 0,
+                format: 'float32x2'
+            },
+            {
+                // uv: vec2<f32>
+                shaderLocation: 1,
+                offset: 8,
+                format: 'float32x2'
+            },
+            {
+                // color: vec4<f32> (unorm8x4 auto-converts 4 bytes to vec4 normalized floats in WGSL)
+                shaderLocation: 2,
+                offset: 16,
+                format: 'unorm8x4'
+            }
+        ]
+    };
+
+    // Create Render Pipeline
+    pipeline = device.createRenderPipeline({
+        label: "Draw2D Render Pipeline",
+        layout: 'auto',
+        vertex: {
+            module: shaderModule,
+            entryPoint: 'vs_main',
+            buffers: [vertexBufferLayout]
+        },
+        fragment: {
+            module: shaderModule,
+            entryPoint: 'fs_main',
+            targets: [{
+                format: presentationFormat,
+                blend: {
+                    color: {
+                        srcFactor: 'src-alpha',
+                        dstFactor: 'one-minus-src-alpha',
+                        operation: 'add'
+                    },
+                    alpha: {
+                        srcFactor: 'one',
+                        dstFactor: 'one-minus-src-alpha',
+                        operation: 'add'
+                    }
+                }
+            }]
+        },
+        primitive: {
+            topology: 'triangle-list',
+            cullMode: 'none'
+        }
+    });
+
+    console.log("[+] WebGPU device and WGSL render pipeline initialized successfully.");
     return true;
 }
 
@@ -51,7 +127,6 @@ function initWebSocket() {
     const wsUrl = `${wsProtocol}//${window.location.host}/ws`;
     const socket = new WebSocket(wsUrl);
 
-    // Expect binary frames for raw DrawList data
     socket.binaryType = "arraybuffer";
 
     socket.onopen = () => {
@@ -60,10 +135,7 @@ function initWebSocket() {
 
     socket.onmessage = (event) => {
         if (event.data instanceof ArrayBuffer) {
-            const drawListBuffer = new Uint8Array(event.data);
-            
-            // Execute WebGPU render pass using incoming DrawList
-            processDrawList(drawListBuffer.buffer);
+            processDrawList(event.data);
         }
     };
 
@@ -75,7 +147,6 @@ function initWebSocket() {
         console.error("WebSocket error:", err);
     };
 
-    // Forward keyboard input back to C# server
     window.addEventListener('keydown', (e) => {
         if (socket.readyState === WebSocket.OPEN) {
             socket.send(JSON.stringify({ type: 'keydown', key: e.key, code: e.code }));
@@ -91,7 +162,7 @@ function processDrawList(arrayBuffer) {
     const view = new DataView(arrayBuffer);
 
     // 1. Read drawCommands.Count (int)
-    const drawCommandCount = view.getInt32(offset, true); // true = Little-Endian
+    const drawCommandCount = view.getInt32(offset, true);
     offset += SIZEOF_INT;
 
     // 2. Read vertices.Length (int)
