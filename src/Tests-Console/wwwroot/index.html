@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Friflo.TmGui Client</title>
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #1e1e1e;
+            color: #ffffff;
+            font-family: sans-serif;
+            overflow: hidden;
+        }
+        #canvas {
+            display: block;
+            width: 100vw;
+            height: 100vh;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+
+        // Dynamically build WebSocket endpoint based on current location
+        const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+        const wsUrl = `${wsProtocol}//${window.location.host}/ws`;
+        const socket = new WebSocket(wsUrl);
+
+        // Receive binary frames for DrawList streaming
+        socket.binaryType = "arraybuffer";
+
+        socket.onopen = () => {
+            console.log("[+] WebSocket connection established.");
+        };
+
+        socket.onmessage = (event) => {
+            if (event.data instanceof ArrayBuffer) {
+                const drawListBuffer = new Uint8Array(event.data);
+                
+                // Process incoming binary DrawList frame
+                processDrawList(drawListBuffer);
+            }
+        };
+
+        socket.onclose = () => {
+            console.log("[-] WebSocket connection closed.");
+        };
+
+        socket.onerror = (err) => {
+            console.error("WebSocket error:", err);
+        };
+
+        function processDrawList(buffer) {
+            // Parse binary commands and execute draw calls on canvas
+        }
+
+        // Example: Send user input back to C# server
+        window.addEventListener('keydown', (e) => {
+            if (socket.readyState === WebSocket.OPEN) {
+                socket.send(JSON.stringify({ type: 'keydown', key: e.key, code: e.code }));
+            }
+        });
+    </script>
+</body>
+</html>
