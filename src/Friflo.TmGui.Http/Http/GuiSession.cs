@@ -12,24 +12,29 @@ using System.Text;
 
 namespace Friflo.TmGui.Session.HTTP;
 
-internal sealed class GuiSession : TmSession
+public sealed class GuiSession : TmSession
 {
     private  readonly   TmClient        client;         // instance: passed
-    internal            IGuiView?       guiView;
-    internal readonly   WsBackend       wsBackend;
+    private  readonly   WsBackend       wsBackend;
     private  readonly   WsBatch         wsBatch;        // instance: creates / owns
     private             WsDrawCommand[] wsDrawList      = [];
     private             byte[]          sendBuffer      = [];
     private             int             canvasWidth     = 500;
     private             int             canvasHeight    = 300;
     
+    public static GuiSession CreateGuiSession(ClientEvent evt, IGuiAssets assets)
+    {
+        return new GuiSession(evt.Client, assets);
+    }
     
-    internal GuiSession(TmClient client, IGuiAssets assets)
+    private GuiSession(TmClient client, IGuiAssets assets)
     {
         wsBackend   = new WsBackend(assets);
         wsBatch     = wsBackend.CreateBatch();
         this.client = client;
     }
+    
+    protected override TmGuiBackend    Backend => wsBackend;
 
     public override void ProcessInput(ReadOnlySpan<byte> utf8Bytes)
     {
@@ -66,13 +71,15 @@ internal sealed class GuiSession : TmSession
     public override Memory<byte> IterateTui()
     {
         guiView!.RenderGui(wsBatch, canvasWidth, canvasHeight);
+        
+        wsBatch.DrawCommandList();
 
-        var drawCommands = wsBatch.drawCommands;
+        var drawCommands = wsBatch.DrawList;
 
-        if (wsDrawList.Length < drawCommands.Count) {
-            wsDrawList = new WsDrawCommand [drawCommands.Count];
+        if (wsDrawList.Length < drawCommands.Length) {
+            wsDrawList = new WsDrawCommand [drawCommands.Length];
         }
-        for (int n = 0; n < drawCommands.Count; n++)
+        for (int n = 0; n < drawCommands.Length; n++)
         {
             var cmd = drawCommands[n];
             wsDrawList[n] = new WsDrawCommand {
@@ -83,7 +90,7 @@ internal sealed class GuiSession : TmSession
         }
         var vertices = wsBatch.Vertices;
         
-        var sendLength = 4 + drawCommands.Count  * Unsafe.SizeOf<WsDrawCommand>() +
+        var sendLength = 4 + drawCommands.Length * Unsafe.SizeOf<WsDrawCommand>() +
                          4 + vertices.Length     * Unsafe.SizeOf<Vertex2D>();
         if (sendBuffer.Length < sendLength) {
             sendBuffer = new byte[sendLength];
@@ -92,7 +99,7 @@ internal sealed class GuiSession : TmSession
         int bytesWritten = 0;
 
         // 1. Write drawCommands.Count (int)
-        MemoryMarshal.Write(span[bytesWritten..], drawCommands.Count);
+        MemoryMarshal.Write(span[bytesWritten..], drawCommands.Length);
         bytesWritten += sizeof(int);
         
         // 2. Write vertices.Length (int)
@@ -100,7 +107,7 @@ internal sealed class GuiSession : TmSession
         bytesWritten += sizeof(int);
 
         // 3. Write wsDrawList elements
-        var drawListBytes = MemoryMarshal.AsBytes(wsDrawList.AsSpan(0, drawCommands.Count));
+        var drawListBytes = MemoryMarshal.AsBytes(wsDrawList.AsSpan(0, drawCommands.Length));
         drawListBytes.CopyTo(span[bytesWritten..]);
         bytesWritten += drawListBytes.Length;
 

@@ -20,7 +20,7 @@ internal class WebSocketClient : TmClient
         this.webSocket = webSocket;
     }
 
-    protected internal override async ValueTask<int> SendAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken)
+    protected override async ValueTask<int> SendAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken)
     {
         if (webSocket.State == WebSocketState.Open)
         {
@@ -30,7 +30,7 @@ internal class WebSocketClient : TmClient
         return 0;
     }
     
-    protected internal override int Send(ReadOnlyMemory<byte> buffer)
+    protected override int Send(ReadOnlyMemory<byte> buffer)
     {
         if (webSocket.State == WebSocketState.Open) {
             try {
@@ -45,7 +45,7 @@ internal class WebSocketClient : TmClient
         return 0;
     }
 
-    protected internal override void RestoreTerminal()
+    protected override void RestoreTerminal()
     {
         throw new NotSupportedException();
     }

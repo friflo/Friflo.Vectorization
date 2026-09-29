@@ -20,9 +20,8 @@ internal sealed partial class TuiSession : TmSession
     private  readonly   TuiColorMode    colorMode;
     private  readonly   FrameBuffer     frameBuffer;    // instance: shared
     private  readonly   SixelDrawer     sixelDrawer;    // instance: shared
-    internal readonly   TuiBackend      tuiBackend;     // instance: creates / owns
+    private  readonly   TuiBackend      tuiBackend;     // instance: creates / owns
     internal readonly   TuiBatch        tuiBatch;       // instance: creates / owns
-    internal            IGuiView?       guiView;
     private  readonly   byte[]          sendBuffer      = new byte[60000];  // TODO grow if needed
     private             int             sendBufferCount;
     private             int             frameWidth      = 50;
@@ -49,6 +48,8 @@ internal sealed partial class TuiSession : TmSession
     }
     
     // --- TmSession
+    protected internal override TmGuiBackend    Backend => tuiBackend;
+    
     internal override GuiReplay CreateReplay()
     {
         var replayBackend   = new TuiBackend("Replay", tuiBackend.Assets);

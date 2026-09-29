@@ -8,7 +8,6 @@ using System.Text;
 using System.Threading;
 using System.Threading.Channels;
 using System.Threading.Tasks;
-using Friflo.TmGui.Session.HTTP;
 using Friflo.TmGui.TUI;
 using Friflo.TmGui.TUI.VT100;
 
@@ -28,6 +27,7 @@ public sealed partial class TmSessionLoop : IDisposable
     private readonly    FrameBuffer                         frameBuffer;    // shared among all sessions - is accessed single threaded
     private readonly    SixelDrawer                         sixelDrawer;    // shared among all sessions
     private readonly    CreateGuiView                       createGuiView;  // IBatchRenderer factory
+    private readonly    CreateSession                       createSession;
     private readonly    IGuiAssets                          assets;         // shared among all sessions
     private readonly    CancellationTokenSource             cts = new();
     private             Thread?                             shardThread;
@@ -36,10 +36,11 @@ public sealed partial class TmSessionLoop : IDisposable
 
     private const int MaxSyncQueueCapacity = 32;
     
-    public TmSessionLoop(bool isAsync, IGuiAssets? assets, CreateGuiView createGuiView)
+    public TmSessionLoop(bool isAsync, IGuiAssets? assets, CreateGuiView createGuiView, CreateSession createSession)
     {
         this.isAsync        = isAsync;
         this.createGuiView  = createGuiView;
+        this.createSession  = createSession;
         this.assets         = assets ?? new TuiAssets(); 
         if (isAsync) {
             // Bounded channel to enforce non-blocking backpressure via TryWrite
@@ -63,7 +64,7 @@ public sealed partial class TmSessionLoop : IDisposable
         PosixSignalUtils.AddExitHandler(exitHandler);
     }
     
-    internal async ValueTask EnqueueEventAsync(TmClient client, ClientEventType type, Payload payload)
+    public async ValueTask EnqueueEventAsync(TmClient client, ClientEventType type, Payload payload)
     {
         var evt = new ClientEvent { Client = client, Type = type, Payload = payload };
         if (isAsync) {
@@ -159,7 +160,7 @@ public sealed partial class TmSessionLoop : IDisposable
         var frameTimer  = new FrameTimer(this, evt.Client, 60, isSync);
         var session     = new TuiSession(evt.Client, frameBuffer, frameTimer, sixelDrawer, assets, TuiColorMode.RGB24);
 
-        var sessionInfo = new SessionInfo{ client = client, backend = session.tuiBackend, args = args };
+        var sessionInfo = new SessionInfo{ client = client, backend = session.Backend, args = args };
         var guiView     = createGuiView(sessionInfo);
         
         session.guiView = guiView;
@@ -168,13 +169,13 @@ public sealed partial class TmSessionLoop : IDisposable
         firstPayload    = payload.GetMemory(msgStart);
         return session;
     }
-    
-    private GuiSession CreateGuiSession(ClientEvent evt, bool isSync, out Memory<byte> firstPayload)
-    {
-        var client      = evt.Client;
-        var session     = new GuiSession(client, assets);
 
-        var sessionInfo = new SessionInfo{ client = client, backend = session.wsBackend, args = [] };
+    private TmSession CreateGuiSession(ClientEvent evt, bool isSync, out Memory<byte> firstPayload)
+    {
+        TmSession session = createSession(evt, assets);
+        
+        var client      = evt.Client;
+        var sessionInfo = new SessionInfo{ client = client, backend = session.Backend, args = [] };
         var guiView     = createGuiView(sessionInfo);
         
         session.guiView = guiView;
@@ -183,3 +184,5 @@ public sealed partial class TmSessionLoop : IDisposable
         return session;
     }
 }
+
+public delegate TmSession CreateSession(ClientEvent evt, IGuiAssets assets);

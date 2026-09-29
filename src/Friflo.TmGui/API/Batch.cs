@@ -77,7 +77,7 @@ public abstract class TmBatch : IDisposable
 
 #region private / internal
     private             DrawCommand[]       drawList        = [];
-    internal  readonly  List<DrawCommand>   drawCommands 	= [];
+    private   readonly  List<DrawCommand>   drawCommands 	= [];
     internal  readonly  List<CmdSegment>    commandSegments = [];
     internal  readonly  Memory<Vertex2D>    vertexBuffer;
     

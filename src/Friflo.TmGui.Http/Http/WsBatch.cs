@@ -11,8 +11,13 @@ internal class WsBatch : TmBatch
     {
     }
 
-    protected internal override void InitBatch()
+    protected override void InitBatch()
     {
         
+    }
+    
+    internal void DrawCommandList()
+    {
+        EndBatch();
     }
 }

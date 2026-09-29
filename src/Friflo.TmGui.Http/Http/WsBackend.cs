@@ -14,13 +14,13 @@ internal class WsBackend : TmGuiBackend
     {
     }
 
-    protected internal override TmBuffer<Vertex2D> CreateVertexBuffer(int vertexCount)
+    protected override TmBuffer<Vertex2D> CreateVertexBuffer(int vertexCount)
     {
         var buffer = new MemoryBuffer<Vertex2D>(vertexCount);
         return new HeadlessBuffer<Vertex2D>(buffer);
     }
 
-    protected internal override TmBuffer<uint> CreateIndexBuffer(int indexCount)
+    protected override TmBuffer<uint> CreateIndexBuffer(int indexCount)
     {
         var buffer = new MemoryBuffer<uint>(indexCount);
         return new HeadlessBuffer<uint>(buffer);

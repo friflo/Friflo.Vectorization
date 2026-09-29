@@ -11,16 +11,19 @@ using System.Threading.Tasks;
 namespace Friflo.TmGui.Session;
 
 
-internal abstract class TmSession
+public abstract class TmSession
 {
-    internal virtual    GuiReplay?      CreateReplay()      => null;
-    internal virtual    void            SendReplayCommands() { }
+    protected internal          IGuiView?       guiView;
     
-    public   abstract   void            ProcessInput(ReadOnlySpan<byte> input);     // todo make internal
-    public   abstract   Memory<byte>    IterateTui();                               // todo make internal
+    protected internal abstract TmGuiBackend    Backend             { get; }
+    internal           virtual  GuiReplay?      CreateReplay()      => null;
+    internal           virtual  void            SendReplayCommands() { }
+    
+    public             abstract void            ProcessInput(ReadOnlySpan<byte> input);     // todo make internal
+    public             abstract Memory<byte>    IterateTui();                               // todo make internal
 }
 
-internal enum ClientEventType : byte
+public enum ClientEventType : byte
 {
     TerminalConnected,
     TerminalDisconnected,
@@ -30,14 +33,14 @@ internal enum ClientEventType : byte
     WebsocketInput,
 }
 
-internal readonly struct ClientEvent
+public readonly struct ClientEvent
 {
-    internal required   TmClient            Client  { get; init; }
-    internal required   ClientEventType     Type    { get; init; }
-    internal required   Payload             Payload { get; init; }
+    public  required    TmClient        Client  { get; init; }
+    public  required    ClientEventType Type    { get; init; }
+    public  required    Payload         Payload { get; init; }
 }
 
-internal readonly struct Payload
+public readonly struct Payload
 {
     private readonly     byte[] buffer;
     private readonly     int    length;

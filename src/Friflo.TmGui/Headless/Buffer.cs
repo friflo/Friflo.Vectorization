@@ -13,14 +13,14 @@ public sealed class MemoryBuffer<T> :IDisposable where T : unmanaged
 {
     public readonly Memory<T> memory;
     
-    internal MemoryBuffer(int size) {
+    public MemoryBuffer(int size) {
         memory = new Memory<T>(new T[size]);
     }
 
     public void Dispose() { }
 }
 
-internal sealed class HeadlessBuffer<T> : TmBuffer<T> where T : unmanaged
+public sealed class HeadlessBuffer<T> : TmBuffer<T> where T : unmanaged
 {
     private readonly  MemoryBuffer<T> native;
     
