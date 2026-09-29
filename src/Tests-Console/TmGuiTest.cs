@@ -14,7 +14,7 @@ using Friflo.WGPU.TmGui;
 // ReSharper disable ConvertToPrimaryConstructor
 namespace TestConsole;
 
-public class TmGuiRenderer : IRenderer
+public class TmGuiRenderer : IRenderer, IGuiView
 {
     private readonly    WgpuBatch               batch;
     private readonly    GpuTexture              myTexture;
@@ -73,10 +73,20 @@ public class TmGuiRenderer : IRenderer
         myTextureView    = myTexture.CreateView().AsTmTexture();
         
         loop = new TmSessionLoop(false, null, info => {
-            return null!;
+            return new TmGuiRenderer(this);
         });
         var httpServer = new HttpServer(loop, 8080);
         httpServer.Start();
+    }
+    
+    public TmGuiRenderer(TmGuiRenderer renderer)
+    {
+        batch               = renderer.batch;
+        monocraftFont       = renderer.monocraftFont;
+        
+        myTexture           = renderer.myTexture;
+        myTextureView       = renderer.myTextureView;
+        loop                = null!;
     }
     
     public void OnWindowChanged(int width, int height)
@@ -93,7 +103,14 @@ public class TmGuiRenderer : IRenderer
         perfLog.Trace(10000);
         loop.ProcessPendingEventsSync();
             
-        var gui = batch.BeginGui(target.Width, target.Height);
+        RenderGui(batch, target.Width, target.Height);
+
+        batch.DrawCommandList(target, renderPassDescriptor);
+    }
+    
+    public void RenderGui(TmBatch tmBatch, int width, int height)
+    {
+        var gui = tmBatch.BeginGui(width, height);
         
         using (gui.BeginWindow("Window 1", new(100, 20), new(400, 950))) {
             Window1(gui); 
@@ -106,7 +123,6 @@ public class TmGuiRenderer : IRenderer
                 gui.Draw.StrokeCircle(gui.Input.MousePos, radius: 40f, 4, color: 0xFF0000FF, segments: 32);
             }
         }
-        batch.DrawCommandList(target, renderPassDescriptor);
     }
     
     private void Window1(Gui gui)

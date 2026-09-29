@@ -125,8 +125,12 @@ public partial class TmSessionLoop
         while (eventQueue.TryDequeue(out ClientEvent evt))
         {
             // Accumulate queued inputs - late-rendering check
-            bool isQueueEmpty = eventQueue.IsEmpty;
+            var isQueueEmpty = eventQueue.IsEmpty;
             ProcessEventSync(evt, isQueueEmpty);
+        }
+
+        foreach (var (client, session) in sessions) {
+            session.IterateTui();
         }
     }
 }

@@ -172,12 +172,12 @@ public sealed partial class TmSessionLoop : IDisposable
     private GuiSession CreateGuiSession(ClientEvent evt, bool isSync, out Memory<byte> firstPayload)
     {
         var client      = evt.Client;
-        var session     = new GuiSession(client);
+        var session     = new GuiSession(client, assets);
 
-        var sessionInfo = new SessionInfo{ client = client, backend = null, args = [] };  // TODO  assign backend
+        var sessionInfo = new SessionInfo{ client = client, backend = session.wsBackend, args = [] };
         var guiView     = createGuiView(sessionInfo);
         
-        // session.guiView = guiView;
+        session.guiView = guiView;
         sessions[client]= session;
         firstPayload    = default;
         return session;
