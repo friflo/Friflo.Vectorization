@@ -20,9 +20,29 @@ let bindGroup = null;
 let dummyTextureView = null;
 let dummySampler = null;
 
+// Global WebSocket reference
+let socket = null;
+
 // Sizes matching C# Unsafe.SizeOf<T>() in bytes
 const SIZEOF_INT = 4;
 const SIZEOF_WS_DRAW_COMMAND = 88; // 64B (projection) + 16B (scissor) + 8B (vertexView) = 88 bytes
+
+// Resize Canvas to physical GPU pixels (HiDPI/Retina aware)
+function resizeCanvas() {
+    const dpr = window.devicePixelRatio || 1;
+    const pixelWidth = Math.max(1, Math.floor(window.innerWidth * dpr));
+    const pixelHeight = Math.max(1, Math.floor(window.innerHeight * dpr));
+
+    if (canvas.width !== pixelWidth || canvas.height !== pixelHeight) {
+        canvas.width = pixelWidth;
+        canvas.height = pixelHeight;
+
+        // Send updated dimensions to C# backend if WebSocket is active
+        if (socket && socket.readyState === WebSocket.OPEN) {
+            sendInitGui(socket);
+        }
+    }
+}
 
 // Initialize WebGPU context, fetch WGSL shader, create buffers & bind groups, and build render pipeline
 async function initWebGPU() {
@@ -42,15 +62,8 @@ async function initWebGPU() {
         alphaMode: 'premultiplied'
     });
 
-    // Handle canvas resizing
-    function resizeCanvas() {
-        const width = Math.max(1, window.innerWidth);
-        const height = Math.max(1, window.innerHeight);
-        canvas.width = width;
-        canvas.height = height;
-    }
+    // Initial canvas sizing
     resizeCanvas();
-    window.addEventListener('resize', resizeCanvas);
 
     // 1. Create Initial Dynamic Vertex Buffer
     vertexBuffer = device.createBuffer({
@@ -190,7 +203,7 @@ function createStaticIndexBuffer(maxVertices = 65536) {
 function initWebSocket() {
     const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
     const wsUrl = `${wsProtocol}//${window.location.host}/ws`;
-    const socket = new WebSocket(wsUrl);
+    socket = new WebSocket(wsUrl);
 
     socket.binaryType = "arraybuffer";
 
@@ -214,22 +227,15 @@ function initWebSocket() {
     socket.onerror = (err) => {
         console.error("WebSocket error:", err);
     };
-
-    // Send resize events dynamically when window dimensions change
-    window.addEventListener('resize', () => {
-        if (socket.readyState === WebSocket.OPEN) {
-            sendInitGui(socket);
-        }
-    });
 }
 
-// Send current canvas dimensions as text stream
-function sendInitGui(socket) {
+// Send current canvas dimensions in physical GPU pixels as text stream
+function sendInitGui(ws) {
     const width = canvas.width;
     const height = canvas.height;
     
     // Key-value text payload matching C# ReadOnlySpan parser
-    socket.send(`canvasWidth=${width};canvasHeight=${height};`);
+    ws.send(`canvasWidth=${width};canvasHeight=${height};`);
 }
 
 // Process incoming binary DrawList frame and render via WebGPU
@@ -325,6 +331,9 @@ function processDrawList(arrayBuffer) {
     pass.end();
     device.queue.submit([commandEncoder.finish()]);
 }
+
+// Global window event listener for resizing
+window.addEventListener('resize', resizeCanvas);
 
 // Startup sequence
 async function start() {
