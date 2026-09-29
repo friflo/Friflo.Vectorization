@@ -60,6 +60,21 @@ public static class Tests_TmGui_Utils
     }
     
     [Test]
+    public static void Tests_TmGui_Utils_System_HashCode_perf()
+    {
+        var array = CreateByteArray(3200);
+       
+        int repeat = 10;   // 100_000_000 - 33.7 sec  length: 3200
+        ulong accu = 0;
+        for (int n = 0; n < repeat; n++) {
+            var hashCode = new HashCode();
+            hashCode.AddBytes(array);
+            accu ^= (uint)hashCode.ToHashCode();
+        }
+        Console.WriteLine(accu);
+    }
+    
+    [Test]
     public static void Tests_TmGui_Utils_HashFNV_1a_perf()
     {
         var array = CreateByteArray(3200);
