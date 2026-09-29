@@ -21,7 +21,7 @@ let dummySampler = null;
 
 // Sizes matching C# Unsafe.SizeOf<T>() in bytes
 const SIZEOF_INT = 4;
-const SIZEOF_WS_DRAW_COMMAND = 64; // Adjust to match C# WsDrawCommand struct layout exactly
+const SIZEOF_WS_DRAW_COMMAND = 88; // 8B (vertexView) + 64B (projection) + 16B (scissor) = 88 bytes
 
 // Initialize WebGPU context, fetch WGSL shader, create buffers & bind groups, and build render pipeline
 async function initWebGPU() {
@@ -240,6 +240,9 @@ function processDrawList(arrayBuffer) {
     let cmdOffset = 0;
     const cmdView = new DataView(drawCommandsBuffer.buffer, drawCommandsBuffer.byteOffset, drawCommandsByteLength);
 
+    const canvasWidth = canvas.width;
+    const canvasHeight = canvas.height;
+
     for (let i = 0; i < drawCommandCount; i++) {
         // Extract vertex view fields matching C# WsDrawCommand layout
         const vertexOffset = cmdView.getUint32(cmdOffset + 0, true);
@@ -252,8 +255,22 @@ function processDrawList(arrayBuffer) {
         // Upload command's projection matrix directly to GPU uniform buffer
         device.queue.writeBuffer(uniformBuffer, 0, projectionMatrix);
 
-        // Draw vertices
-        pass.draw(vertexDrawCount, 1, vertexOffset, 0);
+        // Extract Scissor Rect (4 ints = 16 bytes: x, y, width, height) starting at offset 72
+        const scissorX = cmdView.getInt32(cmdOffset + 72, true);
+        const scissorY = cmdView.getInt32(cmdOffset + 76, true);
+        const scissorWidth = cmdView.getInt32(cmdOffset + 80, true);
+        const scissorHeight = cmdView.getInt32(cmdOffset + 84, true);
+
+        // Clamp scissor bounds to valid WebGPU viewport dimensions
+        const clipX = Math.max(0, Math.min(scissorX, canvasWidth));
+        const clipY = Math.max(0, Math.min(scissorY, canvasHeight));
+        const clipWidth = Math.max(0, Math.min(scissorWidth, canvasWidth - clipX));
+        const clipHeight = Math.max(0, Math.min(scissorHeight, canvasHeight - clipY));
+
+        if (clipWidth > 0 && clipHeight > 0) {
+            pass.setScissorRect(clipX, clipY, clipWidth, clipHeight);
+            pass.draw(vertexDrawCount, 1, vertexOffset, 0);
+        }
 
         cmdOffset += SIZEOF_WS_DRAW_COMMAND;
     }
