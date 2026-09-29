@@ -251,15 +251,17 @@ function processDrawList(arrayBuffer) {
         // Upload projection matrix directly to GPU uniform buffer
         device.queue.writeBuffer(uniformBuffer, 0, projectionMatrix);
 
-        // [Offset 64] scissor: RectVector2 (4 x 4 bytes = 16 bytes: x, y, width, height)
-        const scissorX = cmdView.getInt32(cmdOffset + 64, true);
-        const scissorY = cmdView.getInt32(cmdOffset + 68, true);
-        const scissorWidth = cmdView.getInt32(cmdOffset + 72, true);
-        const scissorHeight = cmdView.getInt32(cmdOffset + 76, true);
+        // [Offset 64] scissor: RectVector2 (4 x float32 = 16 bytes: posX, posY, sizeX, sizeY)
+        const posX  = cmdView.getFloat32(cmdOffset + 64, true);
+        const posY  = cmdView.getFloat32(cmdOffset + 68, true);
+        const sizeX = cmdView.getFloat32(cmdOffset + 72, true);
+        const sizeY = cmdView.getFloat32(cmdOffset + 76, true);
 
-        // [Offset 80] vertexView: MemoryView (2 x uint32 = 8 bytes: offset, count)
-        const vertexOffset = cmdView.getUint32(cmdOffset + 80, true);
-        const vertexDrawCount = cmdView.getUint32(cmdOffset + 84, true);
+        // Float-Koordinaten für WebGPU Scissor-Rect runden
+        const scissorX = Math.round(posX);
+        const scissorY = Math.round(posY);
+        const scissorWidth = Math.round(sizeX);
+        const scissorHeight = Math.round(sizeY);
 
         // Clamp scissor bounds to valid WebGPU viewport dimensions
         const clipX = Math.max(0, Math.min(scissorX, canvasWidth));
