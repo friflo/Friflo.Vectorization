@@ -186,7 +186,7 @@ internal sealed partial class TuiSession : TmSession
         }
 
         // draw all cells not covered by a sixel
-        DrawCellRect(0, 0, width, height, width, drawSixels, lastLineHashes);
+        AppendCellRect(0, 0, width, height, width, drawSixels, lastLineHashes);
         
         // draw all sixels and the cells covered by those sixels
         if (supportsSixel) {
@@ -194,7 +194,7 @@ internal sealed partial class TuiSession : TmSession
         }
     }
     
-    private void DrawCellRect(int left, int top, int right, int bottom, int width, Span<DrawSixel> drawSixels, Span<ulong> lineHashes)
+    private void AppendCellRect(int left, int top, int right, int bottom, int width, Span<DrawSixel> drawSixels, Span<ulong> lineHashes)
     {
         var drawAlways = drawSixels.IsEmpty;
             
@@ -288,7 +288,7 @@ internal sealed partial class TuiSession : TmSession
             if (sixelHashes.Contains(drawSixel.sixelHash)) {
                 continue;
             }
-            DrawCellRect(drawSixel.left, drawSixel.top, drawSixel.right + 1, drawSixel.bottom + 1, width, default, default);
+            AppendCellRect(drawSixel.left, drawSixel.top, drawSixel.right + 1, drawSixel.bottom + 1, width, default, default);
             
             var target  = sendBuffer.AsSpan(sendBufferCount, sendBuffer.Length - sendBufferCount);
             var bytesWritten = sixelDrawer.AppendSixelToTargetBuffer(drawSixel, batch, target, cellPixelSize);
