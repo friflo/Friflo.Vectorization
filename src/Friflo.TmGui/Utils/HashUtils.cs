@@ -92,21 +92,32 @@ public static class HashUtils
 
             while (index <= limit)
             {
-                // Advance key vector with index offset
-                Vector128<ulong> keyVec = Unsafe.ReadUnaligned<Vector128<ulong>>(ref Unsafe.Add(ref keyPtr, index & 0x1F));
+                // Advance key vectors with index offset
+                Vector128<ulong> keyVecA = Unsafe.ReadUnaligned<Vector128<ulong>>(ref Unsafe.Add(ref keyPtr, index & 0x1F));
+                Vector128<ulong> keyVecB = Unsafe.ReadUnaligned<Vector128<ulong>>(ref Unsafe.Add(ref keyPtr, (index + 16) & 0x1F));
 
                 Vector128<ulong> dataA = Unsafe.ReadUnaligned<Vector128<ulong>>(ref Unsafe.Add(ref ptr, index));
-                Vector128<ulong> keyedA = dataA ^ keyVec;
+                Vector128<ulong> dataB = Unsafe.ReadUnaligned<Vector128<ulong>>(ref Unsafe.Add(ref ptr, index + 16));
+
+                Vector128<ulong> keyedA = dataA ^ keyVecA;
+                Vector128<ulong> keyedB = dataB ^ keyVecB;
 
                 // Shift 64-bit elements before reinterpreting as 32-bit uints
                 Vector128<uint> lowA = keyedA.AsUInt32();
+                Vector128<uint> lowB = keyedB.AsUInt32();
+
                 Vector128<uint> shiftedA = Vector128.ShiftRightLogical(keyedA, 32).AsUInt32();
+                Vector128<uint> shiftedB = Vector128.ShiftRightLogical(keyedB, 32).AsUInt32();
 
                 Vector128<ulong> productA = Sse2.IsSupported
                     ? Sse2.Multiply(lowA, shiftedA)
-                    : (keyedA * keyVec);
+                    : (keyedA * keyVecA);
 
-                acc += productA;
+                Vector128<ulong> productB = Sse2.IsSupported
+                    ? Sse2.Multiply(lowB, shiftedB)
+                    : (keyedB * keyVecB);
+
+                acc += productA + productB;
                 index += 32;
             }
 
