@@ -85,15 +85,11 @@ internal sealed class GuiSession : TmSession
     }
 }
 
+/// subset of <see cref="DrawCommand"/>
+[StructLayout(LayoutKind.Sequential)]
 public struct WsDrawCommand
 {
-//  public  ulong           zIndex;
-//  public  int             sequence;
-//  public  TmTexture       texture;
-    public  MemoryView      vertexView;
-//  public  MemoryView      indexView;
-//  public  BlendState      blendState;
-    public  Matrix4x4       projection;
-//  public  SamplerFilter   samplerFilter;
-    public  RectVector2     scissor;
+    public  Matrix4x4       projection;     // 64 bytes
+    public  RectVector2     scissor;        // 16 bytes
+    public  MemoryView      vertexView;     //  8 bytes
 }

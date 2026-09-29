@@ -205,15 +205,15 @@ function processDrawList(arrayBuffer) {
     const vertexCount = view.getInt32(offset, true);
     offset += SIZEOF_INT;
 
-    // 3. View on WsDrawCommand array (Zero-Copy)
+    // 3. View on WsDrawCommand array
     const drawCommandsByteLength = drawCommandCount * SIZEOF_WS_DRAW_COMMAND;
     const drawCommandsBuffer = new Uint8Array(arrayBuffer, offset, drawCommandsByteLength);
     offset += drawCommandsByteLength;
 
-    // 4. View on Vertex2D array (Zero-Copy slice directly uploaded to GPU)
+    // 4. View on Vertex2D array
     const verticesSlice = new Uint8Array(arrayBuffer, offset);
 
-    // Upload vertices directly into GPU Vertex Buffer
+    // Upload vertices directly to GPU
     if (vertexBuffer.size < verticesSlice.byteLength) {
         vertexBuffer = device.createBuffer({
             size: verticesSlice.byteLength,
@@ -244,22 +244,22 @@ function processDrawList(arrayBuffer) {
     const canvasHeight = canvas.height;
 
     for (let i = 0; i < drawCommandCount; i++) {
-        // Extract vertex view fields matching C# WsDrawCommand layout
-        const vertexOffset = cmdView.getUint32(cmdOffset + 0, true);
-        const vertexDrawCount = cmdView.getUint32(cmdOffset + 4, true);
-
-        // Extract projection matrix (16 floats = 64 bytes) directly from WsDrawCommand (offset 8)
-        const matrixByteOffset = drawCommandsBuffer.byteOffset + cmdOffset + 8;
+        // [Offset 0] projection: Matrix4x4 (16 floats = 64 bytes)
+        const matrixByteOffset = drawCommandsBuffer.byteOffset + cmdOffset + 0;
         const projectionMatrix = new Float32Array(arrayBuffer, matrixByteOffset, 16);
 
-        // Upload command's projection matrix directly to GPU uniform buffer
+        // Upload projection matrix directly to GPU uniform buffer
         device.queue.writeBuffer(uniformBuffer, 0, projectionMatrix);
 
-        // Extract Scissor Rect (4 ints = 16 bytes: x, y, width, height) starting at offset 72
-        const scissorX = cmdView.getInt32(cmdOffset + 72, true);
-        const scissorY = cmdView.getInt32(cmdOffset + 76, true);
-        const scissorWidth = cmdView.getInt32(cmdOffset + 80, true);
-        const scissorHeight = cmdView.getInt32(cmdOffset + 84, true);
+        // [Offset 64] scissor: RectVector2 (4 x 4 bytes = 16 bytes: x, y, width, height)
+        const scissorX = cmdView.getInt32(cmdOffset + 64, true);
+        const scissorY = cmdView.getInt32(cmdOffset + 68, true);
+        const scissorWidth = cmdView.getInt32(cmdOffset + 72, true);
+        const scissorHeight = cmdView.getInt32(cmdOffset + 76, true);
+
+        // [Offset 80] vertexView: MemoryView (2 x uint32 = 8 bytes: offset, count)
+        const vertexOffset = cmdView.getUint32(cmdOffset + 80, true);
+        const vertexDrawCount = cmdView.getUint32(cmdOffset + 84, true);
 
         // Clamp scissor bounds to valid WebGPU viewport dimensions
         const clipX = Math.max(0, Math.min(scissorX, canvasWidth));
