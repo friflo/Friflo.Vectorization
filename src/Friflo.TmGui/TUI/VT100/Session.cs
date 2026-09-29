@@ -16,12 +16,12 @@ namespace Friflo.TmGui.TUI.VT100;
 
 internal sealed partial class TuiSession : TmSession
 {
-    private  readonly   TmClient        client;
+    private  readonly   TmClient        client;         // instance: passed
     private  readonly   TuiColorMode    colorMode;
-    private  readonly   FrameBuffer     frameBuffer;
-    private  readonly   SixelDrawer     sixelDrawer;
-    internal readonly   TuiBackend      tuiBackend;
-    internal readonly   TuiBatch        tuiBatch;
+    private  readonly   FrameBuffer     frameBuffer;    // instance: shared
+    private  readonly   SixelDrawer     sixelDrawer;    // instance: shared
+    internal readonly   TuiBackend      tuiBackend;     // instance: creates / owns
+    internal readonly   TuiBatch        tuiBatch;       // instance: creates / owns
     internal            IGuiView?       guiView;
     private  readonly   byte[]          sendBuffer      = new byte[60000];  // TODO grow if needed
     private             int             sendBufferCount;
