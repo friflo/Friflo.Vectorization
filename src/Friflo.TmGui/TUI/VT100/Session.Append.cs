@@ -5,11 +5,53 @@ using System;
 using System.Runtime.CompilerServices;
 using System.Text;
 
+// ReSharper disable UnusedMember.Local
+// ReSharper disable InconsistentNaming
 namespace Friflo.TmGui.TUI.VT100;
 
 
 internal sealed partial class TuiSession
 {
+    private Span<byte> DedupRLE(int lineStart)
+    {
+        int lineLength = sendBufferCount - lineStart;
+        if (lineLength <= 4) return sendBuffer.AsSpan(lineStart, lineLength);
+
+        // Create a stack-allocated snapshot of the source line for zero-allocation in-place processing
+        Span<byte> source = stackalloc byte[lineLength];
+        sendBuffer.AsSpan(lineStart, lineLength).CopyTo(source);
+
+        // Reset buffer write index to the start of the line
+        sendBufferCount = lineStart;
+
+        int readIndex = 0;
+        while (readIndex < lineLength)
+        {
+            byte b = source[readIndex];
+
+            // 1. Count consecutive identical bytes
+            int run = 1;
+            while (readIndex + run < lineLength && source[readIndex + run] == b) {
+                run++;
+            }
+            // 2. Emit ANSI REP sequence (CSI n b) for printable characters (>= 0x20) with run length >= 5
+            if (run >= 5 && b >= 0x20) {
+                AppendAscii((char)b);
+                AppendSpan("\x1b["u8);
+                AppendNumber(run - 1);
+                AppendAscii('b');
+            } else {
+                if (run == 1) {
+                    sendBuffer[sendBufferCount++] = b; 
+                } else {
+                    AppendSpan(source.Slice(readIndex, run));
+                }
+            }
+            readIndex += run;
+        }
+        return sendBuffer.AsSpan(lineStart, sendBufferCount - lineStart);
+    }
+    
     private void AppendCursor(int x, int y)
     {
         AppendSpan("\x1b["u8);

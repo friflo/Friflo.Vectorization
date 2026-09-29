@@ -241,13 +241,15 @@ internal sealed partial class TuiSession : TmSession
                     AppendSpan("\x1b[C"u8); // move cursor one cell right
                 }
             }
+            // var lineSpan = DedupRLE(lineStart);
+            var lineSpan = sendBuffer.AsSpan(lineStart, sendBufferCount - lineStart);
             
             if (lineHashes.IsEmpty) {
                 continue;
             }
             
             // --- send only changed lines
-            var lineSpan    = sendBuffer.AsSpan(lineStart, sendBufferCount - lineStart);
+
             var lineHash    = HashUtils.XxHash3(lineSpan);
             var sendLine    = lineHash != lineHashes[y];
             if (sendLine) {
