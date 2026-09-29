@@ -59,6 +59,12 @@
   <ItemGroup>
     <None Include="..\package-icon.png" Pack="true" PackagePath="" />
   </ItemGroup>
+    
+  <ItemGroup>
+    <None Update="wwwroot\**\*">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
   
   <PropertyGroup>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>

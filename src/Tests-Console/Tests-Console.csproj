@@ -43,9 +43,6 @@
       <EmbeddedResource Include="Assets/Monocraft.ttf" />  
       <EmbeddedResource Include="Assets/img/*.png" />
       <EmbeddedResource Include="Assets/**/*.bin" />
-      <None Update="wwwroot\**\*">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </None>
     </ItemGroup>
     
     <ItemGroup>
