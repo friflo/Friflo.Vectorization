@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Numerics;
-using System.Runtime.CompilerServices;
 using System.Text;
 using Friflo.TmGui.Session;
 
@@ -211,7 +210,7 @@ internal sealed partial class TuiSession : TmSession
         {
             var lineStart     = sendBufferCount;
 
-            SetCursor(left + 1, y + 1);
+            AppendCursor(left + 1, y + 1);
             
             for (int x = left; x < right; x++)
             {
@@ -220,7 +219,7 @@ internal sealed partial class TuiSession : TmSession
                 if (cell.color.A != 0) {
                     var colorRGB = cell.color.Packed & 0x00ffffff;
                     if (colorRGB != color.Packed) {
-                        SetColor(cell.color);
+                        AppendColor(cell.color);
                         color.Packed = colorRGB;
                     }
                 }
@@ -230,7 +229,7 @@ internal sealed partial class TuiSession : TmSession
                 }
                 var backgroundRGB = cell.background.Packed & 0x00ffffff;
                 if (backgroundRGB != background.Packed) {
-                    SetBackground(cell.background);
+                    AppendBackground(cell.background);
                     background.Packed = backgroundRGB;
                 }
                 
@@ -301,100 +300,6 @@ internal sealed partial class TuiSession : TmSession
         for (int n = 1; n <= batch.drawSixelCount; n++) {
             sixelHashes.Add(batch.drawSixels[n].sixelHash);
         }
-    }
-    
-    private void SetCursor(int x, int y)
-    {
-        AppendSpan("\x1b["u8);
-        AppendNumber((byte)y); // Row (Y)
-        AppendSpan(";"u8);
-        AppendNumber((byte)x); // Column (X)
-        AppendSpan("H"u8);
-    }
-    
-    private void SetColor(Color32 color)
-    {
-        AppendSpan("\x1b[38;2;"u8);
-        AppendNumber(color.R);
-        AppendByte((byte)';');
-        AppendNumber(color.G);
-        AppendByte((byte)';');
-        AppendNumber(color.B);
-        AppendByte((byte)'m');
-    }
-    
-    private void SetBackground(Color32 background)
-    {
-        AppendSpan("\x1b[48;2;"u8);
-        AppendNumber(background.R);
-        AppendByte((byte)';');
-        AppendNumber(background.G);
-        AppendByte((byte)';');
-        AppendNumber(background.B);
-        AppendByte((byte)'m');
-    }
-
-    // Allocation-free byte-to-ASCII integer formatting directly into send buffer
-    private void AppendNumber(byte value)
-    {
-        var buffer = sendBuffer;
-        if (value >= 100) {
-            int d1 = value / 100;
-            int rem = value % 100;
-            buffer[sendBufferCount++] = (byte)('0' + d1);
-            buffer[sendBufferCount++] = (byte)('0' + (rem / 10));
-            buffer[sendBufferCount++] = (byte)('0' + (rem % 10));
-        }
-        else if (value >= 10) {
-            buffer[sendBufferCount++] = (byte)('0' + (value / 10));
-            buffer[sendBufferCount++] = (byte)('0' + (value % 10));
-        }
-        else {
-            buffer[sendBufferCount++] = (byte)('0' + value);
-        }
-    }
-    
-    private void AppendByte(byte value)
-    {
-        sendBuffer[sendBufferCount++] = value; 
-    }
-    
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void AppendRune(Rune rune)
-    {
-        if (rune.Value == 0) {
-            return; // Skip ghost cells. They follow runes which are two cells wide like 🙂
-        }
-        var destination = sendBuffer.AsSpan(sendBufferCount);
-        int bytesWritten = rune.EncodeToUtf8(destination);
-        sendBufferCount += bytesWritten;
-    }
-    
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void AppendSpan(ReadOnlySpan<byte> buffer)
-    {
-        buffer.CopyTo(sendBuffer.AsSpan(sendBufferCount, buffer.Length));
-        sendBufferCount += buffer.Length;
-    }
-    
-    private void ApplyStyleDiff(TextStyle oldStyle, TextStyle newStyle)
-    {
-        var enabled  = newStyle & ~oldStyle;
-        var disabled = oldStyle & ~newStyle;
-
-        if ((enabled & TextStyle.Bold)          != 0) AppendSpan("\x1b[1m"u8);
-        if ((enabled & TextStyle.Dim)           != 0) AppendSpan("\x1b[2m"u8);
-        if ((enabled & TextStyle.Italic)        != 0) AppendSpan("\x1b[3m"u8);
-        if ((enabled & TextStyle.Underline)     != 0) AppendSpan("\x1b[4m"u8);
-        if ((enabled & TextStyle.Inverse)       != 0) AppendSpan("\x1b[7m"u8);
-        if ((enabled & TextStyle.StrikeThrough) != 0) AppendSpan("\x1b[9m"u8);
-
-        if ((disabled & TextStyle.Bold)         != 0) AppendSpan("\x1b[22m"u8);
-        if ((disabled & TextStyle.Dim)          != 0) AppendSpan("\x1b[22m"u8);
-        if ((disabled & TextStyle.Italic)       != 0) AppendSpan("\x1b[23m"u8);
-        if ((disabled & TextStyle.Underline)    != 0) AppendSpan("\x1b[24m"u8);
-        if ((disabled & TextStyle.Inverse)      != 0) AppendSpan("\x1b[27m"u8);
-        if ((disabled & TextStyle.StrikeThrough)!= 0) AppendSpan("\x1b[29m"u8);
     }
     
     private void DrawMouseCursor(TmGuiBackend backend)
