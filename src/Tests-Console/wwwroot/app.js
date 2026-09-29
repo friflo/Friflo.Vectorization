@@ -11,9 +11,10 @@ let device = null;
 let context = null;
 let presentationFormat = null;
 
-// WebGPU Pipeline & Buffer Resources (Global Module Scope)
+// WebGPU Pipeline & Buffer Resources
 let pipeline = null;
 let vertexBuffer = null;
+let indexBuffer = null;
 let uniformBuffer = null;
 let bindGroup = null;
 let dummyTextureView = null;
@@ -21,7 +22,7 @@ let dummySampler = null;
 
 // Sizes matching C# Unsafe.SizeOf<T>() in bytes
 const SIZEOF_INT = 4;
-const SIZEOF_WS_DRAW_COMMAND = 88; // 8B (vertexView) + 64B (projection) + 16B (scissor) = 88 bytes
+const SIZEOF_WS_DRAW_COMMAND = 88; // 64B (projection) + 16B (scissor) + 8B (vertexView) = 88 bytes
 
 // Initialize WebGPU context, fetch WGSL shader, create buffers & bind groups, and build render pipeline
 async function initWebGPU() {
@@ -51,19 +52,22 @@ async function initWebGPU() {
     resizeCanvas();
     window.addEventListener('resize', resizeCanvas);
 
-    // 1. Create Initial Vertex Buffer
+    // 1. Create Initial Dynamic Vertex Buffer
     vertexBuffer = device.createBuffer({
         size: 65536,
         usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST,
     });
 
-    // 2. Create Uniform Buffer for ImUniforms struct (mat4x4<f32> = 64 bytes)
+    // 2. Create Static Quad Index Buffer (0, 1, 2, 2, 3, 0 pattern)
+    createStaticIndexBuffer(65536);
+
+    // 3. Create Uniform Buffer for ImUniforms struct (mat4x4<f32> = 64 bytes)
     uniformBuffer = device.createBuffer({
         size: 64,
         usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
     });
 
-    // 3. Create 1x1 White Fallback Texture & Sampler for u_texture & u_sampler
+    // 4. Create 1x1 White Fallback Texture & Sampler for u_texture & u_sampler
     const dummyTexture = device.createTexture({
         size: [1, 1],
         format: 'rgba8unorm',
@@ -81,7 +85,7 @@ async function initWebGPU() {
         minFilter: 'linear'
     });
 
-    // 4. Fetch WGSL shader file from wwwroot
+    // 5. Fetch WGSL shader file from wwwroot
     let shaderCode = "";
     try {
         const response = await fetch("draw2d.wgsl");
@@ -99,7 +103,7 @@ async function initWebGPU() {
         code: shaderCode
     });
 
-    // 5. Configure vertex buffer layout (Vertex2D: pos=8B, uv=8B, color=4B)
+    // 6. Configure vertex buffer layout (Vertex2D: pos=8B, uv=8B, color=4B)
     const vertexBufferLayout = {
         arrayStride: 20,
         attributes: [
@@ -109,7 +113,7 @@ async function initWebGPU() {
         ]
     };
 
-    // 6. Create Render Pipeline
+    // 7. Create Render Pipeline
     pipeline = device.createRenderPipeline({
         label: "Draw2D Render Pipeline",
         layout: 'auto',
@@ -143,7 +147,7 @@ async function initWebGPU() {
         }
     });
 
-    // 7. Create Bind Group matching WGSL @group(0) bindings
+    // 8. Create Bind Group matching WGSL @group(0) bindings
     bindGroup = device.createBindGroup({
         layout: pipeline.getBindGroupLayout(0),
         entries: [
@@ -153,8 +157,33 @@ async function initWebGPU() {
         ]
     });
 
-    console.log("[+] WebGPU device, Uniforms, and BindGroup initialized successfully.");
+    console.log("[+] WebGPU device, Buffers, Uniforms, and BindGroup initialized successfully.");
     return true;
+}
+
+// Generate static Quad Index Buffer
+function createStaticIndexBuffer(maxVertices = 65536) {
+    const maxQuads = Math.floor(maxVertices / 4);
+    const maxIndices = maxQuads * 6;
+    const indices = new Uint32Array(maxIndices);
+
+    for (let i = 0, v = 0; i < maxIndices; i += 6, v += 4) {
+        indices[i + 0] = v + 0;
+        indices[i + 1] = v + 1;
+        indices[i + 2] = v + 2;
+        indices[i + 3] = v + 2;
+        indices[i + 4] = v + 3;
+        indices[i + 5] = v + 0;
+    }
+
+    indexBuffer = device.createBuffer({
+        size: indices.byteLength,
+        usage: GPUBufferUsage.INDEX | GPUBufferUsage.COPY_DST,
+        mappedAtCreation: true,
+    });
+
+    new Uint32Array(indexBuffer.getMappedRange()).set(indices);
+    indexBuffer.unmap();
 }
 
 // Initialize WebSocket connection to C# HttpServer
@@ -192,7 +221,7 @@ function initWebSocket() {
 
 // Process incoming binary DrawList frame and render via WebGPU
 function processDrawList(arrayBuffer) {
-    if (!device || !context || !pipeline || !bindGroup || !uniformBuffer) return;
+    if (!device || !context || !pipeline || !bindGroup || !uniformBuffer || !indexBuffer) return;
 
     let offset = 0;
     const view = new DataView(arrayBuffer);
@@ -210,10 +239,10 @@ function processDrawList(arrayBuffer) {
     const drawCommandsBuffer = new Uint8Array(arrayBuffer, offset, drawCommandsByteLength);
     offset += drawCommandsByteLength;
 
-    // 4. View on Vertex2D array
+    // 4. View on Vertex2D array (Zero-Copy slice directly uploaded to GPU)
     const verticesSlice = new Uint8Array(arrayBuffer, offset);
 
-    // Upload vertices directly to GPU
+    // Dynamic resize for Vertex Buffer if vertex payload exceeds current capacity
     if (vertexBuffer.size < verticesSlice.byteLength) {
         vertexBuffer = device.createBuffer({
             size: verticesSlice.byteLength,
@@ -236,6 +265,7 @@ function processDrawList(arrayBuffer) {
     pass.setPipeline(pipeline);
     pass.setBindGroup(0, bindGroup);
     pass.setVertexBuffer(0, vertexBuffer);
+    pass.setIndexBuffer(indexBuffer, 'uint32');
 
     let cmdOffset = 0;
     const cmdView = new DataView(drawCommandsBuffer.buffer, drawCommandsBuffer.byteOffset, drawCommandsByteLength);
@@ -257,21 +287,23 @@ function processDrawList(arrayBuffer) {
         const sizeX = cmdView.getFloat32(cmdOffset + 72, true);
         const sizeY = cmdView.getFloat32(cmdOffset + 76, true);
 
-        // Float-Koordinaten für WebGPU Scissor-Rect runden
-        const scissorX = Math.round(posX);
-        const scissorY = Math.round(posY);
-        const scissorWidth = Math.round(sizeX);
-        const scissorHeight = Math.round(sizeY);
+        // [Offset 80] vertexView: MemoryView (2 x uint32 = 8 bytes: offset, count in vertices)
+        const vertexOffset = cmdView.getUint32(cmdOffset + 80, true);
+        const vertexDrawCount = cmdView.getUint32(cmdOffset + 84, true);
 
-        // Clamp scissor bounds to valid WebGPU viewport dimensions
-        const clipX = Math.max(0, Math.min(scissorX, canvasWidth));
-        const clipY = Math.max(0, Math.min(scissorY, canvasHeight));
-        const clipWidth = Math.max(0, Math.min(scissorWidth, canvasWidth - clipX));
-        const clipHeight = Math.max(0, Math.min(scissorHeight, canvasHeight - clipY));
+        // Convert Vertex Count / Offset to Index Count / Offset (4 Vertices = 6 Indices per Quad)
+        const indexCount = Math.floor(vertexDrawCount / 4) * 6;
+        const firstIndex = Math.floor(vertexOffset / 4) * 6;
+
+        // Clamp Scissor Bounds to valid WebGPU viewport dimensions
+        const clipX = Math.max(0, Math.min(Math.round(posX), canvasWidth));
+        const clipY = Math.max(0, Math.min(Math.round(posY), canvasHeight));
+        const clipWidth = Math.max(0, Math.min(Math.round(sizeX), canvasWidth - clipX));
+        const clipHeight = Math.max(0, Math.min(Math.round(sizeY), canvasHeight - clipY));
 
         if (clipWidth > 0 && clipHeight > 0) {
             pass.setScissorRect(clipX, clipY, clipWidth, clipHeight);
-            pass.draw(vertexDrawCount, 1, vertexOffset, 0);
+            pass.drawIndexed(indexCount, 1, firstIndex, 0, 0);
         }
 
         cmdOffset += SIZEOF_WS_DRAW_COMMAND;
