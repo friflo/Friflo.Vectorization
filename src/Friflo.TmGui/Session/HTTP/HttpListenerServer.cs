@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 // ReSharper disable CheckNamespace
 namespace Friflo.TmGui.Session.HTTP;
 
-public sealed class HttpServer
+public sealed class HttpListenerServer
 {
     private readonly string             webRoot = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "wwwroot");
     private readonly TmSessionLoop      loop;
@@ -21,7 +21,7 @@ public sealed class HttpServer
     private CancellationTokenSource?    cts;
     private Task?                       serverTask;
 
-    public HttpServer(TmSessionLoop loop, int port)
+    public HttpListenerServer(TmSessionLoop loop, int port)
     {
         this.loop = loop;
         this.port = port;

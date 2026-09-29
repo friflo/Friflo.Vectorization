@@ -75,7 +75,7 @@ public class TmGuiRenderer : IRenderer, IGuiView
         loop = new TmSessionLoop(false, null, info => {
             return new TmGuiRenderer(this);
         });
-        var httpServer = new HttpServer(loop, 8080);
+        var httpServer = new KestrelHttpServer(loop, 8080);
         httpServer.Start();
     }
     

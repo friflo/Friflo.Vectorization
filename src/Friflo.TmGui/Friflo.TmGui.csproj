@@ -46,6 +46,11 @@
     <None Include="README.md" Pack="true" PackagePath="\" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1"    PrivateAssets="All" />
   </ItemGroup>
+    
+  <ItemGroup>
+    <!-- Enables use of Kestrel without additional NuGet-Packages -->
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
 
   <ItemGroup>
     <None Include="..\package-icon.png" Pack="true" PackagePath="" />
