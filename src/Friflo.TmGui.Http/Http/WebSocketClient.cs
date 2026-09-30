@@ -31,8 +31,10 @@ internal struct WsSendBuffer
 internal class WebSocketClient : TmClient
 {
     private readonly    WebSocket       webSocket;
-    private readonly    SemaphoreSlim   sendSignal = new(0, 1);
     private readonly    object          bufferLock = new();
+    
+    // Lock-free flag for signaling: 0 = no data, 1 = frame pending
+    private             int             hasPendingFrame;
     
     // Double-buffering to prevent race conditions between OnFrame thread and Kestrel flush
     private             WsSendBuffer    frontBuffer = new();
@@ -64,14 +66,8 @@ internal class WebSocketClient : TmClient
             frontBuffer.CopyFrom(data);
         }
 
-        // Signal background loop to flush frame
-        if (sendSignal.CurrentCount == 0) {
-            try {
-                sendSignal.Release();
-            } catch (SemaphoreFullException) {
-                // Already signaled, ignore
-            }
-        }
+        // Set flag atomically: 0 Heap Allocations!
+        Interlocked.Exchange(ref hasPendingFrame, 1);
         return data.Length;
     }
 
@@ -89,7 +85,7 @@ internal class WebSocketClient : TmClient
                 return;
             }
 
-            // Swap front and back buffer structs (ValueType swap, instant)
+            // Swap front and back buffer structs
             (frontBuffer, backBuffer) = (backBuffer, frontBuffer);
             
             // Clear pending length on new frontBuffer so it is ready for the next frame
@@ -114,10 +110,13 @@ internal class WebSocketClient : TmClient
 
         while (client.webSocket.State == WebSocketState.Open && !cancellationToken.IsCancellationRequested)
         {
-            // Wait for incoming WebSocket message OR frame send signal from OnFrame()
-            Task completedTask = await Task.WhenAny(receiveTask, client.sendSignal.WaitAsync(cancellationToken));
+            // Wait briefly or check for pending frame signal without WaitAsync allocations
+            if (Interlocked.CompareExchange(ref client.hasPendingFrame, 0, 1) == 1)
+            {
+                await client.FlushPendingBufferAsync(cancellationToken);
+            }
 
-            if (completedTask == receiveTask)
+            if (receiveTask.IsCompleted)
             {
                 WebSocketReceiveResult result;
                 try
@@ -151,11 +150,9 @@ internal class WebSocketClient : TmClient
                 buffer = ArrayPool<byte>.Shared.Rent(256);
                 receiveTask = client.webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), cancellationToken);
             }
-            else
-            {
-                // Frame send signal triggered: flush frame data asynchronously off the OnFrame() thread
-                await client.FlushPendingBufferAsync(cancellationToken);
-            }
+
+            // Yield control briefly to avoid CPU spinning when idle
+            await Task.Delay(1, cancellationToken);
         }
     }
 }
