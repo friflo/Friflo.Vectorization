@@ -8,8 +8,11 @@ using System.Text;
 using System.IO;
 using System.Numerics;
 using StbImageSharp;
+using StbImageWriteSharp;
 using StbTrueTypeSharp;
 
+
+// ReSharper disable RedundantSwitchExpressionArms
 // ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable once CheckNamespace
 namespace Friflo.TmGui;
@@ -29,12 +32,32 @@ public class DefaultGuiAssets : IGuiAssets
     
     public TmImageAsset LoadImage(Stream stream, TmColorComponents colorComponents)
     {
-        var result = ImageResult.FromStream(stream, (ColorComponents)colorComponents);
+        var result = ImageResult.FromStream(stream, (StbImageSharp.ColorComponents)colorComponents);
         return new TmImageAsset {
             width   = result.Width,
             height  = result.Height,
             data    = result.Data,
         };  
+    }
+    
+    public Stream CreatePng(TmImageAsset asset)
+    {
+        var stream = new MemoryStream();
+        var writer = new ImageWriter();
+
+        // Determine color components per pixel (e.g. 4 for RGBA, 3 for RGB)
+        StbImageWriteSharp.ColorComponents components = (asset.data.Length / (asset.width * asset.height)) switch
+        {
+            1 => StbImageWriteSharp.ColorComponents.Grey,
+            3 => StbImageWriteSharp.ColorComponents.RedGreenBlue,
+            4 => StbImageWriteSharp.ColorComponents.RedGreenBlueAlpha,
+            _ => StbImageWriteSharp.ColorComponents.RedGreenBlueAlpha
+        };
+        writer.WritePng(asset.data, asset.width, asset.height, components, stream);
+
+        // Reset stream position for the reader
+        stream.Position = 0;
+        return stream;
     }
     
     

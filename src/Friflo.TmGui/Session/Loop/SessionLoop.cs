@@ -17,22 +17,66 @@ using Friflo.TmGui.TUI.VT100;
 namespace Friflo.TmGui.Session;
 
 
+public readonly struct SessionResources
+{
+    private  readonly   TmGuiBackend                rootBackend;
+    private  readonly   Dictionary<object, int>     texture2Id      = new();
+    public   readonly   Dictionary<string, WsImage> stringToImage   = new();
+    public   readonly   List<WsImage>               images          = [default];
+    
+    private int AddTexture(TmTexture texture)
+    {
+        var textureId = images.Count;
+        texture2Id.Add(texture.native!, textureId);
+        var asset = rootBackend.GetTextureImage(texture);
+        var image = new WsImage { textureId = textureId, asset = asset, texture = texture };
+        images.Add(image);
+        if (asset.name != null) {
+            stringToImage.TryAdd(asset.name, image);   // TODO fix me!!!
+        }
+        return textureId;
+    }
+    
+    public SessionResources(TmGuiBackend rootBackend)
+    {
+        this.rootBackend = rootBackend;
+    }
+
+    public int GetTexture(TmTexture texture)
+    {
+        if (texture2Id.TryGetValue(texture.native!, out int id)) {
+            return id;
+        }
+        return AddTexture(texture);
+    }
+}
+
+public struct WsImage   // TODO  rename
+{
+    public  int             textureId;
+    public  TmImageAsset    asset;
+    public  TmTexture       texture;
+
+    public override string ToString() => $"{asset.name} - {texture}";
+}
+
 public sealed partial class TmSessionLoop : IDisposable
 {
-    private readonly    bool                                isAsync;
-    private readonly    ConcurrentQueue<ClientEvent>        eventQueue;     // used by: sync loop
-    private readonly    AutoResetEvent                      eventReady;     // used by: sync loop
-    private readonly    Channel<ClientEvent>                eventChannel;   // used by: async loop
-    private readonly    Dictionary<TmClient, TmSession>     sessions;       // Raw non-thread-safe state (accessed exclusively by _shardThread)
-    private readonly    FrameBuffer                         frameBuffer;    // shared among all sessions - is accessed single threaded
-    private readonly    SixelDrawer                         sixelDrawer;    // shared among all sessions
-    private readonly    CreateGuiView                       createGuiView;  // IBatchRenderer factory
-    private readonly    CreateSession                       createSession;
-    private readonly    TmGuiBackend                        rootBackend;    // shared among all sessions
-    private readonly    CancellationTokenSource             cts = new();
+    private  readonly   bool                                isAsync;
+    private  readonly   ConcurrentQueue<ClientEvent>        eventQueue;     // used by: sync loop
+    private  readonly   AutoResetEvent                      eventReady;     // used by: sync loop
+    private  readonly   Channel<ClientEvent>                eventChannel;   // used by: async loop
+    private  readonly   Dictionary<TmClient, TmSession>     sessions;       // Raw non-thread-safe state (accessed exclusively by _shardThread)
+    private  readonly   FrameBuffer                         frameBuffer;    // shared among all sessions - is accessed single threaded
+    private  readonly   SixelDrawer                         sixelDrawer;    // shared among all sessions
+    private  readonly   CreateGuiView                       createGuiView;  // IBatchRenderer factory
+    private  readonly   CreateSession                       createSession;
+    public   readonly   TmGuiBackend                        rootBackend;    // shared among all sessions
+    private  readonly   CancellationTokenSource             cts = new();
     private             Thread?                             shardThread;
     private             bool                                isDisposed;
-    private readonly    Action                              exitHandler;
+    private  readonly   Action                              exitHandler;
+    public   readonly   SessionResources                    resources;
 
     private const int MaxSyncQueueCapacity = 32;
     
@@ -42,6 +86,7 @@ public sealed partial class TmSessionLoop : IDisposable
         this.createGuiView  = createGuiView;
         this.createSession  = createSession;
         this.rootBackend    = backend; 
+        resources           = new SessionResources(backend);
         if (isAsync) {
             // Bounded channel to enforce non-blocking backpressure via TryWrite
             var options = new BoundedChannelOptions(MaxSyncQueueCapacity) {
@@ -170,9 +215,9 @@ public sealed partial class TmSessionLoop : IDisposable
         return session;
     }
 
-    private TmSession CreateGuiSession(ClientEvent evt, bool isSync, out Memory<byte> firstPayload)
+    // protected virtual TmSession CreateGuiSession(TmClient client, bool isSync, out Memory<byte> firstPayload) => throw new NotImplementedException();
+    private TmSession CreateGuiSession(TmClient client, bool isSync, out Memory<byte> firstPayload)
     {
-        var client      = evt.Client;
         TmSession session = createSession(client, rootBackend);
         
         var sessionInfo = new SessionInfo{ client = client, backend = session.Backend, args = [] };

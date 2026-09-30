@@ -46,6 +46,7 @@
     <None Include="README.md" Pack="true" PackagePath="\" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1"    PrivateAssets="All" />
     <PackageReference Include="StbImageSharp"       Version="2.30.16" />
+    <PackageReference Include="StbImageWriteSharp"  Version="1.16.7" />
     <PackageReference Include="StbTrueTypeSharp"    Version="1.26.13" />
   </ItemGroup>
 

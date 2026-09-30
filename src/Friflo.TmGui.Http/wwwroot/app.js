@@ -303,40 +303,68 @@ function processDrawList(arrayBuffer) {
         // [Offset 0] projection: Matrix4x4 (16 floats = 64 bytes)
         const matrixByteOffset = drawCommandsBuffer.byteOffset + cmdOffset + 0;
         const projectionMatrix = new Float32Array(arrayBuffer, matrixByteOffset, 16);
-
+    
         // Upload projection matrix directly to GPU uniform buffer
         device.queue.writeBuffer(uniformBuffer, 0, projectionMatrix);
-
+    
         // [Offset 64] scissor: RectVector2 (4 x float32 = 16 bytes: posX, posY, sizeX, sizeY)
         const posX  = cmdView.getFloat32(cmdOffset + 64, true);
         const posY  = cmdView.getFloat32(cmdOffset + 68, true);
         const sizeX = cmdView.getFloat32(cmdOffset + 72, true);
         const sizeY = cmdView.getFloat32(cmdOffset + 76, true);
-
+    
         // [Offset 80] vertexView: MemoryView (2 x uint32 = 8 bytes: offset, count in vertices)
         const vertexOffset = cmdView.getUint32(cmdOffset + 80, true);
         const vertexDrawCount = cmdView.getUint32(cmdOffset + 84, true);
-
+    
+        // [Offset 88] textureId: uint32 (4 bytes)
+        const textureId = cmdView.getUint32(cmdOffset + 88, true);
+    
         // Convert Vertex Count / Offset to Index Count / Offset
         const indexCount = Math.floor(vertexDrawCount / 4) * 6;
         const firstIndex = Math.floor(vertexOffset / 4) * 6;
-
+    
         // Clamp Scissor Bounds to valid WebGPU viewport dimensions
         const clipX = Math.max(0, Math.min(Math.round(posX), canvasWidth));
         const clipY = Math.max(0, Math.min(Math.round(posY), canvasHeight));
         const clipWidth = Math.max(0, Math.min(Math.round(sizeX), canvasWidth - clipX));
         const clipHeight = Math.max(0, Math.min(Math.round(sizeY), canvasHeight - clipY));
-
+    
         if (clipWidth > 0 && clipHeight > 0) {
+            // Select texture BindGroup or fallback if texture is not ready yet
+            const textureEntry = textures.get(textureId);
+            const currentBindGroup = getTextureBindGroup(textureEntry);
+    
+            pass.setBindGroup(0, currentBindGroup);
             pass.setScissorRect(clipX, clipY, clipWidth, clipHeight);
             pass.drawIndexed(indexCount, 1, firstIndex, 0, 0);
         }
-
+    
         cmdOffset += SIZEOF_WS_DRAW_COMMAND;
     }
 
     pass.end();
     device.queue.submit([commandEncoder.finish()]);
+}
+
+function getTextureBindGroup(textureEntry) {
+    if (!textureEntry || !textureEntry.loaded || !textureEntry.gpuTexture) {
+        return bindGroup; // Fallback auf das globale BindGroup mit der 1x1 dummyTexture
+    }
+
+    if (!textureEntry.bindGroup) {
+        // BindGroup für die spezifische Textur erzeugen und cachen
+        textureEntry.bindGroup = device.createBindGroup({
+            layout: pipeline.getBindGroupLayout(0),
+            entries: [
+                { binding: 0, resource: { buffer: uniformBuffer } },
+                { binding: 1, resource: textureEntry.gpuTexture.createView() },
+                { binding: 2, resource: dummySampler }
+            ]
+        });
+    }
+
+    return textureEntry.bindGroup;
 }
 
 // Ensure texture is tracked and trigger async fetch from /textures/{name} if missing
@@ -358,7 +386,9 @@ function ensureTextureLoaded(textureId, name) {
             if (!response.ok) throw new Error(`HTTP ${response.status}`);
             return response.blob();
         })
-        .then(blob => createImageBitmap(blob))
+        .then(blob => {
+            return createImageBitmap(blob)
+        })
         .then(imageBitmap => {
             // Create WebGPU Texture
             const gpuTexture = device.createTexture({

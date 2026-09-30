@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Ullrich Praetz - https://github.com/friflo. All rights reserved.
 // See LICENSE file in the project root for full license information.
 
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Numerics;
@@ -22,7 +23,12 @@ internal class HeadlessAssets : IGuiAssets
     
     public TmImageAsset LoadImage(Stream stream, TmColorComponents colorComponents)
     {
-        return default;
+        throw Requires_Friflo_TmGui_Assets_Exception(nameof(LoadImage));
+    }
+    
+    public Stream CreatePng(TmImageAsset asset)
+    {
+       throw Requires_Friflo_TmGui_Assets_Exception(nameof(CreatePng));
     }
     
     public TmTrueTypeFontAsset LoadTrueTypeFont(
@@ -34,7 +40,12 @@ internal class HeadlessAssets : IGuiAssets
         int     firstChar,    		// ASCII 32 to 126
         int     charCount)
     {
-        return default;
+        throw Requires_Friflo_TmGui_Assets_Exception(nameof(LoadTrueTypeFont));
+    }
+    
+    private static InvalidOperationException Requires_Friflo_TmGui_Assets_Exception(string symbol)
+    {
+        return new InvalidOperationException($"{symbol}() requires IGuiAssets from package: Friflo.TmGui.Assets - instance: new DefaultGuiAssets()");
     }
     
     internal static TmFont CreateHeadlessFont()

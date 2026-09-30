@@ -16,6 +16,11 @@ public class TuiAssets : IGuiAssets
     {
         throw Requires_Friflo_TmGui_Assets_Exception(nameof(LoadImage));
     }
+    
+    public Stream CreatePng(TmImageAsset asset)
+    {
+        throw Requires_Friflo_TmGui_Assets_Exception(nameof(CreatePng));
+    }
 
     public TmTrueTypeFontAsset LoadTrueTypeFont(Stream ttfStream, float fontSize, int atlasWidth, int atlasHeight, byte[] alphaBitmapTarget, int firstChar, int charCount)
     {

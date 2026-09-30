@@ -14,6 +14,7 @@ public interface IGuiAssets
     TmFont              CreateDefaultFont  (TmGuiBackend backend);
     
     TmImageAsset        LoadImage(Stream stream, TmColorComponents colorComponents);
+    Stream              CreatePng(TmImageAsset asset);
     TmTrueTypeFontAsset LoadTrueTypeFont(
                             Stream  ttfStream,
                             float   fontSize,

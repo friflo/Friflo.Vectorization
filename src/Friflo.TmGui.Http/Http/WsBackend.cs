@@ -13,15 +13,15 @@ namespace Friflo.TmGui.Http;
 internal class WsBackend : TmGuiBackend
 {
     private  readonly   TmGuiBackend                rootBackend;
-    internal readonly   Dictionary<TmTexture, int>  texture2Id      = new();
-    private  readonly   Dictionary<string, WsImage> stringToImage   = new();
-    internal readonly   List<WsImage>               images          = [default];
+
     internal readonly   HashSet<int>                usedTextures    = [];
     
     public WsBackend(TmGuiBackend rootBackend) : base(rootBackend.Assets)
     {
         this.rootBackend = rootBackend;
     }
+    
+    public    override   TmFont      DefaultFont => rootBackend.DefaultFont;
 
     protected override TmBuffer<Vertex2D> CreateVertexBuffer(int vertexCount)
     {
@@ -57,25 +57,6 @@ internal class WsBackend : TmGuiBackend
         return batch;
     }
 
-    internal int AddTexture(TmTexture texture)
-    {
-        var textureId = images.Count;
-        texture2Id.Add(texture, textureId);
-        var asset = rootBackend.GetTextureImage(texture);
-        var image = new WsImage { textureId = textureId, asset = asset, texture = texture };
-        images.Add(image);
-        if (asset.name != null) {
-            stringToImage.Add(asset.name, image);
-        }
-        return textureId;
-    }
+
 }
 
-internal struct WsImage
-{
-    internal int            textureId;
-    internal TmImageAsset   asset;
-    internal TmTexture      texture;
-
-    public override string ToString() => $"{asset.name} - {texture}";
-}

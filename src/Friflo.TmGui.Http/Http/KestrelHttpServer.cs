@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using Friflo.TmGui.Session;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
@@ -124,6 +125,30 @@ public sealed class KestrelHttpServer
                         {
                             await next();
                         }
+                    });
+                    // 3. Texture Handler: Intercept requests to /textures/{name}
+                    app.Use(async (HttpContext context, Func<Task> next) =>
+                    {
+                        var path = context.Request.Path;
+                        if (path.StartsWithSegments("/textures", out var remainingPath) && remainingPath.HasValue)
+                        {
+                            string fileName = remainingPath.Value.TrimStart('/');
+                            // string fileNameWithoutExt = Path.GetFileNameWithoutExtension(fileName);
+                            
+                            if (loop.resources.stringToImage.TryGetValue(fileName, out var image))
+                            {
+                                using var stream = loop.rootBackend.Assets.CreatePng(image.asset);
+                                context.Response.ContentType    = "image/png";
+                                context.Response.ContentLength  = stream.Length;
+                                context.Response.StatusCode     = StatusCodes.Status200OK;
+                                await stream.CopyToAsync(context.Response.Body, context.RequestAborted);
+                                return;
+                            }
+                            context.Response.StatusCode = StatusCodes.Status404NotFound;
+                            return;
+                        }
+
+                        await next();
                     });
 
                     // 3. Serve Static Files from wwwroot with custom ContentTypes

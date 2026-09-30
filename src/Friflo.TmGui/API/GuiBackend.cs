@@ -41,7 +41,7 @@ public abstract class TmGuiBackend : IDisposable
     internal  readonly  GuiHost     host;
     public              IGuiAssets  Assets => assets;
     
-    public              TmFont      DefaultFont => defaultFont ??= assets.CreateDefaultFont(this);
+    public    virtual   TmFont      DefaultFont => defaultFont ??= assets.CreateDefaultFont(this);
 
     protected internal  abstract    TmBuffer<Vertex2D>  CreateVertexBuffer(int vertexCount);
     protected internal  abstract    TmBuffer<uint>      CreateIndexBuffer(int indexCount);

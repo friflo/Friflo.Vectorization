@@ -68,7 +68,7 @@ public partial class TmSessionLoop
             switch (evt.Type)
             {
                 case ClientEventType.WebsocketConnected: {
-                    var newSession = CreateGuiSession(evt, true, out var _);
+                    var newSession = CreateGuiSession(evt.Client, true, out var _);
                     break;
                 }
                 case ClientEventType.WebsocketInput:
@@ -86,7 +86,7 @@ public partial class TmSessionLoop
                     evt.Client.Send(initialMessage);
                     
                     newSession.ProcessInput(payload.Span);
-                    var sendBuffer = newSession.IterateTui();
+                    var sendBuffer = newSession.IterateTui(resources);
                     
                     evt.Client.Send(sendBuffer);
                     
@@ -103,7 +103,7 @@ public partial class TmSessionLoop
                         var payload     = evt.Payload.Span;
                         session.ProcessInput(payload);
                         if (isQueueEmpty) {
-                            var sendBuffer  = session.IterateTui();
+                            var sendBuffer  = session.IterateTui(resources);
                             evt.Client.Send(sendBuffer);
                         }
                     }
@@ -111,7 +111,7 @@ public partial class TmSessionLoop
                 case ClientEventType.FrameTick:
                     if (sessions.TryGetValue(evt.Client, out session))
                     {
-                        var sendBuffer = session.IterateTui();
+                        var sendBuffer = session.IterateTui(resources);
                         evt.Client.Send(sendBuffer);
                     }
                     break;
@@ -138,7 +138,7 @@ public partial class TmSessionLoop
         }
 
         foreach (var (client, session) in sessions) {
-            ReadOnlyMemory<byte> sendBuffer = session.IterateTui();
+            ReadOnlyMemory<byte> sendBuffer = session.IterateTui(resources);
             if (sendBuffer.IsEmpty) {
                 continue;
             }

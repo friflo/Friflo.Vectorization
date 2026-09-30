@@ -38,16 +38,15 @@ public sealed partial class GuiSession : TmSession
     protected override TmGuiBackend    Backend => wsBackend;
 
 
-    public override Memory<byte> IterateTui()
+    public override Memory<byte> IterateTui(SessionResources resources)
     {
         wsBackend.NewFrame();
         guiView!.RenderGui(wsBatch, canvasWidth, canvasHeight);
         
         wsBatch.DrawCommandList();
 
-        var drawCommands = wsBatch.DrawList;
-        var texture2Id   = wsBackend.texture2Id;
-        var usedTextures   = wsBackend.usedTextures;
+        var drawCommands    = wsBatch.DrawList;
+        var usedTextures    = wsBackend.usedTextures;
         usedTextures.Clear();
 
         if (wsDrawList.Length < drawCommands.Length) {
@@ -56,9 +55,7 @@ public sealed partial class GuiSession : TmSession
         for (int n = 0; n < drawCommands.Length; n++)
         {
             var cmd = drawCommands[n];
-            if (!texture2Id.TryGetValue(cmd.texture, out int textureId)) {
-                textureId = wsBackend.AddTexture(cmd.texture);
-            }
+            var textureId = resources.GetTexture(cmd.texture);
             usedTextures.Add(textureId);
             wsDrawList[n] = new WsDrawCommand {
                 vertexView  = cmd.vertexView,
@@ -103,7 +100,7 @@ public sealed partial class GuiSession : TmSession
         if (bytesWritten != sendLength) throw new InvalidOperationException("invalid length");
         
         // 6. Write used textures
-        var images = wsBackend.images;
+        var images = resources.images;
         MemoryMarshal.Write(span[bytesWritten..], usedTextures.Count);
         bytesWritten += sizeof(int);
         foreach (var usedTexture in usedTextures) {

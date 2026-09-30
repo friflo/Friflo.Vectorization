@@ -20,7 +20,7 @@ public abstract class TmSession
     internal           virtual  void            SendReplayCommands() { }
     
     public             abstract void            ProcessInput(ReadOnlySpan<byte> input);     // todo make internal
-    public             abstract Memory<byte>    IterateTui();                               // todo make internal
+    public             abstract Memory<byte>    IterateTui(SessionResources resources);     // todo make internal
 }
 
 public enum ClientEventType : byte
