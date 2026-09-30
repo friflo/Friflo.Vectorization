@@ -1,4 +1,4 @@
-// gui-events.js
+// app-events.js
 
 let boundCanvas = null;
 

@@ -1,5 +1,5 @@
 // app.js
-import { resizeCanvas, sendInitGui, initGuiEventListeners, updateMouseCursor } from './gui-events.js';
+import { resizeCanvas, sendInitGui, initGuiEventListeners, updateMouseCursor } from './app-events.js';
 
 // Check WebGPU availability in current browser environment
 if (!navigator.gpu) {
