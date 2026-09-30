@@ -1,7 +1,6 @@
 // gui-events.js
 
 let boundCanvas = null;
-let boundSocket = null;
 
 // Send current canvas dimensions in physical GPU pixels as text stream
 export function sendInitGui(ws, canvas) {
@@ -54,42 +53,60 @@ export function updateMouseCursor(canvas, cursorIndex) {
     }
 }
 
-// Attach all Window & Canvas Event Listeners (Resize, Mouse, Keyboard)
+// Attach all Window & Canvas Event Listeners (Resize, Pointer, Keyboard)
 export function initGuiEventListeners(canvas, getSocketFn) {
     boundCanvas = canvas;
 
+    // Prevent default touch gestures (pinch-zoom, scrolling) on canvas
+    canvas.style.touchAction = 'none';
+
     // Helper to always retrieve active socket reference
     const getSocket = () => (typeof getSocketFn === 'function' ? getSocketFn() : getSocketFn);
+
+    // Helper to calculate exact physical GPU pixel coordinates relative to canvas
+    const getCanvasCoords = (e) => {
+        const rect = canvas.getBoundingClientRect();
+        const dpr = window.devicePixelRatio || 1;
+        const x = (e.clientX - rect.left) * dpr;
+        const y = (e.clientY - rect.top) * dpr;
+        return { x: Math.round(x), y: Math.round(y) };
+    };
 
     // 1. Resize Listener
     window.addEventListener('resize', () => {
         resizeCanvas(boundCanvas, getSocket());
     });
 
-    // 2. Mouse Input Listeners
-    canvas.addEventListener('mousemove', (e) => {
+    // 2. Unified Pointer Input Listeners (Mouse, Touch, Stylus)
+    canvas.addEventListener('pointermove', (e) => {
         const socket = getSocket();
         if (!socket || socket.readyState !== WebSocket.OPEN) return;
 
-        const dpr = window.devicePixelRatio || 1;
-        const x = e.clientX * dpr;
-        const y = e.clientY * dpr;
-
+        const { x, y } = getCanvasCoords(e);
         socket.send(`evt=mousemove;mouseX=${x};mouseY=${y};`);
     });
 
-    canvas.addEventListener('mousedown', (e) => {
+    canvas.addEventListener('pointerdown', (e) => {
         const socket = getSocket();
         if (!socket || socket.readyState !== WebSocket.OPEN) return;
 
-        socket.send(`evt=mousedown;button=${e.button};`);
+        // Capture pointer events even if touch moves outside canvas boundaries
+        canvas.setPointerCapture(e.pointerId);
+
+        const { x, y } = getCanvasCoords(e);
+        socket.send(`evt=mousedown;button=${e.button};mouseX=${x};mouseY=${y};`);
     });
 
-    canvas.addEventListener('mouseup', (e) => {
+    canvas.addEventListener('pointerup', (e) => {
         const socket = getSocket();
         if (!socket || socket.readyState !== WebSocket.OPEN) return;
 
-        socket.send(`evt=mouseup;button=${e.button};`);
+        if (canvas.hasPointerCapture(e.pointerId)) {
+            canvas.releasePointerCapture(e.pointerId);
+        }
+
+        const { x, y } = getCanvasCoords(e);
+        socket.send(`evt=mouseup;button=${e.button};mouseX=${x};mouseY=${y};`);
     });
 
     // 3. Keyboard Input Listeners
