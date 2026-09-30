@@ -28,7 +28,7 @@ public sealed partial class TmSessionLoop : IDisposable
     private readonly    SixelDrawer                         sixelDrawer;    // shared among all sessions
     private readonly    CreateGuiView                       createGuiView;  // IBatchRenderer factory
     private readonly    CreateSession                       createSession;
-    private readonly    IGuiAssets                          assets;         // shared among all sessions
+    private readonly    TmGuiBackend                        rootBackend;    // shared among all sessions
     private readonly    CancellationTokenSource             cts = new();
     private             Thread?                             shardThread;
     private             bool                                isDisposed;
@@ -36,12 +36,12 @@ public sealed partial class TmSessionLoop : IDisposable
 
     private const int MaxSyncQueueCapacity = 32;
     
-    public TmSessionLoop(bool isAsync, IGuiAssets? assets, CreateGuiView createGuiView, CreateSession createSession)
+    public TmSessionLoop(bool isAsync, TmGuiBackend backend, CreateGuiView createGuiView, CreateSession createSession)
     {
         this.isAsync        = isAsync;
         this.createGuiView  = createGuiView;
         this.createSession  = createSession;
-        this.assets         = assets ?? new TuiAssets(); 
+        this.rootBackend    = backend; 
         if (isAsync) {
             // Bounded channel to enforce non-blocking backpressure via TryWrite
             var options = new BoundedChannelOptions(MaxSyncQueueCapacity) {
@@ -158,7 +158,7 @@ public sealed partial class TmSessionLoop : IDisposable
         var args        = firstLine == -1 ? [] : GetArgs(payload.Span.Slice(0, firstLine));
 
         var frameTimer  = new FrameTimer(this, evt.Client, 60, isSync);
-        var session     = new TuiSession(evt.Client, frameBuffer, frameTimer, sixelDrawer, assets, TuiColorMode.RGB24);
+        var session     = new TuiSession(evt.Client, frameBuffer, frameTimer, sixelDrawer, rootBackend.Assets, TuiColorMode.RGB24);
 
         var sessionInfo = new SessionInfo{ client = client, backend = session.Backend, args = args };
         var guiView     = createGuiView(sessionInfo);
@@ -173,7 +173,7 @@ public sealed partial class TmSessionLoop : IDisposable
     private TmSession CreateGuiSession(ClientEvent evt, bool isSync, out Memory<byte> firstPayload)
     {
         var client      = evt.Client;
-        TmSession session = createSession(client, assets);
+        TmSession session = createSession(client, rootBackend);
         
         var sessionInfo = new SessionInfo{ client = client, backend = session.Backend, args = [] };
         var guiView     = createGuiView(sessionInfo);
@@ -185,4 +185,4 @@ public sealed partial class TmSessionLoop : IDisposable
     }
 }
 
-public delegate TmSession CreateSession(TmClient client, IGuiAssets assets);
+public delegate TmSession CreateSession(TmClient client, TmGuiBackend backend);

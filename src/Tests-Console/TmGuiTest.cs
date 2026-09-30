@@ -60,7 +60,6 @@ public class TmGuiRenderer : IRenderer, IGuiView
     
     public TmGuiRenderer(WgpuHost wgpuHost)
     {
-        var device          = wgpuHost.Device;
         var guiBackend      = wgpuHost.CreateGuiBackend();
         batch               = guiBackend.CreateBatch(wgpuHost.SwapChainFormat);
         using var monoTtf   = typeof(TmGuiRenderer).Assembly.GetManifestResourceStream("Tests-Console.Assets.Monocraft.ttf")!;  
@@ -72,7 +71,7 @@ public class TmGuiRenderer : IRenderer, IGuiView
         myTexture        = guiBackend.LoadTexture(stream, "world_tileset.png").AsGpuTexture(); 
         myTextureView    = myTexture.CreateView().AsTmTexture();
         
-        loop = new TmSessionLoop(false, null, _ => new TmGuiRenderer(this), GuiSession.CreateGuiSession);
+        loop = new TmSessionLoop(false, guiBackend, _ => new TmGuiRenderer(this), GuiSession.CreateGuiSession);
         var httpServer = new KestrelHttpServer(loop, 8080);
         httpServer.Start();
     }

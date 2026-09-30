@@ -22,14 +22,14 @@ public sealed partial class GuiSession : TmSession
     private             int             canvasWidth     = 500;
     private             int             canvasHeight    = 300;
     
-    public static GuiSession CreateGuiSession(TmClient client, IGuiAssets assets)
+    public static GuiSession CreateGuiSession(TmClient client, TmGuiBackend rootBackend)
     {
-        return new GuiSession(client, assets);
+        return new GuiSession(client, rootBackend);
     }
     
-    private GuiSession(TmClient client, IGuiAssets assets)
+    private GuiSession(TmClient client, TmGuiBackend rootBackend)
     {
-        wsBackend   = new WsBackend(assets);
+        wsBackend   = new WsBackend(rootBackend);
         wsBatch     = wsBackend.CreateBatch();
         this.client = client;
     }

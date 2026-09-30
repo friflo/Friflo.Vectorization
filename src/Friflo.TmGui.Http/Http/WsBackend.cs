@@ -11,8 +11,11 @@ namespace Friflo.TmGui.Http;
 
 internal class WsBackend : TmGuiBackend
 {
-    public WsBackend(IGuiAssets assets) : base(assets)
+    private readonly TmGuiBackend rootBackend;
+    
+    public WsBackend(TmGuiBackend rootBackend) : base(rootBackend.Assets)
     {
+        this.rootBackend = rootBackend;
     }
 
     protected override TmBuffer<Vertex2D> CreateVertexBuffer(int vertexCount)
@@ -29,15 +32,15 @@ internal class WsBackend : TmGuiBackend
 
     public override TmTexture CreateTexture(string name, int width, int height, ReadOnlySpan<byte> rgbaPixels)
     {
-        throw new NotImplementedException();
+        return rootBackend.CreateTexture(name, width, height, rgbaPixels);
     }
 
     public override TmTexture LoadTexture(Stream stream, string? label = null, TmTextureUsage usage = TmTextureUsage.None | TmTextureUsage.CopyDst | TmTextureUsage.TextureBinding)
     {
-        throw new NotImplementedException();
+        return rootBackend.LoadTexture(stream, label, usage);
     }
     
-    public WsBatch CreateBatch()
+    public WsBatch CreateBatch()  // WS_TAG
     {
         var batch = new WsBatch(this, 60000);
         InitBatch(batch);
