@@ -35,9 +35,8 @@ internal class WebSocketClient : TmClient
     {
         if (webSocket.State == WebSocketState.Open) {
             try {
-                webSocket.SendAsync(buffer, WebSocketMessageType.Binary, true, CancellationToken.None)
-                         .GetAwaiter()
-                         .GetResult();
+                var awaiter = webSocket.SendAsync(buffer, WebSocketMessageType.Binary, true, CancellationToken.None).GetAwaiter();
+                awaiter.GetResult();
                 return buffer.Length;
             } catch (WebSocketException e) {
                 Console.WriteLine(e);
