@@ -72,9 +72,7 @@ public class TmGuiRenderer : IRenderer, IGuiView
         myTexture        = guiBackend.LoadTexture(stream, "world_tileset.png").AsGpuTexture(); 
         myTextureView    = myTexture.CreateView().AsTmTexture();
         
-        loop = new TmSessionLoop(false, null, info => {
-            return new TmGuiRenderer(this);
-        }, GuiSession.CreateGuiSession);
+        loop = new TmSessionLoop(false, null, _ => new TmGuiRenderer(this), GuiSession.CreateGuiSession);
         var httpServer = new KestrelHttpServer(loop, 8080);
         httpServer.Start();
     }
