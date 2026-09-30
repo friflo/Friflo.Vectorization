@@ -77,7 +77,7 @@ public sealed partial class GuiSession : TmSession
         MemoryMarshal.Write(span[bytesWritten..], vertices.Length);
         bytesWritten += sizeof(int);
         
-        // 3. Write vertices.Length (int)
+        // 3. Write current mouse cursor shape (int)
         MemoryMarshal.Write(span[bytesWritten..], wsBackend.input.CurrentCursor);
         bytesWritten += sizeof(int);
 
