@@ -11,13 +11,29 @@ using Friflo.TmGui.Session;
 // ReSharper disable CheckNamespace
 namespace Friflo.TmGui.Http;
 
+internal struct WsSendBuffer
+{
+    internal    byte[]  data            = new byte[64 * 1024];
+    internal    int     pendingLength;
+    
+    internal void CopyFrom(ReadOnlyMemory<byte> buffer)
+    {
+        if (data.Length < buffer.Length) {
+            data = new byte[buffer.Length];
+        }
+        buffer.CopyTo(data);
+        pendingLength = data.Length;
+    }
+    
+    public WsSendBuffer() { }
+}
+
 
 internal class WebSocketClient : TmClient
 {
     private readonly    WebSocket       webSocket;
-    private             byte[]          sendBuffer = new byte[64 * 1024]; // Pre-allocated fixed send buffer
-    private             int             pendingLength;
     private readonly    SemaphoreSlim   sendSignal = new(0, 1);
+    private             WsSendBuffer    sendBuffer = new();
 
     internal WebSocketClient(WebSocket webSocket)
     {
@@ -39,11 +55,7 @@ internal class WebSocketClient : TmClient
         if (webSocket.State != WebSocketState.Open) {
             return 0;
         }
-        if (sendBuffer.Length < data.Length) {
-            sendBuffer = new byte[data.Length];
-        }
-        data.CopyTo(sendBuffer);
-        pendingLength = data.Length;
+        sendBuffer.CopyFrom(data);
 
         // Signal background loop to flush frame
         if (sendSignal.CurrentCount == 0) {
@@ -59,10 +71,10 @@ internal class WebSocketClient : TmClient
 
     private async Task FlushPendingBufferAsync(CancellationToken ct)
     {
-        if (pendingLength > 0 && webSocket.State == WebSocketState.Open) {
-            var memoryToSend = new ReadOnlyMemory<byte>(sendBuffer, 0, pendingLength);
+        if (sendBuffer.pendingLength > 0 && webSocket.State == WebSocketState.Open) {
+            var memoryToSend = new ReadOnlyMemory<byte>(sendBuffer.data, 0, sendBuffer.pendingLength);
             await webSocket.SendAsync(memoryToSend, WebSocketMessageType.Binary, true, ct);
-            pendingLength = 0;
+            sendBuffer.pendingLength = 0;
         }
     }
 
