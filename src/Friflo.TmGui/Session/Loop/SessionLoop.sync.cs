@@ -139,8 +139,10 @@ public partial class TmSessionLoop
 
         foreach (var (client, session) in sessions) {
             ReadOnlyMemory<byte> sendBuffer = session.IterateTui();
+            if (sendBuffer.IsEmpty) {
+                continue;
+            }
             client.Send(sendBuffer);
-            // client.SendAsync(sendBuffer, CancellationToken.None);
         }
     }
 }

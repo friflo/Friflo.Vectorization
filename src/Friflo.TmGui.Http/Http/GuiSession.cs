@@ -18,6 +18,7 @@ public sealed partial class GuiSession : TmSession
     private  readonly   WsBatch         wsBatch;        // instance: creates / owns
     private             WsDrawCommand[] wsDrawList      = [];
     private             byte[]          sendBuffer      = [];
+    private             ulong           lastSendBufferHash;
     private             int             canvasWidth     = 500;
     private             int             canvasHeight    = 300;
     
@@ -91,8 +92,15 @@ public sealed partial class GuiSession : TmSession
         bytesWritten += vertexBytes.Length;
         
         if (bytesWritten != sendLength) throw new InvalidOperationException("invalid length");
-            
-        return new Memory<byte>(sendBuffer, 0, sendLength);
+        
+        var memory = new Memory<byte>(sendBuffer, 0, sendLength);
+        
+        var sendHash = HashUtils.XxHash3(memory.Span);
+        if (lastSendBufferHash == sendHash) {
+            return default;
+        }
+        lastSendBufferHash = sendHash;
+        return memory;
     }
 }
 
