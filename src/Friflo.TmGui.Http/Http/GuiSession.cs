@@ -23,9 +23,9 @@ public sealed class GuiSession : TmSession
     private             int             canvasWidth     = 500;
     private             int             canvasHeight    = 300;
     
-    public static GuiSession CreateGuiSession(ClientEvent evt, IGuiAssets assets)
+    public static GuiSession CreateGuiSession(TmClient client, IGuiAssets assets)
     {
-        return new GuiSession(evt.Client, assets);
+        return new GuiSession(client, assets);
     }
     
     private GuiSession(TmClient client, IGuiAssets assets)

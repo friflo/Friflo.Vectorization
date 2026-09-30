@@ -33,13 +33,6 @@ public enum ClientEventType : byte
     WebsocketInput,
 }
 
-public readonly struct ClientEvent
-{
-    public  required    TmClient        Client  { get; init; }
-    public  required    ClientEventType Type    { get; init; }
-    public  required    Payload         Payload { get; init; }
-}
-
 public readonly struct Payload
 {
     private readonly     byte[] buffer;
@@ -58,6 +51,13 @@ public readonly struct Payload
         if (buffer == null) return;
         ArrayPool<byte>.Shared.Return(buffer);
     }
+}
+
+internal readonly struct ClientEvent
+{
+    internal required   TmClient        Client  { get; init; }
+    internal required   ClientEventType Type    { get; init; }
+    internal required   Payload         Payload { get; init; }
 }
 
 public delegate IGuiView CreateGuiView(SessionInfo info);

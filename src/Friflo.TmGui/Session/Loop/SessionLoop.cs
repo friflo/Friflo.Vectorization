@@ -172,9 +172,9 @@ public sealed partial class TmSessionLoop : IDisposable
 
     private TmSession CreateGuiSession(ClientEvent evt, bool isSync, out Memory<byte> firstPayload)
     {
-        TmSession session = createSession(evt, assets);
-        
         var client      = evt.Client;
+        TmSession session = createSession(client, assets);
+        
         var sessionInfo = new SessionInfo{ client = client, backend = session.Backend, args = [] };
         var guiView     = createGuiView(sessionInfo);
         
@@ -185,4 +185,4 @@ public sealed partial class TmSessionLoop : IDisposable
     }
 }
 
-public delegate TmSession CreateSession(ClientEvent evt, IGuiAssets assets);
+public delegate TmSession CreateSession(TmClient client, IGuiAssets assets);
