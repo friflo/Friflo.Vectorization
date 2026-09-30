@@ -4,6 +4,7 @@
 
 
 using System;
+using System.Globalization;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -37,15 +38,20 @@ public sealed class GuiSession : TmSession
     
     protected override TmGuiBackend    Backend => wsBackend;
 
+    private Vector2     pendingMousePos;
+    private bool        isMouseMoveEvent;
+    
     public override void ProcessInput(ReadOnlySpan<byte> utf8Bytes)
     {
         Span<char> chars = stackalloc char[utf8Bytes.Length];
         int charCount = Encoding.UTF8.GetChars(utf8Bytes, chars);
         ReadOnlySpan<char> span = chars.Slice(0, charCount);
 
-        // Max 16 Key-Value Paare auf dem Stack zulassen
+        // Max 16 key-value pairs on the stack
         Span<Range> ranges = stackalloc Range[16];
         int count = span.Split(ranges, ';', StringSplitOptions.RemoveEmptyEntries);
+
+        isMouseMoveEvent = false;
 
         for (int i = 0; i < count; i++)
         {
@@ -59,18 +65,36 @@ public sealed class GuiSession : TmSession
 
             DispatchParam(key, value);
         }
+
+        // Dispatch aggregated MouseMove event
+        if (isMouseMoveEvent)
+        {
+            wsBackend.AddEvent(new TmEvent(TmEventType.MouseMotion, pendingMousePos));
+        }
     }
-    
+
     private void DispatchParam(ReadOnlySpan<char> key, ReadOnlySpan<char> value)
     {
-        if (key.SequenceEqual("canvasWidth") && int.TryParse(value, out canvasWidth)) {
+        if (key is "canvasWidth" && int.TryParse(value, out int width)) {
+            canvasWidth = width;
         }
-        else if (key.SequenceEqual("canvasHeight") && int.TryParse(value, out canvasHeight)) {
+        else if (key is "canvasHeight" && int.TryParse(value, out int height)) {
+            canvasHeight = height;
+        }
+        else if (key is "evt") {
+            if (value is "mousemove") {
+                isMouseMoveEvent = true;
+            }
+        }
+        else if (key is "mouseX" && float.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out pendingMousePos.X)) {
+        }
+        else if (key is "mouseY" && float.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out pendingMousePos.Y)) {
         }
     }
 
     public override Memory<byte> IterateTui()
     {
+        wsBackend.NewFrame();
         guiView!.RenderGui(wsBatch, canvasWidth, canvasHeight);
         
         wsBatch.DrawCommandList();

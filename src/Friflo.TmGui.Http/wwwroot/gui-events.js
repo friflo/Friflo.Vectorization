@@ -52,8 +52,7 @@ export function initGuiEventListeners(canvas, getSocketFn) {
         const x = e.clientX * dpr;
         const y = e.clientY * dpr;
 
-        // TODO: Send mouse move payload to C# backend
-        // socket.send(`evt=mousemove;x=${x};y=${y};`);
+        socket.send(`evt=mousemove;mouseX=${x};mouseY=${y};`);
     });
 
     canvas.addEventListener('mousedown', (e) => {
