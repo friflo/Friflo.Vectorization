@@ -13,8 +13,8 @@ namespace Friflo.TmGui.Http;
 
 internal struct WsSendBuffer
 {
-    internal    byte[]  data            = new byte[64 * 1024];
-    internal    int     pendingLength;
+    internal byte[] data = new byte[64 * 1024];
+    internal int pendingLength;
     
     internal void CopyFrom(ReadOnlyMemory<byte> buffer)
     {
@@ -28,12 +28,15 @@ internal struct WsSendBuffer
     public WsSendBuffer() { }
 }
 
-
 internal class WebSocketClient : TmClient
 {
     private readonly    WebSocket       webSocket;
     private readonly    SemaphoreSlim   sendSignal = new(0, 1);
-    private             WsSendBuffer    sendBuffer = new();
+    private readonly    object          bufferLock = new();
+    
+    // Double-buffering to prevent race conditions between OnFrame thread and Kestrel flush
+    private             WsSendBuffer    frontBuffer = new();
+    private             WsSendBuffer    backBuffer  = new();
 
     internal WebSocketClient(WebSocket webSocket)
     {
@@ -55,11 +58,19 @@ internal class WebSocketClient : TmClient
         if (webSocket.State != WebSocketState.Open) {
             return 0;
         }
-        sendBuffer.CopyFrom(data);
+
+        lock (bufferLock)
+        {
+            frontBuffer.CopyFrom(data);
+        }
 
         // Signal background loop to flush frame
         if (sendSignal.CurrentCount == 0) {
-            sendSignal.Release();
+            try {
+                sendSignal.Release();
+            } catch (SemaphoreFullException) {
+                // Already signaled, ignore
+            }
         }
         return data.Length;
     }
@@ -71,10 +82,25 @@ internal class WebSocketClient : TmClient
 
     private async Task FlushPendingBufferAsync(CancellationToken ct)
     {
-        if (sendBuffer.pendingLength > 0 && webSocket.State == WebSocketState.Open) {
-            var memoryToSend = new ReadOnlyMemory<byte>(sendBuffer.data, 0, sendBuffer.pendingLength);
+        // Swap buffers quickly under lock to minimize OnFrame thread wait time
+        lock (bufferLock)
+        {
+            if (frontBuffer.pendingLength == 0) {
+                return;
+            }
+
+            // Swap front and back buffer structs (ValueType swap, instant)
+            (frontBuffer, backBuffer) = (backBuffer, frontBuffer);
+            
+            // Clear pending length on new frontBuffer so it is ready for the next frame
+            frontBuffer.pendingLength = 0;
+        }
+
+        // Send backBuffer asynchronously - OnFrame thread is completely free to write to frontBuffer now
+        if (backBuffer.pendingLength > 0 && webSocket.State == WebSocketState.Open) {
+            var memoryToSend = new ReadOnlyMemory<byte>(backBuffer.data, 0, backBuffer.pendingLength);
             await webSocket.SendAsync(memoryToSend, WebSocketMessageType.Binary, true, ct);
-            sendBuffer.pendingLength = 0;
+            backBuffer.pendingLength = 0;
         }
     }
 
