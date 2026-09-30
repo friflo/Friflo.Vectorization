@@ -59,16 +59,14 @@ export function initGuiEventListeners(canvas, getSocketFn) {
         const socket = getSocket();
         if (!socket || socket.readyState !== WebSocket.OPEN) return;
 
-        // TODO: Send mouse down payload to C# backend
-        // socket.send(`evt=mousedown;button=${e.button};`);
+        socket.send(`evt=mousedown;button=${e.button};`);
     });
 
     canvas.addEventListener('mouseup', (e) => {
         const socket = getSocket();
         if (!socket || socket.readyState !== WebSocket.OPEN) return;
 
-        // TODO: Send mouse up payload to C# backend
-        // socket.send(`evt=mouseup;button=${e.button};`);
+        socket.send(`evt=mouseup;button=${e.button};`);
     });
 
     // 3. Keyboard Input Listeners

@@ -40,6 +40,10 @@ public sealed class GuiSession : TmSession
 
     private Vector2     pendingMousePos;
     private bool        isMouseMoveEvent;
+    private bool        isMouseDownEvent;
+    private bool        isMouseUpEvent;
+    private int         button;
+    
     
     public override void ProcessInput(ReadOnlySpan<byte> utf8Bytes)
     {
@@ -52,6 +56,8 @@ public sealed class GuiSession : TmSession
         int count = span.Split(ranges, ';', StringSplitOptions.RemoveEmptyEntries);
 
         isMouseMoveEvent = false;
+        isMouseDownEvent = false;
+        isMouseUpEvent   = false;
 
         for (int i = 0; i < count; i++)
         {
@@ -67,9 +73,14 @@ public sealed class GuiSession : TmSession
         }
 
         // Dispatch aggregated MouseMove event
-        if (isMouseMoveEvent)
-        {
+        if (isMouseMoveEvent) {
             wsBackend.AddEvent(new TmEvent(TmEventType.MouseMotion, pendingMousePos));
+        }
+        if (isMouseDownEvent) {
+            wsBackend.AddEvent(new TmEvent(TmEventType.MouseButtonDown, pendingMousePos));
+        }
+        if (isMouseUpEvent) {
+            wsBackend.AddEvent(new TmEvent(TmEventType.MouseButtonUp, pendingMousePos));
         }
     }
 
@@ -84,11 +95,17 @@ public sealed class GuiSession : TmSession
         else if (key is "evt") {
             if (value is "mousemove") {
                 isMouseMoveEvent = true;
+            } else if (value is "mousedown") {
+                isMouseDownEvent = true;
+            } else if (value is "mouseup") {
+                isMouseUpEvent = true;
             }
         }
         else if (key is "mouseX" && float.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out pendingMousePos.X)) {
         }
         else if (key is "mouseY" && float.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out pendingMousePos.Y)) {
+        }
+        else if (key is "button" && int.TryParse(value, out button)) {
         }
     }
 
