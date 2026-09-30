@@ -1,3 +1,6 @@
+// app.js
+import { resizeCanvas, sendInitGui, initGuiEventListeners } from './gui-events.js';
+
 // Check WebGPU availability in current browser environment
 if (!navigator.gpu) {
     console.error("WebGPU is not supported in this browser.");
@@ -27,23 +30,6 @@ let socket = null;
 const SIZEOF_INT = 4;
 const SIZEOF_WS_DRAW_COMMAND = 88; // 64B (projection) + 16B (scissor) + 8B (vertexView) = 88 bytes
 
-// Resize Canvas to physical GPU pixels (HiDPI/Retina aware)
-function resizeCanvas() {
-    const dpr = window.devicePixelRatio || 1;
-    const pixelWidth = Math.max(1, Math.floor(window.innerWidth * dpr));
-    const pixelHeight = Math.max(1, Math.floor(window.innerHeight * dpr));
-
-    if (canvas.width !== pixelWidth || canvas.height !== pixelHeight) {
-        canvas.width = pixelWidth;
-        canvas.height = pixelHeight;
-
-        // Send updated dimensions to C# backend if WebSocket is active
-        if (socket && socket.readyState === WebSocket.OPEN) {
-            sendInitGui(socket);
-        }
-    }
-}
-
 // Initialize WebGPU context, fetch WGSL shader, create buffers & bind groups, and build render pipeline
 async function initWebGPU() {
     const adapter = await navigator.gpu.requestAdapter();
@@ -63,7 +49,7 @@ async function initWebGPU() {
     });
 
     // Initial canvas sizing
-    resizeCanvas();
+    resizeCanvas(canvas, socket);
 
     // 1. Create Initial Dynamic Vertex Buffer
     vertexBuffer = device.createBuffer({
@@ -211,7 +197,7 @@ function initWebSocket() {
         console.log("[+] WebSocket connected. Sending WsInitGui event...");
         
         // Send initial canvas resolution in zero-allocation key-value format
-        sendInitGui(socket);
+        sendInitGui(socket, canvas);
     };
 
     socket.onmessage = (event) => {
@@ -227,15 +213,6 @@ function initWebSocket() {
     socket.onerror = (err) => {
         console.error("WebSocket error:", err);
     };
-}
-
-// Send current canvas dimensions in physical GPU pixels as text stream
-function sendInitGui(ws) {
-    const width = canvas.width;
-    const height = canvas.height;
-    
-    // Key-value text payload matching C# ReadOnlySpan parser
-    ws.send(`canvasWidth=${width};canvasHeight=${height};`);
 }
 
 // Process incoming binary DrawList frame and render via WebGPU
@@ -332,11 +309,11 @@ function processDrawList(arrayBuffer) {
     device.queue.submit([commandEncoder.finish()]);
 }
 
-// Global window event listener for resizing
-window.addEventListener('resize', resizeCanvas);
-
 // Startup sequence
 async function start() {
+    // Register event listeners for resize, mouse, and keyboard inputs
+    initGuiEventListeners(canvas, () => socket);
+
     const gpuReady = await initWebGPU();
     if (gpuReady) {
         initWebSocket();
