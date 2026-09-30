@@ -15,7 +15,8 @@ internal class WsBackend : TmGuiBackend
     private  readonly   TmGuiBackend                rootBackend;
     internal readonly   Dictionary<TmTexture, int>  texture2Id      = new();
     private  readonly   Dictionary<string, WsImage> stringToImage   = new();
-    private  readonly   List<WsImage>               images          = [default];
+    internal readonly   List<WsImage>               images          = [default];
+    internal readonly   HashSet<int>                usedTextures    = [];
     
     public WsBackend(TmGuiBackend rootBackend) : base(rootBackend.Assets)
     {
@@ -56,7 +57,7 @@ internal class WsBackend : TmGuiBackend
         return batch;
     }
 
-    public int AddTexture(TmTexture texture)
+    internal int AddTexture(TmTexture texture)
     {
         var textureId = images.Count;
         texture2Id.Add(texture, textureId);

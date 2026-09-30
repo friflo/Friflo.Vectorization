@@ -5,6 +5,7 @@ using System;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Text;
 using Friflo.TmGui.Session;
 
 // ReSharper disable CheckNamespace
@@ -46,6 +47,8 @@ public sealed partial class GuiSession : TmSession
 
         var drawCommands = wsBatch.DrawList;
         var texture2Id   = wsBackend.texture2Id;
+        var usedTextures   = wsBackend.usedTextures;
+        usedTextures.Clear();
 
         if (wsDrawList.Length < drawCommands.Length) {
             wsDrawList = new WsDrawCommand [drawCommands.Length];
@@ -56,6 +59,7 @@ public sealed partial class GuiSession : TmSession
             if (!texture2Id.TryGetValue(cmd.texture, out int textureId)) {
                 textureId = wsBackend.AddTexture(cmd.texture);
             }
+            usedTextures.Add(textureId);
             wsDrawList[n] = new WsDrawCommand {
                 vertexView  = cmd.vertexView,
                 projection  = cmd.projection,
@@ -69,7 +73,7 @@ public sealed partial class GuiSession : TmSession
                          drawCommands.Length * Unsafe.SizeOf<WsDrawCommand>() +
                          vertices.Length     * Unsafe.SizeOf<Vertex2D>();
         if (sendBuffer.Length < sendLength) {
-            sendBuffer = new byte[sendLength];
+            sendBuffer = new byte[sendLength + 1000];
         }
         Span<byte> span = sendBuffer;
         int bytesWritten = 0;
@@ -97,6 +101,22 @@ public sealed partial class GuiSession : TmSession
         bytesWritten += vertexBytes.Length;
         
         if (bytesWritten != sendLength) throw new InvalidOperationException("invalid length");
+        
+        // 6. Write used textures
+        var images = wsBackend.images;
+        MemoryMarshal.Write(span[bytesWritten..], usedTextures.Count);
+        bytesWritten += sizeof(int);
+        foreach (var usedTexture in usedTextures) {
+            var image = images[usedTexture];
+            MemoryMarshal.Write(span[bytesWritten..], image.textureId);
+            bytesWritten += sizeof(int);
+            
+            int utf8ByteCount = Encoding.UTF8.GetByteCount(image.asset.name);
+            MemoryMarshal.Write(span[bytesWritten..], utf8ByteCount);
+            bytesWritten += sizeof(int);
+            int encodedBytes = Encoding.UTF8.GetBytes(image.asset.name, span[bytesWritten..]);
+            bytesWritten += encodedBytes;
+        }
         
         var memory = new Memory<byte>(sendBuffer, 0, sendLength);
         
