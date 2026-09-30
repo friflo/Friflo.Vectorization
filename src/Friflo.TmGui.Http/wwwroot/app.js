@@ -1,5 +1,5 @@
 // app.js
-import { resizeCanvas, sendInitGui, initGuiEventListeners } from './gui-events.js';
+import { resizeCanvas, sendInitGui, initGuiEventListeners, updateMouseCursor } from './gui-events.js';
 
 // Check WebGPU availability in current browser environment
 if (!navigator.gpu) {
@@ -229,14 +229,20 @@ function processDrawList(arrayBuffer) {
     // 2. Read vertices.Length (int)
     const vertexCount = view.getInt32(offset, true);
     offset += SIZEOF_INT;
+    
+    // 3. Read MouseCursor
+    const mouseCursor = view.getInt32(offset, true);
+    offset += SIZEOF_INT;
 
-    // 3. View on WsDrawCommand array
+    // 4. View on WsDrawCommand array
     const drawCommandsByteLength = drawCommandCount * SIZEOF_WS_DRAW_COMMAND;
     const drawCommandsBuffer = new Uint8Array(arrayBuffer, offset, drawCommandsByteLength);
     offset += drawCommandsByteLength;
 
-    // 4. View on Vertex2D array (Zero-Copy slice directly uploaded to GPU)
+    // 5. View on Vertex2D array (Zero-Copy slice directly uploaded to GPU)
     const verticesSlice = new Uint8Array(arrayBuffer, offset);
+    
+    updateMouseCursor(canvas, mouseCursor);
 
     // Dynamic resize for Vertex Buffer if vertex payload exceeds current capacity
     if (vertexBuffer.size < verticesSlice.byteLength) {

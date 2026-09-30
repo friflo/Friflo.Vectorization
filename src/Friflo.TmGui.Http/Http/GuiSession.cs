@@ -59,8 +59,9 @@ public sealed partial class GuiSession : TmSession
         }
         var vertices = wsBatch.Vertices;
         
-        var sendLength = 4 + drawCommands.Length * Unsafe.SizeOf<WsDrawCommand>() +
-                         4 + vertices.Length     * Unsafe.SizeOf<Vertex2D>();
+        var sendLength = 4 + 4 + 4 + 
+                         drawCommands.Length * Unsafe.SizeOf<WsDrawCommand>() +
+                         vertices.Length     * Unsafe.SizeOf<Vertex2D>();
         if (sendBuffer.Length < sendLength) {
             sendBuffer = new byte[sendLength];
         }
@@ -74,13 +75,17 @@ public sealed partial class GuiSession : TmSession
         // 2. Write vertices.Length (int)
         MemoryMarshal.Write(span[bytesWritten..], vertices.Length);
         bytesWritten += sizeof(int);
+        
+        // 3. Write vertices.Length (int)
+        MemoryMarshal.Write(span[bytesWritten..], wsBackend.input.CurrentCursor);
+        bytesWritten += sizeof(int);
 
-        // 3. Write wsDrawList elements
+        // 4. Write wsDrawList elements
         var drawListBytes = MemoryMarshal.AsBytes(wsDrawList.AsSpan(0, drawCommands.Length));
         drawListBytes.CopyTo(span[bytesWritten..]);
         bytesWritten += drawListBytes.Length;
 
-        // 4. Write vertices elements
+        // 5. Write vertices elements
         var vertexBytes = MemoryMarshal.AsBytes(vertices);
         vertexBytes.CopyTo(span[bytesWritten..]);
         bytesWritten += vertexBytes.Length;

@@ -31,6 +31,29 @@ export function resizeCanvas(canvas, socket) {
     }
 }
 
+// Map C# MouseCursor enum values to standard CSS cursor strings
+const MOUSE_CURSORS = [
+    'default',      // 0: Arrow
+    'ns-resize',    // 1: ResizeN
+    'ns-resize',    // 2: ResizeS
+    'ew-resize',    // 3: ResizeE
+    'ew-resize',    // 4: ResizeW
+    'nwse-resize',  // 5: ResizeNW
+    'nwse-resize',  // 6: ResizeSE
+    'nesw-resize',  // 7: ResizeNE
+    'nesw-resize'   // 8: ResizeSW
+];
+
+export function updateMouseCursor(canvas, cursorIndex) {
+    if (!canvas) return;
+
+    const cssCursor = MOUSE_CURSORS[cursorIndex] || 'default';
+    
+    if (canvas.style.cursor !== cssCursor) {
+        canvas.style.cursor = cssCursor;
+    }
+}
+
 // Attach all Window & Canvas Event Listeners (Resize, Mouse, Keyboard)
 export function initGuiEventListeners(canvas, getSocketFn) {
     boundCanvas = canvas;
