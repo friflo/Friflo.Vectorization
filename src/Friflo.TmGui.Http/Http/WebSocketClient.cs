@@ -22,7 +22,7 @@ internal struct WsSendBuffer
             data = new byte[buffer.Length];
         }
         buffer.CopyTo(data);
-        pendingLength = data.Length;
+        pendingLength = buffer.Length;
     }
     
     public WsSendBuffer() { }
