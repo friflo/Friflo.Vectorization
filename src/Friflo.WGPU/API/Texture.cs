@@ -70,8 +70,11 @@ public sealed unsafe class GpuTexture : IDisposable
             width               = (uint)writeSize.Value.width,
             depthOrArrayLayers  = (uint)writeSize.Value.depthOrArrayLayers
         };
-        guiPixels = data.ToArray(); // WS_TAG - texture Write()
-        
+        if (guiPixels == null) {
+            guiPixels = data.ToArray(); // WS_TAG - texture Write()
+        } else {
+            data.CopyTo(guiPixels);
+        }
         fixed (byte* dataPtr = data) {
             wgpuQueueWriteTexture(device.QueuePtr, &destination, dataPtr, (nuint)data.Length, &sourceLayout, &extent3D);
         }

@@ -15,7 +15,7 @@ internal class WsBackend : TmGuiBackend
     private  readonly   TmGuiBackend                rootBackend;
     internal readonly   Dictionary<TmTexture, int>  texture2Id      = new();
     private  readonly   Dictionary<string, WsImage> stringToImage   = new();
-    private  readonly   Dictionary<int,    WsImage> idToImage       = new();
+    private  readonly   List<WsImage>               images          = [default];
     
     public WsBackend(TmGuiBackend rootBackend) : base(rootBackend.Assets)
     {
@@ -58,11 +58,11 @@ internal class WsBackend : TmGuiBackend
 
     public int AddTexture(TmTexture texture)
     {
-        var textureId = texture2Id.Count + 1;
+        var textureId = images.Count;
         texture2Id.Add(texture, textureId);
         var asset = rootBackend.GetTextureImage(texture);
-        var image = new WsImage { asset = asset, texture = texture };
-        idToImage.Add(textureId, image);
+        var image = new WsImage { textureId = textureId, asset = asset, texture = texture };
+        images.Add(image);
         if (asset.name != null) {
             stringToImage.Add(asset.name, image);
         }
@@ -72,6 +72,7 @@ internal class WsBackend : TmGuiBackend
 
 internal struct WsImage
 {
+    internal int            textureId;
     internal TmImageAsset   asset;
     internal TmTexture      texture;
 
