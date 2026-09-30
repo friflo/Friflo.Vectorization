@@ -29,6 +29,7 @@ public sealed unsafe class GpuTexture : IDisposable
     private             GpuTextureViewDescriptor[]  viewDescriptors = [];
     private             nint[]                      viewHandles     = [];
     private             int                         viewCount;
+    private             byte[]                      guiPixels;     // used only by GuiSession's
     
     public              string                      Label       => desc.label;
     public ref readonly GpuTextureDescriptor        Descriptor  => ref desc;
@@ -69,7 +70,8 @@ public sealed unsafe class GpuTexture : IDisposable
             width               = (uint)writeSize.Value.width,
             depthOrArrayLayers  = (uint)writeSize.Value.depthOrArrayLayers
         };
-        // WS_TAG - texture Write()
+        guiPixels = data.ToArray(); // WS_TAG - texture Write()
+        
         fixed (byte* dataPtr = data) {
             wgpuQueueWriteTexture(device.QueuePtr, &destination, dataPtr, (nuint)data.Length, &sourceLayout, &extent3D);
         }

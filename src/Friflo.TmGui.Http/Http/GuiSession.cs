@@ -45,6 +45,7 @@ public sealed partial class GuiSession : TmSession
         wsBatch.DrawCommandList();
 
         var drawCommands = wsBatch.DrawList;
+        var texture2Id   = wsBackend.texture2Id;
 
         if (wsDrawList.Length < drawCommands.Length) {
             wsDrawList = new WsDrawCommand [drawCommands.Length];
@@ -52,10 +53,14 @@ public sealed partial class GuiSession : TmSession
         for (int n = 0; n < drawCommands.Length; n++)
         {
             var cmd = drawCommands[n];
+            if (!texture2Id.TryGetValue(cmd.texture, out int textureId)) {
+                texture2Id.Add(cmd.texture, textureId = texture2Id.Count + 1);
+            }
             wsDrawList[n] = new WsDrawCommand {
                 vertexView  = cmd.vertexView,
                 projection  = cmd.projection,
                 scissor     = cmd.scissor,
+                textureId   = textureId
             };
         }
         var vertices = wsBatch.Vertices;
@@ -111,4 +116,5 @@ public struct WsDrawCommand
     public  Matrix4x4       projection;     // 64 bytes
     public  RectVector2     scissor;        // 16 bytes
     public  MemoryView      vertexView;     //  8 bytes
+    public  int             textureId;      //  4 bytes          
 }

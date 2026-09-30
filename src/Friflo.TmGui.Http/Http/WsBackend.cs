@@ -2,6 +2,7 @@
 // See LICENSE file in the project root for full license information.
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using Friflo.TmGui.Headless;
 
@@ -11,7 +12,8 @@ namespace Friflo.TmGui.Http;
 
 internal class WsBackend : TmGuiBackend
 {
-    private readonly TmGuiBackend rootBackend;
+    private  readonly   TmGuiBackend                rootBackend;
+    internal readonly   Dictionary<TmTexture, int>  texture2Id = new();
     
     public WsBackend(TmGuiBackend rootBackend) : base(rootBackend.Assets)
     {

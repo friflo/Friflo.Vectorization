@@ -28,7 +28,7 @@ let socket = null;
 
 // Sizes matching C# Unsafe.SizeOf<T>() in bytes
 const SIZEOF_INT = 4;
-const SIZEOF_WS_DRAW_COMMAND = 88; // 64B (projection) + 16B (scissor) + 8B (vertexView) = 88 bytes
+const SIZEOF_WS_DRAW_COMMAND = 92; // 64 (projection) + 16 (scissor) + 8 (vertexView) + 4 (texture id)
 
 // Initialize WebGPU context, fetch WGSL shader, create buffers & bind groups, and build render pipeline
 async function initWebGPU() {
