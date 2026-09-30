@@ -118,7 +118,7 @@ public sealed partial class GuiSession : TmSession
             bytesWritten += encodedBytes;
         }
         
-        var memory = new Memory<byte>(sendBuffer, 0, sendLength);
+        var memory = new Memory<byte>(sendBuffer, 0, bytesWritten);
         
         var sendHash = HashUtils.XxHash3(memory.Span);
         if (lastSendBufferHash == sendHash) {

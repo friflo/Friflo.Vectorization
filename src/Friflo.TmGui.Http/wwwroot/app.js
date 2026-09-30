@@ -26,6 +26,10 @@ let dummySampler = null;
 // Global WebSocket reference
 let socket = null;
 
+// Texture Cache: Key = textureId, Value = { id, name, loaded, gpuTexture, bindGroup }
+const textures = new Map();
+const utf8Decoder = new TextDecoder('utf-8');
+
 // Sizes matching C# Unsafe.SizeOf<T>() in bytes
 const SIZEOF_INT = 4;
 const SIZEOF_WS_DRAW_COMMAND = 92; // 64 (projection) + 16 (scissor) + 8 (vertexView) + 4 (texture id)
@@ -239,8 +243,28 @@ function processDrawList(arrayBuffer) {
     const drawCommandsBuffer = new Uint8Array(arrayBuffer, offset, drawCommandsByteLength);
     offset += drawCommandsByteLength;
 
-    // 5. View on Vertex2D array (Zero-Copy slice directly uploaded to GPU)
-    const verticesSlice = new Uint8Array(arrayBuffer, offset);
+    // 5. View on Vertex2D array
+    const verticesSlice = new Uint8Array(arrayBuffer, offset, vertexCount * 20);
+    offset += verticesSlice.byteLength;
+    
+    // 6. Read used Textures (Count + ID/Name pairs)
+    const usedTextureCount = view.getInt32(offset, true);
+    offset += SIZEOF_INT;
+
+    for (let i = 0; i < usedTextureCount; i++) {
+        const textureId = view.getInt32(offset, true);
+        offset += SIZEOF_INT;
+
+        const nameByteLength = view.getInt32(offset, true);
+        offset += SIZEOF_INT;
+
+        // Zero-copy slice to decode string
+        const nameBytes = new Uint8Array(arrayBuffer, offset, nameByteLength);
+        const name = utf8Decoder.decode(nameBytes);
+        offset += nameByteLength;
+
+        ensureTextureLoaded(textureId, name);
+    }
     
     updateMouseCursor(canvas, mouseCursor);
 
@@ -293,7 +317,7 @@ function processDrawList(arrayBuffer) {
         const vertexOffset = cmdView.getUint32(cmdOffset + 80, true);
         const vertexDrawCount = cmdView.getUint32(cmdOffset + 84, true);
 
-        // Convert Vertex Count / Offset to Index Count / Offset (4 Vertices = 6 Indices per Quad)
+        // Convert Vertex Count / Offset to Index Count / Offset
         const indexCount = Math.floor(vertexDrawCount / 4) * 6;
         const firstIndex = Math.floor(vertexOffset / 4) * 6;
 
@@ -313,6 +337,49 @@ function processDrawList(arrayBuffer) {
 
     pass.end();
     device.queue.submit([commandEncoder.finish()]);
+}
+
+// Ensure texture is tracked and trigger async fetch from /textures/{name} if missing
+function ensureTextureLoaded(textureId, name) {
+    if (textures.has(textureId)) return;
+
+    const textureEntry = {
+        id: textureId,
+        name: name,
+        loaded: false,
+        gpuTexture: null
+    };
+
+    textures.set(textureId, textureEntry);
+
+    // Fetch image asynchronously from endpoint
+    fetch(`/textures/${name}`)
+        .then(response => {
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            return response.blob();
+        })
+        .then(blob => createImageBitmap(blob))
+        .then(imageBitmap => {
+            // Create WebGPU Texture
+            const gpuTexture = device.createTexture({
+                size: [imageBitmap.width, imageBitmap.height, 1],
+                format: 'rgba8unorm',
+                usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_DST | GPUTextureUsage.RENDER_ATTACHMENT
+            });
+
+            device.queue.copyExternalImageToTexture(
+                { source: imageBitmap },
+                { texture: gpuTexture },
+                [imageBitmap.width, imageBitmap.height]
+            );
+
+            textureEntry.gpuTexture = gpuTexture;
+            textureEntry.loaded = true;
+            console.log(`[+] Texture loaded successfully: ${name} (ID: ${textureId})`);
+        })
+        .catch(err => {
+            console.error(`[-] Failed to load texture '${name}' (ID: ${textureId}):`, err);
+        });
 }
 
 // Startup sequence
