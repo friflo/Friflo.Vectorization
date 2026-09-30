@@ -54,7 +54,7 @@ public sealed partial class GuiSession : TmSession
         {
             var cmd = drawCommands[n];
             if (!texture2Id.TryGetValue(cmd.texture, out int textureId)) {
-                texture2Id.Add(cmd.texture, textureId = texture2Id.Count + 1);
+                textureId = wsBackend.AddTexture(cmd.texture);
             }
             wsDrawList[n] = new WsDrawCommand {
                 vertexView  = cmd.vertexView,

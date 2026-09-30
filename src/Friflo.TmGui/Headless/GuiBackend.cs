@@ -47,4 +47,9 @@ public sealed class HeadlessBackend : TmGuiBackend
     {
         throw new NotSupportedException();
     }
+    
+    public override TmImageAsset GetTextureImage(TmTexture texture)
+    {
+        throw new NotSupportedException();
+    }
 }

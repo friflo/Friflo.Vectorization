@@ -29,7 +29,7 @@ public sealed unsafe class GpuTexture : IDisposable
     private             GpuTextureViewDescriptor[]  viewDescriptors = [];
     private             nint[]                      viewHandles     = [];
     private             int                         viewCount;
-    private             byte[]                      guiPixels;     // used only by GuiSession's
+    internal            byte[]                      guiPixels;     // used only by GuiSession's
     
     public              string                      Label       => desc.label;
     public ref readonly GpuTextureDescriptor        Descriptor  => ref desc;

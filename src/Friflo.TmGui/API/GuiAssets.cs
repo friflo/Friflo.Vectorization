@@ -29,6 +29,7 @@ public struct TmImageAsset
     public int      width;
     public int      height;
     public byte[]   data;
+    public string   name;
 }
 
 public enum TmColorComponents

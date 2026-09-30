@@ -13,14 +13,16 @@ internal sealed class TuiTexture
     internal readonly   int         width;
     internal readonly   int         height;
     internal readonly   byte[]      data;
+    internal readonly   string      name;
     internal readonly   TuiSixel    sixel;
     
     public   override   string      ToString() => $"{width} x {height}";
     
-    internal TuiTexture(int width, int height, byte[] data) {
+    internal TuiTexture(int width, int height, byte[] data, string name) {
         this.width  = width;
         this.height = height;
         this.data   = data;
+        this.name   = name;
         sixel       = new TuiSixel(width, height, data);
     }
 }
@@ -53,7 +55,7 @@ public sealed class TuiBackend : TmGuiBackend
         if (array.Length < length) {
             throw new InvalidOperationException($"texture array too small. Was: {array.Length}. Requires: {length} width: {width} height: {height}");
         }
-        var tuiTexture = new TuiTexture(width, height, array);
+        var tuiTexture = new TuiTexture(width, height, array, name);
         return new TmTexture(tuiTexture, 0);
     }
 
@@ -72,7 +74,13 @@ public sealed class TuiBackend : TmGuiBackend
         var image = assets.LoadImage(stream, TmColorComponents.RedGreenBlueAlpha);
 
         // texture.Write(image.data, bytesPerRow: image.width * 4, rowsPerImage: image.height);
-        var tuiTexture = new TuiTexture(image.width, image.height, image.data);
+        var tuiTexture = new TuiTexture(image.width, image.height, image.data, label!);
         return new TmTexture(tuiTexture, 0);
+    }
+    
+    public override TmImageAsset GetTextureImage(TmTexture texture)
+    {
+        var tex = (TuiTexture)texture.native!;
+        return new TmImageAsset { width = tex.width, height = tex.height, data = tex.data };
     }
 }

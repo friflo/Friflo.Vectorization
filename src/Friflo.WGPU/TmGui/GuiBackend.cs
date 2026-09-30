@@ -78,4 +78,10 @@ public sealed class WgpuGuiBackend : TmGuiBackend
         texture.Write(image.data, bytesPerRow: image.width * 4, rowsPerImage: image.height);
         return new TmTexture(texture, 0);
     }
+    
+    public override TmImageAsset GetTextureImage(TmTexture texture)
+    {
+        var tex = (GpuTexture)texture.native!;
+        return new TmImageAsset { width = tex.Descriptor.size.width, height = tex.Descriptor.size.height, data = tex.guiPixels, name = tex.Label };
+    }
 }
