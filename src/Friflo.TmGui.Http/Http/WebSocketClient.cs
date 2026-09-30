@@ -14,7 +14,10 @@ namespace Friflo.TmGui.Http;
 
 internal class WebSocketClient : TmClient
 {
-    private readonly WebSocket webSocket;
+    private readonly    WebSocket       webSocket;
+    private             byte[]          sendBuffer = new byte[64 * 1024]; // Pre-allocated fixed send buffer
+    private             int             pendingLength;
+    private readonly    SemaphoreSlim   sendSignal = new(0, 1);
 
     internal WebSocketClient(WebSocket webSocket)
     {
@@ -31,18 +34,22 @@ internal class WebSocketClient : TmClient
         return 0;
     }
     
-    protected override int Send(ReadOnlyMemory<byte> buffer)
+    protected override int Send(ReadOnlyMemory<byte> data)
     {
-        if (webSocket.State == WebSocketState.Open) {
-            try {
-                var awaiter = webSocket.SendAsync(buffer, WebSocketMessageType.Binary, true, CancellationToken.None).GetAwaiter();
-                awaiter.GetResult();
-                return buffer.Length;
-            } catch (WebSocketException e) {
-                Console.WriteLine(e);
-            }
+        if (webSocket.State != WebSocketState.Open) {
+            return 0;
         }
-        return 0;
+        if (sendBuffer.Length < data.Length) {
+            sendBuffer = new byte[data.Length];
+        }
+        data.CopyTo(sendBuffer);
+        pendingLength = data.Length;
+
+        // Signal background loop to flush frame
+        if (sendSignal.CurrentCount == 0) {
+            sendSignal.Release();
+        }
+        return data.Length;
     }
 
     protected override void RestoreTerminal()
@@ -50,37 +57,66 @@ internal class WebSocketClient : TmClient
         throw new NotSupportedException();
     }
 
+    private async Task FlushPendingBufferAsync(CancellationToken ct)
+    {
+        if (pendingLength > 0 && webSocket.State == WebSocketState.Open) {
+            var memoryToSend = new ReadOnlyMemory<byte>(sendBuffer, 0, pendingLength);
+            await webSocket.SendAsync(memoryToSend, WebSocketMessageType.Binary, true, ct);
+            pendingLength = 0;
+        }
+    }
+
     internal static async Task HandleClientSessionAsync(WebSocketClient client, TmSessionLoop loop, CancellationToken cancellationToken)
     {
         await loop.EnqueueEventAsync(client, ClientEventType.WebsocketConnected, default);
 
+        // Prepare initial receive task
+        byte[] buffer = ArrayPool<byte>.Shared.Rent(256);
+        Task<WebSocketReceiveResult> receiveTask = client.webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), cancellationToken);
+
         while (client.webSocket.State == WebSocketState.Open && !cancellationToken.IsCancellationRequested)
         {
-            byte[] buffer = ArrayPool<byte>.Shared.Rent(256);
-            WebSocketReceiveResult result;
-            try
+            // Wait for incoming WebSocket message OR frame send signal from OnFrame()
+            Task completedTask = await Task.WhenAny(receiveTask, client.sendSignal.WaitAsync(cancellationToken));
+
+            if (completedTask == receiveTask)
             {
-                result = await client.webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), cancellationToken);
-            }
-            catch (WebSocketException)
-            {
-                ArrayPool<byte>.Shared.Return(buffer);
-                break;
-            }
-            if (result.MessageType == WebSocketMessageType.Close)
-            {
-                ArrayPool<byte>.Shared.Return(buffer);
-                await client.webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Closing", cancellationToken);
-                break;
-            }
-            if (result.MessageType == WebSocketMessageType.Text || result.MessageType == WebSocketMessageType.Binary)
-            {
-                var payload = new Payload(buffer, result.Count);
-                await loop.EnqueueEventAsync(client, ClientEventType.WebsocketInput, payload);
+                WebSocketReceiveResult result;
+                try
+                {
+                    result = await receiveTask;
+                }
+                catch (WebSocketException)
+                {
+                    ArrayPool<byte>.Shared.Return(buffer);
+                    break;
+                }
+
+                if (result.MessageType == WebSocketMessageType.Close)
+                {
+                    ArrayPool<byte>.Shared.Return(buffer);
+                    await client.webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Closing", cancellationToken);
+                    break;
+                }
+
+                if (result.MessageType == WebSocketMessageType.Text || result.MessageType == WebSocketMessageType.Binary)
+                {
+                    var payload = new Payload(buffer, result.Count);
+                    await loop.EnqueueEventAsync(client, ClientEventType.WebsocketInput, payload);
+                }
+                else
+                {
+                    ArrayPool<byte>.Shared.Return(buffer);
+                }
+
+                // Rent a new buffer and arm receiveTask for next incoming message
+                buffer = ArrayPool<byte>.Shared.Rent(256);
+                receiveTask = client.webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), cancellationToken);
             }
             else
             {
-                ArrayPool<byte>.Shared.Return(buffer);
+                // Frame send signal triggered: flush frame data asynchronously off the OnFrame() thread
+                await client.FlushPendingBufferAsync(cancellationToken);
             }
         }
     }
