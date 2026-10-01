@@ -124,7 +124,8 @@ public partial class TmSessionLoop
     }
     
     /// <summary>
-    /// Processes all currently pending events in the queue synchronously on the calling thread.
+    /// Processes all currently pending events in the queue synchronously.<br/>
+    /// Render all sessions with pending events and send rendered draw lists to session clients via stream / socket.
     /// </summary>
     public void IterateSessions()
     {
