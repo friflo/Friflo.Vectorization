@@ -35,11 +35,14 @@ public sealed partial class GuiSession : TmSession
         this.client = client;
     }
     
-    protected override TmGuiBackend    Backend => wsBackend;
+    protected override TmGuiBackend    Backend          => wsBackend;
+    protected override bool            ReceivedInput    => receivedInput;
 
 
-    public override Memory<byte> IterateTui(SessionResources resources)
+    public override Memory<byte> IterateUI(SessionResources resources)
     {
+        receivedInput = false;
+        
         wsBackend.NewFrame();
         guiView!.RenderGui(wsBatch, canvasWidth, canvasHeight);
         

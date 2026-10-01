@@ -21,7 +21,7 @@ public class TmGuiRenderer : IRenderer, IGuiView
     private readonly    TmTexture               myTextureView;
     private readonly    GpuRenderPassDescriptor renderPassDescriptor    = new () { colorAttachments = [ default ] };
     private readonly    PerfLog                 perfLog                 = new();
-    private             bool                    mouseCircle = true;
+    private             bool                    mouseCircle;
     private             bool                    monocraft;
     private readonly    TmFont                  monocraftFont;
     private             bool                    enabled2;
@@ -100,7 +100,7 @@ public class TmGuiRenderer : IRenderer, IGuiView
 
     public void OnFrame(in RenderTarget target)
     {
-        // perfLog.Trace(10000);
+        perfLog.Trace(10000);
         if (stopwatch.ElapsedMilliseconds >= update) {
             loop.IterateSessions();
             stopwatch.Restart();

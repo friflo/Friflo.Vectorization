@@ -86,7 +86,7 @@ public partial class TmSessionLoop
                     evt.Client.Send(initialMessage);
                     
                     newSession.ProcessInput(payload.Span);
-                    var sendBuffer = newSession.IterateTui(resources);
+                    var sendBuffer = newSession.IterateUI(resources);
                     
                     evt.Client.Send(sendBuffer);
                     
@@ -103,7 +103,7 @@ public partial class TmSessionLoop
                         var payload     = evt.Payload.Span;
                         session.ProcessInput(payload);
                         if (isQueueEmpty) {
-                            var sendBuffer  = session.IterateTui(resources);
+                            var sendBuffer  = session.IterateUI(resources);
                             evt.Client.Send(sendBuffer);
                         }
                     }
@@ -111,7 +111,7 @@ public partial class TmSessionLoop
                 case ClientEventType.FrameTick:
                     if (sessions.TryGetValue(evt.Client, out session))
                     {
-                        var sendBuffer = session.IterateTui(resources);
+                        var sendBuffer = session.IterateUI(resources);
                         evt.Client.Send(sendBuffer);
                     }
                     break;
@@ -138,7 +138,10 @@ public partial class TmSessionLoop
         }
 
         foreach (var (client, session) in sessions) {
-            ReadOnlyMemory<byte> sendBuffer = session.IterateTui(resources);
+            if (!session.ReceivedInput) {
+                continue;
+            }
+            ReadOnlyMemory<byte> sendBuffer = session.IterateUI(resources);
             if (sendBuffer.IsEmpty) {
                 continue;
             }

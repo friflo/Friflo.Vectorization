@@ -12,6 +12,7 @@ namespace Friflo.TmGui.Http;
 
 public sealed partial class GuiSession
 {
+    private bool        receivedInput;
     private Vector2     pendingMousePos;
     private bool        isMouseMoveEvent;
     private bool        isMouseDownEvent;
@@ -23,6 +24,7 @@ public sealed partial class GuiSession
     
     public override void ProcessInput(ReadOnlySpan<byte> utf8Bytes)
     {
+        receivedInput = true;
         Span<char> chars = stackalloc char[utf8Bytes.Length];
         int charCount = Encoding.UTF8.GetChars(utf8Bytes, chars);
         ReadOnlySpan<char> span = chars.Slice(0, charCount);

@@ -78,7 +78,7 @@ public partial class TmSessionLoop
                     await evt.Client.SendAsync(initialMessage, CancellationToken.None);
                     
                     newSession.ProcessInput(payload.Span);
-                    var sendBuffer = newSession.IterateTui(resources);
+                    var sendBuffer = newSession.IterateUI(resources);
                     
                     await evt.Client.SendAsync(sendBuffer, CancellationToken.None);
                     
@@ -95,7 +95,7 @@ public partial class TmSessionLoop
                         var payload     = evt.Payload.Span;
                         session.ProcessInput(payload);
                         if (isQueueEmpty) {
-                            var sendBuffer  = session.IterateTui(resources);
+                            var sendBuffer  = session.IterateUI(resources);
                             await evt.Client.SendAsync(sendBuffer, CancellationToken.None);
                         }
                     }
@@ -103,7 +103,7 @@ public partial class TmSessionLoop
                 case ClientEventType.FrameTick:
                     if (sessions.TryGetValue(evt.Client, out session))
                     {
-                        var sendBuffer = session.IterateTui(resources);
+                        var sendBuffer = session.IterateUI(resources);
                         await evt.Client.SendAsync(sendBuffer, CancellationToken.None);
                     }
                     break;

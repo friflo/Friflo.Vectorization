@@ -16,11 +16,12 @@ public abstract class TmSession
     protected internal          IGuiView?       guiView;
     
     protected internal abstract TmGuiBackend    Backend             { get; }
+    protected internal virtual  bool            ReceivedInput       => false;
     internal           virtual  GuiReplay?      CreateReplay()      => null;
     internal           virtual  void            SendReplayCommands() { }
     
     public             abstract void            ProcessInput(ReadOnlySpan<byte> input);     // todo make internal
-    public             abstract Memory<byte>    IterateTui(SessionResources resources);     // todo make internal
+    public             abstract Memory<byte>    IterateUI(SessionResources resources);     // todo make internal
 }
 
 public enum ClientEventType : byte
