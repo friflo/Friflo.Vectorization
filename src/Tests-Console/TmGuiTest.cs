@@ -21,11 +21,12 @@ public class TmGuiRenderer : IRenderer, IGuiView
     private readonly    TmTexture               myTextureView;
     private readonly    GpuRenderPassDescriptor renderPassDescriptor    = new () { colorAttachments = [ default ] };
     private readonly    PerfLog                 perfLog                 = new();
-    private             bool                    mouseCircle;
+    private             bool                    mouseCircle = true;
     private             bool                    monocraft;
     private readonly    TmFont                  monocraftFont;
     private             bool                    enabled2;
     private             float                   volume = 0.8f;
+    private             float                   update = 0;
     private readonly    List<string>            scrollAreaButtons = [];
     private readonly    Color32[]               textColors = [0x0000FFFF, 0xFF0000FF, 0x009900FF, 0xFF00FFFF, 0xCC6600FF, 0x000000ff];
     private readonly    TmSessionLoop           loop;
@@ -99,21 +100,27 @@ public class TmGuiRenderer : IRenderer, IGuiView
 
     public void OnFrame(in RenderTarget target)
     {
-        perfLog.Trace(10000);
-        if (stopwatch.ElapsedMilliseconds >= 16) {
+        // perfLog.Trace(10000);
+        if (stopwatch.ElapsedMilliseconds >= update) {
             loop.IterateSessions();
             stopwatch.Restart();
         }
+        // loop.IterateSessions();
+        
         RenderGui(batch, target.Width, target.Height);
 
         batch.DrawCommandList(target, renderPassDescriptor);
     }
+    
     
     public void RenderGui(TmBatch tmBatch, int width, int height)
     {
         var gui = tmBatch.BeginGui(width, height);
         
         using (gui.BeginWindow("Window 1", new(100, 20), new(400, 950))) {
+            if (loop != null) {
+                gui.Slider("update", ref update, 0f, 100f, 300);
+            }
             Window1(gui); 
         }
         using (var isOpen = gui.BeginWindow("Window 2", new(550, 20), new(500, 900))) {

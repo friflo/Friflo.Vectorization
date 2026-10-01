@@ -66,7 +66,7 @@ public sealed partial class GuiSession : TmSession
         }
         var vertices = wsBatch.Vertices;
         
-        var sendLength = 4 + 4 + 4 + 
+        var sendLength = 8 + 4 + 4 + 4 + 
                          drawCommands.Length * Unsafe.SizeOf<WsDrawCommand>() +
                          vertices.Length     * Unsafe.SizeOf<Vertex2D>();
         if (sendBuffer.Length < sendLength) {
@@ -74,6 +74,11 @@ public sealed partial class GuiSession : TmSession
         }
         Span<byte> span = sendBuffer;
         int bytesWritten = 0;
+        
+        // 0. Write time (double)
+        var time = GetCurrentUnixMilliseconds();
+        MemoryMarshal.Write(span[bytesWritten..], time);
+        bytesWritten += sizeof(double);
 
         // 1. Write drawCommands.Count (int)
         MemoryMarshal.Write(span[bytesWritten..], drawCommands.Length);

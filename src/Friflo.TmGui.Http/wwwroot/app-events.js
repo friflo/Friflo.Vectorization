@@ -84,6 +84,9 @@ export function initGuiEventListeners(canvas, getSocketFn) {
 
         const { x, y } = getCanvasCoords(e);
         socket.send(`evt=mousemove;mouseX=${x};mouseY=${y};`);
+        
+        // const time = performance.timeOrigin + performance.now(); // high precision Unix time in ms
+        // socket.send(`evt=mousemove;mouseX=${x};mouseY=${y};time=${time}`);
     });
 
     canvas.addEventListener('pointerdown', (e) => {

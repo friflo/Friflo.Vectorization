@@ -32,6 +32,7 @@ const utf8Decoder = new TextDecoder('utf-8');
 
 // Sizes matching C# Unsafe.SizeOf<T>() in bytes
 const SIZEOF_INT = 4;
+const SIZEOF_DOUBLE = 8;
 const SIZEOF_WS_DRAW_COMMAND = 92; // 64 (projection) + 16 (scissor) + 8 (vertexView) + 4 (texture id)
 
 // Initialize WebGPU context, fetch WGSL shader, create buffers & bind groups, and build render pipeline
@@ -225,6 +226,10 @@ function processDrawList(arrayBuffer) {
 
     let offset = 0;
     const view = new DataView(arrayBuffer);
+    
+    // 0. Read host time (double)
+    const hostTime = view.getFloat64(offset, true);
+    offset += SIZEOF_DOUBLE;
 
     // 1. Read drawCommands.Count (int)
     const drawCommandCount = view.getInt32(offset, true);
@@ -345,6 +350,10 @@ function processDrawList(arrayBuffer) {
 
     pass.end();
     device.queue.submit([commandEncoder.finish()]);
+    
+    const time = performance.timeOrigin + performance.now();
+    const latency = time - hostTime;
+    // console.log(`send latency: ${latency.toFixed(3)} ms`);
 }
 
 function getTextureBindGroup(textureEntry) {

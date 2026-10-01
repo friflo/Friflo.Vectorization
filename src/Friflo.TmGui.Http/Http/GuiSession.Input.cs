@@ -88,12 +88,12 @@ public sealed partial class GuiSession
     private static void LogInputLatency(double time)
     {
         // JS
-        // const time = performance.timeOrigin + performance.now();
+        // const time = performance.timeOrigin + performance.now();     // high precision Unix time in ms
         // socket.send(`evt=mousemove;mouseX=${x};mouseY=${y};time=${time}`);
         double unixMillis = GetCurrentUnixMilliseconds();
         
         var latency = unixMillis - time;
-        Console.WriteLine($"latency: {latency:F3} ms");
+        Console.WriteLine($"receive latency: {latency:F3} ms");
     }
     
     private static double GetCurrentUnixMilliseconds()
