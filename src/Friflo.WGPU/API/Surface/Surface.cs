@@ -146,13 +146,20 @@ public readonly unsafe partial struct WgpuSurface : IDisposable
         wgpuSurfaceUnconfigure(handle);
     }
     
-    public static WgpuSurface CreateFromNativeWindow(WgpuInstance instance, nint hwnd, nint hInstance)
+    public static WgpuSurface CreateFromNativeWindow(WgpuInstance instance, nint hwnd, nint hInstance, string driver)
     {
         if (OperatingSystem.IsWindows()) {
             return CreateFromHwnd (instance, hwnd, hInstance);
         }
         if (OperatingSystem.IsMacOS()) {
             return SurfaceDescriptorFromCocoaWindow (instance, hwnd);
+        }
+        if (OperatingSystem.IsLinux()) {
+            if (driver == "Wayland") {
+                return CreateFromWaylandSurface(instance, hInstance, hwnd); // wl_display*, wl_surface*
+            }
+            // X11 / XCB Session
+            return CreateFromXlibWindow(instance, hInstance, hwnd); // Display*, Window (XID)
         }
         throw new NotImplementedException($"no code to get WgpuSurface for OS: {RuntimeInformation.OSDescription}");
     }

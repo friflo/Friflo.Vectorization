@@ -61,11 +61,11 @@ public sealed class WgpuHost
     public              WgpuGuiBackend      CreateGuiBackend() => guiBackend ??= new WgpuGuiBackend(Device);
 
     
-    public WgpuHost(nint osHandle, nint osInstance, WgpuHostOptions options = null)
+    public WgpuHost(nint osHandle, nint osInstance, string driver, WgpuHostOptions options = null)
     {
         options   ??= new WgpuHostOptions();
         Instance    = WgpuInstance.CreateInstance(options.instanceExtras);
-        Surface     = WgpuSurface.CreateFromNativeWindow(Instance, osHandle, osInstance);
+        Surface     = WgpuSurface.CreateFromNativeWindow(Instance, osHandle, osInstance, driver);
         var adapter = Instance.RequestAdapter(options.adapterOptions);
         Adapter     = adapter;
         Device      = adapter.CreateWgpuDevice("Wgpu.Device", options.deviceDescriptor, options.uniformBufferSize);
