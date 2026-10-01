@@ -19,6 +19,10 @@ namespace Friflo.TmGui.Session;
 
 public sealed partial class TmSessionLoop : IDisposable
 {
+    public   readonly   TmGuiBackend                        rootBackend;    // shared among all sessions
+    public   readonly   AssetResources                      resources;
+
+#region private fields
     private  readonly   bool                                isAsync;
     private  readonly   ConcurrentQueue<ClientEvent>        eventQueue;     // used by: sync loop
     private  readonly   AutoResetEvent                      eventReady;     // used by: sync loop
@@ -28,14 +32,13 @@ public sealed partial class TmSessionLoop : IDisposable
     private  readonly   SixelDrawer                         sixelDrawer;    // shared among all sessions
     private  readonly   CreateGuiView                       createGuiView;  // IBatchRenderer factory
     private  readonly   CreateSession                       createSession;
-    public   readonly   TmGuiBackend                        rootBackend;    // shared among all sessions
     private  readonly   CancellationTokenSource             cts = new();
     private             Thread?                             shardThread;
     private             bool                                isDisposed;
     private  readonly   Action                              exitHandler;
-    public   readonly   AssetResources                      resources;
 
     private const int MaxSyncQueueCapacity = 32;
+#endregion
     
     public TmSessionLoop(bool isAsync, TmGuiBackend backend, CreateGuiView createGuiView, CreateSession createSession)
     {
