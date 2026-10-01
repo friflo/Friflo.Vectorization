@@ -17,6 +17,8 @@ public sealed partial class GuiSession
     private bool        isMouseMoveEvent;
     private bool        isMouseDownEvent;
     private bool        isMouseUpEvent;
+    private bool        isWheelEvent;
+    private Vector2     wheel;
     private bool        isKeyDownEvent;
     private bool        isKeyUpEvent;
     private KeyCode     keyCode;
@@ -36,11 +38,13 @@ public sealed partial class GuiSession
         Span<Range> ranges = stackalloc Range[16];
         int count = span.Split(ranges, ';', StringSplitOptions.RemoveEmptyEntries);
 
-        isMouseMoveEvent = false;
-        isMouseDownEvent = false;
-        isMouseUpEvent   = false;
-        isKeyDownEvent   = false;
-        isKeyUpEvent     = false;
+        isMouseMoveEvent    = false;
+        isMouseDownEvent    = false;
+        isMouseUpEvent      = false;
+        isWheelEvent        = false;
+        isKeyDownEvent      = false;
+        isKeyUpEvent        = false;
+        wheel               = default;
 
         for (int i = 0; i < count; i++)
         {
@@ -71,6 +75,9 @@ public sealed partial class GuiSession
         if (isKeyUpEvent) {
             wsBackend.AddEvent(new TmEvent(TmEventType.KeyDown, new KeyEvent { code =  keyCode, isDown = false }));
         }
+        if (isWheelEvent) {
+            wsBackend.AddEvent(new TmEvent(TmEventType.MouseWheel) { wheel = wheel });
+        }
     }
 
     private void DispatchParam(ReadOnlySpan<char> key, ReadOnlySpan<char> value)
@@ -87,6 +94,7 @@ public sealed partial class GuiSession
                 case "mousemove":   isMouseMoveEvent    = true;     break;
                 case "mousedown":   isMouseDownEvent    = true;     break;
                 case "mouseup":     isMouseUpEvent      = true;     break;
+                case "wheel":       isWheelEvent        = true;     break;
                 case "keydown":     isKeyDownEvent      = true;     break;
                 case "keyup":       isKeyUpEvent        = true;     break;
             }
@@ -96,6 +104,12 @@ public sealed partial class GuiSession
         else if (key is "mouseY" && float.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out pendingMousePos.Y)) {
         }
         else if (key is "button" && int.TryParse(value, out button)) {
+        }
+        else if (key is "deltaX" && float.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out wheel.X)) {
+            wheel.X *= -0.01f;
+        }
+        else if (key is "deltaY" && float.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out wheel.Y)) {
+            wheel.Y *= -0.01f;
         }
         else if (key is "key") {
         }

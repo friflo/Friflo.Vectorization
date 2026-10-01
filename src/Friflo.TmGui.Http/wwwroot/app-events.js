@@ -111,6 +111,16 @@ export function initGuiEventListeners(canvas, getSocketFn) {
         const { x, y } = getCanvasCoords(e);
         socket.send(`evt=mouseup;button=${e.button};mouseX=${x};mouseY=${y};`);
     });
+    
+    window.addEventListener('wheel', (e) => {
+        const socket = getSocket();
+        if (!socket || socket.readyState !== WebSocket.OPEN) return;
+        
+        // Prevent default page scrolling if canvas should capture all scroll events
+        e.preventDefault();
+    
+        socket.send(`evt=wheel;deltaX=${e.deltaX};deltaY=${e.deltaY};deltaMode=${e.deltaMode};`);
+    }, { passive: true });
 
     // 3. Keyboard Input Listeners
     window.addEventListener('keydown', (e) => {
