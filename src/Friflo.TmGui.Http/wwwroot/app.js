@@ -231,7 +231,10 @@ function processDrawList(arrayBuffer) {
     let offset = 0;
     const view = new DataView(arrayBuffer);
     
-    // 0. Read host time (double)
+    // 0. Read start rtt time & host send time (double)
+    const rttStartTime = view.getFloat64(offset, true);
+    offset += SIZEOF_DOUBLE;
+    
     const hostTime = view.getFloat64(offset, true);
     offset += SIZEOF_DOUBLE;
 
@@ -355,7 +358,7 @@ function processDrawList(arrayBuffer) {
     pass.end();
     device.queue.submit([commandEncoder.finish()]);
 
-    const time = performance.timeOrigin + performance.now();
+    const time = (performance.timeOrigin + performance.now()) * 1e6; // high precision Unix time in nanoseconds
 
     /* device.queue.onSubmittedWorkDone().then(() => {
         const gpuTime = performance.timeOrigin + performance.now();
@@ -363,8 +366,10 @@ function processDrawList(arrayBuffer) {
         console.log(`REAL GPU latency: ${realLatency.toFixed(3)} ms`);
     }); */
     
-    const latency = time - hostTime;
-    // console.log(`send latency: ${latency.toFixed(3)} ms`);
+    if (rttStartTime > 0) {
+        const latency = (time - hostTime) / 1e6;
+        console.log(`RTT latency: ${latency.toFixed(3)} ms`);
+    }
 }
 
 function getTextureBindGroup(textureEntry) {

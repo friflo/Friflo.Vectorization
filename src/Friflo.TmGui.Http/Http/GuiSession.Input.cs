@@ -17,6 +17,8 @@ public sealed partial class GuiSession
     private bool        isMouseDownEvent;
     private bool        isMouseUpEvent;
     private int         button;
+    /// RTT start time in nanoseconds
+    private ulong       rttStart;
     
     
     public override void ProcessInput(ReadOnlySpan<byte> utf8Bytes)
@@ -80,26 +82,29 @@ public sealed partial class GuiSession
         }
         else if (key is "button" && int.TryParse(value, out button)) {
         }
-        else if (key is "time" && double.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out double time)) {
-            LogInputLatency(time);
+        else if (key is "rttStart" && double.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out double start)) {
+            // rttStart (nanoseconds): const time = (performance.timeOrigin + performance.now()) * 1e6;
+            if (rttStart == 0) rttStart = (ulong)Math.Round(start);
+            // LogInputLatency(start);
         }
     }
     
-    private static void LogInputLatency(double time)
+    private static void LogInputLatency(double rttStart)
     {
         // JS
-        // const time = performance.timeOrigin + performance.now();     // high precision Unix time in ms
+        // High precision Unix timestamp in nanoseconds (1 ms = 1,000,000 ns)
+        // const time = (performance.timeOrigin + performance.now()) * 1e6;
         // socket.send(`evt=mousemove;mouseX=${x};mouseY=${y};time=${time}`);
-        double unixMillis = GetCurrentUnixMilliseconds();
+        double unixNanos = GetCurrentUnixNanoseconds();
         
-        var latency = unixMillis - time;
+        var latency = unixNanos - rttStart;
         Console.WriteLine($"receive latency: {latency:F3} ms");
     }
     
-    private static double GetCurrentUnixMilliseconds()
+    private static double GetCurrentUnixNanoseconds()
     {
-        // 1 Tick = 100 ns = 0.0001 ms
-        // Divided by 10000.0 to retain sub-millisecond precision in the fractional part
-        return (DateTime.UtcNow.Ticks - 621355968000000000L) / 10000.0;
+        // 1 Tick = 100 ns
+        // Multiplied by 100.0 to convert ticks to nanoseconds with sub-nanosecond precision
+        return (DateTime.UtcNow.Ticks - 621355968000000000L) * 100.0;
     }
 }
