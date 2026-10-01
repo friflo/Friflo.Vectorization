@@ -50,7 +50,11 @@ async function initWebGPU() {
     context.configure({
         device: device,
         format: presentationFormat,
-        alphaMode: 'premultiplied'
+        // 'opaque' Opaque mode disables transparency compositing in the OS compositor to reduce latency
+        alphaMode: 'premultiplied',        
+        // colorSpace: 'srgb' Prevents unnecessary color space conversions on the GPU
+        // colorSpace: 'srgb',
+        presentMode: 'immediate'
     });
 
     // Initial canvas sizing
@@ -350,8 +354,15 @@ function processDrawList(arrayBuffer) {
 
     pass.end();
     device.queue.submit([commandEncoder.finish()]);
-    
+
     const time = performance.timeOrigin + performance.now();
+
+    /* device.queue.onSubmittedWorkDone().then(() => {
+        const gpuTime = performance.timeOrigin + performance.now();
+        const realLatency = gpuTime - time;
+        console.log(`REAL GPU latency: ${realLatency.toFixed(3)} ms`);
+    }); */
+    
     const latency = time - hostTime;
     // console.log(`send latency: ${latency.toFixed(3)} ms`);
 }
