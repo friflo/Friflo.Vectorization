@@ -12,19 +12,19 @@ namespace Friflo.WGPU;
 
 // --- linux
 [StructLayout(LayoutKind.Sequential)]
-public unsafe struct WgpuSurfaceDescriptorFromWaylandSurface
+internal unsafe struct WgpuSurfaceDescriptorFromWaylandSurface
 {
-    public ChainedStruct chain;
-    public void*         display; // wl_display*
-    public void*         surface; // wl_surface*
+    internal    ChainedStruct   chain;
+    internal    void*           display; // wl_display*
+    internal    void*           surface; // wl_surface*
 }
 
 [StructLayout(LayoutKind.Sequential)]
-public unsafe struct WgpuSurfaceDescriptorFromXlibWindow
+internal unsafe struct WgpuSurfaceDescriptorFromXlibWindow
 {
-    public ChainedStruct chain;
-    public void*         display; // Display*
-    public ulong         window;  // Window (XID)
+    internal    ChainedStruct   chain;
+    internal    void*           display; // Display*
+    internal    ulong           window;  // Window (XID)
 }
 
 

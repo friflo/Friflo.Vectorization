@@ -12,11 +12,11 @@ namespace Friflo.WGPU;
 
 // --- windows
 [StructLayout(LayoutKind.Sequential)]
-public struct WgpuSurfaceDescriptorFromWindowsHWND
+internal struct WgpuSurfaceDescriptorFromWindowsHWND
 {
-    public ChainedStruct    chain;
-    public nint             hinstance;
-    public nint             hwnd;
+    internal    ChainedStruct   chain;
+    internal    nint            hinstance;
+    internal    nint            hwnd;
 }
 
 

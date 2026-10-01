@@ -13,9 +13,9 @@ namespace Friflo.WGPU;
 
 // --- macOS
 [StructLayout(LayoutKind.Sequential)]
-public struct WgpuSurfaceDescriptorFromMetalLayer {
-    public ChainedStruct    chain;
-    public nint             layer; // CAMetalLayer (metalLayer)
+internal struct WgpuSurfaceDescriptorFromMetalLayer {
+    internal    ChainedStruct   chain;
+    internal    nint            layer; // CAMetalLayer (metalLayer)
 }
 
 
