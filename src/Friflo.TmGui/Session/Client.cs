@@ -6,6 +6,7 @@ using System.Buffers;
 using System.Threading;
 using System.Threading.Tasks;
 
+// ReSharper disable InconsistentNaming
 // ReSharper disable CanSimplifyStringEscapeSequence
 // ReSharper disable ConvertToPrimaryConstructor
 namespace Friflo.TmGui.Session;
@@ -21,7 +22,7 @@ public abstract class TmSession
     internal           virtual  void            SendReplayCommands() { }
     
     public             abstract void            ProcessInput(ReadOnlySpan<byte> input);     // todo make internal
-    public             abstract Memory<byte>    IterateUI(SessionResources resources);     // todo make internal
+    public             abstract Memory<byte>    IterateUI(AssetResources resources);        // todo make internal
 }
 
 public enum ClientEventType : byte

@@ -17,49 +17,6 @@ using Friflo.TmGui.TUI.VT100;
 namespace Friflo.TmGui.Session;
 
 
-public readonly struct SessionResources
-{
-    private  readonly   TmGuiBackend                rootBackend;
-    private  readonly   Dictionary<object, int>     texture2Id      = new();
-    public   readonly   Dictionary<string, WsImage> stringToImage   = new();
-    public   readonly   List<WsImage>               images          = [default];
-    
-    private int AddTexture(TmTexture texture)
-    {
-        var textureId = images.Count;
-        texture2Id.Add(texture.native!, textureId);
-        var asset = rootBackend.GetTextureImage(texture);
-        var image = new WsImage { textureId = textureId, asset = asset, texture = texture };
-        images.Add(image);
-        if (asset.name != null) {
-            stringToImage.TryAdd(asset.name, image);   // TODO fix me!!!
-        }
-        return textureId;
-    }
-    
-    public SessionResources(TmGuiBackend rootBackend)
-    {
-        this.rootBackend = rootBackend;
-    }
-
-    public int GetTexture(TmTexture texture)
-    {
-        if (texture2Id.TryGetValue(texture.native!, out int id)) {
-            return id;
-        }
-        return AddTexture(texture);
-    }
-}
-
-public struct WsImage   // TODO  rename
-{
-    public  int             textureId;
-    public  TmImageAsset    asset;
-    public  TmTexture       texture;
-
-    public override string ToString() => $"{asset.name} - {texture}";
-}
-
 public sealed partial class TmSessionLoop : IDisposable
 {
     private  readonly   bool                                isAsync;
@@ -76,7 +33,7 @@ public sealed partial class TmSessionLoop : IDisposable
     private             Thread?                             shardThread;
     private             bool                                isDisposed;
     private  readonly   Action                              exitHandler;
-    public   readonly   SessionResources                    resources;
+    public   readonly   AssetResources                      resources;
 
     private const int MaxSyncQueueCapacity = 32;
     
@@ -86,7 +43,7 @@ public sealed partial class TmSessionLoop : IDisposable
         this.createGuiView  = createGuiView;
         this.createSession  = createSession;
         this.rootBackend    = backend; 
-        resources           = new SessionResources(backend);
+        resources           = new AssetResources(backend);
         if (isAsync) {
             // Bounded channel to enforce non-blocking backpressure via TryWrite
             var options = new BoundedChannelOptions(MaxSyncQueueCapacity) {

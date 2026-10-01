@@ -39,7 +39,7 @@ public sealed partial class GuiSession : TmSession
     protected override bool            ReceivedInput    => receivedInput;
 
 
-    public override Memory<byte> IterateUI(SessionResources resources)
+    public override Memory<byte> IterateUI(AssetResources resources)
     {
         receivedInput = false;
         
