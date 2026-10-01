@@ -90,10 +90,13 @@ public class SdlWindow(string title, int width, int height, Func<WgpuHost, IRend
         nint osHandle;
         nint osInstance;
         var props   = SDL.GetWindowProperties(window);
+        string driver  = null;
         if (OperatingSystem.IsWindows()) {
+            driver      = "Windows";
             osHandle    = SDL.GetPointerProperty(props, SDL.Props.WindowWin32HWNDPointer,       IntPtr.Zero);
             osInstance  = SDL.GetPointerProperty(props, SDL.Props.WindowWin32InstancePointer,   IntPtr.Zero);
         } else if (OperatingSystem.IsMacOS()) {
+            driver      = "macOS";
             osHandle    = SDL.GetPointerProperty(props, SDL.Props.WindowCocoaWindowPointer,     IntPtr.Zero);
             osInstance  = IntPtr.Zero;
         } else if (OperatingSystem.IsLinux()) {
@@ -102,10 +105,12 @@ public class SdlWindow(string title, int width, int height, Func<WgpuHost, IRend
             var waylandSurface = SDL.GetPointerProperty(props, SDL.Props.WindowWaylandSurfacePointer, IntPtr.Zero);
 
             if (waylandDisplay != IntPtr.Zero && waylandSurface != IntPtr.Zero) {
+                driver     = "Wayland";
                 osInstance = waylandDisplay; // Display handle
                 osHandle   = waylandSurface; // Surface handle
             } else {
                 // X11 fallback
+                driver     = "X11";
                 osInstance =       SDL.GetPointerProperty(props, SDL.Props.WindowX11DisplayPointer, IntPtr.Zero);
                 osHandle   = (nint)SDL.GetNumberProperty (props, SDL.Props.WindowX11WindowNumber, 0);
             }
@@ -115,7 +120,7 @@ public class SdlWindow(string title, int width, int height, Func<WgpuHost, IRend
         SDL.ShowWindow(window);
         
         // --- setup wgpu resources --- 
-        wgpuHost    = new WgpuHost(osHandle, osInstance);
+        wgpuHost    = new WgpuHost(osHandle, osInstance, driver);
         var backend = wgpuHost.Adapter.GetAdapterInfo().BackendType;
         SDL.SetWindowTitle(window, $"{title} - {backend}");
         renderer    = createRenderer(wgpuHost);
