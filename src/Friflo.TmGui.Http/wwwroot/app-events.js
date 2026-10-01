@@ -116,16 +116,16 @@ export function initGuiEventListeners(canvas, getSocketFn) {
     window.addEventListener('keydown', (e) => {
         const socket = getSocket();
         if (!socket || socket.readyState !== WebSocket.OPEN) return;
+        
+        if (e.key === 'Tab') e.preventDefault()
 
-        // TODO: Send keydown payload to C# backend
-        // socket.send(`evt=keydown;key=${e.key};code=${e.code};`);
+        socket.send(`evt=keydown;key=${e.key};code=${e.code};`);
     });
 
     window.addEventListener('keyup', (e) => {
         const socket = getSocket();
         if (!socket || socket.readyState !== WebSocket.OPEN) return;
 
-        // TODO: Send keyup payload to C# backend
-        // socket.send(`evt=keyup;key=${e.key};code=${e.code};`);
+        socket.send(`evt=keyup;key=${e.key};code=${e.code};`);
     });
 }

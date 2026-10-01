@@ -17,6 +17,9 @@ public sealed partial class GuiSession
     private bool        isMouseMoveEvent;
     private bool        isMouseDownEvent;
     private bool        isMouseUpEvent;
+    private bool        isKeyDownEvent;
+    private bool        isKeyUpEvent;
+    private KeyCode     keyCode;
     private int         button;
     /// RTT start time in nanoseconds
     private ulong       rttStart;
@@ -36,6 +39,8 @@ public sealed partial class GuiSession
         isMouseMoveEvent = false;
         isMouseDownEvent = false;
         isMouseUpEvent   = false;
+        isKeyDownEvent   = false;
+        isKeyUpEvent     = false;
 
         for (int i = 0; i < count; i++)
         {
@@ -60,6 +65,12 @@ public sealed partial class GuiSession
         if (isMouseUpEvent) {
             wsBackend.AddEvent(new TmEvent(TmEventType.MouseButtonUp, pendingMousePos));
         }
+        if (isKeyDownEvent) {
+            wsBackend.AddEvent(new TmEvent(TmEventType.KeyDown, new KeyEvent { code =  keyCode, isDown = true }));
+        }
+        if (isKeyUpEvent) {
+            wsBackend.AddEvent(new TmEvent(TmEventType.KeyDown, new KeyEvent { code =  keyCode, isDown = false }));
+        }
     }
 
     private void DispatchParam(ReadOnlySpan<char> key, ReadOnlySpan<char> value)
@@ -73,9 +84,11 @@ public sealed partial class GuiSession
         else if (key is "evt")
         {
             switch (value) {
-                case "mousemove":   isMouseMoveEvent = true;    break;
-                case "mousedown":   isMouseDownEvent = true;    break;
-                case "mouseup":     isMouseUpEvent   = true;    break;
+                case "mousemove":   isMouseMoveEvent    = true;     break;
+                case "mousedown":   isMouseDownEvent    = true;     break;
+                case "mouseup":     isMouseUpEvent      = true;     break;
+                case "keydown":     isKeyDownEvent      = true;     break;
+                case "keyup":       isKeyUpEvent        = true;     break;
             }
         }
         else if (key is "mouseX" && float.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out pendingMousePos.X)) {
@@ -84,12 +97,37 @@ public sealed partial class GuiSession
         }
         else if (key is "button" && int.TryParse(value, out button)) {
         }
+        else if (key is "key") {
+        }
+        else if (key is "code") {
+            keyCode = GetCodeValue(value);
+        }
         else if (key is "rttStart" && double.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out double start)) {
             // rttStart (nanoseconds): const time = (performance.timeOrigin + performance.now()) * 1e6;
             if (rttStart == 0) rttStart = (ulong)Math.Round(start);
             // LogInputLatency(start);
         }
     }
+    
+    private static KeyCode GetCodeValue(ReadOnlySpan<char> value)
+    {
+        return value switch  {
+            "Enter"         => KeyCode.Return,
+            "Tab"           => KeyCode.Tab,
+            " "             => KeyCode.Space,
+            //
+            "ShiftLeft"     => KeyCode.LShift,
+            "ShiftRight"    => KeyCode.RShift,
+            //
+            "ArrowUp"       => KeyCode.Up,
+            "ArrowDown"     => KeyCode.Down,
+            "ArrowLeft"     => KeyCode.Left,
+            "ArrowRight"    => KeyCode.Right,
+            _               => (KeyCode)0
+        };
+    }
+    
+    
     
     private static void LogInputLatency(double rttStart)
     {
