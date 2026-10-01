@@ -364,12 +364,12 @@ function processDrawList(arrayBuffer) {
     /* device.queue.onSubmittedWorkDone().then(() => {
         const gpuTime = performance.timeOrigin + performance.now();
         const realLatency = gpuTime - time;
-        console.log(`REAL GPU latency: ${realLatency.toFixed(3)} ms`);
+        console.log(`REAL GPU latency: ${realLatency.toFixed(1)} ms`);
     }); */
     
     if (rttStartTime > 0) {
         const latency = (time - rttStartTime) / 1e6;
-        console.log(`RTT latency: ${latency.toFixed(3)} ms`);
+        console.log(`RTT latency: ${latency.toFixed(1)} ms`);
     }
 }
 
