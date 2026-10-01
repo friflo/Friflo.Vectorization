@@ -80,5 +80,26 @@ public sealed partial class GuiSession
         }
         else if (key is "button" && int.TryParse(value, out button)) {
         }
+        else if (key is "time" && double.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out double time)) {
+            LogInputLatency(time);
+        }
+    }
+    
+    private static void LogInputLatency(double time)
+    {
+        // JS
+        // const time = performance.timeOrigin + performance.now();
+        // socket.send(`evt=mousemove;mouseX=${x};mouseY=${y};time=${time}`);
+        double unixMillis = GetCurrentUnixMilliseconds();
+        
+        var latency = unixMillis - time;
+        Console.WriteLine($"latency: {latency:F3} ms");
+    }
+    
+    private static double GetCurrentUnixMilliseconds()
+    {
+        // 1 Tick = 100 ns = 0.0001 ms
+        // Divided by 10000.0 to retain sub-millisecond precision in the fractional part
+        return (DateTime.UtcNow.Ticks - 621355968000000000L) / 10000.0;
     }
 }
