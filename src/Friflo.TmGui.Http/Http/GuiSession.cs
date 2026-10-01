@@ -76,11 +76,11 @@ public sealed partial class GuiSession : TmSession
         int bytesWritten = 0;
         
         // 0. Write RTT start time & send time (2 x double)
-        var sendTime = GetCurrentUnixNanoseconds();
         MemoryMarshal.Write(span[bytesWritten..], (double)rttStart);
         bytesWritten += sizeof(double);
         rttStart = 0;
 
+        var sendTime = GetCurrentUnixNanoseconds();
         MemoryMarshal.Write(span[bytesWritten..], sendTime);
         bytesWritten += sizeof(double);
 
