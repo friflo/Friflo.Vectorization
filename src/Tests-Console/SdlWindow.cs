@@ -96,6 +96,19 @@ public class SdlWindow(string title, int width, int height, Func<WgpuHost, IRend
         } else if (OperatingSystem.IsMacOS()) {
             osHandle    = SDL.GetPointerProperty(props, SDL.Props.WindowCocoaWindowPointer,     IntPtr.Zero);
             osInstance  = IntPtr.Zero;
+        } else if (OperatingSystem.IsLinux()) {
+            // Try Wayland first, fall back to X11
+            var waylandDisplay = SDL.GetPointerProperty(props, SDL.Props.WindowWaylandDisplayPointer, IntPtr.Zero);
+            var waylandSurface = SDL.GetPointerProperty(props, SDL.Props.WindowWaylandSurfacePointer, IntPtr.Zero);
+
+            if (waylandDisplay != IntPtr.Zero && waylandSurface != IntPtr.Zero) {
+                osInstance = waylandDisplay; // Display handle
+                osHandle   = waylandSurface; // Surface handle
+            } else {
+                // X11 fallback
+                osInstance =       SDL.GetPointerProperty(props, SDL.Props.WindowX11DisplayPointer, IntPtr.Zero);
+                osHandle   = (nint)SDL.GetNumberProperty (props, SDL.Props.WindowX11WindowNumber, 0);
+            }
         } else {
             throw new NotImplementedException($"no code to setup SDL3 for OS: {RuntimeInformation.OSDescription}");
         }
