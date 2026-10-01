@@ -367,7 +367,7 @@ function processDrawList(arrayBuffer) {
     }); */
     
     if (rttStartTime > 0) {
-        const latency = (time - hostTime) / 1e6;
+        const latency = (time - rttStartTime) / 1e6;
         console.log(`RTT latency: ${latency.toFixed(3)} ms`);
     }
 }
