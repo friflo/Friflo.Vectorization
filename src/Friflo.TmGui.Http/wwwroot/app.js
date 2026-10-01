@@ -231,7 +231,8 @@ function processDrawList(arrayBuffer) {
     let offset = 0;
     const view = new DataView(arrayBuffer);
     
-    // 0. Read start rtt time & host send time (double)
+    // 0. Read rttStart time & host send time (double)
+    // rttStart is send() via websocket at pointermove (mousemove) event in app-events.js
     const rttStartTime = view.getFloat64(offset, true);
     offset += SIZEOF_DOUBLE;
     
