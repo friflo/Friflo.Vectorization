@@ -128,8 +128,10 @@ public sealed partial class GuiSession : TmSession
         }
         
         var memory = new Memory<byte>(sendBuffer, 0, bytesWritten);
-        
-        var sendHash = HashUtils.XxHash3(memory.Span);
+
+        // remove time values from hash calculation
+        var timeOffsets = 8 + 8;
+        var sendHash = HashUtils.XxHash3(memory.Span.Slice(timeOffsets, memory.Length - timeOffsets));
         if (lastSendBufferHash == sendHash) {
             return default;
         }
