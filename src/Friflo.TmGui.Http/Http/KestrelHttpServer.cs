@@ -86,6 +86,10 @@ public sealed class KestrelHttpServer
 
             builder.ConfigureWebHostDefaults(webBuilder =>
             {
+                webBuilder.UseSockets(socketOptions => {
+                    // deactivate Nagle-algorithm for minimal websocket latency
+                    socketOptions.NoDelay = true;
+                });
                 webBuilder.UseKestrel(options =>
                 {
                     // Binding solely to localhost (no admin privileges required)
