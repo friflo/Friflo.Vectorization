@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using Friflo.TmGui;
 using Friflo.TmGui.Http;
 using NUnit.Framework;
 
@@ -64,6 +66,20 @@ public static class Tests_TmGui_Diff
         for (int n = 0; n < repeat; n++)
         {
             SequenceDiff.TryComputeChanges(start, target1, 10, changes);
+        }
+    }
+    
+    [Test]
+    public static void Tests_TmGui_Diff_Quad_GetHashCode()
+    {
+        var quads = new VertexQuad[2000];
+        const int repeat  = 10; // 5_000_000 - 4.9 sec
+        
+        for (int n = 0; n < repeat; n++) {
+            foreach (ref var quad in quads.AsSpan())
+            {
+                var x = quad.GetHashCode();
+            }
         }
     }
 }

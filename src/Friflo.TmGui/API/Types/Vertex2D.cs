@@ -41,9 +41,9 @@ public struct VertexQuad : IEquatable<VertexQuad>
     private Vertex2D _element0;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public override int GetHashCode()
+    public readonly override int GetHashCode()
     {
-        ref byte bytePtr = ref Unsafe.As<VertexQuad, byte>(ref this);
+        ref byte bytePtr = ref Unsafe.As<VertexQuad, byte>(ref Unsafe.AsRef(in this));
 
         // 1. AVX2 / 256-Bit Path (x86-64)
         if (Vector256.IsHardwareAccelerated)
@@ -93,7 +93,7 @@ public struct VertexQuad : IEquatable<VertexQuad>
         }
 
         // 3. Scalar Fallback
-        ref ulong ptr = ref Unsafe.As<VertexQuad, ulong>(ref this);
+        ref ulong ptr = ref Unsafe.As<byte, ulong>(ref bytePtr);
 
         const ulong prime1 = 0x9E3779B97F4A7C15UL;
         const ulong prime2 = 0xBF58476D1CE4E5B9UL;
@@ -125,17 +125,17 @@ public struct VertexQuad : IEquatable<VertexQuad>
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool Equals(VertexQuad other)
+    public readonly bool Equals(VertexQuad other)
     {
         ReadOnlySpan<byte> thisBytes = MemoryMarshal.CreateReadOnlySpan(
-            ref Unsafe.As<VertexQuad, byte>(ref this), 80);
+            ref Unsafe.As<VertexQuad, byte>(ref Unsafe.AsRef(in this)), 80);
         ReadOnlySpan<byte> otherBytes = MemoryMarshal.CreateReadOnlySpan(
-            ref Unsafe.As<VertexQuad, byte>(ref other), 80);
+            ref Unsafe.As<VertexQuad, byte>(ref Unsafe.AsRef(in other)), 80);
 
         return thisBytes.SequenceEqual(otherBytes);
     }
 
-    public override bool Equals(object? obj) => obj is VertexQuad other && Equals(other);
+    public readonly override bool Equals(object? obj) => obj is VertexQuad other && Equals(other);
 
     public static bool operator ==(in VertexQuad left, in VertexQuad right) => left.Equals(right);
     public static bool operator !=(in VertexQuad left, in VertexQuad right) => !left.Equals(right);
