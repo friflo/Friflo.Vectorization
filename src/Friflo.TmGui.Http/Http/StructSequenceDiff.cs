@@ -3,9 +3,12 @@
 
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using static System.Diagnostics.DebuggerBrowsableState;
 using Browse = System.Diagnostics.DebuggerBrowsableAttribute;
+// ReSharper disable SuggestVarOrType_BuiltInTypes
+// ReSharper disable SuggestVarOrType_Elsewhere
 
 // ReSharper disable ConvertToAutoProperty
 // ReSharper disable ReplaceWithFieldKeyword
@@ -48,6 +51,7 @@ public readonly struct SeqChange
 
 public static class SequenceDiff
 {
+    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     public static bool TryComputeChanges(
         ReadOnlySpan<int>   startState,
         ReadOnlySpan<int>   targetState,
@@ -56,52 +60,61 @@ public static class SequenceDiff
     {
         changes.Clear();
 
-        int i = 0; // Index in startState
-        int j = 0; // Index in targetState
+        int i = 0;
+        int j = 0;
+
+        int lenA = startState.Length;
+        int lenB = targetState.Length;
 
         ReadOnlySpan<byte> bytesStart = MemoryMarshal.AsBytes(startState);
         ReadOnlySpan<byte> bytesTarget = MemoryMarshal.AsBytes(targetState);
         const int structSize = sizeof(int);
+        const int lookaheadWindow = 8;
 
-        const int lookaheadWindow = 8; // Window size to search for stream resynchronization
-
-        while (i < startState.Length && j < targetState.Length)
+        while (i < lenA && j < lenB)
         {
-            // 1. Fast SIMD skip over identical int sequences
-            int commonBytes = bytesStart.Slice(i * structSize).CommonPrefixLength(bytesTarget.Slice(j * structSize));
+            // 1. Fast SIMD skip over identical sequences
+            int remainingA = (lenA - i) * structSize;
+            int remainingB = (lenB - j) * structSize;
+
+            int commonBytes = bytesStart.Slice(i * structSize, remainingA)
+                                        .CommonPrefixLength(bytesTarget.Slice(j * structSize, remainingB));
+            
             int commonStructs = commonBytes / structSize;
 
             i += commonStructs;
             j += commonStructs;
 
-            if (i >= startState.Length && j >= targetState.Length)
+            if (i >= lenA && j >= lenB)
             {
                 break;
             }
 
-            // Early exit check before processing new change
             if (changes.Count >= maxOperations)
             {
                 changes.Clear();
                 return false;
             }
 
-            // 2. Resynchronization check via lookahead window
+            int valA = i < lenA ? startState[i] : 0;
+            int valB = j < lenB ? targetState[j] : 0;
+
+            // 2. Resynchronization search
             int bestOffsetStart = -1;
             int bestOffsetTarget = -1;
 
-            for (int offset = 1; offset <= lookaheadWindow; offset++)
+            int maxOffset = Math.Min(lookaheadWindow, Math.Max(lenA - i, lenB - j));
+
+            for (int offset = 1; offset < maxOffset; offset++)
             {
-                // Check for Insert (Target has inserted items)
-                if (j + offset < targetState.Length && startState[i] == targetState[j + offset])
+                if (j + offset < lenB && valA == targetState[j + offset])
                 {
                     bestOffsetStart = 0;
                     bestOffsetTarget = offset;
                     break;
                 }
 
-                // Check for Remove (Start has removed items)
-                if (i + offset < startState.Length && startState[i + offset] == targetState[j])
+                if (i + offset < lenA && startState[i + offset] == valB)
                 {
                     bestOffsetStart = offset;
                     bestOffsetTarget = 0;
@@ -109,48 +122,45 @@ public static class SequenceDiff
                 }
             }
 
-            // 3. Emit matching Change operation
+            // 3. Emit changes
             if (bestOffsetTarget > 0 && bestOffsetStart == 0)
             {
-                // Insert operation
                 int len = bestOffsetTarget;
                 changes.Add(new SeqChange(SeqChangeType.Insert, i, len));
                 j += len;
             }
             else if (bestOffsetStart > 0 && bestOffsetTarget == 0)
             {
-                // Remove operation
                 int len = bestOffsetStart;
                 changes.Add(new SeqChange(SeqChangeType.Remove, i, len));
                 i += len;
             }
             else
             {
-                // Modify operation (determine length of consecutive modified items)
+                // Modify range detection
                 int modifyStartI = i;
 
-                while (i < startState.Length && j < targetState.Length && startState[i] != targetState[j])
+                while (i < lenA && j < lenB)
                 {
+                    if (startState[i] == targetState[j])
+                    {
+                        break;
+                    }
+
                     i++;
                     j++;
-
-                    // Stop if resync is possible ahead
-                    if (i < startState.Length && j < targetState.Length)
-                    {
-                        if (bytesStart.Slice(i * structSize).CommonPrefixLength(bytesTarget.Slice(j * structSize)) > 0)
-                        {
-                            break;
-                        }
-                    }
                 }
 
                 int len = i - modifyStartI;
-                changes.Add(new SeqChange(SeqChangeType.Modify, modifyStartI, len));
+                if (len > 0)
+                {
+                    changes.Add(new SeqChange(SeqChangeType.Modify, modifyStartI, len));
+                }
             }
         }
 
-        // 4. Process remaining trailing elements
-        if (i < startState.Length)
+        // 4. Trailing elements
+        if (i < lenA)
         {
             if (changes.Count >= maxOperations)
             {
@@ -158,9 +168,9 @@ public static class SequenceDiff
                 return false;
             }
 
-            changes.Add(new SeqChange(SeqChangeType.Remove, i, startState.Length - i));
+            changes.Add(new SeqChange(SeqChangeType.Remove, i, lenA - i));
         }
-        else if (j < targetState.Length)
+        else if (j < lenB)
         {
             if (changes.Count >= maxOperations)
             {
@@ -168,7 +178,7 @@ public static class SequenceDiff
                 return false;
             }
 
-            changes.Add(new SeqChange(SeqChangeType.Insert, i, targetState.Length - j));
+            changes.Add(new SeqChange(SeqChangeType.Insert, i, lenB - j));
         }
 
         return changes.Count <= maxOperations;

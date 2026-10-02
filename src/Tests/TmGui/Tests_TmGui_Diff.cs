@@ -12,7 +12,7 @@ namespace Tests.TmGui;
 public static class Tests_TmGui_Diff
 {
     [Test]
-    public static void Tests_TmGui_GuiStyle()
+    public static void Tests_TmGui_Diff_Changes()
     {
         var change = new SeqChange(SeqChangeType.Insert, 10, 20);
         Assert.That(change.Type,    Is.EqualTo(SeqChangeType.Insert));
