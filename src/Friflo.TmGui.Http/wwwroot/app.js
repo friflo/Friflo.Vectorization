@@ -289,8 +289,9 @@ function processDrawList(uint8Data) {
         frameBufferDataView = new DataView(frameBuffer.buffer);
     }
     // Copy incoming byte payload into persistent global buffer
-    frameBuffer.set(uint8Data, 0);
-
+    if (uint8Data !== frameBuffer) {
+        frameBuffer.set(uint8Data, 0);
+    }
     let offset = 0;
     const view = frameBufferDataView;
     
@@ -516,7 +517,7 @@ function ensureTextureLoaded(textureId, name) {
             return response.blob();
         })
         .then(blob => {
-            return createImageBitmap(blob)
+            return createImageBitmap(blob);
         })
         .then(imageBitmap => {
             // Create WebGPU Texture
@@ -532,9 +533,14 @@ function ensureTextureLoaded(textureId, name) {
                 [imageBitmap.width, imageBitmap.height]
             );
 
+            // Free bitmap memory from host RAM
+            imageBitmap.close();
+
             textureEntry.gpuTexture = gpuTexture;
             textureEntry.loaded = true;
             console.log(`[+] Texture loaded successfully: ${name} (ID: ${textureId})`);
+
+            processDrawList(frameBuffer);
         })
         .catch(err => {
             console.error(`[-] Failed to load texture '${name}' (ID: ${textureId}):`, err);
