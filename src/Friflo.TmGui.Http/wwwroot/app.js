@@ -267,11 +267,12 @@ function initWebSocket() {
 // ---------------------------------------------- processDrawList() ----------------------------------------------
 
 // Reusable global byte array buffer to eliminate per-frame heap allocations
-let frameBuffer             = new Uint8Array(0);
-let frameBufferFloatView    = new Float32Array(0);
+let frameBuffer = new Uint8Array(0);
+let frameBufferFloatView = new Float32Array(0);
+let frameBufferDataView = new DataView(frameBuffer.buffer);
 
 // Global Staging Buffer for Uniform Data
-let uniformStaging          = new Float32Array(0);
+let uniformStaging = new Float32Array(0);
 
 // Process incoming binary DrawList frame and render via WebGPU
 function processDrawList(uint8Data) {
@@ -283,12 +284,13 @@ function processDrawList(uint8Data) {
         const alignedLength = (uint8Data.byteLength + 3) & ~3;
         frameBuffer = new Uint8Array(alignedLength);
         frameBufferFloatView = new Float32Array(frameBuffer.buffer);
+        frameBufferDataView = new DataView(frameBuffer.buffer);
     }
     // Copy incoming byte payload into persistent global buffer
     frameBuffer.set(uint8Data, 0);
 
     let offset = 0;
-    const view = new DataView(frameBuffer.buffer, frameBuffer.byteOffset, uint8Data.byteLength);
+    const view = frameBufferDataView;
     
     // 0. Read rttStart time & host send time (double)
     // rttStart is send() via websocket at pointermove (mousemove) event in app-events.js

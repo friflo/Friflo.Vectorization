@@ -83,10 +83,10 @@ export function initGuiEventListeners(canvas, getSocketFn) {
         if (!socket || socket.readyState !== WebSocket.OPEN) return;
 
         const { x, y } = getCanvasCoords(e);
-        // socket.send(`evt=mousemove;mouseX=${x};mouseY=${y};`);
+        socket.send(`evt=mousemove;mouseX=${x};mouseY=${y};`);
         
-        const time = (performance.timeOrigin + performance.now()) * 1e6; // high precision Unix time in nanoseconds
-        socket.send(`evt=mousemove;mouseX=${x};mouseY=${y};rttStart=${time}`);
+        // const time = (performance.timeOrigin + performance.now()) * 1e6; // high precision Unix time in nanoseconds
+        // socket.send(`evt=mousemove;mouseX=${x};mouseY=${y};rttStart=${time}`);
     });
 
     canvas.addEventListener('pointerdown', (e) => {
