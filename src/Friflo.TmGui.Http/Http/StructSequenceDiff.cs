@@ -32,17 +32,17 @@ public enum SeqChangeType : byte
 [StructLayout(LayoutKind.Explicit, Size = 8)]
 public readonly struct SeqChange
 {
-    [Browse(Never)] [FieldOffset(0)] private readonly   int         start;
-    [Browse(Never)] [FieldOffset(3)] private readonly   SeqChangeType  type;
-    [Browse(Never)] [FieldOffset(4)] private readonly   int         length;
+    [Browse(Never)] [FieldOffset(0)] private readonly   int             start;
+    [Browse(Never)] [FieldOffset(3)] private readonly   SeqChangeType   type;
+    [Browse(Never)] [FieldOffset(4)] private readonly   int             length;
     
-                    public  int         Start   => start & 0x00ffffff;
-                    public  SeqChangeType  Type    => type;
-                    public  int         Length  => length;
+                    public  int             Start   => start & 0x00ffffff;
+                    public  SeqChangeType   Type    => type;
+                    public  int             Length  => length;
 
-    [Browse(Never)] public  string      Label => $"{type} [{Start}..{Length}]";
+    [Browse(Never)] public  string          Label => $"{type} [{Start}..{Length}]";
     
-    public override         string      ToString() => Label;
+    public override         string          ToString() => Label;
 
     public SeqChange(SeqChangeType type, int start, int length)
     {
