@@ -7,9 +7,9 @@ struct ImUniforms {
     projection: mat4x4<f32>,
 };
 
-@group(0) @binding(0) var<uniform>  u_globals: ImUniforms;
-@group(0) @binding(1) var           u_texture: texture_2d<f32>;
-@group(0) @binding(2) var           u_sampler: sampler;
+@group(0) @binding(0) var<storage, read> u_globals: ImUniforms;
+@group(0) @binding(1) var                u_texture: texture_2d<f32>;
+@group(0) @binding(2) var                u_sampler: sampler;
 
 // ----------------------------------------------------------------------------
 // Vertex Shader Stage

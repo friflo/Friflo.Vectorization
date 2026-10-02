@@ -16,12 +16,17 @@ let presentationFormat = null;
 
 // WebGPU Pipeline & Buffer Resources
 let pipeline = null;
+let bindGroupLayout = null;
 let vertexBuffer = null;
 let indexBuffer = null;
 let uniformBuffer = null;
 let bindGroup = null;
 let dummyTextureView = null;
 let dummySampler = null;
+
+// Dynamic Storage Buffer Settings
+let minStorageBufferOffsetAlignment = 256;
+let dynamicUniformStride = 256;
 
 // Global WebSocket reference
 let socket = null;
@@ -34,6 +39,7 @@ const utf8Decoder = new TextDecoder('utf-8');
 const SIZEOF_INT = 4;
 const SIZEOF_DOUBLE = 8;
 const SIZEOF_WS_DRAW_COMMAND = 92; // 64 (projection) + 16 (scissor) + 8 (vertexView) + 4 (texture id)
+const SIZEOF_MATRIX = 64;
 
 // Initialize WebGPU context, fetch WGSL shader, create buffers & bind groups, and build render pipeline
 async function initWebGPU() {
@@ -45,6 +51,9 @@ async function initWebGPU() {
 
     device = await adapter.requestDevice();
     context = canvas.getContext('webgpu');
+
+    minStorageBufferOffsetAlignment = device.limits.minStorageBufferOffsetAlignment || 256;
+    dynamicUniformStride = Math.ceil(SIZEOF_MATRIX / minStorageBufferOffsetAlignment) * minStorageBufferOffsetAlignment;
     
     presentationFormat = navigator.gpu.getPreferredCanvasFormat();
     context.configure({
@@ -69,10 +78,10 @@ async function initWebGPU() {
     // 2. Create Static Quad Index Buffer (0, 1, 2, 2, 3, 0 pattern)
     createStaticIndexBuffer(65536);
 
-    // 3. Create Uniform Buffer for ImUniforms struct (mat4x4<f32> = 64 bytes)
+    // 3. Create Storage Buffer for ImUniforms struct (mat4x4<f32> = 64 bytes)
     uniformBuffer = device.createBuffer({
-        size: 64,
-        usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+        size: Math.max(dynamicUniformStride * 256, 65536),
+        usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST,
     });
 
     // 4. Create 1x1 White Fallback Texture & Sampler for u_texture & u_sampler
@@ -121,10 +130,39 @@ async function initWebGPU() {
         ]
     };
 
+    bindGroupLayout = device.createBindGroupLayout({
+        label: "Draw2D BindGroupLayout",
+        entries: [
+            {
+                binding: 0,
+                visibility: GPUShaderStage.VERTEX,
+                buffer: {
+                    type: 'read-only-storage',
+                    hasDynamicOffset: true,
+                    minBindingSize: SIZEOF_MATRIX
+                }
+            },
+            {
+                binding: 1,
+                visibility: GPUShaderStage.FRAGMENT,
+                texture: { sampleType: 'float' }
+            },
+            {
+                binding: 2,
+                visibility: GPUShaderStage.FRAGMENT,
+                sampler: { type: 'filtering' }
+            }
+        ]
+    });
+
+    const pipelineLayout = device.createPipelineLayout({
+        bindGroupLayouts: [bindGroupLayout]
+    });
+
     // 7. Create Render Pipeline
     pipeline = device.createRenderPipeline({
         label: "Draw2D Render Pipeline",
-        layout: 'auto',
+        layout: pipelineLayout,
         vertex: {
             module: shaderModule,
             entryPoint: 'vs_main',
@@ -157,9 +195,9 @@ async function initWebGPU() {
 
     // 8. Create Bind Group matching WGSL @group(0) bindings
     bindGroup = device.createBindGroup({
-        layout: pipeline.getBindGroupLayout(0),
+        layout: bindGroupLayout,
         entries: [
-            { binding: 0, resource: { buffer: uniformBuffer } },
+            { binding: 0, resource: { buffer: uniformBuffer, size: SIZEOF_MATRIX } },
             { binding: 1, resource: dummyTextureView },
             { binding: 2, resource: dummySampler }
         ]
@@ -290,6 +328,36 @@ function processDrawList(arrayBuffer) {
     }
     device.queue.writeBuffer(vertexBuffer, 0, verticesSlice);
 
+    const requiredUniformBufferSize = drawCommandCount * dynamicUniformStride;
+    if (uniformBuffer.size < requiredUniformBufferSize) {
+        uniformBuffer = device.createBuffer({
+            size: requiredUniformBufferSize,
+            usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST,
+        });
+        
+        bindGroup = device.createBindGroup({
+            layout: bindGroupLayout,
+            entries: [
+                { binding: 0, resource: { buffer: uniformBuffer, size: SIZEOF_MATRIX } },
+                { binding: 1, resource: dummyTextureView },
+                { binding: 2, resource: dummySampler }
+            ]
+        });
+
+        textures.forEach(t => t.bindGroup = null);
+    }
+
+    let cmdOffset = 0;
+    for (let i = 0; i < drawCommandCount; i++) {
+        const matrixByteOffset = drawCommandsBuffer.byteOffset + cmdOffset;
+        const projectionMatrix = new Float32Array(arrayBuffer, matrixByteOffset, 16);
+        
+        const targetUniformOffset = i * dynamicUniformStride;
+        device.queue.writeBuffer(uniformBuffer, targetUniformOffset, projectionMatrix);
+
+        cmdOffset += SIZEOF_WS_DRAW_COMMAND;
+    }
+
     // Encode Render Pass
     const commandEncoder = device.createCommandEncoder();
     const pass = commandEncoder.beginRenderPass({
@@ -302,24 +370,18 @@ function processDrawList(arrayBuffer) {
     });
 
     pass.setPipeline(pipeline);
-    pass.setBindGroup(0, bindGroup);
     pass.setVertexBuffer(0, vertexBuffer);
     pass.setIndexBuffer(indexBuffer, 'uint32');
 
-    let cmdOffset = 0;
+    cmdOffset = 0;
     const cmdView = new DataView(drawCommandsBuffer.buffer, drawCommandsBuffer.byteOffset, drawCommandsByteLength);
 
     const canvasWidth = canvas.width;
     const canvasHeight = canvas.height;
 
     for (let i = 0; i < drawCommandCount; i++) {
-        // [Offset 0] projection: Matrix4x4 (16 floats = 64 bytes)
-        const matrixByteOffset = drawCommandsBuffer.byteOffset + cmdOffset + 0;
-        const projectionMatrix = new Float32Array(arrayBuffer, matrixByteOffset, 16);
-    
-        // Upload projection matrix directly to GPU uniform buffer
-        device.queue.writeBuffer(uniformBuffer, 0, projectionMatrix);
-    
+        const dynamicOffset = i * dynamicUniformStride;
+
         // [Offset 64] scissor: RectVector2 (4 x float32 = 16 bytes: posX, posY, sizeX, sizeY)
         const posX  = cmdView.getFloat32(cmdOffset + 64, true);
         const posY  = cmdView.getFloat32(cmdOffset + 68, true);
@@ -348,7 +410,7 @@ function processDrawList(arrayBuffer) {
             const textureEntry = textures.get(textureId);
             const currentBindGroup = getTextureBindGroup(textureEntry);
     
-            pass.setBindGroup(0, currentBindGroup);
+            pass.setBindGroup(0, currentBindGroup, [dynamicOffset]);
             pass.setScissorRect(clipX, clipY, clipWidth, clipHeight);
             pass.drawIndexed(indexCount, 1, firstIndex, 0, 0);
         }
@@ -381,9 +443,9 @@ function getTextureBindGroup(textureEntry) {
     if (!textureEntry.bindGroup) {
         // BindGroup für die spezifische Textur erzeugen und cachen
         textureEntry.bindGroup = device.createBindGroup({
-            layout: pipeline.getBindGroupLayout(0),
+            layout: bindGroupLayout,
             entries: [
-                { binding: 0, resource: { buffer: uniformBuffer } },
+                { binding: 0, resource: { buffer: uniformBuffer, size: SIZEOF_MATRIX } },
                 { binding: 1, resource: textureEntry.gpuTexture.createView() },
                 { binding: 2, resource: dummySampler }
             ]
