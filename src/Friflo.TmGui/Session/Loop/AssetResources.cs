@@ -2,6 +2,7 @@
 // See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
+using System.IO;
 
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable CheckNamespace
@@ -13,14 +14,14 @@ public readonly struct AssetResources
     private  readonly   TmGuiBackend                        rootBackend;
     private  readonly   Dictionary<object, int>             texture2Id      = new();
     public   readonly   Dictionary<string, ImageResource>   stringToImage   = new();
-    public   readonly   List<ImageResource>                 images          = [default];
+    public   readonly   List<ImageResource>                 images          = [null!];
     
     private int AddTexture(TmTexture texture)
     {
         var textureId = images.Count;
         texture2Id.Add(texture.native!, textureId);
         var asset = rootBackend.GetTextureImage(texture);
-        var image = new ImageResource { textureId = textureId, asset = asset, texture = texture };
+        var image = new ImageResource { textureId = textureId, asset = asset, texture = texture, assets = rootBackend.Assets };
         images.Add(image);
         if (asset.name != null) {
             stringToImage.TryAdd(asset.name, image);   // TODO fix me!!!
@@ -42,11 +43,29 @@ public readonly struct AssetResources
     }
 }
 
-public struct ImageResource
+public class ImageResource
 {
-    public  int             textureId;
-    public  TmImageAsset    asset;
-    public  TmTexture       texture;
+    public  required    int             textureId;
+    public  required    TmImageAsset    asset;
+    public  required    TmTexture       texture;
+    public  required    IGuiAssets      assets;
+    private             byte[]?         pngArray;
 
     public override string ToString() => $"{asset.name} - {texture}";
+    
+    public byte[] GetAsPng()
+    {
+        if (pngArray != null) {
+            return pngArray;
+        }
+
+        using var stream = assets.CreatePng(asset);
+        var buffer = new byte[stream.Length];
+
+        stream.ReadExactly(buffer, 0, buffer.Length);
+
+        pngArray = buffer;
+
+        return pngArray;
+    }
 }

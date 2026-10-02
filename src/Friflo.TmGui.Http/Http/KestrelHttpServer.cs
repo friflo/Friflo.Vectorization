@@ -141,11 +141,11 @@ public sealed class KestrelHttpServer
                             
                             if (loop.resources.stringToImage.TryGetValue(fileName, out var image))
                             {
-                                using var stream = loop.rootBackend.Assets.CreatePng(image.asset);
-                                context.Response.ContentType    = "image/png";
-                                context.Response.ContentLength  = stream.Length;
-                                context.Response.StatusCode     = StatusCodes.Status200OK;
-                                await stream.CopyToAsync(context.Response.Body, context.RequestAborted);
+                                var pngData = image.GetAsPng();
+                                context.Response.ContentType = "image/png";
+                                context.Response.ContentLength = pngData.Length;
+                                context.Response.StatusCode = StatusCodes.Status200OK;
+                                await context.Response.Body.WriteAsync(pngData, context.RequestAborted);
                                 return;
                             }
                             context.Response.StatusCode = StatusCodes.Status404NotFound;
