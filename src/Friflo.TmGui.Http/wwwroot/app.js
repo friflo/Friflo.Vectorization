@@ -24,8 +24,6 @@ let bindGroup = null;
 let dummyTextureView = null;
 let dummySampler = null;
 
-// Global Staging Buffer for Uniform Data
-let uniformStaging = new Float32Array(0);
 
 // Dynamic Storage Buffer Settings
 let minStorageBufferOffsetAlignment = 256;
@@ -266,16 +264,25 @@ function initWebSocket() {
     };
 }
 
+// ---------------------------------------------- processDrawList() ----------------------------------------------
+
 // Reusable global byte array buffer to eliminate per-frame heap allocations
-let frameBuffer = new Uint8Array(0);
+let frameBuffer             = new Uint8Array(0);
+let frameBufferFloatView    = new Float32Array(0);
+
+// Global Staging Buffer for Uniform Data
+let uniformStaging          = new Float32Array(0);
 
 // Process incoming binary DrawList frame and render via WebGPU
 function processDrawList(uint8Data) {
     if (!device || !context || !pipeline || !bindGroup || !uniformBuffer || !indexBuffer) return;
 
-    // Ensure global frame buffer is large enough
+    // Ensure global frame buffer is large enough and 4-byte aligned
     if (frameBuffer.byteLength < uint8Data.byteLength) {
-        frameBuffer = new Uint8Array(uint8Data.byteLength);
+        // Align length up to the next multiple of 4 bytes
+        const alignedLength = (uint8Data.byteLength + 3) & ~3;
+        frameBuffer = new Uint8Array(alignedLength);
+        frameBufferFloatView = new Float32Array(frameBuffer.buffer);
     }
     // Copy incoming byte payload into persistent global buffer
     frameBuffer.set(uint8Data, 0);
@@ -370,7 +377,6 @@ function processDrawList(uint8Data) {
 
     let cmdOffset = 0;
     const strideInFloats = dynamicUniformStride / Float32Array.BYTES_PER_ELEMENT;
-    const floatView = new Float32Array(frameBuffer.buffer, frameBuffer.byteOffset, frameBuffer.byteLength / Float32Array.BYTES_PER_ELEMENT);
 
     for (let i = 0; i < drawCommandCount; i++) {
         const floatOffset = (drawCommandsOffset + cmdOffset) / Float32Array.BYTES_PER_ELEMENT;
@@ -378,7 +384,7 @@ function processDrawList(uint8Data) {
 
         // Inlined zero-allocation matrix copy (16 floats / 64 bytes)
         for (let j = 0; j < 16; j++) {
-            uniformStaging[targetOffset + j] = floatView[floatOffset + j];
+            uniformStaging[targetOffset + j] = frameBufferFloatView[floatOffset + j];
         }
 
         cmdOffset += SIZEOF_WS_DRAW_COMMAND;
