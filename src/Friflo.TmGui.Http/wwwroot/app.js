@@ -347,16 +347,20 @@ function processDrawList(uint8Data) {
     }
     
     updateMouseCursor(canvas, mouseCursor);
+    
+    const time = (performance.timeOrigin + performance.now()) * 1e6; // high precision Unix time in nanoseconds
+    if (rttStartTime > 0) {
+        const latency = (time - rttStartTime) / 1e6;
+        console.log(`RTT latency: ${latency.toFixed(1)} ms`);
+    }
 
-    submitDrawList(view, rttStartTime,
-        drawCommandsOffset, drawCommandCount,
-        verticesOffset, verticesByteLength);
+    submitDrawList(view, drawCommandsOffset, drawCommandCount,
+                         verticesOffset, verticesByteLength);
 }
 
 
-function submitDrawList(view, rttStartTime,
-                        drawCommandsOffset, drawCommandCount,
-                        verticesOffset, verticesByteLength)
+function submitDrawList(view, drawCommandsOffset, drawCommandCount,
+                              verticesOffset, verticesByteLength)
 {
     // Dynamic resize for Vertex Buffer if vertex payload exceeds current capacity
     if (vertexBuffer.size < verticesByteLength) {
@@ -475,18 +479,13 @@ function submitDrawList(view, rttStartTime,
 
     device.queue.submit(submitQueue);
 
-    const time = (performance.timeOrigin + performance.now()) * 1e6; // high precision Unix time in nanoseconds
+
 
     /* device.queue.onSubmittedWorkDone().then(() => {
         const gpuTime = performance.timeOrigin + performance.now();
         const realLatency = gpuTime - time;
         console.log(`REAL GPU latency: ${realLatency.toFixed(1)} ms`);
     }); */
-    
-    if (rttStartTime > 0) {
-        const latency = (time - rttStartTime) / 1e6;
-        console.log(`RTT latency: ${latency.toFixed(1)} ms`);
-    }
 }
 
 function getTextureBindGroup(textureEntry) {
