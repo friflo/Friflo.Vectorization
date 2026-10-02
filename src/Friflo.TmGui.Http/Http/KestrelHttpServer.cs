@@ -141,10 +141,15 @@ public sealed class KestrelHttpServer
                             
                             if (loop.resources.stringToImage.TryGetValue(fileName, out var image))
                             {
+                                if (context.Request.Headers.IfNoneMatch == image.Etag) {
+                                    context.Response.StatusCode = StatusCodes.Status304NotModified;
+                                    return;
+                                }
                                 var pngData = image.GetAsPng();
-                                context.Response.ContentType = "image/png";
-                                context.Response.ContentLength = pngData.Length;
-                                context.Response.StatusCode = StatusCodes.Status200OK;
+                                context.Response.Headers.ETag   = image.Etag;
+                                context.Response.ContentType    = "image/png";
+                                context.Response.ContentLength  = pngData.Length;
+                                context.Response.StatusCode     = StatusCodes.Status200OK;
                                 await context.Response.Body.WriteAsync(pngData, context.RequestAborted);
                                 return;
                             }

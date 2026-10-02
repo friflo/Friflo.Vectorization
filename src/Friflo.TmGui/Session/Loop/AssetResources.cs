@@ -50,6 +50,7 @@ public class ImageResource
     public  required    TmTexture       texture;
     public  required    IGuiAssets      assets;
     private             byte[]?         pngArray;
+    public              string          Etag { get; private set; } = "";
 
     public override string ToString() => $"{asset.name} - {texture}";
     
@@ -63,8 +64,9 @@ public class ImageResource
         var buffer = new byte[stream.Length];
 
         stream.ReadExactly(buffer, 0, buffer.Length);
-
-        pngArray = buffer;
+        
+        Etag        = HashUtils.XxHash3(asset.data).ToString();
+        pngArray    = buffer;
 
         return pngArray;
     }
