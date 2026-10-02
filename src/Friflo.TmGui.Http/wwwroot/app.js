@@ -252,6 +252,7 @@ function initWebSocket() {
 
     socket.onmessage = (event) => {
         if (event.data instanceof ArrayBuffer) {
+            // Create a lightweight zero-copy TypedArray view over the WebSocket ArrayBuffer
             processDrawList(new Uint8Array(event.data));
         }
     };
@@ -276,8 +277,7 @@ function processDrawList(uint8Data) {
     if (frameBuffer.byteLength < uint8Data.byteLength) {
         frameBuffer = new Uint8Array(uint8Data.byteLength);
     }
-    
-    // Copy incoming bytes into the persistent global buffer (zero object allocations)
+    // Copy incoming byte payload into persistent global buffer
     frameBuffer.set(uint8Data, 0);
 
     let offset = 0;
@@ -310,7 +310,7 @@ function processDrawList(uint8Data) {
 
     // 5. View on Vertex2D array
     const verticesByteLength = vertexCount * 20;
-    const verticesSlice = frameBuffer.subarray(offset, offset + verticesByteLength);
+    const verticesOffset = offset;
     offset += verticesByteLength;
     
     // 6. Read used Textures (Count + ID/Name pairs)
@@ -335,13 +335,14 @@ function processDrawList(uint8Data) {
     updateMouseCursor(canvas, mouseCursor);
 
     // Dynamic resize for Vertex Buffer if vertex payload exceeds current capacity
-    if (vertexBuffer.size < verticesSlice.byteLength) {
+    if (vertexBuffer.size < verticesByteLength) {
         vertexBuffer = device.createBuffer({
-            size: verticesSlice.byteLength,
+            size: verticesByteLength,
             usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST,
         });
     }
-    device.queue.writeBuffer(vertexBuffer, 0, verticesSlice);
+    // Zero-allocation GPU upload directly from global frameBuffer with offset and length
+    device.queue.writeBuffer(vertexBuffer, 0, frameBuffer, verticesOffset, verticesByteLength);
 
     const requiredUniformBufferSize = drawCommandCount * dynamicUniformStride;
     if (uniformBuffer.size < requiredUniformBufferSize) {
@@ -373,9 +374,12 @@ function processDrawList(uint8Data) {
 
     for (let i = 0; i < drawCommandCount; i++) {
         const floatOffset = (drawCommandsOffset + cmdOffset) / Float32Array.BYTES_PER_ELEMENT;
-        
-        // Zero-allocation matrix copy directly to staging buffer
-        uniformStaging.set(floatView.subarray(floatOffset, floatOffset + 16), i * strideInFloats);
+        const targetOffset = i * strideInFloats;
+
+        // Inlined zero-allocation matrix copy (16 floats / 64 bytes)
+        for (let j = 0; j < 16; j++) {
+            uniformStaging[targetOffset + j] = floatView[floatOffset + j];
+        }
 
         cmdOffset += SIZEOF_WS_DRAW_COMMAND;
     }
