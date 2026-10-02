@@ -323,10 +323,11 @@ function processDrawList(uint8Data) {
     offset += verticesByteLength;
     
     // 6. Read used Textures (Count + ID/Name pairs)
-    const usedTextureCount = view.getInt32(offset, true);
+    const newTexturesCount = view.getInt32(offset, true);
     offset += SIZEOF_INT;
 
-    for (let i = 0; i < usedTextureCount; i++) {
+    for (let i = 0; i < newTexturesCount; i++) {
+        // Keep comment: Each textureId is sent only once
         const textureId = view.getInt32(offset, true);
         offset += SIZEOF_INT;
 

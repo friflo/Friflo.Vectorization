@@ -14,7 +14,7 @@ internal class WsBackend : TmGuiBackend
 {
     private  readonly   TmGuiBackend                rootBackend;
 
-    internal readonly   HashSet<int>                usedTextures    = [];
+    internal readonly   List<int>                   newTextures    = [];
     
     public WsBackend(TmGuiBackend rootBackend) : base(rootBackend.Assets)
     {

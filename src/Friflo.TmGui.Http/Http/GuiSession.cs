@@ -2,12 +2,14 @@
 // See LICENSE file in the project root for full license information.
 
 using System;
+using System.Collections.Generic;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
 using Friflo.TmGui.Session;
 
+// ReSharper disable InlineTemporaryVariable
 // ReSharper disable CheckNamespace
 namespace Friflo.TmGui.Http;
 
@@ -17,6 +19,7 @@ public sealed partial class GuiSession : TmSession
     private  readonly   TmClient        client;         // instance: passed
     private  readonly   WsBackend       wsBackend;
     private  readonly   WsBatch         wsBatch;        // instance: creates / owns
+    private  readonly   HashSet<int>    usedTexturesMap = [];
     private             WsDrawCommand[] wsDrawList      = [];
     private             byte[]          sendBuffer      = [];
     private             ulong           lastSendBufferHash;
@@ -48,9 +51,10 @@ public sealed partial class GuiSession : TmSession
         
         wsBatch.DrawCommandList();
 
+        var usedTextures    = usedTexturesMap;
         var drawCommands    = wsBatch.DrawList;
-        var usedTextures    = wsBackend.usedTextures;
-        usedTextures.Clear();
+        var newTextures     = wsBackend.newTextures;
+        newTextures.Clear();
 
         if (wsDrawList.Length < drawCommands.Length) {
             wsDrawList = new WsDrawCommand [drawCommands.Length];
@@ -59,7 +63,9 @@ public sealed partial class GuiSession : TmSession
         {
             var cmd = drawCommands[n];
             var textureId = resources.GetTexture(cmd.texture);
-            usedTextures.Add(textureId);
+            if (usedTextures.Add(textureId)) {
+                newTextures.Add(textureId);
+            }
             wsDrawList[n] = new WsDrawCommand {
                 vertexView  = cmd.vertexView,
                 projection  = cmd.projection,
@@ -113,9 +119,9 @@ public sealed partial class GuiSession : TmSession
         
         // 6. Write used textures
         var images = resources.images;
-        MemoryMarshal.Write(span[bytesWritten..], usedTextures.Count);
+        MemoryMarshal.Write(span[bytesWritten..], newTextures.Count);
         bytesWritten += sizeof(int);
-        foreach (var usedTexture in usedTextures) {
+        foreach (var usedTexture in newTextures) {
             var image = images[usedTexture];
             MemoryMarshal.Write(span[bytesWritten..], image.textureId);
             bytesWritten += sizeof(int);
