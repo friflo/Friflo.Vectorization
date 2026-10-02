@@ -276,6 +276,7 @@ let frameBufferDataView = new DataView(frameBuffer.buffer);
 // Global Staging Buffer for Uniform Data
 let uniformStaging = new Float32Array(0);
 
+
 // Process incoming binary DrawList frame and render via WebGPU
 function processDrawList(uint8Data) {
     if (!device || !context || !pipeline || !bindGroup || !uniformBuffer || !indexBuffer) return;
@@ -347,6 +348,16 @@ function processDrawList(uint8Data) {
     
     updateMouseCursor(canvas, mouseCursor);
 
+    submitDrawList(view, rttStartTime,
+        drawCommandsOffset, drawCommandCount,
+        verticesOffset, verticesByteLength);
+}
+
+
+function submitDrawList(view, rttStartTime,
+                        drawCommandsOffset, drawCommandCount,
+                        verticesOffset, verticesByteLength)
+{
     // Dynamic resize for Vertex Buffer if vertex payload exceeds current capacity
     if (vertexBuffer.size < verticesByteLength) {
         vertexBuffer = device.createBuffer({
@@ -375,7 +386,7 @@ function processDrawList(uint8Data) {
 
         textures.forEach(t => t.bindGroup = null);
     }
-
+    
     const requiredStagingFloats = requiredUniformBufferSize / Float32Array.BYTES_PER_ELEMENT;
     if (uniformStaging.length < requiredStagingFloats) {
         uniformStaging = new Float32Array(requiredStagingFloats);
@@ -461,6 +472,7 @@ function processDrawList(uint8Data) {
     pass.end();
     
     submitQueue[0] = commandEncoder.finish();
+
     device.queue.submit(submitQueue);
 
     const time = (performance.timeOrigin + performance.now()) * 1e6; // high precision Unix time in nanoseconds
