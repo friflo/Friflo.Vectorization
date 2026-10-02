@@ -266,6 +266,8 @@ function initWebSocket() {
 
 // ---------------------------------------------- processDrawList() ----------------------------------------------
 
+const submitQueue = [null];
+
 // Reusable global byte array buffer to eliminate per-frame heap allocations
 let frameBuffer = new Uint8Array(0);
 let frameBufferFloatView = new Float32Array(0);
@@ -456,7 +458,9 @@ function processDrawList(uint8Data) {
     }
 
     pass.end();
-    device.queue.submit([commandEncoder.finish()]);
+    
+    submitQueue[0] = commandEncoder.finish();
+    device.queue.submit(submitQueue);
 
     const time = (performance.timeOrigin + performance.now()) * 1e6; // high precision Unix time in nanoseconds
 
