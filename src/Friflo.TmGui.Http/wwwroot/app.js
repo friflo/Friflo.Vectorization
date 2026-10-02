@@ -24,6 +24,9 @@ let bindGroup = null;
 let dummyTextureView = null;
 let dummySampler = null;
 
+// Global Staging Buffer for Uniform Data
+let uniformStaging = new Float32Array(0);
+
 // Dynamic Storage Buffer Settings
 let minStorageBufferOffsetAlignment = 256;
 let dynamicUniformStride = 256;
@@ -347,16 +350,25 @@ function processDrawList(arrayBuffer) {
         textures.forEach(t => t.bindGroup = null);
     }
 
+    const requiredStagingFloats = requiredUniformBufferSize / Float32Array.BYTES_PER_ELEMENT;
+    if (uniformStaging.length < requiredStagingFloats) {
+        uniformStaging = new Float32Array(requiredStagingFloats);
+    }
+
     let cmdOffset = 0;
+    const strideInFloats = dynamicUniformStride / Float32Array.BYTES_PER_ELEMENT;
+
     for (let i = 0; i < drawCommandCount; i++) {
         const matrixByteOffset = drawCommandsBuffer.byteOffset + cmdOffset;
         const projectionMatrix = new Float32Array(arrayBuffer, matrixByteOffset, 16);
         
-        const targetUniformOffset = i * dynamicUniformStride;
-        device.queue.writeBuffer(uniformBuffer, targetUniformOffset, projectionMatrix);
+        uniformStaging.set(projectionMatrix, i * strideInFloats);
 
         cmdOffset += SIZEOF_WS_DRAW_COMMAND;
     }
+
+    // Upload staging buffer to GPU in a single write operation
+    device.queue.writeBuffer(uniformBuffer, 0, uniformStaging, 0, requiredStagingFloats);
 
     // Encode Render Pass
     const commandEncoder = device.createCommandEncoder();
