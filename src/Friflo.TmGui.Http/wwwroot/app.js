@@ -266,20 +266,33 @@ function initWebSocket() {
 
 // ---------------------------------------------- processDrawList() ----------------------------------------------
 
-const submitQueue = [null];
-
-// Reusable global byte array buffer to eliminate per-frame heap allocations
-let frameBuffer = new Uint8Array(0);
-let frameBufferFloatView = new Float32Array(0);
-let frameBufferDataView = new DataView(frameBuffer.buffer);
-
-// Global Staging Buffer for Uniform Data
-let uniformStaging = new Float32Array(0);
-
+let pendingFrameBuffer  = null;
+let isRenderPending     = false;
 
 // Process incoming binary DrawList frame and render via WebGPU
 function processDrawList(uint8Data) {
     if (!device || !context || !pipeline || !bindGroup || !uniformBuffer || !indexBuffer) return;
+
+    pendingFrameBuffer = uint8Data;
+
+    if (!isRenderPending) {
+        isRenderPending = true;
+        requestAnimationFrame(renderFrame);
+    }
+}
+
+// Reusable global byte array buffer to eliminate per-frame heap allocations
+let frameBuffer             = new Uint8Array(0);
+let frameBufferFloatView    = new Float32Array(0);
+let frameBufferDataView     = new DataView(frameBuffer.buffer);
+
+function renderFrame() {
+    isRenderPending = false;
+
+    if (!pendingFrameBuffer) return;
+
+    const uint8Data = pendingFrameBuffer;
+    pendingFrameBuffer = null;
 
     // Ensure global frame buffer is large enough and 4-byte aligned
     if (frameBuffer.byteLength < uint8Data.byteLength) {
@@ -358,6 +371,11 @@ function processDrawList(uint8Data) {
                          verticesOffset, verticesByteLength);
 }
 
+
+const submitQueue = [null];
+
+// Global Staging Buffer for Uniform Data
+let uniformStaging = new Float32Array(0);
 
 function submitDrawList(view, drawCommandsOffset, drawCommandCount,
                               verticesOffset, verticesByteLength)
