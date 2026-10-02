@@ -41,6 +41,7 @@
       <ProjectReference Include="..\Friflo.GPU\Friflo.GPU.csproj" />
       <ProjectReference Include="..\Friflo.WGPU\Friflo.WGPU.csproj" />
       <ProjectReference Include="..\Friflo.TmGui\Friflo.TmGui.csproj" />
+      <ProjectReference Include="..\Friflo.TmGui.Http\Friflo.TmGui.Http.csproj" />
     </ItemGroup>
     
     <ItemGroup>
