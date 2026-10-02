@@ -252,7 +252,7 @@ function initWebSocket() {
 
     socket.onmessage = (event) => {
         if (event.data instanceof ArrayBuffer) {
-            processDrawList(event.data);
+            processDrawList(new Uint8Array(event.data));
         }
     };
 
@@ -265,12 +265,23 @@ function initWebSocket() {
     };
 }
 
+// Reusable global byte array buffer to eliminate per-frame heap allocations
+let frameBuffer = new Uint8Array(0);
+
 // Process incoming binary DrawList frame and render via WebGPU
-function processDrawList(arrayBuffer) {
+function processDrawList(uint8Data) {
     if (!device || !context || !pipeline || !bindGroup || !uniformBuffer || !indexBuffer) return;
 
+    // Ensure global frame buffer is large enough
+    if (frameBuffer.byteLength < uint8Data.byteLength) {
+        frameBuffer = new Uint8Array(uint8Data.byteLength);
+    }
+    
+    // Copy incoming bytes into the persistent global buffer (zero object allocations)
+    frameBuffer.set(uint8Data, 0);
+
     let offset = 0;
-    const view = new DataView(arrayBuffer);
+    const view = new DataView(frameBuffer.buffer, frameBuffer.byteOffset, uint8Data.byteLength);
     
     // 0. Read rttStart time & host send time (double)
     // rttStart is send() via websocket at pointermove (mousemove) event in app-events.js
@@ -294,12 +305,13 @@ function processDrawList(arrayBuffer) {
 
     // 4. View on WsDrawCommand array
     const drawCommandsByteLength = drawCommandCount * SIZEOF_WS_DRAW_COMMAND;
-    const drawCommandsBuffer = new Uint8Array(arrayBuffer, offset, drawCommandsByteLength);
+    const drawCommandsOffset = offset;
     offset += drawCommandsByteLength;
 
     // 5. View on Vertex2D array
-    const verticesSlice = new Uint8Array(arrayBuffer, offset, vertexCount * 20);
-    offset += verticesSlice.byteLength;
+    const verticesByteLength = vertexCount * 20;
+    const verticesSlice = frameBuffer.subarray(offset, offset + verticesByteLength);
+    offset += verticesByteLength;
     
     // 6. Read used Textures (Count + ID/Name pairs)
     const usedTextureCount = view.getInt32(offset, true);
@@ -313,7 +325,7 @@ function processDrawList(arrayBuffer) {
         offset += SIZEOF_INT;
 
         // Zero-copy slice to decode string
-        const nameBytes = new Uint8Array(arrayBuffer, offset, nameByteLength);
+        const nameBytes = frameBuffer.subarray(offset, offset + nameByteLength);
         const name = utf8Decoder.decode(nameBytes);
         offset += nameByteLength;
 
@@ -357,12 +369,13 @@ function processDrawList(arrayBuffer) {
 
     let cmdOffset = 0;
     const strideInFloats = dynamicUniformStride / Float32Array.BYTES_PER_ELEMENT;
+    const floatView = new Float32Array(frameBuffer.buffer, frameBuffer.byteOffset, frameBuffer.byteLength / Float32Array.BYTES_PER_ELEMENT);
 
     for (let i = 0; i < drawCommandCount; i++) {
-        const matrixByteOffset = drawCommandsBuffer.byteOffset + cmdOffset;
-        const projectionMatrix = new Float32Array(arrayBuffer, matrixByteOffset, 16);
+        const floatOffset = (drawCommandsOffset + cmdOffset) / Float32Array.BYTES_PER_ELEMENT;
         
-        uniformStaging.set(projectionMatrix, i * strideInFloats);
+        // Zero-allocation matrix copy directly to staging buffer
+        uniformStaging.set(floatView.subarray(floatOffset, floatOffset + 16), i * strideInFloats);
 
         cmdOffset += SIZEOF_WS_DRAW_COMMAND;
     }
@@ -386,26 +399,25 @@ function processDrawList(arrayBuffer) {
     pass.setIndexBuffer(indexBuffer, 'uint32');
 
     cmdOffset = 0;
-    const cmdView = new DataView(drawCommandsBuffer.buffer, drawCommandsBuffer.byteOffset, drawCommandsByteLength);
-
     const canvasWidth = canvas.width;
     const canvasHeight = canvas.height;
 
     for (let i = 0; i < drawCommandCount; i++) {
         const dynamicOffset = i * dynamicUniformStride;
+        const currentCmdByteOffset = drawCommandsOffset + cmdOffset;
 
         // [Offset 64] scissor: RectVector2 (4 x float32 = 16 bytes: posX, posY, sizeX, sizeY)
-        const posX  = cmdView.getFloat32(cmdOffset + 64, true);
-        const posY  = cmdView.getFloat32(cmdOffset + 68, true);
-        const sizeX = cmdView.getFloat32(cmdOffset + 72, true);
-        const sizeY = cmdView.getFloat32(cmdOffset + 76, true);
+        const posX  = view.getFloat32(currentCmdByteOffset + 64, true);
+        const posY  = view.getFloat32(currentCmdByteOffset + 68, true);
+        const sizeX = view.getFloat32(currentCmdByteOffset + 72, true);
+        const sizeY = view.getFloat32(currentCmdByteOffset + 76, true);
     
         // [Offset 80] vertexView: MemoryView (2 x uint32 = 8 bytes: offset, count in vertices)
-        const vertexOffset = cmdView.getUint32(cmdOffset + 80, true);
-        const vertexDrawCount = cmdView.getUint32(cmdOffset + 84, true);
+        const vertexOffset = view.getUint32(currentCmdByteOffset + 80, true);
+        const vertexDrawCount = view.getUint32(currentCmdByteOffset + 84, true);
     
         // [Offset 88] textureId: uint32 (4 bytes)
-        const textureId = cmdView.getUint32(cmdOffset + 88, true);
+        const textureId = view.getUint32(currentCmdByteOffset + 88, true);
     
         // Convert Vertex Count / Offset to Index Count / Offset
         const indexCount = Math.floor(vertexDrawCount / 4) * 6;
