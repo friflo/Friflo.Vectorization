@@ -248,13 +248,6 @@ function initWebSocket() {
         sendInitGui(socket, canvas);
     };
 
-    socket.onmessage = (event) => {
-        if (event.data instanceof ArrayBuffer) {
-            // Create a lightweight zero-copy TypedArray view over the WebSocket ArrayBuffer
-            processDrawList(new Uint8Array(event.data));
-        }
-    };
-
     socket.onclose = () => {
         console.log("[-] WebSocket connection closed.");
     };
@@ -262,52 +255,25 @@ function initWebSocket() {
     socket.onerror = (err) => {
         console.error("WebSocket error:", err);
     };
+    
+    socket.onmessage = (event) => {
+        if (event.data instanceof ArrayBuffer) {
+            // Create a lightweight zero-copy TypedArray view over the WebSocket ArrayBuffer
+            processDrawList(new Uint8Array(event.data));
+        }
+    };
 }
 
 // ---------------------------------------------- processDrawList() ----------------------------------------------
+// Keep comment
+// Key architecture:
+// - Always process incoming messages
+// - Render frames only at requestAnimationFrame() - The monitor refresh rate
 
-let pendingFrameBuffer  = null;
-let isRenderPending     = false;
-
-// Process incoming binary DrawList frame and render via WebGPU
-function processDrawList(uint8Data) {
-    if (!device || !context || !pipeline || !bindGroup || !uniformBuffer || !indexBuffer) return;
-
-    pendingFrameBuffer = uint8Data;
-
-    if (!isRenderPending) {
-        isRenderPending = true;
-        requestAnimationFrame(renderFrame);
-    }
-}
-
-// Reusable global byte array buffer to eliminate per-frame heap allocations
-let frameBuffer             = new Uint8Array(0);
-let frameBufferFloatView    = new Float32Array(0);
-let frameBufferDataView     = new DataView(frameBuffer.buffer);
-
-function renderFrame() {
-    isRenderPending = false;
-
-    if (!pendingFrameBuffer) return;
-
-    const uint8Data = pendingFrameBuffer;
-    pendingFrameBuffer = null;
-
-    // Ensure global frame buffer is large enough and 4-byte aligned
-    if (frameBuffer.byteLength < uint8Data.byteLength) {
-        // Align length up to the next multiple of 4 bytes
-        const alignedLength = (uint8Data.byteLength + 3) & ~3;
-        frameBuffer = new Uint8Array(alignedLength);
-        frameBufferFloatView = new Float32Array(frameBuffer.buffer);
-        frameBufferDataView = new DataView(frameBuffer.buffer);
-    }
-    // Copy incoming byte payload into persistent global buffer
-    if (uint8Data !== frameBuffer) {
-        frameBuffer.set(uint8Data, 0);
-    }
+function processDrawList(uint8Data)
+{
+    const view = new DataView(uint8Data.buffer);
     let offset = 0;
-    const view = frameBufferDataView;
     
     // 0. Read rttStart time & host send time (double)
     // rttStart is send() via websocket at pointermove (mousemove) event in app-events.js
@@ -352,7 +318,7 @@ function renderFrame() {
         offset += SIZEOF_INT;
 
         // Zero-copy slice to decode string
-        const nameBytes = frameBuffer.subarray(offset, offset + nameByteLength);
+        const nameBytes = uint8Data.subarray(offset, offset + nameByteLength);
         const name = utf8Decoder.decode(nameBytes);
         offset += nameByteLength;
 
@@ -366,31 +332,84 @@ function renderFrame() {
         const latency = (time - rttStartTime) / 1e6;
         console.log(`RTT latency: ${latency.toFixed(1)} ms`);
     }
-
-    submitDrawList(view, drawCommandsOffset, drawCommandCount,
-                         verticesOffset, verticesByteLength);
+    
+    // -------- set state for next animationFrame() --------    
+    const frame = lastFrame;
+    
+    // Ensure global frame buffer is large enough and 4-byte aligned
+    if (frame.frameBuffer.byteLength < uint8Data.byteLength) {
+        // Align length up to the next multiple of 4 bytes
+        const alignedLength = (uint8Data.byteLength + 3) & ~3;
+        frame.frameBuffer           = new Uint8Array(alignedLength);
+        frame.frameBufferDataView   = new DataView(frame.frameBuffer.buffer);
+        frame.frameBufferFloatView  = new Float32Array(frame.frameBuffer.buffer);
+    }
+    // Copy incoming byte payload into persistent global buffer
+    if (uint8Data !== frame.frameBuffer) {
+        frame.frameBuffer.set(uint8Data, 0);
+    }
+    frame.drawCommandsOffset    = drawCommandsOffset;
+    frame.drawCommandCount      = drawCommandCount;
+    frame.verticesOffset        = verticesOffset;
+    frame.verticesByteLength    = verticesByteLength; 
+    
+    triggerRender();
 }
 
+// Reusable global byte array buffer to eliminate per-frame heap allocations
+let renderFrame = {
+    frameBuffer          : new Uint8Array(0),
+    frameBufferDataView  : new DataView(new Uint8Array(0).buffer),
+    frameBufferFloatView : new Float32Array(0),
+    
+    drawCommandsOffset  : 0,
+    drawCommandCount    : 0,
+    verticesOffset      : 0,
+    verticesByteLength  : 0,
+}
 
-const submitQueue = [null];
+const lastFrame = { ... renderFrame };
 
-// Global Staging Buffer for Uniform Data
-let uniformStaging = new Float32Array(0);
+let isRenderPending = false;
 
-function submitDrawList(view, drawCommandsOffset, drawCommandCount,
-                              verticesOffset, verticesByteLength)
+// Keep comment:
+// Request rendering with requestAnimationFrame() to prevent queueing render task in much higher rate WebGPU can handle.
+// Only the latest renderFrame is relevant for rendering.
+function triggerRender() {
+    if (!isRenderPending) {
+        isRenderPending = true;
+        requestAnimationFrame(animationFrame);
+    }
+}
+
+function animationFrame() {
+    renderFrame = lastFrame;
+    submitDrawList();
+    isRenderPending = false;
+}
+
+// persistent buffers
+const submitQueue  = [null];
+let uniformStaging = new Float32Array(0)
+
+function submitDrawList()
 {
+    if (!device || !context || !pipeline || !bindGroup || !uniformBuffer || !indexBuffer) return;
+
+    const frame = renderFrame;
+    const view = frame.frameBufferDataView;
+    
     // Dynamic resize for Vertex Buffer if vertex payload exceeds current capacity
-    if (vertexBuffer.size < verticesByteLength) {
+    if (vertexBuffer.size < frame.verticesByteLength) {
         vertexBuffer = device.createBuffer({
-            size: verticesByteLength,
+            size: frame.verticesByteLength,
             usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST,
         });
     }
     // Zero-allocation GPU upload directly from global frameBuffer with offset and length
-    device.queue.writeBuffer(vertexBuffer, 0, frameBuffer, verticesOffset, verticesByteLength);
+    device.queue.writeBuffer(vertexBuffer, 0, frame.frameBuffer, frame.verticesOffset, frame.verticesByteLength);
 
-    const requiredUniformBufferSize = drawCommandCount * dynamicUniformStride;
+    const requiredUniformBufferSize = frame.drawCommandCount * dynamicUniformStride;
     if (uniformBuffer.size < requiredUniformBufferSize) {
         uniformBuffer = device.createBuffer({
             size: requiredUniformBufferSize,
@@ -417,13 +436,13 @@ function submitDrawList(view, drawCommandsOffset, drawCommandCount,
     let cmdOffset = 0;
     const strideInFloats = dynamicUniformStride / Float32Array.BYTES_PER_ELEMENT;
 
-    for (let i = 0; i < drawCommandCount; i++) {
-        const floatOffset = (drawCommandsOffset + cmdOffset) / Float32Array.BYTES_PER_ELEMENT;
+    for (let i = 0; i < frame.drawCommandCount; i++) {
+        const floatOffset = (frame.drawCommandsOffset + cmdOffset) / Float32Array.BYTES_PER_ELEMENT;
         const targetOffset = i * strideInFloats;
 
         // Inlined zero-allocation matrix copy (16 floats / 64 bytes)
         for (let j = 0; j < 16; j++) {
-            uniformStaging[targetOffset + j] = frameBufferFloatView[floatOffset + j];
+            uniformStaging[targetOffset + j] = frame.frameBufferFloatView[floatOffset + j];
         }
 
         cmdOffset += SIZEOF_WS_DRAW_COMMAND;
@@ -451,9 +470,9 @@ function submitDrawList(view, drawCommandsOffset, drawCommandCount,
     const canvasWidth = canvas.width;
     const canvasHeight = canvas.height;
 
-    for (let i = 0; i < drawCommandCount; i++) {
+    for (let i = 0; i < frame.drawCommandCount; i++) {
         const dynamicOffset = i * dynamicUniformStride;
-        const currentCmdByteOffset = drawCommandsOffset + cmdOffset;
+        const currentCmdByteOffset = frame.drawCommandsOffset + cmdOffset;
 
         // [Offset 64] scissor: RectVector2 (4 x float32 = 16 bytes: posX, posY, sizeX, sizeY)
         const posX  = view.getFloat32(currentCmdByteOffset + 64, true);
@@ -569,7 +588,7 @@ function ensureTextureLoaded(textureId, name) {
             textureEntry.loaded = true;
             console.log(`[+] Texture loaded successfully: ${name} (ID: ${textureId})`);
 
-            processDrawList(frameBuffer);
+            submitDrawList();
         })
         .catch(err => {
             console.error(`[-] Failed to load texture '${name}' (ID: ${textureId}):`, err);

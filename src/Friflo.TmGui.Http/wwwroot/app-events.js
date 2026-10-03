@@ -76,17 +76,29 @@ export function initGuiEventListeners(canvas, getSocketFn) {
     window.addEventListener('resize', () => {
         resizeCanvas(boundCanvas, getSocket());
     });
+    
+    let lastPointerEvent = null;
+    let isPointerFrameScheduled = false;
 
-    // 2. Unified Pointer Input Listeners (Mouse, Touch, Stylus)
     canvas.addEventListener('pointermove', (e) => {
-        const socket = getSocket();
-        if (!socket || socket.readyState !== WebSocket.OPEN) return;
-
-        const { x, y } = getCanvasCoords(e);
-        socket.send(`evt=mousemove;mouseX=${x};mouseY=${y};`);
-        
-        // const time = (performance.timeOrigin + performance.now()) * 1e6; // high precision Unix time in nanoseconds
-        // socket.send(`evt=mousemove;mouseX=${x};mouseY=${y};rttStart=${time}`);
+        lastPointerEvent = e;
+    
+        if (!isPointerFrameScheduled) {
+            isPointerFrameScheduled = true;
+    
+            requestAnimationFrame(() => {
+                isPointerFrameScheduled = false;
+    
+                const socket = getSocket();
+                if (!socket || socket.readyState !== WebSocket.OPEN) return;
+    
+                const { x, y } = getCanvasCoords(lastPointerEvent);
+                socket.send(`evt=mousemove;mouseX=${x};mouseY=${y};`);
+                
+                // const time = (performance.timeOrigin + performance.now()) * 1e6; // high precision Unix time in nanoseconds
+                // socket.send(`evt=mousemove;mouseX=${x};mouseY=${y};rttStart=${time}`);
+            });
+        }
     });
 
     canvas.addEventListener('pointerdown', (e) => {
