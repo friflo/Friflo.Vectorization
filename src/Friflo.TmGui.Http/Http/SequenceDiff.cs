@@ -11,6 +11,7 @@ using System.Runtime.Intrinsics.X86;
 using static System.Diagnostics.DebuggerBrowsableState;
 using Browse = System.Diagnostics.DebuggerBrowsableAttribute;
 
+// ReSharper disable ForeachCanBeConvertedToQueryUsingAnotherGetEnumerator
 // ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable SuggestVarOrType_Elsewhere
 // ReSharper disable ConvertToAutoProperty
@@ -53,16 +54,18 @@ public readonly struct SeqChange
 }
 
 
-public static class SequenceDiff
+public static partial class SequenceDiff
 {
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     public static bool TryComputeChanges(
-        ReadOnlySpan<int> startState,
-        ReadOnlySpan<int> targetState,
-        int maxOperations,
-        List<SeqChange> changes)
+        ReadOnlySpan<int>   startState,
+        ReadOnlySpan<int>   targetState,
+        int                 maxOperations,
+        List<SeqChange>     changes,
+        out int             diffItemCount)
     {
         changes.Clear();
+        diffItemCount = -1;
 
         int lenA = startState.Length;
         int lenB = targetState.Length;
@@ -242,6 +245,12 @@ public static class SequenceDiff
             changes.Add(new SeqChange(SeqChangeType.Insert, i, lenB - j));
         }
 
+        diffItemCount = 0;
+        foreach (var change in changes) {
+            if (change.Type != SeqChangeType.Remove) {
+                diffItemCount++;
+            }
+        }
         return changes.Count <= maxOperations;
     }
 }
