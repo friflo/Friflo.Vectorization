@@ -396,7 +396,9 @@ function submitDrawList()
     if (!device || !context || !pipeline || !bindGroup || !uniformBuffer || !indexBuffer) return;
 
     const frame = renderFrame;
-    const view = frame.frameBufferDataView;
+    const view                  = frame.frameBufferDataView;
+    const drawCommandsOffset    = frame.drawCommandsOffset
+    const drawCommandCount      = frame.drawCommandCount;
     
     // Dynamic resize for Vertex Buffer if vertex payload exceeds current capacity
     if (vertexBuffer.size < frame.verticesByteLength) {
@@ -408,7 +410,7 @@ function submitDrawList()
     // Zero-allocation GPU upload directly from global frameBuffer with offset and length
     device.queue.writeBuffer(vertexBuffer, 0, frame.frameBuffer, frame.verticesOffset, frame.verticesByteLength);
 
-    const requiredUniformBufferSize = frame.drawCommandCount * dynamicUniformStride;
+    const requiredUniformBufferSize = drawCommandCount * dynamicUniformStride;
     if (uniformBuffer.size < requiredUniformBufferSize) {
         uniformBuffer = device.createBuffer({
             size: requiredUniformBufferSize,
@@ -434,14 +436,16 @@ function submitDrawList()
 
     let cmdOffset = 0;
     const strideInFloats = dynamicUniformStride / Float32Array.BYTES_PER_ELEMENT;
+    const frameBufferFloatView  = frame.frameBufferFloatView;
 
-    for (let i = 0; i < frame.drawCommandCount; i++) {
-        const floatOffset = (frame.drawCommandsOffset + cmdOffset) / Float32Array.BYTES_PER_ELEMENT;
+
+    for (let i = 0; i < drawCommandCount; i++) {
+        const floatOffset = (drawCommandsOffset + cmdOffset) / Float32Array.BYTES_PER_ELEMENT;
         const targetOffset = i * strideInFloats;
 
         // Inlined zero-allocation matrix copy (16 floats / 64 bytes)
         for (let j = 0; j < 16; j++) {
-            uniformStaging[targetOffset + j] = frame.frameBufferFloatView[floatOffset + j];
+            uniformStaging[targetOffset + j] = frameBufferFloatView[floatOffset + j];
         }
 
         cmdOffset += SIZEOF_WS_DRAW_COMMAND;
@@ -469,9 +473,9 @@ function submitDrawList()
     const canvasWidth = canvas.width;
     const canvasHeight = canvas.height;
 
-    for (let i = 0; i < frame.drawCommandCount; i++) {
+    for (let i = 0; i < drawCommandCount; i++) {
         const dynamicOffset = i * dynamicUniformStride;
-        const currentCmdByteOffset = frame.drawCommandsOffset + cmdOffset;
+        const currentCmdByteOffset = drawCommandsOffset + cmdOffset;
 
         // [Offset 64] scissor: RectVector2 (4 x float32 = 16 bytes: posX, posY, sizeX, sizeY)
         const posX  = view.getFloat32(currentCmdByteOffset + 64, true);
