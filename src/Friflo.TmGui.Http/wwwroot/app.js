@@ -367,8 +367,8 @@ let renderFrame = {
 }
 
 // Ensure consistent frame state for each phase 
-let backFrame  = { ... renderFrame };   // frame state of latest message in processDrawList()
-let frontFrame = { ... renderFrame };   // frame state used for submitDrawList()
+let backFrame  = { ... renderFrame };   // frame state (write) processDrawList() writes latest message to this state 
+let frontFrame = { ... renderFrame };   // frame state (read)  submitDrawList() reads this state to create/submit() CommandEncoder
 
 let isRenderPending = false;
 
