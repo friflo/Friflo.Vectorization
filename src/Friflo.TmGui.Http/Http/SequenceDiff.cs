@@ -106,6 +106,7 @@ public static partial class SequenceDiff
             int matchOffsetStart = -1;
             int matchOffsetTarget = -1;
 
+// #if NO_SIMD
             // 2a. AVX2 Path (x86 - 8 Elements)
             if (Avx2.IsSupported)
             {
@@ -175,6 +176,7 @@ public static partial class SequenceDiff
 
             // Fallback scalar lookahead loop if SIMD didn't hit or boundary failed
             if (matchOffsetTarget == -1 && matchOffsetStart == -1)
+// #endif
             {
                 int maxLookahead = Math.Min(8, Math.Max(lenA - i, lenB - j));
                 for (int offset = 1; offset < maxLookahead; offset++)

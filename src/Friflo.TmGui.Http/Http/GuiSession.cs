@@ -203,7 +203,39 @@ public sealed partial class GuiSession : TmSession
             }
         }
         Debug.Assert(targetPos == diffItemCount);
+        
+        DebugVerifyApplyDiff(quads, diffQuads);
+        
         return vertices;
+    }
+    
+    private  readonly   List<VertexQuad>    debugTargetQuads = [];
+    private             VertexQuad[]        debugTargetBuffer = [];
+    
+    private void DebugVerifyApplyDiff(ReadOnlySpan<VertexQuad> quads, ReadOnlySpan<VertexQuad> diffQuads)
+    {
+        ReadOnlySpan<VertexQuad> targetQuads = CollectionsMarshal.AsSpan(debugTargetQuads);
+        
+        if (debugTargetBuffer.Length < quads.Length) {
+            debugTargetBuffer = new VertexQuad[quads.Length];
+        }
+        var targetBuffer = debugTargetBuffer.AsSpan(0, targetQuadCount);
+        SequenceDiff.ApplyChanges(targetQuads, changeList, diffQuads, targetBuffer);
+
+        if (debugTargetQuads.Count > 0) {
+            var isEqual = quads.SequenceEqual(targetBuffer);
+            if (!isEqual) {
+                int n = 0;
+                for (; n < quads.Length; n++) {
+                    if (quads[n] != targetBuffer[n]) {
+                        break;
+                    }
+                }
+                Debug.Fail($"ApplyChanges failed. Diff at: {n}");    
+            }
+        }
+        debugTargetQuads.Clear();
+        debugTargetQuads.AddRange(quads);
     }
 }
 
