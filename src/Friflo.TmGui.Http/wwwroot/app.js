@@ -265,8 +265,7 @@ function initWebSocket() {
 }
 
 // ---------------------------------------------- processDrawList() ----------------------------------------------
-// Keep comment
-// Key architecture:
+// Keep comment - Key architecture:
 // - Always process incoming messages
 // - Render frames only at requestAnimationFrame() - The monitor refresh rate
 
@@ -334,7 +333,7 @@ function processDrawList(uint8Data)
     }
     
     // -------- set state for next animationFrame() --------    
-    const frame = lastFrame;
+    const frame = backFrame;
     
     // Ensure global frame buffer is large enough and 4-byte aligned
     if (frame.frameBuffer.byteLength < uint8Data.byteLength) {
@@ -344,10 +343,9 @@ function processDrawList(uint8Data)
         frame.frameBufferDataView   = new DataView(frame.frameBuffer.buffer);
         frame.frameBufferFloatView  = new Float32Array(frame.frameBuffer.buffer);
     }
+    
     // Copy incoming byte payload into persistent global buffer
-    if (uint8Data !== frame.frameBuffer) {
-        frame.frameBuffer.set(uint8Data, 0);
-    }
+    frame.frameBuffer.set(uint8Data, 0);
     frame.drawCommandsOffset    = drawCommandsOffset;
     frame.drawCommandCount      = drawCommandCount;
     frame.verticesOffset        = verticesOffset;
@@ -368,7 +366,8 @@ let renderFrame = {
     verticesByteLength  : 0,
 }
 
-const lastFrame = { ... renderFrame };
+let backFrame  = { ... renderFrame };   // frame state of latest message in processDrawList()
+let frontFrame = { ... renderFrame };   // frame state used for submitDrawList()
 
 let isRenderPending = false;
 
@@ -383,12 +382,14 @@ function triggerRender() {
 }
 
 function animationFrame() {
-    renderFrame = lastFrame;
+    [frontFrame, backFrame] = [backFrame, frontFrame]; // swap frame buffers
+    renderFrame = frontFrame;
+    
     submitDrawList();
     isRenderPending = false;
 }
 
-// persistent buffers
+// persistent render buffers
 const submitQueue  = [null];
 let uniformStaging = new Float32Array(0)
 
