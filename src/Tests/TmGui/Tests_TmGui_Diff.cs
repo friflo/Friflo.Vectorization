@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Friflo.TmGui;
 using Friflo.TmGui.Http;
 using NUnit.Framework;
@@ -29,34 +30,45 @@ public static class Tests_TmGui_Diff
         int[] target2   = [1,    3,    4, 5, 6];
         int[] target3   = [1, 2, 3,    4, 8, 6];
         
-        byte[] diffItems = new byte[10];
+        int[] diffValues = new int[10];
         
         var changes = new List<SeqChange>();
         
+        // --- target1
         SequenceDiff.TryComputeChanges(start, target1, 10, changes, out int diffItemCount); 
         Assert.That(changes.Count,      Is.EqualTo(1));
         Assert.That(changes[0].Label,   Is.EqualTo("Insert [3..1]"));
         Assert.That(diffItemCount,      Is.EqualTo(1));
         
-        SequenceDiff.AppendDiffItems(changes, target1, diffItems);
-        Assert.That(diffItems[0],      Is.EqualTo(9));
+        SequenceDiff.AppendDiffValues(changes, target1, diffValues);
+        Assert.That(diffValues[0],       Is.EqualTo(9));
+        var newTarget1  = new int [7];
+        SequenceDiff.ApplyChanges(start, changes, diffValues, newTarget1);
+        Assert.That(newTarget1,         Is.EqualTo(target1));
         
-        
+        // --- target1target2
         SequenceDiff.TryComputeChanges(start, target2, 10, changes, out diffItemCount); 
         Assert.That(changes.Count,      Is.EqualTo(1));
         Assert.That(changes[0].Label,   Is.EqualTo("Remove [1..1]"));
         Assert.That(diffItemCount,      Is.EqualTo(0));
         
-        SequenceDiff.AppendDiffItems(changes, target2, diffItems);
+        SequenceDiff.AppendDiffValues(changes, target2, diffValues);
+        var newTarget2  = new int [5];
+        SequenceDiff.ApplyChanges(start, changes, diffValues, newTarget2);
+        Assert.That(newTarget2,         Is.EqualTo(target2));
 
         
+        // --- target3
         SequenceDiff.TryComputeChanges(start, target3, 10, changes, out diffItemCount); 
         Assert.That(changes.Count,      Is.EqualTo(1));
         Assert.That(changes[0].Label,   Is.EqualTo("Modify [4..1]"));
         Assert.That(diffItemCount,      Is.EqualTo(1));
         
-        SequenceDiff.AppendDiffItems(changes, target3, diffItems);
-        Assert.That(diffItems[0],      Is.EqualTo(8));
+        SequenceDiff.AppendDiffValues(changes, target3, diffValues);
+        Assert.That(diffValues[0],       Is.EqualTo(8));
+        var newTarget3  = new int [6];
+        SequenceDiff.ApplyChanges(start, changes, diffValues, newTarget3);
+        Assert.That(newTarget3,         Is.EqualTo(target3));
     }
     
     [Test]
@@ -92,7 +104,7 @@ public static class Tests_TmGui_Diff
         for (int n = 0; n < repeat; n++) {
             foreach (ref var quad in quads.AsSpan())
             {
-                var x = quad.GetHashCode();
+                _ = quad.GetHashCode();
             }
         }
     }

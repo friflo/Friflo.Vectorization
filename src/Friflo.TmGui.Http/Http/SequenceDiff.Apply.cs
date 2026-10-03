@@ -15,122 +15,96 @@ namespace Friflo.TmGui.Http;
 
 public static partial class SequenceDiff
 {
+    /// <summary>
+    /// Extracts modified and inserted items from target into a contiguous diff payload span.
+    /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
-    public static Span<byte> AppendDiffItems<T>(
-        List<SeqChange>     changeList,
-        ReadOnlySpan<T>     target,
-        Span<byte>          targetValues) where T : struct
+    public static Span<T> AppendDiffValues<T>(
+        List<SeqChange> changeList,
+        ReadOnlySpan<T> target,
+        Span<T>         diffValues) where T : struct
     {
-        ReadOnlySpan<byte> sourceBytes = MemoryMarshal.AsBytes(target);
-        int elementSize = Unsafe.SizeOf<T>();
         int targetOffset = 0;
-        
         ReadOnlySpan<SeqChange> changes = CollectionsMarshal.AsSpan(changeList);
 
-        foreach (var change in changes)
+        foreach (ref readonly var change in changes)
         {
             if (change.Type is SeqChangeType.Modify or SeqChangeType.Insert)
             {
-                int copyBytes       = change.Length * elementSize;
-                int sourceOffset    = change.Start  * elementSize;
+                int count        = change.Length;
+                int sourceOffset = change.Start;
 
-                sourceBytes.Slice(sourceOffset, copyBytes)
-                    .CopyTo(targetValues.Slice(targetOffset, copyBytes));
+                target.Slice(sourceOffset, count)
+                    .CopyTo(diffValues.Slice(targetOffset, count));
 
-                targetOffset += copyBytes;
+                targetOffset += count;
             }
         }
-        return targetValues.Slice(0, targetOffset);
+
+        return diffValues.Slice(0, targetOffset);
     }
     
     
     
+   
     /// <summary>
-    /// The elements modified or inserted are stored in <see cref="changes"/>.
+    /// The elements modified or inserted are stored in <see cref="changeList"/>.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     public static void ApplyChanges<T>(
-        ReadOnlySpan<T>         startState,
-        ReadOnlySpan<SeqChange> changes,
-        ReadOnlySpan<T>         diffItems,
-        Span<T>                 targetState) where T : struct
+        ReadOnlySpan<T>     startState,
+        List<SeqChange>     changeList,
+        ReadOnlySpan<T>     diffValues,
+        Span<T>             targetState) where T : struct
     {
-        ReadOnlySpan<byte>  startBytes  = MemoryMarshal.AsBytes(startState);
-        ReadOnlySpan<byte>  diffBytes   = MemoryMarshal.AsBytes(diffItems);
-        Span<byte>          targetBytes = MemoryMarshal.AsBytes(targetState);
+        int readOffset  = 0;
+        int writeOffset = 0;
+        int diffOffset  = 0;
+         ReadOnlySpan<SeqChange> changes = CollectionsMarshal.AsSpan(changeList);
 
-        ApplyChanges(startBytes, changes, diffBytes, targetBytes, Unsafe.SizeOf<T>());
-    }
-    
-    /// <summary>
-    /// The elements modified or inserted are stored in <see cref="changes"/>.
-    /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
-    private static void ApplyChanges(
-        ReadOnlySpan<byte>      startState,
-        ReadOnlySpan<SeqChange> changes,
-        ReadOnlySpan<byte>      diffItems,
-        Span<byte>              targetState,
-        int                     elementSize)
-    {
-        int srcElemIndex = 0;
-        int dstElemIndex = 0;
-        int diffElemIndex = 0;
-
-        foreach (var change in changes)
+        foreach (ref readonly var change in changes)
         {
-            int changeStart = change.Start;
-
-            // 1. Copy unchanged elements leading up to this change
-            int unchangedCount = changeStart - srcElemIndex;
-            if (unchangedCount > 0)
+            // 1. Copy unmodified items leading up to this change
+            int unmodifiedCount = change.Start - readOffset;
+            if (unmodifiedCount > 0)
             {
-                int copyBytes = unchangedCount * elementSize;
-                startState.Slice(srcElemIndex * elementSize, copyBytes)
-                    .CopyTo(targetState.Slice(dstElemIndex * elementSize, copyBytes));
+                startState.Slice(readOffset, unmodifiedCount)
+                    .CopyTo(targetState.Slice(writeOffset, unmodifiedCount));
 
-                srcElemIndex += unchangedCount;
-                dstElemIndex += unchangedCount;
+                readOffset  += unmodifiedCount;
+                writeOffset += unmodifiedCount;
             }
 
-            int changeLen = change.Length;
-            int changeBytes = changeLen * elementSize;
-
-            // 2. Process change type
             switch (change.Type)
             {
                 case SeqChangeType.Modify:
-                    // Copy updated elements from diffItems to targetState
-                    diffItems.Slice(diffElemIndex * elementSize, changeBytes)
-                        .CopyTo(targetState.Slice(dstElemIndex * elementSize, changeBytes));
-
-                    srcElemIndex += changeLen;
-                    dstElemIndex += changeLen;
-                    diffElemIndex += changeLen;
-                    break;
-
                 case SeqChangeType.Insert:
-                    // Copy inserted elements from diffItems to targetState
-                    diffItems.Slice(diffElemIndex * elementSize, changeBytes)
-                        .CopyTo(targetState.Slice(dstElemIndex * elementSize, changeBytes));
+                    // Copy new/updated payload from diffItems
+                    diffValues.Slice(diffOffset, change.Length)
+                        .CopyTo(targetState.Slice(writeOffset, change.Length));
 
-                    dstElemIndex += changeLen;
-                    diffElemIndex += changeLen;
+                    diffOffset  += change.Length;
+                    writeOffset += change.Length;
+
+                    if (change.Type == SeqChangeType.Modify)
+                    {
+                        readOffset += change.Length;
+                    }
                     break;
 
                 case SeqChangeType.Remove:
-                    // Skip removed elements in startState
-                    srcElemIndex += changeLen;
+                    // Skip items in startState (don't copy to targetState)
+                    readOffset += change.Length;
                     break;
             }
         }
 
-        // 3. Copy remaining trailing unchanged elements
-        int remainingSrcBytes = startState.Length - (srcElemIndex * elementSize);
-        if (remainingSrcBytes > 0)
+        // Copy remaining tail elements if any
+        int remainingCount = startState.Length - readOffset;
+        if (remainingCount > 0)
         {
-            startState.Slice(srcElemIndex * elementSize, remainingSrcBytes)
-                      .CopyTo(targetState.Slice(dstElemIndex * elementSize, remainingSrcBytes));
+            startState.Slice(readOffset, remainingCount)
+                .CopyTo(targetState.Slice(writeOffset, remainingCount));
         }
     }
 }
