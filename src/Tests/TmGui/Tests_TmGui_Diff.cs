@@ -34,7 +34,7 @@ public static class Tests_TmGui_Diff
         
         var changes = new List<SeqChange>();
         
-        // --- target1
+        // --- target1 / Insert
         SequenceDiff.TryComputeChanges(start, target1, 10, changes, out int diffItemCount); 
         Assert.That(changes.Count,      Is.EqualTo(1));
         Assert.That(changes[0].Label,   Is.EqualTo("Insert [3..1]"));
@@ -46,7 +46,7 @@ public static class Tests_TmGui_Diff
         SequenceDiff.ApplyChanges(start, changes, diffValues, newTarget1);
         Assert.That(newTarget1,         Is.EqualTo(target1));
         
-        // --- target1target2
+        // --- target2 / Remove
         SequenceDiff.TryComputeChanges(start, target2, 10, changes, out diffItemCount); 
         Assert.That(changes.Count,      Is.EqualTo(1));
         Assert.That(changes[0].Label,   Is.EqualTo("Remove [1..1]"));
@@ -58,7 +58,7 @@ public static class Tests_TmGui_Diff
         Assert.That(newTarget2,         Is.EqualTo(target2));
 
         
-        // --- target3
+        // --- target3 / Modify
         SequenceDiff.TryComputeChanges(start, target3, 10, changes, out diffItemCount); 
         Assert.That(changes.Count,      Is.EqualTo(1));
         Assert.That(changes[0].Label,   Is.EqualTo("Modify [4..1]"));
