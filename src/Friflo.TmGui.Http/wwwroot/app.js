@@ -287,21 +287,25 @@ function processDrawList(uint8Data)
     const vertexCount = view.getInt32(offset, true);
     offset += SIZEOF_INT;
     
-    // 3. Read MouseCursor
+    // 3. Reach change count (int)
+    const changeCount = view.getInt32(offset, true);
+    offset += SIZEOF_INT;
+    
+    // 4. Read MouseCursor
     const mouseCursor = view.getInt32(offset, true);
     offset += SIZEOF_INT;
 
-    // 4. View on WsDrawCommand array
+    // 5. View on WsDrawCommand array
     const drawCommandsByteLength = drawCommandCount * SIZEOF_WS_DRAW_COMMAND;
     const drawCommandsOffset = offset;
     offset += drawCommandsByteLength;
 
-    // 5. View on Vertex2D array
+    // 6. View on Vertex2D array
     const verticesByteLength = vertexCount * 20;
     const verticesOffset = offset;
     offset += verticesByteLength;
     
-    // 6. Read used Textures (Count + ID/Name pairs)
+    // 7. Read used Textures (Count + ID/Name pairs)
     const newTexturesCount = view.getInt32(offset, true);
     offset += SIZEOF_INT;
 

@@ -75,7 +75,7 @@ public sealed partial class GuiSession : TmSession
         }
         var vertices = wsBatch.Vertices;
         
-        var sendLength = 8 + 8 + 4 + 4 + 4 + 
+        var sendLength = 8 + 8 + 4 + 4 + 4 + 4 + 
                          drawCommands.Length * Unsafe.SizeOf<WsDrawCommand>() +
                          vertices.Length     * Unsafe.SizeOf<Vertex2D>();
         if (sendBuffer.Length < sendLength) {
@@ -101,23 +101,27 @@ public sealed partial class GuiSession : TmSession
         MemoryMarshal.Write(span[bytesWritten..], vertices.Length);
         bytesWritten += sizeof(int);
         
-        // 3. Write current mouse cursor shape (int)
+        // 3. Write change count (int)
+        MemoryMarshal.Write(span[bytesWritten..], 0);
+        bytesWritten += sizeof(int);
+        
+        // 4. Write current mouse cursor shape (int)
         MemoryMarshal.Write(span[bytesWritten..], wsBackend.input.CurrentCursor);
         bytesWritten += sizeof(int);
 
-        // 4. Write wsDrawList elements
+        // 5. Write wsDrawList elements
         var drawListBytes = MemoryMarshal.AsBytes(wsDrawList.AsSpan(0, drawCommands.Length));
         drawListBytes.CopyTo(span[bytesWritten..]);
         bytesWritten += drawListBytes.Length;
 
-        // 5. Write vertices elements
+        // 6. Write vertices elements
         var vertexBytes = MemoryMarshal.AsBytes(vertices);
         vertexBytes.CopyTo(span[bytesWritten..]);
         bytesWritten += vertexBytes.Length;
         
         if (bytesWritten != sendLength) throw new InvalidOperationException("invalid length");
         
-        // 6. Write used textures
+        // 7. Write used textures
         var images = resources.images;
         MemoryMarshal.Write(span[bytesWritten..], newTextures.Count);
         bytesWritten += sizeof(int);
