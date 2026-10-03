@@ -30,8 +30,7 @@ public sealed partial class GuiSession : TmSession
     // --- changes
     private readonly    List<SeqChange> changeList          = [];
     private             int[]           quadHashesBuffer    = [];
-    private             int             targetQuadCount;
-    private             int[]           targetQuadBuffer    = [];
+    private             List<int>       remoteQuadList      = [];
     private             VertexQuad[]    quadBuffer          = [];
     
     public static GuiSession CreateGuiSession(TmClient client, TmGuiBackend rootBackend)
@@ -175,13 +174,11 @@ public sealed partial class GuiSession : TmSession
         for (int n= 0; n < quads.Length; n++) {
             quadHashes[n] = quads[n].GetHashCode();
         }
-        var targetQuads = targetQuadBuffer.AsSpan(0, targetQuadCount);
-        SequenceDiff.TryComputeChanges(quadHashes, targetQuads, 100000, changeList, out int diffItemCount);
-        if (targetQuadBuffer.Length < quadHashes.Length) {
-            targetQuadBuffer = new int[quadHashes.Length];
-        }
-        quadHashes.CopyTo(targetQuadBuffer);
-        targetQuadCount = quadHashes.Length;
+        var remoteQuads = CollectionsMarshal.AsSpan(remoteQuadList);
+        SequenceDiff.TryComputeChanges(remoteQuads, quadHashes, 100000, changeList, out int diffItemCount);
+
+        remoteQuadList.Clear();
+        remoteQuadList.AddRange(quadHashes);
         
         /* if (changeList.Count == 0) {
             return vertices;
@@ -209,33 +206,31 @@ public sealed partial class GuiSession : TmSession
         return vertices;
     }
     
-    private  readonly   List<VertexQuad>    debugTargetQuads = [];
-    private             VertexQuad[]        debugTargetBuffer = [];
+    private  readonly   List<VertexQuad>    debugRemoteQuads = [];
+    private             VertexQuad[]        debugRemoteTarget = [];
     
     private void DebugVerifyApplyDiff(ReadOnlySpan<VertexQuad> quads, ReadOnlySpan<VertexQuad> diffQuads)
     {
-        ReadOnlySpan<VertexQuad> targetQuads = CollectionsMarshal.AsSpan(debugTargetQuads);
+        ReadOnlySpan<VertexQuad> remoteQuads = CollectionsMarshal.AsSpan(debugRemoteQuads);
         
-        if (debugTargetBuffer.Length < quads.Length) {
-            debugTargetBuffer = new VertexQuad[quads.Length];
+        if (debugRemoteTarget.Length < quads.Length) {
+            debugRemoteTarget = new VertexQuad[quads.Length];
         }
-        var targetBuffer = debugTargetBuffer.AsSpan(0, targetQuadCount);
-        SequenceDiff.ApplyChanges(targetQuads, changeList, diffQuads, targetBuffer);
+        var remoteTarget = debugRemoteTarget.AsSpan(0, remoteQuadList.Count);
+        SequenceDiff.ApplyChanges(remoteQuads, changeList, diffQuads, remoteTarget);
 
-        if (debugTargetQuads.Count > 0) {
-            var isEqual = quads.SequenceEqual(targetBuffer);
-            if (!isEqual) {
-                int n = 0;
-                for (; n < quads.Length; n++) {
-                    if (quads[n] != targetBuffer[n]) {
-                        break;
-                    }
+        var isEqual = quads.SequenceEqual(remoteTarget);
+        if (!isEqual) {
+            int n = 0;
+            for (; n < quads.Length; n++) {
+                if (quads[n] != remoteTarget[n]) {
+                    break;
                 }
-                Debug.Fail($"ApplyChanges failed. Diff at: {n}");    
             }
+            Debug.Fail($"ApplyChanges failed. Diff at: {n}");    
         }
-        debugTargetQuads.Clear();
-        debugTargetQuads.AddRange(quads);
+        debugRemoteQuads.Clear();
+        debugRemoteQuads.AddRange(quads);
     }
 }
 
