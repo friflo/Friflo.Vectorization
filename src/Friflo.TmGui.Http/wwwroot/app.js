@@ -1,5 +1,5 @@
 // app.js
-import { resizeCanvas, sendInitGui, initGuiEventListeners, updateMouseCursor } from './app-events.js';
+import { sendInitGui, initGuiEventListeners, updateMouseCursor } from './app-events.js';
 
 // Check WebGPU availability in current browser environment
 if (!navigator.gpu) {
@@ -66,9 +66,6 @@ async function initWebGPU() {
         // colorSpace: 'srgb',
         presentMode: 'immediate'
     });
-
-    // Initial canvas sizing
-    resizeCanvas(canvas, socket);
 
     // 1. Create Initial Dynamic Vertex Buffer
     vertexBuffer = device.createBuffer({

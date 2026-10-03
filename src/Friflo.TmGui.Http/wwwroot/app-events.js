@@ -6,7 +6,7 @@ let boundCanvas = null;
 export function sendInitGui(ws, canvas) {
     if (!ws || ws.readyState !== WebSocket.OPEN || !canvas) return;
 
-    const width = canvas.width;
+    const width  = canvas.width;
     const height = canvas.height;
 
     // Key-value text payload matching C# ReadOnlySpan parser
@@ -14,21 +14,39 @@ export function sendInitGui(ws, canvas) {
 }
 
 // Resize Canvas to physical GPU pixels (HiDPI/Retina aware)
-export function resizeCanvas(canvas, socket) {
+function initCanvasResize(canvas, getSocket) {
     if (!canvas) return;
 
-    const dpr = window.devicePixelRatio || 1;
-    const pixelWidth = Math.max(1, Math.floor(window.innerWidth * dpr));
-    const pixelHeight = Math.max(1, Math.floor(window.innerHeight * dpr));
+    const resizeObserver = new ResizeObserver((entries) => {
+        for (const entry of entries) {
+            let width;
+            let height;
 
-    if (canvas.width !== pixelWidth || canvas.height !== pixelHeight) {
-        canvas.width = pixelWidth;
-        canvas.height = pixelHeight;
+            // Direct query of native physical display pixels (1:1 hardware pixel match)
+            if (entry.devicePixelContentBoxSize && entry.devicePixelContentBoxSize.length > 0) {
+                width  = entry.devicePixelContentBoxSize[0].inlineSize;
+                height = entry.devicePixelContentBoxSize[0].blockSize;
+            } else {
+                // Fallback for browsers without devicePixelContentBoxSize support
+                const dpr = window.devicePixelRatio || 1;
+                const rect = canvas.getBoundingClientRect();
+                width  = Math.round(rect.width * dpr);
+                height = Math.round(rect.height * dpr);
+            }
+            
+            // Update canvas dimensions and notify C# backend if resolution changed
+            if (canvas.width !== width || canvas.height !== height) {
+                canvas.width  = width;
+                canvas.height = height;
+                const socket = getSocket();
+                sendInitGui(socket, canvas);
+            }
+        }
+    });
 
-        // Send updated dimensions to C# backend if WebSocket is active
-        sendInitGui(socket, canvas);
-    }
+    resizeObserver.observe(canvas);
 }
+
 
 // Map C# MouseCursor enum values to standard CSS cursor strings
 const MOUSE_CURSORS = [
@@ -73,9 +91,8 @@ export function initGuiEventListeners(canvas, getSocketFn) {
     };
 
     // 1. Resize Listener
-    window.addEventListener('resize', () => {
-        resizeCanvas(boundCanvas, getSocket());
-    });
+    initCanvasResize(canvas, getSocket);
+
     
     let lastPointerEvent = null;
     let isPointerFrameScheduled = false;
