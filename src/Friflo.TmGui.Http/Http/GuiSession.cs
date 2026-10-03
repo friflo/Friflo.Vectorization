@@ -9,6 +9,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using Friflo.TmGui.Session;
 
+// ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable InlineTemporaryVariable
 // ReSharper disable CheckNamespace
 namespace Friflo.TmGui.Http;
@@ -25,6 +26,11 @@ public sealed partial class GuiSession : TmSession
     private             ulong           lastSendBufferHash;
     private             int             canvasWidth     = 500;
     private             int             canvasHeight    = 300;
+    
+    private readonly    List<SeqChange> changeList          = [];
+    private             int[]           quadHashesBuffer    = [];
+    private             int             targetQuadCount;
+    private             int[]           targetQuadBuffer    = [];
     
     public static GuiSession CreateGuiSession(TmClient client, TmGuiBackend rootBackend)
     {
@@ -74,6 +80,7 @@ public sealed partial class GuiSession : TmSession
             };
         }
         var vertices = wsBatch.Vertices;
+        CalcQuadChanges(vertices);
         
         var sendLength = 8 + 8 + 4 + 4 + 4 + 4 + 
                          drawCommands.Length * Unsafe.SizeOf<WsDrawCommand>() +
@@ -102,7 +109,7 @@ public sealed partial class GuiSession : TmSession
         bytesWritten += sizeof(int);
         
         // 3. Write change count (int)
-        MemoryMarshal.Write(span[bytesWritten..], 0);
+        MemoryMarshal.Write(span[bytesWritten..], changeList.Count);
         bytesWritten += sizeof(int);
         
         // 4. Write current mouse cursor shape (int)
@@ -121,7 +128,14 @@ public sealed partial class GuiSession : TmSession
         
         if (bytesWritten != sendLength) throw new InvalidOperationException("invalid length");
         
-        // 7. Write used textures
+        // 7. Write change elements
+        var changes = CollectionsMarshal.AsSpan(changeList);
+        var changesBytes = MemoryMarshal.AsBytes(changes);
+        changesBytes.CopyTo(span[bytesWritten..]);
+        bytesWritten += changesBytes.Length;
+        
+        
+        // 8. Write used textures   
         var images = resources.images;
         MemoryMarshal.Write(span[bytesWritten..], newTextures.Count);
         bytesWritten += sizeof(int);
@@ -147,6 +161,28 @@ public sealed partial class GuiSession : TmSession
         }
         lastSendBufferHash = sendHash;
         return memory;
+    }
+    
+    private void CalcQuadChanges(ReadOnlySpan<Vertex2D> vertices)
+    {
+        Span<VertexQuad> quads = MemoryMarshal.Cast<Vertex2D, VertexQuad>(
+            MemoryMarshal.CreateSpan(ref Unsafe.AsRef(in MemoryMarshal.GetReference(vertices)), vertices.Length)
+        );
+        if (quadHashesBuffer.Length < quads.Length) {
+            quadHashesBuffer = new int[quads.Length];
+        }
+        var quadHashes = quadHashesBuffer.AsSpan(0, quads.Length);
+        for (int n= 0; n < quads.Length; n++) {
+            quadHashes[n] = quads[n].GetHashCode();
+        }
+        var targetQuads = targetQuadBuffer.AsSpan(0, targetQuadCount);
+        SequenceDiff.TryComputeChanges(quadHashes, targetQuads, 100000, changeList, out int diffItemCount);
+        
+        if (targetQuadBuffer.Length < quadHashes.Length) {
+            targetQuadBuffer = new int[quadHashes.Length];
+        }
+        quadHashes.CopyTo(targetQuadBuffer);
+        targetQuadCount = quadHashes.Length;
     }
 }
 

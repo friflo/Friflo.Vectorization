@@ -305,7 +305,11 @@ function processDrawList(uint8Data)
     const verticesOffset = offset;
     offset += verticesByteLength;
     
-    // 7. Read used Textures (Count + ID/Name pairs)
+    // 7. View on change array
+    const changeOffset = offset;
+    offset += 8 * changeCount;
+    
+    // 8. Read used Textures (Count + ID/Name pairs)
     const newTexturesCount = view.getInt32(offset, true);
     offset += SIZEOF_INT;
 
@@ -350,7 +354,7 @@ function processDrawList(uint8Data)
     frame.drawCommandsOffset    = drawCommandsOffset;
     frame.drawCommandCount      = drawCommandCount;
     frame.verticesOffset        = verticesOffset;
-    frame.verticesByteLength    = verticesByteLength; 
+    frame.verticesByteLength    = verticesByteLength;
     
     triggerRender();
 }

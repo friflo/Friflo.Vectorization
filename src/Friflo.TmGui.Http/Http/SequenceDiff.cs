@@ -62,10 +62,10 @@ public static partial class SequenceDiff
         ReadOnlySpan<int>   targetState,
         int                 maxOperations,
         List<SeqChange>     changes,
-        out int             diffItemCount)
+        out int             diffValueCount)
     {
         changes.Clear();
-        diffItemCount = -1;
+        diffValueCount = -1;
 
         int lenA = startState.Length;
         int lenB = targetState.Length;
@@ -245,10 +245,10 @@ public static partial class SequenceDiff
             changes.Add(new SeqChange(SeqChangeType.Insert, i, lenB - j));
         }
 
-        diffItemCount = 0;
+        diffValueCount = 0;
         foreach (var change in changes) {
             if (change.Type != SeqChangeType.Remove) {
-                diffItemCount++;
+                diffValueCount += change.Length;
             }
         }
         return changes.Count <= maxOperations;
