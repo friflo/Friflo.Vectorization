@@ -366,6 +366,7 @@ let renderFrame = {
     verticesByteLength  : 0,
 }
 
+// Ensure consistent frame state for each phase 
 let backFrame  = { ... renderFrame };   // frame state of latest message in processDrawList()
 let frontFrame = { ... renderFrame };   // frame state used for submitDrawList()
 
