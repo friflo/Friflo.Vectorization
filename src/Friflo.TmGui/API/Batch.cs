@@ -66,7 +66,7 @@ public abstract class TmBatch : IDisposable
 #region public
 //  internal readonly   TmGuiBackend        backend;    - intentionally no back reference to its backend. Prevents calling NewFrame() within a Gui scope.
     public ReadOnlySpan<DrawCommand>        DrawList    => new(drawList, 0, drawCommands.Count);
-    public ReadOnlySpan<Vertex2D>           Vertices    => vertexBuffer.Span.Slice(0, vertexCount);
+    public Span<Vertex2D>                   Vertices    => vertexBuffer.Span.Slice(0, vertexCount);
 #endregion
 
 #region protected

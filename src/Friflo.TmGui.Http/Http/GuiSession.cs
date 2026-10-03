@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -26,11 +27,12 @@ public sealed partial class GuiSession : TmSession
     private             ulong           lastSendBufferHash;
     private             int             canvasWidth     = 500;
     private             int             canvasHeight    = 300;
-    
+    // --- changes
     private readonly    List<SeqChange> changeList          = [];
     private             int[]           quadHashesBuffer    = [];
     private             int             targetQuadCount;
     private             int[]           targetQuadBuffer    = [];
+    private             VertexQuad[]    quadBuffer          = [];
     
     public static GuiSession CreateGuiSession(TmClient client, TmGuiBackend rootBackend)
     {
@@ -80,13 +82,14 @@ public sealed partial class GuiSession : TmSession
             };
         }
         var vertices = wsBatch.Vertices;
-        CalcQuadChanges(vertices);
+        vertices = CalcQuadChanges(vertices);
         
         var sendLength = 8 + 8 + 4 + 4 + 4 + 4 + 
                          drawCommands.Length * Unsafe.SizeOf<WsDrawCommand>() +
-                         vertices.Length     * Unsafe.SizeOf<Vertex2D>();
+                         vertices.Length     * Unsafe.SizeOf<Vertex2D>() +
+                         changeList.Count    * Unsafe.SizeOf<SeqChange>();
         if (sendBuffer.Length < sendLength) {
-            sendBuffer = new byte[sendLength + 1000];
+            sendBuffer = new byte[sendLength + 1000]; // TODO 1000 ?
         }
         Span<byte> span = sendBuffer;
         int bytesWritten = 0;
@@ -126,14 +129,13 @@ public sealed partial class GuiSession : TmSession
         vertexBytes.CopyTo(span[bytesWritten..]);
         bytesWritten += vertexBytes.Length;
         
-        if (bytesWritten != sendLength) throw new InvalidOperationException("invalid length");
-        
         // 7. Write change elements
         var changes = CollectionsMarshal.AsSpan(changeList);
         var changesBytes = MemoryMarshal.AsBytes(changes);
         changesBytes.CopyTo(span[bytesWritten..]);
         bytesWritten += changesBytes.Length;
         
+        if (bytesWritten != sendLength) throw new InvalidOperationException("invalid length");
         
         // 8. Write used textures   
         var images = resources.images;
@@ -163,11 +165,9 @@ public sealed partial class GuiSession : TmSession
         return memory;
     }
     
-    private void CalcQuadChanges(ReadOnlySpan<Vertex2D> vertices)
+    private Span<Vertex2D> CalcQuadChanges(Span<Vertex2D> vertices)
     {
-        Span<VertexQuad> quads = MemoryMarshal.Cast<Vertex2D, VertexQuad>(
-            MemoryMarshal.CreateSpan(ref Unsafe.AsRef(in MemoryMarshal.GetReference(vertices)), vertices.Length)
-        );
+        Span<VertexQuad> quads = MemoryMarshal.Cast<Vertex2D, VertexQuad>(vertices);
         if (quadHashesBuffer.Length < quads.Length) {
             quadHashesBuffer = new int[quads.Length];
         }
@@ -177,12 +177,33 @@ public sealed partial class GuiSession : TmSession
         }
         var targetQuads = targetQuadBuffer.AsSpan(0, targetQuadCount);
         SequenceDiff.TryComputeChanges(quadHashes, targetQuads, 100000, changeList, out int diffItemCount);
-        
         if (targetQuadBuffer.Length < quadHashes.Length) {
             targetQuadBuffer = new int[quadHashes.Length];
         }
         quadHashes.CopyTo(targetQuadBuffer);
         targetQuadCount = quadHashes.Length;
+        
+        /* if (changeList.Count == 0) {
+            return vertices;
+        } */
+        return vertices;
+        if (quadBuffer.Length < diffItemCount) {
+            quadBuffer = new VertexQuad[diffItemCount];
+        }
+        var diffQuads = quadBuffer.AsSpan(0, diffItemCount);
+        var targetPos = 0;
+        foreach (var change in changeList) {
+            switch (change.Type) {
+                case SeqChangeType.Insert:
+                case SeqChangeType.Modify:
+                    var target = diffQuads.Slice(targetPos, change.Length);
+                    quads.Slice(change.Start, change.Length).CopyTo(target);
+                    targetPos  += change.Length;
+                    break;
+            }
+        }
+        Debug.Assert(targetPos == diffItemCount);
+        return vertices;
     }
 }
 
