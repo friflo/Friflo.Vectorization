@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 namespace Friflo.TmGui.Session;
 
 
-public abstract class TmSession
+internal abstract class TmSession
 {
     protected internal          IGuiView?       guiView;
     

@@ -19,8 +19,7 @@ namespace Friflo.TmGui.Session;
 
 public sealed partial class TmSessionLoop : IDisposable
 {
-    public   readonly   TmGuiBackend                        rootBackend;    // shared among all sessions
-    public   readonly   AssetResources                      resources;
+    public   readonly   AssetResources  resources;
 
 #region private fields
     private  readonly   bool                                isAsync;
@@ -28,14 +27,15 @@ public sealed partial class TmSessionLoop : IDisposable
     private  readonly   AutoResetEvent                      eventReady;     // used by: sync loop
     private  readonly   Channel<ClientEvent>                eventChannel;   // used by: async loop
     private  readonly   Dictionary<TmClient, TmSession>     sessions;       // Raw non-thread-safe state (accessed exclusively by _shardThread)
-    private  readonly   FrameBuffer                         frameBuffer;    // shared among all sessions - is accessed single threaded
-    private  readonly   SixelDrawer                         sixelDrawer;    // shared among all sessions
+    private  readonly   FrameBuffer                         frameBuffer;    // shared among all TuiSession's - is accessed single threaded
+    private  readonly   SixelDrawer                         sixelDrawer;    // shared among all TuiSession's
     private  readonly   CreateGuiView                       createGuiView;  // IBatchRenderer factory
-    private  readonly   CancellationTokenSource             cts = new();
+    private  readonly   CancellationTokenSource             cts             = new();
     private             Thread?                             shardThread;
     private             bool                                isDisposed;
     private  readonly   Action                              exitHandler;
-    internal readonly   GuiIterateBuffers                   iterateBuffers;
+    internal readonly   GuiIterateBuffers                   iterateBuffers; // shared among all GuiSession's
+    internal readonly   TmGuiBackend                        rootBackend;    // shared among all sessions
 
     private const int MaxSyncQueueCapacity = 32;
 #endregion
