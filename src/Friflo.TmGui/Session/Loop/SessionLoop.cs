@@ -176,10 +176,10 @@ public sealed partial class TmSessionLoop : IDisposable
     }
 
     // protected virtual TmSession CreateGuiSession(TmClient client, bool isSync, out Memory<byte> firstPayload) => throw new NotImplementedException();
-    private TmSession CreateGuiSession(TmClient client, bool isSync, out Memory<byte> firstPayload)
+    private GuiSession CreateGuiSession(TmClient client, bool isSync, out Memory<byte> firstPayload)
     {
         var frameTimer      = new FrameTimer(this, client, 60, isSync);
-        TmSession session   = new GuiSession(client, this, frameTimer);
+        GuiSession session  = new GuiSession(client, this, frameTimer);
         
         var sessionInfo = new SessionInfo{ client = client, backend = session.Backend, args = [] };
         var guiView     = createGuiView(sessionInfo);

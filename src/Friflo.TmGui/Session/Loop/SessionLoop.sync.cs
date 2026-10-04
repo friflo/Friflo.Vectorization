@@ -69,6 +69,7 @@ public partial class TmSessionLoop
             {
                 case ClientEventType.WebsocketConnected: {
                     var newSession = CreateGuiSession(evt.Client, true, out var _);
+                    newSession.wsBatch.frameTimer!.Start(CancellationToken.None);
                     break;
                 }
                 case ClientEventType.WebsocketInput:

@@ -29,7 +29,7 @@ internal sealed partial class GuiSession : TmSession
 {
     private  readonly   TmClient            client;             // instance: passed
     private  readonly   WsBackend           wsBackend;          // instance: creates / owns
-    private  readonly   WsBatch             wsBatch;            // instance: creates / owns
+    internal readonly   WsBatch             wsBatch;            // instance: creates / owns
     private  readonly   GuiIterateBuffers   buffers;            // instance: shared
     
     private  readonly   HashSet<int>        clientTextures      = [];
