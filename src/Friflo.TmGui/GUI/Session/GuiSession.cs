@@ -56,7 +56,7 @@ public sealed partial class GuiSession : TmSession
     protected internal override bool            ReceivedInput    => receivedInput;
 
 
-    public override Memory<byte> IterateUI(AssetResources resources)
+    internal override Memory<byte> IterateUI(AssetResources resources)
     {
         receivedInput = false;
         
@@ -174,7 +174,7 @@ public sealed partial class GuiSession : TmSession
 
 /// subset of <see cref="DrawCommand"/>
 [StructLayout(LayoutKind.Sequential)]
-public struct WsDrawCommand
+internal struct WsDrawCommand
 {
     public  Matrix4x4       projection;     // 64 bytes
     public  RectVector2     scissor;        // 16 bytes

@@ -110,7 +110,7 @@ internal sealed partial class TuiSession : TmSession
         AppendSpan("\x1b[18t"u8);       // Request current terminal size from terminal via stdout - answer handled by HandleInBandResize()
     }
     
-    public override Memory<byte> IterateUI(AssetResources resources)
+    internal override Memory<byte> IterateUI(AssetResources resources)
     {
         if (client is ConsoleClient) {
             var width   = Console.WindowWidth;

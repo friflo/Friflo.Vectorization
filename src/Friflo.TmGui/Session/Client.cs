@@ -21,8 +21,8 @@ public abstract class TmSession
     internal           virtual  GuiReplay?      CreateReplay()      => null;
     internal           virtual  void            SendReplayCommands() { }
     
-    public             abstract void            ProcessInput(ReadOnlySpan<byte> input);     // todo make internal
-    public             abstract Memory<byte>    IterateUI(AssetResources resources);        // todo make internal
+    internal           abstract void            ProcessInput(ReadOnlySpan<byte> input);
+    internal           abstract Memory<byte>    IterateUI(AssetResources resources);
 }
 
 public enum ClientEventType : byte

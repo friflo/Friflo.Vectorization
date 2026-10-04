@@ -27,7 +27,7 @@ public sealed partial class GuiSession
     private ulong       rttStart;
     
     
-    public override void ProcessInput(ReadOnlySpan<byte> utf8Bytes)
+    internal override void ProcessInput(ReadOnlySpan<byte> utf8Bytes)
     {
         receivedInput = true;
         Span<char> chars = stackalloc char[utf8Bytes.Length];
