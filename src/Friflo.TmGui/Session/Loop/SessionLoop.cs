@@ -178,7 +178,7 @@ public sealed partial class TmSessionLoop : IDisposable
     // protected virtual TmSession CreateGuiSession(TmClient client, bool isSync, out Memory<byte> firstPayload) => throw new NotImplementedException();
     private TmSession CreateGuiSession(TmClient client, bool isSync, out Memory<byte> firstPayload)
     {
-        TmSession session = createSession(client, rootBackend);
+        TmSession session = createSession(client, this);
         
         var sessionInfo = new SessionInfo{ client = client, backend = session.Backend, args = [] };
         var guiView     = createGuiView(sessionInfo);
@@ -190,4 +190,4 @@ public sealed partial class TmSessionLoop : IDisposable
     }
 }
 
-public delegate TmSession CreateSession(TmClient client, TmGuiBackend backend);
+public delegate TmSession CreateSession(TmClient client, TmSessionLoop loop);

@@ -48,7 +48,7 @@ public static partial class SequenceDiff
     
    
     /// <summary>
-    /// The elements modified or inserted are stored in <see cref="changeList"/>.
+    /// The elements modified or inserted are stored in <paramref name="changeList"/>.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     public static void ApplyChanges<T>(

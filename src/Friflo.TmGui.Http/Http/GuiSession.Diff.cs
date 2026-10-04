@@ -32,10 +32,9 @@ public sealed partial class GuiSession
         clientQuadList.Clear();
         clientQuadList.AddRange(newHashes);
         
-        /* if (changeList.Count == 0) {
+        if (changeList.Count == 0) {
             return vertices;
-        } */
-        return vertices;
+        }
         
         if (quadBuffer.Length < diffValueCount) {
             quadBuffer = new VertexQuad[diffValueCount];

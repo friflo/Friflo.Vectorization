@@ -15,31 +15,37 @@ using Friflo.TmGui.Session;
 namespace Friflo.TmGui.Http;
 
 
+internal sealed class GuiIterateBuffers
+{
+    
+}
+
 public sealed partial class GuiSession : TmSession
 {
     private  readonly   TmClient        client;             // instance: passed
-    private  readonly   WsBackend       wsBackend;
+    private  readonly   WsBackend       wsBackend;          // instance: creates / owns
     private  readonly   WsBatch         wsBatch;            // instance: creates / owns
+    
     private  readonly   HashSet<int>    usedTexturesMap     = [];
-    private             WsDrawCommand[] wsDrawList          = [];   // move to WsBatch
-    private             byte[]          sendBuffer          = [];   // move to WsBatch
+    private             WsDrawCommand[] wsDrawList          = [];   // move to GuiIterateBuffers
+    private             byte[]          sendBuffer          = [];   // move to GuiIterateBuffers
     private             ulong           lastSendBufferHash;
     private             int             canvasWidth         = 500;
     private             int             canvasHeight        = 300;
     // --- changes
-    private readonly    List<SeqChange> changeList          = [];   // move to WsBatch
-    private             int[]           quadHashesBuffer    = [];   // move to WsBatch
+    private readonly    List<SeqChange> changeList          = [];   // move to GuiIterateBuffers
+    private             int[]           quadHashesBuffer    = [];   // move to GuiIterateBuffers
     private readonly    List<int>       clientQuadList      = [];
-    private             VertexQuad[]    quadBuffer          = [];   // move to WsBatch
+    private             VertexQuad[]    quadBuffer          = [];   // move to GuiIterateBuffers
     
-    public static GuiSession CreateGuiSession(TmClient client, TmGuiBackend rootBackend)
+    public static GuiSession CreateGuiSession(TmClient client, TmSessionLoop loop)
     {
-        return new GuiSession(client, rootBackend);
+        return new GuiSession(client, loop);
     }
     
-    private GuiSession(TmClient client, TmGuiBackend rootBackend)
+    private GuiSession(TmClient client, TmSessionLoop loop)
     {
-        wsBackend   = new WsBackend(rootBackend);
+        wsBackend   = new WsBackend(loop.rootBackend);
         wsBatch     = wsBackend.CreateBatch();
         this.client = client;
     }
@@ -80,7 +86,7 @@ public sealed partial class GuiSession : TmSession
             };
         }
         var vertices = wsBatch.Vertices;
-        vertices = CalcQuadChanges(vertices);
+        // vertices = CalcQuadChanges(vertices);
         
         var sendLength = 8 + 8 + 4 + 4 + 4 + 4 + 
                          drawCommands.Length * Unsafe.SizeOf<WsDrawCommand>() +

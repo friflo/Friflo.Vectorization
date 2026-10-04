@@ -90,7 +90,7 @@ public class SdlWindow(string title, int width, int height, Func<WgpuHost, IRend
         nint osHandle;
         nint osInstance;
         var props   = SDL.GetWindowProperties(window);
-        string driver  = null;
+        string driver  = "";
         if (OperatingSystem.IsWindows()) {
             driver      = "Windows";
             osHandle    = SDL.GetPointerProperty(props, SDL.Props.WindowWin32HWNDPointer,       IntPtr.Zero);
