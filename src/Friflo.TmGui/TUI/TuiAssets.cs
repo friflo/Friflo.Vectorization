@@ -5,7 +5,7 @@ using Friflo.TmGui.Headless;
 
 namespace Friflo.TmGui.TUI;
 
-public class TuiAssets : IGuiAssets
+internal class TuiAssets : IGuiAssets
 {
     public TmFont CreateDefaultFont(TmGuiBackend backend)
     {

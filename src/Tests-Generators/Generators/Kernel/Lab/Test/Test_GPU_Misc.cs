@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Text;
 using Friflo.GPU;
 using Friflo.GPU.Runtime;
@@ -97,9 +98,11 @@ MaxComputeInvocationsPerWorkgroup:  {adapterLimits.MaxComputeInvocationsPerWorkg
         Assert.AreEqual( 16, Unsafe.SizeOf<RectVector2>());
         Assert.AreEqual(152, Unsafe.SizeOf<DrawCommand>());
         
+        var TuiRect = typeof(TmDraw).Assembly.GetType("Friflo.TmGui.TUI.TuiRect")!;
+        
         Assert.AreEqual(  6, Unsafe.SizeOf<Color32Span>());
         Assert.AreEqual(  8, Unsafe.SizeOf<TextSpan>());
-        Assert.AreEqual( 32, Unsafe.SizeOf<TuiRect>());
+        Assert.AreEqual( 32, Marshal.SizeOf(TuiRect));
         Assert.AreEqual( 16, Unsafe.SizeOf<TuiColorCell>());
         
         Assert.AreEqual( 4,  Unsafe.SizeOf<Rune>());

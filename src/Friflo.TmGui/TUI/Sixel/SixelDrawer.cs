@@ -13,7 +13,7 @@ using System.Numerics;
 namespace Friflo.TmGui.TUI;
 
 
-public sealed class SixelDrawer
+internal sealed class SixelDrawer
 {
     private static int AppendHeaderToTargetBuffer(Span<byte> target, ReadOnlySpan<byte> palette)
     {
@@ -70,7 +70,7 @@ public sealed class SixelDrawer
     /// </summary>
     private byte[]  clipCellsBuffer = [];
 
-    public void SetClipCells(ReadOnlySpan<TuiColorCell> cells, int width, int height)
+    internal void SetClipCells(ReadOnlySpan<TuiColorCell> cells, int width, int height)
     {
         cellsWidth  = width;
         cellsHeight = height;

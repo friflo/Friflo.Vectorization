@@ -33,7 +33,8 @@ public sealed partial class TuiBatch : TmBatch
     
     public              ReadOnlySpan<char>      Texts       => CollectionsMarshal.AsSpan(textBuffer);
     public              ReadOnlySpan<Color32>   Colors      => CollectionsMarshal.AsSpan(colorBuffer);
-    public              ReadOnlySpan<TuiRect>   Rects       => CollectionsMarshal.AsSpan(tuiRects);
+    public              int                     RectCount   => tuiRects.Count; // only for unit tests
+    internal            ReadOnlySpan<TuiRect>   Rects       => CollectionsMarshal.AsSpan(tuiRects);
     public              float                   CharWidth   => charWidth;
     public              float                   LineHeight  => lineHeight;
     public              float                   XScale      => xScale;

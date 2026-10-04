@@ -50,9 +50,9 @@ public class Tests_TmGui_window1
             if (n == 0) start = Mem.GetAllocatedBytes();
         }
         Mem.AssertNoAlloc(start);
-        Assert.That(batch.Rects.Length, Is.EqualTo(58));
-        Assert.That(batch.Texts.Length, Is.EqualTo(151));
-        Assert.That(frameBuffer.ColorCells.Length, Is.EqualTo(1500));
+        Assert.That(batch.RectCount,                Is.EqualTo(58));
+        Assert.That(batch.Texts.Length,             Is.EqualTo(151));
+        Assert.That(frameBuffer.ColorCells.Length,  Is.EqualTo(1500));
         
         var screen  = frameBuffer.CellsToString("\r\n");
         var dir     = Path.GetDirectoryName(GetCurrentFilePath())!;
@@ -85,9 +85,9 @@ public class Tests_TmGui_window1
             if (n == 0) start = Mem.GetAllocatedBytes();
         }
         Mem.AssertNoAlloc(start);
-        Assert.That(batch.Rects.Length, Is.EqualTo(58));
-        Assert.That(batch.Texts.Length, Is.EqualTo(151));
-        Assert.That(frameBuffer.ColorCells.Length, Is.EqualTo(1500));
+        Assert.That(batch.RectCount,                Is.EqualTo(58));
+        Assert.That(batch.Texts.Length,             Is.EqualTo(151));
+        Assert.That(frameBuffer.ColorCells.Length,  Is.EqualTo(1500));
         
         var screen  = frameBuffer.CellsToString("\r\n");
         var dir     = Path.GetDirectoryName(GetCurrentFilePath())!;

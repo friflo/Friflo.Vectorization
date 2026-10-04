@@ -15,7 +15,7 @@ using System.Runtime.Intrinsics;
 // ReSharper disable once CheckNamespace
 namespace Friflo.TmGui.TUI;
 
-public sealed class TuiSixel
+internal sealed class TuiSixel
 {
     internal readonly   int     width;
     internal readonly   int     height;
@@ -23,8 +23,8 @@ public sealed class TuiSixel
     private             bool    isDirty;
     private             int     version;
 
-    public              bool    IsDirty => isDirty;
-    public              int     Version => version;
+    internal            bool    IsDirty => isDirty;
+    internal            int     Version => version;
 
     /// <summary> Linear 1-byte-per-pixel buffer containing R3G3B2 indexed color values. </summary>
     /// <remarks> Total size is exactly <c>width * height</c> bytes. </remarks>
@@ -66,10 +66,10 @@ public sealed class TuiSixel
         SetDirty();
     }
     
-    public const byte SubstituteBack = 0x20; // dark red is drawn as real black
+    internal const byte SubstituteBack = 0x20; // dark red is drawn as real black
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static byte Color32ToR3G3B2(Color32 color)
+    internal static byte Color32ToR3G3B2(Color32 color)
     {
         byte colorIndex = (byte)((color.R & 0xE0) | ((color.G & 0xE0) >> 3) | (color.B >> 6));
 

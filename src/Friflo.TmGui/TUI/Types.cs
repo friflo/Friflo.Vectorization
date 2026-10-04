@@ -34,12 +34,12 @@ public struct TuiColorCell
     public override string ToString() => $"'{rune}'";
 }
 
-public static class RuneExtensions
+internal static class RuneExtensions
 {
     extension (Rune rune)
     {
         /// <summary> Evaluates terminal column width (1 for standard/BMP, 2 for Wide/CJK/Plane-1 Emojis) </summary>
-        public int RuneWidth {
+        internal int RuneWidth {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get {
                 uint val = (uint)rune.Value;
@@ -125,7 +125,7 @@ public readonly struct Color32Span
     }
 }
 
-public enum TuiRectFill
+internal enum TuiRectFill
 {
     Solid = 0
 }
@@ -135,17 +135,17 @@ public enum TuiRectFill
 /// Either a filled rectangle with passed background <see cref="color"/>.<br/>
 /// Or a horizontal <see cref="text"/> with the passed <see cref="color"/>.
 /// </remarks>
-public struct TuiRect
+internal struct TuiRect
 {
     // For filled rectangles: If text.fillChar == 0 the rect executes color blending (shadow)
-    public  readonly    TextSpan    text;           //  8 bytes
-    public              Vector2     TL;             //  8 bytes - top / lLeft    - Must use floats to enable layout mutations
-    public              Vector2     BR;             //  8 bytes - bottom / right - Must use floats to enable layout mutations
-    public  readonly    Color32Span color;          //  6 bytes
-    public  readonly    TextStyle   textStyle;      //  1 byte
-    public  readonly    byte        sixelId;        //  1 byte
+    internal readonly   TextSpan    text;           //  8 bytes
+    internal            Vector2     TL;             //  8 bytes - top / lLeft    - Must use floats to enable layout mutations
+    internal            Vector2     BR;             //  8 bytes - bottom / right - Must use floats to enable layout mutations
+    internal readonly   Color32Span color;          //  6 bytes
+    internal readonly   TextStyle   textStyle;      //  1 byte
+    internal readonly   byte        sixelId;        //  1 byte
     
-    public  readonly    Vector2     Size        => BR - TL; // only for debugging
+    internal readonly   Vector2     Size        => BR - TL; // only for debugging
     
     public override string ToString()       => $"[{TL.X}, {TL.Y} | {Size.X}, {Size.Y}]";
     
