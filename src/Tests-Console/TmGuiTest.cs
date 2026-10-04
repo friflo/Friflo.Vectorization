@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Net;
 using System.Numerics;
 using Friflo.TmGui;
 using Friflo.TmGui.Session;
@@ -73,7 +74,7 @@ public class TmGuiRenderer : IRenderer, IGuiView
         myTextureView    = myTexture.CreateView().AsTmTexture();
         
         loop = new TmSessionLoop(false, guiBackend, _ => new TmGuiRenderer(this));
-        var httpServer = new KestrelHttpServer(loop, 8080);
+        var httpServer = new KestrelHttpServer(loop, new IPEndPoint(IPAddress.Any, 8080));
         httpServer.Start();
     }
     

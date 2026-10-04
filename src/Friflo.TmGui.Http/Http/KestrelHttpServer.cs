@@ -24,17 +24,17 @@ namespace Friflo.TmGui.Http;
 
 public sealed class KestrelHttpServer
 {
-    private readonly string        webRoot = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "wwwroot");
-    private readonly TmSessionLoop loop;
-    private readonly int           port;
+    private readonly    string          webRoot = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "wwwroot");
+    private readonly    TmSessionLoop   loop;
+    private readonly    EndPoint        endPoint;
 
-    private IHost?                 host;
-    private Task?                  serverTask;
+    private             IHost?          host;
+    private             Task?           serverTask;
 
-    public KestrelHttpServer(TmSessionLoop loop, int port)
+    public KestrelHttpServer(TmSessionLoop loop, EndPoint endPoint)
     {
-        this.loop = loop;
-        this.port = port;
+        this.loop       = loop;
+        this.endPoint   = endPoint;
     }
 
     /// <summary>
@@ -88,16 +88,10 @@ public sealed class KestrelHttpServer
                     // deactivate Nagle-algorithm for minimal websocket latency
                     socketOptions.NoDelay = true;
                 });
-                webBuilder.UseKestrel(options =>
-                {
-                    // Binding solely to localhost (no admin privileges required)
-                    // - IPAddress.Loopback for localhost only
-                    options.Listen(IPAddress.Any, port, listenOptions => {  
+                webBuilder.UseKestrel(options => {
+                    options.Listen(endPoint, listenOptions => {  
                         listenOptions.UseHttps(); // uses automatically dotnet dev-certs
                     });
-                    
-                    // Optional: If remote network access is needed:
-                    // options.Listen(IPAddress.Any, port);
                 });
 
                 webBuilder.Configure(app => {
@@ -107,7 +101,7 @@ public sealed class KestrelHttpServer
 
             host = builder.Build();
 
-            Console.WriteLine($"[+] Kestrel Server active on port {port}...");
+            Console.WriteLine($"[+] Kestrel Server listening on: {endPoint} ...");
             await host.RunAsync();
         }
         catch (Exception ex)
