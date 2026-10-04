@@ -7,7 +7,6 @@ using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
-using Friflo.TmGui.Session;
 
 // ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable InlineTemporaryVariable
@@ -17,26 +16,28 @@ namespace Friflo.TmGui.Session;
 
 internal sealed class GuiIterateBuffers
 {
-    
+    internal            WsDrawCommand[] wsDrawList          = [];   // move to GuiIterateBuffers
+    internal            byte[]          sendBuffer          = [];   // move to GuiIterateBuffers
+
+    // --- changes
+    internal readonly   List<SeqChange> changeList          = [];   // move to GuiIterateBuffers
+    internal            int[]           quadHashesBuffer    = [];   // move to GuiIterateBuffers
+    internal            VertexQuad[]    quadBuffer          = [];   // move to GuiIterateBuffers
 }
 
 public sealed partial class GuiSession : TmSession
 {
-    private  readonly   TmClient        client;             // instance: passed
-    private  readonly   WsBackend       wsBackend;          // instance: creates / owns
-    private  readonly   WsBatch         wsBatch;            // instance: creates / owns
+    private  readonly   TmClient            client;             // instance: passed
+    private  readonly   WsBackend           wsBackend;          // instance: creates / owns
+    private  readonly   WsBatch             wsBatch;            // instance: creates / owns
+    private  readonly   GuiIterateBuffers   buffers;            // instance: shared
     
-    private  readonly   HashSet<int>    usedTexturesMap     = [];
-    private             WsDrawCommand[] wsDrawList          = [];   // move to GuiIterateBuffers
-    private             byte[]          sendBuffer          = [];   // move to GuiIterateBuffers
-    private             ulong           lastSendBufferHash;
-    private             int             canvasWidth         = 500;
-    private             int             canvasHeight        = 300;
+    private  readonly   HashSet<int>        clientTextures      = [];
+    private             ulong               lastSendBufferHash;
+    private             int                 canvasWidth         = 500;
+    private             int                 canvasHeight        = 300;
     // --- changes
-    private readonly    List<SeqChange> changeList          = [];   // move to GuiIterateBuffers
-    private             int[]           quadHashesBuffer    = [];   // move to GuiIterateBuffers
-    private readonly    List<int>       clientQuadList      = [];
-    private             VertexQuad[]    quadBuffer          = [];   // move to GuiIterateBuffers
+    private readonly    List<int>           clientQuadList      = [];
     
     public static GuiSession CreateGuiSession(TmClient client, TmSessionLoop loop)
     {
@@ -45,6 +46,7 @@ public sealed partial class GuiSession : TmSession
     
     private GuiSession(TmClient client, TmSessionLoop loop)
     {
+        buffers     = loop.iterateBuffers;
         wsBackend   = new WsBackend(loop.rootBackend);
         wsBatch     = wsBackend.CreateBatch();
         this.client = client;
@@ -63,13 +65,13 @@ public sealed partial class GuiSession : TmSession
         
         wsBatch.DrawCommandList();
 
-        var usedTextures    = usedTexturesMap;
+        var usedTextures    = clientTextures;
         var drawCommands    = wsBatch.DrawList;
         var newTextures     = wsBackend.newTextures;
         newTextures.Clear();
 
-        if (wsDrawList.Length < drawCommands.Length) {
-            wsDrawList = new WsDrawCommand [drawCommands.Length];
+        if (buffers.wsDrawList.Length < drawCommands.Length) {
+            buffers.wsDrawList = new WsDrawCommand [drawCommands.Length];
         }
         for (int n = 0; n < drawCommands.Length; n++)
         {
@@ -78,7 +80,7 @@ public sealed partial class GuiSession : TmSession
             if (usedTextures.Add(textureId)) {
                 newTextures.Add(textureId);
             }
-            wsDrawList[n] = new WsDrawCommand {
+            buffers.wsDrawList[n] = new WsDrawCommand {
                 vertexView  = cmd.vertexView,
                 projection  = cmd.projection,
                 scissor     = cmd.scissor,
@@ -89,13 +91,13 @@ public sealed partial class GuiSession : TmSession
         // vertices = CalcQuadChanges(vertices);
         
         var sendLength = 8 + 8 + 4 + 4 + 4 + 4 + 
-                         drawCommands.Length * Unsafe.SizeOf<WsDrawCommand>() +
-                         vertices.Length     * Unsafe.SizeOf<Vertex2D>() +
-                         changeList.Count    * Unsafe.SizeOf<SeqChange>();
-        if (sendBuffer.Length < sendLength) {
-            sendBuffer = new byte[sendLength + 1000]; // TODO 1000 ?
+                         drawCommands.Length        * Unsafe.SizeOf<WsDrawCommand>() +
+                         vertices.Length            * Unsafe.SizeOf<Vertex2D>() +
+                         buffers.changeList.Count   * Unsafe.SizeOf<SeqChange>();
+        if (buffers.sendBuffer.Length < sendLength) {
+            buffers.sendBuffer = new byte[sendLength + 1000]; // TODO 1000 ?
         }
-        Span<byte> span = sendBuffer;
+        Span<byte> span = buffers.sendBuffer;
         int bytesWritten = 0;
         
         // 0. Write RTT start time & send time (2 x double)
@@ -116,7 +118,7 @@ public sealed partial class GuiSession : TmSession
         bytesWritten += sizeof(int);
         
         // 3. Write change count (int)
-        MemoryMarshal.Write(span[bytesWritten..], changeList.Count);
+        MemoryMarshal.Write(span[bytesWritten..], buffers.changeList.Count);
         bytesWritten += sizeof(int);
         
         // 4. Write current mouse cursor shape (int)
@@ -124,7 +126,7 @@ public sealed partial class GuiSession : TmSession
         bytesWritten += sizeof(int);
 
         // 5. Write wsDrawList elements
-        var drawListBytes = MemoryMarshal.AsBytes(wsDrawList.AsSpan(0, drawCommands.Length));
+        var drawListBytes = MemoryMarshal.AsBytes(buffers.wsDrawList.AsSpan(0, drawCommands.Length));
         drawListBytes.CopyTo(span[bytesWritten..]);
         bytesWritten += drawListBytes.Length;
 
@@ -134,7 +136,7 @@ public sealed partial class GuiSession : TmSession
         bytesWritten += vertexBytes.Length;
         
         // 7. Write change elements
-        var changes = CollectionsMarshal.AsSpan(changeList);
+        var changes = CollectionsMarshal.AsSpan(buffers.changeList);
         var changesBytes = MemoryMarshal.AsBytes(changes);
         changesBytes.CopyTo(span[bytesWritten..]);
         bytesWritten += changesBytes.Length;
@@ -157,7 +159,7 @@ public sealed partial class GuiSession : TmSession
             bytesWritten += encodedBytes;
         }
         
-        var memory = new Memory<byte>(sendBuffer, 0, bytesWritten);
+        var memory = new Memory<byte>(buffers.sendBuffer, 0, bytesWritten);
 
         // remove time values from hash calculation
         var timeOffsets = 8 + 8;

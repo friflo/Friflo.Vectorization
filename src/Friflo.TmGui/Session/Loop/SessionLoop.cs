@@ -36,6 +36,7 @@ public sealed partial class TmSessionLoop : IDisposable
     private             Thread?                             shardThread;
     private             bool                                isDisposed;
     private  readonly   Action                              exitHandler;
+    internal readonly   GuiIterateBuffers                   iterateBuffers;
 
     private const int MaxSyncQueueCapacity = 32;
 #endregion
@@ -66,6 +67,7 @@ public sealed partial class TmSessionLoop : IDisposable
         frameBuffer         = new FrameBuffer();
         sixelDrawer         = new SixelDrawer();
         exitHandler         = ExitHandler;
+        iterateBuffers      = new GuiIterateBuffers();
         PosixSignalUtils.AddExitHandler(exitHandler);
     }
     
