@@ -16,13 +16,13 @@ namespace Friflo.TmGui.Session;
 
 internal sealed class GuiIterateBuffers
 {
-    internal            WsDrawCommand[] wsDrawList          = [];   // move to GuiIterateBuffers
-    internal            byte[]          sendBuffer          = [];   // move to GuiIterateBuffers
+    internal            WsDrawCommand[] wsDrawList          = [];
+    internal            byte[]          sendBuffer          = [];
 
     // --- changes
-    internal readonly   List<SeqChange> changeList          = [];   // move to GuiIterateBuffers
-    internal            int[]           quadHashesBuffer    = [];   // move to GuiIterateBuffers
-    internal            VertexQuad[]    quadBuffer          = [];   // move to GuiIterateBuffers
+    internal readonly   List<SeqChange> changeList          = [];
+    internal            int[]           quadHashesBuffer    = [];
+    internal            VertexQuad[]    quadBuffer          = [];
 }
 
 internal sealed partial class GuiSession : TmSession
