@@ -13,7 +13,6 @@ namespace Friflo.TmGui.Session;
 internal class WsBackend : TmGuiBackend
 {
     private  readonly   TmGuiBackend    rootBackend;
-    internal readonly   List<int>       newTextures    = [];
     
     internal WsBackend(TmGuiBackend rootBackend) : base(rootBackend.Assets)
     {

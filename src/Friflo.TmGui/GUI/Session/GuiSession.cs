@@ -18,6 +18,7 @@ internal sealed class GuiIterateBuffers
 {
     internal            WsDrawCommand[] wsDrawList          = [];
     internal            byte[]          sendBuffer          = [];
+    internal readonly   List<int>       newTextures         = [];
 
     // --- changes
     internal readonly   List<SeqChange> changeList          = [];
@@ -63,7 +64,7 @@ internal sealed partial class GuiSession : TmSession
 
         var usedTextures    = clientTextures;
         var drawCommands    = wsBatch.DrawList;
-        var newTextures     = wsBackend.newTextures;
+        var newTextures     = buffers.newTextures;
         newTextures.Clear();
 
         if (buffers.wsDrawList.Length < drawCommands.Length) {
