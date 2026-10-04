@@ -26,7 +26,7 @@ public class TmGuiRenderer : IRenderer, IGuiView
     private readonly    TmFont                  monocraftFont;
     private             bool                    enabled2;
     private             float                   volume = 0.8f;
-    private             float                   update = 0;
+    private             float                   update;
     private readonly    List<string>            scrollAreaButtons = [];
     private readonly    Color32[]               textColors = [0x0000FFFF, 0xFF0000FF, 0x009900FF, 0xFF00FFFF, 0xCC6600FF, 0x000000ff];
     private readonly    TmSessionLoop           loop;
@@ -72,7 +72,7 @@ public class TmGuiRenderer : IRenderer, IGuiView
         myTexture        = guiBackend.LoadTexture(stream, "world_tileset.png").AsGpuTexture(); 
         myTextureView    = myTexture.CreateView().AsTmTexture();
         
-        loop = new TmSessionLoop(false, guiBackend, _ => new TmGuiRenderer(this), GuiSession.CreateGuiSession);
+        loop = new TmSessionLoop(false, guiBackend, _ => new TmGuiRenderer(this));
         var httpServer = new KestrelHttpServer(loop, 8080);
         httpServer.Start();
     }

@@ -39,7 +39,7 @@ public sealed partial class GuiSession : TmSession
     // --- changes
     private readonly    List<int>           clientQuadList      = [];
     
-    public static GuiSession CreateGuiSession(TmClient client, TmSessionLoop loop)
+    internal static GuiSession CreateGuiSession(TmClient client, TmSessionLoop loop)
     {
         return new GuiSession(client, loop);
     }

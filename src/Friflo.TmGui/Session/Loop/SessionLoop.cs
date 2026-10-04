@@ -31,7 +31,6 @@ public sealed partial class TmSessionLoop : IDisposable
     private  readonly   FrameBuffer                         frameBuffer;    // shared among all sessions - is accessed single threaded
     private  readonly   SixelDrawer                         sixelDrawer;    // shared among all sessions
     private  readonly   CreateGuiView                       createGuiView;  // IBatchRenderer factory
-    private  readonly   CreateSession                       createSession;
     private  readonly   CancellationTokenSource             cts = new();
     private             Thread?                             shardThread;
     private             bool                                isDisposed;
@@ -41,12 +40,11 @@ public sealed partial class TmSessionLoop : IDisposable
     private const int MaxSyncQueueCapacity = 32;
 #endregion
     
-    public TmSessionLoop(bool isAsync, TmGuiBackend backend, CreateGuiView createGuiView, CreateSession createSession)
+    public TmSessionLoop(bool isAsync, TmGuiBackend backend, CreateGuiView createGuiView)
     {
         this.isAsync        = isAsync;
         this.createGuiView  = createGuiView;
-        this.createSession  = createSession;
-        this.rootBackend    = backend; 
+        this.rootBackend    = backend;
         resources           = new AssetResources(backend);
         if (isAsync) {
             // Bounded channel to enforce non-blocking backpressure via TryWrite
@@ -180,7 +178,7 @@ public sealed partial class TmSessionLoop : IDisposable
     // protected virtual TmSession CreateGuiSession(TmClient client, bool isSync, out Memory<byte> firstPayload) => throw new NotImplementedException();
     private TmSession CreateGuiSession(TmClient client, bool isSync, out Memory<byte> firstPayload)
     {
-        TmSession session = createSession(client, this);
+        TmSession session = GuiSession.CreateGuiSession(client, this);
         
         var sessionInfo = new SessionInfo{ client = client, backend = session.Backend, args = [] };
         var guiView     = createGuiView(sessionInfo);
@@ -192,4 +190,3 @@ public sealed partial class TmSessionLoop : IDisposable
     }
 }
 
-public delegate TmSession CreateSession(TmClient client, TmSessionLoop loop);

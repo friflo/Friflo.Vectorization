@@ -42,7 +42,7 @@ bool runAsync = false;
 
 
 var assets = new DefaultGuiAssets();
-var loop = new TmSessionLoop(runAsync, new TuiBackend("Terminal", assets), info => new TestGuiView(appState, info), null!);
+var loop = new TmSessionLoop(runAsync, new TuiBackend("Terminal", assets), info => new TestGuiView(appState, info));
 
 if (runAsync) {
     loop.StartAsync(); // Spawns dedicated "ShardLoopThread"
