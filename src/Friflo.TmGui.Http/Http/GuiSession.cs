@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -162,74 +161,6 @@ public sealed partial class GuiSession : TmSession
         }
         lastSendBufferHash = sendHash;
         return memory;
-    }
-    
-    private Span<Vertex2D> CalcQuadChanges(Span<Vertex2D> vertices)
-    {
-        Span<VertexQuad> quads = MemoryMarshal.Cast<Vertex2D, VertexQuad>(vertices);
-        if (quadHashesBuffer.Length < quads.Length) {
-            quadHashesBuffer = new int[quads.Length];
-        }
-        var newHashes = quadHashesBuffer.AsSpan(0, quads.Length);
-        for (int n= 0; n < quads.Length; n++) {
-            newHashes[n] = quads[n].GetHashCode();
-        }
-        var clientQuads = CollectionsMarshal.AsSpan(clientQuadList);
-        SequenceDiff.TryComputeChanges(clientQuads, newHashes, 100000, changeList, out int diffValueCount);
-
-        clientQuadList.Clear();
-        clientQuadList.AddRange(newHashes);
-        
-        /* if (changeList.Count == 0) {
-            return vertices;
-        } */
-        if (quadBuffer.Length < diffValueCount) {
-            quadBuffer = new VertexQuad[diffValueCount];
-        }
-        var diffQuads = quadBuffer.AsSpan(0, diffValueCount);
-        var diffPos = 0;
-        foreach (var change in changeList) {
-            switch (change.Type) {
-                case SeqChangeType.Insert:
-                case SeqChangeType.Modify:
-                    var target = diffQuads.Slice(diffPos, change.Length);
-                    quads.Slice(change.Start, change.Length).CopyTo(target);
-                    diffPos  += change.Length;
-                    break;
-            }
-        }
-        Debug.Assert(diffPos == diffValueCount);
-        
-        DebugVerifyApplyDiff(quads, diffQuads);
-        
-        return vertices;
-    }
-    
-    private  readonly   List<VertexQuad>    debugClientQuads = [];
-    private             VertexQuad[]        debugClientTarget = [];
-    
-    private void DebugVerifyApplyDiff(ReadOnlySpan<VertexQuad> quads, ReadOnlySpan<VertexQuad> diffQuads)
-    {
-        ReadOnlySpan<VertexQuad> clientQuads = CollectionsMarshal.AsSpan(debugClientQuads);
-        
-        if (debugClientTarget.Length < quads.Length) {
-            debugClientTarget = new VertexQuad[quads.Length];
-        }
-        var clientTarget = debugClientTarget.AsSpan(0, clientQuadList.Count);
-        SequenceDiff.ApplyChanges(clientQuads, changeList, diffQuads, clientTarget);
-
-        var isEqual = quads.SequenceEqual(clientTarget);
-        if (!isEqual) {
-            int n = 0;
-            for (; n < quads.Length; n++) {
-                if (quads[n] != clientTarget[n]) {
-                    break;
-                }
-            }
-            Debug.Fail($"ApplyChanges failed. Diff at: {n}");    
-        }
-        debugClientQuads.Clear();
-        debugClientQuads.AddRange(quads);
     }
 }
 
