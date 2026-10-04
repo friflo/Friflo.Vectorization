@@ -2,6 +2,7 @@ using System;
 using System.IO.Hashing;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Runtime.Intrinsics;
 using Friflo.TmGui;
 using NUnit.Framework;
 
@@ -17,7 +18,11 @@ public static class Tests_TmGui_Utils
     {
         var array = CreateByteArray(1000);
         var hash = HashUtils.XxHash3(array);
-        Assert.That(hash, Is.EqualTo(11126509305010094753));
+        if (Vector256.IsHardwareAccelerated) {
+            Assert.That(hash, Is.EqualTo(11126509305010094753));
+        } else if (Vector128.IsHardwareAccelerated) {
+            Assert.That(hash, Is.EqualTo(13557842411448982774));
+        }
         
         ulong last = 0;
         
