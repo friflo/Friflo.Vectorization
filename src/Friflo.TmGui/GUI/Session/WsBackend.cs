@@ -16,7 +16,7 @@ internal class WsBackend : TmGuiBackend
 
     internal readonly   List<int>                   newTextures    = [];
     
-    public WsBackend(TmGuiBackend rootBackend) : base(rootBackend.Assets)
+    internal WsBackend(TmGuiBackend rootBackend) : base(rootBackend.Assets)
     {
         this.rootBackend = rootBackend;
     }
@@ -50,13 +50,11 @@ internal class WsBackend : TmGuiBackend
         return rootBackend.GetTextureImage(texture);
     }
     
-    public WsBatch CreateBatch()  // WS_TAG
+    internal WsBatch CreateBatch()  // WS_TAG
     {
         var batch = new WsBatch(this, 60000);
         InitBatch(batch);
         return batch;
     }
-
-
 }
 

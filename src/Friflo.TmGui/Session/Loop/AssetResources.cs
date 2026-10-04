@@ -29,12 +29,12 @@ public readonly struct AssetResources
         return textureId;
     }
     
-    public AssetResources(TmGuiBackend rootBackend)
+    internal AssetResources(TmGuiBackend rootBackend)
     {
         this.rootBackend = rootBackend;
     }
 
-    public int GetTexture(TmTexture texture)
+    internal int GetTexture(TmTexture texture)
     {
         if (texture2Id.TryGetValue(texture.native!, out int id)) {
             return id;

@@ -8,7 +8,7 @@ namespace Friflo.TmGui.Session;
 
 internal class WsBatch : TmBatch
 {
-    public WsBatch(TmGuiBackend backend, int maxVertices) : base(backend, maxVertices)
+    internal WsBatch(TmGuiBackend backend, int maxVertices) : base(backend, maxVertices)
     {
     }
 

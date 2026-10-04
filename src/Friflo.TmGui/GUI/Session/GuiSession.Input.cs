@@ -10,7 +10,7 @@ using System.Text;
 namespace Friflo.TmGui.Session;
 
 
-public sealed partial class GuiSession
+internal sealed partial class GuiSession
 {
     private bool        receivedInput;
     private Vector2     pendingMousePos;

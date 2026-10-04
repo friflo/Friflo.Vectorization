@@ -25,7 +25,7 @@ internal sealed class GuiIterateBuffers
     internal            VertexQuad[]    quadBuffer          = [];   // move to GuiIterateBuffers
 }
 
-public sealed partial class GuiSession : TmSession
+internal sealed partial class GuiSession : TmSession
 {
     private  readonly   TmClient            client;             // instance: passed
     private  readonly   WsBackend           wsBackend;          // instance: creates / owns
@@ -176,8 +176,8 @@ public sealed partial class GuiSession : TmSession
 [StructLayout(LayoutKind.Sequential)]
 internal struct WsDrawCommand
 {
-    public  Matrix4x4       projection;     // 64 bytes
-    public  RectVector2     scissor;        // 16 bytes
-    public  MemoryView      vertexView;     //  8 bytes
-    public  int             textureId;      //  4 bytes          
+    internal    Matrix4x4       projection;     // 64 bytes
+    internal    RectVector2     scissor;        // 16 bytes
+    internal    MemoryView      vertexView;     //  8 bytes
+    internal    int             textureId;      //  4 bytes          
 }

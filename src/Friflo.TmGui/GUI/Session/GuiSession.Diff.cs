@@ -12,7 +12,7 @@ using System.Runtime.InteropServices;
 namespace Friflo.TmGui.Session;
 
 
-public sealed partial class GuiSession
+internal sealed partial class GuiSession
 {
     private Span<Vertex2D> CalcQuadChanges(Span<Vertex2D> vertices)
     {
