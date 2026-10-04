@@ -267,9 +267,24 @@ public abstract class TmBatch : IDisposable
     
     public TmDraw BeginTextureDraw(TmTexture texture, Color32 color)
     {
+        if (this is WsBatch) {
+            var draw = new TmDraw(this);
+            var cursor = guiState.window.Cursor;
+            var translate = Matrix4x4.CreateTranslation(new Vector3(cursor.X, cursor.Y, 0));
+            draw.PushTransform(currentTransform * translate);
+            return draw;
+        }
         var batch = textureBatch ??= new TextureBatch(new HeadlessBackend(textureAssets), texture, frameTimer);
         batch.sixel.Clear(color);
         return batch.BeginDraw(batch.sixel.width, batch.sixel.height);
+    }
+    
+    public void EndTextureDraw()
+    {
+        if (this is WsBatch) {
+            var draw = new TmDraw(this);
+            draw.PopTransform();
+        }
     }
     
     public Gui BeginGui(int width, int height)

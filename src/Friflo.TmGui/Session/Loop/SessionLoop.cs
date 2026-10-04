@@ -162,8 +162,8 @@ public sealed partial class TmSessionLoop : IDisposable
         var client      = evt.Client;
         var args        = firstLine == -1 ? [] : GetArgs(payload.Span.Slice(0, firstLine));
 
-        var frameTimer  = new FrameTimer(this, evt.Client, 60, isSync);
-        var session     = new TuiSession(evt.Client, frameBuffer, frameTimer, sixelDrawer, rootBackend.Assets, TuiColorMode.RGB24);
+        var frameTimer  = new FrameTimer(this, client, 60, isSync);
+        var session     = new TuiSession(client, frameBuffer, frameTimer, sixelDrawer, rootBackend.Assets, TuiColorMode.RGB24);
 
         var sessionInfo = new SessionInfo{ client = client, backend = session.Backend, args = args };
         var guiView     = createGuiView(sessionInfo);
@@ -178,7 +178,8 @@ public sealed partial class TmSessionLoop : IDisposable
     // protected virtual TmSession CreateGuiSession(TmClient client, bool isSync, out Memory<byte> firstPayload) => throw new NotImplementedException();
     private TmSession CreateGuiSession(TmClient client, bool isSync, out Memory<byte> firstPayload)
     {
-        TmSession session = GuiSession.CreateGuiSession(client, this);
+        var frameTimer      = new FrameTimer(this, client, 60, isSync);
+        TmSession session   = new GuiSession(client, this, frameTimer);
         
         var sessionInfo = new SessionInfo{ client = client, backend = session.Backend, args = [] };
         var guiView     = createGuiView(sessionInfo);

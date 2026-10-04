@@ -42,11 +42,12 @@ public class TestGuiView : IGuiView
     
     static class Static { internal static void Noop() { } }
     
+    DrawType oldDrawType;
+    
     public void RenderGui(TmBatch batch, int targetWidth, int targetHeight)
     {
-        var oldDrawType = appState.drawType;
+        oldDrawType = appState.drawType;
         batch.TickRate = 60;
-        batch.TickEnabled = false;
         Static.Noop();
         
         var timestamp   = Stopwatch.GetTimestamp();
@@ -66,11 +67,6 @@ public class TestGuiView : IGuiView
         }
         using (gui.BeginWindow("Window 2", new(550, 50), new(500, 900))) {
             Window2(gui);
-        }
-        
-        if (oldDrawType != appState.drawType || batch.TickEnabled) {
-            var draw = batch.BeginTextureDraw(canvasTexture, Color32.Transparent);
-            TextureDraw(draw);
         }
     }
     
@@ -142,6 +138,11 @@ public class TestGuiView : IGuiView
             if (appState.drawType != DrawType.None) {
                 // gui.Draw.FillRect(space.Pos, canvasSize, 0xffffffff);
                 gui.Draw.DrawSprite(canvasTexture, space.Pos, canvasSize);
+            }
+            if (oldDrawType != appState.drawType || batch.TickEnabled) {
+                var draw = batch.BeginTextureDraw(canvasTexture, Color32.Transparent);
+                TextureDraw(draw);
+                batch.EndTextureDraw();
             }
         }
         gui.Spacer();

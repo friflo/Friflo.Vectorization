@@ -39,16 +39,12 @@ internal sealed partial class GuiSession : TmSession
     // --- changes
     private readonly    List<int>           clientQuadList      = [];
     
-    internal static GuiSession CreateGuiSession(TmClient client, TmSessionLoop loop)
+    internal GuiSession(TmClient client, TmSessionLoop loop, FrameTimer frameTimer)
     {
-        return new GuiSession(client, loop);
-    }
-    
-    private GuiSession(TmClient client, TmSessionLoop loop)
-    {
-        buffers     = loop.iterateBuffers;
-        wsBackend   = new WsBackend(loop.rootBackend);
-        wsBatch     = wsBackend.CreateBatch();
+        buffers             = loop.iterateBuffers;
+        wsBackend           = new WsBackend(loop.rootBackend);
+        wsBatch             = wsBackend.CreateBatch();
+        wsBatch.frameTimer  = frameTimer;
         this.client = client;
     }
     

@@ -25,7 +25,7 @@ internal sealed class TextureBatch : TmBatch
 {
     internal readonly TuiSixel sixel;
     
-    internal TextureBatch(TmGuiBackend backend, TmTexture texture, FrameTimer frameTimer) : base(backend)
+    internal TextureBatch(TmGuiBackend backend, TmTexture texture, FrameTimer? frameTimer) : base(backend)
     {
         var tuiTexture = (TuiTexture)texture.native!;
         sixel = tuiTexture.sixel;

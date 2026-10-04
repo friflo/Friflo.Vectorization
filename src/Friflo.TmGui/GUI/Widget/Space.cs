@@ -38,7 +38,6 @@ public readonly ref partial struct GuiWidget
             widgetState     = GetWidgetState(isHover, widgetId);
             isFocused       = RegisterFocusable(widgetId, pos, size);
         }
-        MoveCursor(size);
 
         bool isFired = IsFired(widgetState, isFocused);
         return new SpaceScope(this, new SpaceEnd(pos, size, isFired, isFocused, widgetState));
@@ -46,6 +45,8 @@ public readonly ref partial struct GuiWidget
 
     internal void EndSpace(in SpaceScope space)
     {
+        MoveCursor(space.end.size);
+        
         SpaceEndReplay.Record(Recorder, space.end, false);
             
         if (!space.end.isFocused) return;
