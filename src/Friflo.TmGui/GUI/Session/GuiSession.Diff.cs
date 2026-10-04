@@ -9,7 +9,7 @@ using System.Runtime.InteropServices;
 // ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable InlineTemporaryVariable
 // ReSharper disable CheckNamespace
-namespace Friflo.TmGui.Http;
+namespace Friflo.TmGui.Session;
 
 
 public sealed partial class GuiSession

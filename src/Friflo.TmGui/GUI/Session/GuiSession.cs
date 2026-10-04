@@ -12,7 +12,7 @@ using Friflo.TmGui.Session;
 // ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable InlineTemporaryVariable
 // ReSharper disable CheckNamespace
-namespace Friflo.TmGui.Http;
+namespace Friflo.TmGui.Session;
 
 
 internal sealed class GuiIterateBuffers
@@ -50,8 +50,8 @@ public sealed partial class GuiSession : TmSession
         this.client = client;
     }
     
-    protected override TmGuiBackend    Backend          => wsBackend;
-    protected override bool            ReceivedInput    => receivedInput;
+    protected internal override TmGuiBackend    Backend          => wsBackend;
+    protected internal override bool            ReceivedInput    => receivedInput;
 
 
     public override Memory<byte> IterateUI(AssetResources resources)

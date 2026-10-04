@@ -3,7 +3,7 @@
 
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable CheckNamespace
-namespace Friflo.TmGui.Http;
+namespace Friflo.TmGui.Session;
 
 
 internal class WsBatch : TmBatch
@@ -12,7 +12,7 @@ internal class WsBatch : TmBatch
     {
     }
 
-    protected override void InitBatch()
+    protected internal override void InitBatch()
     {
         
     }

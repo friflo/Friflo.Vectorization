@@ -7,7 +7,7 @@ using System.Numerics;
 using System.Text;
 
 // ReSharper disable CheckNamespace
-namespace Friflo.TmGui.Http;
+namespace Friflo.TmGui.Session;
 
 
 public sealed partial class GuiSession

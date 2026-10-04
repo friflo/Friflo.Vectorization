@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Friflo.TmGui;
-using Friflo.TmGui.Http;
+using Friflo.TmGui.Session;
 using NUnit.Framework;
 
 

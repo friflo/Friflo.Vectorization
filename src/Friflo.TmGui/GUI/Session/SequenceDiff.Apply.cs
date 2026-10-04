@@ -10,7 +10,7 @@ using System.Runtime.InteropServices;
 // ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable ReplaceSliceWithRangeIndexer
 // ReSharper disable CheckNamespace
-namespace Friflo.TmGui.Http;
+namespace Friflo.TmGui.Session;
 
 
 public static partial class SequenceDiff

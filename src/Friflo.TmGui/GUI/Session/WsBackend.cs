@@ -8,7 +8,7 @@ using Friflo.TmGui.Headless;
 
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable CheckNamespace
-namespace Friflo.TmGui.Http;
+namespace Friflo.TmGui.Session;
 
 internal class WsBackend : TmGuiBackend
 {
@@ -23,13 +23,13 @@ internal class WsBackend : TmGuiBackend
     
     public    override   TmFont      DefaultFont => rootBackend.DefaultFont;
 
-    protected override TmBuffer<Vertex2D> CreateVertexBuffer(int vertexCount)
+    protected internal override TmBuffer<Vertex2D> CreateVertexBuffer(int vertexCount)
     {
         var buffer = new MemoryBuffer<Vertex2D>(vertexCount);
         return new HeadlessBuffer<Vertex2D>(buffer);
     }
 
-    protected override TmBuffer<uint> CreateIndexBuffer(int indexCount)
+    protected internal override TmBuffer<uint> CreateIndexBuffer(int indexCount)
     {
         var buffer = new MemoryBuffer<uint>(indexCount);
         return new HeadlessBuffer<uint>(buffer);
