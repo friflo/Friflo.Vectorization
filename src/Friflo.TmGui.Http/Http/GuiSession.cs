@@ -18,20 +18,20 @@ namespace Friflo.TmGui.Http;
 
 public sealed partial class GuiSession : TmSession
 {
-    private  readonly   TmClient        client;         // instance: passed
+    private  readonly   TmClient        client;             // instance: passed
     private  readonly   WsBackend       wsBackend;
-    private  readonly   WsBatch         wsBatch;        // instance: creates / owns
-    private  readonly   HashSet<int>    usedTexturesMap = [];
-    private             WsDrawCommand[] wsDrawList      = [];
-    private             byte[]          sendBuffer      = [];
+    private  readonly   WsBatch         wsBatch;            // instance: creates / owns
+    private  readonly   HashSet<int>    usedTexturesMap     = [];
+    private             WsDrawCommand[] wsDrawList          = [];   // move to WsBatch
+    private             byte[]          sendBuffer          = [];   // move to WsBatch
     private             ulong           lastSendBufferHash;
-    private             int             canvasWidth     = 500;
-    private             int             canvasHeight    = 300;
+    private             int             canvasWidth         = 500;
+    private             int             canvasHeight        = 300;
     // --- changes
-    private readonly    List<SeqChange> changeList          = [];
-    private             int[]           quadHashesBuffer    = [];
-    private             List<int>       remoteQuadList      = [];
-    private             VertexQuad[]    quadBuffer          = [];
+    private readonly    List<SeqChange> changeList          = [];   // move to WsBatch
+    private             int[]           quadHashesBuffer    = [];   // move to WsBatch
+    private readonly    List<int>       clientQuadList      = [];
+    private             VertexQuad[]    quadBuffer          = [];   // move to WsBatch
     
     public static GuiSession CreateGuiSession(TmClient client, TmGuiBackend rootBackend)
     {
@@ -170,67 +170,66 @@ public sealed partial class GuiSession : TmSession
         if (quadHashesBuffer.Length < quads.Length) {
             quadHashesBuffer = new int[quads.Length];
         }
-        var quadHashes = quadHashesBuffer.AsSpan(0, quads.Length);
+        var newHashes = quadHashesBuffer.AsSpan(0, quads.Length);
         for (int n= 0; n < quads.Length; n++) {
-            quadHashes[n] = quads[n].GetHashCode();
+            newHashes[n] = quads[n].GetHashCode();
         }
-        var remoteQuads = CollectionsMarshal.AsSpan(remoteQuadList);
-        SequenceDiff.TryComputeChanges(remoteQuads, quadHashes, 100000, changeList, out int diffItemCount);
+        var clientQuads = CollectionsMarshal.AsSpan(clientQuadList);
+        SequenceDiff.TryComputeChanges(clientQuads, newHashes, 100000, changeList, out int diffValueCount);
 
-        remoteQuadList.Clear();
-        remoteQuadList.AddRange(quadHashes);
+        clientQuadList.Clear();
+        clientQuadList.AddRange(newHashes);
         
         /* if (changeList.Count == 0) {
             return vertices;
         } */
-        return vertices;
-        if (quadBuffer.Length < diffItemCount) {
-            quadBuffer = new VertexQuad[diffItemCount];
+        if (quadBuffer.Length < diffValueCount) {
+            quadBuffer = new VertexQuad[diffValueCount];
         }
-        var diffQuads = quadBuffer.AsSpan(0, diffItemCount);
-        var targetPos = 0;
+        var diffQuads = quadBuffer.AsSpan(0, diffValueCount);
+        var diffPos = 0;
         foreach (var change in changeList) {
             switch (change.Type) {
                 case SeqChangeType.Insert:
                 case SeqChangeType.Modify:
-                    var target = diffQuads.Slice(targetPos, change.Length);
+                    var target = diffQuads.Slice(diffPos, change.Length);
                     quads.Slice(change.Start, change.Length).CopyTo(target);
-                    targetPos  += change.Length;
+                    diffPos  += change.Length;
                     break;
             }
         }
-        Debug.Assert(targetPos == diffItemCount);
+        Debug.Assert(diffPos == diffValueCount);
         
         DebugVerifyApplyDiff(quads, diffQuads);
         
         return vertices;
     }
     
-    private  readonly   List<VertexQuad>    debugRemoteQuads = [];
-    private             VertexQuad[]        debugRemoteTarget = [];
+    private  readonly   List<VertexQuad>    debugClientQuads = [];
+    private             VertexQuad[]        debugClientTarget = [];
     
     private void DebugVerifyApplyDiff(ReadOnlySpan<VertexQuad> quads, ReadOnlySpan<VertexQuad> diffQuads)
     {
-        ReadOnlySpan<VertexQuad> remoteQuads = CollectionsMarshal.AsSpan(debugRemoteQuads);
+        ReadOnlySpan<VertexQuad> clientQuads = CollectionsMarshal.AsSpan(debugClientQuads);
         
-        if (debugRemoteTarget.Length < quads.Length) {
-            debugRemoteTarget = new VertexQuad[quads.Length];
+        if (debugClientTarget.Length < quads.Length) {
+            debugClientTarget = new VertexQuad[quads.Length];
         }
-        var remoteTarget = debugRemoteTarget.AsSpan(0, remoteQuadList.Count);
-        SequenceDiff.ApplyChanges(remoteQuads, changeList, diffQuads, remoteTarget);
+        var clientTarget = debugClientTarget.AsSpan(0, clientQuadList.Count);
+        SequenceDiff.ApplyChanges(clientQuads, changeList, diffQuads, clientTarget);
 
-        var isEqual = quads.SequenceEqual(remoteTarget);
+        var isEqual = quads.SequenceEqual(clientTarget);
         if (!isEqual) {
             int n = 0;
             for (; n < quads.Length; n++) {
-                if (quads[n] != remoteTarget[n]) {
+                if (quads[n] != clientTarget[n]) {
                     break;
                 }
             }
             Debug.Fail($"ApplyChanges failed. Diff at: {n}");    
         }
-        debugRemoteQuads.Clear();
-        debugRemoteQuads.AddRange(quads);
+        debugClientQuads.Clear();
+        debugClientQuads.AddRange(quads);
     }
 }
 
