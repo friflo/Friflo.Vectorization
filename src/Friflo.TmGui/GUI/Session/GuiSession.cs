@@ -52,13 +52,13 @@ internal sealed partial class GuiSession : TmSession
         this.client = client;
     }
     
-    protected internal override TmGuiBackend    Backend          => wsBackend;
-    protected internal override bool            ReceivedInput    => receivedInput;
+    protected internal override TmGuiBackend    Backend     => wsBackend;
+    protected internal override bool            IsDirty     => isDirty;
 
 
     internal override Memory<byte> IterateUI(AssetResources resources)
     {
-        receivedInput = false;
+        isDirty = false;
         
         wsBackend.NewFrame();
         guiView!.RenderGui(wsBatch, canvasWidth, canvasHeight);

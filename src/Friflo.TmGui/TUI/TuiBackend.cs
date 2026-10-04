@@ -81,6 +81,6 @@ public sealed class TuiBackend : TmGuiBackend
     public override TmImageAsset GetTextureImage(TmTexture texture)
     {
         var tex = (TuiTexture)texture.native!;
-        return new TmImageAsset { width = tex.width, height = tex.height, data = tex.data };
+        return new TmImageAsset { width = tex.width, height = tex.height, data = tex.data, name = tex.name };
     }
 }

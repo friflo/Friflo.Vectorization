@@ -17,7 +17,7 @@ internal abstract class TmSession
     protected internal          IGuiView?       guiView;
     
     protected internal abstract TmGuiBackend    Backend             { get; }
-    protected internal virtual  bool            ReceivedInput       => false;
+    protected internal virtual  bool            IsDirty             => false;
     internal           virtual  GuiReplay?      CreateReplay()      => null;
     internal           virtual  void            SendReplayCommands() { }
     

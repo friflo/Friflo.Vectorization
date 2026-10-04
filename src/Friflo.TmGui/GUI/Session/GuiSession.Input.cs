@@ -12,7 +12,7 @@ namespace Friflo.TmGui.Session;
 
 internal sealed partial class GuiSession
 {
-    private bool        receivedInput;
+    private bool        isDirty;
     private Vector2     pendingMousePos;
     private bool        isMouseMoveEvent;
     private bool        isMouseDownEvent;
@@ -29,7 +29,7 @@ internal sealed partial class GuiSession
     
     internal override void ProcessInput(ReadOnlySpan<byte> utf8Bytes)
     {
-        receivedInput = true;
+        isDirty = true;
         Span<char> chars = stackalloc char[utf8Bytes.Length];
         int charCount = Encoding.UTF8.GetChars(utf8Bytes, chars);
         ReadOnlySpan<char> span = chars.Slice(0, charCount);

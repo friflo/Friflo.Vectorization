@@ -211,7 +211,7 @@ public partial class TuiBatch
     }
     
     /// <summary> Expands the given pixel size to fully cover discrete terminal cell boundaries. </summary>
-    public Vector2 ExpandToCellGrid(Vector2 size)
+    internal Vector2 ExpandToCellGrid(Vector2 size)
     {
         var rasterWidth  = MathF.Ceiling(size.X * xScale) * CharWidth;
         var rasterHeight = MathF.Ceiling(size.Y * yScale) * LineHeight;

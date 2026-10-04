@@ -10,6 +10,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\Friflo.TmGui.Assets\Friflo.TmGui.Assets.csproj" />
+      <ProjectReference Include="..\Friflo.TmGui.Http\Friflo.TmGui.Http.csproj" />
     </ItemGroup>
     
     <ItemGroup>

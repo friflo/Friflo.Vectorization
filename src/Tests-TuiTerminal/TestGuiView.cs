@@ -46,6 +46,7 @@ public class TestGuiView : IGuiView
     {
         var oldDrawType = appState.drawType;
         batch.TickRate = 60;
+        batch.TickEnabled = false;
         Static.Noop();
         
         var timestamp   = Stopwatch.GetTimestamp();
@@ -136,8 +137,8 @@ public class TestGuiView : IGuiView
         gui.Checkbox("terminal pixels", ref appState.useTerminalPixels);
         var canvasSize = new Vector2(CanvasWidth, CanvasHeight);
         if (appState.useTerminalPixels) canvasSize *= gui.TerminalPixelSize;
-
-        using (var space = gui.BeginSpace(gui.Draw.Tui.ExpandToCellGrid(canvasSize), "canvas")) {
+        
+        using (var space = gui.BeginSpace(gui.ExpandToCellGrid(canvasSize), "canvas")) {
             if (appState.drawType != DrawType.None) {
                 // gui.Draw.FillRect(space.Pos, canvasSize, 0xffffffff);
                 gui.Draw.DrawSprite(canvasTexture, space.Pos, canvasSize);
@@ -148,7 +149,7 @@ public class TestGuiView : IGuiView
         var spriteSize = new Vector2(192, 64);
         if (appState.useTerminalPixels) spriteSize *= gui.TerminalPixelSize;
         
-        var spaceSize = gui.Draw.Tui.ExpandToCellGrid(spriteSize);
+        var spaceSize = gui.ExpandToCellGrid(spriteSize);
         // gui.Draw.Tui?.FillRect(gui.widget.Window.Cursor, spaceSize, Color32.Orange);
 
         using (var space = gui.BeginSpace(spaceSize, "sprite")) {

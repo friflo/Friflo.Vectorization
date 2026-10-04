@@ -76,6 +76,10 @@ public partial class TmSessionLoop
                     {
                         var payload = evt.Payload.Span;
                         session.ProcessInput(payload);
+                        var sendBuffer = session.IterateUI(resources);
+                        if (!sendBuffer.IsEmpty) {
+                            evt.Client.Send(sendBuffer);
+                        }
                     }
                     break;
     
@@ -139,7 +143,7 @@ public partial class TmSessionLoop
         }
 
         foreach (var (client, session) in sessions) {
-            if (!session.ReceivedInput) {
+            if (!session.IsDirty) {
                 continue;
             }
             ReadOnlyMemory<byte> sendBuffer = session.IterateUI(resources);

@@ -31,6 +31,13 @@ public readonly ref struct Gui
     public              Vector2     TerminalPixelSize   { [Hide] get => widget.draw.batch.terminalPixelSize;    }
     public              TmBatch     Batch               { [Hide] get => widget.draw.batch;                      }
 
+    /// <summary>
+    /// TUI - Expands the given pixel size to fully cover discrete terminal cell boundaries. <br/>
+    /// GUI - Returned size remains unchanged. <br/>
+    /// </summary>
+    public  Vector2 ExpandToCellGrid(Vector2 size) {
+        return widget.draw.Tui?.ExpandToCellGrid(size) ?? size;
+    }
 
     public override     string?     ToString() {
         var recorder = widget.Recorder;

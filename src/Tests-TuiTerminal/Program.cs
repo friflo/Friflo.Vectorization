@@ -1,6 +1,7 @@
 ﻿using System.Net;
 using System.Net.Sockets;
 using Friflo.TmGui;
+using Friflo.TmGui.Http;
 using Friflo.TmGui.Session;
 using Friflo.TmGui.TUI;
 using TuiTerminal;
@@ -43,6 +44,9 @@ bool runAsync = false;
 
 var assets = new DefaultGuiAssets();
 var loop = new TmSessionLoop(runAsync, new TuiBackend("Terminal", assets), info => new TestGuiView(appState, info));
+
+var httpServer = new KestrelHttpServer(loop, new IPEndPoint(IPAddress.Any, 8080));
+httpServer.Start();
 
 if (runAsync) {
     loop.StartAsync(); // Spawns dedicated "ShardLoopThread"
