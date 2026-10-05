@@ -155,6 +155,9 @@ internal sealed partial class GuiSession : TmSession
             int encodedBytes = Encoding.UTF8.GetBytes(image.asset.name, span[bytesWritten..]);
             bytesWritten += encodedBytes;
         }
+        // write terminator to check message consistency on client
+        MemoryMarshal.Write(span[bytesWritten..], 0x12345678);
+        bytesWritten += sizeof(int);
         
         var memory = new Memory<byte>(buffers.sendBuffer, 0, bytesWritten);
 

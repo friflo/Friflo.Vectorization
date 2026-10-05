@@ -328,6 +328,11 @@ function processDrawList(uint8Data)
 
         ensureTextureLoaded(textureId, name);
     }
+    const terminator = view.getInt32(offset, true);
+    offset += SIZEOF_INT;
+    if (terminator !== 0x12345678) {
+        console.error("found invalid terminator");
+    }    
     
     updateMouseCursor(canvas, mouseCursor);
     
