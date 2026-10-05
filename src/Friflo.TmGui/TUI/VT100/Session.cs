@@ -14,33 +14,38 @@ using Friflo.TmGui.Session;
 namespace Friflo.TmGui.TUI.VT100;
 
 
+internal sealed class TuiSessionShared
+{
+    internal readonly   FrameBuffer     frameBuffer = new();
+    internal readonly   SixelDrawer     sixelDrawer = new();
+}
+
+
 internal sealed partial class TuiSession : TmSession
 {
-    private  readonly   TmClient        client;         // instance: passed
-    private  readonly   TuiColorMode    colorMode;
-    private  readonly   FrameBuffer     frameBuffer;    // instance: shared
-    private  readonly   SixelDrawer     sixelDrawer;    // instance: shared
-    private  readonly   TuiBackend      tuiBackend;     // instance: creates / owns
-    internal readonly   TuiBatch        tuiBatch;       // instance: creates / owns
-    private  readonly   byte[]          sendBuffer      = new byte[60000];  // TODO grow if needed
-    private             int             sendBufferCount;
-    private             int             frameWidth      = 50;
-    private             int             frameHeight     = 20;
-    private             bool            supportsSixel;
-    private             Vector2         cellPixelSize   = new(10, 20);
-    private             bool            sessionStart;
+    private  readonly   TmClient            client;         // instance: passed
+    private  readonly   TuiColorMode        colorMode;
+    private  readonly   TuiSessionShared    shared;         // instance: shared
+    private  readonly   TuiBackend          tuiBackend;     // instance: creates / owns
+    internal readonly   TuiBatch            tuiBatch;       // instance: creates / owns
+    private  readonly   byte[]              sendBuffer      = new byte[60000];  // TODO  should be shared / grow if needed
+    private             int                 sendBufferCount;
+    private             int                 frameWidth      = 50;
+    private             int                 frameHeight     = 20;
+    private             bool                supportsSixel;
+    private             Vector2             cellPixelSize   = new(10, 20);
+    private             bool                sessionStart;
     //
-    private             ulong           lastFrameHash;
-    private             ulong[]         lastLineHashes  = new ulong[10];
-    private             int             sendCounter;
+    private             ulong               lastFrameHash;
+    private             ulong[]             lastLineHashes  = new ulong[10];
+    private             int                 sendCounter;
     
-    internal TuiSession(TmClient client, SessionId sessionId, FrameBuffer frameBuffer, FrameTimer frameTimer, SixelDrawer sixelDrawer, IGuiAssets assets, TuiColorMode colorMode)
+    internal TuiSession(TmClient client, SessionId sessionId, TuiSessionShared shared, FrameTimer frameTimer, IGuiAssets assets, TuiColorMode colorMode)
         : base(sessionId)
     {
         this.client         = client;
         this.colorMode      = colorMode;
-        this.frameBuffer    = frameBuffer;
-        this.sixelDrawer    = sixelDrawer;
+        this.shared         = shared;
         tuiBackend          = new TuiBackend("Terminal", assets);
         
         tuiBatch            = tuiBackend.CreateBatch(colorMode);
@@ -169,7 +174,7 @@ internal sealed partial class TuiSession : TmSession
     private void AppendFrameBuffer(TmGuiBackend backend, TuiBatch batch, int width, int height)
     {
         var clear =  new TuiColorCell { Character = ' ', color = 0x000000ff, background = 0x888888ff };
-        batch.DrawRectCommands(frameBuffer, width, height, clear);
+        batch.DrawRectCommands(shared.frameBuffer, width, height, clear);
         
         if (backend.input.CurrentCursor != MouseCursor.Arrow) {
             DrawMouseCursor(backend);
@@ -206,7 +211,7 @@ internal sealed partial class TuiSession : TmSession
         var background      = new Color32();
         var textStyle       = TextStyle.None;
         AppendSpan("\x1b[0;30;40m"u8); // \x1b[0 Reset All;  30 Foreground Black;  40 Background Black  m SGR Command Terminator
-        var cells = frameBuffer.ColorCells;
+        var cells = shared.frameBuffer.ColorCells;
 
         for (int y = top; y < bottom; y++)
         {
@@ -276,8 +281,9 @@ internal sealed partial class TuiSession : TmSession
     
     private void AppendSixels(int width, int height)
     {
-        var cells = frameBuffer.ColorCells;
+        var cells = shared.frameBuffer.ColorCells;
 
+        var sixelDrawer = shared.sixelDrawer;
         sixelDrawer.SetClipCells(cells, width, height);
         var batch = tuiBatch;
         
@@ -317,7 +323,7 @@ internal sealed partial class TuiSession : TmSession
             color      = 0xffffffff,
             background = 0x606060ff
         };
-        var buffer  = frameBuffer;
+        var buffer  = shared.frameBuffer;
         var shape   = MouseCursorShape.Cursors[(int)backend.input.CurrentCursor];
         
         buffer.SetCell(x - 1, y, cell with { rune = new Rune(shape.left)   });

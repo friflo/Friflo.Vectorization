@@ -15,8 +15,6 @@ namespace Friflo.TmGui.Session;
 
 
 
-
-
 internal readonly struct SessionId
 {
     internal readonly   Guid    value;
@@ -66,7 +64,7 @@ internal sealed partial class GuiSession : TmSession
     internal GuiSession(TmClient client, SessionId sessionId, TmSessionLoop loop, FrameTimer frameTimer)
         : base(sessionId)
     {
-        shared              = loop.sessionShared;
+        shared              = loop.guiShared;
         wsBackend           = new WsBackend(loop.rootBackend, sessionId);
         wsBatch             = wsBackend.CreateBatch();
         wsBatch.frameTimer  = frameTimer;

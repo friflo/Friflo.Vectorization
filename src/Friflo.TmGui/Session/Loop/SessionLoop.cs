@@ -27,14 +27,13 @@ public sealed partial class TmSessionLoop : IDisposable
     private  readonly   AutoResetEvent                      eventReady;     // used by: sync loop
     private  readonly   Channel<ClientEvent>                eventChannel;   // used by: async loop
     private  readonly   Dictionary<TmClient, TmSession>     sessions;       // Raw non-thread-safe state (accessed exclusively by _shardThread)
-    private  readonly   FrameBuffer                         frameBuffer;    // shared among all TuiSession's - is accessed single threaded
-    private  readonly   SixelDrawer                         sixelDrawer;    // shared among all TuiSession's
     private  readonly   CreateGuiView                       createGuiView;  // IBatchRenderer factory
     private  readonly   CancellationTokenSource             cts             = new();
     private             Thread?                             shardThread;
     private             bool                                isDisposed;
     private  readonly   Action                              exitHandler;
-    internal readonly   GuiSessionShared                    sessionShared;  // shared among all GuiSession's
+    private  readonly   TuiSessionShared                    tuiShared;      // shared among all TuiSession's
+    internal readonly   GuiSessionShared                    guiShared;      // shared among all GuiSession's
     internal readonly   TmGuiBackend                        rootBackend;    // shared among all sessions
 
     private const int MaxSyncQueueCapacity = 32;
@@ -62,10 +61,9 @@ public sealed partial class TmSessionLoop : IDisposable
             eventReady      = new AutoResetEvent(false);
         }
         sessions            = new Dictionary<TmClient, TmSession>();
-        frameBuffer         = new FrameBuffer();
-        sixelDrawer         = new SixelDrawer();
         exitHandler         = ExitHandler;
-        sessionShared       = new GuiSessionShared();
+        tuiShared           = new TuiSessionShared();
+        guiShared           = new GuiSessionShared();
         PosixSignalUtils.AddExitHandler(exitHandler);
     }
     
@@ -164,7 +162,7 @@ public sealed partial class TmSessionLoop : IDisposable
 
         var frameTimer  = new FrameTimer(this, client, 60, isSync);
         var sessionId   = new SessionId(_sessionSeq++);
-        var session     = new TuiSession(client, sessionId, frameBuffer, frameTimer, sixelDrawer, rootBackend.Assets, TuiColorMode.RGB24);
+        var session     = new TuiSession(client, sessionId, tuiShared, frameTimer, rootBackend.Assets, TuiColorMode.RGB24);
 
         var sessionInfo = new SessionInfo{ client = client, backend = session.Backend, args = args };
         var guiView     = createGuiView(sessionInfo);
