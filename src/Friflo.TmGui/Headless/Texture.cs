@@ -10,12 +10,12 @@ using System;
 // ReSharper disable CheckNamespace
 namespace Friflo.TmGui.Headless;
 
-public sealed class HeadlessTexture
+internal sealed class HeadlessTexture
 {
-    public  readonly    string  name;
-    public  readonly    int     width;
-    public  readonly    int     height;
-    public  readonly    byte[]  rgbaPixels;
+    internal readonly   string  name;
+    internal readonly   int     width;
+    internal readonly   int     height;
+    internal readonly   byte[]  rgbaPixels;
 
     public  override    string  ToString() => name;
 

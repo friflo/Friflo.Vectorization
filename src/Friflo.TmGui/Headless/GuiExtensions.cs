@@ -5,14 +5,14 @@
 // ReSharper disable CheckNamespace
 namespace Friflo.TmGui.Headless;
 
-public static class HeadlessExtensions
+internal static class HeadlessExtensions
 {
-    public static TmTexture AsImTexture(this HeadlessTexture texture)
+    internal static TmTexture AsImTexture(this HeadlessTexture texture)
     {
         return new TmTexture(texture, 0);
     }
     
-    public static HeadlessTexture AsGpuTexture(in this TmTexture tmTexture)
+    internal static HeadlessTexture AsGpuTexture(in this TmTexture tmTexture)
     {
         return (HeadlessTexture)tmTexture.native!;
     }

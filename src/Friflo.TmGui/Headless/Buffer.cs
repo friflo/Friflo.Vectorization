@@ -9,24 +9,24 @@ using System;
 namespace Friflo.TmGui.Headless;
 
 
-public sealed class MemoryBuffer<T> :IDisposable where T : unmanaged
+internal sealed class MemoryBuffer<T> :IDisposable where T : unmanaged
 {
-    public readonly Memory<T> memory;
+    internal readonly Memory<T> memory;
     
-    public MemoryBuffer(int size) {
+    internal MemoryBuffer(int size) {
         memory = new Memory<T>(new T[size]);
     }
 
     public void Dispose() { }
 }
 
-public sealed class HeadlessBuffer<T> : TmBuffer<T> where T : unmanaged
+internal sealed class HeadlessBuffer<T> : TmBuffer<T> where T : unmanaged
 {
     private readonly  MemoryBuffer<T> native;
     
     public   override Memory<T>     Memory => native.memory;
     
-    public HeadlessBuffer(MemoryBuffer<T> buffer) {
+    internal HeadlessBuffer(MemoryBuffer<T> buffer) {
         native = buffer;
     }
 
