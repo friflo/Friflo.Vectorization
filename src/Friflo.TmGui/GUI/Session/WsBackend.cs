@@ -2,7 +2,6 @@
 // See LICENSE file in the project root for full license information.
 
 using System;
-using System.Collections.Generic;
 using System.IO;
 using Friflo.TmGui.Headless;
 
@@ -12,11 +11,15 @@ namespace Friflo.TmGui.Session;
 
 internal class WsBackend : TmGuiBackend
 {
+    private  readonly   SessionId       sessionId;
     private  readonly   TmGuiBackend    rootBackend;
-    
-    internal WsBackend(TmGuiBackend rootBackend) : base(rootBackend.Assets)
+
+    public   override   string          ToString() => $"session: {sessionId}";
+
+    internal WsBackend(TmGuiBackend rootBackend, SessionId sessionId) : base(rootBackend.Assets)
     {
-        this.rootBackend = rootBackend;
+        this.sessionId      = sessionId;   
+        this.rootBackend    = rootBackend;
     }
     
     public    override   TmFont      DefaultFont => rootBackend.DefaultFont;
@@ -35,11 +38,13 @@ internal class WsBackend : TmGuiBackend
 
     public override TmTexture CreateTexture(string name, int width, int height, ReadOnlySpan<byte> rgbaPixels)
     {
+        name = $"{sessionId.str}/{name}"; 
         return rootBackend.CreateTexture(name, width, height, rgbaPixels);
     }
 
     public override TmTexture LoadTexture(Stream stream, string? label = null, TmTextureUsage usage = TmTextureUsage.None | TmTextureUsage.CopyDst | TmTextureUsage.TextureBinding)
     {
+        label = $"{sessionId.str}/{label}"; 
         return rootBackend.LoadTexture(stream, label, usage);
     }
     

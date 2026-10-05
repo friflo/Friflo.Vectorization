@@ -40,12 +40,12 @@ public sealed partial class TmSessionLoop : IDisposable
     private const int MaxSyncQueueCapacity = 32;
 #endregion
     
-    public TmSessionLoop(bool isAsync, TmGuiBackend backend, CreateGuiView createGuiView)
+    public TmSessionLoop(bool isAsync, TmGuiBackend rootBackend, CreateGuiView createGuiView)
     {
         this.isAsync        = isAsync;
         this.createGuiView  = createGuiView;
-        this.rootBackend    = backend;
-        resources           = new AssetResources(backend);
+        this.rootBackend    = rootBackend;
+        resources           = new AssetResources(rootBackend);
         if (isAsync) {
             // Bounded channel to enforce non-blocking backpressure via TryWrite
             var options = new BoundedChannelOptions(MaxSyncQueueCapacity) {
@@ -163,7 +163,8 @@ public sealed partial class TmSessionLoop : IDisposable
         var args        = firstLine == -1 ? [] : GetArgs(payload.Span.Slice(0, firstLine));
 
         var frameTimer  = new FrameTimer(this, client, 60, isSync);
-        var session     = new TuiSession(client, frameBuffer, frameTimer, sixelDrawer, rootBackend.Assets, TuiColorMode.RGB24);
+        var sessionId   = new SessionId(_sessionSeq++);
+        var session     = new TuiSession(client, sessionId, frameBuffer, frameTimer, sixelDrawer, rootBackend.Assets, TuiColorMode.RGB24);
 
         var sessionInfo = new SessionInfo{ client = client, backend = session.Backend, args = args };
         var guiView     = createGuiView(sessionInfo);
@@ -178,8 +179,9 @@ public sealed partial class TmSessionLoop : IDisposable
     // protected virtual TmSession CreateGuiSession(TmClient client, bool isSync, out Memory<byte> firstPayload) => throw new NotImplementedException();
     private GuiSession CreateGuiSession(TmClient client, bool isSync, out Memory<byte> firstPayload)
     {
-        var frameTimer      = new FrameTimer(this, client, 60, isSync);
-        GuiSession session  = new GuiSession(client, this, frameTimer);
+        var frameTimer  = new FrameTimer(this, client, 60, isSync);
+        var sessionId   = new SessionId(_sessionSeq++);
+        var session     = new GuiSession(client, sessionId, this, frameTimer);
         
         var sessionInfo = new SessionInfo{ client = client, backend = session.Backend, args = [] };
         var guiView     = createGuiView(sessionInfo);
@@ -189,5 +191,7 @@ public sealed partial class TmSessionLoop : IDisposable
         firstPayload    = default;
         return session;
     }
+    
+    private static int _sessionSeq = 1;
 }
 

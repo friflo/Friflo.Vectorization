@@ -27,7 +27,7 @@ public class DefaultGuiAssets : IGuiAssets
         using var fntFile   = assembly.GetManifestResourceStream("Friflo.TmGui.Assets.fonts.arial-48-latin.fnt");
         using var reader    = new StreamReader(fntFile!, Encoding.UTF8);
         var fntContent      = reader.ReadToEnd();
-        return backend.CreateBMFont(fntContent, fontAtlas!, "Default Font");
+        return backend.CreateBMFont(fntContent, fontAtlas!, "Default-Font");
     }
     
     public TmImageAsset LoadImage(Stream stream, TmColorComponents colorComponents)

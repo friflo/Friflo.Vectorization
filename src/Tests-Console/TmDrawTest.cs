@@ -170,7 +170,7 @@ public class TmDrawRenderer : IRenderer
         }
         
         var font = draw.Font;
-        Debug.Assert(font.name == "Default Font");
+        Debug.Assert(font.name == "Default-Font");
         Debug.Assert((int)font.lineHeight == 47);
         Debug.Assert(font.glyphs.Count == 191);
     }

@@ -34,7 +34,8 @@ internal sealed partial class TuiSession : TmSession
     private             ulong[]         lastLineHashes  = new ulong[10];
     private             int             sendCounter;
     
-    internal TuiSession(TmClient client, FrameBuffer frameBuffer, FrameTimer frameTimer, SixelDrawer sixelDrawer, IGuiAssets assets, TuiColorMode colorMode)
+    internal TuiSession(TmClient client, SessionId sessionId, FrameBuffer frameBuffer, FrameTimer frameTimer, SixelDrawer sixelDrawer, IGuiAssets assets, TuiColorMode colorMode)
+        : base(sessionId)
     {
         this.client         = client;
         this.colorMode      = colorMode;

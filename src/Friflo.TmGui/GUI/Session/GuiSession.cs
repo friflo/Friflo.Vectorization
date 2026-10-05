@@ -26,6 +26,27 @@ internal sealed class GuiIterateBuffers
     internal            VertexQuad[]    quadBuffer          = [];
 }
 
+
+internal readonly struct SessionId
+{
+    internal readonly   Guid    value;
+    internal readonly   string  str;
+
+    public   override   string  ToString() => str;
+    
+    internal SessionId(int id)
+    {
+        value   = Guid.Parse($"{id:D32}");
+        str     = id.ToString();
+    }
+    
+    public SessionId() {
+        value   = Guid.NewGuid();
+        str     = value.ToString();
+    }
+}
+
+
 internal sealed partial class GuiSession : TmSession
 {
     private  readonly   TmClient            client;             // instance: passed
@@ -40,10 +61,11 @@ internal sealed partial class GuiSession : TmSession
     // --- changes
     private readonly    List<int>           clientQuadList      = [];
     
-    internal GuiSession(TmClient client, TmSessionLoop loop, FrameTimer frameTimer)
+    internal GuiSession(TmClient client, SessionId sessionId, TmSessionLoop loop, FrameTimer frameTimer)
+        : base(sessionId)
     {
         buffers             = loop.iterateBuffers;
-        wsBackend           = new WsBackend(loop.rootBackend);
+        wsBackend           = new WsBackend(loop.rootBackend, sessionId);
         wsBatch             = wsBackend.CreateBatch();
         wsBatch.frameTimer  = frameTimer;
         this.client = client;

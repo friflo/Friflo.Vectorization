@@ -15,6 +15,9 @@ namespace Friflo.TmGui.Session;
 internal abstract class TmSession
 {
     protected internal          IGuiView?       guiView;
+    private   readonly          SessionId       sessionId;
+    
+    public    override          string          ToString()          => $"session: {sessionId}";
     
     protected internal abstract TmGuiBackend    Backend             { get; }
     protected internal virtual  bool            IsDirty             => false;
@@ -23,6 +26,10 @@ internal abstract class TmSession
     
     internal           abstract void            ProcessInput(ReadOnlySpan<byte> input);
     internal           abstract Memory<byte>    IterateUI(AssetResources resources);
+    
+    internal TmSession(SessionId sessionId) {
+        this.sessionId = sessionId;
+    }
 }
 
 public enum ClientEventType : byte

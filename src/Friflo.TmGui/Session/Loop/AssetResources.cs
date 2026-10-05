@@ -23,9 +23,7 @@ public readonly struct AssetResources
         var asset = rootBackend.GetTextureImage(texture);
         var image = new ImageResource { textureId = textureId, asset = asset, texture = texture, assets = rootBackend.Assets };
         images.Add(image);
-        if (asset.name != null) {
-            stringToImage.TryAdd(asset.name, image);   // TODO fix me!!!
-        }
+        stringToImage.Add(asset.name, image);
         return textureId;
     }
     
