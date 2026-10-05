@@ -16,13 +16,16 @@ internal struct WsSendBuffer
     internal byte[] data = new byte[64 * 1024];
     internal int pendingLength;
     
-    internal void CopyFrom(ReadOnlyMemory<byte> buffer)
+    internal void AppendFrom(ReadOnlyMemory<byte> buffer)
     {
-        if (data.Length < buffer.Length) {
-            data = new byte[buffer.Length];
+        int newLength = pendingLength + buffer.Length;
+        if (data.Length < newLength) {
+            byte[] newBuffer = new byte[Math.Max(data.Length * 2, newLength)];
+            Array.Copy(data, 0, newBuffer, 0, pendingLength);
+            data = newBuffer;
         }
-        buffer.CopyTo(data);
-        pendingLength = buffer.Length;
+        buffer.CopyTo(data.AsMemory(pendingLength));
+        pendingLength = newLength;
     }
     
     public WsSendBuffer() { }
@@ -63,11 +66,10 @@ internal class WebSocketClient : TmClient
 
         lock (bufferLock)
         {
-            frontBuffer.CopyFrom(data);
+            frontBuffer.AppendFrom(data);
+            Volatile.Write(ref hasPendingFrame, 1);
         }
 
-        // Set flag atomically: 0 Heap Allocations!
-        Interlocked.Exchange(ref hasPendingFrame, 1);
         return data.Length;
     }
 
@@ -82,6 +84,7 @@ internal class WebSocketClient : TmClient
         lock (bufferLock)
         {
             if (frontBuffer.pendingLength == 0) {
+                Volatile.Write(ref hasPendingFrame, 0);
                 return;
             }
 
@@ -90,6 +93,7 @@ internal class WebSocketClient : TmClient
             
             // Clear pending length on new frontBuffer so it is ready for the next frame
             frontBuffer.pendingLength = 0;
+            Volatile.Write(ref hasPendingFrame, 0);
         }
 
         // Send backBuffer asynchronously - OnFrame thread is completely free to write to frontBuffer now
@@ -111,7 +115,7 @@ internal class WebSocketClient : TmClient
         while (client.webSocket.State == WebSocketState.Open && !cancellationToken.IsCancellationRequested)
         {
             // Wait briefly or check for pending frame signal without WaitAsync allocations
-            if (Interlocked.CompareExchange(ref client.hasPendingFrame, 0, 1) == 1)
+            if (Volatile.Read(ref client.hasPendingFrame) == 1)
             {
                 await client.FlushPendingBufferAsync(cancellationToken);
             }
