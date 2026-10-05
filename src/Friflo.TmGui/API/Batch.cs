@@ -9,7 +9,7 @@ using System.Globalization;
 using System.Numerics;
 using System.Text;
 using Friflo.TmGui.Headless;
-using Friflo.TmGui.Image;
+using Friflo.TmGui.Raster;
 using Friflo.TmGui.Session;
 using Friflo.TmGui.TUI;
 using Hide = System.Diagnostics.DebuggerHiddenAttribute;

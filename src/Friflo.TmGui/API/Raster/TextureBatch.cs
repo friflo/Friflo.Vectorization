@@ -18,7 +18,7 @@ using Friflo.TmGui.Session;
 // ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable once CheckNamespace
-namespace Friflo.TmGui.Image;
+namespace Friflo.TmGui.Raster;
 
 
 internal sealed class TextureBatch : TmBatch
