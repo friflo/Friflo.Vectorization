@@ -14,17 +14,7 @@ using System.Text;
 namespace Friflo.TmGui.Session;
 
 
-internal sealed class GuiIterateBuffers
-{
-    internal            WsDrawCommand[] wsDrawList          = [];
-    internal            byte[]          sendBuffer          = [];
-    internal readonly   List<int>       newTextures         = [];
 
-    // --- changes
-    internal readonly   List<SeqChange> changeList          = [];
-    internal            int[]           quadHashesBuffer    = [];
-    internal            VertexQuad[]    quadBuffer          = [];
-}
 
 
 internal readonly struct SessionId
@@ -46,13 +36,25 @@ internal readonly struct SessionId
     }
 }
 
+internal sealed class GuiSessionShared
+{
+    internal            WsDrawCommand[] wsDrawList          = [];
+    internal            byte[]          sendBuffer          = [];
+    internal readonly   List<int>       newTextures         = [];
+
+    // --- changes
+    internal readonly   List<SeqChange> changeList          = [];
+    internal            int[]           quadHashesBuffer    = [];
+    internal            VertexQuad[]    quadBuffer          = [];
+}
+
 
 internal sealed partial class GuiSession : TmSession
 {
     private  readonly   TmClient            client;             // instance: passed
     private  readonly   WsBackend           wsBackend;          // instance: creates / owns
     internal readonly   WsBatch             wsBatch;            // instance: creates / owns
-    private  readonly   GuiIterateBuffers   buffers;            // instance: shared
+    private  readonly   GuiSessionShared    shared;             // instance: shared
     
     private  readonly   HashSet<int>        clientTextures      = [];
     private             ulong               lastSendBufferHash;
@@ -64,7 +66,7 @@ internal sealed partial class GuiSession : TmSession
     internal GuiSession(TmClient client, SessionId sessionId, TmSessionLoop loop, FrameTimer frameTimer)
         : base(sessionId)
     {
-        buffers             = loop.iterateBuffers;
+        shared              = loop.sessionShared;
         wsBackend           = new WsBackend(loop.rootBackend, sessionId);
         wsBatch             = wsBackend.CreateBatch();
         wsBatch.frameTimer  = frameTimer;
@@ -86,11 +88,11 @@ internal sealed partial class GuiSession : TmSession
 
         var usedTextures    = clientTextures;
         var drawCommands    = wsBatch.DrawList;
-        var newTextures     = buffers.newTextures;
+        var newTextures     = shared.newTextures;
         newTextures.Clear();
 
-        if (buffers.wsDrawList.Length < drawCommands.Length) {
-            buffers.wsDrawList = new WsDrawCommand [drawCommands.Length];
+        if (shared.wsDrawList.Length < drawCommands.Length) {
+            shared.wsDrawList = new WsDrawCommand [drawCommands.Length];
         }
         for (int n = 0; n < drawCommands.Length; n++)
         {
@@ -99,7 +101,7 @@ internal sealed partial class GuiSession : TmSession
             if (usedTextures.Add(textureId)) {
                 newTextures.Add(textureId);
             }
-            buffers.wsDrawList[n] = new WsDrawCommand {
+            shared.wsDrawList[n] = new WsDrawCommand {
                 vertexView  = cmd.vertexView,
                 projection  = cmd.projection,
                 scissor     = cmd.scissor,
@@ -112,11 +114,11 @@ internal sealed partial class GuiSession : TmSession
         var sendLength = 8 + 8 + 4 + 4 + 4 + 4 + 
                          drawCommands.Length        * Unsafe.SizeOf<WsDrawCommand>() +
                          vertices.Length            * Unsafe.SizeOf<Vertex2D>() +
-                         buffers.changeList.Count   * Unsafe.SizeOf<SeqChange>();
-        if (buffers.sendBuffer.Length < sendLength) {
-            buffers.sendBuffer = new byte[sendLength + 1000]; // TODO 1000 ?
+                         shared.changeList.Count   * Unsafe.SizeOf<SeqChange>();
+        if (shared.sendBuffer.Length < sendLength) {
+            shared.sendBuffer = new byte[sendLength + 1000]; // TODO 1000 ?
         }
-        Span<byte> span = buffers.sendBuffer;
+        Span<byte> span = shared.sendBuffer;
         int bytesWritten = 0;
         
         // 0. Write RTT start time & send time (2 x double)
@@ -137,7 +139,7 @@ internal sealed partial class GuiSession : TmSession
         bytesWritten += sizeof(int);
         
         // 3. Write change count (int)
-        MemoryMarshal.Write(span[bytesWritten..], buffers.changeList.Count);
+        MemoryMarshal.Write(span[bytesWritten..], shared.changeList.Count);
         bytesWritten += sizeof(int);
         
         // 4. Write current mouse cursor shape (int)
@@ -145,7 +147,7 @@ internal sealed partial class GuiSession : TmSession
         bytesWritten += sizeof(int);
 
         // 5. Write wsDrawList elements
-        var drawListBytes = MemoryMarshal.AsBytes(buffers.wsDrawList.AsSpan(0, drawCommands.Length));
+        var drawListBytes = MemoryMarshal.AsBytes(shared.wsDrawList.AsSpan(0, drawCommands.Length));
         drawListBytes.CopyTo(span[bytesWritten..]);
         bytesWritten += drawListBytes.Length;
 
@@ -155,7 +157,7 @@ internal sealed partial class GuiSession : TmSession
         bytesWritten += vertexBytes.Length;
         
         // 7. Write change elements
-        var changes = CollectionsMarshal.AsSpan(buffers.changeList);
+        var changes = CollectionsMarshal.AsSpan(shared.changeList);
         var changesBytes = MemoryMarshal.AsBytes(changes);
         changesBytes.CopyTo(span[bytesWritten..]);
         bytesWritten += changesBytes.Length;
@@ -181,7 +183,7 @@ internal sealed partial class GuiSession : TmSession
         MemoryMarshal.Write(span[bytesWritten..], 0x12345678);
         bytesWritten += sizeof(int);
         
-        var memory = new Memory<byte>(buffers.sendBuffer, 0, bytesWritten);
+        var memory = new Memory<byte>(shared.sendBuffer, 0, bytesWritten);
 
         // remove time values from hash calculation
         var timeOffsets = 8 + 8;

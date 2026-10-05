@@ -34,7 +34,7 @@ public sealed partial class TmSessionLoop : IDisposable
     private             Thread?                             shardThread;
     private             bool                                isDisposed;
     private  readonly   Action                              exitHandler;
-    internal readonly   GuiIterateBuffers                   iterateBuffers; // shared among all GuiSession's
+    internal readonly   GuiSessionShared                    sessionShared;  // shared among all GuiSession's
     internal readonly   TmGuiBackend                        rootBackend;    // shared among all sessions
 
     private const int MaxSyncQueueCapacity = 32;
@@ -65,7 +65,7 @@ public sealed partial class TmSessionLoop : IDisposable
         frameBuffer         = new FrameBuffer();
         sixelDrawer         = new SixelDrawer();
         exitHandler         = ExitHandler;
-        iterateBuffers      = new GuiIterateBuffers();
+        sessionShared       = new GuiSessionShared();
         PosixSignalUtils.AddExitHandler(exitHandler);
     }
     
