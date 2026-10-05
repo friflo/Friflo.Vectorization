@@ -99,6 +99,7 @@ public partial class TmSessionLoop
                     break;
                 }
                 case ClientEventType.TerminalDisconnected:
+                case ClientEventType.WebsocketDisconnected:
                     sessions.Remove(evt.Client);
                     break;
 

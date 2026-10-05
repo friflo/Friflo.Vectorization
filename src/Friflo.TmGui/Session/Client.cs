@@ -32,6 +32,7 @@ public enum ClientEventType : byte
     TerminalInput,
     FrameTick,
     WebsocketConnected,
+    WebsocketDisconnected,
     WebsocketInput,
 }
 

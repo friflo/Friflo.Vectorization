@@ -104,7 +104,7 @@ internal class WebSocketClient : TmClient
         }
     }
 
-    internal static async Task HandleClientSessionAsync(WebSocketClient client, TmSessionLoop loop, CancellationToken cancellationToken)
+internal static async Task HandleClientSessionAsync(WebSocketClient client, TmSessionLoop loop, CancellationToken cancellationToken)
     {
         await loop.EnqueueEventAsync(client, ClientEventType.WebsocketConnected, default);
 
@@ -112,51 +112,63 @@ internal class WebSocketClient : TmClient
         byte[] buffer = ArrayPool<byte>.Shared.Rent(256);
         Task<WebSocketReceiveResult> receiveTask = client.webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), cancellationToken);
 
-        while (client.webSocket.State == WebSocketState.Open && !cancellationToken.IsCancellationRequested)
+        try
         {
-            // Wait briefly or check for pending frame signal without WaitAsync allocations
-            if (Volatile.Read(ref client.hasPendingFrame) == 1)
+            while (client.webSocket.State == WebSocketState.Open && !cancellationToken.IsCancellationRequested)
             {
-                await client.FlushPendingBufferAsync(cancellationToken);
+                // Wait briefly or check for pending frame signal without WaitAsync allocations
+                if (Volatile.Read(ref client.hasPendingFrame) == 1)
+                {
+                    await client.FlushPendingBufferAsync(cancellationToken);
+                }
+
+                if (receiveTask.IsCompleted)
+                {
+                    WebSocketReceiveResult result;
+                    try
+                    {
+                        result = await receiveTask;
+                    }
+                    catch (Exception)
+                    {
+                        ArrayPool<byte>.Shared.Return(buffer);
+                        break;
+                    }
+
+                    if (result.MessageType == WebSocketMessageType.Close)
+                    {
+                        ArrayPool<byte>.Shared.Return(buffer);
+                        await client.webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Closing", cancellationToken);
+                        break;
+                    }
+
+                    if (result.MessageType == WebSocketMessageType.Text || result.MessageType == WebSocketMessageType.Binary)
+                    {
+                        var payload = new Payload(buffer, result.Count);
+                        await loop.EnqueueEventAsync(client, ClientEventType.WebsocketInput, payload);
+                    }
+                    else
+                    {
+                        ArrayPool<byte>.Shared.Return(buffer);
+                    }
+
+                    // Rent a new buffer and arm receiveTask for next incoming message
+                    buffer = ArrayPool<byte>.Shared.Rent(256);
+                    receiveTask = client.webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), cancellationToken);
+                }
+
+                // Yield control briefly to avoid CPU spinning when idle
+                await Task.Delay(1, cancellationToken);
             }
-
-            if (receiveTask.IsCompleted)
-            {
-                WebSocketReceiveResult result;
-                try
-                {
-                    result = await receiveTask;
-                }
-                catch (WebSocketException)
-                {
-                    ArrayPool<byte>.Shared.Return(buffer);
-                    break;
-                }
-
-                if (result.MessageType == WebSocketMessageType.Close)
-                {
-                    ArrayPool<byte>.Shared.Return(buffer);
-                    await client.webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Closing", cancellationToken);
-                    break;
-                }
-
-                if (result.MessageType == WebSocketMessageType.Text || result.MessageType == WebSocketMessageType.Binary)
-                {
-                    var payload = new Payload(buffer, result.Count);
-                    await loop.EnqueueEventAsync(client, ClientEventType.WebsocketInput, payload);
-                }
-                else
-                {
-                    ArrayPool<byte>.Shared.Return(buffer);
-                }
-
-                // Rent a new buffer and arm receiveTask for next incoming message
-                buffer = ArrayPool<byte>.Shared.Rent(256);
-                receiveTask = client.webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), cancellationToken);
-            }
-
-            // Yield control briefly to avoid CPU spinning when idle
-            await Task.Delay(1, cancellationToken);
+        }
+        catch (Exception)
+        {
+            // Catch socket drops / tab closes during Task.Delay or ReceiveAsync
+        }
+        finally
+        {
+            // Guaranteed to run even if the browser tab was force-closed
+            await loop.EnqueueEventAsync(client, ClientEventType.WebsocketDisconnected, default);
         }
     }
 }
