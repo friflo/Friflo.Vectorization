@@ -256,7 +256,7 @@ function initWebSocket() {
     socket.onmessage = (event) => {
         if (event.data instanceof ArrayBuffer) {
             // Create a lightweight zero-copy TypedArray view over the WebSocket ArrayBuffer
-            processDrawList(new Uint8Array(event.data));
+            processDrawList(event.data);
         }
     };
 }
@@ -266,10 +266,11 @@ function initWebSocket() {
 // - Always process incoming messages
 // - Render frames only at requestAnimationFrame() - The monitor refresh rate
 
-function processDrawList(uint8Data)
+function processDrawList(data)
 {
-    const view = new DataView(uint8Data.buffer);
-    let offset = 0;
+    const uint8Data = new Uint8Array(data);
+    const view      = new DataView(uint8Data.buffer);
+    let offset      = 0;
     
     // 0. Read rttStart time & host send time (double)
     // rttStart is send() via websocket at pointermove (mousemove) event in app-events.js
