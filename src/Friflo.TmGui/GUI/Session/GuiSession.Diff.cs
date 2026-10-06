@@ -23,7 +23,10 @@ internal sealed partial class GuiSession
             newHashes[n] = quads[n].GetHashCode();
         }
         var clientQuads = CollectionsMarshal.AsSpan(clientQuadList);
-        SequenceDiff.TryComputeChanges(clientQuads, newHashes, 100000, shared.changeList, out int diffValueCount);
+        const int lookahead = 64;
+        if (!SequenceDiff.TryComputeChanges(clientQuads, newHashes, 100000, lookahead, shared.changeList, out int diffValueCount)) {
+            Debug.Fail("TryComputeChanges is false");
+        }
 
         DebugVerifyHashDiff(clientQuads, newHashes, diffValueCount);
             
@@ -55,9 +58,7 @@ internal sealed partial class GuiSession
         
         var diffQuads = SequenceDiff.FillDiffValues(shared.changeList, quads, ref debugHashDiff, diffValueCount);
         
-        var hashTarget = SequenceDiff.GetSpanOf(ref debugHashTarget, quads.Length);
-        
-        SequenceDiff.ApplyChanges(clientQuads, shared.changeList, diffQuads, hashTarget);
+        var hashTarget = SequenceDiff.ApplyChanges(clientQuads, shared.changeList, diffQuads, ref debugHashTarget, quads.Length);
 
         var isEqual = quads.SequenceEqual(hashTarget);
         if (!isEqual) {
@@ -77,9 +78,7 @@ internal sealed partial class GuiSession
         
         ReadOnlySpan<VertexQuad> clientQuads = CollectionsMarshal.AsSpan(debugClientQuads);
         
-        var clientTarget = SequenceDiff.GetSpanOf(ref debugClientTarget, quads.Length);
-        
-        SequenceDiff.ApplyChanges(clientQuads, shared.changeList, diffQuads, clientTarget);
+        var clientTarget = SequenceDiff.ApplyChanges(clientQuads, shared.changeList, diffQuads, ref debugClientTarget, quads.Length);
 
         var isEqual = quads.SequenceEqual(clientTarget);
         if (!isEqual) {

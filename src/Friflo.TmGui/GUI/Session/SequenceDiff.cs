@@ -58,6 +58,7 @@ public static partial class SequenceDiff
         ReadOnlySpan<int>   startState,
         ReadOnlySpan<int>   targetState,
         int                 maxOperations,
+        int                 lookahead, // typical values: 64, 128
         List<SeqChange>     changes,
         out int             diffValueCount)
     {
@@ -80,15 +81,19 @@ public static partial class SequenceDiff
             int valA = startState[i], valB = targetState[j];
             int matchTarget = -1, matchStart = -1;
 
-            // 2. Bound lookahead scan (max 8 elements)
-            int maxB = Math.Min(8, lenB - j);
-            for (int offset = 1; offset < maxB; offset++)
-                if (valA == targetState[j + offset]) { matchTarget = offset; break; }
+            // 2. Bounded SIMD-accelerated lookahead scan using lookahead window
+            int maxB = Math.Min(lookahead, lenB - j - 1);
+            if (maxB > 0) {
+                int idx = targetState.Slice(j + 1, maxB).IndexOf(valA);
+                if (idx != -1) matchTarget = idx + 1;
+            }
 
             if (matchTarget == -1) {
-                int maxA = Math.Min(8, lenA - i);
-                for (int offset = 1; offset < maxA; offset++)
-                    if (startState[i + offset] == valB) { matchStart = offset; break; }
+                int maxA = Math.Min(lookahead, lenA - i - 1);
+                if (maxA > 0) {
+                    int idx = startState.Slice(i + 1, maxA).IndexOf(valB);
+                    if (idx != -1) matchStart = idx + 1;
+                }
             }
 
             // 3. Emit matching SeqChange operation
@@ -114,16 +119,21 @@ public static partial class SequenceDiff
         }
 
         // 4. Process trailing elements
-        if (i < lenA) changes.Add(new SeqChange(SeqChangeType.Remove, i, lenA - i));
+        if (i < lenA)
+        {
+            if (changes.Count >= maxOperations) goto Fail;
+            changes.Add(new SeqChange(SeqChangeType.Remove, i, lenA - i));
+        }
 
         if (j < lenB)
         {
+            if (changes.Count >= maxOperations) goto Fail;
             int insertLen = lenB - j;
             changes.Add(new SeqChange(SeqChangeType.Insert, i, insertLen));
             diffValueCount += insertLen;
         }
 
-        if (changes.Count <= maxOperations) return true;
+        return true;
 
     Fail:
         changes.Clear();

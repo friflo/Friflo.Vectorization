@@ -53,16 +53,18 @@ public static partial class SequenceDiff
     /// The elements modified or inserted are stored in <paramref name="diffValues"/>.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
-    public static void ApplyChanges<T>(
+    public static Span<T> ApplyChanges<T>(
         ReadOnlySpan<T>     startState,
         List<SeqChange>     changeList,
         ReadOnlySpan<T>     diffValues,
-        Span<T>             targetState) where T : unmanaged
+        ref T[]             targetBuffer,
+        int                 targetLength) where T : unmanaged
     {
         int readOffset  = 0;
         int writeOffset = 0;
         int diffOffset  = 0;
         ReadOnlySpan<SeqChange> changes = CollectionsMarshal.AsSpan(changeList);
+        Span<T> targetState = GetSpanOf(ref targetBuffer, targetLength);
 
         foreach (var change in changes)
         {
@@ -107,7 +109,10 @@ public static partial class SequenceDiff
         {
             startState.Slice(readOffset, remainingCount)
                 .CopyTo(targetState.Slice(writeOffset, remainingCount));
+            writeOffset += remainingCount;
         }
+        Debug.Assert(targetState.Length == writeOffset);
+        return targetState;
     }
     
     internal static Span<T> GetSpanOf<T>(ref T[] array, int length) where T : unmanaged
