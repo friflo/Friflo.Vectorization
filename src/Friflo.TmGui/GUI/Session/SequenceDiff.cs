@@ -79,34 +79,36 @@ public static partial class SequenceDiff
             if (changes.Count >= maxOperations) goto Fail;
 
             int valA = startState[i], valB = targetState[j];
-            int matchTarget = -1, matchStart = -1;
+            int matchTarget = int.MaxValue;
+            int matchStart  = int.MaxValue;
 
-            // 2. Bounded SIMD-accelerated lookahead scan using lookahead window
+            // 2. Bounded SIMD-accelerated lookahead scan
             int maxB = Math.Min(lookahead, lenB - j - 1);
             if (maxB > 0) {
                 int idx = targetState.Slice(j + 1, maxB).IndexOf(valA);
                 if (idx != -1) matchTarget = idx + 1;
             }
 
-            if (matchTarget == -1) {
-                int maxA = Math.Min(lookahead, lenA - i - 1);
-                if (maxA > 0) {
-                    int idx = startState.Slice(i + 1, maxA).IndexOf(valB);
-                    if (idx != -1) matchStart = idx + 1;
-                }
+            int maxA = Math.Min(lookahead, lenA - i - 1);
+            if (maxA > 0) {
+                int idx = startState.Slice(i + 1, maxA).IndexOf(valB);
+                if (idx != -1) matchStart = idx + 1;
             }
 
-            // 3. Emit matching SeqChange operation
-            if (matchTarget > 0)
+            // 3. Emit matching SeqChange operation based on shortest distance
+            if (matchTarget != int.MaxValue || matchStart != int.MaxValue)
             {
-                changes.Add(new SeqChange(SeqChangeType.Insert, i, matchTarget));
-                diffValueCount += matchTarget;
-                j += matchTarget;
-            }
-            else if (matchStart > 0)
-            {
-                changes.Add(new SeqChange(SeqChangeType.Remove, i, matchStart));
-                i += matchStart;
+                if (matchTarget <= matchStart)
+                {
+                    changes.Add(new SeqChange(SeqChangeType.Insert, i, matchTarget));
+                    diffValueCount += matchTarget;
+                    j += matchTarget;
+                }
+                else
+                {
+                    changes.Add(new SeqChange(SeqChangeType.Remove, i, matchStart));
+                    i += matchStart;
+                }
             }
             else
             {

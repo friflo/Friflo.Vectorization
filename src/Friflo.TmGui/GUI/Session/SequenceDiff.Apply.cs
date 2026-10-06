@@ -26,23 +26,38 @@ public static partial class SequenceDiff
         ref T[]         diffValueBuffer,
         int             diffValueCount) where T : unmanaged
     {
-        int targetOffset = 0;
+        int diffOffset   = 0;
+        int targetOffset = 0; // Tracks cumulative (inserts - removes) count shift
+
         ReadOnlySpan<SeqChange> changes = CollectionsMarshal.AsSpan(changeList);
         var diffValues = GetSpanOf(ref diffValueBuffer, diffValueCount);
 
-        foreach (var change in changes)
+        foreach (ref readonly var change in changes)
         {
-            if (change.Type is SeqChangeType.Modify or SeqChangeType.Insert)
+            int count = change.Length;
+
+            switch (change.Type)
             {
-                int count        = change.Length;
-                int sourceOffset = change.Start;
+                case SeqChangeType.Modify:
+                case SeqChangeType.Insert:
+                    // Target position corresponds to change.Start plus the current index shift
+                    int sourceIndex = change.Start + targetOffset;
+                    target.Slice(sourceIndex, count).CopyTo(diffValues.Slice(diffOffset, count));
+                    
+                    diffOffset += count;
+                    if (change.Type == SeqChangeType.Insert)
+                    {
+                        targetOffset += count;
+                    }
+                    break;
 
-                target.Slice(sourceOffset, count).CopyTo(diffValues.Slice(targetOffset, count));
-
-                targetOffset += count;
+                case SeqChangeType.Remove:
+                    targetOffset -= count;
+                    break;
             }
         }
-        Debug.Assert(diffValues.Length == targetOffset);
+
+        Debug.Assert(diffValues.Length == diffOffset);
         return diffValues;
     }
     
