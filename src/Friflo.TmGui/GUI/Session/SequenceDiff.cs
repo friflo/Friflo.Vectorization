@@ -3,11 +3,8 @@
 
 using System;
 using System.Collections.Generic;
-using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using System.Runtime.Intrinsics;
-using System.Runtime.Intrinsics.X86;
 using static System.Diagnostics.DebuggerBrowsableState;
 using Browse = System.Diagnostics.DebuggerBrowsableAttribute;
 
@@ -65,194 +62,72 @@ public static partial class SequenceDiff
         out int             diffValueCount)
     {
         changes.Clear();
-        diffValueCount = -1;
+        diffValueCount = 0;
 
-        int lenA = startState.Length;
-        int lenB = targetState.Length;
-
+        int lenA = startState.Length, lenB = targetState.Length;
         if (lenA == 0 && lenB == 0) return true;
 
-        int i = 0;
-        int j = 0;
-
-        ReadOnlySpan<byte> bytesStart = MemoryMarshal.AsBytes(startState);
-        ReadOnlySpan<byte> bytesTarget = MemoryMarshal.AsBytes(targetState);
-        const int structSize = sizeof(int);
+        int i = 0, j = 0;
 
         while (i < lenA && j < lenB)
         {
-            // 1. Fast SIMD skip over identical block sequences via CommonPrefixLength
-            int remainingBytesA = (lenA - i) * structSize;
-            int remainingBytesB = (lenB - j) * structSize;
+            // 1. Fast scalar skip for identical element sequences
+            while (i < lenA && j < lenB && startState[i] == targetState[j]) { i++; j++; }
+            if (i >= lenA || j >= lenB) break;
 
-            int commonBytes = bytesStart.Slice(i * structSize, remainingBytesA)
-                                        .CommonPrefixLength(bytesTarget.Slice(j * structSize, remainingBytesB));
+            if (changes.Count >= maxOperations) goto Fail;
 
-            int commonStructs = commonBytes / structSize;
-            i += commonStructs;
-            j += commonStructs;
+            int valA = startState[i], valB = targetState[j];
+            int matchTarget = -1, matchStart = -1;
 
-            if (i >= lenA && j >= lenB) break;
+            // 2. Bound lookahead scan (max 8 elements)
+            int maxB = Math.Min(8, lenB - j);
+            for (int offset = 1; offset < maxB; offset++)
+                if (valA == targetState[j + offset]) { matchTarget = offset; break; }
 
-            if (changes.Count >= maxOperations)
-            {
-                changes.Clear();
-                return false;
-            }
-
-            int valA = startState[i];
-            int valB = targetState[j];
-
-            int matchOffsetStart = -1;
-            int matchOffsetTarget = -1;
-
-// #if NO_SIMD
-            // 2a. AVX2 Path (x86 - 8 Elements)
-            if (Avx2.IsSupported)
-            {
-                if (j + 8 <= lenB)
-                {
-                    Vector256<int> targetVec = Vector256.Create(targetState.Slice(j, 8));
-                    Vector256<int> valAVec = Vector256.Create(valA);
-
-                    Vector256<int> cmpResult = Vector256.Equals(targetVec, valAVec);
-                    uint mask = cmpResult.ExtractMostSignificantBits();
-
-                    if (mask != 0)
-                    {
-                        matchOffsetStart = 0;
-                        matchOffsetTarget = BitOperations.TrailingZeroCount(mask);
-                    }
-                }
-
-                if (matchOffsetTarget == -1 && i + 8 <= lenA)
-                {
-                    Vector256<int> startVec = Vector256.Create(startState.Slice(i, 8));
-                    Vector256<int> valBVec = Vector256.Create(valB);
-
-                    Vector256<int> cmpResult = Vector256.Equals(startVec, valBVec);
-                    uint mask = cmpResult.ExtractMostSignificantBits();
-
-                    if (mask != 0)
-                    {
-                        matchOffsetStart = BitOperations.TrailingZeroCount(mask);
-                        matchOffsetTarget = 0;
-                    }
-                }
-            }
-            // 2b. Cross-Platform Vector128 / ARM NEON Path (ARM64 & SSE2 - 4 Elements)
-            else if (Vector128.IsHardwareAccelerated)
-            {
-                if (j + 4 <= lenB)
-                {
-                    Vector128<int> targetVec = Vector128.Create(targetState.Slice(j, 4));
-                    Vector128<int> valAVec = Vector128.Create(valA);
-
-                    Vector128<int> cmpResult = Vector128.Equals(targetVec, valAVec);
-                    uint mask = cmpResult.ExtractMostSignificantBits();
-
-                    if (mask != 0)
-                    {
-                        matchOffsetStart = 0;
-                        matchOffsetTarget = BitOperations.TrailingZeroCount(mask);
-                    }
-                }
-
-                if (matchOffsetTarget == -1 && i + 4 <= lenA)
-                {
-                    Vector128<int> startVec = Vector128.Create(startState.Slice(i, 4));
-                    Vector128<int> valBVec = Vector128.Create(valB);
-
-                    Vector128<int> cmpResult = Vector128.Equals(startVec, valBVec);
-                    uint mask = cmpResult.ExtractMostSignificantBits();
-
-                    if (mask != 0)
-                    {
-                        matchOffsetStart = BitOperations.TrailingZeroCount(mask);
-                        matchOffsetTarget = 0;
-                    }
-                }
-            }
-
-            // Fallback scalar lookahead loop if SIMD didn't hit or boundary failed
-            if (matchOffsetTarget == -1 && matchOffsetStart == -1)
-// #endif
-            {
-                int maxLookahead = Math.Min(8, Math.Max(lenA - i, lenB - j));
-                for (int offset = 1; offset < maxLookahead; offset++)
-                {
-                    if (j + offset < lenB && valA == targetState[j + offset])
-                    {
-                        matchOffsetStart = 0;
-                        matchOffsetTarget = offset;
-                        break;
-                    }
-                    if (i + offset < lenA && startState[i + offset] == valB)
-                    {
-                        matchOffsetStart = offset;
-                        matchOffsetTarget = 0;
-                        break;
-                    }
-                }
+            if (matchTarget == -1) {
+                int maxA = Math.Min(8, lenA - i);
+                for (int offset = 1; offset < maxA; offset++)
+                    if (startState[i + offset] == valB) { matchStart = offset; break; }
             }
 
             // 3. Emit matching SeqChange operation
-            if (matchOffsetTarget > 0 && matchOffsetStart == 0)
+            if (matchTarget > 0)
             {
-                changes.Add(new SeqChange(SeqChangeType.Insert, i, matchOffsetTarget));
-                j += matchOffsetTarget;
+                changes.Add(new SeqChange(SeqChangeType.Insert, i, matchTarget));
+                diffValueCount += matchTarget;
+                j += matchTarget;
             }
-            else if (matchOffsetStart > 0 && matchOffsetTarget == 0)
+            else if (matchStart > 0)
             {
-                changes.Add(new SeqChange(SeqChangeType.Remove, i, matchOffsetStart));
-                i += matchOffsetStart;
+                changes.Add(new SeqChange(SeqChangeType.Remove, i, matchStart));
+                i += matchStart;
             }
             else
             {
-                // Modify range scan
-                int modifyStartI = i;
-
-                while (i < lenA && j < lenB)
-                {
-                    if (startState[i] == targetState[j]) break;
-                    i++;
-                    j++;
-                }
-
-                int modifyLen = i - modifyStartI;
-                if (modifyLen > 0)
-                {
-                    changes.Add(new SeqChange(SeqChangeType.Modify, modifyStartI, modifyLen));
-                }
+                int startI = i;
+                while (i < lenA && j < lenB && startState[i] != targetState[j]) { i++; j++; }
+                int modifyLen = i - startI;
+                changes.Add(new SeqChange(SeqChangeType.Modify, startI, modifyLen));
+                diffValueCount += modifyLen;
             }
         }
 
         // 4. Process trailing elements
-        if (i < lenA)
+        if (i < lenA) changes.Add(new SeqChange(SeqChangeType.Remove, i, lenA - i));
+
+        if (j < lenB)
         {
-            if (changes.Count >= maxOperations)
-            {
-                changes.Clear();
-                return false;
-            }
-            changes.Add(new SeqChange(SeqChangeType.Remove, i, lenA - i));
-        }
-        else if (j < lenB)
-        {
-            if (changes.Count >= maxOperations)
-            {
-                changes.Clear();
-                return false;
-            }
-            changes.Add(new SeqChange(SeqChangeType.Insert, i, lenB - j));
+            int insertLen = lenB - j;
+            changes.Add(new SeqChange(SeqChangeType.Insert, i, insertLen));
+            diffValueCount += insertLen;
         }
 
-        diffValueCount = 0;
-        foreach (var change in changes) {
-            if (change.Type != SeqChangeType.Remove) {
-                diffValueCount += change.Length;
-            }
-        }
-        return changes.Count <= maxOperations;
+        if (changes.Count <= maxOperations) return true;
+
+    Fail:
+        changes.Clear();
+        diffValueCount = -1;
+        return false;
     }
 }

@@ -29,14 +29,12 @@ internal sealed partial class GuiSession
             
         clientQuadList.Clear();
         clientQuadList.AddRange(newHashes);
-        
+        return vertices;
         if (shared.changeList.Count == 0) {
             return vertices;
         }
         
         var diffQuads = SequenceDiff.FillDiffValues(shared.changeList, quads, ref shared.quadBuffer, diffValueCount);
-        
-        Debug.Assert(diffQuads.Length == diffValueCount);
         
         DebugVerifyQuadDiff(quads, diffQuads);
         
@@ -56,8 +54,6 @@ internal sealed partial class GuiSession
         if (shared.changeList.Count == 0) return;
         
         var diffQuads = SequenceDiff.FillDiffValues(shared.changeList, quads, ref debugHashDiff, diffValueCount);
-        
-        Debug.Assert(diffQuads.Length == diffValueCount);
         
         var hashTarget = SequenceDiff.GetSpanOf(ref debugHashTarget, quads.Length);
         

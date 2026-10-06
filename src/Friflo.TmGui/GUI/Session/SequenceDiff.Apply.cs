@@ -50,7 +50,7 @@ public static partial class SequenceDiff
     
    
     /// <summary>
-    /// The elements modified or inserted are stored in <paramref name="changeList"/>.
+    /// The elements modified or inserted are stored in <paramref name="diffValues"/>.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     public static void ApplyChanges<T>(
@@ -62,9 +62,9 @@ public static partial class SequenceDiff
         int readOffset  = 0;
         int writeOffset = 0;
         int diffOffset  = 0;
-         ReadOnlySpan<SeqChange> changes = CollectionsMarshal.AsSpan(changeList);
+        ReadOnlySpan<SeqChange> changes = CollectionsMarshal.AsSpan(changeList);
 
-        foreach (ref readonly var change in changes)
+        foreach (var change in changes)
         {
             // 1. Copy unmodified items leading up to this change
             int unmodifiedCount = change.Start - readOffset;
@@ -81,7 +81,7 @@ public static partial class SequenceDiff
             {
                 case SeqChangeType.Modify:
                 case SeqChangeType.Insert:
-                    // Copy new/updated payload from diffItems
+                    // Copy new/updated payload from diffValues
                     diffValues.Slice(diffOffset, change.Length)
                         .CopyTo(targetState.Slice(writeOffset, change.Length));
 
