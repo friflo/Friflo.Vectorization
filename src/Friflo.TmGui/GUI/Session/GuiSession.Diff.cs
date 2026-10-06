@@ -16,11 +16,11 @@ internal sealed partial class GuiSession
 {
     private Span<Vertex2D> CalcQuadChanges(Span<Vertex2D> vertices)
     {
-        Span<VertexQuad> quads = MemoryMarshal.Cast<Vertex2D, VertexQuad>(vertices);
-        var newHashes = SequenceDiff.GetSpanOf(ref shared.quadHashesBuffer, quads.Length);
+        Span<VertexQuad> newQuads = MemoryMarshal.Cast<Vertex2D, VertexQuad>(vertices);
+        var newHashes = SequenceDiff.GetSpanOf(ref shared.quadHashesBuffer, newQuads.Length);
         
-        for (int n= 0; n < quads.Length; n++) {
-            newHashes[n] = quads[n].GetHashCode();
+        for (int n= 0; n < newQuads.Length; n++) {
+            newHashes[n] = newQuads[n].GetHashCode();
         }
         var clientQuads = CollectionsMarshal.AsSpan(clientQuadList);
         const int lookahead = 64;
@@ -29,17 +29,19 @@ internal sealed partial class GuiSession
         }
 
         DebugVerifyHashDiff(clientQuads, newHashes, diffValueCount);
-            
-        clientQuadList.Clear();
-        clientQuadList.AddRange(newHashes);
-        return vertices;
+        
         if (shared.changeList.Count == 0) {
             return vertices;
         }
         
-        var diffQuads = SequenceDiff.FillDiffValues(shared.changeList, quads, ref shared.quadBuffer, diffValueCount);
+        clientQuadList.Clear();
+        clientQuadList.AddRange(newHashes);
         
-        DebugVerifyQuadDiff(quads, diffQuads);
+        return vertices;
+        
+        var diffQuads = SequenceDiff.FillDiffValues(shared.changeList, newQuads, ref shared.quadBuffer, diffValueCount);
+        
+        DebugVerifyQuadDiff(newQuads, diffQuads);
         
         return vertices;
     }
@@ -52,19 +54,19 @@ internal sealed partial class GuiSession
     private  readonly   List<VertexQuad>    debugClientQuads    = [];
     private             VertexQuad[]        debugClientTarget   = [];
     
-    private void DebugVerifyHashDiff(ReadOnlySpan<int> clientQuads, ReadOnlySpan<int> quads, int diffValueCount)
+    private void DebugVerifyHashDiff(ReadOnlySpan<int> clientQuads, ReadOnlySpan<int> newQuads, int diffValueCount)
     {
         if (shared.changeList.Count == 0) return;
         
-        var diffQuads = SequenceDiff.FillDiffValues(shared.changeList, quads, ref debugHashDiff, diffValueCount);
+        var diffQuads = SequenceDiff.FillDiffValues(shared.changeList, newQuads, ref debugHashDiff, diffValueCount);
         
-        var hashTarget = SequenceDiff.ApplyChanges(clientQuads, shared.changeList, diffQuads, ref debugHashTarget, quads.Length);
+        var clientTarget = SequenceDiff.ApplyChanges(clientQuads, shared.changeList, diffQuads, ref debugHashTarget, newQuads.Length);
 
-        var isEqual = quads.SequenceEqual(hashTarget);
+        var isEqual = newQuads.SequenceEqual(clientTarget);
         if (!isEqual) {
             int n = 0;
-            for (; n < quads.Length; n++) {
-                if (quads[n] != hashTarget[n]) {
+            for (; n < newQuads.Length; n++) {
+                if (newQuads[n] != clientTarget[n]) {
                     break;
                 }
             }
@@ -72,26 +74,26 @@ internal sealed partial class GuiSession
         }
     }
     
-    private void DebugVerifyQuadDiff(ReadOnlySpan<VertexQuad> quads, ReadOnlySpan<VertexQuad> diffQuads)
+    private void DebugVerifyQuadDiff(ReadOnlySpan<VertexQuad> newQuads, ReadOnlySpan<VertexQuad> diffQuads)
     {
         if (shared.changeList.Count == 0) return;
         
         ReadOnlySpan<VertexQuad> clientQuads = CollectionsMarshal.AsSpan(debugClientQuads);
         
-        var clientTarget = SequenceDiff.ApplyChanges(clientQuads, shared.changeList, diffQuads, ref debugClientTarget, quads.Length);
+        var clientTarget = SequenceDiff.ApplyChanges(clientQuads, shared.changeList, diffQuads, ref debugClientTarget, newQuads.Length);
 
-        var isEqual = quads.SequenceEqual(clientTarget);
+        var isEqual = newQuads.SequenceEqual(clientTarget);
         if (!isEqual) {
             int n = 0;
-            for (; n < quads.Length; n++) {
-                if (quads[n] != clientTarget[n]) {
+            for (; n < newQuads.Length; n++) {
+                if (newQuads[n] != clientTarget[n]) {
                     break;
                 }
             }
             Debug.Fail($"DebugVerifyQuadDiff failed. Diff at: {n}");    
         }
         debugClientQuads.Clear();
-        debugClientQuads.AddRange(quads);
+        debugClientQuads.AddRange(newQuads);
     }
 #endregion
 

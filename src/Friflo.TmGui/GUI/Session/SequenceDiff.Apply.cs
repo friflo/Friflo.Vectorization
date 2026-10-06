@@ -133,7 +133,7 @@ public static partial class SequenceDiff
     internal static Span<T> GetSpanOf<T>(ref T[] array, int length) where T : unmanaged
     {
         if (array.Length < length) {
-            array = new T[length];
+            array = new T[Math.Max(length, 2 * array.Length)];
         }
         return array.AsSpan(0, length);
     }
