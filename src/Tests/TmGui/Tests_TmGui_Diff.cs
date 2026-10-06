@@ -99,7 +99,7 @@ public static class Tests_TmGui_Diff
     public static void Tests_TmGui_Diff_Quad_GetHashCode()
     {
         var quads = new VertexQuad[2000];
-        const int repeat  = 10; // 5_000_000 - 4.9 sec
+        const int repeat  = 10; // 1_000_000 - 2.5 sec
         
         for (int n = 0; n < repeat; n++) {
             foreach (ref var quad in quads.AsSpan())

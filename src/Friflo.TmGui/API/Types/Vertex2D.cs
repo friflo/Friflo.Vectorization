@@ -44,24 +44,43 @@ public struct VertexQuad : IEquatable<VertexQuad>
     public readonly override int GetHashCode()
     {
         ref byte bytePtr = ref Unsafe.As<VertexQuad, byte>(ref Unsafe.AsRef(in this));
+
+        // 1. AVX2 / 256-Bit Path (3 fast vector loads for 80 bytes)
+        if (Vector256.IsHardwareAccelerated)
+        {
+            Vector256<ulong> p0 = Vector256.Create(0x9E3779B97F4A7C15UL, 0xBF58476D1CE4E5B9UL, 0x94D049BB133111EBUL, 0x41C64E6D9625C371UL);
+            Vector256<ulong> p1 = Vector256.Create(0xA0761D6478BD642FUL, 0xE7037ED1A0B428DBUL, 0x8EBC6AF09C88C6E3UL, 0x589965CC75374CC3UL);
+            Vector128<ulong> p2 = Vector128.Create(0x1D8E4E27C47D124FUL, 0x27BB2EE687B0B0FDUL);
+
+            Vector256<ulong> v0 = Vector256.LoadUnsafe(ref bytePtr, 0).AsUInt64() ^ p0;
+            Vector256<ulong> v1 = Vector256.LoadUnsafe(ref bytePtr, 32).AsUInt64() ^ p1;
+            Vector128<ulong> v2 = Vector128.LoadUnsafe(ref bytePtr, 64).AsUInt64() ^ p2;
+
+            Vector128<ulong> fold = (v0.GetLower() ^ v1.GetLower()) ^ (v0.GetUpper() ^ v1.GetUpper()) ^ v2;
+
+            ulong mix = FastMix(fold.GetElement(0), fold.GetElement(1));
+            return (int)(mix ^ (mix >> 32));
+        }
+
+        // 2. Scalar Fallback
         ref ulong ptr = ref Unsafe.As<byte, ulong>(ref bytePtr);
 
-        // WyHash / xxHash3 style mixing with full 128-bit multiplications
-        ulong hash = FastMix(Unsafe.Add(ref ptr, 0) ^ 0x9E3779B97F4A7C15UL, Unsafe.Add(ref ptr, 1) ^ 0xBF58476D1CE4E5B9UL)
-                   ^ FastMix(Unsafe.Add(ref ptr, 2) ^ 0x94D049BB133111EBUL, Unsafe.Add(ref ptr, 3) ^ 0x41C64E6D9625C371UL)
-                   ^ FastMix(Unsafe.Add(ref ptr, 4) ^ 0xA0761D6478BD642FUL, Unsafe.Add(ref ptr, 5) ^ 0xE7037ED1A0B428DBUL)
-                   ^ FastMix(Unsafe.Add(ref ptr, 6) ^ 0x8EBC6AF09C88C6E3UL, Unsafe.Add(ref ptr, 7) ^ 0x589965CC75374CC3UL)
-                   ^ FastMix(Unsafe.Add(ref ptr, 8) ^ 0x1D8E4E27C47D124FUL, Unsafe.Add(ref ptr, 9) ^ 0x27BB2EE687B0B0FDUL)
-                   ^ 80UL; // 80 bytes length seed
+        ulong h0 = Unsafe.Add(ref ptr, 0) ^ 0x9E3779B97F4A7C15UL;
+        ulong h1 = Unsafe.Add(ref ptr, 1) ^ 0xBF58476D1CE4E5B9UL;
+        ulong h2 = Unsafe.Add(ref ptr, 2) ^ 0x94D049BB133111EBUL;
+        ulong h3 = Unsafe.Add(ref ptr, 3) ^ 0x41C64E6D9625C371UL;
+        ulong h4 = Unsafe.Add(ref ptr, 4) ^ 0xA0761D6478BD642FUL;
+        ulong h5 = Unsafe.Add(ref ptr, 5) ^ 0xE7037ED1A0B428DBUL;
+        ulong h6 = Unsafe.Add(ref ptr, 6) ^ 0x8EBC6AF09C88C6E3UL;
+        ulong h7 = Unsafe.Add(ref ptr, 7) ^ 0x589965CC75374CC3UL;
+        ulong h8 = Unsafe.Add(ref ptr, 8) ^ 0x1D8E4E27C47D124FUL;
+        ulong h9 = Unsafe.Add(ref ptr, 9) ^ 0x27BB2EE687B0B0FDUL;
 
-        // Final avalanche mixer (MurmurHash3 / WyHash finalizer)
-        hash ^= hash >> 33;
-        hash *= 0xFF51AFD7ED558CCDUL;
-        hash ^= hash >> 33;
-        hash *= 0xC4CEB9FE1A85EC53UL;
-        hash ^= hash >> 33;
+        ulong mixA = FastMix(h0 ^ h3 ^ h6, h1 ^ h4 ^ h7);
+        ulong mixB = FastMix(h2 ^ h5 ^ h8, h9 ^ 0x9E3779B97F4A7C15UL);
 
-        return (int)hash;
+        ulong finalHash = FastMix(mixA, mixB);
+        return (int)(finalHash ^ (finalHash >> 32));
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
