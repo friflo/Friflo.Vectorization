@@ -84,18 +84,24 @@ internal sealed partial class GuiSession
 
         var isEqual = newQuads.SequenceEqual(clientTarget);
         if (!isEqual) {
+            int hashCollisionCount = 0;
             int n = 0;
             for (; n < newQuads.Length; n++) {
                 ref readonly var newQuad     = ref newQuads[n];
                 ref readonly var clientQuad  = ref clientTarget[n];
-                if (newQuad.GetHashCode() != clientQuad.GetHashCode()) {
-                    break;
-                }
+                // Only check when there is an actual content mismatch
                 if (newQuad != clientQuad) {
-                    break;  // TODO
+                    if (newQuad.GetHashCode() == clientQuad.GetHashCode()) {
+                        hashCollisionCount++;
+                        continue;
+                    }
+                    Debug.Fail($"DebugVerifyQuadDiff failed. Diff at: {n}");
+                    break; // Break execution on the first mismatch
                 }
             }
-            Debug.Fail($"DebugVerifyQuadDiff failed. Diff at: {n}");    
+            if (hashCollisionCount > 0) {
+                Debug.WriteLine($"DebugVerifyQuadDiff - hashCollisionCount: {hashCollisionCount}");
+            }
         }
         debugClientQuads.Clear();
         debugClientQuads.AddRange(newQuads);
