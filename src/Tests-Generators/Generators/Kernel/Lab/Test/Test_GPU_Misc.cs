@@ -106,8 +106,6 @@ MaxComputeInvocationsPerWorkgroup:  {adapterLimits.MaxComputeInvocationsPerWorkg
         Assert.AreEqual( 16, Unsafe.SizeOf<TuiColorCell>());
         
         Assert.AreEqual( 4,  Unsafe.SizeOf<Rune>());
-        
-        
-        
+        Assert.AreEqual(80,  Unsafe.SizeOf<VertexQuad>());
     }
 }

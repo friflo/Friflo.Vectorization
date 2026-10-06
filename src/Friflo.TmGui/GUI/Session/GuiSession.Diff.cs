@@ -37,7 +37,7 @@ internal sealed partial class GuiSession
         clientQuadList.Clear();
         clientQuadList.AddRange(newHashes);
         
-        return vertices;
+        // return vertices;
         
         var diffQuads = SequenceDiff.FillDiffValues(shared.changeList, newQuads, ref shared.quadBuffer, diffValueCount);
         
@@ -80,14 +80,19 @@ internal sealed partial class GuiSession
         
         ReadOnlySpan<VertexQuad> clientQuads = CollectionsMarshal.AsSpan(debugClientQuads);
         
-        var clientTarget = SequenceDiff.ApplyChanges(clientQuads, shared.changeList, diffQuads, ref debugClientTarget, newQuads.Length);
+        ReadOnlySpan<VertexQuad> clientTarget = SequenceDiff.ApplyChanges(clientQuads, shared.changeList, diffQuads, ref debugClientTarget, newQuads.Length);
 
         var isEqual = newQuads.SequenceEqual(clientTarget);
         if (!isEqual) {
             int n = 0;
             for (; n < newQuads.Length; n++) {
-                if (newQuads[n] != clientTarget[n]) {
+                ref readonly var newQuad     = ref newQuads[n];
+                ref readonly var clientQuad  = ref clientTarget[n];
+                if (newQuad.GetHashCode() != clientQuad.GetHashCode()) {
                     break;
+                }
+                if (newQuad != clientQuad) {
+                    break;  // TODO
                 }
             }
             Debug.Fail($"DebugVerifyQuadDiff failed. Diff at: {n}");    

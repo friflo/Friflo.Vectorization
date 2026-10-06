@@ -39,9 +39,47 @@ public struct Vertex2D
 public struct VertexQuad : IEquatable<VertexQuad>
 {
     private Vertex2D _element0;
-
+    
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly override int GetHashCode()
+    {
+        ref byte bytePtr = ref Unsafe.As<VertexQuad, byte>(ref Unsafe.AsRef(in this));
+        ref ulong ptr = ref Unsafe.As<byte, ulong>(ref bytePtr);
+
+        // WyHash / xxHash3 style mixing with full 128-bit multiplications
+        ulong hash = FastMix(Unsafe.Add(ref ptr, 0) ^ 0x9E3779B97F4A7C15UL, Unsafe.Add(ref ptr, 1) ^ 0xBF58476D1CE4E5B9UL)
+                   ^ FastMix(Unsafe.Add(ref ptr, 2) ^ 0x94D049BB133111EBUL, Unsafe.Add(ref ptr, 3) ^ 0x41C64E6D9625C371UL)
+                   ^ FastMix(Unsafe.Add(ref ptr, 4) ^ 0xA0761D6478BD642FUL, Unsafe.Add(ref ptr, 5) ^ 0xE7037ED1A0B428DBUL)
+                   ^ FastMix(Unsafe.Add(ref ptr, 6) ^ 0x8EBC6AF09C88C6E3UL, Unsafe.Add(ref ptr, 7) ^ 0x589965CC75374CC3UL)
+                   ^ FastMix(Unsafe.Add(ref ptr, 8) ^ 0x1D8E4E27C47D124FUL, Unsafe.Add(ref ptr, 9) ^ 0x27BB2EE687B0B0FDUL)
+                   ^ 80UL; // 80 bytes length seed
+
+        // Final avalanche mixer (MurmurHash3 / WyHash finalizer)
+        hash ^= hash >> 33;
+        hash *= 0xFF51AFD7ED558CCDUL;
+        hash ^= hash >> 33;
+        hash *= 0xC4CEB9FE1A85EC53UL;
+        hash ^= hash >> 33;
+
+        return (int)hash;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static ulong FastMix(ulong a, ulong b)
+    {
+        ulong low = Math.BigMul(a, b, out ulong high);
+        return low ^ high;
+    }
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static ulong FastMix_Old(ulong v1, ulong v2)
+    {
+        ulong p = v1 * v2;
+        return p ^ (p >> 32);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public readonly int GetHashCode_Old()
     {
         ref byte bytePtr = ref Unsafe.As<VertexQuad, byte>(ref Unsafe.AsRef(in this));
 
@@ -66,7 +104,7 @@ public struct VertexQuad : IEquatable<VertexQuad>
 
             Vector128<ulong> combined = red0 ^ red1 ^ v2;
 
-            ulong mix = FastMix(combined.GetElement(0), combined.GetElement(1));
+            ulong mix = FastMix_Old(combined.GetElement(0), combined.GetElement(1));
             return (int)(mix ^ (mix >> 32));
         }
         // 2. ARM NEON / SSE2 / 128-Bit Path
@@ -88,7 +126,7 @@ public struct VertexQuad : IEquatable<VertexQuad>
             // Fold all 128-bit blocks into a single vector
             Vector128<ulong> combined = v0 ^ v1 ^ v2 ^ v3 ^ v4;
 
-            ulong mix = FastMix(combined.GetElement(0), combined.GetElement(1));
+            ulong mix = FastMix_Old(combined.GetElement(0), combined.GetElement(1));
             return (int)(mix ^ (mix >> 32));
         }
 
@@ -110,19 +148,14 @@ public struct VertexQuad : IEquatable<VertexQuad>
         ulong h8 = Unsafe.Add(ref ptr, 8) ^ prime3;
         ulong h9 = Unsafe.Add(ref ptr, 9) ^ prime1;
 
-        ulong mixA = FastMix(h0 ^ h3, h1 ^ h4) ^ h2;
-        ulong mixB = FastMix(h5 ^ h8, h6 ^ h9) ^ h7;
+        ulong mixA = FastMix_Old(h0 ^ h3, h1 ^ h4) ^ h2;
+        ulong mixB = FastMix_Old(h5 ^ h8, h6 ^ h9) ^ h7;
 
-        ulong finalHash = FastMix(mixA, mixB);
+        ulong finalHash = FastMix_Old(mixA, mixB);
         return (int)(finalHash ^ (finalHash >> 32));
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static ulong FastMix(ulong v1, ulong v2)
-    {
-        ulong p = v1 * v2;
-        return p ^ (p >> 32);
-    }
+
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly bool Equals(VertexQuad other)
