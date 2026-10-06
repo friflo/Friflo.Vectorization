@@ -29,44 +29,44 @@ public static class Tests_TmGui_Diff
         int[] target2   = [1,    3,    4, 5, 6];
         int[] target3   = [1, 2, 3,    4, 8, 6];
         
-        int[] diffValues = new int[10];
+        int[] diffBuffer = [];
         
         var changes = new List<SeqChange>();
         
         // --- target1 / Insert
-        SequenceDiff.TryComputeChanges(start, target1, 10, changes, out int diffItemCount); 
+        SequenceDiff.TryComputeChanges(start, target1, 10, changes, out int diffValueCount); 
         Assert.That(changes.Count,      Is.EqualTo(1));
         Assert.That(changes[0].Label,   Is.EqualTo("Insert [3..1]"));
-        Assert.That(diffItemCount,      Is.EqualTo(1));
+        Assert.That(diffValueCount,     Is.EqualTo(1));
         
-        SequenceDiff.AppendDiffValues(changes, target1, diffValues);
-        Assert.That(diffValues[0],       Is.EqualTo(9));
+        var diff = SequenceDiff.FillDiffValues(changes, target1, ref diffBuffer, diffValueCount);
+        Assert.That(diff[0],       Is.EqualTo(9));
         var newTarget1  = new int [7];
-        SequenceDiff.ApplyChanges(start, changes, diffValues, newTarget1);
+        SequenceDiff.ApplyChanges(start, changes, diffBuffer, newTarget1);
         Assert.That(newTarget1,         Is.EqualTo(target1));
         
         // --- target2 / Remove
-        SequenceDiff.TryComputeChanges(start, target2, 10, changes, out diffItemCount); 
+        SequenceDiff.TryComputeChanges(start, target2, 10, changes, out diffValueCount); 
         Assert.That(changes.Count,      Is.EqualTo(1));
         Assert.That(changes[0].Label,   Is.EqualTo("Remove [1..1]"));
-        Assert.That(diffItemCount,      Is.EqualTo(0));
+        Assert.That(diffValueCount,     Is.EqualTo(0));
         
-        SequenceDiff.AppendDiffValues(changes, target2, diffValues);
+        SequenceDiff.FillDiffValues(changes, target2, ref diffBuffer, diffValueCount);
         var newTarget2  = new int [5];
-        SequenceDiff.ApplyChanges(start, changes, diffValues, newTarget2);
+        SequenceDiff.ApplyChanges(start, changes, diffBuffer, newTarget2);
         Assert.That(newTarget2,         Is.EqualTo(target2));
 
         
         // --- target3 / Modify
-        SequenceDiff.TryComputeChanges(start, target3, 10, changes, out diffItemCount); 
+        SequenceDiff.TryComputeChanges(start, target3, 10, changes, out diffValueCount); 
         Assert.That(changes.Count,      Is.EqualTo(1));
         Assert.That(changes[0].Label,   Is.EqualTo("Modify [4..1]"));
-        Assert.That(diffItemCount,      Is.EqualTo(1));
+        Assert.That(diffValueCount,     Is.EqualTo(1));
         
-        SequenceDiff.AppendDiffValues(changes, target3, diffValues);
-        Assert.That(diffValues[0],       Is.EqualTo(8));
+        SequenceDiff.FillDiffValues(changes, target3, ref diffBuffer, diffValueCount);
+        Assert.That(diffBuffer[0],      Is.EqualTo(8));
         var newTarget3  = new int [6];
-        SequenceDiff.ApplyChanges(start, changes, diffValues, newTarget3);
+        SequenceDiff.ApplyChanges(start, changes, diffBuffer, newTarget3);
         Assert.That(newTarget3,         Is.EqualTo(target3));
     }
     

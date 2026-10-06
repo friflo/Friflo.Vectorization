@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
@@ -19,29 +20,30 @@ public static partial class SequenceDiff
     /// Extracts modified and inserted items from target into a contiguous diff payload span.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
-    public static Span<T> AppendDiffValues<T>(
+    public static Span<T> FillDiffValues<T>(
         List<SeqChange> changeList,
         ReadOnlySpan<T> target,
-        Span<T>         diffValues) where T : struct
+        ref T[]         diffValueBuffer,
+        int             diffValueCount) where T : unmanaged
     {
         int targetOffset = 0;
         ReadOnlySpan<SeqChange> changes = CollectionsMarshal.AsSpan(changeList);
+        var diffValues = GetSpanOf(ref diffValueBuffer, diffValueCount);
 
-        foreach (ref readonly var change in changes)
+        foreach (var change in changes)
         {
             if (change.Type is SeqChangeType.Modify or SeqChangeType.Insert)
             {
                 int count        = change.Length;
                 int sourceOffset = change.Start;
 
-                target.Slice(sourceOffset, count)
-                    .CopyTo(diffValues.Slice(targetOffset, count));
+                target.Slice(sourceOffset, count).CopyTo(diffValues.Slice(targetOffset, count));
 
                 targetOffset += count;
             }
         }
-
-        return diffValues.Slice(0, targetOffset);
+        Debug.Assert(diffValues.Length == targetOffset);
+        return diffValues;
     }
     
     
@@ -55,7 +57,7 @@ public static partial class SequenceDiff
         ReadOnlySpan<T>     startState,
         List<SeqChange>     changeList,
         ReadOnlySpan<T>     diffValues,
-        Span<T>             targetState) where T : struct
+        Span<T>             targetState) where T : unmanaged
     {
         int readOffset  = 0;
         int writeOffset = 0;
@@ -106,5 +108,13 @@ public static partial class SequenceDiff
             startState.Slice(readOffset, remainingCount)
                 .CopyTo(targetState.Slice(writeOffset, remainingCount));
         }
+    }
+    
+    internal static Span<T> GetSpanOf<T>(ref T[] array, int length) where T : unmanaged
+    {
+        if (array.Length < length) {
+            array = new T[length];
+        }
+        return array.AsSpan(0, length);
     }
 }

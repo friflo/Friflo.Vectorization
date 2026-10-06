@@ -17,10 +17,8 @@ internal sealed partial class GuiSession
     private Span<Vertex2D> CalcQuadChanges(Span<Vertex2D> vertices)
     {
         Span<VertexQuad> quads = MemoryMarshal.Cast<Vertex2D, VertexQuad>(vertices);
-        if (shared.quadHashesBuffer.Length < quads.Length) {
-            shared.quadHashesBuffer = new int[quads.Length];
-        }
-        var newHashes = shared.quadHashesBuffer.AsSpan(0, quads.Length);
+        var newHashes = SequenceDiff.GetSpanOf(ref shared.quadHashesBuffer, quads.Length);
+        
         for (int n= 0; n < quads.Length; n++) {
             newHashes[n] = quads[n].GetHashCode();
         }
@@ -36,11 +34,7 @@ internal sealed partial class GuiSession
             return vertices;
         }
         
-        if (shared.quadBuffer.Length < diffValueCount) {
-            shared.quadBuffer = new VertexQuad[diffValueCount];
-        }
-        var diffQuads = shared.quadBuffer.AsSpan(0, diffValueCount);
-        diffQuads = SequenceDiff.AppendDiffValues(shared.changeList, quads, diffQuads);
+        var diffQuads = SequenceDiff.FillDiffValues(shared.changeList, quads, ref shared.quadBuffer, diffValueCount);
         
         Debug.Assert(diffQuads.Length == diffValueCount);
         
@@ -61,18 +55,11 @@ internal sealed partial class GuiSession
     {
         if (shared.changeList.Count == 0) return;
         
-        if (debugHashDiff.Length < diffValueCount) {
-            debugHashDiff = new int[diffValueCount];
-        }
-        var diffQuads = debugHashDiff.AsSpan(0, diffValueCount);
-        diffQuads = SequenceDiff.AppendDiffValues(shared.changeList, quads, diffQuads);
+        var diffQuads = SequenceDiff.FillDiffValues(shared.changeList, quads, ref debugHashDiff, diffValueCount);
         
         Debug.Assert(diffQuads.Length == diffValueCount);
         
-        if (debugHashTarget.Length < quads.Length) {
-            debugHashTarget = new int[quads.Length];
-        }
-        var hashTarget = debugHashTarget.AsSpan(0, quads.Length);
+        var hashTarget = SequenceDiff.GetSpanOf(ref debugHashTarget, quads.Length);
         
         SequenceDiff.ApplyChanges(clientQuads, shared.changeList, diffQuads, hashTarget);
 
@@ -94,10 +81,8 @@ internal sealed partial class GuiSession
         
         ReadOnlySpan<VertexQuad> clientQuads = CollectionsMarshal.AsSpan(debugClientQuads);
         
-        if (debugClientTarget.Length < quads.Length) {
-            debugClientTarget = new VertexQuad[quads.Length];
-        }
-        var clientTarget = debugClientTarget.AsSpan(0, clientQuadList.Count);
+        var clientTarget = SequenceDiff.GetSpanOf(ref debugClientTarget, quads.Length);
+        
         SequenceDiff.ApplyChanges(clientQuads, shared.changeList, diffQuads, clientTarget);
 
         var isEqual = quads.SequenceEqual(clientTarget);
