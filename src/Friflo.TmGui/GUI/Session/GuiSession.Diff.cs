@@ -24,7 +24,7 @@ internal sealed partial class GuiSession
         }
         var clientQuads = CollectionsMarshal.AsSpan(clientQuadList);
         const int lookahead = 64;
-        if (!SequenceDiff.TryComputeChanges(clientQuads, newHashes, 100000, lookahead, shared.changeList, out int diffValueCount)) {
+        if (!SequenceDiff.TryComputeChanges(clientQuads, newHashes, int.MaxValue, lookahead, shared.changeList, out int diffValueCount)) {
             Debug.Fail("TryComputeChanges is false");
         }
 

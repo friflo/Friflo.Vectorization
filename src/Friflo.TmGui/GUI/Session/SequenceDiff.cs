@@ -57,7 +57,7 @@ public static partial class SequenceDiff
     public static bool TryComputeChanges(
         ReadOnlySpan<int>   startState,
         ReadOnlySpan<int>   targetState,
-        int                 maxOperations,
+        int                 maxDiffValueCount,
         int                 lookahead, // typical values: 64, 128
         List<SeqChange>     changes,
         out int             diffValueCount)
@@ -75,8 +75,6 @@ public static partial class SequenceDiff
             // 1. Fast scalar skip for identical element sequences
             while (i < lenA && j < lenB && startState[i] == targetState[j]) { i++; j++; }
             if (i >= lenA || j >= lenB) break;
-
-            if (changes.Count >= maxOperations) goto Fail;
 
             int valA = startState[i], valB = targetState[j];
             int matchTarget = int.MaxValue;
@@ -100,6 +98,7 @@ public static partial class SequenceDiff
             {
                 if (matchTarget <= matchStart)
                 {
+                    if (diffValueCount + matchTarget > maxDiffValueCount) goto Fail;
                     changes.Add(new SeqChange(SeqChangeType.Insert, i, matchTarget));
                     diffValueCount += matchTarget;
                     j += matchTarget;
@@ -115,6 +114,7 @@ public static partial class SequenceDiff
                 int startI = i;
                 while (i < lenA && j < lenB && startState[i] != targetState[j]) { i++; j++; }
                 int modifyLen = i - startI;
+                if (diffValueCount + modifyLen > maxDiffValueCount) goto Fail;
                 changes.Add(new SeqChange(SeqChangeType.Modify, startI, modifyLen));
                 diffValueCount += modifyLen;
             }
@@ -123,14 +123,13 @@ public static partial class SequenceDiff
         // 4. Process trailing elements
         if (i < lenA)
         {
-            if (changes.Count >= maxOperations) goto Fail;
             changes.Add(new SeqChange(SeqChangeType.Remove, i, lenA - i));
         }
 
         if (j < lenB)
         {
-            if (changes.Count >= maxOperations) goto Fail;
             int insertLen = lenB - j;
+            if (diffValueCount + insertLen > maxDiffValueCount) goto Fail;
             changes.Add(new SeqChange(SeqChangeType.Insert, i, insertLen));
             diffValueCount += insertLen;
         }

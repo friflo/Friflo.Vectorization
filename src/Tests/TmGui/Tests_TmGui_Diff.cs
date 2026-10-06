@@ -84,14 +84,14 @@ public static class Tests_TmGui_Diff
         target1[1000] = 99;
         
         var changes = new List<SeqChange>();
-        SequenceDiff.TryComputeChanges(start, target1, 10, Lookahead, changes, out _);
+        SequenceDiff.TryComputeChanges(start, target1, int.MaxValue, Lookahead, changes, out _);
         Assert.That(changes.Count,      Is.EqualTo(1));
         Assert.That(changes[0].Label,   Is.EqualTo("Modify [1000..1]"));
         
-        const int repeat  = 10; // 10_000_000, Lookahead = 64 - 10.5 sec
+        const int repeat  = 10_000_000; // 10_000_000, Lookahead = 64 - 10.5 sec
         for (int n = 0; n < repeat; n++)
         {
-            SequenceDiff.TryComputeChanges(start, target1, 10, Lookahead, changes, out _);
+            SequenceDiff.TryComputeChanges(start, target1, int.MaxValue, Lookahead, changes, out _);
         }
     }
     
