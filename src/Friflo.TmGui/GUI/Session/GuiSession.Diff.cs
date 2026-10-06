@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 
+// ReSharper disable RedundantAssignment
 // ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable InlineTemporaryVariable
 // ReSharper disable CheckNamespace
@@ -37,8 +38,6 @@ internal sealed partial class GuiSession
         clientQuadList.Clear();
         clientQuadList.AddRange(newHashes);
         
-        // return vertices;
-        
         var diffQuads = SequenceDiff.FillDiffValues(shared.changeList, newQuads, ref shared.quadBuffer, diffValueCount);
         
         DebugVerifyQuadDiff(newQuads, diffQuads);
@@ -54,6 +53,7 @@ internal sealed partial class GuiSession
     private  readonly   List<VertexQuad>    debugClientQuads    = [];
     private             VertexQuad[]        debugClientTarget   = [];
     
+    [Conditional("DEBUG")]
     private void DebugVerifyHashDiff(ReadOnlySpan<int> clientQuads, ReadOnlySpan<int> newQuads, int diffValueCount)
     {
         if (shared.changeList.Count == 0) return;
@@ -74,6 +74,7 @@ internal sealed partial class GuiSession
         }
     }
     
+    [Conditional("DEBUG")]
     private void DebugVerifyQuadDiff(ReadOnlySpan<VertexQuad> newQuads, ReadOnlySpan<VertexQuad> diffQuads)
     {
         if (shared.changeList.Count == 0) return;
