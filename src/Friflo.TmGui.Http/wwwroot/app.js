@@ -294,25 +294,10 @@ function processDrawList(uint8Data)
     // 4. Read MouseCursor
     const mouseCursor = view.getInt32(offset, true);
     offset += SIZEOF_INT;
-
-    // 5. View on WsDrawCommand array
-    const drawCommandsByteLength = drawCommandCount * SIZEOF_WS_DRAW_COMMAND;
-    const drawCommandsOffset = offset;
-    offset += drawCommandsByteLength;
-
-    // 6. View on Vertex2D array
-    const verticesByteLength = vertexCount * 20;
-    const verticesOffset = offset;
-    offset += verticesByteLength;
     
-    // 7. View on change array
-    const changeOffset = offset;
-    offset += 8 * changeCount;
-    
-    // 8. Read used Textures (Count + ID/Name pairs)
+    // 5. Read used Textures (Count + ID/Name pairs)
     const newTexturesCount = view.getInt32(offset, true);
-    offset += SIZEOF_INT;
-
+    offset += SIZEOF_INT;    
     for (let i = 0; i < newTexturesCount; i++) {
         // Keep comment: Each textureId is sent only once
         const textureId = view.getInt32(offset, true);
@@ -328,6 +313,21 @@ function processDrawList(uint8Data)
 
         ensureTextureLoaded(textureId, name);
     }
+
+    // 6. View on WsDrawCommand array
+    const drawCommandsByteLength = drawCommandCount * SIZEOF_WS_DRAW_COMMAND;
+    const drawCommandsOffset = offset;
+    offset += drawCommandsByteLength;
+
+    // 7. View on Vertex2D array
+    const verticesByteLength = vertexCount * 20;
+    const verticesOffset = offset;
+    offset += verticesByteLength;
+    
+    // 8. View on change array
+    const changeOffset = offset;
+    offset += 8 * changeCount;    
+
     const terminator = view.getInt32(offset, true);
     offset += SIZEOF_INT;
     if (terminator !== 0x12345678) {

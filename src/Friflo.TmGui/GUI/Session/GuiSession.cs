@@ -107,7 +107,7 @@ internal sealed partial class GuiSession : TmSession
             };
         }
         var vertices = wsBatch.Vertices;
-        // vertices = CalcQuadChanges(vertices);
+        vertices = CalcQuadChanges(vertices);
         
         var sendLength = 8 + 8 + 4 + 4 + 4 + 4 + 
                          drawCommands.Length        * Unsafe.SizeOf<WsDrawCommand>() +
@@ -143,26 +143,9 @@ internal sealed partial class GuiSession : TmSession
         // 4. Write current mouse cursor shape (int)
         MemoryMarshal.Write(span[bytesWritten..], wsBackend.input.CurrentCursor);
         bytesWritten += sizeof(int);
-
-        // 5. Write wsDrawList elements
-        var drawListBytes = MemoryMarshal.AsBytes(shared.wsDrawList.AsSpan(0, drawCommands.Length));
-        drawListBytes.CopyTo(span[bytesWritten..]);
-        bytesWritten += drawListBytes.Length;
-
-        // 6. Write vertices elements
-        var vertexBytes = MemoryMarshal.AsBytes(vertices);
-        vertexBytes.CopyTo(span[bytesWritten..]);
-        bytesWritten += vertexBytes.Length;
         
-        // 7. Write change elements
-        var changes = CollectionsMarshal.AsSpan(shared.changeList);
-        var changesBytes = MemoryMarshal.AsBytes(changes);
-        changesBytes.CopyTo(span[bytesWritten..]);
-        bytesWritten += changesBytes.Length;
-        
-        if (bytesWritten != sendLength) throw new InvalidOperationException("invalid length");
-        
-        // 8. Write used textures   
+        // 5. Write used textures
+        var texturesStart = bytesWritten;
         var images = resources.images;
         MemoryMarshal.Write(span[bytesWritten..], newTextures.Count);
         bytesWritten += sizeof(int);
@@ -177,6 +160,26 @@ internal sealed partial class GuiSession : TmSession
             int encodedBytes = Encoding.UTF8.GetBytes(image.asset.name, span[bytesWritten..]);
             bytesWritten += encodedBytes;
         }
+        var texturesLength = bytesWritten - texturesStart;
+
+        // 6. Write wsDrawList elements
+        var drawListBytes = MemoryMarshal.AsBytes(shared.wsDrawList.AsSpan(0, drawCommands.Length));
+        drawListBytes.CopyTo(span[bytesWritten..]);
+        bytesWritten += drawListBytes.Length;
+
+        // 7. Write vertices elements
+        var vertexBytes = MemoryMarshal.AsBytes(vertices);
+        vertexBytes.CopyTo(span[bytesWritten..]);
+        bytesWritten += vertexBytes.Length;
+        
+        // 8. Write change elements
+        var changes = CollectionsMarshal.AsSpan(shared.changeList);
+        var changesBytes = MemoryMarshal.AsBytes(changes);
+        changesBytes.CopyTo(span[bytesWritten..]);
+        bytesWritten += changesBytes.Length;
+        
+        if (bytesWritten - texturesLength != sendLength) throw new InvalidOperationException("invalid length");
+
         // write terminator to check message consistency on client
         MemoryMarshal.Write(span[bytesWritten..], 0x12345678);
         bytesWritten += sizeof(int);
