@@ -39,12 +39,14 @@ public struct Vertex2D
 public struct VertexQuad : IEquatable<VertexQuad>
 {
     private Vertex2D _element0;
-    
+
+    public override int GetHashCode() => GetQuadHash();
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public readonly override int GetHashCode()
+    public readonly int GetQuadHash()
     {
         ref byte bytePtr = ref Unsafe.As<VertexQuad, byte>(ref Unsafe.AsRef(in this));
-
+        /*
         // 1. AVX2 / 256-Bit Path (3 fast vector loads for 80 bytes)
         if (Vector256.IsHardwareAccelerated)
         {
@@ -56,13 +58,19 @@ public struct VertexQuad : IEquatable<VertexQuad>
             Vector256<ulong> v1 = Vector256.LoadUnsafe(ref bytePtr, 32).AsUInt64() ^ p1;
             Vector128<ulong> v2 = Vector128.LoadUnsafe(ref bytePtr, 64).AsUInt64() ^ p2;
 
-            Vector128<ulong> fold = (v0.GetLower() ^ v1.GetLower()) ^ (v0.GetUpper() ^ v1.GetUpper()) ^ v2;
+            // Bit-rotations per block force floating-point diffs to land on completely different bit positions
+            ulong r0 = BitOperations.RotateLeft(v0.GetLower().GetElement(0), 13) ^ v0.GetLower().GetElement(1);
+            ulong r1 = BitOperations.RotateLeft(v1.GetLower().GetElement(0), 27) ^ v1.GetLower().GetElement(1);
+            ulong r2 = BitOperations.RotateLeft(v0.GetUpper().GetElement(0), 41) ^ v0.GetUpper().GetElement(1);
+            ulong r3 = BitOperations.RotateLeft(v1.GetUpper().GetElement(0), 55) ^ v1.GetUpper().GetElement(1);
 
-            ulong mix = FastMix(fold.GetElement(0), fold.GetElement(1));
+            ulong foldA = r0 ^ r3 ^ v2.GetElement(0);
+            ulong foldB = r1 ^ r2 ^ v2.GetElement(1);
+
+            ulong mix = FastMix(foldA, foldB);
             return (int)(mix ^ (mix >> 32));
-        }
+        } */
 
-        // 2. Scalar Fallback
         ref ulong ptr = ref Unsafe.As<byte, ulong>(ref bytePtr);
 
         ulong h0 = Unsafe.Add(ref ptr, 0) ^ 0x9E3779B97F4A7C15UL;
@@ -76,8 +84,11 @@ public struct VertexQuad : IEquatable<VertexQuad>
         ulong h8 = Unsafe.Add(ref ptr, 8) ^ 0x1D8E4E27C47D124FUL;
         ulong h9 = Unsafe.Add(ref ptr, 9) ^ 0x27BB2EE687B0B0FDUL;
 
-        ulong mixA = FastMix(h0 ^ h3 ^ h6, h1 ^ h4 ^ h7);
-        ulong mixB = FastMix(h2 ^ h5 ^ h8, h9 ^ 0x9E3779B97F4A7C15UL);
+        // Rotate individual 64-bit words by prime offsets to destroy vertex-alignment symmetry
+        ulong mixA = FastMix(h0 ^ BitOperations.RotateLeft(h3, 17) ^ BitOperations.RotateLeft(h6, 31), 
+                             h1 ^ BitOperations.RotateLeft(h4, 23) ^ BitOperations.RotateLeft(h7, 47));
+        ulong mixB = FastMix(h2 ^ BitOperations.RotateLeft(h5, 19) ^ BitOperations.RotateLeft(h8, 37), 
+                             h9 ^ 0x9E3779B97F4A7C15UL);
 
         ulong finalHash = FastMix(mixA, mixB);
         return (int)(finalHash ^ (finalHash >> 32));
@@ -86,7 +97,7 @@ public struct VertexQuad : IEquatable<VertexQuad>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static ulong FastMix(ulong a, ulong b)
     {
-        ulong low = Math.BigMul(a, b, out ulong high);
+        ulong low = Math.BigMul(a | 1UL, b | 1UL, out ulong high);
         return low ^ high;
     }
     

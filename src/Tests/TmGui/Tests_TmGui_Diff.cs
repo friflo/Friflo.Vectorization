@@ -88,7 +88,7 @@ public static class Tests_TmGui_Diff
         Assert.That(changes.Count,      Is.EqualTo(1));
         Assert.That(changes[0].Label,   Is.EqualTo("Modify [1000..1]"));
         
-        const int repeat  = 10; // 10_000_000 - 1.9 sec
+        const int repeat  = 10; // 10_000_000, Lookahead = 64 - 10.5 sec
         for (int n = 0; n < repeat; n++)
         {
             SequenceDiff.TryComputeChanges(start, target1, 10, Lookahead, changes, out _);
@@ -99,12 +99,12 @@ public static class Tests_TmGui_Diff
     public static void Tests_TmGui_Diff_Quad_GetHashCode()
     {
         var quads = new VertexQuad[2000];
-        const int repeat  = 10; // 1_000_000 - 2.5 sec
+        const int repeat  = 10; // 1_000_000 - 5.1 sec
         
         for (int n = 0; n < repeat; n++) {
             foreach (ref var quad in quads.AsSpan())
             {
-                _ = quad.GetHashCode();
+                _ = quad.GetQuadHash();
             }
         }
     }

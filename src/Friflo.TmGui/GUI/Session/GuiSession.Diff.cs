@@ -20,7 +20,7 @@ internal sealed partial class GuiSession
         var newHashes = SequenceDiff.GetSpanOf(ref shared.quadHashesBuffer, newQuads.Length);
         
         for (int n= 0; n < newQuads.Length; n++) {
-            newHashes[n] = newQuads[n].GetHashCode();
+            newHashes[n] = newQuads[n].GetQuadHash();
         }
         var clientQuads = CollectionsMarshal.AsSpan(clientQuadList);
         const int lookahead = 64;
@@ -91,7 +91,7 @@ internal sealed partial class GuiSession
                 ref readonly var clientQuad  = ref clientTarget[n];
                 // Only check when there is an actual content mismatch
                 if (newQuad != clientQuad) {
-                    if (newQuad.GetHashCode() == clientQuad.GetHashCode()) {
+                    if (newQuad.GetQuadHash() == clientQuad.GetQuadHash()) {
                         hashCollisionCount++;
                         continue;
                     }
