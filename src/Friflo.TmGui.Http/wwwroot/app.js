@@ -429,6 +429,7 @@ function submitDrawList()
     const view                  = frame.frameBufferDataView;
     const drawCommandsOffset    = frame.drawCommandsOffset
     const drawCommandCount      = frame.drawCommandCount;
+    // console.log(`submitDrawList()  draw calls: ${drawCommandCount}  vertices: ${frame.verticesByteLength}  red: ${frame.frameBuffer[frame.verticesOffset + 16]}`);
     
     // Dynamic resize for Vertex Buffer if vertex payload exceeds current capacity
     if (vertexBuffer.size < frame.verticesByteLength) {
