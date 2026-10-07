@@ -87,7 +87,9 @@ public class TestGuiView : IGuiView
         e.MoveNext();
         gui.Label(e.Current.Span, Color32.Gray);
         
-        e = sb.Clear().Append($"frame time: {frameTime,5:F1} ms  alloc: {memDiff}").GetChunks().GetEnumerator();
+        sb.Clear().Append($"frame time: ");
+        if (gui.Batch.TickEnabled) sb.Append($"{frameTime,5:F1} ms  "); else sb.Append($" ---  ");
+        e = sb.Append($"alloc: {memDiff}").GetChunks().GetEnumerator();
         e.MoveNext();
         gui.Label(e.Current.Span, Color32.Teal);
         
