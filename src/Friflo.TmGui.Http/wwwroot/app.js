@@ -1,5 +1,5 @@
 // app.js
-import { sendInitGui, initGuiEventListeners, updateMouseCursor } from './app-events.js';
+import { sendInitGui, initGuiEventListeners, updateMouseCursor, applyVertexChanges, masterVertices } from './app-events.js';
 
 // Check WebGPU availability in current browser environment
 if (!navigator.gpu) {
@@ -266,9 +266,7 @@ function initWebSocket() {
 // - Always process incoming messages
 // - Render frames only at requestAnimationFrame() - The monitor refresh rate
 
-// Persistent Single Source of Truth on CPU
-let cpuMasterVertices = new Uint8Array(1024 * 1024);
-let cpuMasterByteLength = 0;
+
 
 function processDrawList(data)
 {
@@ -347,19 +345,14 @@ function processDrawList(data)
         console.log(`RTT latency: ${latency.toFixed(1)} ms`);
     }
 
-    // Step 1: Copy incoming vertices into cpuMasterVertices first
-    if (cpuMasterVertices.byteLength < verticesByteLength) {
-        const alignedMasterLength = (verticesByteLength + 1024 + 3) & ~3;
-        cpuMasterVertices = new Uint8Array(alignedMasterLength);
-    }
-    cpuMasterVertices.set(uint8Data.subarray(verticesOffset, verticesOffset + verticesByteLength), 0);
-    cpuMasterByteLength = verticesByteLength;
+    // Apply binary diffs into staging buffer and update cpuMasterVertices
+    const masterByteLength = applyVertexChanges(uint8Data, view, changeOffset, changeCount, verticesOffset, verticesByteLength);
     
     // -------- set state for next animationFrame() --------    
     const frame = backFrame;
     
     // Total required byte length for header, draw commands, and vertices
-    const totalRequiredLength = verticesOffset + cpuMasterByteLength;
+    const totalRequiredLength = verticesOffset + masterByteLength;
 
     // Ensure global frame buffer is large enough and 4-byte aligned
     if (frame.frameBuffer.byteLength < totalRequiredLength) {
@@ -373,13 +366,13 @@ function processDrawList(data)
     // Copy incoming header + draw commands into frame buffer
     frame.frameBuffer.set(uint8Data.subarray(0, verticesOffset), 0);
 
-    // Copy vertices from cpuMasterVertices into frame buffer
-    frame.frameBuffer.set(cpuMasterVertices.subarray(0, cpuMasterByteLength), verticesOffset);
+    // Copy vertices from masterVertices into frame buffer
+    frame.frameBuffer.set(masterVertices.subarray(0, masterByteLength), verticesOffset);
 
     frame.drawCommandsOffset    = drawCommandsOffset;
     frame.drawCommandCount      = drawCommandCount;
     frame.verticesOffset        = verticesOffset;
-    frame.verticesByteLength    = cpuMasterByteLength;
+    frame.verticesByteLength    = masterByteLength;
     
     triggerRender();
 }

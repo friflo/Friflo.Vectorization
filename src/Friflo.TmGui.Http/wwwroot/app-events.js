@@ -168,3 +168,139 @@ export function initGuiEventListeners(canvas, getSocketFn) {
         socket.send(`evt=keyup;key=${e.key};code=${e.code};`);
     });
 }
+
+
+// Persistent Single Source of Truth on CPU and separate Staging Buffer
+export let masterVertices = new Uint8Array(1024 * 1024);
+let masterByteLength = 0;
+let stagingVerticesBuffer = new Uint8Array(1024 * 1024);
+
+/**
+ * Applies binary diffs (modify, insert, remove) onto the CPU master vertex state.
+ *
+ * @param {Uint8Array} uint8Data        - The incoming binary WebSocket packet buffer.
+ * @param {DataView} view               - DataView mapped to the incoming packet buffer for reading change structures.
+ * @param {number} changeOffset         - Byte offset in the buffer where the array of SeqChange structures begins.
+ * @param {number} changeCount          - Total number of diff changes to apply.
+ * @param {number} verticesOffset       - Byte offset in the buffer where incoming vertex diff payloads start.
+ * @param {number} verticesByteLength   - Byte length of the incoming vertex data slice.
+ * @returns {number} masterByteLength
+ */
+export function applyVertexChanges(uint8Data, view, changeOffset, changeCount, verticesOffset, verticesByteLength) {
+    const BYTES_PER_QUAD = 80; // 4 Vertices * 20 Bytes
+
+    // Fast-path: Complete full update (no diffs)
+    if (changeCount === 0) {
+        if (masterVertices.byteLength < verticesByteLength) {
+            const alignedLength = (verticesByteLength + 1024 + 3) & ~3;
+            masterVertices = new Uint8Array(alignedLength);
+        }
+        masterVertices.set(uint8Data.subarray(verticesOffset, verticesOffset + verticesByteLength), 0);
+        masterByteLength = verticesByteLength;
+        return masterByteLength;
+    }
+
+    // Exact logic mirror of C# ApplyChanges<T>
+    let readOffsetQuad = 0;
+    let writeOffsetQuad = 0;
+    let diffOffsetByte = verticesOffset; // Payload in uint8Data starts at verticesOffset
+    let readChangeOffset = changeOffset;
+
+    // Calculate required capacity for targetBuffer
+    const totalMasterQuads = masterByteLength / BYTES_PER_QUAD;
+
+    for (let c = 0; c < changeCount; c++) {
+        // Read SeqChange (24-bit quadStart, 8-bit type, 32-bit quadLength)
+        const quadStart = view.getUint8(readChangeOffset) |
+                         (view.getUint8(readChangeOffset + 1) << 8) |
+                         (view.getUint8(readChangeOffset + 2) << 16);
+        const type = view.getUint8(readChangeOffset + 3);
+        const quadLength = view.getInt32(readChangeOffset + 4, true);
+        readChangeOffset += 8;
+
+        // 1. Copy unmodified items leading up to this change
+        const unmodifiedCount = quadStart - readOffsetQuad;
+        if (unmodifiedCount > 0) {
+            const unmodifiedBytes = unmodifiedCount * BYTES_PER_QUAD;
+            const srcByteOffset = readOffsetQuad * BYTES_PER_QUAD;
+            const dstByteOffset = writeOffsetQuad * BYTES_PER_QUAD;
+
+            // Ensure capacity in staging buffer
+            if (stagingVerticesBuffer.byteLength < dstByteOffset + unmodifiedBytes) {
+                const expanded = new Uint8Array((dstByteOffset + unmodifiedBytes + 1024 + 3) & ~3);
+                expanded.set(stagingVerticesBuffer);
+                stagingVerticesBuffer = expanded;
+            }
+
+            stagingVerticesBuffer.set(
+                masterVertices.subarray(srcByteOffset, srcByteOffset + unmodifiedBytes),
+                dstByteOffset
+            );
+
+            readOffsetQuad += unmodifiedCount;
+            writeOffsetQuad += unmodifiedCount;
+        }
+
+        // 2. Process SeqChangeType
+        const changeBytes = quadLength * BYTES_PER_QUAD;
+        const dstByteOffset = writeOffsetQuad * BYTES_PER_QUAD;
+
+        // Ensure capacity in staging buffer
+        if (type === 1 || type === 2) { // Modify or Insert
+            if (stagingVerticesBuffer.byteLength < dstByteOffset + changeBytes) {
+                const expanded = new Uint8Array((dstByteOffset + changeBytes + 1024 + 3) & ~3);
+                expanded.set(stagingVerticesBuffer);
+                stagingVerticesBuffer = expanded;
+            }
+
+            // Copy new/updated payload from diffValues (uint8Data)
+            stagingVerticesBuffer.set(
+                uint8Data.subarray(diffOffsetByte, diffOffsetByte + changeBytes),
+                dstByteOffset
+            );
+
+            diffOffsetByte += changeBytes;
+            writeOffsetQuad += quadLength;
+
+            if (type === 1) { // Modify
+                readOffsetQuad += quadLength;
+            }
+        } else if (type === 3) { // Remove
+            readOffsetQuad += quadLength;
+        }
+    }
+
+    // 3. Copy remaining tail elements if any
+    const remainingCount = totalMasterQuads - readOffsetQuad;
+    if (remainingCount > 0) {
+        const remainingBytes    = remainingCount  * BYTES_PER_QUAD;
+        const srcByteOffset     = readOffsetQuad  * BYTES_PER_QUAD;
+        const dstByteOffset     = writeOffsetQuad * BYTES_PER_QUAD;
+
+        if (stagingVerticesBuffer.byteLength < dstByteOffset + remainingBytes) {
+            const expanded = new Uint8Array((dstByteOffset + remainingBytes + 1024 + 3) & ~3);
+            expanded.set(stagingVerticesBuffer);
+            stagingVerticesBuffer = expanded;
+        }
+
+        stagingVerticesBuffer.set(
+            masterVertices.subarray(srcByteOffset, srcByteOffset + remainingBytes),
+            dstByteOffset
+        );
+
+        writeOffsetQuad += remainingCount;
+    }
+
+    const newByteLength = writeOffsetQuad * BYTES_PER_QUAD;
+
+    // Commit staging buffer into cpuMasterVertices
+    if (masterVertices.byteLength < newByteLength) {
+        const alignedLength = (newByteLength + 1024 + 3) & ~3;
+        masterVertices = new Uint8Array(alignedLength);
+    }
+
+    masterVertices.set(stagingVerticesBuffer.subarray(0, newByteLength), 0);
+    masterByteLength = newByteLength;
+
+    return masterByteLength;
+}
