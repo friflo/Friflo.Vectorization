@@ -8,6 +8,7 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
 
+// ReSharper disable ConvertToConstant.Local
 // ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable InlineTemporaryVariable
 // ReSharper disable CheckNamespace
@@ -74,6 +75,7 @@ internal sealed partial class GuiSession : TmSession
     protected internal override TmGuiBackend    Backend     => wsBackend;
     protected internal override bool            IsDirty     => isDirty;
 
+    private readonly bool sendChangeDiffs = false;
 
     internal override Memory<byte> IterateUI(AssetResources resources)
     {
@@ -107,7 +109,9 @@ internal sealed partial class GuiSession : TmSession
             };
         }
         var vertices = wsBatch.Vertices;
-        // vertices = CalcQuadChanges(vertices);
+        if (sendChangeDiffs) {
+            vertices = CalcQuadChanges(vertices);
+        }
         
         var sendLength = 8 + 8 + 4 + 4 + 4 + 4 + 
                          drawCommands.Length        * Unsafe.SizeOf<WsDrawCommand>() +
@@ -140,6 +144,8 @@ internal sealed partial class GuiSession : TmSession
         MemoryMarshal.Write(span[bytesWritten..], shared.changeList.Count);
         bytesWritten += sizeof(int);
         
+        int hashStart = bytesWritten;
+        
         // 4. Write current mouse cursor shape (int)
         MemoryMarshal.Write(span[bytesWritten..], wsBackend.input.CurrentCursor);
         bytesWritten += sizeof(int);
@@ -168,6 +174,7 @@ internal sealed partial class GuiSession : TmSession
         bytesWritten += drawListBytes.Length;
 
         // 7. Write vertices elements
+        int vertexStart = bytesWritten;
         var vertexBytes = MemoryMarshal.AsBytes(vertices);
         vertexBytes.CopyTo(span[bytesWritten..]);
         bytesWritten += vertexBytes.Length;
@@ -186,14 +193,24 @@ internal sealed partial class GuiSession : TmSession
         
         var memory = new Memory<byte>(shared.sendBuffer, 0, bytesWritten);
 
-        // remove time values from hash calculation
-        var timeOffsets = 8 + 8;
-        var sendHash = HashUtils.XxHash3(memory.Span.Slice(timeOffsets, memory.Length - timeOffsets));
-        if (lastSendBufferHash == sendHash) {
+        if (sendChangeDiffs) {
+            // Debug.WriteLine($"----------- {sendCounter++}");
+            // foreach (var change in shared.changeList) { Debug.WriteLine(change.ToString()); }
+            var sendHash = HashUtils.XxHash3(memory.Span.Slice(hashStart, vertexStart - hashStart));
+            var sendDiff = lastSendBufferHash != sendHash || shared.changeList.Count > 0;
+            lastSendBufferHash = sendHash;
+            if (sendDiff) {
+                return memory;
+            }
             return default;
+        } else {
+            var sendHash = HashUtils.XxHash3(memory.Span.Slice(hashStart, memory.Length - hashStart));
+            if (lastSendBufferHash == sendHash) {
+                return default;
+            }
+            lastSendBufferHash = sendHash;
+            return memory;
         }
-        lastSendBufferHash = sendHash;
-        return memory;
     }
 }
 
