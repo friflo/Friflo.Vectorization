@@ -48,7 +48,7 @@ public class TestGuiView : IGuiView
     {
         oldDrawType = appState.drawType;
         batch.TickRate = 60;
-        batch.TickEnabled = false;
+        // batch.TickEnabled = false;
         Static.Noop();
         
         var timestamp   = Stopwatch.GetTimestamp();
