@@ -240,10 +240,7 @@ export function applyVertexChanges(uint8Data, view, changeOffset, changeCount, d
             const srcByteOffset   = readOffsetQuad * BYTES_PER_QUAD;
             const dstByteOffset   = writeOffsetQuad * BYTES_PER_QUAD;
 
-            targetState.set(
-                startState.subarray(srcByteOffset, srcByteOffset + unmodifiedBytes),
-                dstByteOffset
-            );
+            targetState.set(startState.subarray(srcByteOffset, srcByteOffset + unmodifiedBytes), dstByteOffset);
 
             readOffsetQuad  += unmodifiedCount;
             writeOffsetQuad += unmodifiedCount;
@@ -255,10 +252,7 @@ export function applyVertexChanges(uint8Data, view, changeOffset, changeCount, d
 
         if (type === 1 || type === 2) { // Modify or Insert
             // Copy new/updated payload from diffValues (uint8Data)
-            targetState.set(
-                uint8Data.subarray(diffOffsetByte, diffOffsetByte + changeBytes),
-                dstByteOffset
-            );
+            targetState.set(uint8Data.subarray(diffOffsetByte, diffOffsetByte + changeBytes), dstByteOffset);
 
             diffOffsetByte  += changeBytes;
             writeOffsetQuad += quadLength;
@@ -278,10 +272,7 @@ export function applyVertexChanges(uint8Data, view, changeOffset, changeCount, d
         const srcByteOffset  = readOffsetQuad  * BYTES_PER_QUAD;
         const dstByteOffset  = writeOffsetQuad * BYTES_PER_QUAD;
 
-        targetState.set(
-            startState.subarray(srcByteOffset, srcByteOffset + remainingBytes),
-            dstByteOffset
-        );
+        targetState.set(startState.subarray(srcByteOffset, srcByteOffset + remainingBytes), dstByteOffset);
 
         writeOffsetQuad += remainingCount;
     }
