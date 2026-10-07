@@ -32,15 +32,17 @@ internal sealed partial class GuiSession
         DebugVerifyHashDiff(clientQuads, newHashes, diffValueCount);
         
         if (shared.changeList.Count == 0) {
-            return vertices;
+            return default;
         }
-        
+
         clientQuadList.Clear();
         clientQuadList.AddRange(newHashes);
         
         var diffQuads = SequenceDiff.FillDiffValues(shared.changeList, newQuads, ref shared.quadBuffer, diffValueCount);
         
         DebugVerifyQuadDiff(newQuads, diffQuads);
+        
+        vertices = MemoryMarshal.Cast<VertexQuad, Vertex2D>(diffQuads);
         
         return vertices;
     }

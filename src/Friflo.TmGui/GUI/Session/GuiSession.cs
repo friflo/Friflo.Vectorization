@@ -107,7 +107,7 @@ internal sealed partial class GuiSession : TmSession
             };
         }
         var vertices = wsBatch.Vertices;
-        vertices = CalcQuadChanges(vertices);
+        // vertices = CalcQuadChanges(vertices);
         
         var sendLength = 8 + 8 + 4 + 4 + 4 + 4 + 
                          drawCommands.Length        * Unsafe.SizeOf<WsDrawCommand>() +
