@@ -49,13 +49,12 @@ public partial class TmSessionLoop
         while (!cancellationToken.IsCancellationRequested)
         {
             // Blocks thread cleanly with 0% CPU usage when empty
-            // Wakes up immediately when an event arrives or cancellation is requested
-            // ZERO allocations
+            // Wakes up immediately when an event arrives or cancellation is requested. ZERO allocations
             WaitHandle.WaitAny(handles);
 
             while (eventQueue.TryDequeue(out ClientEvent evt)) {
-                // accumulate queued inputs - late-rendering
-                var isQueueEmpty = eventQueue.IsEmpty;
+                // accumulate queued inputs per client - late-rendering
+                var isQueueEmpty = Interlocked.Decrement(ref evt.Client.pendingEvents) == 0;
                 ProcessEventSync(evt, isQueueEmpty);
             }
         }
@@ -77,9 +76,11 @@ public partial class TmSessionLoop
                     {
                         var payload = evt.Payload.Span;
                         session.ProcessInput(payload);
-                        var sendBuffer = session.IterateUI(resources);
-                        if (!sendBuffer.IsEmpty) {
-                            evt.Client.Send(sendBuffer);
+                        if (isQueueEmpty) {
+                            var sendBuffer = session.IterateUI(resources);
+                            if (!sendBuffer.IsEmpty) {
+                                evt.Client.Send(sendBuffer);
+                            }
                         }
                     }
                     break;
@@ -115,7 +116,7 @@ public partial class TmSessionLoop
                     }
                     break;
                 case ClientEventType.FrameTick:
-                    if (sessions.TryGetValue(evt.Client, out session))
+                    if (sessions.TryGetValue(evt.Client, out session) && isQueueEmpty)
                     {
                         var sendBuffer = session.IterateUI(resources);
                         evt.Client.Send(sendBuffer);
@@ -136,23 +137,15 @@ public partial class TmSessionLoop
     public void IterateSessions()
     {
         ObjectDisposedException.ThrowIf(isDisposed, this);
-
+        var eventCount = eventQueue.Count;
         while (eventQueue.TryDequeue(out ClientEvent evt))
         {
-            // Accumulate queued inputs - late-rendering check
-            var isQueueEmpty = eventQueue.IsEmpty;
+            // accumulate queued inputs per client - late-rendering
+            var isQueueEmpty = Interlocked.Decrement(ref evt.Client.pendingEvents) == 0;
             ProcessEventSync(evt, isQueueEmpty);
-        }
-
-        foreach (var (client, session) in sessions) {
-            if (!session.IsDirty) {
-                continue;
+            if (--eventCount == 0) {
+                break;
             }
-            ReadOnlyMemory<byte> sendBuffer = session.IterateUI(resources);
-            if (sendBuffer.IsEmpty) {
-                continue;
-            }
-            client.Send(sendBuffer);
         }
     }
 }

@@ -54,14 +54,9 @@ public partial class TmSessionLoop
             if (!reader.TryRead(out ClientEvent evt)) {
                 continue;
             }
-            // Try reading the next event to check if currentEvt is the last in the batch
-            while (reader.TryRead(out ClientEvent nextEvt))
-            {
-                // accumulate queued inputs - late-rendering
-                await ProcessEventAsync(evt, isQueueEmpty: false);
-                evt = nextEvt;
-            }
-            await ProcessEventAsync(evt, isQueueEmpty: true);
+            // accumulate queued inputs per client - late-rendering
+            var isQueueEmpty = Interlocked.Decrement(ref evt.Client.pendingEvents) == 0;
+            await ProcessEventAsync(evt, isQueueEmpty);
         }
     }
     
@@ -101,7 +96,7 @@ public partial class TmSessionLoop
                     }
                     break;
                 case ClientEventType.FrameTick:
-                    if (sessions.TryGetValue(evt.Client, out session))
+                    if (sessions.TryGetValue(evt.Client, out session) && isQueueEmpty)
                     {
                         var sendBuffer = session.IterateUI(resources);
                         await evt.Client.SendAsync(sendBuffer, CancellationToken.None);

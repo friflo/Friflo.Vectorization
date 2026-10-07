@@ -76,13 +76,10 @@ internal sealed partial class GuiSession : TmSession
     }
     
     protected internal override TmGuiBackend    Backend     => wsBackend;
-    protected internal override bool            IsDirty     => isDirty;
 
 
     internal override Memory<byte> IterateUI(AssetResources resources)
     {
-        isDirty = false;
-        
         wsBackend.NewFrame();
         guiView!.RenderGui(wsBatch, canvasWidth, canvasHeight);
         

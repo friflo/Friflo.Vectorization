@@ -75,6 +75,13 @@ public delegate IGuiView CreateGuiView(SessionInfo info);
 
 public abstract class TmClient
 {
+    /// <summary>
+    /// Important!<br/>
+    /// Must be incremented when enqueueing an event to the <see cref="TmSessionLoop"/>.<br/>
+    /// Must be decremented when dequeueing an event from the <see cref="TmSessionLoop"/>.<br/> 
+    /// </summary>
+    internal    int     pendingEvents;
+    
     // \x1b[?1006l  Disable SGR mouse tracking
     // \x1b[?1003l  Disable all-motion mouse tracking
     // \x1b[?1002l  Disable button-event mouse tracking
