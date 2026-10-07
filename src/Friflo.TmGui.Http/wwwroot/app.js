@@ -1,3 +1,4 @@
+// @ts-check
 // app.js
 import { sendInitGui, initGuiEventListeners, updateMouseCursor, applyVertexChanges, masterVertices } from './app-events.js';
 
@@ -294,6 +295,9 @@ function processDrawList(data)
     const changeCount = view.getInt32(offset, true);
     offset += SIZEOF_INT;
     
+    const diffVertexCount = view.getInt32(offset, true);
+    offset += SIZEOF_INT;
+    
     // 4. Read MouseCursor
     const mouseCursor = view.getInt32(offset, true);
     offset += SIZEOF_INT;
@@ -346,7 +350,7 @@ function processDrawList(data)
     }
 
     // Apply binary diffs into staging buffer and update cpuMasterVertices
-    const masterByteLength = applyVertexChanges(uint8Data, view, changeOffset, changeCount, verticesOffset, verticesByteLength);
+    const masterByteLength = applyVertexChanges(uint8Data, view, changeOffset, changeCount, diffVertexCount, verticesOffset, verticesByteLength);
     
     // -------- set state for next animationFrame() --------    
     const frame = backFrame;

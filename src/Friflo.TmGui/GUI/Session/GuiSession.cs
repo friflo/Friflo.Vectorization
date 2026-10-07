@@ -61,6 +61,9 @@ internal sealed partial class GuiSession : TmSession
     private             int                 canvasHeight        = 300;
     // --- changes
     private readonly    List<int>           clientQuadList      = [];
+    private readonly    bool                sendDiffs           = true;
+    /// case sendDiffs == false: -1     case sendDiffs == true: vertex count of full frame
+    private             int                 diffVertexCount;
     
     internal GuiSession(TmClient client, SessionId sessionId, TmSessionLoop loop, FrameTimer frameTimer)
         : base(sessionId)
@@ -75,7 +78,6 @@ internal sealed partial class GuiSession : TmSession
     protected internal override TmGuiBackend    Backend     => wsBackend;
     protected internal override bool            IsDirty     => isDirty;
 
-    private readonly bool sendChangeDiffs = false;
 
     internal override Memory<byte> IterateUI(AssetResources resources)
     {
@@ -109,11 +111,13 @@ internal sealed partial class GuiSession : TmSession
             };
         }
         var vertices = wsBatch.Vertices;
-        if (sendChangeDiffs) {
+        diffVertexCount =  -1;
+        if (sendDiffs) {
+            diffVertexCount = vertices.Length;
             vertices = CalcQuadChanges(vertices);
         }
         
-        var sendLength = 8 + 8 + 4 + 4 + 4 + 4 + 
+        var sendLength = 8 + 8 + 4 + 4 + 4 + 4 + 4 +
                          drawCommands.Length        * Unsafe.SizeOf<WsDrawCommand>() +
                          vertices.Length            * Unsafe.SizeOf<Vertex2D>() +
                          shared.changeList.Count   * Unsafe.SizeOf<SeqChange>();
@@ -142,6 +146,9 @@ internal sealed partial class GuiSession : TmSession
         
         // 3. Write change count (int)
         MemoryMarshal.Write(span[bytesWritten..], shared.changeList.Count);
+        bytesWritten += sizeof(int);
+        
+        MemoryMarshal.Write(span[bytesWritten..], diffVertexCount);
         bytesWritten += sizeof(int);
         
         int hashStart = bytesWritten;
@@ -193,7 +200,7 @@ internal sealed partial class GuiSession : TmSession
         
         var memory = new Memory<byte>(shared.sendBuffer, 0, bytesWritten);
 
-        if (sendChangeDiffs) {
+        if (sendDiffs) {
             // Debug.WriteLine($"----------- {sendCounter++}");
             // foreach (var change in shared.changeList) { Debug.WriteLine(change.ToString()); }
             var sendHash = HashUtils.XxHash3(memory.Span.Slice(hashStart, vertexStart - hashStart));
