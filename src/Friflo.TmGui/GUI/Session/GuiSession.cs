@@ -96,7 +96,7 @@ internal sealed partial class GuiSession : TmSession
         
         for (int n = 0; n < drawCommands.Length; n++)
         {
-            var cmd = drawCommands[n];
+            ref readonly var cmd = ref drawCommands[n];
             var textureId = resources.GetTexture(cmd.texture);
             if (usedTextures.Add(textureId)) {
                 newTextures.Add(textureId);
