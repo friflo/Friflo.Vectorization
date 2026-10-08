@@ -177,7 +177,7 @@ internal sealed class AnsiConsoleIn : Stream
         }
     }
 
-    private static int WriteVt100WindowSizeReport(Span<byte> span, short width, short height)
+    internal static int WriteVt100WindowSizeReport(Span<byte> span, short width, short height)
     {
         int pos = 0;
         span[pos++] = (byte)'\x1b';

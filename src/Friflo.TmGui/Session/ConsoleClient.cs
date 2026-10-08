@@ -15,8 +15,10 @@ namespace Friflo.TmGui.Session;
 
 public class ConsoleClient : TmClient
 {
-    private readonly Stream inputStream;
-    private readonly Stream outputStream;
+    private readonly    Stream  inputStream;
+    private readonly    Stream  outputStream;
+    private             int     consoleWidth  = -1;
+    private             int     consoleHeight = -1;
     
     public ConsoleClient()
     {
@@ -52,21 +54,40 @@ public class ConsoleClient : TmClient
         
         Send(TerminalReset);
     }
+    
+    private int AppendConsoleSize(byte[] buffer, int start)
+    {
+        var width   = Console.WindowWidth;
+        var height  = Console.WindowHeight;
+        if (width == consoleWidth && height == consoleHeight) {
+            return 0;
+        }
+        consoleWidth    = width;
+        consoleHeight   = height;
+        return AnsiConsoleIn.WriteVt100WindowSizeReport(buffer.AsSpan(start, buffer.Length - start), (short)width, (short)height);
+    }
 
     // I/O Loop: Reads raw stream bytes and pushes them into the session loop queue
     public static async ValueTask HandleClientSessionAsync(ConsoleClient client, TmSessionLoop loop, CancellationToken cancellationToken)
     {
         try
         {
-            await loop.EnqueueEventAsync(client, ClientEventType.TerminalConnected, default);
+            byte[] buffer = ArrayPool<byte>.Shared.Rent(256);
+            var length = client.AppendConsoleSize(buffer, 0);
+            var payload = new Payload(buffer, length);
+            
+            await loop.EnqueueEventAsync(client, ClientEventType.TerminalConnected, payload);
 
             while (!cancellationToken.IsCancellationRequested)
             {
-                byte[] buffer = ArrayPool<byte>.Shared.Rent(256);
+                buffer = ArrayPool<byte>.Shared.Rent(256);
                 int bytesRead = await client.inputStream.ReadAsync(buffer.AsMemory(), cancellationToken);
                 if (bytesRead == 0) break;
+                
+                // no need to poll console size on Windows. Size changes are triggered by WINDOW_BUFFER_SIZE_EVENT
+                // bytesRead += client.AppendConsoleSize(buffer, bytesRead); 
 
-                var payload = new Payload(buffer, bytesRead);
+                payload = new Payload(buffer, bytesRead);
 
                 await loop.EnqueueEventAsync(client, ClientEventType.TerminalInput, payload);
             }

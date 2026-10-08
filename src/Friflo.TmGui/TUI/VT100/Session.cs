@@ -118,13 +118,6 @@ internal sealed partial class TuiSession : TmSession
     
     internal override Memory<byte> IterateUI(in AssetResources resources)
     {
-        if (client is ConsoleClient) {
-            var width   = Console.WindowWidth;
-            var height  = Console.WindowHeight;
-            if (frameWidth != width || frameHeight != height) {
-                SetFrameSize(width, height);
-            }
-        }
         tuiBackend.NewFrame();
         
         // renderer gui in pixel units to support GUI & TUI with same application code

@@ -94,7 +94,7 @@ internal sealed class WinConsoleIn : Stream
                         case EventType.WINDOW_BUFFER_SIZE_EVENT: {
                             var size = record.WindowBufferSizeEvent.dwSize;
                             EnsureCapacity(ref buffer, writePos, 16);
-                            writePos += WriteVt100WindowSizeReport(buffer.AsSpan(writePos), size.X, size.Y);
+                            writePos += AnsiConsoleIn.WriteVt100WindowSizeReport(buffer.AsSpan(writePos), size.X, size.Y);
                             break;
                         }
                         // mouse events are already handled by ENABLE_MOUSE_INPUT.
@@ -211,34 +211,6 @@ internal sealed class WinConsoleIn : Stream
         }
 
         base.Dispose(disposing);
-    }
-
-    private static int WriteVt100WindowSizeReport(Span<byte> span, short width, short height)
-    {
-        int pos = 0;
-        span[pos++] = (byte)'\x1b';
-        span[pos++] = (byte)'[';
-        span[pos++] = (byte)'8';
-        span[pos++] = (byte)';';
-        
-        pos += WriteDecimalBytes(span.Slice(pos), height);
-        span[pos++] = (byte)';';
-        
-        pos += WriteDecimalBytes(span.Slice(pos), width);
-        span[pos++] = (byte)'t';
-        
-        return pos;
-    }
-
-    private static int WriteDecimalBytes(Span<byte> span, short value)
-    {
-        int pos = 0;
-        if (value >= 10000) span[pos++] = (byte)('0' + (value / 10000 % 10));
-        if (value >= 1000)  span[pos++] = (byte)('0' + (value / 1000 % 10));
-        if (value >= 100)   span[pos++] = (byte)('0' + (value / 100 % 10));
-        if (value >= 10)    span[pos++] = (byte)('0' + (value / 10 % 10));
-        span[pos++] = (byte)('0' + (value % 10));
-        return pos;
     }
 
     // Stream base boilerplate overrides
