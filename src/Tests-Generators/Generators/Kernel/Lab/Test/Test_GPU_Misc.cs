@@ -6,6 +6,7 @@ using Friflo.GPU;
 using Friflo.GPU.Runtime;
 using Friflo.WGPU;
 using Friflo.TmGui;
+using Friflo.TmGui.Session;
 using Friflo.TmGui.TUI;
 using Friflo.WGPU.Runtime;
 using NUnit.Framework;
@@ -111,5 +112,7 @@ MaxComputeInvocationsPerWorkgroup:  {adapterLimits.MaxComputeInvocationsPerWorkg
         
         var WsDrawCommand = typeof(TmDraw).Assembly.GetType("Friflo.TmGui.Session.WsDrawCommand")!;
         Assert.AreEqual(92,  Marshal.SizeOf(WsDrawCommand));
+        Assert.AreEqual( 8,  Unsafe.SizeOf<SeqChange>());
+        
     }
 }
