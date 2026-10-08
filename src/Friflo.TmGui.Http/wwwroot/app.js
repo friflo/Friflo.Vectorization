@@ -257,25 +257,43 @@ function initWebSocket() {
     socket.onmessage = (event) => {
         if (event.data instanceof ArrayBuffer) {
             // Create a lightweight zero-copy TypedArray view over the WebSocket ArrayBuffer
-            processDrawList(event.data);
+            processMessage(event.data);
         }
     };
 }
 
 // ---------------------------------------------- processDrawList() ----------------------------------------------
+/** @param {ArrayBuffer} data */
+function processMessage(data) {
+    let bytesRead    = 0;
+    let messageCount = 0;
+    const dataLength = data.byteLength;
+    
+    while (bytesRead < dataLength) {
+        messageCount++;
+        bytesRead += processDrawList(new Uint8Array(data, bytesRead, dataLength - bytesRead));
+    }
+    if (messageCount > 1) console.log(`INFO: received multi message. count: ${messageCount}`);
+    
+    triggerRender();
+}
+
 // Keep comment - Key architecture:
 // - Always process incoming messages
 // - Render frames only at requestAnimationFrame() - The monitor refresh rate
-
-
-
-function processDrawList(data)
+/** @param {Uint8Array} message         - The incoming binary WebSocket message.
+ * @returns {int} number of read bytes
+ */
+function processDrawList(message)
 {
-    const uint8Data = new Uint8Array(data);
-    const view      = new DataView(uint8Data.buffer);
+    const uint8Data = message;
+    const view      = new DataView(uint8Data.buffer, message.byteOffset, message.byteLength);
     let offset      = 0;
     
     // 0. Read rttStart time & host send time (double)
+    const messageLength = view.getInt32(offset, true);
+    offset += SIZEOF_INT;
+    
     // rttStart is send() via websocket at pointermove (mousemove) event in app-events.js
     const rttStartTime = view.getFloat64(offset, true);
     offset += SIZEOF_DOUBLE;
@@ -339,7 +357,10 @@ function processDrawList(data)
     offset += SIZEOF_INT;
     if (terminator !== 0x12345678) {
         console.error("found invalid terminator");
-    }    
+    }
+    if (offset !== messageLength) {
+        console.error(`invalid message length. Expected: ${messageLength}  actual: {offset}`);
+    }
     
     updateMouseCursor(canvas, mouseCursor);
     
@@ -378,7 +399,7 @@ function processDrawList(data)
     frame.verticesOffset        = verticesOffset;
     frame.verticesByteLength    = masterByteLength;
     
-    triggerRender();
+    return offset;
 }
 
 // Reusable global byte array buffer to eliminate per-frame heap allocations

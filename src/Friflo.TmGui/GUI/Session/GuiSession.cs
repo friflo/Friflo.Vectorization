@@ -115,7 +115,7 @@ internal sealed partial class GuiSession : TmSession
         }
         var changes = CollectionsMarshal.AsSpan(shared.changeList);
         
-        var sendLength = 8 + 8 + 4 + 4 + 4 + 4 + 4 +
+        var sendLength = 4 + 8 + 8 + 4 + 4 + 4 + 4 + 4 +
                          drawCommands.Length    * Unsafe.SizeOf<WsDrawCommand>() +
                          vertices.Length        * Unsafe.SizeOf<Vertex2D>() +
                          changes.Length         * Unsafe.SizeOf<SeqChange>();
@@ -126,6 +126,9 @@ internal sealed partial class GuiSession : TmSession
         int bytesWritten = 0;
         
         // 0. Write RTT start time & send time (2 x double)
+        MemoryMarshal.Write(span[bytesWritten..], -1);
+        bytesWritten += sizeof(int);
+        
         MemoryMarshal.Write(span[bytesWritten..], (double)rttStart);
         bytesWritten += sizeof(double);
         rttStart = 0;
@@ -194,6 +197,8 @@ internal sealed partial class GuiSession : TmSession
         // write terminator to check message consistency on client
         MemoryMarshal.Write(span[bytesWritten..], 0x12345678);
         bytesWritten += sizeof(int);
+        
+        MemoryMarshal.Write(span[..], bytesWritten);
         
         var memory = new Memory<byte>(shared.sendBuffer, 0, bytesWritten);
 
