@@ -7,16 +7,21 @@ using Friflo.TmGui.TUI;
 using TuiTerminal;
 
 
-//    Console                 (local - single user)
-//    ---------------------------------------------
-// Windows / macOS / Linux      dotnet ./Tests-TuiTerminal.dll
+//    Console           (local - single user)
+//    ---------------------------------------
+// Windows / macOS / Linux          dotnet ./Tests-TuiTerminal.dll
 
 
-//    Connect Terminal Client (remote - multi user)
-//    ---------------------------------------------
-// Windows plink(PuTTY)         plink -raw -t -P 9000 127.0.0.1       with args: echo --view logs --theme dark | plink -raw -t -P 9000 127.0.0.1
-// Windows WSL                  stty raw -echo; nc $(ip route show default | awk '{print $3}') 9000; stty sane
-// macOS / Linux                stty raw -echo; nc localhost 9000; stty sane
+//    Browser           (remote - multi user)
+//    ---------------------------------------
+// Chrome, Firefox, Edge, Safari    https://localhost:8080/
+
+
+//    Terminal Emulator (remote - multi user)
+//    ---------------------------------------
+// Windows plink(PuTTY)     plink -raw -t -P 9000 127.0.0.1       with args: echo --view logs --theme dark | plink -raw -t -P 9000 127.0.0.1
+// Windows WSL              stty raw -echo; nc $(ip route show default | awk '{print $3}') 9000; stty sane
+// macOS / Linux            stty raw -echo; nc localhost 9000; stty sane
 
 // PuTTY - Session                  Host Name: localhost    Port: 9000    Connection type: Other - Telnet
 //       - Terminal                 Local echo: Force off   Local line editing: Force off
