@@ -42,18 +42,15 @@ using TuiTerminal;
 
 Console.WriteLine("TUI Terminal Server");
 
-var appState = new AppState();
-
-
+var rootBackend = new TuiBackend("Terminal", new DefaultGuiAssets());
+var appState    = new AppState(rootBackend);
 
 // Flag toggles execution mode:
 // true  => UI Loop runs in dedicated background Thread, Main-Thread runs TCP server.
 // false => TCP server runs on ThreadPool, Main-Thread is blocked by UI Loop.
 bool runAsync = false;
 
-
-var assets = new DefaultGuiAssets();
-var loop = new TmSessionLoop(runAsync, new TuiBackend("Terminal", assets), info => new TestGuiView(appState, info));
+var loop = new TmSessionLoop(runAsync, rootBackend, info => new TestGuiView(appState, info));
 
 var httpServer = new KestrelHttpServer(loop, new IPEndPoint(IPAddress.Any, 8080));
 httpServer.Start();

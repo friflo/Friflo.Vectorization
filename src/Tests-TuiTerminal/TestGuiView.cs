@@ -15,7 +15,6 @@ public class TestGuiView : IGuiView
     private readonly    AppState        appState;
     private readonly    Color32[]       textColors = [0x0000FFFF, 0xFF0000FF, 0x009900FF, 0xFF00FFFF, 0xCC6600FF, 0x000000ff];
     private readonly    TmTexture       myTexture;
-    private readonly    TmTexture       worldTileset;
     private readonly    TmTexture       canvasTexture;
     private             float           time;
     private             long            frameStart;
@@ -34,8 +33,6 @@ public class TestGuiView : IGuiView
         this.appState       = appState;
         using var stream    = typeof(TestGuiView).Assembly.GetManifestResourceStream("TuiTerminal.Assets.sixel_test.png")!;
         myTexture           = info.backend.LoadTexture(stream, "sixel_test.png");
-        using var stream2   = typeof(TestGuiView).Assembly.GetManifestResourceStream("TuiTerminal.Assets.world_tileset.png")!;
-        worldTileset        = info.backend.LoadTexture(stream2, "world_tileset.png"); 
         // var myTextureView    = myTexture.AsImTexture();
         canvasTexture   = info.backend.CreateTexture("canvas", CanvasWidth, CanvasHeight, new byte[CanvasWidth * CanvasHeight * 4]);
     }
@@ -337,7 +334,7 @@ public class TestGuiView : IGuiView
         
         var srcPos  = new Vector2(3 * 64, 0 * 64);  // tile pos in Sheet (3, 0)        
         var texSize = new Vector2(128, 64);
-        draw.DrawSpriteRegion(worldTileset, new Vector2(110, 80), texSize, srcPos, texSize, new(1024, 1024));
+        draw.DrawSpriteRegion(appState.worldTileset, new Vector2(110, 80), texSize, srcPos, texSize, new(1024, 1024));
         
         draw.DrawSprite(myTexture, new Vector2(260, 80), new Vector2(192, 64), 0xbbbbbbff);
 
