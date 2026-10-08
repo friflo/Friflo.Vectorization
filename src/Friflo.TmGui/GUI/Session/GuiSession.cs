@@ -78,7 +78,7 @@ internal sealed partial class GuiSession : TmSession
     protected internal override TmGuiBackend    Backend     => wsBackend;
 
 
-    internal override Memory<byte> IterateUI(AssetResources resources)
+    internal override Memory<byte> IterateUI(in AssetResources resources)
     {
         wsBackend.NewFrame();
         guiView!.RenderGui(wsBatch, canvasWidth, canvasHeight);

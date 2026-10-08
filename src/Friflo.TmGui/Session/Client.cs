@@ -20,12 +20,11 @@ internal abstract class TmSession
     public    override          string          ToString()          => $"session: {sessionId}";
     
     protected internal abstract TmGuiBackend    Backend             { get; }
-    protected internal virtual  bool            IsDirty             => false;
     internal           virtual  GuiReplay?      CreateReplay()      => null;
     internal           virtual  void            SendReplayCommands() { }
     
     internal           abstract void            ProcessInput(ReadOnlySpan<byte> input);
-    internal           abstract Memory<byte>    IterateUI(AssetResources resources);
+    internal           abstract Memory<byte>    IterateUI(in AssetResources resources);
     
     internal TmSession(SessionId sessionId) {
         this.sessionId = sessionId;
