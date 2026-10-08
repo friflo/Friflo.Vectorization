@@ -17,10 +17,10 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="SDL3-CS" Version="3.4.16" />
-      <PackageReference Include="SDL3-CS.Windows" Version="3.4.16" />
-      <PackageReference Include="SDL3-CS.MacOS"   Version="3.4.16" />
-      <PackageReference Include="SDL3-CS.Linux"   Version="3.4.16" />
+      <PackageReference Include="SDL3-CS"           Version="3.4.18" />
+      <PackageReference Include="SDL3-CS.Windows"   Version="3.4.18" />
+      <PackageReference Include="SDL3-CS.MacOS"     Version="3.4.18" />
+      <PackageReference Include="SDL3-CS.Linux"     Version="3.4.18" />
         
       <ProjectReference Include="..\Vectorization.Attributes\Friflo.Vectorization.Attributes.csproj" />
       <ProjectReference Include="..\Friflo.Generators\Friflo.Generators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
