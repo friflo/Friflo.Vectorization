@@ -19,7 +19,7 @@ public class AppState
     internal            bool        useTerminalPixels;
     internal            bool        textureScissor;
     internal            float       speed = 0.1f;
-    internal readonly   TmTexture   worldTileset;
+    internal readonly   TmTexture   worldTileset;   // texture shared by all sessions
     
     internal readonly List<string>  scrollAreaButtons = [];
     

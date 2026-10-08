@@ -14,8 +14,8 @@ public class TestGuiView : IGuiView
 {
     private readonly    AppState        appState;
     private readonly    Color32[]       textColors = [0x0000FFFF, 0xFF0000FF, 0x009900FF, 0xFF00FFFF, 0xCC6600FF, 0x000000ff];
-    private readonly    TmTexture       myTexture;
-    private readonly    TmTexture       canvasTexture;
+    private readonly    TmTexture       myTexture;      // texture available only for this session
+    private readonly    TmTexture       canvasTexture;  // only required for TUI image. GUI creates draw commands 
     private             float           time;
     private             long            frameStart;
     private             double          frameTime;
@@ -32,9 +32,10 @@ public class TestGuiView : IGuiView
     {
         this.appState       = appState;
         using var stream    = typeof(TestGuiView).Assembly.GetManifestResourceStream("TuiTerminal.Assets.sixel_test.png")!;
-        myTexture           = info.backend.LoadTexture(stream, "sixel_test.png");
-        // var myTextureView    = myTexture.AsImTexture();
-        canvasTexture   = info.backend.CreateTexture("canvas", CanvasWidth, CanvasHeight, new byte[CanvasWidth * CanvasHeight * 4]);
+        var backend     = info.backend;
+        myTexture       = backend.LoadTexture(stream, "sixel_test.png");
+        var tui         = backend as TuiBackend;
+        canvasTexture   = tui?.CreateTexture("canvas", CanvasWidth, CanvasHeight, new byte[CanvasWidth * CanvasHeight * 4]) ?? default;
     }
     
     static class Static { internal static void Noop() { } }
@@ -137,7 +138,7 @@ public class TestGuiView : IGuiView
         using (var space = gui.BeginSpace(gui.ExpandToCellGrid(canvasSize), "canvas")) {
             if (appState.drawType != DrawType.None) {
                 // gui.Draw.FillRect(space.Pos, canvasSize, 0xffffffff);
-                gui.Draw.DrawSprite(canvasTexture, space.Pos, canvasSize);
+                gui.Draw.Tui?.DrawSprite(canvasTexture, space.Pos, canvasSize);
             }
             if (oldDrawType != appState.drawType || batch.TickEnabled) {
                 var draw = batch.BeginTextureDraw(canvasTexture, Color32.Transparent);
