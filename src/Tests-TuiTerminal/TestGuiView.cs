@@ -10,6 +10,7 @@ using TuiTerminal.Draw;
 namespace TuiTerminal;
 
 
+/// <summary> Each session has its own <see cref="IGuiView"/> instance. </summary>
 public class TestGuiView : IGuiView
 {
     private readonly    AppState        appState;

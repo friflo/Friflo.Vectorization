@@ -3,7 +3,7 @@
 namespace TuiTerminal;
 
 
-enum DrawType
+public enum DrawType
 {
     None,
     Primitives,
@@ -12,6 +12,7 @@ enum DrawType
     LiveDiagram,
 }
 
+/// <summary> Single <see cref="AppState"/> instance is shared by all sessions. </summary>
 public class AppState
 {
     internal            bool        rotateTexture;
