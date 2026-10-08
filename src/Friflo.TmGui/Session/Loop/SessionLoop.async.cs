@@ -63,6 +63,7 @@ public partial class TmSessionLoop
     // process event
     private async ValueTask ProcessEventAsync(ClientEvent evt, bool isQueueEmpty)
     {
+        var client = evt.Client;
         try {
             switch (evt.Type)
             {
@@ -70,36 +71,36 @@ public partial class TmSessionLoop
                     var newSession      = CreateTuiSession(evt, false, out var payload);
                     var initialMessage  = newSession.StartSession();
                     
-                    await evt.Client.SendAsync(initialMessage, CancellationToken.None);
+                    await client.SendAsync(initialMessage, CancellationToken.None);
                     
                     newSession.ProcessInput(payload.Span);
                     var sendBuffer = newSession.IterateUI(resources);
                     
-                    await evt.Client.SendAsync(sendBuffer, CancellationToken.None);
+                    await client.SendAsync(sendBuffer, CancellationToken.None);
                     
                     newSession.tuiBatch.frameTimer!.Start(CancellationToken.None);
                     break;
                 }
                 case ClientEventType.TerminalDisconnected:
-                    sessions.Remove(evt.Client);
+                    sessions.Remove(client);
                     break;
 
                 case ClientEventType.TerminalInput:
-                    if (sessions.TryGetValue(evt.Client, out TmSession? session))
+                    if (sessions.TryGetValue(client, out TmSession? session))
                     {
-                        var payload     = evt.Payload.Span;
+                        var payload = evt.Payload.Span;
                         session.ProcessInput(payload);
                         if (isQueueEmpty) {
                             var sendBuffer  = session.IterateUI(resources);
-                            await evt.Client.SendAsync(sendBuffer, CancellationToken.None);
+                            await client.SendAsync(sendBuffer, CancellationToken.None);
                         }
                     }
                     break;
                 case ClientEventType.FrameTick:
-                    if (sessions.TryGetValue(evt.Client, out session) && isQueueEmpty)
+                    if (sessions.TryGetValue(client, out session) && isQueueEmpty)
                     {
                         var sendBuffer = session.IterateUI(resources);
-                        await evt.Client.SendAsync(sendBuffer, CancellationToken.None);
+                        await client.SendAsync(sendBuffer, CancellationToken.None);
                     }
                     break;
             }

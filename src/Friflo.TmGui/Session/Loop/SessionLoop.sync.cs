@@ -63,23 +63,24 @@ public partial class TmSessionLoop
     // process event
     private void ProcessEventSync(ClientEvent evt, bool isQueueEmpty)
     {
+        var client = evt.Client;
         try {
             switch (evt.Type)
             {
                 case ClientEventType.WebsocketConnected: {
-                    var newSession = CreateGuiSession(evt.Client, true, out var _);
+                    var newSession = CreateGuiSession(client, true, out var _);
                     newSession.wsBatch.frameTimer!.Start(CancellationToken.None);
                     break;
                 }
                 case ClientEventType.WebsocketInput:
-                    if (sessions.TryGetValue(evt.Client, out TmSession? session))
+                    if (sessions.TryGetValue(client, out TmSession? session))
                     {
                         var payload = evt.Payload.Span;
                         session.ProcessInput(payload);
                         if (isQueueEmpty) {
                             var sendBuffer = session.IterateUI(resources);
                             if (!sendBuffer.IsEmpty) {
-                                evt.Client.Send(sendBuffer);
+                                client.Send(sendBuffer);
                             }
                         }
                     }
@@ -89,37 +90,37 @@ public partial class TmSessionLoop
                     var newSession      = CreateTuiSession(evt, true, out var payload);
                     var initialMessage  = newSession.StartSession();
                     
-                    evt.Client.Send(initialMessage);
+                    client.Send(initialMessage);
                     
                     newSession.ProcessInput(payload.Span);
                     var sendBuffer = newSession.IterateUI(resources);
                     
-                    evt.Client.Send(sendBuffer);
+                    client.Send(sendBuffer);
                     
                     newSession.tuiBatch.frameTimer!.Start(CancellationToken.None);
                     break;
                 }
                 case ClientEventType.TerminalDisconnected:
                 case ClientEventType.WebsocketDisconnected:
-                    sessions.Remove(evt.Client);
+                    sessions.Remove(client);
                     break;
 
                 case ClientEventType.TerminalInput:
-                    if (sessions.TryGetValue(evt.Client, out session))
+                    if (sessions.TryGetValue(client, out session))
                     {
-                        var payload     = evt.Payload.Span;
+                        var payload = evt.Payload.Span;
                         session.ProcessInput(payload);
                         if (isQueueEmpty) {
                             var sendBuffer  = session.IterateUI(resources);
-                            evt.Client.Send(sendBuffer);
+                            client.Send(sendBuffer);
                         }
                     }
                     break;
                 case ClientEventType.FrameTick:
-                    if (sessions.TryGetValue(evt.Client, out session) && isQueueEmpty)
+                    if (sessions.TryGetValue(client, out session) && isQueueEmpty)
                     {
                         var sendBuffer = session.IterateUI(resources);
-                        evt.Client.Send(sendBuffer);
+                        client.Send(sendBuffer);
                     }
                     break;
             }
