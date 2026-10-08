@@ -113,7 +113,7 @@ internal sealed partial class GuiSession : TmSession
         var diffVertexCount =  -1;
         if (sendDiffs) {
             diffVertexCount = vertices.Length;
-            vertices = CalcQuadChanges(vertices);
+            vertices = CalcVerticesDiff(vertices);
         }
         var changes = CollectionsMarshal.AsSpan(shared.changeList);
         

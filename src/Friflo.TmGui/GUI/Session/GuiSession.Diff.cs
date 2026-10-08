@@ -15,7 +15,7 @@ namespace Friflo.TmGui.Session;
 
 internal sealed partial class GuiSession
 {
-    private Span<Vertex2D> CalcQuadChanges(Span<Vertex2D> vertices)
+    private Span<Vertex2D> CalcVerticesDiff(Span<Vertex2D> vertices)
     {
         Span<VertexQuad> newQuads = MemoryMarshal.Cast<Vertex2D, VertexQuad>(vertices);
         var newHashes = SequenceDiff.GetSpanOf(ref shared.quadHashesBuffer, newQuads.Length);
@@ -42,9 +42,7 @@ internal sealed partial class GuiSession
         
         DebugVerifyQuadDiff(newQuads, diffQuads);
         
-        vertices = MemoryMarshal.Cast<VertexQuad, Vertex2D>(diffQuads);
-        
-        return vertices;
+        return MemoryMarshal.Cast<VertexQuad, Vertex2D>(diffQuads);
     }
 
 
