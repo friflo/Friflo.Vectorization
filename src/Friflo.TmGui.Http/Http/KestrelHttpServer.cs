@@ -113,15 +113,17 @@ public sealed class KestrelHttpServer
     
     private static WebSocketAcceptContext CreateWebSocketAcceptContext()
     {
-        // Check websocket compression in Chrome
-        // - open:  chrome://net-export/
-        // - log to file for ~2 seconds
-        // - click small link at The log file can be loaded using the >> netlog_viewer <<.
-        // - Choose File
-        // - Navigate in left Panel > Sockets > View live sockets
-        // - Filter:    websocket
-        // - Click:     URL_REQUEST
-        // It will show logs like
+        // Check websocket compression:
+        // * TCPView - simple setup / live send/receive bytes
+        // * Chrome
+        //   - open:  chrome://net-export/
+        //   - log to file for ~2 seconds
+        //   - click small link at The log file can be loaded using the >> netlog_viewer <<.
+        //   - Choose File
+        //   - Navigate in left Panel > Sockets > View live sockets
+        //   - Filter:    websocket
+        //   - Click:     URL_REQUEST
+        //   It will show logs like
         //     t=580907 [st=41780]  HTTP2_STREAM_UPDATE_RECV_WINDOW
         //                          --> delta = -7554
         //                          --> stream_id = 5
