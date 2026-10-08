@@ -54,7 +54,7 @@ public partial class TmSessionLoop
 
             while (eventQueue.TryDequeue(out ClientEvent evt)) {
                 // accumulate queued inputs per client - late-rendering
-                var isQueueEmpty = Interlocked.Decrement(ref evt.Client.pendingEvents) == 0;
+                var isQueueEmpty = evt.Client.DecrementPendingEvents();
                 ProcessEventSync(evt, isQueueEmpty);
             }
         }
@@ -141,7 +141,7 @@ public partial class TmSessionLoop
         while (eventQueue.TryDequeue(out ClientEvent evt))
         {
             // accumulate queued inputs per client - late-rendering
-            var isQueueEmpty = Interlocked.Decrement(ref evt.Client.pendingEvents) == 0;
+            var isQueueEmpty = evt.Client.DecrementPendingEvents();
             ProcessEventSync(evt, isQueueEmpty);
             if (--eventCount == 0) {
                 break;

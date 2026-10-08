@@ -55,7 +55,7 @@ public partial class TmSessionLoop
                 continue;
             }
             // accumulate queued inputs per client - late-rendering
-            var isQueueEmpty = Interlocked.Decrement(ref evt.Client.pendingEvents) == 0;
+            var isQueueEmpty = evt.Client.DecrementPendingEvents();
             await ProcessEventAsync(evt, isQueueEmpty);
         }
     }

@@ -80,7 +80,11 @@ public abstract class TmClient
     /// Must be incremented when enqueueing an event to the <see cref="TmSessionLoop"/>.<br/>
     /// Must be decremented when dequeueing an event from the <see cref="TmSessionLoop"/>.<br/> 
     /// </summary>
-    internal    int     pendingEvents;
+    private    int     pendingEvents;
+    
+    internal void IncrementPendingEvents() => Interlocked.Increment(ref pendingEvents);
+    internal bool DecrementPendingEvents() => Interlocked.Decrement(ref pendingEvents) == 0;
+    
     
     // \x1b[?1006l  Disable SGR mouse tracking
     // \x1b[?1003l  Disable all-motion mouse tracking

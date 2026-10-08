@@ -70,7 +70,7 @@ public sealed partial class TmSessionLoop : IDisposable
     public async ValueTask EnqueueEventAsync(TmClient client, ClientEventType type, Payload payload)
     {
         var evt = new ClientEvent { Client = client, Type = type, Payload = payload };
-        Interlocked.Increment(ref client.pendingEvents);
+        client.IncrementPendingEvents();
         
         if (isAsync) {
             ObjectDisposedException.ThrowIf(isDisposed, this);
@@ -94,12 +94,12 @@ public sealed partial class TmSessionLoop : IDisposable
 
         if (isAsync)
         {
-            Interlocked.Increment(ref client.pendingEvents);
+            client.IncrementPendingEvents();
             // Non-blocking try-write to the channel
             if (eventChannel.Writer.TryWrite(evt)) {
                 return true;
             }
-            Interlocked.Decrement(ref client.pendingEvents); // decrement - TryWrite() failed
+            client.DecrementPendingEvents(); // decrement - TryWrite() failed
             // Backpressure triggered: drop event and release memory back to pool
             payload.Return();
             return false;
@@ -111,7 +111,7 @@ public sealed partial class TmSessionLoop : IDisposable
             payload.Return();
             return false;
         }
-        Interlocked.Increment(ref client.pendingEvents);
+        client.IncrementPendingEvents();
         eventQueue.Enqueue(evt);
         eventReady.Set(); // Wake up worker thread
         return true;
