@@ -32,7 +32,7 @@ public static partial class SequenceDiff
         ReadOnlySpan<SeqChange> changes = CollectionsMarshal.AsSpan(changeList);
         var diffValues = GetSpanOf(ref diffValueBuffer, diffValueCount);
 
-        foreach (ref readonly var change in changes)
+        foreach (var change in changes)
         {
             int count = change.Length;
 
@@ -93,27 +93,27 @@ public static partial class SequenceDiff
                 readOffset  += unmodifiedCount;
                 writeOffset += unmodifiedCount;
             }
-
+            var changeLength = change.Length;
             switch (change.Type)
             {
                 case SeqChangeType.Modify:
                 case SeqChangeType.Insert:
                     // Copy new/updated payload from diffValues
-                    diffValues.Slice(diffOffset, change.Length)
-                        .CopyTo(targetState.Slice(writeOffset, change.Length));
+                    diffValues.Slice(diffOffset, changeLength)
+                        .CopyTo(targetState.Slice(writeOffset, changeLength));
 
-                    diffOffset  += change.Length;
-                    writeOffset += change.Length;
+                    diffOffset  += changeLength;
+                    writeOffset += changeLength;
 
                     if (change.Type == SeqChangeType.Modify)
                     {
-                        readOffset += change.Length;
+                        readOffset += changeLength;
                     }
                     break;
 
                 case SeqChangeType.Remove:
                     // Skip items in startState (don't copy to targetState)
-                    readOffset += change.Length;
+                    readOffset += changeLength;
                     break;
             }
         }
