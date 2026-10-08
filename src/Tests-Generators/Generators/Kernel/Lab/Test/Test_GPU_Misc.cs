@@ -108,6 +108,7 @@ MaxComputeInvocationsPerWorkgroup:  {adapterLimits.MaxComputeInvocationsPerWorkg
         Assert.AreEqual( 16, Unsafe.SizeOf<TuiColorCell>());
         
         Assert.AreEqual( 4,  Unsafe.SizeOf<Rune>());
+        Assert.AreEqual(20,  Unsafe.SizeOf<Vertex2D>());
         Assert.AreEqual(80,  Unsafe.SizeOf<VertexQuad>());
         
         var WsDrawCommand = typeof(TmDraw).Assembly.GetType("Friflo.TmGui.Session.WsDrawCommand")!;
