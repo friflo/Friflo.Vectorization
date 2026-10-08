@@ -111,6 +111,29 @@ public sealed class KestrelHttpServer
         }
     }
     
+    private static WebSocketAcceptContext CreateWebSocketAcceptContext()
+    {
+        // Check websocket compression in Chrome
+        // - open:  chrome://net-export/
+        // - log to file for ~2 seconds
+        // - click small link at The log file can be loaded using the >> netlog_viewer <<.
+        // - Choose File
+        // - Navigate in left Panel > Sockets > View live sockets
+        // - Filter:    websocket
+        // - Click:     URL_REQUEST
+        // It will show logs like
+        //     t=580907 [st=41780]  HTTP2_STREAM_UPDATE_RECV_WINDOW
+        //                          --> delta = -7554
+        //                          --> stream_id = 5
+        //                          --> window_size = 6283902
+        
+        // Enable permessage-deflate compression for this connection
+        return new WebSocketAcceptContext {
+            DangerousEnableCompression  = true,
+            ServerMaxWindowBits         = 12 // 2^12  => 4 KB per client. 4 KB window aligns with standard OS memory page sizes
+        }; 
+    }
+    
     public static void Configure(IApplicationBuilder app, TmSessionLoop loop, string webRoot)
     {
         // Set up custom MIME types (especially for .wgsl WebGPU shaders)
@@ -130,7 +153,8 @@ public sealed class KestrelHttpServer
             {
                 try
                 {
-                    using var webSocket = await context.WebSockets.AcceptWebSocketAsync();
+                    var acceptContext = CreateWebSocketAcceptContext();
+                    using var webSocket = await context.WebSockets.AcceptWebSocketAsync(acceptContext);
                     var client = new WebSocketClient(webSocket);
                     
                     // RequestAborted acts as CancellationToken when connection drops or server shuts down
