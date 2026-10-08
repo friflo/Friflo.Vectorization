@@ -25,20 +25,20 @@ internal sealed partial class GuiSession
         }
         var clientQuads = CollectionsMarshal.AsSpan(clientQuadList);
         const int lookahead = 64;
-        if (!SequenceDiff.TryComputeChanges(clientQuads, newHashes, int.MaxValue, lookahead, shared.changeList, out int diffValueCount)) {
+        var changeList = shared.changeList;
+        if (!SequenceDiff.TryComputeChanges(clientQuads, newHashes, int.MaxValue, lookahead, changeList, out int diffValueCount)) {
             Debug.Fail("TryComputeChanges is false");
         }
 
-        DebugVerifyHashDiff(clientQuads, newHashes, diffValueCount);
-        
-        if (shared.changeList.Count == 0) {
+        if (changeList.Count == 0) {
             return default;
         }
+        DebugVerifyHashDiff(clientQuads, newHashes, diffValueCount);
 
         clientQuadList.Clear();
         clientQuadList.AddRange(newHashes);
         
-        var diffQuads = SequenceDiff.FillDiffValues(shared.changeList, newQuads, ref shared.quadBuffer, diffValueCount);
+        var diffQuads = SequenceDiff.FillDiffValues(changeList, newQuads, ref shared.quadBuffer, diffValueCount);
         
         DebugVerifyQuadDiff(newQuads, diffQuads);
         
@@ -58,11 +58,11 @@ internal sealed partial class GuiSession
     [Conditional("DEBUG")]
     private void DebugVerifyHashDiff(ReadOnlySpan<int> clientQuads, ReadOnlySpan<int> newQuads, int diffValueCount)
     {
-        if (shared.changeList.Count == 0) return;
+        var changeList = shared.changeList;
         
-        var diffQuads = SequenceDiff.FillDiffValues(shared.changeList, newQuads, ref debugHashDiff, diffValueCount);
+        var diffQuads = SequenceDiff.FillDiffValues(changeList, newQuads, ref debugHashDiff, diffValueCount);
         
-        var clientTarget = SequenceDiff.ApplyChanges(clientQuads, shared.changeList, diffQuads, ref debugHashTarget, newQuads.Length);
+        var clientTarget = SequenceDiff.ApplyChanges(clientQuads, changeList, diffQuads, ref debugHashTarget, newQuads.Length);
 
         var isEqual = newQuads.SequenceEqual(clientTarget);
         if (!isEqual) {
@@ -79,8 +79,6 @@ internal sealed partial class GuiSession
     [Conditional("DEBUG")]
     private void DebugVerifyQuadDiff(ReadOnlySpan<VertexQuad> newQuads, ReadOnlySpan<VertexQuad> diffQuads)
     {
-        if (shared.changeList.Count == 0) return;
-        
         ReadOnlySpan<VertexQuad> clientQuads = CollectionsMarshal.AsSpan(debugClientQuads);
         
         ReadOnlySpan<VertexQuad> clientTarget = SequenceDiff.ApplyChanges(clientQuads, shared.changeList, diffQuads, ref debugClientTarget, newQuads.Length);

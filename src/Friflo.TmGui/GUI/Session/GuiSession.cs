@@ -92,6 +92,8 @@ internal sealed partial class GuiSession : TmSession
         if (shared.wsDrawList.Length < drawCommands.Length) {
             shared.wsDrawList = new WsDrawCommand [drawCommands.Length];
         }
+        var wsDrawList = shared.wsDrawList.AsSpan(0, drawCommands.Length);
+        
         for (int n = 0; n < drawCommands.Length; n++)
         {
             var cmd = drawCommands[n];
@@ -99,7 +101,7 @@ internal sealed partial class GuiSession : TmSession
             if (usedTextures.Add(textureId)) {
                 newTextures.Add(textureId);
             }
-            shared.wsDrawList[n] = new WsDrawCommand {
+            wsDrawList[n] = new WsDrawCommand {
                 vertexView  = cmd.vertexView,
                 projection  = cmd.projection,
                 scissor     = cmd.scissor,
@@ -113,11 +115,12 @@ internal sealed partial class GuiSession : TmSession
             diffVertexCount = vertices.Length;
             vertices = CalcQuadChanges(vertices);
         }
+        var changes = CollectionsMarshal.AsSpan(shared.changeList);
         
         var sendLength = 8 + 8 + 4 + 4 + 4 + 4 + 4 +
-                         drawCommands.Length        * Unsafe.SizeOf<WsDrawCommand>() +
-                         vertices.Length            * Unsafe.SizeOf<Vertex2D>() +
-                         shared.changeList.Count   * Unsafe.SizeOf<SeqChange>();
+                         drawCommands.Length    * Unsafe.SizeOf<WsDrawCommand>() +
+                         vertices.Length        * Unsafe.SizeOf<Vertex2D>() +
+                         changes.Length         * Unsafe.SizeOf<SeqChange>();
         if (shared.sendBuffer.Length < sendLength) {
             shared.sendBuffer = new byte[sendLength + 1000]; // TODO 1000 ?
         }
@@ -142,7 +145,7 @@ internal sealed partial class GuiSession : TmSession
         bytesWritten += sizeof(int);
         
         // 3. Write change count (int)
-        MemoryMarshal.Write(span[bytesWritten..], shared.changeList.Count);
+        MemoryMarshal.Write(span[bytesWritten..], changes.Length);
         bytesWritten += sizeof(int);
         
         MemoryMarshal.Write(span[bytesWritten..], diffVertexCount);
@@ -173,7 +176,7 @@ internal sealed partial class GuiSession : TmSession
         var texturesLength = bytesWritten - texturesStart;
 
         // 6. Write wsDrawList elements
-        var drawListBytes = MemoryMarshal.AsBytes(shared.wsDrawList.AsSpan(0, drawCommands.Length));
+        var drawListBytes = MemoryMarshal.AsBytes(wsDrawList);
         drawListBytes.CopyTo(span[bytesWritten..]);
         bytesWritten += drawListBytes.Length;
 
@@ -184,7 +187,6 @@ internal sealed partial class GuiSession : TmSession
         bytesWritten += vertexBytes.Length;
         
         // 8. Write change elements
-        var changes = CollectionsMarshal.AsSpan(shared.changeList);
         var changesBytes = MemoryMarshal.AsBytes(changes);
         changesBytes.CopyTo(span[bytesWritten..]);
         bytesWritten += changesBytes.Length;
@@ -201,7 +203,7 @@ internal sealed partial class GuiSession : TmSession
             // Debug.WriteLine($"----------- {sendCounter++}");
             // foreach (var change in shared.changeList) { Debug.WriteLine(change.ToString()); }
             var sendHash = HashUtils.XxHash3(memory.Span.Slice(hashStart, vertexStart - hashStart));
-            var sendDiff = lastSendBufferHash != sendHash || shared.changeList.Count > 0;
+            var sendDiff = lastSendBufferHash != sendHash || changes.Length > 0;
             lastSendBufferHash = sendHash;
             if (sendDiff) {
                 return memory;
