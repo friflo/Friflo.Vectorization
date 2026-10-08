@@ -62,8 +62,7 @@ internal sealed partial class GuiSession : TmSession
     // --- changes
     private readonly    List<int>           clientQuadList      = [];
     private readonly    bool                sendDiffs           = true;
-    /// case sendDiffs == false: -1     case sendDiffs == true: vertex count of full frame
-    private             int                 diffVertexCount;
+
     
     internal GuiSession(TmClient client, SessionId sessionId, TmSessionLoop loop, FrameTimer frameTimer)
         : base(sessionId)
@@ -108,7 +107,8 @@ internal sealed partial class GuiSession : TmSession
             };
         }
         var vertices = wsBatch.Vertices;
-        diffVertexCount =  -1;
+        // case sendDiffs == false: -1     case sendDiffs == true: vertex count of full frame
+        var diffVertexCount =  -1;
         if (sendDiffs) {
             diffVertexCount = vertices.Length;
             vertices = CalcQuadChanges(vertices);
