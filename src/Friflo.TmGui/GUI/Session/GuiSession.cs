@@ -231,4 +231,6 @@ internal struct WsDrawCommand
     internal    RectVector2     scissor;        // 16 bytes
     internal    MemoryView      vertexView;     //  8 bytes
     internal    int             textureId;      //  4 bytes
+
+    public override string ToString() => $"{vertexView}    tex: {textureId}    scissor: {scissor}";
 }
