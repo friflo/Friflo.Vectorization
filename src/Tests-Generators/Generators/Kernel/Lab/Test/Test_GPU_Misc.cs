@@ -1,15 +1,12 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
-using System.Text;
 using Friflo.GPU;
 using Friflo.GPU.Runtime;
-using Friflo.WGPU;
 using Friflo.TmGui;
-using Friflo.TmGui.Session;
-using Friflo.TmGui.TUI;
+using Friflo.WGPU;
 using Friflo.WGPU.Runtime;
 using NUnit.Framework;
+using Tests.TmGui;
 
 // ReSharper disable InconsistentNaming
 namespace Kernel.Lab;
@@ -90,30 +87,14 @@ MaxComputeInvocationsPerWorkgroup:  {adapterLimits.MaxComputeInvocationsPerWorkg
         
         Assert.AreEqual( 56, Unsafe.SizeOf<RenderTarget>());
         Assert.AreEqual(  8, Unsafe.SizeOf<RenderPass>());
+    }
+    
+    /// These size checks requires net9.0 or higher.
+    /// Other checks at: <see cref="Tests_TmGui_Misc.Tests_TmGui_SizeOf"/>
+    [Test]
+    public void Test_TmGui_SizeOf()
+    {
         Assert.AreEqual(  8, Unsafe.SizeOf<TmDraw>());
         Assert.AreEqual( 32, Unsafe.SizeOf<Gui>());
-        Assert.AreEqual( 12, Unsafe.SizeOf<Dim>());
-        
-        Assert.AreEqual( 32, Unsafe.SizeOf<TmTexture>());
-        Assert.AreEqual(  8, Unsafe.SizeOf<MemoryView>());
-        Assert.AreEqual( 16, Unsafe.SizeOf<RectVector2>());
-        Assert.AreEqual(152, Unsafe.SizeOf<DrawCommand>());
-        
-        var assembly =  typeof(TmDraw).Assembly;
-        var TuiRect = assembly.GetType("Friflo.TmGui.TUI.TuiRect")!;
-        
-        Assert.AreEqual(  6, Unsafe.SizeOf<Color32Span>());
-        Assert.AreEqual(  8, Unsafe.SizeOf<TextSpan>());
-        Assert.AreEqual( 32, Marshal.SizeOf(TuiRect));
-        Assert.AreEqual( 16, Unsafe.SizeOf<TuiColorCell>());
-        
-        Assert.AreEqual( 4,  Unsafe.SizeOf<Rune>());
-        Assert.AreEqual(20,  Unsafe.SizeOf<Vertex2D>());
-        Assert.AreEqual(80,  Unsafe.SizeOf<VertexQuad>());
-        
-        var WsDrawCommand = typeof(TmDraw).Assembly.GetType("Friflo.TmGui.Session.WsDrawCommand")!;
-        Assert.AreEqual(92,  Marshal.SizeOf(WsDrawCommand));
-        Assert.AreEqual( 8,  Unsafe.SizeOf<SeqChange>());
-        
     }
 }
