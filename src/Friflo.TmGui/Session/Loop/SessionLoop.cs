@@ -184,7 +184,7 @@ public sealed partial class TmSessionLoop : IDisposable
     {
         var frameTimer  = new FrameTimer(this, client, 60, isSync);
         var sessionId   = new SessionId(_sessionSeq++);
-        var session     = new GuiSession(client, sessionId, this, frameTimer);
+        var session     = new GuiSession(sessionId, this, frameTimer);
         
         var sessionInfo = new SessionInfo{ client = client, backend = session.Backend, args = [] };
         var guiView     = createGuiView(sessionInfo);

@@ -50,7 +50,6 @@ internal sealed class GuiSessionShared
 
 internal sealed partial class GuiSession : TmSession
 {
-    private  readonly   TmClient            client;             // instance: passed
     private  readonly   WsBackend           wsBackend;          // instance: creates / owns
     internal readonly   WsBatch             wsBatch;            // instance: creates / owns
     private  readonly   GuiSessionShared    shared;             // instance: shared
@@ -64,14 +63,13 @@ internal sealed partial class GuiSession : TmSession
     private readonly    bool                sendDiffs           = true;
 
     
-    internal GuiSession(TmClient client, SessionId sessionId, TmSessionLoop loop, FrameTimer frameTimer)
+    internal GuiSession(SessionId sessionId, TmSessionLoop loop, FrameTimer frameTimer)
         : base(sessionId)
     {
         shared              = loop.guiShared;
         wsBackend           = new WsBackend(loop.rootBackend, sessionId);
         wsBatch             = wsBackend.CreateBatch();
         wsBatch.frameTimer  = frameTimer;
-        this.client = client;
     }
     
     protected internal override TmGuiBackend    Backend     => wsBackend;
