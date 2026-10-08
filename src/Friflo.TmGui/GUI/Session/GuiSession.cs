@@ -225,5 +225,5 @@ internal struct WsDrawCommand
     internal    Matrix4x4       projection;     // 64 bytes
     internal    RectVector2     scissor;        // 16 bytes
     internal    MemoryView      vertexView;     //  8 bytes
-    internal    int             textureId;      //  4 bytes          
+    internal    int             textureId;      //  4 bytes
 }

@@ -98,7 +98,8 @@ MaxComputeInvocationsPerWorkgroup:  {adapterLimits.MaxComputeInvocationsPerWorkg
         Assert.AreEqual( 16, Unsafe.SizeOf<RectVector2>());
         Assert.AreEqual(152, Unsafe.SizeOf<DrawCommand>());
         
-        var TuiRect = typeof(TmDraw).Assembly.GetType("Friflo.TmGui.TUI.TuiRect")!;
+        var assembly =  typeof(TmDraw).Assembly;
+        var TuiRect = assembly.GetType("Friflo.TmGui.TUI.TuiRect")!;
         
         Assert.AreEqual(  6, Unsafe.SizeOf<Color32Span>());
         Assert.AreEqual(  8, Unsafe.SizeOf<TextSpan>());
@@ -107,5 +108,8 @@ MaxComputeInvocationsPerWorkgroup:  {adapterLimits.MaxComputeInvocationsPerWorkg
         
         Assert.AreEqual( 4,  Unsafe.SizeOf<Rune>());
         Assert.AreEqual(80,  Unsafe.SizeOf<VertexQuad>());
+        
+        var WsDrawCommand = typeof(TmDraw).Assembly.GetType("Friflo.TmGui.Session.WsDrawCommand")!;
+        Assert.AreEqual(92,  Marshal.SizeOf(WsDrawCommand));
     }
 }
