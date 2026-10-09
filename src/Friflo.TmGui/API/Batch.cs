@@ -424,7 +424,7 @@ public abstract class TmBatch : IDisposable
         }
         segments.Add(segment);
         
-        segments.Sort((a, b) => (a.zIndex, a.sequence).CompareTo((b.zIndex, b.sequence)));
+        segments.Sort(static (a, b) => (a.zIndex, a.sequence).CompareTo((b.zIndex, b.sequence)));
     }
 #endregion
 }
