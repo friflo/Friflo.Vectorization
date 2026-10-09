@@ -20,8 +20,10 @@ public readonly struct TmTexture : IEquatable<TmTexture>
     public readonly nint    handle;         // 8 byte
     public readonly Vector2 whiteUv;        // 8 byte
     public readonly bool    hasWhitePixel;  // 1 byte
+    
+    public          bool    IsNull      => native == null;
 
-    public override string? ToString()      => native != null ? $"{native.GetType().Name} - {native}" : $"handle: {handle}";
+    public override string  ToString()  => native != null ? $"{native.GetType().Name} - {native}" : "null";
 
     public TmTexture(object native, nint handle, Vector2 whiteUv)
     {

@@ -34,7 +34,11 @@ public readonly struct AssetResources
 
     internal int GetTexture(TmTexture texture)
     {
-        if (texture2Id.TryGetValue(texture.native!, out int id)) {
+        var native = texture.native;
+        if (native == null) {
+            return 0;
+        }
+        if (texture2Id.TryGetValue(native, out int id)) {
             return id;
         }
         return AddTexture(texture);

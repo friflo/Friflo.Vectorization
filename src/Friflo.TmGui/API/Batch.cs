@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.Numerics;
+using System.Runtime.CompilerServices;
 using System.Text;
 using Friflo.TmGui.Headless;
 using Friflo.TmGui.Raster;
@@ -14,6 +15,8 @@ using Friflo.TmGui.Session;
 using Friflo.TmGui.TUI;
 using Hide = System.Diagnostics.DebuggerHiddenAttribute;
 
+// ReSharper disable InvertIf
+// ReSharper disable ConvertIfStatementToReturnStatement
 // ReSharper disable InconsistentNaming
 // ReSharper disable PrivateFieldCanBeConvertedToLocalVariable
 // ReSharper disable once CheckNamespace
@@ -274,9 +277,16 @@ public abstract class TmBatch : IDisposable
             draw.PushTransform(currentTransform * translate);
             return draw;
         }
-        var batch = textureBatch ??= new TextureBatch(new HeadlessBackend(textureAssets), texture, frameTimer);
+        var batch = textureBatch ??= CreateTextureBatch(texture);
         batch.sixel.Clear(color);
         return batch.BeginDraw(batch.sixel.width, batch.sixel.height);
+    }
+    
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    private TextureBatch CreateTextureBatch(TmTexture texture)
+    {
+        if (texture.IsNull) throw new ArgumentNullException(nameof(texture));
+        return new TextureBatch(new HeadlessBackend(textureAssets), texture, frameTimer);
     }
     
     public void EndTextureDraw()

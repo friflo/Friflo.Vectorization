@@ -198,7 +198,8 @@ public partial class TuiBatch
 
     public void DrawSprite(in TmTexture texture, Vector2 position, Vector2 size)
     {
-        var tuiTexture = (TuiTexture)texture.native!;
+        if (texture.IsNull) throw new ArgumentNullException(nameof(texture));
+        var tuiTexture = (TuiTexture?)texture.native!;
         var sixel = tuiTexture.sixel;
         
         var sixelId = ++drawSixelCount;
