@@ -6,6 +6,7 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 
+// ReSharper disable RedundantLambdaParameterType
 // ReSharper disable UseNullPropagation
 // ReSharper disable CheckNamespace
 namespace Friflo.TmGui.Session;
@@ -86,7 +87,7 @@ internal sealed class FrameTimer : IDisposable
         isRunning = true;
 
         if (isSync) {
-            StartFrameTickerSync(ct);
+            StartFrameTickerSync();
         } else {
             // Fire-and-forget background task for the async loop
             _ = StartFrameTickerAsync(ct);
@@ -113,14 +114,17 @@ internal sealed class FrameTimer : IDisposable
         }
     }
 
-    private void StartFrameTickerSync(CancellationToken ct)
+    private void StartFrameTickerSync()
     {
-        syncTimer = new Timer(_ =>
-        {
-            if (ct.IsCancellationRequested || !isRunning) return;
+        syncTimer = new Timer(OnSyncTimer, this, dueTime: 0, period: Period);
+    }
 
-            loop.TryEnqueueEvent(client, ClientEventType.FrameTick, default);
-        }, null, dueTime: 0, period: Period);
+    private static void OnSyncTimer(object? s)
+    {
+        var timer = (FrameTimer)s!;
+        if (timer.cancellationToken.IsCancellationRequested || !timer.isRunning) return;
+
+        timer.loop.TryEnqueueEvent(timer.client, ClientEventType.FrameTick, default);
     }
     
     static FrameTimer()
