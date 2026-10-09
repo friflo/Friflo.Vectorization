@@ -8,6 +8,7 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
 
+// ReSharper disable ConvertIfStatementToReturnStatement
 // ReSharper disable ConvertToConstant.Local
 // ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable InlineTemporaryVariable
@@ -19,19 +20,30 @@ namespace Friflo.TmGui.Session;
 internal readonly struct SessionId
 {
     internal readonly   Guid    value;
-    internal readonly   string  str;
+    internal readonly   string? str;
 
-    public   override   string  ToString() => str;
+    public   override   string  ToString() => str ?? "null";
     
-    internal SessionId(int id)
+    internal SessionId(long id)
     {
         value   = Guid.Parse($"{id:D32}");
         str     = id.ToString();
     }
-    
-    public SessionId() {
-        value   = Guid.NewGuid();
+   
+    private SessionId(Guid guid) {
+        value   = guid;
         str     = value.ToString();
+    }
+    
+    internal static SessionId FromSpan(ReadOnlySpan<char> sidSpan)
+    {
+        if (long.TryParse(sidSpan, out var sidInt)) {
+            return new SessionId(sidInt);
+        }
+        if (Guid.TryParse(sidSpan, out Guid guid)) {
+            return new SessionId(guid);
+        }
+        return default;
     }
 }
 

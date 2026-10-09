@@ -36,15 +36,17 @@ internal class WsBackend : TmGuiBackend
         return new HeadlessBuffer<uint>(buffer);
     }
 
+    internal const string Sid = "sid/";
+
     public override TmTexture CreateTexture(string name, int width, int height, ReadOnlySpan<byte> rgbaPixels)
     {
-        name = $"{sessionId.str}/{name}"; 
+        name = $"{Sid}{sessionId.str}/{name}";
         return rootBackend.CreateTexture(name, width, height, rgbaPixels);
     }
 
     public override TmTexture LoadTexture(Stream stream, string? label = null, TmTextureUsage usage = TmTextureUsage.None | TmTextureUsage.CopyDst | TmTextureUsage.TextureBinding)
     {
-        label = $"{sessionId.str}/{label}"; 
+        label = $"{Sid}{sessionId.str}/{label}";
         return rootBackend.LoadTexture(stream, label, usage);
     }
     

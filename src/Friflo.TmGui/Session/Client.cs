@@ -15,7 +15,7 @@ namespace Friflo.TmGui.Session;
 internal abstract class TmSession
 {
     protected internal          IGuiView?       guiView;
-    private   readonly          SessionId       sessionId;
+    internal  readonly          SessionId       sessionId;
     
     public    override          string          ToString()          => $"session: {sessionId}";
     
