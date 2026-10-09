@@ -188,7 +188,7 @@ public class HttpGuiHandler
         {
             try
             {
-                var acceptContext = CreateWebSocketAcceptContext(); // (oder wo auch immer das herkommt)
+                var acceptContext = CreateWebSocketAcceptContext();
                 using var webSocket = await context.WebSockets.AcceptWebSocketAsync(acceptContext);
                 var client = new WebSocketClient(webSocket);
                 await WebSocketClient.HandleClientSessionAsync(client, loop, context.RequestAborted);
@@ -202,23 +202,24 @@ public class HttpGuiHandler
         }
         if (path.StartsWithSegments("/textures", out var remainingPath) && remainingPath.HasValue)
         {
-            string fileName = remainingPath.Value.TrimStart('/');
+            var fileName = remainingPath.Value.TrimStart('/');
             
+            var response = context.Response;
             if (loop.resources.stringToImage.TryGetValue(fileName, out var image))
             {
                 if (context.Request.Headers.IfNoneMatch == image.Etag) {
-                    context.Response.StatusCode = StatusCodes.Status304NotModified;
+                    response.StatusCode = StatusCodes.Status304NotModified;
                     return;
                 }
                 var pngData = image.GetAsPng();
-                context.Response.Headers.ETag   = image.Etag;
-                context.Response.ContentType    = "image/png";
-                context.Response.ContentLength  = pngData.Length;
-                context.Response.StatusCode     = StatusCodes.Status200OK;
-                await context.Response.Body.WriteAsync(pngData, context.RequestAborted);
+                response.Headers.ETag   = image.Etag;
+                response.ContentType    = "image/png";
+                response.ContentLength  = pngData.Length;
+                response.StatusCode     = StatusCodes.Status200OK;
+                await response.Body.WriteAsync(pngData, context.RequestAborted);
                 return;
             }
-            context.Response.StatusCode = StatusCodes.Status404NotFound;
+            response.StatusCode = StatusCodes.Status404NotFound;
             return;
         }
         await next();
