@@ -15,13 +15,18 @@ namespace Friflo.TmGui.Session;
 
 public class StreamClient : TmClient
 {
-    private readonly Stream inputStream;
-    private readonly Stream outputStream;
+    private Stream inputStream;
+    private Stream outputStream;
 
     public StreamClient(Stream inputStream, Stream outputStream)
     {
         this.inputStream = inputStream;
         this.outputStream = outputStream;
+    }
+    
+    public override void Dispose() {
+        inputStream     = null!;
+        outputStream    = null!;
     }
     
     protected internal override async ValueTask<int> SendAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken)

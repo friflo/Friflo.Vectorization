@@ -33,7 +33,7 @@ internal struct WsSendBuffer
 
 internal class WebSocketClient : TmClient
 {
-    private readonly    WebSocket       webSocket;
+    private             WebSocket       webSocket;
     private readonly    object          bufferLock = new();
     
     // Lock-free flag for signaling: 0 = no data, 1 = frame pending
@@ -46,6 +46,13 @@ internal class WebSocketClient : TmClient
     internal WebSocketClient(WebSocket webSocket)
     {
         this.webSocket = webSocket;
+    }
+    
+    public override void Dispose()
+    {
+        frontBuffer = default;
+        backBuffer  = default;
+        webSocket   = null!;
     }
 
     protected override async ValueTask<int> SendAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken)

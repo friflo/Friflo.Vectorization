@@ -101,4 +101,11 @@ public abstract class TmClient
     protected internal abstract  ValueTask<int> SendAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken);
     protected internal abstract  int            Send(ReadOnlyMemory<byte> buffer);
     protected internal abstract  void           RestoreTerminal();
+    
+    /// <summary>
+    /// Extending classes should null field references to managed types.<br/>
+    /// <see cref="TmClient"/> instances may be captured by local variables in async state machines.
+    /// E.g. like <c>WebSocketClient</c> created within <c>KestrelHttpServer</c>.
+    /// </summary>
+    public             abstract  void           Dispose();
 }

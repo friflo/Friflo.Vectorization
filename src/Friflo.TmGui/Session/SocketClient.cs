@@ -15,11 +15,15 @@ namespace Friflo.TmGui.Session;
 
 public class SocketClient : TmClient
 {
-    public readonly Socket socket; // is public to enable access to remote info  
+    private  Socket socket;
     
     public SocketClient(Socket socket)
     {
         this.socket = socket;
+    }
+    
+    public override void Dispose() {
+        socket = null!;
     }
     
     protected internal override async ValueTask<int> SendAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken)

@@ -13,12 +13,12 @@ using System.Threading.Tasks;
 namespace Friflo.TmGui.Session;
 
 
-public class ConsoleClient : TmClient
+public sealed class ConsoleClient : TmClient
 {
-    private readonly    Stream  inputStream;
-    private readonly    Stream  outputStream;
-    private             int     consoleWidth  = -1;
-    private             int     consoleHeight = -1;
+    private     Stream  inputStream;
+    private     Stream  outputStream;
+    private     int     consoleWidth  = -1;
+    private     int     consoleHeight = -1;
     
     public ConsoleClient()
     {
@@ -30,6 +30,12 @@ public class ConsoleClient : TmClient
         } else {
             inputStream = new AnsiConsoleIn();
         }
+    }
+    
+    public override void Dispose()
+    {
+        inputStream     = null!;
+        outputStream    = null!;
     }
     
     protected internal override async ValueTask<int> SendAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken)
