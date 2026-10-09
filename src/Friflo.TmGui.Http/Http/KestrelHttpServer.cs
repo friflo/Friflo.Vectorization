@@ -111,6 +111,50 @@ public sealed class KestrelHttpServer
         }
     }
     
+    public static void Configure(IApplicationBuilder app, TmSessionLoop loop, string webRoot)
+    {
+        // Set up custom MIME types (especially for .wgsl WebGPU shaders)
+        var provider = new FileExtensionContentTypeProvider {
+            Mappings = {
+                [".wgsl"] = "text/wgsl; charset=utf-8"
+            }
+        };
+
+        app.UseWebSockets();
+        
+        var guiWebHandler = new HttpGuiHandler(loop);
+        app.Use(guiWebHandler.HandleGuiRequestAsync);
+
+        // Serve Static Files from wwwroot with custom ContentTypes
+        if (Directory.Exists(webRoot))
+        {
+            var staticFileOptions = new StaticFileOptions
+            {
+                FileProvider = new PhysicalFileProvider(webRoot),
+                ContentTypeProvider = provider,
+                RequestPath = ""
+            };
+
+            app.UseDefaultFiles(new DefaultFilesOptions
+            {
+                FileProvider = new PhysicalFileProvider(webRoot),
+                DefaultFileNames = ["index.html"]
+            });
+
+            app.UseStaticFiles(staticFileOptions);
+        }
+    }
+}
+
+public class HttpGuiHandler
+{
+    private readonly TmSessionLoop loop;
+
+    public HttpGuiHandler(TmSessionLoop loop)
+    {
+        this.loop = loop;
+    }
+    
     private static WebSocketAcceptContext CreateWebSocketAcceptContext()
     {
         // Check websocket compression:
@@ -135,91 +179,48 @@ public sealed class KestrelHttpServer
             ServerMaxWindowBits         = 12 // 2^12  => 4 KB per client. 4 KB window aligns with standard OS memory page sizes
         }; 
     }
-    
-    public static void Configure(IApplicationBuilder app, TmSessionLoop loop, string webRoot)
+
+    public async Task HandleGuiRequestAsync(HttpContext context, Func<Task> next)
     {
-        // Set up custom MIME types (especially for .wgsl WebGPU shaders)
-        var provider = new FileExtensionContentTypeProvider {
-            Mappings = {
-                [".wgsl"] = "text/wgsl; charset=utf-8"
-            }
-        };
-
-        // 1. Enable WebSockets middleware
-        app.UseWebSockets();
-
-        // 2. Intercept WebSocket requests
-        app.Use(async (context, next) =>
+        var path = context.Request.Path;
+        
+        if (context.WebSockets.IsWebSocketRequest)
         {
-            if (context.WebSockets.IsWebSocketRequest)
+            try
             {
-                try
-                {
-                    var acceptContext = CreateWebSocketAcceptContext();
-                    using var webSocket = await context.WebSockets.AcceptWebSocketAsync(acceptContext);
-                    var client = new WebSocketClient(webSocket);
-                    
-                    // RequestAborted acts as CancellationToken when connection drops or server shuts down
-                    await WebSocketClient.HandleClientSessionAsync(client, loop, context.RequestAborted);
-                }
-                catch (Exception ex)
-                {
-                    // ReSharper disable once MethodHasAsyncOverload
-                    Console.Error.WriteLine($"[-] WebSocket error: {ex.Message}");
-                }
+                var acceptContext = CreateWebSocketAcceptContext(); // (oder wo auch immer das herkommt)
+                using var webSocket = await context.WebSockets.AcceptWebSocketAsync(acceptContext);
+                var client = new WebSocketClient(webSocket);
+                await WebSocketClient.HandleClientSessionAsync(client, loop, context.RequestAborted);
             }
-            else
+            catch (Exception ex)
             {
-                await next();
+                // ReSharper disable once MethodHasAsyncOverload
+                Console.Error.WriteLine($"[-] WebSocket error: {ex.Message}");
             }
-        });
-        // 3. Texture Handler: Intercept requests to /textures/{name}
-        app.Use(async (HttpContext context, Func<Task> next) =>
+            return;
+        }
+        if (path.StartsWithSegments("/textures", out var remainingPath) && remainingPath.HasValue)
         {
-            var path = context.Request.Path;
-            if (path.StartsWithSegments("/textures", out var remainingPath) && remainingPath.HasValue)
+            string fileName = remainingPath.Value.TrimStart('/');
+            
+            if (loop.resources.stringToImage.TryGetValue(fileName, out var image))
             {
-                string fileName = remainingPath.Value.TrimStart('/');
-                // string fileNameWithoutExt = Path.GetFileNameWithoutExtension(fileName);
-                
-                if (loop.resources.stringToImage.TryGetValue(fileName, out var image))
-                {
-                    if (context.Request.Headers.IfNoneMatch == image.Etag) {
-                        context.Response.StatusCode = StatusCodes.Status304NotModified;
-                        return;
-                    }
-                    var pngData = image.GetAsPng();
-                    context.Response.Headers.ETag   = image.Etag;
-                    context.Response.ContentType    = "image/png";
-                    context.Response.ContentLength  = pngData.Length;
-                    context.Response.StatusCode     = StatusCodes.Status200OK;
-                    await context.Response.Body.WriteAsync(pngData, context.RequestAborted);
+                if (context.Request.Headers.IfNoneMatch == image.Etag) {
+                    context.Response.StatusCode = StatusCodes.Status304NotModified;
                     return;
                 }
-                context.Response.StatusCode = StatusCodes.Status404NotFound;
+                var pngData = image.GetAsPng();
+                context.Response.Headers.ETag   = image.Etag;
+                context.Response.ContentType    = "image/png";
+                context.Response.ContentLength  = pngData.Length;
+                context.Response.StatusCode     = StatusCodes.Status200OK;
+                await context.Response.Body.WriteAsync(pngData, context.RequestAborted);
                 return;
             }
-
-            await next();
-        });
-
-        // 3. Serve Static Files from wwwroot with custom ContentTypes
-        if (Directory.Exists(webRoot))
-        {
-            var staticFileOptions = new StaticFileOptions
-            {
-                FileProvider = new PhysicalFileProvider(webRoot),
-                ContentTypeProvider = provider,
-                RequestPath = ""
-            };
-
-            app.UseDefaultFiles(new DefaultFilesOptions
-            {
-                FileProvider = new PhysicalFileProvider(webRoot),
-                DefaultFileNames = ["index.html"]
-            });
-
-            app.UseStaticFiles(staticFileOptions);
+            context.Response.StatusCode = StatusCodes.Status404NotFound;
+            return;
         }
+        await next();
     }
 }
