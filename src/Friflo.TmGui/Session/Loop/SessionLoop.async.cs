@@ -6,7 +6,7 @@ using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 
-
+// ReSharper disable SuggestVarOrType_SimpleTypes
 // ReSharper disable CheckNamespace
 namespace Friflo.TmGui.Session;
 
@@ -82,11 +82,13 @@ public partial class TmSessionLoop
                     break;
                 }
                 case ClientEventType.TerminalDisconnected:
-                    sessions.Remove(client);
+                    if (sessions.Remove(client, out TmSession? session)) {
+                        DisposeSession(session);
+                    }
                     break;
 
                 case ClientEventType.TerminalInput:
-                    if (sessions.TryGetValue(client, out TmSession? session))
+                    if (sessions.TryGetValue(client, out session))
                     {
                         var payload = evt.Payload.Span;
                         session.ProcessInput(payload);

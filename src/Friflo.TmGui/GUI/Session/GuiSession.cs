@@ -72,7 +72,8 @@ internal sealed partial class GuiSession : TmSession
         wsBatch.frameTimer  = frameTimer;
     }
     
-    protected internal override TmGuiBackend    Backend     => wsBackend;
+    protected internal override TmGuiBackend    Backend => wsBackend;
+    protected internal override TmBatch         Batch   => wsBatch;
 
 
     internal override Memory<byte> IterateUI(in AssetResources resources)

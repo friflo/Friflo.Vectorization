@@ -55,6 +55,7 @@ internal sealed partial class TuiSession : TmSession
     
     // --- TmSession
     protected internal override TmGuiBackend    Backend => tuiBackend;
+    protected internal override TmBatch         Batch   => tuiBatch;
     
     internal override GuiReplay CreateReplay()
     {

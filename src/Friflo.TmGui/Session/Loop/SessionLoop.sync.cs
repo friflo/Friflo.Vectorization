@@ -102,7 +102,9 @@ public partial class TmSessionLoop
                 }
                 case ClientEventType.TerminalDisconnected:
                 case ClientEventType.WebsocketDisconnected:
-                    sessions.Remove(client);
+                    if (sessions.Remove(client, out session)) {
+                        DisposeSession(session);
+                    }
                     break;
 
                 case ClientEventType.TerminalInput:

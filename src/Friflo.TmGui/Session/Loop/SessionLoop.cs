@@ -196,5 +196,12 @@ public sealed partial class TmSessionLoop : IDisposable
     }
     
     private static int _sessionSeq = 1;
+    
+    private static void DisposeSession(TmSession session)
+    {
+        var batch = session.Batch;
+        batch.frameTimer?.Dispose();
+        batch.frameTimer = null;
+    }
 }
 

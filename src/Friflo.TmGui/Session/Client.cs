@@ -20,6 +20,7 @@ internal abstract class TmSession
     public    override          string          ToString()          => $"session: {sessionId}";
     
     protected internal abstract TmGuiBackend    Backend             { get; }
+    protected internal abstract TmBatch         Batch               { get; }
     internal           virtual  GuiReplay?      CreateReplay()      => null;
     internal           virtual  void            SendReplayCommands() { }
     
