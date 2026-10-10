@@ -82,6 +82,9 @@ internal sealed partial class GuiSession : TmSession
         wsBackend           = new WsBackend(loop.rootBackend, sessionId);
         wsBatch             = wsBackend.CreateBatch();
         wsBatch.frameTimer  = frameTimer;
+        
+        debugClientQuads = null!;
+        DebugInit();
     }
     
     protected internal override TmGuiBackend    Backend => wsBackend;
@@ -178,7 +181,7 @@ internal sealed partial class GuiSession : TmSession
         bytesWritten += sizeof(int);
         foreach (var usedTexture in newTextures) {
             var image = images[usedTexture];
-            MemoryMarshal.Write(span[bytesWritten..], image.textureId);
+            MemoryMarshal.Write(span[bytesWritten..], image!.textureId);
             bytesWritten += sizeof(int);
             
             int utf8ByteCount = Encoding.UTF8.GetByteCount(image.asset.name);

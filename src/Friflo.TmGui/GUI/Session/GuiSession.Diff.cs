@@ -1,11 +1,17 @@
 // Copyright (c) Ullrich Praetz - https://github.com/friflo. All rights reserved.
 // See LICENSE file in the project root for full license information.
 
+#if DEBUG
+// #define DEBUG_VERIFY
+#endif
+
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 
+
+// ReSharper disable FieldCanBeMadeReadOnly.Local
 // ReSharper disable RedundantAssignment
 // ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable InlineTemporaryVariable
@@ -47,20 +53,30 @@ internal sealed partial class GuiSession
 
 
 #region Debug - Verify
-    private             int[]               debugHashDiff       = [];
-    private             int[]               debugHashTarget     = [];
+    private     int[]?              debugHashDiff;
+    private     int[]?              debugHashTarget;
     
-    private  readonly   List<VertexQuad>    debugClientQuads    = [];
-    private             VertexQuad[]        debugClientTarget   = [];
+    private     List<VertexQuad>?   debugClientQuads;
+    private     VertexQuad[]?       debugClientTarget;
     
-    [Conditional("DEBUG")]
+    private void DebugInit()
+    {
+#if DEBUG_VERIFY
+        debugHashDiff       = [];
+        debugHashTarget     = [];
+        debugClientQuads    = [];
+        debugClientTarget   = [];
+#endif
+    }
+    
+    [Conditional("DEBUG_VERIFY")]
     private void DebugVerifyHashDiff(ReadOnlySpan<int> clientQuads, ReadOnlySpan<int> newQuads, int diffValueCount)
     {
         var changeList = shared.changeList;
         
-        var diffQuads = SequenceDiff.FillDiffValues(changeList, newQuads, ref debugHashDiff, diffValueCount);
+        var diffQuads = SequenceDiff.FillDiffValues(changeList, newQuads, ref debugHashDiff!, diffValueCount);
         
-        var clientTarget = SequenceDiff.ApplyChanges(clientQuads, changeList, diffQuads, ref debugHashTarget, newQuads.Length);
+        var clientTarget = SequenceDiff.ApplyChanges(clientQuads, changeList, diffQuads, ref debugHashTarget!, newQuads.Length);
 
         var isEqual = newQuads.SequenceEqual(clientTarget);
         if (!isEqual) {
@@ -74,12 +90,12 @@ internal sealed partial class GuiSession
         }
     }
     
-    [Conditional("DEBUG")]
+    [Conditional("DEBUG_VERIFY")]
     private void DebugVerifyQuadDiff(ReadOnlySpan<VertexQuad> newQuads, ReadOnlySpan<VertexQuad> diffQuads)
     {
         ReadOnlySpan<VertexQuad> clientQuads = CollectionsMarshal.AsSpan(debugClientQuads);
         
-        ReadOnlySpan<VertexQuad> clientTarget = SequenceDiff.ApplyChanges(clientQuads, shared.changeList, diffQuads, ref debugClientTarget, newQuads.Length);
+        ReadOnlySpan<VertexQuad> clientTarget = SequenceDiff.ApplyChanges(clientQuads, shared.changeList, diffQuads, ref debugClientTarget!, newQuads.Length);
 
         var isEqual = newQuads.SequenceEqual(clientTarget);
         if (!isEqual) {
@@ -102,7 +118,7 @@ internal sealed partial class GuiSession
                 Debug.WriteLine($"DebugVerifyQuadDiff - hashCollisionCount: {hashCollisionCount}");
             }
         }
-        debugClientQuads.Clear();
+        debugClientQuads!.Clear();
         debugClientQuads.AddRange(newQuads);
     }
 #endregion
