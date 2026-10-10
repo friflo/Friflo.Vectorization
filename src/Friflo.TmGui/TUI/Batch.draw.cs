@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Numerics;
 using System.Runtime.CompilerServices;
-using Friflo.TmGui.Session;
+using Friflo.TmGui.Headless;
 
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable ConditionalTernaryEqualBranch

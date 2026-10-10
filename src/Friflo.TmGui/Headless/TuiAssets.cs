@@ -14,7 +14,7 @@ using System.Numerics;
 namespace Friflo.TmGui.Headless;
 
 
-internal class HeadlessAssets : IGuiAssets
+public class TuiAssets : IGuiAssets
 {
     public TmFont CreateDefaultFont(TmGuiBackend backend)
     {
@@ -48,7 +48,7 @@ internal class HeadlessAssets : IGuiAssets
         return new InvalidOperationException($"{symbol}() requires IGuiAssets from package: Friflo.TmGui.Assets - instance: new DefaultGuiAssets()");
     }
     
-    internal static TmFont CreateHeadlessFont()
+    private static TmFont CreateHeadlessFont()
     {
          // Simulate monospace font
         var glyph = new GlyphInfo {
@@ -64,10 +64,26 @@ internal class HeadlessAssets : IGuiAssets
             glyph.sourcePos = new Vector2(col * 24.0f, row * 35.0f);
             glyphs.Add((char)n, glyph);
         }
-        var fontTexture = new HeadlessTexture("Default-Font", 512, 512, default);
+        var fontTexture = new TuiTexture("Default-Font", 512, 512);
         var texture     = new TmTexture(fontTexture, 0, default);   // use texture with simulated white UV pixel for testing
         var textureSize = new Vector2(fontTexture.width, fontTexture.height);
         
         return new TmFont(texture, textureSize, 47, glyphs, "Headless-Font", -1, false);
+    }
+}
+
+internal sealed class TuiTexture
+{
+    internal readonly   string  name;
+    internal readonly   int     width;
+    internal readonly   int     height;
+
+    public  override    string  ToString() => name;
+
+    internal TuiTexture(string name, int width, int height)
+    {
+        this.name       = name;
+        this.width      = width;
+        this.height     = height;
     }
 }

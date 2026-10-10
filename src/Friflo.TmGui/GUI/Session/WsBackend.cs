@@ -3,6 +3,7 @@
 
 using System;
 using System.IO;
+using Friflo.TmGui.Headless;
 
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable CheckNamespace

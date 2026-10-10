@@ -825,16 +825,10 @@ internal sealed class TextureBatch : TmBatch
     
     private static void GetImageProperties (in TmTexture texture, out byte[] rgbaPixels, out int width, out int height)
     {
-        if (texture.native is HeadlessTexture tex) {
+        if (texture.native is CpuTexture tex) {
             rgbaPixels  = tex.rgbaPixels;
             width       = tex.width;
             height      = tex.height;
-            return;
-        }
-        if (texture.native is CpuTexture cpuTexture) {
-            rgbaPixels  = cpuTexture.data;
-            width       = cpuTexture.width;
-            height      = cpuTexture.height;
             return;
         }
         throw new NotSupportedException("texture not supported");

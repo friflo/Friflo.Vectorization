@@ -109,7 +109,7 @@ public abstract class TmBatch : IDisposable
     internal            TmTexture           currentFontTexture;
     //
     internal            Vector2             terminalPixelSize  = new(1, 1);
-    private  readonly   IGuiAssets?         textureAssets;
+    private  readonly   IGuiAssets          textureAssets;
     private             TextureBatch?       textureBatch;
     internal readonly   bool                isTextureDraw;
     internal            TextureBatch        AsTextureBatch { [Hide] get => (TextureBatch)this; }
@@ -286,7 +286,7 @@ public abstract class TmBatch : IDisposable
     private TextureBatch CreateTextureBatch(TmTexture texture)
     {
         if (texture.IsNull) throw new ArgumentNullException(nameof(texture));
-        return new TextureBatch(new HeadlessBackend(textureAssets), texture, frameTimer);
+        return new TextureBatch(new CpuBackend("Raster", textureAssets), texture, frameTimer);
     }
     
     public void EndTextureDraw()

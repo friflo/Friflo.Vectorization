@@ -7,9 +7,9 @@ using System.Numerics;
 // ReSharper disable CheckNamespace
 namespace Friflo.TmGui.Headless;
 
-public sealed class HeadlessBatch : TmBatch
+public sealed class CpuGuiBatch : TmBatch
 {
-    internal HeadlessBatch(HeadlessBackend backend, int maxVertices)
+    internal CpuGuiBatch(CpuBackend backend, int maxVertices)
         : base(backend, maxVertices)
     {
     }

@@ -14,8 +14,8 @@ public class Tests_TmGui_window2
     [Test]
     public void Tests_TmDraw_window2_headless()
     {
-        var         backend = new HeadlessBackend();
-        var         batch   = backend.CreateBatch();
+        var         backend = new CpuBackend("CPU", new TuiAssets());
+        var         batch   = backend.CreateGuiBatch();
 
         long        start   = 0;
         const int   repeat  = 10; // 500_000 - 11.8 sec

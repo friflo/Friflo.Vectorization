@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Channels;
 using System.Threading.Tasks;
+using Friflo.TmGui.Headless;
 using Friflo.TmGui.TUI;
 using Friflo.TmGui.TUI.VT100;
 
@@ -43,7 +44,8 @@ public sealed partial class TmSessionLoop : IDisposable
     {
         this.isAsync        = isAsync;
         this.createGuiView  = createGuiView;
-        cpuBackend          = new CpuBackend(rootBackend);  // todo TAG_CPU
+        cpuBackend          = new CpuBackend(rootBackend);
+        // cpuBackend          = rootBackend as CpuBackend ?? new CpuBackend(rootBackend);  // todo TAG_CPU
         resources           = new AssetResources(cpuBackend);
         if (isAsync) {
             // Bounded channel to enforce non-blocking backpressure via TryWrite

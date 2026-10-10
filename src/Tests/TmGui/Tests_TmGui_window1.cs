@@ -6,7 +6,6 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using Friflo.TmGui;
 using Friflo.TmGui.Headless;
-using Friflo.TmGui.Session;
 using Friflo.TmGui.TUI;
 using NUnit.Framework;
 using Tests.Utils;
@@ -32,7 +31,7 @@ public class Tests_TmGui_window1
     [Test]
     public void Tests_TmGui_window1_TUI_char()
     {
-        var backend     = new CpuBackend("Test");
+        var backend     = new CpuBackend("Test", new TuiAssets());
         var frameBuffer = new FrameBuffer();
         var batch       = backend.CreateTuiBatch(TuiColorMode.Monochrome);
 
@@ -67,7 +66,7 @@ public class Tests_TmGui_window1
     [Test]
     public void Tests_TmGui_window1_TUI_color()
     {
-        var backend     = new CpuBackend("Test");
+        var backend     = new CpuBackend("Test", new TuiAssets());
         var frameBuffer = new FrameBuffer();
         var batch       = backend.CreateTuiBatch(TuiColorMode.Monochrome);
 
@@ -107,8 +106,8 @@ public class Tests_TmGui_window1
     [Test]
     public void Tests_TmGui_window1_headless()
     {
-        var         backend = new HeadlessBackend();
-        var         batch   = backend.CreateBatch();
+        var         backend = new CpuBackend("CPU", new TuiAssets());
+        var         batch   = backend.CreateGuiBatch();
         EnsureBatchApi(batch);
         long        start   = 0;
         const int   repeat  = 10; // 500_000 - 3.8 sec    bottleneck: FillArc() - GuiSizes.CornerSegments = 3

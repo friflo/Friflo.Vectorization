@@ -3,6 +3,7 @@
 
 
 using System;
+using Friflo.TmGui.TUI;
 
 // ReSharper disable NotAccessedField.Global
 // ReSharper disable MemberCanBePrivate.Global
@@ -10,20 +11,22 @@ using System;
 // ReSharper disable CheckNamespace
 namespace Friflo.TmGui.Headless;
 
-internal sealed class HeadlessTexture
+internal sealed class CpuTexture
 {
-    internal readonly   string  name;
-    internal readonly   int     width;
-    internal readonly   int     height;
-    internal readonly   byte[]  rgbaPixels;
+    internal readonly   string      name;
+    internal readonly   int         width;
+    internal readonly   int         height;
+    internal readonly   byte[]      rgbaPixels;
+    internal readonly   TuiSixel    sixel;
 
     public  override    string  ToString() => name;
 
-    internal HeadlessTexture(string name, int width, int height, ReadOnlySpan<byte> rgbaPixels)
+    internal CpuTexture(string name, int width, int height, byte[] rgbaPixels)
     {
         this.name       = name;
         this.width      = width;
         this.height     = height;
-        this.rgbaPixels = rgbaPixels.ToArray();
+        this.rgbaPixels = rgbaPixels;
+        sixel           = new TuiSixel(width, height, this.rgbaPixels);
     }
 }

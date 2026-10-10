@@ -3,7 +3,7 @@ using System.Numerics;
 using System.Runtime.InteropServices;
 using System.Text;
 using Friflo.TmGui;
-using Friflo.TmGui.Session;
+using Friflo.TmGui.Headless;
 using Friflo.TmGui.TUI;
 using TuiTerminal.Draw;
 
