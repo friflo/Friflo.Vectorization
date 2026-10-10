@@ -27,8 +27,8 @@ internal sealed class TextureBatch : TmBatch
     
     internal TextureBatch(TmGuiBackend backend, TmTexture texture, FrameTimer? frameTimer) : base(backend)
     {
-        var tuiTexture = (TuiTexture)texture.native!;
-        sixel = tuiTexture.sixel;
+        var cpuTexture = (CpuTexture)texture.native!;
+        sixel = cpuTexture.sixel;
         this.frameTimer = frameTimer;
     }
 
@@ -831,10 +831,10 @@ internal sealed class TextureBatch : TmBatch
             height      = tex.height;
             return;
         }
-        if (texture.native is TuiTexture tuiTex) {
-            rgbaPixels  = tuiTex.data;
-            width       = tuiTex.width;
-            height      = tuiTex.height;
+        if (texture.native is CpuTexture cpuTexture) {
+            rgbaPixels  = cpuTexture.data;
+            width       = cpuTexture.width;
+            height      = cpuTexture.height;
             return;
         }
         throw new NotSupportedException("texture not supported");

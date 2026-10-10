@@ -1,31 +1,16 @@
 ﻿// Copyright (c) Ullrich Praetz - https://github.com/friflo. All rights reserved.
 // See LICENSE file in the project root for full license information.
 
+/* TuiBackend is obsolete - replaced by CpuBackend
+ 
 using System;
 using System.IO;
+using Friflo.TmGui.Session;
 
 // ReSharper disable ConvertToPrimaryConstructor
 namespace Friflo.TmGui.TUI;
 
 
-internal sealed class TuiTexture
-{
-    internal readonly   int         width;
-    internal readonly   int         height;
-    internal readonly   byte[]      data;
-    internal readonly   string      name;
-    internal readonly   TuiSixel    sixel;
-    
-    public   override   string      ToString() => $"{width} x {height}";
-    
-    internal TuiTexture(int width, int height, byte[] data, string name) {
-        this.width  = width;
-        this.height = height;
-        this.data   = data;
-        this.name   = name;
-        sixel       = new TuiSixel(width, height, data);
-    }
-}
 
 public sealed class TuiBackend : TmGuiBackend
 {
@@ -33,7 +18,7 @@ public sealed class TuiBackend : TmGuiBackend
     
     public   override   string  ToString()  => backendName;
 
-    public TuiBackend(string name) : this(name, new TuiAssets()) {
+    public TuiBackend(string name) : this(name, new CpuAssets()) {
         backendName = name;
     }
 
@@ -50,13 +35,13 @@ public sealed class TuiBackend : TmGuiBackend
     
     protected internal override TmBuffer<Vertex2D> CreateVertexBuffer(int vertexCount)
     {
-        return new TuiBuffer<Vertex2D>();
+        return new CpuMemoryBuffer<Vertex2D>();
     }
 
     protected internal override TmBuffer<uint> CreateIndexBuffer(int indexCount)
     {
         // no index buffer used for TUI
-        return new TuiBuffer<uint>();
+        return new CpuMemoryBuffer<uint>();
     }
     
     
@@ -67,8 +52,8 @@ public sealed class TuiBackend : TmGuiBackend
         if (array.Length < length) {
             throw new InvalidOperationException($"texture array too small. Was: {array.Length}. Requires: {length} width: {width} height: {height}");
         }
-        var tuiTexture = new TuiTexture(width, height, array, name);
-        return new TmTexture(tuiTexture, 0);
+        var cpuTexture = new CpuTexture(width, height, array, name);
+        return new TmTexture(cpuTexture, 0);
     }
     
     public override TmTexture LoadTexture(Stream stream, string? label = null, TmTextureUsage usage = TmTextureUsage.TextureBinding | TmTextureUsage.CopyDst)
@@ -76,13 +61,15 @@ public sealed class TuiBackend : TmGuiBackend
         var image = assets.LoadImage(stream, TmColorComponents.RedGreenBlueAlpha);
 
         // texture.Write(image.data, bytesPerRow: image.width * 4, rowsPerImage: image.height);
-        var tuiTexture = new TuiTexture(image.width, image.height, image.data, label!);
-        return new TmTexture(tuiTexture, 0);
+        var cpuTexture = new CpuTexture(image.width, image.height, image.data, label!);
+        return new TmTexture(cpuTexture, 0);
     }
     
     public override TmImageAsset GetTextureImage(TmTexture texture)
     {
-        var tex = (TuiTexture)texture.native!;
+        var tex = (CpuTexture)texture.native!;
         return new TmImageAsset { width = tex.width, height = tex.height, data = tex.data, name = tex.name };
     }
 }
+
+*/

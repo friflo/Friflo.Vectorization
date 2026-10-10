@@ -3,6 +3,7 @@ using System.Numerics;
 using System.Runtime.InteropServices;
 using System.Text;
 using Friflo.TmGui;
+using Friflo.TmGui.Session;
 using Friflo.TmGui.TUI;
 using TuiTerminal.Draw;
 
@@ -35,7 +36,7 @@ public class TestGuiView : IGuiView
         using var stream    = typeof(TestGuiView).Assembly.GetManifestResourceStream("TuiTerminal.Assets.sixel_test.png")!;
         var backend     = info.backend;
         myTexture       = backend.LoadTexture(stream, "sixel_test.png");
-        var tui         = backend as TuiBackend;
+        var tui         = backend as CpuBackend;
         canvasTexture   = tui?.CreateTexture("canvas", CanvasWidth, CanvasHeight, new byte[CanvasWidth * CanvasHeight * 4]) ?? default;
     }
     

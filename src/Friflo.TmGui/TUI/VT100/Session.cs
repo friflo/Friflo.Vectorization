@@ -26,7 +26,7 @@ internal sealed partial class TuiSession : TmSession
     private  readonly   TmClient            client;         // instance: passed
     private  readonly   TuiColorMode        colorMode;
     private  readonly   TuiSessionShared    shared;         // instance: shared
-    private  readonly   TuiBackend          tuiBackend;     // instance: creates / owns
+    private  readonly   CpuBackend          cpuBackend;     // instance: creates / owns
     internal readonly   TuiBatch            tuiBatch;       // instance: creates / owns
     private  readonly   byte[]              sendBuffer      = new byte[60000];  // TODO  should be shared / grow if needed
     private             int                 sendBufferCount;
@@ -46,21 +46,21 @@ internal sealed partial class TuiSession : TmSession
         this.client         = client;
         this.colorMode      = colorMode;
         this.shared         = shared;
-        tuiBackend          = new TuiBackend("Terminal", assets);
+        cpuBackend          = new CpuBackend("Terminal", assets);
         
-        tuiBatch            = tuiBackend.CreateBatch(colorMode);
+        tuiBatch            = cpuBackend.CreateTuiBatch(colorMode);
         tuiBatch.session    = this;
         tuiBatch.frameTimer = frameTimer;
     }
     
     // --- TmSession
-    protected internal override TmGuiBackend    Backend => tuiBackend;
+    protected internal override TmGuiBackend    Backend => cpuBackend;
     protected internal override TmBatch         Batch   => tuiBatch;
     
     internal override GuiReplay CreateReplay()
     {
-        var replayBackend   = new TuiBackend("Replay", tuiBackend.Assets);
-        var replayBatch     = replayBackend.CreateBatch(colorMode);
+        var replayBackend   = new CpuBackend("Replay", cpuBackend.Assets);
+        var replayBatch     = replayBackend.CreateTuiBatch(colorMode);
         return new GuiReplay(replayBackend, replayBatch, this);
     }
     
@@ -119,7 +119,7 @@ internal sealed partial class TuiSession : TmSession
     
     internal override Memory<byte> IterateUI(in AssetResources resources)
     {
-        tuiBackend.NewFrame();
+        cpuBackend.NewFrame();
         
         // renderer gui in pixel units to support GUI & TUI with same application code
         var pixelWidth  = (int)(frameWidth  * tuiBatch.CharWidth);
@@ -128,7 +128,7 @@ internal sealed partial class TuiSession : TmSession
         guiView!.RenderGui(tuiBatch, pixelWidth, pixelHeight);
         
         if (tuiBatch.guiState.scrollAreaChanged) {
-            tuiBackend.NewFrame();
+            cpuBackend.NewFrame();
             guiView.RenderGui(tuiBatch, pixelWidth, pixelHeight);
             // Console.WriteLine("Scroll Area Changed");
         }
@@ -138,7 +138,7 @@ internal sealed partial class TuiSession : TmSession
         } else {
             sendBufferCount = 0;
         }
-        return RenderFrame(tuiBackend, tuiBatch);
+        return RenderFrame(cpuBackend, tuiBatch);
     }
         
     private Memory<byte> RenderFrame(TmGuiBackend backend, TuiBatch batch)

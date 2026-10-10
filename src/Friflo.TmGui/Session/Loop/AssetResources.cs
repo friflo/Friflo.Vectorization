@@ -12,7 +12,7 @@ namespace Friflo.TmGui.Session;
 
 public readonly struct AssetResources
 {
-    private  readonly   TmGuiBackend                        rootBackend;
+    private  readonly   CpuBackend                          cpuBackend;
     private  readonly   Dictionary<object, int>             texture2Id      = new();
     public   readonly   Dictionary<string, ImageResource>   stringToImage   = new();
     public   readonly   List<ImageResource?>                images          = [null];
@@ -21,7 +21,7 @@ public readonly struct AssetResources
     {
         var textureId = images.Count;
         texture2Id.Add(texture.native!, textureId);
-        var asset       = rootBackend.GetTextureImage(texture);
+        var asset       = cpuBackend.GetTextureImage(texture);
         var name        = asset.name;
         var sessionId   = default(SessionId);
         if (name.StartsWith(WsBackend.Sid)) {
@@ -29,15 +29,15 @@ public readonly struct AssetResources
             var end     = name.IndexOf('/', len);
             sessionId   = SessionId.FromSpan(name.AsSpan(len, end - len));
         }
-        var image = new ImageResource(sessionId) { textureId = textureId, asset = asset, texture = texture, assets = rootBackend.Assets };
+        var image = new ImageResource(sessionId) { textureId = textureId, asset = asset, texture = texture, assets = cpuBackend.Assets };
         images.Add(image);
         stringToImage.Add(name, image);
         return textureId;
     }
     
-    internal AssetResources(TmGuiBackend rootBackend)
+    internal AssetResources(CpuBackend cpuBackend)
     {
-        this.rootBackend = rootBackend;
+        this.cpuBackend = cpuBackend;
     }
 
     internal int GetTexture(TmTexture texture)

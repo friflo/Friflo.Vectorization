@@ -79,7 +79,7 @@ internal sealed partial class GuiSession : TmSession
         : base(sessionId)
     {
         shared              = loop.guiShared;
-        wsBackend           = new WsBackend(loop.rootBackend, sessionId);
+        wsBackend           = new WsBackend(loop.cpuBackend, sessionId);
         wsBatch             = wsBackend.CreateBatch();
         wsBatch.frameTimer  = frameTimer;
         

@@ -3,7 +3,6 @@ using System.Net.Sockets;
 using Friflo.TmGui;
 using Friflo.TmGui.Http;
 using Friflo.TmGui.Session;
-using Friflo.TmGui.TUI;
 using TuiTerminal;
 
 
@@ -43,7 +42,7 @@ using TuiTerminal;
 
 Console.WriteLine("TUI Terminal Server");
 
-var rootBackend = new TuiBackend("Terminal", new DefaultGuiAssets());
+var rootBackend = new CpuBackend("Terminal", new DefaultGuiAssets());
 var appState    = new AppState(rootBackend);
 
 // Flag toggles execution mode:

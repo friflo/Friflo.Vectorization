@@ -6,6 +6,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using Friflo.TmGui;
 using Friflo.TmGui.Headless;
+using Friflo.TmGui.Session;
 using Friflo.TmGui.TUI;
 using NUnit.Framework;
 using Tests.Utils;
@@ -31,9 +32,9 @@ public class Tests_TmGui_window1
     [Test]
     public void Tests_TmGui_window1_TUI_char()
     {
-        var backend     = new TuiBackend("Test");
+        var backend     = new CpuBackend("Test");
         var frameBuffer = new FrameBuffer();
-        var batch       = backend.CreateBatch(TuiColorMode.Monochrome);
+        var batch       = backend.CreateTuiBatch(TuiColorMode.Monochrome);
 
         long        start   = 0;
         const int   repeat  = 10; // 2_000_000 - 4.9 sec - now same as Tests_TmGui_window1_TUI_color
@@ -66,9 +67,9 @@ public class Tests_TmGui_window1
     [Test]
     public void Tests_TmGui_window1_TUI_color()
     {
-        var backend     = new TuiBackend("Test");
+        var backend     = new CpuBackend("Test");
         var frameBuffer = new FrameBuffer();
-        var batch       = backend.CreateBatch(TuiColorMode.Monochrome);
+        var batch       = backend.CreateTuiBatch(TuiColorMode.Monochrome);
 
         long        start   = 0;
         const int   repeat  = 10; // 2_000_000 - 4.9 sec

@@ -34,7 +34,7 @@ public sealed partial class TmSessionLoop : IDisposable
     private  readonly   Action                              exitHandler;
     private  readonly   TuiSessionShared                    tuiShared;      // shared among all TuiSession's
     internal readonly   GuiSessionShared                    guiShared;      // shared among all GuiSession's
-    internal readonly   TmGuiBackend                        rootBackend;    // shared among all sessions
+    internal readonly   CpuBackend                          cpuBackend;    // shared among all sessions
 
     private const int MaxSyncQueueCapacity = 32;
 #endregion
@@ -43,8 +43,8 @@ public sealed partial class TmSessionLoop : IDisposable
     {
         this.isAsync        = isAsync;
         this.createGuiView  = createGuiView;
-        this.rootBackend    = rootBackend;
-        resources           = new AssetResources(rootBackend);
+        cpuBackend          = new CpuBackend(rootBackend);  // todo TAG_CPU
+        resources           = new AssetResources(cpuBackend);
         if (isAsync) {
             // Bounded channel to enforce non-blocking backpressure via TryWrite
             var options = new BoundedChannelOptions(MaxSyncQueueCapacity) {
@@ -167,7 +167,7 @@ public sealed partial class TmSessionLoop : IDisposable
 
         var frameTimer  = new FrameTimer(this, client, 60, isSync);
         var sessionId   = new SessionId(_sessionSeq++);
-        var session     = new TuiSession(client, sessionId, tuiShared, frameTimer, rootBackend.Assets, TuiColorMode.RGB24);
+        var session     = new TuiSession(client, sessionId, tuiShared, frameTimer, cpuBackend.Assets, TuiColorMode.RGB24);
 
         var sessionInfo = new SessionInfo{ client = client, backend = session.Backend, args = args };
         var guiView     = createGuiView(sessionInfo);

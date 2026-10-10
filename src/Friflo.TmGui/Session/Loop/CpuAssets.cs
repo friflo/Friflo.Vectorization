@@ -1,11 +1,15 @@
+// Copyright (c) Ullrich Praetz - https://github.com/friflo. All rights reserved.
+// See LICENSE file in the project root for full license information.
+
 using System;
 using System.IO;
 using Friflo.TmGui.Headless;
 
 
-namespace Friflo.TmGui.TUI;
+// ReSharper disable CheckNamespace
+namespace Friflo.TmGui.Session;
 
-internal class TuiAssets : IGuiAssets
+internal class CpuAssets : IGuiAssets
 {
     public TmFont CreateDefaultFont(TmGuiBackend backend)
     {

@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Numerics;
 using System.Runtime.CompilerServices;
+using Friflo.TmGui.Session;
 
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable ConditionalTernaryEqualBranch
@@ -199,8 +200,8 @@ public partial class TuiBatch
     public void DrawSprite(in TmTexture texture, Vector2 position, Vector2 size)
     {
         if (texture.IsNull) throw new ArgumentNullException(nameof(texture));
-        var tuiTexture = (TuiTexture?)texture.native!;
-        var sixel = tuiTexture.sixel;
+        var cpuTexture = (CpuTexture?)texture.native!;
+        var sixel = cpuTexture.sixel;
         
         var sixelId = ++drawSixelCount;
         drawSixels[sixelId] = new DrawSixel(sixelId, sixel, position, size);

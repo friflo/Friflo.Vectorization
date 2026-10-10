@@ -85,13 +85,13 @@ internal sealed partial class TuiSession
         switch (character)
         {
             case '\t':  // Tab
-                tuiBackend.AddEvent(new TmEvent(TmEventType.KeyDown, new KeyEvent { code = KeyCode.Tab, isDown = true }));
+                cpuBackend.AddEvent(new TmEvent(TmEventType.KeyDown, new KeyEvent { code = KeyCode.Tab, isDown = true }));
                 return;
             case '\r':  // Enter
-                tuiBackend.AddEvent(new TmEvent(TmEventType.KeyDown, new KeyEvent { code = KeyCode.Return, isDown = true }));
+                cpuBackend.AddEvent(new TmEvent(TmEventType.KeyDown, new KeyEvent { code = KeyCode.Return, isDown = true }));
                 return;
             case ' ':   // Space
-                tuiBackend.AddEvent(new TmEvent(TmEventType.KeyDown, new KeyEvent { code = KeyCode.Space,  isDown = true }));
+                cpuBackend.AddEvent(new TmEvent(TmEventType.KeyDown, new KeyEvent { code = KeyCode.Space,  isDown = true }));
                 return;
         }
     }
@@ -101,16 +101,16 @@ internal sealed partial class TuiSession
         switch (csi[0])
         {
             case 'A':       // 0x41     Arrow Up
-                tuiBackend.AddEvent(new TmEvent(TmEventType.KeyDown, new KeyEvent { code = KeyCode.Up,     isDown = true }));
+                cpuBackend.AddEvent(new TmEvent(TmEventType.KeyDown, new KeyEvent { code = KeyCode.Up,     isDown = true }));
                 break;
             case 'B':       // 0x42     Arrow Down
-                tuiBackend.AddEvent(new TmEvent(TmEventType.KeyDown, new KeyEvent { code = KeyCode.Down,   isDown = true }));
+                cpuBackend.AddEvent(new TmEvent(TmEventType.KeyDown, new KeyEvent { code = KeyCode.Down,   isDown = true }));
                 break;
             case 'C':       // 0x43     Arrow Right
-                tuiBackend.AddEvent(new TmEvent(TmEventType.KeyDown, new KeyEvent { code = KeyCode.Right,  isDown = true }));
+                cpuBackend.AddEvent(new TmEvent(TmEventType.KeyDown, new KeyEvent { code = KeyCode.Right,  isDown = true }));
                 break;
             case 'D':       // 0x44     Arrow Left
-                tuiBackend.AddEvent(new TmEvent(TmEventType.KeyDown, new KeyEvent { code = KeyCode.Left,   isDown = true }));
+                cpuBackend.AddEvent(new TmEvent(TmEventType.KeyDown, new KeyEvent { code = KeyCode.Left,   isDown = true }));
                 break;
             
             case '<':       // 0x3C     Mouse events
@@ -153,19 +153,19 @@ internal sealed partial class TuiSession
             case 2:     // Right Click
                 var isDown = finalChar == 'M';
                 var ev = isDown ? TmEventType.MouseButtonDown : TmEventType.MouseButtonUp;
-                tuiBackend.AddEvent(new TmEvent(ev, mousePos));
+                cpuBackend.AddEvent(new TmEvent(ev, mousePos));
                 break;
             case 32:    // Drag Left
             case 33:    // Drag Middle
             case 34:    // Drag Right
             case 35:    // Mouse Move (Hover) sends 'm' as finalChar
-                tuiBackend.AddEvent(new TmEvent(TmEventType.MouseMotion, mousePos));
+                cpuBackend.AddEvent(new TmEvent(TmEventType.MouseMotion, mousePos));
                 break;
             case 64:    // Scroll Wheel Up
-                tuiBackend.AddEvent(new TmEvent(TmEventType.MouseWheel, mousePos) { wheel = new Vector2(0, +1) });
+                cpuBackend.AddEvent(new TmEvent(TmEventType.MouseWheel, mousePos) { wheel = new Vector2(0, +1) });
                 break;
             case 65:    // Scroll Wheel Down
-                tuiBackend.AddEvent(new TmEvent(TmEventType.MouseWheel, mousePos) { wheel = new Vector2(0, -1) });
+                cpuBackend.AddEvent(new TmEvent(TmEventType.MouseWheel, mousePos) { wheel = new Vector2(0, -1) });
                 break;
         }
     }

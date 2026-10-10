@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Numerics;
 using System.Runtime.InteropServices;
 using System.Text;
+using Friflo.TmGui.Session;
 
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable UseWithExpressionToCopyStruct
@@ -43,7 +44,7 @@ public sealed partial class TuiBatch : TmBatch
 
     public   override   string                  ToString()  => batchName;
 
-    public TuiBatch(TuiBackend backend, TuiColorMode colorMode) : base(backend, 0)
+    public TuiBatch(CpuBackend backend, TuiColorMode colorMode) : base(backend, 0)
     {
         batchName = backend.backendName;
         if  (colorMode == TuiColorMode.Monochrome) {
