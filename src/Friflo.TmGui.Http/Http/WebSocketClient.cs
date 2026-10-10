@@ -13,9 +13,11 @@ namespace Friflo.TmGui.Http;
 
 internal struct WsSendBuffer
 {
-    internal byte[] data = new byte[64 * 1024];
-    internal int pendingLength;
+    internal byte[] data            = [];
+    internal int    pendingLength;
     
+    public override string ToString() => $"byte[{data.Length}]";
+
     internal void AppendFrom(ReadOnlyMemory<byte> buffer)
     {
         int newLength = pendingLength + buffer.Length;
