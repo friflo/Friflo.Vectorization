@@ -9,7 +9,7 @@ using System;
 namespace Friflo.TmGui.Headless;
 
 
-internal sealed class MemoryBuffer<T> :IDisposable where T : unmanaged
+internal sealed class MemoryBuffer<T> : IDisposable where T : unmanaged
 {
     internal readonly Memory<T> memory;
     

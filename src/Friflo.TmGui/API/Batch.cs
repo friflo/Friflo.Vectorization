@@ -155,7 +155,7 @@ public abstract class TmBatch : IDisposable
         // generate quad indexes only once
         gpuIndexBuffer = backend.CreateIndexBuffer(maxIndices);
         var indices =  gpuIndexBuffer.Memory.Span;
-        for (int i = 0, v = 0; i < maxIndices; i += 6, v += 4)
+        for (int i = 0, v = 0; i < indices.Length; i += 6, v += 4)
         {
             indices[i + 0] = (uint)(v + 0);
             indices[i + 1] = (uint)(v + 1);

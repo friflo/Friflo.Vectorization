@@ -66,6 +66,7 @@ public sealed class TuiBackend : TmGuiBackend
 
     protected internal override TmBuffer<uint> CreateIndexBuffer(int indexCount)
     {
+        // no index buffer used for TUI
         return new TuiBuffer<uint>();
     }
     

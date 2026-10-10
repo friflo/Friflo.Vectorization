@@ -3,7 +3,6 @@
 
 using System;
 using System.IO;
-using Friflo.TmGui.Headless;
 
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable CheckNamespace
@@ -26,14 +25,13 @@ internal class WsBackend : TmGuiBackend
 
     protected internal override TmBuffer<Vertex2D> CreateVertexBuffer(int vertexCount)
     {
-        var buffer = new MemoryBuffer<Vertex2D>(vertexCount);
-        return new HeadlessBuffer<Vertex2D>(buffer);
+        return new GuiBuffer<Vertex2D>(vertexCount);
     }
 
     protected internal override TmBuffer<uint> CreateIndexBuffer(int indexCount)
     {
-        var buffer = new MemoryBuffer<uint>(indexCount);
-        return new HeadlessBuffer<uint>(buffer);
+        // no index buffer used for remote Gui
+        return new GuiBuffer<uint>(0);
     }
 
     internal const string Sid = "sid/";
@@ -63,3 +61,23 @@ internal class WsBackend : TmGuiBackend
     }
 }
 
+internal sealed class GuiBuffer<T> : TmBuffer<T> where T : unmanaged
+{
+    private readonly    Memory<T>   memory;
+    
+    public  override    Memory<T>   Memory => memory;
+
+    public  override    string      ToString() => $"{typeof(T).Name}[{memory.Length}]";
+
+    internal GuiBuffer(int length) {
+        if (length == 0) return;
+        memory = new Memory<T>(new T[length]);
+    }
+    
+    public override void Dispose() {
+    }
+    
+    public override void Write(int start, int length) {
+        // no GPU involved => no copy
+    }
+}
