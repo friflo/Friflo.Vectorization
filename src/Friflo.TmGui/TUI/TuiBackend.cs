@@ -48,17 +48,6 @@ public sealed class TuiBackend : TmGuiBackend
         return batch;
     }
     
-    public override TmTexture CreateTexture(string name, int width, int height, ReadOnlySpan<byte> rgbaPixels)   // TODO  use byte[]
-    {
-        var array = rgbaPixels.ToArray();
-        var length = width * height * 4;
-        if (array.Length < length) {
-            throw new InvalidOperationException($"texture array too small. Was: {array.Length}. Requires: {length} width: {width} height: {height}");
-        }
-        var tuiTexture = new TuiTexture(width, height, array, name);
-        return new TmTexture(tuiTexture, 0);
-    }
-
     protected internal override TmBuffer<Vertex2D> CreateVertexBuffer(int vertexCount)
     {
         return new TuiBuffer<Vertex2D>();
@@ -68,6 +57,18 @@ public sealed class TuiBackend : TmGuiBackend
     {
         // no index buffer used for TUI
         return new TuiBuffer<uint>();
+    }
+    
+    
+    public override TmTexture CreateTexture(string name, int width, int height, ReadOnlySpan<byte> rgbaPixels)   // TODO  use byte[]
+    {
+        var array = rgbaPixels.ToArray();
+        var length = width * height * 4;
+        if (array.Length < length) {
+            throw new InvalidOperationException($"texture array too small. Was: {array.Length}. Requires: {length} width: {width} height: {height}");
+        }
+        var tuiTexture = new TuiTexture(width, height, array, name);
+        return new TmTexture(tuiTexture, 0);
     }
     
     public override TmTexture LoadTexture(Stream stream, string? label = null, TmTextureUsage usage = TmTextureUsage.TextureBinding | TmTextureUsage.CopyDst)
