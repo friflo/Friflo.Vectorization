@@ -15,11 +15,12 @@ namespace TuiTerminal;
 public class TestGuiView : IGuiView
 {
     private readonly    AppState        appState;
+    private readonly    SessionId       sessionId;
     private readonly    Color32[]       textColors = [0x0000FFFF, 0xFF0000FF, 0x009900FF, 0xFF00FFFF, 0xCC6600FF, 0x000000ff];
     private readonly    TmTexture       myTexture;      // texture available only for this session
     private readonly    TmTexture       canvasTexture;  // canvas only required for TUI. GUI draws to GPU surface 
     private             float           time;
-    private             long            frameStart;
+    private             long            frameStart = Stopwatch.GetTimestamp();
     private             double          frameTime;
     private             long            memStart;
     private             long            memDiff;
@@ -33,6 +34,7 @@ public class TestGuiView : IGuiView
     public TestGuiView(AppState appState, SessionInfo info)
     {
         this.appState       = appState;
+        sessionId           = info.sessionId;
         using var stream    = typeof(TestGuiView).Assembly.GetManifestResourceStream("TuiTerminal.Assets.sixel_test.png")!;
         var backend     = info.backend;
         myTexture       = backend.LoadTexture(stream, "sixel_test.png");
