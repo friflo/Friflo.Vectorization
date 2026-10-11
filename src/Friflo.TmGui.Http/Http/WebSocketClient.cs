@@ -8,21 +8,31 @@ using System.Threading;
 using System.Threading.Tasks;
 using Friflo.TmGui.Session;
 
+// ReSharper disable ConvertToAutoPropertyWithPrivateSetter
 // ReSharper disable CheckNamespace
 namespace Friflo.TmGui.Http;
 
 internal struct WsSendBuffer
 {
-    internal byte[] data            = [];
-    internal int    pendingLength;
+    private     byte[]                  data            = [];
+    private     int                     pendingLength;
+    
+    internal    int                     PendingLength   => pendingLength;
+    internal    ReadOnlyMemory<byte>    Memory          => new(data, 0, pendingLength);
     
     public override string ToString() => $"byte[{data.Length}]";
+    
+    internal void Clear() {
+        pendingLength = 0;
+    }
 
     internal void AppendFrom(ReadOnlyMemory<byte> buffer)
     {
         int newLength = pendingLength + buffer.Length;
         if (data.Length < newLength) {
-            byte[] newBuffer = new byte[Math.Max(data.Length * 2, newLength)];
+            var allocate = Math.Max(data.Length * 2, newLength);
+            // var newBuffer = new byte[allocate];
+            var newBuffer = GC.AllocateUninitializedArray<byte>(allocate);
             Array.Copy(data, 0, newBuffer, 0, pendingLength);
             data = newBuffer;
         }
@@ -92,7 +102,7 @@ internal class WebSocketClient : TmClient
         // Swap buffers quickly under lock to minimize OnFrame thread wait time
         lock (bufferLock)
         {
-            if (frontBuffer.pendingLength == 0) {
+            if (frontBuffer.PendingLength == 0) {
                 Volatile.Write(ref hasPendingFrame, 0);
                 return;
             }
@@ -101,15 +111,15 @@ internal class WebSocketClient : TmClient
             (frontBuffer, backBuffer) = (backBuffer, frontBuffer);
             
             // Clear pending length on new frontBuffer so it is ready for the next frame
-            frontBuffer.pendingLength = 0;
+            frontBuffer.Clear();
             Volatile.Write(ref hasPendingFrame, 0);
         }
 
         // Send backBuffer asynchronously - OnFrame thread is completely free to write to frontBuffer now
-        if (backBuffer.pendingLength > 0 && webSocket.State == WebSocketState.Open) {
-            var memoryToSend = new ReadOnlyMemory<byte>(backBuffer.data, 0, backBuffer.pendingLength);
+        if (backBuffer.PendingLength > 0 && webSocket.State == WebSocketState.Open) {
+            var memoryToSend = backBuffer.Memory;
             await webSocket.SendAsync(memoryToSend, WebSocketMessageType.Binary, true, ct);
-            backBuffer.pendingLength = 0;
+            backBuffer.Clear();
         }
     }
 
