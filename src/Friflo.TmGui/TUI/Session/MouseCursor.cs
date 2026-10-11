@@ -4,7 +4,7 @@
 
 
 // ReSharper disable ConvertToPrimaryConstructor
-namespace Friflo.TmGui.TUI.VT100;
+namespace Friflo.TmGui.TUI.Session;
 
 internal struct MouseCursorShape
 {

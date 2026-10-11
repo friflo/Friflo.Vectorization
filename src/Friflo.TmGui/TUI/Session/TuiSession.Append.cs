@@ -7,7 +7,7 @@ using System.Text;
 
 // ReSharper disable UnusedMember.Local
 // ReSharper disable InconsistentNaming
-namespace Friflo.TmGui.TUI.VT100;
+namespace Friflo.TmGui.TUI.Session;
 
 
 internal sealed partial class TuiSession

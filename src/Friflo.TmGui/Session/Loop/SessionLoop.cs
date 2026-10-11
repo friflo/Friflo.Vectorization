@@ -10,7 +10,7 @@ using System.Threading.Channels;
 using System.Threading.Tasks;
 using Friflo.TmGui.Headless;
 using Friflo.TmGui.TUI;
-using Friflo.TmGui.TUI.VT100;
+using Friflo.TmGui.TUI.Session;
 
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable ConvertConstructorToMemberInitializers

@@ -5,7 +5,7 @@ using System;
 
 
 // ReSharper disable InconsistentNaming
-namespace Friflo.TmGui.TUI.VT100;
+namespace Friflo.TmGui.TUI.Session;
 
 internal static class Telnet
 {

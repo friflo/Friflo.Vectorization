@@ -5,7 +5,7 @@ using System;
 using Hide = System.Diagnostics.DebuggerHiddenAttribute;
 
 // ReSharper disable ConvertToPrimaryConstructor
-namespace Friflo.TmGui.TUI.VT100;
+namespace Friflo.TmGui.TUI.Session;
 
 
 internal struct CharBuffer
@@ -21,7 +21,7 @@ internal struct CharBuffer
     [Hide] internal     char            Current         => array[current];
 
 
-    public CharBuffer(int length) {
+    internal CharBuffer(int length) {
         array = new char[length];
     }
     

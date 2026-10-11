@@ -12,7 +12,7 @@ using Friflo.TmGui.Session;
 // ReSharper disable InlineTemporaryVariable
 // ReSharper disable CanSimplifyStringEscapeSequence
 // ReSharper disable ConvertToPrimaryConstructor
-namespace Friflo.TmGui.TUI.VT100;
+namespace Friflo.TmGui.TUI.Session;
 
 
 internal sealed class TuiSessionShared
