@@ -30,23 +30,23 @@ public class StreamClient : TmClient
         outputStream    = null!;
     }
     
-    protected internal override async ValueTask<int> SendAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken)
+    protected internal override async ValueTask<int> SendAsync(TmSendMessage message, CancellationToken cancellationToken)
     {
-        await outputStream.WriteAsync(buffer, cancellationToken);
+        await outputStream.WriteAsync(message.buffer, cancellationToken);
         await outputStream.FlushAsync(cancellationToken);
-        return buffer.Length;
+        return message.Length;
     }
     
-    protected internal override  int Send(ReadOnlyMemory<byte> buffer)
+    protected internal override int Send(TmSendMessage message)
     {
-        outputStream.Write(buffer.Span);
+        outputStream.Write(message.buffer.Span);
         outputStream.Flush();
-        return buffer.Length;
+        return message.Length;
     }
     
     protected internal override void RestoreTerminal()
     {
-        Send(TerminalReset);
+        Send(new TmSendMessage(TerminalReset));
     }
 
     // I/O Loop: Reads raw stream bytes and pushes them into the session loop queue

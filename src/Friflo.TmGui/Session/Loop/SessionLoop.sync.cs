@@ -90,7 +90,7 @@ public partial class TmSessionLoop
                     var newSession      = CreateTuiSession(evt, true, out var payload);
                     var initialMessage  = newSession.StartSession();
                     
-                    client.Send(initialMessage);
+                    client.Send(new TmSendMessage(initialMessage));
                     
                     newSession.ProcessInput(payload.Span);
                     var sendBuffer = newSession.IterateUI(resources);

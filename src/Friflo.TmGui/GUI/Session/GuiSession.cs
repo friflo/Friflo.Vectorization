@@ -61,7 +61,7 @@ internal sealed partial class GuiSession : TmSession
     protected internal override TmBatch         Batch   => wsBatch;
 
 
-    internal override Memory<byte> IterateUI(in AssetResources resources)
+    internal override TmSendMessage IterateUI(in AssetResources resources)
     {
         wsBackend.NewFrame();
         guiView!.RenderGui(wsBatch, canvasWidth, canvasHeight);
@@ -195,7 +195,7 @@ internal sealed partial class GuiSession : TmSession
             var sendDiff = lastSendBufferHash != sendHash || changes.Length > 0;
             lastSendBufferHash = sendHash;
             if (sendDiff) {
-                return memory;
+                return new TmSendMessage(memory);
             }
             return default;
         } else {
@@ -204,7 +204,7 @@ internal sealed partial class GuiSession : TmSession
                 return default;
             }
             lastSendBufferHash = sendHash;
-            return memory;
+            return new TmSendMessage(memory);
         }
     }
 }

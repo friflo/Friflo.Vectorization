@@ -67,17 +67,17 @@ internal class WebSocketClient : TmClient
         webSocket   = null!;
     }
 
-    protected override async ValueTask<int> SendAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken)
+    protected override async ValueTask<int> SendAsync(TmSendMessage message, CancellationToken cancellationToken)
     {
         if (webSocket.State == WebSocketState.Open)
         {
-            await webSocket.SendAsync(buffer, WebSocketMessageType.Binary, true, cancellationToken);
-            return buffer.Length;
+            await webSocket.SendAsync(message.buffer, WebSocketMessageType.Binary, true, cancellationToken);
+            return message.Length;
         }
         return 0;
     }
     
-    protected override int Send(ReadOnlyMemory<byte> data)
+    protected override int Send(TmSendMessage message)
     {
         if (webSocket.State != WebSocketState.Open) {
             return 0;
@@ -85,11 +85,11 @@ internal class WebSocketClient : TmClient
 
         lock (bufferLock)
         {
-            frontBuffer.AppendFrom(data);
+            frontBuffer.AppendFrom(message.buffer);
             Volatile.Write(ref hasPendingFrame, 1);
         }
 
-        return data.Length;
+        return message.Length;
     }
 
     protected override void RestoreTerminal()

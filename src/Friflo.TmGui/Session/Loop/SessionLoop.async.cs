@@ -71,7 +71,7 @@ public partial class TmSessionLoop
                     var newSession      = CreateTuiSession(evt, false, out var payload);
                     var initialMessage  = newSession.StartSession();
                     
-                    await client.SendAsync(initialMessage, CancellationToken.None);
+                    await client.SendAsync(new TmSendMessage(initialMessage), CancellationToken.None);
                     
                     newSession.ProcessInput(payload.Span);
                     var sendBuffer = newSession.IterateUI(resources);

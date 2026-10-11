@@ -24,7 +24,7 @@ internal abstract class TmSession
     internal           virtual  void            SendReplayCommands() { }
     
     internal           abstract void            ProcessInput(ReadOnlySpan<byte> input);
-    internal           abstract Memory<byte>    IterateUI(in AssetResources resources);
+    internal           abstract TmSendMessage   IterateUI(in AssetResources resources);
     
     internal TmSession(SessionId sessionId) {
         this.sessionId = sessionId;

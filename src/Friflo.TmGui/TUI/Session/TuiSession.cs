@@ -73,7 +73,7 @@ internal sealed partial class TuiSession : TmSession
         
         sendBufferCount     = 0;
         var framePayload    = RenderFrame(replayBackend, replayBatch);
-        client.Send(framePayload);
+        client.Send(new TmSendMessage(framePayload));
     }
 
     // --- internal
@@ -118,7 +118,7 @@ internal sealed partial class TuiSession : TmSession
         AppendSpan("\x1b[18t"u8);       // Request current terminal size from terminal via stdout - answer handled by HandleInBandResize()
     }
     
-    internal override Memory<byte> IterateUI(in AssetResources resources)
+    internal override TmSendMessage IterateUI(in AssetResources resources)
     {
         cpuBackend.NewFrame();
         
@@ -139,7 +139,8 @@ internal sealed partial class TuiSession : TmSession
         } else {
             sendBufferCount = 0;
         }
-        return RenderFrame(cpuBackend, tuiBatch);
+        var memory = RenderFrame(cpuBackend, tuiBatch);
+        return new TmSendMessage(memory);
     }
         
     private Memory<byte> RenderFrame(TmGuiBackend backend, TuiBatch batch)

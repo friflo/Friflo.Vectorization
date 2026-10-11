@@ -4,9 +4,40 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Hide = System.Diagnostics.DebuggerHiddenAttribute;
 
+// ReSharper disable UnusedMember.Global
+// ReSharper disable ArrangeThisQualifier
+// ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable once CheckNamespace
 namespace Friflo.TmGui.Session;
+
+public enum TmSendMessageMode {
+    Queue,
+    DropUnsent
+}
+
+public readonly struct TmSendMessage
+{
+    public readonly ReadOnlyMemory<byte>    buffer;
+    public readonly TmSendMessageMode       mode;
+    
+    public          int                     Length  => buffer.Length;
+    public          bool                    IsEmpty => buffer.IsEmpty;
+    
+    [Hide]
+    public TmSendMessage(ReadOnlyMemory<byte> buffer) {
+        this.buffer = buffer;
+        this.mode   = TmSendMessageMode.Queue;
+    }
+    
+    [Hide]
+    public TmSendMessage(ReadOnlyMemory<byte> buffer, TmSendMessageMode mode) {
+        this.buffer = buffer;
+        this.mode   = mode;
+    }
+}
+
 
 
 public abstract class TmClient
@@ -34,9 +65,9 @@ public abstract class TmClient
     protected static readonly ReadOnlyMemory<byte> TerminalReset =
         "\x1b[?1006l\x1b[?1003l\x1b[?1002l\x1b[?1000l\x1b[?2004l\x1b[?1h\x1b[?1049l\x1b[?25h\x1bc"u8.ToArray().AsMemory();
     
-    protected internal abstract  ValueTask<int> SendAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken);
-    protected internal abstract  int            Send(ReadOnlyMemory<byte> buffer);
-    protected internal abstract  void           RestoreTerminal();
+    protected internal abstract     ValueTask<int>  SendAsync(TmSendMessage message, CancellationToken cancellationToken);
+    protected internal abstract     int             Send(TmSendMessage message);
+    protected internal abstract     void            RestoreTerminal();
     
     /// <summary>
     /// Extending classes should null field references to managed types.<br/>

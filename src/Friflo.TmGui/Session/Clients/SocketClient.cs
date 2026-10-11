@@ -27,23 +27,23 @@ public class SocketClient : TmClient
         socket = null!;
     }
     
-    protected internal override async ValueTask<int> SendAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken)
+    protected internal override async ValueTask<int> SendAsync(TmSendMessage message, CancellationToken cancellationToken)
     {
-        return await socket.SendAsync(buffer, SocketFlags.None, cancellationToken);
+        return await socket.SendAsync(message.buffer, SocketFlags.None, cancellationToken);
     }
     
-    protected internal override  int Send(ReadOnlyMemory<byte> buffer)
+    protected internal override int Send(TmSendMessage message)
     {
         // Check if the OS send buffer can accept data immediately (0 microseconds wait time)
         if (!socket.Poll(0, SelectMode.SelectWrite)) {
             return 0;                                       // OS buffer is full -> drop frame instantly to prevent blocking the single thread loop
         }
-        return socket.Send(buffer.Span, SocketFlags.None);  // Buffer has space -> transmit frame synchronously without blocking
+        return socket.Send(message.buffer.Span, SocketFlags.None);  // Buffer has space -> transmit frame synchronously without blocking
     }
     
     protected internal override void RestoreTerminal()
     {
-        Send(TerminalReset);
+        Send(new TmSendMessage(TerminalReset));
     }
     
     
