@@ -8,6 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Friflo.TmGui.Session;
 
+// ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable ConvertToAutoPropertyWithPrivateSetter
 // ReSharper disable CheckNamespace
 namespace Friflo.TmGui.Http;
@@ -30,9 +31,12 @@ internal struct WsSendBuffer
         pendingLength = 0;
     }
 
-    internal int AppendFrom(ReadOnlyMemory<byte> buffer)
+    internal int AppendFrom(TmSendMessage message)
     {
-        int newLength = pendingLength + buffer.Length;
+        if (message.mode == TmSendMessageMode.DropUnsent) {
+            pendingLength = 0;
+        }
+        int newLength = pendingLength + message.Length;
         if (data.Length < newLength) {
             var allocate = Math.Max(data.Length * 2, newLength);
             // var newBuffer = new byte[allocate];
@@ -40,7 +44,7 @@ internal struct WsSendBuffer
             Array.Copy(data, 0, newBuffer, 0, pendingLength);
             data = newBuffer;
         }
-        buffer.CopyTo(data.AsMemory(pendingLength));
+        message.buffer.CopyTo(data.AsMemory(pendingLength));
         return pendingLength = newLength;
     }
     
@@ -89,7 +93,7 @@ internal class WebSocketClient : TmClient
 
         lock (bufferLock)
         {
-            var pendingLength = frontBuffer.AppendFrom(message.buffer);
+            var pendingLength = frontBuffer.AppendFrom(message);
             Volatile.Write(ref hasPendingFrame, 1);
             QueueDataReceived(pendingLength);
             // Console.WriteLine(pendingLength);

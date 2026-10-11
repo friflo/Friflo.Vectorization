@@ -14,8 +14,8 @@ using Hide = System.Diagnostics.DebuggerHiddenAttribute;
 namespace Friflo.TmGui.Session;
 
 public enum TmSendMessageMode {
-    Queue,
-    DropUnsent
+    Queue       = 0,
+    DropUnsent  = 1
 }
 
 public readonly struct TmSendMessage
