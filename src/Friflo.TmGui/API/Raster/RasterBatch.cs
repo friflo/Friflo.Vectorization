@@ -4,11 +4,11 @@
 
 using System;
 using System.Runtime.CompilerServices;
-using Friflo.TmGui.TUI;
 using System.Numerics;
 using System.Runtime.InteropServices;
 using Friflo.TmGui.Headless;
 using Friflo.TmGui.Session;
+using Friflo.TmGui.TUI;
 
 // ReSharper disable CompareOfFloatsByEqualityOperator
 // ReSharper disable MergeIntoPattern
