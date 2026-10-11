@@ -22,7 +22,7 @@ internal readonly struct SessionId
     internal readonly   Guid    value;
     internal readonly   string? str;
 
-    public   override   string  ToString() => str ?? "null";
+    public   override   string  ToString() => str ?? "none";
     
     internal SessionId(long id)
     {

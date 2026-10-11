@@ -33,9 +33,9 @@ public sealed partial class TmSessionLoop : IDisposable
     private             Thread?                             shardThread;
     private             bool                                isDisposed;
     private  readonly   Action                              exitHandler;
-    private  readonly   TuiSessionShared                    tuiShared;      // shared among all TuiSession's
+    internal readonly   TuiSessionShared                    tuiShared;      // shared among all TuiSession's
     internal readonly   GuiSessionShared                    guiShared;      // shared among all GuiSession's
-    internal readonly   CpuBackend                          cpuBackend;    // shared among all sessions
+    internal readonly   CpuBackend                          cpuBackend;     // shared among all sessions
 
     private const int MaxSyncQueueCapacity = 32;
 #endregion
@@ -44,8 +44,7 @@ public sealed partial class TmSessionLoop : IDisposable
     {
         this.isAsync        = isAsync;
         this.createGuiView  = createGuiView;
-        cpuBackend          = new CpuBackend(rootBackend);
-        // cpuBackend          = rootBackend as CpuBackend ?? new CpuBackend(rootBackend);  // todo TAG_CPU
+        cpuBackend          = rootBackend as CpuBackend ?? new CpuBackend(rootBackend);  // TAG_CPU
         resources           = new AssetResources(cpuBackend);
         if (isAsync) {
             // Bounded channel to enforce non-blocking backpressure via TryWrite
@@ -169,7 +168,7 @@ public sealed partial class TmSessionLoop : IDisposable
 
         var frameTimer  = new FrameTimer(this, client, 60, isSync);
         var sessionId   = new SessionId(_sessionSeq++);
-        var session     = new TuiSession(client, sessionId, tuiShared, frameTimer, cpuBackend.Assets, TuiColorMode.RGB24);
+        var session     = new TuiSession(client, sessionId, this, frameTimer, TuiColorMode.RGB24);
 
         var sessionInfo = new SessionInfo{ client = client, backend = session.Backend, args = args };
         var guiView     = createGuiView(sessionInfo);

@@ -11,7 +11,7 @@ using System.IO;
 namespace Friflo.TmGui;
 
 
-public abstract class TmBuffer<T> : IDisposable where T : unmanaged 
+public abstract class TmBuffer<T> : IDisposable where T : unmanaged
 {
     public abstract void        Dispose();
     public abstract Memory<T>   Memory { get; }

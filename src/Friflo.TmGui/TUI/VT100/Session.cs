@@ -39,15 +39,15 @@ internal sealed partial class TuiSession : TmSession
     //
     private             ulong               lastFrameHash;
     private             ulong[]             lastLineHashes  = new ulong[10];
-    private             int                 sendCounter;
+
     
-    internal TuiSession(TmClient client, SessionId sessionId, TuiSessionShared shared, FrameTimer frameTimer, IGuiAssets assets, TuiColorMode colorMode)
+    internal TuiSession(TmClient client, SessionId sessionId, TmSessionLoop loop, FrameTimer frameTimer, TuiColorMode colorMode)
         : base(sessionId)
     {
         this.client         = client;
         this.colorMode      = colorMode;
-        this.shared         = shared;
-        cpuBackend          = new CpuBackend("Terminal", assets);
+        shared              = loop.tuiShared;
+        cpuBackend          = client is ConsoleClient ? loop.cpuBackend : new CpuBackend(loop.cpuBackend);
         
         tuiBatch            = cpuBackend.CreateTuiBatch(colorMode);
         tuiBatch.session    = this;
@@ -159,12 +159,14 @@ internal sealed partial class TuiSession : TmSession
         if (frameHash == lastFrameHash) {
             return default;
         }
-        sendCounter++;
+        // sendCounter++;
         // Debug.WriteLine(sendBufferCount);
         // Debug.Write(sendCounter); Debug.WriteLine(" - send buffer");
         lastFrameHash = frameHash;
         return sendMemory;
     }
+    
+    // private int sendCounter;
     
     private void AppendFrameBuffer(TmGuiBackend backend, TuiBatch batch, int width, int height)
     {
