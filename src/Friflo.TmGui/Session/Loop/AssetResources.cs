@@ -66,7 +66,7 @@ public readonly struct AssetResources
     }
 }
 
-public class ImageResource
+public sealed class ImageResource
 {
     public   required   int             textureId;
     public   required   TmImageAsset    asset;
