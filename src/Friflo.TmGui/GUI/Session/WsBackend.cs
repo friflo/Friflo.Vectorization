@@ -11,22 +11,29 @@ namespace Friflo.TmGui.Session;
 
 internal class WsBackend : TmGuiBackend
 {
-    private  readonly   SessionId       sessionId;
-    private  readonly   CpuBackend      cpuBackend;
+    private  readonly   SessionId           sessionId;
+    private  readonly   CpuBackend          cpuBackend;
+    private  readonly   GuiSessionShared    shared;
+    
 
     public   override   string          ToString() => $"session: {sessionId}";
 
-    internal WsBackend(CpuBackend cpuBackend, SessionId sessionId) : base(cpuBackend.Assets)
+    internal WsBackend(CpuBackend cpuBackend, GuiSessionShared guiShared, SessionId sessionId) : base(cpuBackend.Assets)
     {
-        this.sessionId      = sessionId;   
+        this.sessionId      = sessionId;
         this.cpuBackend     = cpuBackend;
+        shared              = guiShared;
     }
     
     public    override   TmFont      DefaultFont => cpuBackend.DefaultFont;
 
     protected internal override TmBuffer<Vertex2D> CreateVertexBuffer(int vertexCount)
     {
-        return new GuiBuffer<Vertex2D>(vertexCount);
+        var vertexBuffer = shared.vertexBuffer;
+        if (vertexBuffer.Memory.Length < vertexCount) {
+            vertexBuffer = shared.vertexBuffer = new GuiBuffer<Vertex2D>(vertexCount);
+        }
+        return vertexBuffer;
     }
 
     protected internal override TmBuffer<uint> CreateIndexBuffer(int indexCount)

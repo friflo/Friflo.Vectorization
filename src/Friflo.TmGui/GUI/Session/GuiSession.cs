@@ -49,14 +49,15 @@ internal readonly struct SessionId
 
 internal sealed class GuiSessionShared
 {
-    internal            WsDrawCommand[] wsDrawList          = [];
-    internal            byte[]          sendBuffer          = [];
-    internal readonly   List<int>       newTextures         = [];
+    internal            GuiBuffer<Vertex2D> vertexBuffer        = new(0);
+    internal            WsDrawCommand[]     wsDrawList          = [];
+    internal            byte[]              sendBuffer          = [];
+    internal readonly   List<int>           newTextures         = [];
 
     // --- changes
-    internal readonly   List<SeqChange> changeList          = [];
-    internal            int[]           quadHashesBuffer    = [];
-    internal            VertexQuad[]    quadBuffer          = [];
+    internal readonly   List<SeqChange>     changeList          = [];
+    internal            int[]               quadHashesBuffer    = [];
+    internal            VertexQuad[]        quadBuffer          = [];
 }
 
 
@@ -79,7 +80,7 @@ internal sealed partial class GuiSession : TmSession
         : base(sessionId)
     {
         shared              = loop.guiShared;
-        wsBackend           = new WsBackend(loop.cpuBackend, sessionId);
+        wsBackend           = new WsBackend(loop.cpuBackend, loop.guiShared, sessionId);
         wsBatch             = wsBackend.CreateBatch();
         wsBatch.frameTimer  = frameTimer;
         
