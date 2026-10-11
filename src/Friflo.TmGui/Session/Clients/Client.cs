@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 // ReSharper disable InconsistentNaming
 // ReSharper disable CanSimplifyStringEscapeSequence
 // ReSharper disable ConvertToPrimaryConstructor
+// ReSharper disable once CheckNamespace
 namespace Friflo.TmGui.Session;
 
 

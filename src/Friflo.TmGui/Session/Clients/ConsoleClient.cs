@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 // ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable InconsistentNaming
 // ReSharper disable ConvertConstructorToMemberInitializers
+// ReSharper disable once CheckNamespace
 namespace Friflo.TmGui.Session;
 
 
