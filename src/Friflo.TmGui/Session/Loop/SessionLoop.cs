@@ -170,7 +170,7 @@ public sealed partial class TmSessionLoop : IDisposable
         var sessionId   = new SessionId(_sessionSeq++);
         var session     = new TuiSession(client, sessionId, this, frameTimer, TuiColorMode.RGB24);
 
-        var sessionInfo = new SessionInfo{ client = client, backend = session.Backend, args = args };
+        var sessionInfo = new SessionInfo{ sessionId = sessionId, client = client, backend = session.Backend, args = args };
         var guiView     = createGuiView(sessionInfo);
         
         session.guiView = guiView;
@@ -187,7 +187,7 @@ public sealed partial class TmSessionLoop : IDisposable
         var sessionId   = new SessionId(_sessionSeq++);
         var session     = new GuiSession(sessionId, this, frameTimer);
         
-        var sessionInfo = new SessionInfo{ client = client, backend = session.Backend, args = [] };
+        var sessionInfo = new SessionInfo{ sessionId = sessionId, client = client, backend = session.Backend, args = [] };
         var guiView     = createGuiView(sessionInfo);
         
         session.guiView = guiView;
