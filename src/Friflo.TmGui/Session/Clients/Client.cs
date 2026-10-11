@@ -25,7 +25,9 @@ public readonly struct TmSendMessage
     
     public          int                     Length  => buffer.Length;
     public          bool                    IsEmpty => buffer.IsEmpty;
-    
+
+    public override string                  ToString() => $"{mode} [{Length}]";
+
     [Hide]
     public TmSendMessage(ReadOnlyMemory<byte> buffer) {
         this.buffer = buffer;
@@ -60,6 +62,11 @@ public abstract class TmClient
     {
         Volatile.Write(ref queueState.lastSendTime, Stopwatch.GetTimestamp());
         Volatile.Write(ref queueState.queueSize,    queueSize);
+    }
+    
+    internal TmSendMessageMode GetSendMode()
+    {
+        return TmSendMessageMode.Queue;
     }
     
     /// <summary>

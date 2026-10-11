@@ -42,7 +42,7 @@ internal sealed partial class GuiSession : TmSession
     private             int                 canvasHeight        = 300;
     // --- changes
     private readonly    List<int>           clientQuadList      = [];
-    private readonly    bool                sendDiffs           = true;
+    private             bool                sendDiffs           = true;
 
     
     internal GuiSession(SessionId sessionId, TmSessionLoop loop, FrameTimer frameTimer)
@@ -95,6 +95,9 @@ internal sealed partial class GuiSession : TmSession
         var vertices = wsBatch.Vertices;
         // case sendDiffs == false: -1     case sendDiffs == true: vertex count of full frame
         var diffVertexCount =  -1;
+        
+        var sendMode = client.GetSendMode();
+        sendDiffs    = sendMode == TmSendMessageMode.Queue;
         if (sendDiffs) {
             diffVertexCount = vertices.Length;
             vertices = CalcVerticesDiff(vertices);
@@ -195,7 +198,7 @@ internal sealed partial class GuiSession : TmSession
             var sendDiff = lastSendBufferHash != sendHash || changes.Length > 0;
             lastSendBufferHash = sendHash;
             if (sendDiff) {
-                return new TmSendMessage(memory);
+                return new TmSendMessage(memory, sendMode);
             }
             return default;
         } else {
@@ -204,7 +207,7 @@ internal sealed partial class GuiSession : TmSession
                 return default;
             }
             lastSendBufferHash = sendHash;
-            return new TmSendMessage(memory);
+            return new TmSendMessage(memory, sendMode);
         }
     }
 }
