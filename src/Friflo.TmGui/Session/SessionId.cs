@@ -49,3 +49,5 @@ public struct SessionInfo
     public  TmClient        client;
     public  TmGuiBackend    backend;
 }
+
+public delegate IGuiView CreateGuiView(SessionInfo info);
