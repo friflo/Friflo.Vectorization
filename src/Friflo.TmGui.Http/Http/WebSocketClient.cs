@@ -21,11 +21,11 @@ internal struct WsSendBuffer
     internal    int                     PendingLength   => pendingLength;
     internal    ReadOnlyMemory<byte>    Memory          => new(data, 0, pendingLength);
     
-    internal int GetPendingLength() { 
+    internal int GetPendingLength() {
         return Volatile.Read(ref pendingLength);
     }
     
-    public override string ToString() => $"byte[{data.Length}]";
+    public override string ToString() => $"byte[{pendingLength}]";
     
     internal void Clear() {
         pendingLength = 0;
