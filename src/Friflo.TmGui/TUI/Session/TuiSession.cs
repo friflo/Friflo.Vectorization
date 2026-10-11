@@ -24,7 +24,7 @@ internal sealed class TuiSessionShared
 
 internal sealed partial class TuiSession : TmSession
 {
-    private  readonly   TmClient            client;         // instance: passed
+    private  readonly   TmClient            sessionClient;  // instance: passed
     private  readonly   TuiColorMode        colorMode;
     private  readonly   TuiSessionShared    shared;         // instance: shared
     private  readonly   CpuBackend          cpuBackend;     // instance: creates / owns
@@ -44,7 +44,7 @@ internal sealed partial class TuiSession : TmSession
     internal TuiSession(TmClient client, SessionId sessionId, TmSessionLoop loop, FrameTimer frameTimer, TuiColorMode colorMode)
         : base(sessionId)
     {
-        this.client         = client;
+        sessionClient       = client;
         this.colorMode      = colorMode;
         shared              = loop.tuiShared;
         cpuBackend          = client is ConsoleClient ? loop.cpuBackend : new CpuBackend(loop.cpuBackend);
@@ -73,7 +73,7 @@ internal sealed partial class TuiSession : TmSession
         
         sendBufferCount     = 0;
         var framePayload    = RenderFrame(replayBackend, replayBatch);
-        client.Send(new TmSendMessage(framePayload));
+        sessionClient.Send(new TmSendMessage(framePayload));
     }
 
     // --- internal
@@ -118,7 +118,7 @@ internal sealed partial class TuiSession : TmSession
         AppendSpan("\x1b[18t"u8);       // Request current terminal size from terminal via stdout - answer handled by HandleInBandResize()
     }
     
-    internal override TmSendMessage IterateUI(in AssetResources resources)
+    internal override TmSendMessage IterateUI(TmClient client, in AssetResources resources)
     {
         cpuBackend.NewFrame();
         

@@ -2,6 +2,7 @@
 // See LICENSE file in the project root for full license information.
 
 using System;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using Hide = System.Diagnostics.DebuggerHiddenAttribute;
@@ -39,9 +40,28 @@ public readonly struct TmSendMessage
 }
 
 
+internal struct SendQueueState
+{
+    internal    long    lastSendTime;
+    internal    int     queueSize;
+}
+
 
 public abstract class TmClient
 {
+    private  SendQueueState    queueState;
+    
+    protected void QueueDataReceived(int queueSize)
+    {
+        queueState.queueSize = queueSize;
+    }
+    
+    protected void QueueDataSent(int queueSize)
+    {
+        Volatile.Write(ref queueState.lastSendTime, Stopwatch.GetTimestamp());
+        Volatile.Write(ref queueState.queueSize,    queueSize);
+    }
+    
     /// <summary>
     /// Important!<br/>
     /// Must be incremented when enqueueing an event to the <see cref="TmSessionLoop"/>.<br/>

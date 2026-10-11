@@ -78,7 +78,7 @@ public partial class TmSessionLoop
                         var payload = evt.Payload.Span;
                         session.ProcessInput(payload);
                         if (isQueueEmpty) {
-                            var sendBuffer = session.IterateUI(resources);
+                            var sendBuffer = session.IterateUI(client, resources);
                             if (!sendBuffer.IsEmpty) {
                                 client.Send(sendBuffer);
                             }
@@ -93,7 +93,7 @@ public partial class TmSessionLoop
                     client.Send(new TmSendMessage(initialMessage));
                     
                     newSession.ProcessInput(payload.Span);
-                    var sendBuffer = newSession.IterateUI(resources);
+                    var sendBuffer = newSession.IterateUI(client, resources);
                     
                     client.Send(sendBuffer);
                     
@@ -113,7 +113,7 @@ public partial class TmSessionLoop
                         var payload = evt.Payload.Span;
                         session.ProcessInput(payload);
                         if (isQueueEmpty) {
-                            var sendBuffer  = session.IterateUI(resources);
+                            var sendBuffer  = session.IterateUI(client, resources);
                             client.Send(sendBuffer);
                         }
                     }
@@ -121,7 +121,7 @@ public partial class TmSessionLoop
                 case ClientEventType.FrameTick:
                     if (sessions.TryGetValue(client, out session) && isQueueEmpty)
                     {
-                        var sendBuffer = session.IterateUI(resources);
+                        var sendBuffer = session.IterateUI(client, resources);
                         client.Send(sendBuffer);
                     }
                     break;

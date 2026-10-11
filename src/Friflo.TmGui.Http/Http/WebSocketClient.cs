@@ -20,13 +20,17 @@ internal struct WsSendBuffer
     internal    int                     PendingLength   => pendingLength;
     internal    ReadOnlyMemory<byte>    Memory          => new(data, 0, pendingLength);
     
+    internal int GetPendingLength() { 
+        return Volatile.Read(ref pendingLength);
+    }
+    
     public override string ToString() => $"byte[{data.Length}]";
     
     internal void Clear() {
         pendingLength = 0;
     }
 
-    internal void AppendFrom(ReadOnlyMemory<byte> buffer)
+    internal int AppendFrom(ReadOnlyMemory<byte> buffer)
     {
         int newLength = pendingLength + buffer.Length;
         if (data.Length < newLength) {
@@ -37,7 +41,7 @@ internal struct WsSendBuffer
             data = newBuffer;
         }
         buffer.CopyTo(data.AsMemory(pendingLength));
-        pendingLength = newLength;
+        return pendingLength = newLength;
     }
     
     public WsSendBuffer() { }
@@ -85,8 +89,10 @@ internal class WebSocketClient : TmClient
 
         lock (bufferLock)
         {
-            frontBuffer.AppendFrom(message.buffer);
+            var pendingLength = frontBuffer.AppendFrom(message.buffer);
             Volatile.Write(ref hasPendingFrame, 1);
+            QueueDataReceived(pendingLength);
+            // Console.WriteLine(pendingLength);
         }
 
         return message.Length;
@@ -120,6 +126,10 @@ internal class WebSocketClient : TmClient
             var memoryToSend = backBuffer.Memory;
             await webSocket.SendAsync(memoryToSend, WebSocketMessageType.Binary, true, ct);
             backBuffer.Clear();
+            
+            var queueSize = frontBuffer.GetPendingLength();
+            QueueDataSent(queueSize);
+            // Console.WriteLine(queueSize);
         }
     }
 

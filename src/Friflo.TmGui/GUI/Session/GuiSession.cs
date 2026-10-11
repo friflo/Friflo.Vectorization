@@ -61,7 +61,7 @@ internal sealed partial class GuiSession : TmSession
     protected internal override TmBatch         Batch   => wsBatch;
 
 
-    internal override TmSendMessage IterateUI(in AssetResources resources)
+    internal override TmSendMessage IterateUI(TmClient client, in AssetResources resources)
     {
         wsBackend.NewFrame();
         guiView!.RenderGui(wsBatch, canvasWidth, canvasHeight);
