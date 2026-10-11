@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Hide = System.Diagnostics.DebuggerHiddenAttribute;
 
+// ReSharper disable ConvertIfStatementToReturnStatement
 // ReSharper disable UnusedMember.Global
 // ReSharper disable ArrangeThisQualifier
 // ReSharper disable ConvertToPrimaryConstructor
@@ -44,7 +45,8 @@ public readonly struct TmSendMessage
 
 internal struct SendQueueState
 {
-    internal    long    lastSendTime;
+    internal    long    lastAppendedTime;
+    internal    long    lastSentTime;
     internal    int     queueSize;
 }
 
@@ -53,19 +55,29 @@ public abstract class TmClient
 {
     private  SendQueueState    queueState;
     
-    protected void QueueDataReceived(int queueSize)
+    protected void QueueDataAppended(int queueSize)
     {
-        queueState.queueSize = queueSize;
+        queueState.lastAppendedTime = Stopwatch.GetTimestamp();
+        queueState.queueSize        = queueSize;
     }
     
     protected void QueueDataSent(int queueSize)
     {
-        Volatile.Write(ref queueState.lastSendTime, Stopwatch.GetTimestamp());
+        Volatile.Write(ref queueState.lastSentTime, Stopwatch.GetTimestamp());
         Volatile.Write(ref queueState.queueSize,    queueSize);
     }
     
-    internal TmSendMessageMode GetSendMode()
+    internal TmSendMessageMode GetSendMode(int maxQueueSize, double maxAgeMs)
     {
+        var queueSize = Volatile.Read(ref queueState.queueSize);
+        if (queueSize > maxQueueSize) {
+            return TmSendMessageMode.DropUnsent;
+        }
+        var lastSentTime = Volatile.Read(ref queueState.lastSentTime);
+        var age = Stopwatch.GetElapsedTime(queueState.lastAppendedTime, lastSentTime).TotalMilliseconds;
+        if (age > maxAgeMs) {
+            return TmSendMessageMode.DropUnsent;
+        }
         return TmSendMessageMode.Queue;
     }
     

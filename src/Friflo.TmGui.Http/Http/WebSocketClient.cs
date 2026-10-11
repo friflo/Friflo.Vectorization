@@ -95,7 +95,7 @@ internal class WebSocketClient : TmClient
         {
             var pendingLength = frontBuffer.AppendFrom(message);
             Volatile.Write(ref hasPendingFrame, 1);
-            QueueDataReceived(pendingLength);
+            QueueDataAppended(pendingLength);
             // Console.WriteLine(pendingLength);
         }
 

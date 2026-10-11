@@ -96,7 +96,7 @@ internal sealed partial class GuiSession : TmSession
         // case sendDiffs == false: -1     case sendDiffs == true: vertex count of full frame
         var diffVertexCount =  -1;
         
-        var sendMode = client.GetSendMode();
+        var sendMode = client.GetSendMode(500_000, 300);
         sendDiffs    = sendMode == TmSendMessageMode.Queue;
         if (sendDiffs) {
             diffVertexCount = vertices.Length;
