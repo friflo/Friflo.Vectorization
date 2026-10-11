@@ -21,11 +21,11 @@ using Friflo.TmGui.Session;
 namespace Friflo.TmGui.Raster;
 
 
-internal sealed class TextureBatch : TmBatch
+internal sealed class RasterBatch : TmBatch
 {
     internal readonly TuiSixel sixel;
     
-    internal TextureBatch(TmGuiBackend backend, TmTexture texture, FrameTimer? frameTimer) : base(backend)
+    internal RasterBatch(TmGuiBackend backend, TmTexture texture, FrameTimer? frameTimer) : base(backend)
     {
         var cpuTexture = (CpuTexture)texture.native!;
         sixel = cpuTexture.sixel;

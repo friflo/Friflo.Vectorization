@@ -109,10 +109,10 @@ public abstract class TmBatch : IDisposable
     internal            TmTexture           currentFontTexture;
     //
     internal            Vector2             terminalPixelSize  = new(1, 1);
-    private  readonly   IGuiAssets          textureAssets;
-    private             TextureBatch?       textureBatch;
-    internal readonly   bool                isTextureDraw;
-    internal            TextureBatch        AsTextureBatch { [Hide] get => (TextureBatch)this; }
+    private  readonly   IGuiAssets          rasterAssets;
+    private             RasterBatch?        rasterBatch;
+    internal readonly   bool                isRasterBatch;
+    internal            RasterBatch         AsRasterBatch { [Hide] get => (RasterBatch)this; }
 
     // --- TmDraw - state
     internal            IFormatProvider     formatProvider;
@@ -134,7 +134,7 @@ public abstract class TmBatch : IDisposable
     
     protected TmBatch(TmGuiBackend backend) : this(backend, 4)
     {
-        isTextureDraw = true;
+        isRasterBatch = true;
     }
 
     protected TmBatch(TmGuiBackend backend, int maxVertices)
@@ -170,7 +170,7 @@ public abstract class TmBatch : IDisposable
         currentFont             = backend.DefaultFont;
         currentFontTexture      = backend.DefaultFont.texture;
         
-        textureAssets           = backend.Assets;
+        rasterAssets            = backend.Assets;
     }
     
     internal StringBuilder StringBuilder()
@@ -277,16 +277,16 @@ public abstract class TmBatch : IDisposable
             draw.PushTransform(currentTransform * translate);
             return draw;
         }
-        var batch = textureBatch ??= CreateTextureBatch(texture);
+        var batch = rasterBatch ??= CreateTextureBatch(texture);
         batch.sixel.Clear(color);
         return batch.BeginDraw(batch.sixel.width, batch.sixel.height);
     }
     
     [MethodImpl(MethodImplOptions.NoInlining)]
-    private TextureBatch CreateTextureBatch(TmTexture texture)
+    private RasterBatch CreateTextureBatch(TmTexture texture)
     {
         if (texture.IsNull) throw new ArgumentNullException(nameof(texture));
-        return new TextureBatch(new CpuBackend("Raster", textureAssets), texture, frameTimer);
+        return new RasterBatch(new CpuBackend("Raster", rasterAssets), texture, frameTimer);
     }
     
     public void EndTextureDraw()

@@ -20,8 +20,8 @@ public readonly ref partial struct TmDraw
     public void FillRect(Vector2 position, Vector2 size, Color32 color)
     {
         var bat = batch;
-        if (bat.isTextureDraw) {
-            bat.AsTextureBatch.FillRect(position, size, color);
+        if (bat.isRasterBatch) {
+            bat.AsRasterBatch.FillRect(position, size, color);
             return;
         }
         var tui = Tui;
@@ -82,8 +82,8 @@ public readonly ref partial struct TmDraw
     public void FillRectGradientVertical(Vector2 position, Vector2 size, Color32 top, Color32 bottom)
     {
         var bat = batch;
-        if (bat.isTextureDraw) {
-            bat.AsTextureBatch.FillRectGradientVertical(position, size, top, bottom);
+        if (bat.isRasterBatch) {
+            bat.AsRasterBatch.FillRectGradientVertical(position, size, top, bottom);
             return;
         }
         if (Tui != null) {
@@ -102,8 +102,8 @@ public readonly ref partial struct TmDraw
     {
         if (color.A == 0) return;
         var bat = batch;
-        if (bat.isTextureDraw) {
-            bat.AsTextureBatch.FillTriangle(v0, v1, v2, color);
+        if (bat.isRasterBatch) {
+            bat.AsRasterBatch.FillTriangle(v0, v1, v2, color);
             return;
         }
         FillQuad(v0, v1, v2, v2, color);
@@ -120,8 +120,8 @@ public readonly ref partial struct TmDraw
         if (vertices.Length < 3 || color.A == 0) return;
 
         var bat = batch;
-        if (bat.isTextureDraw) {
-            bat.AsTextureBatch.FillTriangleStrip(vertices, color);
+        if (bat.isRasterBatch) {
+            bat.AsRasterBatch.FillTriangleStrip(vertices, color);
             return;
         }
 
@@ -162,8 +162,8 @@ public readonly ref partial struct TmDraw
     {
         if (color.A == 0) return;
         var bat = batch;
-        if (bat.isTextureDraw) {
-            bat.AsTextureBatch.StrokeLine(start, end, thickness, color);
+        if (bat.isRasterBatch) {
+            bat.AsRasterBatch.StrokeLine(start, end, thickness, color);
             return;
         }
         Vector2 dir = end - start;
@@ -189,8 +189,8 @@ public readonly ref partial struct TmDraw
     {
         if (color.A == 0) return;
         var bat = batch;
-        if (bat.isTextureDraw) {
-            bat.AsTextureBatch.StrokeRect(position, size, thickness, color);
+        if (bat.isRasterBatch) {
+            bat.AsRasterBatch.StrokeRect(position, size, thickness, color);
             return;
         }
         float x = position.X;
@@ -372,8 +372,8 @@ public readonly ref partial struct TmDraw
         if (color.A == 0) return;
         
         var bat = batch;
-        if (bat.isTextureDraw) {
-            bat.AsTextureBatch.FillArc(center, radius, startAngle, endAngle, color, segments);
+        if (bat.isRasterBatch) {
+            bat.AsRasterBatch.FillArc(center, radius, startAngle, endAngle, color, segments);
             return;
         }
         
@@ -403,8 +403,8 @@ public readonly ref partial struct TmDraw
     {
         if (color.A == 0) return;
         var bat = batch;
-        if (bat.isTextureDraw) {
-            bat.AsTextureBatch.FillCircle(center, radius, color);
+        if (bat.isRasterBatch) {
+            bat.AsRasterBatch.FillCircle(center, radius, color);
             return;
         }
         
@@ -435,8 +435,8 @@ public readonly ref partial struct TmDraw
     {
         if (color.A == 0) return;
         var bat = batch;
-        if (bat.isTextureDraw) {
-            bat.AsTextureBatch.StrokeCircle(center, radius, thickness, color);
+        if (bat.isRasterBatch) {
+            bat.AsRasterBatch.StrokeCircle(center, radius, thickness, color);
             return;
         }
         

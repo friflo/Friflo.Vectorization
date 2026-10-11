@@ -21,8 +21,8 @@ public readonly ref partial struct TmDraw
     public void FillQuad(Vector2 v0, Vector2 v1, Vector2 v2, Vector2 v3, Color32 color)
     {
         var bat = batch;
-        if (bat.isTextureDraw) {
-            bat.AsTextureBatch.FillQuad(v0, v1, v2, v3, color);
+        if (bat.isRasterBatch) {
+            bat.AsRasterBatch.FillQuad(v0, v1, v2, v3, color);
             return;
         }
         if (bat.vertexCount + 4 > bat.vertexBuffer.Length || !bat.currentTexture.hasWhitePixel) {
