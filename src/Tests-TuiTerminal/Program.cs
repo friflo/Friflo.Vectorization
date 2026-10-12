@@ -7,18 +7,18 @@ using Friflo.TmGui.Session;
 using TuiTerminal;
 
 
-//    Console           - local, single user (shell)
-//    ----------------------------------------------
+//    Console           - local, single user (shell)      via: ConsoleClient
+//    ----------------------------------------------------------------------
 // Windows / macOS / Linux          dotnet ./Tests-TuiTerminal.dll
 
 
-//    Browser           - remote, multi user (url)
-//    --------------------------------------------
+//    Browser           - remote, multi user (url)        via: KestrelHttpServer + loop
+//    ---------------------------------------------------------------------------------
 // Chrome, Firefox, Edge, Safari    https://localhost:8080/
 
 
-//    Terminal Emulator - remote, multi user (host:port)
-//    --------------------------------------------------
+//    Terminal Emulator - remote, multi user (host:port)  via: SocketClient + loop
+//    ----------------------------------------------------------------------------
 //
 // Windows plink(PuTTY)     plink -raw -t -P 9000 127.0.0.1       with args: echo --view logs --theme dark | plink -raw -t -P 9000 127.0.0.1
 // Windows WSL              stty raw -echo; nc $(ip route show default | awk '{print $3}') 9000; stty sane
