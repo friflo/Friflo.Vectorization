@@ -11,6 +11,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using Friflo.TmGui.Headless;
 using Friflo.TmGui.Raster;
+using Friflo.TmGui.Recorder;
 using Friflo.TmGui.Session;
 using Friflo.TmGui.TUI;
 using Hide = System.Diagnostics.DebuggerHiddenAttribute;

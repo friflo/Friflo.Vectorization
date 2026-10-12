@@ -3,6 +3,7 @@
 
 using System;
 using System.Numerics;
+using Friflo.TmGui.Recorder;
 using Friflo.TmGui.TUI;
 
 // ReSharper disable InconsistentNaming

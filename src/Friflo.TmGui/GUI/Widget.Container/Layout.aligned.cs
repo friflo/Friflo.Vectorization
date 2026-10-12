@@ -4,6 +4,7 @@
 
 using System.Numerics;
 using System.Runtime.InteropServices;
+using Friflo.TmGui.Recorder;
 
 // ReSharper disable InconsistentNaming
 // ReSharper disable SuggestVarOrType_BuiltInTypes

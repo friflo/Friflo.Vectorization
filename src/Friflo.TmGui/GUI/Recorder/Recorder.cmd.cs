@@ -12,7 +12,7 @@ using System.Runtime.InteropServices;
 // ReSharper disable ForCanBeConvertedToForeach
 // ReSharper disable StaticMemberInGenericType
 // ReSharper disable once CheckNamespace
-namespace Friflo.TmGui;
+namespace Friflo.TmGui.Recorder;
 
 
 internal readonly struct ReplayRecord

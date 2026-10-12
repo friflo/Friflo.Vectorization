@@ -2,6 +2,7 @@
 // See LICENSE file in the project root for full license information.
 
 using System.Numerics;
+using Friflo.TmGui.Recorder;
 
 // ReSharper disable InconsistentNaming
 // ReSharper disable SuggestVarOrType_BuiltInTypes

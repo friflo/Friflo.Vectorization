@@ -8,7 +8,7 @@ using Friflo.TmGui.TUI;
 
 
 // ReSharper disable once CheckNamespace
-namespace Friflo.TmGui;
+namespace Friflo.TmGui.Recorder;
 
 
 public abstract class CmdReplay

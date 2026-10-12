@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Text;
+using Friflo.TmGui.Recorder;
 using Hide = System.Diagnostics.DebuggerHiddenAttribute;
 
 // ReSharper disable MemberCanBePrivate.Global
