@@ -7,7 +7,7 @@ using Friflo.TmGui.Session;
 using TuiTerminal;
 
 
-//    Console           - local, single user (shell)      via: ConsoleClient
+//    Console           - local, single user (console)    via: ConsoleClient
 //    ----------------------------------------------------------------------
 // Windows / macOS / Linux          dotnet ./Tests-TuiTerminal.dll
 
