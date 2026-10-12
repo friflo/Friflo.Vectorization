@@ -12,13 +12,13 @@ using TuiTerminal;
 // Windows / macOS / Linux          dotnet ./Tests-TuiTerminal.dll
 
 
-//    Browser           - remote, multi user (url)        via: KestrelHttpServer + loop
-//    ---------------------------------------------------------------------------------
+//    Browser           - remote, multi user (url)        via: KestrelHttpServer
+//    --------------------------------------------------------------------------
 // Chrome, Firefox, Edge, Safari    https://localhost:8080/
 
 
-//    Terminal Emulator - remote, multi user (host:port)  via: SocketClient + loop
-//    ----------------------------------------------------------------------------
+//    Terminal Emulator - remote, multi user (host:port)  via: SocketClient
+//    ---------------------------------------------------------------------
 //
 // Windows plink(PuTTY)     plink -raw -t -P 9000 127.0.0.1       with args: echo --view logs --theme dark | plink -raw -t -P 9000 127.0.0.1
 // Windows WSL              stty raw -echo; nc $(ip route show default | awk '{print $3}') 9000; stty sane
