@@ -1,11 +1,6 @@
 // Copyright (c) Ullrich Praetz - https://github.com/friflo. All rights reserved.
 // See LICENSE file in the project root for full license information.
 
-
-// ReSharper disable UseCollectionExpression
-// ReSharper disable CheckNamespace
-namespace Friflo.TmGui.Session;
-
 using System;
 using System.Buffers;
 using System.IO;
@@ -14,6 +9,11 @@ using System.Text;
 using System.Threading;
 using System.Threading.Channels;
 using System.Threading.Tasks;
+
+// ReSharper disable UseCollectionExpression
+// ReSharper disable CheckNamespace
+namespace Friflo.TmGui.Session;
+
 
 internal sealed class AnsiConsoleIn : Stream
 {
