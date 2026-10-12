@@ -8,7 +8,7 @@ using Friflo.TmGui.TUI;
 // ReSharper disable InconsistentNaming
 // ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable once CheckNamespace
-namespace Friflo.TmGui;
+namespace Friflo.TmGui {
 
 
 public readonly ref partial struct GuiWidget
@@ -58,7 +58,9 @@ public readonly ref partial struct GuiWidget
 }
 
 
-// --------------------------------------------- Step-Rendering --------------------------------------------- 
+// --------------------------------------------- Step-Rendering ---------------------------------------------
+namespace Recorder {
+    
 public readonly record struct Button(TextSpan name, Dim size, GuiStyle? style, WidgetID id, Color32Span textColor);
 
 
@@ -75,3 +77,5 @@ public sealed class ButtonReplay : CmdReplay<Button>
         rec?.Record<ButtonReplay, Button>(new Button(rec.GetTextSpan(name), size, style, id, rec.GetColorSpan(textColor)), false);
     }
 }
+
+}}

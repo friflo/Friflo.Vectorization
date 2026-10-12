@@ -9,7 +9,7 @@ using Friflo.TmGui.TUI;
 // ReSharper disable InconsistentNaming
 // ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable once CheckNamespace
-namespace Friflo.TmGui;
+namespace Friflo.TmGui {
 
 
 public readonly ref partial struct GuiWidget
@@ -126,6 +126,8 @@ public readonly ref partial struct GuiWidget
 
 
 // --------------------------------------------- Step-Rendering ---------------------------------------------
+namespace Recorder {
+    
 internal readonly record struct WindowBegin(string title, Vector2? pos, Vector2? size, TmTrait traits, TuiBorder tuiBorder);
 
 internal sealed class WindowBeginReplay : CmdReplay<WindowBegin>
@@ -158,3 +160,5 @@ internal sealed class WindowEndReplay : CmdReplay<WindowEnd>
         rec?.Record<WindowEndReplay, WindowEnd>(cmd, isPush);
     }
 }
+
+}}

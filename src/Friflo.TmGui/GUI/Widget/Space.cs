@@ -7,7 +7,7 @@ using Friflo.TmGui.Recorder;
 // ReSharper disable InconsistentNaming
 // ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable once CheckNamespace
-namespace Friflo.TmGui;
+namespace Friflo.TmGui {
 
 
 public readonly ref partial struct GuiWidget
@@ -56,7 +56,9 @@ public readonly ref partial struct GuiWidget
     }
 }
 
-// --------------------------------------------- Step-Rendering --------------------------------------------- 
+// --------------------------------------------- Step-Rendering ---------------------------------------------
+namespace Recorder {
+    
 public readonly record struct Spacer(float size);
 
 public sealed class SpacerReplay : CmdReplay<Spacer>
@@ -103,3 +105,5 @@ internal sealed class SpaceEndReplay : CmdReplay<SpaceEnd>
         rec?.Record<SpaceEndReplay, SpaceEnd>(end, isPush);
     }
 }
+
+}}

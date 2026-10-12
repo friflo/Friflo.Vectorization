@@ -6,7 +6,7 @@ using Friflo.TmGui.Recorder;
 // ReSharper disable InconsistentNaming
 // ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable once CheckNamespace
-namespace Friflo.TmGui;
+namespace Friflo.TmGui {
 
 
 public readonly ref partial struct GuiWidget
@@ -46,6 +46,8 @@ public readonly ref partial struct GuiWidget
 
 
 // --------------------------------------------- Step-Rendering ---------------------------------------------
+namespace Recorder {
+    
 internal enum LayoutType {
     Horizontal,
     Vertical,
@@ -90,3 +92,5 @@ internal sealed class LayoutEndReplay : CmdReplay<LayoutType>
         rec?.Record<LayoutEndReplay, LayoutType>(type, isPush);
     }
 }
+
+}}

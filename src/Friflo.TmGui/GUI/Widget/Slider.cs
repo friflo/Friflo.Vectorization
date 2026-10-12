@@ -10,8 +10,8 @@ using Friflo.TmGui.TUI;
 // ReSharper disable CompareOfFloatsByEqualityOperator
 // ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable once CheckNamespace
-namespace Friflo.TmGui;
-
+namespace Friflo.TmGui {
+    
 
 public readonly ref partial struct GuiWidget
 {
@@ -67,6 +67,8 @@ public readonly ref partial struct GuiWidget
 
 
 // --------------------------------------------- Step-Rendering ---------------------------------------------
+namespace Recorder {
+    
 internal readonly record struct Slider(TextSpan name, float value, float min, float max, float width, TextSpan format, GuiStyle? style, WidgetID id);
 
 internal sealed class SliderReplay : CmdReplay<Slider>
@@ -83,3 +85,5 @@ internal sealed class SliderReplay : CmdReplay<Slider>
         rec?.Record<SliderReplay, Slider>(new Slider(rec.GetTextSpan(name), value, min, max, width, rec.GetTextSpan(format), style, id), false);
     }
 }
+
+}}

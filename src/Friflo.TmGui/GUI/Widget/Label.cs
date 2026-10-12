@@ -10,8 +10,8 @@ using Friflo.TmGui.TUI;
 // ReSharper disable ConvertIfStatementToConditionalTernaryExpression
 // ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable once CheckNamespace
-namespace Friflo.TmGui;
-
+namespace Friflo.TmGui {
+    
 
 public readonly ref partial struct GuiWidget
 {
@@ -34,6 +34,8 @@ public readonly ref partial struct GuiWidget
 }
 
 // --------------------------------------------- Step-Rendering ---------------------------------------------
+namespace Recorder {
+    
 internal readonly record struct Label(TextSpan name, Color32Span textColor);
 
 
@@ -50,3 +52,5 @@ internal sealed class LabelReplay : CmdReplay<Label>
         rec?.Record<LabelReplay, Label>(new Label(rec.GetTextSpan(name), rec.GetColorSpan(textColor)), false);
     }
 }
+
+}}

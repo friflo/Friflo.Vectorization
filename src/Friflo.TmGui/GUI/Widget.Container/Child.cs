@@ -6,7 +6,7 @@ using Friflo.TmGui.Recorder;
 
 // ReSharper disable InconsistentNaming
 // ReSharper disable once CheckNamespace
-namespace Friflo.TmGui;
+namespace Friflo.TmGui {
 
 
 public readonly ref partial struct GuiWidget
@@ -54,6 +54,8 @@ public readonly ref partial struct GuiWidget
 
 
 // --------------------------------------------- Step-Rendering ---------------------------------------------
+namespace Recorder {
+    
 internal readonly record struct ChildBegin(WidgetID childId, Dim size);
 
 
@@ -86,3 +88,4 @@ internal sealed class ChildEndReplay : CmdReplay<ChildEnd>
     }
 }
 
+}}

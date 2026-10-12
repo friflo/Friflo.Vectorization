@@ -9,8 +9,7 @@ using Friflo.TmGui.TUI;
 // ReSharper disable InconsistentNaming
 // ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable once CheckNamespace
-namespace Friflo.TmGui;
-
+namespace Friflo.TmGui {
 
 public readonly ref partial struct GuiWidget
 {
@@ -62,6 +61,8 @@ public readonly ref partial struct GuiWidget
 }
 
 // --------------------------------------------- Step-Rendering ---------------------------------------------
+namespace Recorder {
+    
 internal readonly record struct Checkbox(TextSpan name, bool value, GuiStyle? style, WidgetID id);
 
 internal sealed class CheckboxReplay : CmdReplay<Checkbox>
@@ -78,3 +79,5 @@ internal sealed class CheckboxReplay : CmdReplay<Checkbox>
         rec?.Record<CheckboxReplay, Checkbox>(new Checkbox(rec.GetTextSpan(name), value, style, id), false);
     }
 }
+
+}}

@@ -9,7 +9,7 @@ using Friflo.TmGui.Recorder;
 // ReSharper disable InconsistentNaming
 // ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable once CheckNamespace
-namespace Friflo.TmGui;
+namespace Friflo.TmGui {
 
 
 public readonly ref partial struct GuiWidget
@@ -63,6 +63,8 @@ public readonly ref partial struct GuiWidget
 
 
 // --------------------------------------------- Step-Rendering ---------------------------------------------
+namespace Recorder {
+    
 internal readonly record struct AlignedBegin(int centerId, float align, Dim size);
 
 
@@ -94,3 +96,5 @@ internal sealed class AlignedEndReplay : CmdReplay<HorizontalCenterEnd>
         rec?.Record<AlignedEndReplay, HorizontalCenterEnd>(end, isPush);
     }
 }
+
+}}
