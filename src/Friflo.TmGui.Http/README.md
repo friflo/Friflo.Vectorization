@@ -1,4 +1,4 @@
-# Friflo TmGui.Http
+# friflo TmGui HTTP
 
 
 TODO fill content
