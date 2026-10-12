@@ -102,9 +102,8 @@ internal class WebSocketClient : TmClient
         return message.Length;
     }
 
-    protected override void RestoreTerminal()
-    {
-        throw new NotSupportedException();
+    protected override void RestoreTerminal() {
+        // only applicable for terminal emulators
     }
 
     private async Task FlushPendingBufferAsync(CancellationToken ct)
