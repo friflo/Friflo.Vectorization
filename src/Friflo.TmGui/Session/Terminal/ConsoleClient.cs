@@ -59,7 +59,7 @@ public sealed class ConsoleClient : TmClient
             WinConsoleIn.RestoreConsoleMode();
         }
         
-        Send(new TmSendMessage(TerminalReset));
+        Send(new TmSendMessage(VT100.TerminalReset));
     }
     
     private int AppendConsoleSize(byte[] buffer, int start)
@@ -71,7 +71,7 @@ public sealed class ConsoleClient : TmClient
         }
         consoleWidth    = width;
         consoleHeight   = height;
-        return AnsiConsoleIn.WriteVt100WindowSizeReport(buffer.AsSpan(start, buffer.Length - start), (short)width, (short)height);
+        return VT100.WriteWindowSizeReport(buffer.AsSpan(start, buffer.Length - start), (short)width, (short)height);
     }
 
     // I/O Loop: Reads raw stream bytes and pushes them into the session loop queue

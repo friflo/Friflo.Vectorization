@@ -94,7 +94,7 @@ internal sealed class WinConsoleIn : Stream
                         case EventType.WINDOW_BUFFER_SIZE_EVENT: {
                             var size = record.WindowBufferSizeEvent.dwSize;
                             EnsureCapacity(ref buffer, writePos, 16);
-                            writePos += AnsiConsoleIn.WriteVt100WindowSizeReport(buffer.AsSpan(writePos), size.X, size.Y);
+                            writePos += VT100.WriteWindowSizeReport(buffer.AsSpan(writePos), size.X, size.Y);
                             break;
                         }
                         // mouse events are already handled by ENABLE_MOUSE_INPUT.

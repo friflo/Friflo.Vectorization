@@ -90,20 +90,8 @@ public abstract class TmClient
     
     internal void IncrementPendingEvents() => Interlocked.Increment(ref pendingEvents);
     internal bool DecrementPendingEvents() => Interlocked.Decrement(ref pendingEvents) == 0;
-    
-    
-    // \x1b[?1006l  Disable SGR mouse tracking
-    // \x1b[?1003l  Disable all-motion mouse tracking
-    // \x1b[?1002l  Disable button-event mouse tracking
-    // \x1b[?1000l  Disable normal mouse tracking
-    // \x1b[?2004l  Disable bracketed paste
-    // \x1b[?1h     Set Cursor Keys to Application Mode (expected by shell prompts)
-    // \x1b[?1049l  Leave alternate screen buffer
-    // \x1b[?25h    Show cursor
-    // \x1bc        VT100 RIS (Reset to Initial State)
-    protected static readonly ReadOnlyMemory<byte> TerminalReset =
-        "\x1b[?1006l\x1b[?1003l\x1b[?1002l\x1b[?1000l\x1b[?2004l\x1b[?1h\x1b[?1049l\x1b[?25h\x1bc"u8.ToArray().AsMemory();
-    
+
+
     protected internal abstract     ValueTask<int>  SendAsync(TmSendMessage message, CancellationToken cancellationToken);
     protected internal abstract     int             Send(TmSendMessage message);
     protected internal abstract     void            RestoreTerminal();

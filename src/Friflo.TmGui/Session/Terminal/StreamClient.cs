@@ -46,7 +46,7 @@ public class StreamClient : TmClient
     
     protected internal override void RestoreTerminal()
     {
-        Send(new TmSendMessage(TerminalReset));
+        Send(new TmSendMessage(VT100.TerminalReset));
     }
 
     // I/O Loop: Reads raw stream bytes and pushes them into the session loop queue

@@ -43,7 +43,7 @@ public class SocketClient : TmClient
     
     protected internal override void RestoreTerminal()
     {
-        Send(new TmSendMessage(TerminalReset));
+        Send(new TmSendMessage(VT100.TerminalReset));
     }
     
     
