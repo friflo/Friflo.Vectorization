@@ -53,8 +53,8 @@ bool runAsync = false;
 
 var loop = new TmSessionLoop(runAsync, rootBackend, info => new TestGuiView(appState, info));
 
-var httpServer = new KestrelHttpServer(loop, new IPEndPoint(IPAddress.Any, 8080));
-httpServer.Start();
+var builder = KestrelHttpServer.Create(new IPEndPoint(IPAddress.Any, 8080), loop);
+_ = KestrelHttpServer.Start(builder.Build());
 
 if (runAsync) {
     loop.StartAsync(); // Spawns dedicated "ShardLoopThread"

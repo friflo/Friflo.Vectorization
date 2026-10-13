@@ -22,86 +22,58 @@ using Microsoft.Extensions.Logging;
 namespace Friflo.TmGui.Http;
 
 
-public sealed class KestrelHttpServer
+public static class KestrelHttpServer
 {
-    private readonly    string          webRoot = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "wwwroot");
-    private readonly    TmSessionLoop   loop;
-    private readonly    EndPoint        endPoint;
+    private static readonly string  WebRoot = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "wwwroot");
 
-    private             IHost?          host;
-    private             Task?           serverTask;
-
-    public KestrelHttpServer(TmSessionLoop loop, EndPoint endPoint)
-    {
-        this.loop       = loop;
-        this.endPoint   = endPoint;
-    }
 
     /// <summary>
     /// Starts the Kestrel server asynchronously on a dedicated background task.
     /// </summary>
-    public void Start()
+    public static Task Start(IHost host)
     {
-        if (serverTask != null) return;
-
         // Dedicated background thread execution equivalent to TaskCreationOptions.LongRunning
-        serverTask = Task.Factory.StartNew(
-            RunAsync,
+        var serverTask = Task.Factory.StartNew(
+            () => RunAsync(host),
             CancellationToken.None,
             TaskCreationOptions.LongRunning,
             TaskScheduler.Default
         ).Unwrap();
+        return serverTask;
     }
-
-    /// <summary>
-    /// Stops the server gracefully.
-    /// </summary>
-    public async Task StopAsync()
+    
+    public static IHostBuilder Create(EndPoint endPoint, TmSessionLoop loop)
     {
-        if (host == null) return;
+        var builder = Host.CreateDefaultBuilder();
 
-        try
+        // Disable verbose framework logging for high performance
+        builder.ConfigureLogging(logging => logging.ClearProviders());
+
+        builder.ConfigureWebHostDefaults(webBuilder =>
         {
-            await host.StopAsync();
-        }
-        catch (OperationCanceledException) { }
-        finally
-        {
-            host.Dispose();
-            host = null;
-            serverTask = null;
-        }
-    }
-
-    private async Task RunAsync()
-    {
-        try
-        {
-            var builder = Host.CreateDefaultBuilder();
-
-            // Disable verbose framework logging for high performance
-            builder.ConfigureLogging(logging => logging.ClearProviders());
-
-            builder.ConfigureWebHostDefaults(webBuilder =>
-            {
-                webBuilder.UseSockets(socketOptions => {
-                    // deactivate Nagle-algorithm for minimal websocket latency
-                    socketOptions.NoDelay = true;
-                });
-                webBuilder.UseKestrel(options => {
-                    options.Listen(endPoint, listenOptions => {  
-                        listenOptions.UseHttps(); // uses automatically dotnet dev-certs
-                    });
-                });
-
-                webBuilder.Configure(app => {
-                    Configure(app, loop, webRoot);
+            webBuilder.UseSockets(socketOptions => {
+                // deactivate Nagle-algorithm for minimal websocket latency
+                socketOptions.NoDelay = true;
+            });
+            webBuilder.UseKestrel(options => {
+                options.Listen(endPoint, listenOptions => {  
+                    listenOptions.UseHttps(); // uses automatically dotnet dev-certs
                 });
             });
 
-            host = builder.Build();
+            webBuilder.Configure(app => {
+                Configure(app, loop, WebRoot);
+            });
+        });
 
-            Console.WriteLine($"[+] Kestrel Server listening on: {endPoint} ...");
+        return builder;
+    }
+
+    private static async Task RunAsync(IHost host)
+    {
+        try
+        {
+            Console.WriteLine($"[+] Kestrel Server listening ...");
             await host.RunAsync();
         }
         catch (Exception ex)
