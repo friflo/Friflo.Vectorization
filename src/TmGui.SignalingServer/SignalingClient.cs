@@ -12,16 +12,8 @@ namespace TmGui.SignalingServer;
 
 
 
-internal class SignalingClient
+internal partial class SignalingClient
 {
-    private readonly WebSocket       webSocket;
-    
-
-    internal SignalingClient(WebSocket webSocket)
-    {
-        this.webSocket = webSocket;
-    }
-
 
     internal static async Task HandleClientSessionAsync(SignalingClient client, Signaling signaling, CancellationToken cancellationToken)
     {

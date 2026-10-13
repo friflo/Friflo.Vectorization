@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using System.Net.WebSockets;
+using System.Text.Json;
 using Friflo.TmGui;
 
 namespace TmGui.SignalingServer;
@@ -15,6 +16,18 @@ public class GuiHost
     internal GuiHost(SignalingClient client, string name) {
         this.name   = name;
         this.client = client;
+    }
+}
+
+internal partial class SignalingClient
+{
+    private readonly    WebSocket   webSocket;
+    internal            GuiHost?    host;   // the GUI this client wants to connect to
+    
+
+    internal SignalingClient(WebSocket webSocket)
+    {
+        this.webSocket = webSocket;
     }
 }
 
@@ -53,6 +66,13 @@ public class Signaling
             case "register":
                 if (message.Host != null) {
                     hosts.Add(message.Host, new GuiHost(client, message.Host));
+                }
+                break;
+            case "connect":
+                if (message.Host != null) {
+                    if (hosts.TryGetValue(message.Host, out var host)) {
+                        client.host = host;
+                    }
                 }
                 break;
         }
