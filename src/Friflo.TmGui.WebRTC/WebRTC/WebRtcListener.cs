@@ -4,20 +4,28 @@
 using System;
 using System.IO;
 using System.Net.WebSockets;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Friflo.TmGui.Session;
 
+
+// ReSharper disable ConvertToPrimaryConstructor
 namespace Friflo.TmGui.WebRTC.WebRTC;
 
-public static class WebRtcListener
+public partial class WebRtcListener
 {
-    public static Task Start(TmSessionLoop loop, Uri uri)
+    private readonly TmSessionLoop loop;
+        
+    public WebRtcListener(TmSessionLoop loop)
+    {
+        this.loop = loop;
+    }
+        
+    public Task Start(Uri uri)
     {
         // Dedicated background thread execution equivalent to TaskCreationOptions.LongRunning
         var serverTask = Task.Factory.StartNew(
-            () => Run(loop, uri),
+            () => Run(uri),
             CancellationToken.None,
             TaskCreationOptions.LongRunning,
             TaskScheduler.Default
@@ -25,7 +33,7 @@ public static class WebRtcListener
         return serverTask;
     }
         
-    private static async Task Run(TmSessionLoop loop, Uri uri, CancellationToken cancellationToken = default)
+    private async Task Run(Uri uri, CancellationToken cancellationToken = default)
     {
         using var clientWebSocket = new ClientWebSocket();
 
@@ -42,10 +50,10 @@ public static class WebRtcListener
         await clientWebSocket.SendAsync(payload, WebSocketMessageType.Text, true, cancellationToken);
 
         // Run the receive loop using the connected websocket
-        await RunWebSocketReceiveLoopAsync(loop, clientWebSocket, cancellationToken);
+        await RunWebSocketReceiveLoopAsync(clientWebSocket, cancellationToken);
     }
     
-    private static async Task RunWebSocketReceiveLoopAsync(TmSessionLoop loop, WebSocket webSocket, CancellationToken cancellationToken)
+    private async Task RunWebSocketReceiveLoopAsync(WebSocket webSocket, CancellationToken cancellationToken)
     {
         // Reusable buffer for incoming data chunks
         var buffer = new byte[1024 * 4];
@@ -79,15 +87,15 @@ public static class WebRtcListener
                 // Process the complete message payload based on its type
                 if (result.MessageType == WebSocketMessageType.Text)
                 {
-                    string message = Encoding.UTF8.GetString(memoryStream.GetBuffer(), 0, (int)memoryStream.Length);
+                    var messageBuffer = memoryStream.GetBuffer().AsSpan(0, (int)memoryStream.Length);
                     
                     // Handle incoming signaling message (e.g., SDP offer/answer or ICE candidate)
-                    ProcessSignalingMessage(message);
+                    ProcessSignalingMessage(messageBuffer);
                 }
                 else if (result.MessageType == WebSocketMessageType.Binary)
                 {
                     // Handle binary payloads if needed
-                    byte[] binaryData = memoryStream.ToArray();
+                    // byte[] binaryData = memoryStream.ToArray();
                 }
             }
         }
@@ -96,9 +104,6 @@ public static class WebRtcListener
             // Handle unexpected drops or client disconnects gracefully
         }
     }
+    
 
-    private static void ProcessSignalingMessage(string message)
-{
-    // Parse JSON or signaling payload here
-}
 }
