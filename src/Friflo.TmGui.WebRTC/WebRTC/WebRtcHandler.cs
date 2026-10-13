@@ -5,7 +5,8 @@ using System;
 using System.Text.Json;
 
 // ReSharper disable InconsistentNaming
-namespace Friflo.TmGui.WebRTC.WebRTC;
+// ReSharper disable CheckNamespace
+namespace Friflo.TmGui.WebRTC;
 
 internal record SignalingMessage(string type, string? sdpOrCandidate, string? host)
 {

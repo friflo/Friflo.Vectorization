@@ -10,7 +10,8 @@ using Friflo.TmGui.Session;
 
 
 // ReSharper disable ConvertToPrimaryConstructor
-namespace Friflo.TmGui.WebRTC.WebRTC;
+// ReSharper disable CheckNamespace
+namespace Friflo.TmGui.WebRTC;
 
 public partial class WebRtcListener
 {
