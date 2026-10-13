@@ -22,6 +22,7 @@ public class TestGuiView : IGuiView
     private             float           time;
     private             long            frameStart = Stopwatch.GetTimestamp();
     private             double          frameTime;
+    private             bool            mouseCircle;
     private             long            memStart;
     private             long            memDiff;
     private readonly    StringBuilder   sb = new(200, 200);
@@ -71,6 +72,11 @@ public class TestGuiView : IGuiView
         using (gui.BeginWindow("Window 2", new(1800, 50), new(500, 900))) {
             Window2(gui);
         }
+        if (mouseCircle) {
+            using (gui.Draw.PushZIndex(10)) {
+                gui.Draw.StrokeCircle(gui.Input.MousePos, radius: 40f, 4, color: 0xFF0000FF, segments: 32);
+            }
+        }
     }
     
     private void Window1(Gui gui)
@@ -83,6 +89,7 @@ public class TestGuiView : IGuiView
             }
             if (gui.Button("GC.Collect()"))  GC.Collect();
         }
+        gui.Checkbox("mouse circle", ref mouseCircle);
 
         gui.Spacer();
 
