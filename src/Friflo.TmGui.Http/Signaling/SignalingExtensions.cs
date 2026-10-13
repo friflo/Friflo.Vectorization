@@ -2,6 +2,8 @@
 // See LICENSE file in the project root for full license information.
 
 
+using System;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 
@@ -10,10 +12,10 @@ using Microsoft.AspNetCore.Http;
 // ReSharper disable ConvertClosureToMethodGroup
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable CheckNamespace
-namespace TmGui.SignalingServer;
+namespace Friflo.TmGui.Http;
 
 
-public static class TmGuiHttpExtensions
+public static class TmSignalingExtensions
 {
     public static void UseSignaling(this IApplicationBuilder app, Signaling signaling)
     {

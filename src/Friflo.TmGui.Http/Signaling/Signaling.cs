@@ -1,10 +1,15 @@
-﻿using System.Collections.Concurrent;
+﻿using System;
+using System.Collections.Concurrent;
+using System.Linq;
 using System.Net.WebSockets;
 using System.Text.Json;
-using Friflo.TmGui;
+using System.Threading;
+using System.Threading.Tasks;
+
 
 // ReSharper disable InconsistentNaming
-namespace TmGui.SignalingServer;
+// ReSharper disable CheckNamespace
+namespace Friflo.TmGui.Http;
 
 
 public record SignalingMessage(string type, string? sdpOrCandidate, string? host)
@@ -14,9 +19,9 @@ public record SignalingMessage(string type, string? sdpOrCandidate, string? host
 
 public class GuiHost
 {
-    internal readonly string           name;
-    internal readonly SignalingClient  client;
-    internal          SignalingClient? connectedClient; // The client currently connected to this host
+    public   readonly   string              name;
+    internal readonly   SignalingClient     client;
+    internal            SignalingClient?    connectedClient; // The client currently connected to this host
     
     internal GuiHost(SignalingClient client, string name) {
         this.name   = name;
@@ -48,7 +53,7 @@ internal partial class SignalingClient
 /// <summary> Single <see cref="Signaling"/> instance is shared by all sessions. </summary>
 public class Signaling
 {
-    internal readonly ConcurrentDictionary<string, GuiHost> hosts = [];
+    public readonly ConcurrentDictionary<string, GuiHost> hosts = [];
     
     public Signaling(TmGuiBackend backend)
     {

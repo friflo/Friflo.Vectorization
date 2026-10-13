@@ -2,13 +2,16 @@
 // See LICENSE file in the project root for full license information.
 
 
+using System;
 using System.Net.WebSockets;
+using System.Threading;
+using System.Threading.Tasks;
 
 
 // ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable ConvertToAutoPropertyWithPrivateSetter
 // ReSharper disable CheckNamespace
-namespace TmGui.SignalingServer;
+namespace Friflo.TmGui.Http;
 
 
 
