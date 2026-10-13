@@ -4,6 +4,7 @@ using Friflo.TmGui;
 using Friflo.TmGui.Headless;
 using Friflo.TmGui.Http;
 using Friflo.TmGui.Session;
+using Friflo.TmGui.WebRTC.WebRTC;
 using TuiTerminal;
 
 
@@ -53,8 +54,10 @@ bool runAsync = false;
 
 var loop = new TmSessionLoop(runAsync, rootBackend, info => new TestGuiView(appState, info));
 
-var builder = HttpUtils.CreateHostBuilder(new IPEndPoint(IPAddress.Any, 8080), loop);
-_ = HttpUtils.Start(builder.Build());
+// var builder = HttpUtils.CreateHostBuilder(new IPEndPoint(IPAddress.Any, 8080), loop);
+// _ = HttpUtils.Start(builder.Build());
+
+_ = WebRtcListener.Start(loop, new Uri("wss://localhost:8081/signaling"));
 
 if (runAsync) {
     loop.StartAsync(); // Spawns dedicated "ShardLoopThread"
@@ -71,8 +74,8 @@ else {
 static async Task RunTcpServerAsync(TmSessionLoop loop, int port)
 {
     // Start local console I/O session
-    var localClient = new ConsoleClient();
-    _ = ConsoleClient.HandleClientSessionAsync(localClient, loop, CancellationToken.None);
+    // var localClient = new ConsoleClient();
+    // _ = ConsoleClient.HandleClientSessionAsync(localClient, loop, CancellationToken.None);
 
     using var serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
     serverSocket.Bind(new IPEndPoint(IPAddress.Any, port));

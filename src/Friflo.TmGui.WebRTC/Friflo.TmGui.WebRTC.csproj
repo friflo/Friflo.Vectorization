@@ -49,6 +49,9 @@
     
   <ItemGroup>
     <PackageReference Include="SIPSorcery" Version="10.0.17" />
+    <!-- Use latest dependencies used by SIPSorcery to avoid vulnerabilities -->
+    <PackageReference Include="System.Net.Http" Version="4.3.4" />
+    <PackageReference Include="System.Text.RegularExpressions" Version="4.3.1" />
   </ItemGroup>
     
   <ItemGroup>

@@ -19,17 +19,17 @@ public static class TmGuiHttpExtensions
     {
         app.UseWebSockets();
         
-        var guiWebHandler = new HttpGuiHandler(signaling);
+        var guiWebHandler = new SignalingHandler(signaling);
         app.Use(guiWebHandler.HandleSignalRequestAsync);
     }
 }
 
-public class HttpGuiHandler
+public class SignalingHandler
 {
     private readonly Signaling signaling
         ;
 
-    public HttpGuiHandler(Signaling signaling)
+    public SignalingHandler(Signaling signaling)
     {
         this.signaling = signaling;
     }
@@ -46,7 +46,7 @@ public class HttpGuiHandler
     {
         var path = context.Request.Path;
         
-        if (context.WebSockets.IsWebSocketRequest)
+        if (context.WebSockets.IsWebSocketRequest && path.StartsWithSegments("/signaling"))
         {
             try
             {

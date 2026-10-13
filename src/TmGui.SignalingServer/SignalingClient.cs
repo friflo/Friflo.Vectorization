@@ -23,7 +23,7 @@ internal class SignalingClient
     }
 
 
-internal static async Task HandleClientSessionAsync(SignalingClient client, Signaling signaling, CancellationToken cancellationToken)
+    internal static async Task HandleClientSessionAsync(SignalingClient client, Signaling signaling, CancellationToken cancellationToken)
     {
         // Allocate a reusable buffer for incoming websocket frames
         var buffer = new byte[1024 * 4];

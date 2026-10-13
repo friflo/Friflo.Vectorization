@@ -3,17 +3,12 @@
 
 using System;
 using System.IO;
-using System.Net;
-using System.Threading;
 using System.Threading.Tasks;
 using Friflo.TmGui.Session;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.FileProviders;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 
 // ReSharper disable RedundantLambdaParameterType
 // ReSharper disable ConvertClosureToMethodGroup
@@ -102,7 +97,7 @@ public class HttpGuiHandler
     {
         var path = context.Request.Path;
         
-        if (context.WebSockets.IsWebSocketRequest)
+        if (context.WebSockets.IsWebSocketRequest && path == "/ws")
         {
             try
             {

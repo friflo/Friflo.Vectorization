@@ -11,6 +11,7 @@
     <ItemGroup>
       <ProjectReference Include="..\Friflo.TmGui.Assets\Friflo.TmGui.Assets.csproj" />
       <ProjectReference Include="..\Friflo.TmGui.Http\Friflo.TmGui.Http.csproj" />
+      <ProjectReference Include="..\Friflo.TmGui.WebRTC\Friflo.TmGui.WebRTC.csproj" />
     </ItemGroup>
     
     <ItemGroup>
