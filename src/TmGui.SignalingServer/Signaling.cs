@@ -7,7 +7,10 @@ using Friflo.TmGui;
 namespace TmGui.SignalingServer;
 
 
-public record SignalingMessage(string type, string? sdpOrCandidate, string? host);
+public record SignalingMessage(string type, string? sdpOrCandidate, string? host)
+{
+    public override string ToString() => $"{type} : host: {host}";
+}
 
 public class GuiHost
 {
