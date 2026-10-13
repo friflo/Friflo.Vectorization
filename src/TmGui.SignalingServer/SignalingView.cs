@@ -29,7 +29,7 @@ public class SignalingView : IGuiView
     {
         foreach (var host in signaling.hosts)
         {
-            gui.Button(host.name);
+            gui.Button(host.Value.name);
         }
     }
 }

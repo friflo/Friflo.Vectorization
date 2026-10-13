@@ -4,16 +4,17 @@ using Friflo.TmGui;
 namespace TmGui.SignalingServer;
 
 
-// 1. Define your data model matching the JSON structure
-public record SignalingMessage(string Type, string SdpOrCandidate, string? Host);
+public record SignalingMessage(string Type, string? SdpOrCandidate, string? Host);
 
 
 public class GuiHost
 {
-    public readonly string name;
+    internal readonly string          name;
+    internal readonly SignalingClient client;
     
-    public GuiHost(string name) {
-        this.name = name;
+    internal GuiHost(SignalingClient client, string name) {
+        this.name   = name;
+        this.client = client;
     }
 }
 
@@ -21,31 +22,39 @@ public class GuiHost
 /// <summary> Single <see cref="Signaling"/> instance is shared by all sessions. </summary>
 public class Signaling
 {
-    internal readonly List<GuiHost> hosts = [];
+    internal readonly Dictionary<string, GuiHost> hosts = [];
     
     public Signaling(TmGuiBackend backend)
     {
     }
     
+    
+    private static SignalingMessage? Parse(ReadOnlySpan<byte> buffer)
+    {
+        try {
+            return JsonSerializer.Deserialize<SignalingMessage>(buffer);
+        }
+        catch (JsonException) {
+            return null;
+        }
+    }
+    
 
     internal void ProcessMessage(SignalingClient client, ReadOnlySpan<byte> buffer)
     {
-        try
-        {
-            var message = JsonSerializer.Deserialize<SignalingMessage>(buffer);
-            if (message != null)
-            {
-                if (message.Type == "register") {
-                    if (message.Host != null) {
-                        hosts.Add(new GuiHost(message.Host));
-                    }
-                }
-                // Handle valid signaling message
-            }
-        }
-        catch (JsonException)
-        {
 
+        var message = Parse(buffer);
+        if (message == null) {
+            return;
+        }
+
+        switch (message.Type)
+        {
+            case "register":
+                if (message.Host != null) {
+                    hosts.Add(message.Host, new GuiHost(client, message.Host));
+                }
+                break;
         }
     }
 }
