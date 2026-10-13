@@ -75,8 +75,8 @@ public class TmGuiRenderer : IRenderer, IGuiView
         myTextureView    = myTexture.CreateView().AsTmTexture();
         
         loop = new TmSessionLoop(false, guiBackend, _ => new TmGuiRenderer(this));
-        var builder = KestrelHttpServer.Create(new IPEndPoint(IPAddress.Any, 8080), loop);
-        KestrelHttpServer.Start(builder.Build());
+        var builder = HttpUtils.CreateHostBuilder(new IPEndPoint(IPAddress.Any, 8080), loop);
+        HttpUtils.Start(builder.Build());
     }
     
     public TmGuiRenderer(TmGuiRenderer renderer)

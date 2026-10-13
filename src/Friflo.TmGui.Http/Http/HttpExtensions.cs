@@ -22,69 +22,15 @@ using Microsoft.Extensions.Logging;
 namespace Friflo.TmGui.Http;
 
 
-public static class KestrelHttpServer
+public static class TmGuiHttpExtensions
 {
     private static readonly string  WebRoot = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "wwwroot");
 
-
-    /// <summary>
-    /// Starts the Kestrel server asynchronously on a dedicated background task.
-    /// </summary>
-    public static Task Start(IHost host)
-    {
-        // Dedicated background thread execution equivalent to TaskCreationOptions.LongRunning
-        var serverTask = Task.Factory.StartNew(
-            () => RunAsync(host),
-            CancellationToken.None,
-            TaskCreationOptions.LongRunning,
-            TaskScheduler.Default
-        ).Unwrap();
-        return serverTask;
-    }
     
-    private static async Task RunAsync(IHost host)
+    public static void UseSessionLoop(this IApplicationBuilder app, TmSessionLoop loop, string? webRoot)
     {
-        try
-        {
-            Console.WriteLine($"[+] Kestrel Server listening ...");
-            await host.RunAsync();
-        }
-        catch (Exception ex)
-        {
-            // ReSharper disable once MethodHasAsyncOverload
-            Console.Error.WriteLine($"[-] Critical Server error: {ex.Message}");
-        }
-    }
-    
-    public static IHostBuilder Create(EndPoint endPoint, TmSessionLoop loop, string? webRoot = null)
-    {
-        var builder = Host.CreateDefaultBuilder();
-
-        // Disable verbose framework logging for high performance
-        builder.ConfigureLogging(logging => logging.ClearProviders());
-
-        builder.ConfigureWebHostDefaults(webBuilder =>
-        {
-            webBuilder.UseSockets(socketOptions => {
-                // deactivate Nagle-algorithm for minimal websocket latency
-                socketOptions.NoDelay = true;
-            });
-            webBuilder.UseKestrel(options => {
-                options.Listen(endPoint, listenOptions => {  
-                    listenOptions.UseHttps(); // uses automatically dotnet dev-certs
-                });
-            });
-
-            webBuilder.Configure(app => {
-                Configure(app, loop, webRoot ?? WebRoot);
-            });
-        });
-
-        return builder;
-    }
-    
-    public static void Configure(IApplicationBuilder app, TmSessionLoop loop, string webRoot)
-    {
+        webRoot ??= WebRoot;
+        
         // Set up custom MIME types (especially for .wgsl WebGPU shaders)
         var provider = new FileExtensionContentTypeProvider {
             Mappings = {
