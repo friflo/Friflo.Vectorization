@@ -52,8 +52,8 @@ public class HttpGuiHandler
             {
                 var acceptContext = CreateWebSocketAcceptContext();
                 using var webSocket = await context.WebSockets.AcceptWebSocketAsync(acceptContext);
-                var client = new WebSocketSignalingClient(webSocket);
-                await WebSocketSignalingClient.HandleClientSessionAsync(client, signaling, context.RequestAborted);
+                var client = new SignalingClient(webSocket);
+                await SignalingClient.HandleClientSessionAsync(client, signaling, context.RequestAborted);
             }
             catch (Exception ex)
             {

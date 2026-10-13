@@ -1,4 +1,5 @@
-﻿using Friflo.TmGui;
+﻿using System.Text;
+using Friflo.TmGui;
 
 namespace TmGui.SignalingServer;
 
@@ -8,5 +9,11 @@ public class Signaling
 {
     public Signaling(TmGuiBackend backend)
     {
+    }
+    
+
+    internal void ProcessMessage(SignalingClient client, ReadOnlySpan<byte> buffer)
+    {
+        string message = Encoding.UTF8.GetString(buffer);
     }
 }
