@@ -8,11 +8,11 @@ namespace TmGui.SignalingServer;
 
 public record SignalingMessage(string Type, string? SdpOrCandidate, string? Host);
 
-
 public class GuiHost
 {
-    internal readonly string          name;
-    internal readonly SignalingClient client;
+    internal readonly string           name;
+    internal readonly SignalingClient  client;
+    internal          SignalingClient? connectedClient; // The client currently connected to this host
     
     internal GuiHost(SignalingClient client, string name) {
         this.name   = name;
@@ -30,6 +30,14 @@ internal partial class SignalingClient
     {
         this.webSocket = webSocket;
     }
+
+    internal async Task SendAsync(ReadOnlyMemory<byte> payload, CancellationToken cancellationToken = default)
+    {
+        if (webSocket.State == WebSocketState.Open)
+        {
+            await webSocket.SendAsync(payload, WebSocketMessageType.Text, true, cancellationToken);
+        }
+    }
 }
 
 
@@ -42,7 +50,6 @@ public class Signaling
     {
     }
     
-    
     private static SignalingMessage? Parse(ReadOnlySpan<byte> buffer)
     {
         try {
@@ -53,8 +60,7 @@ public class Signaling
         }
     }
     
-
-internal void ProcessMessage(SignalingClient client, ReadOnlySpan<byte> buffer)
+    internal void ProcessMessage(SignalingClient client, ReadOnlySpan<byte> buffer)
     {
         var message = Parse(buffer);
         if (message == null) {
@@ -74,6 +80,7 @@ internal void ProcessMessage(SignalingClient client, ReadOnlySpan<byte> buffer)
                 if (!string.IsNullOrEmpty(message.Host)) {
                     if (hosts.TryGetValue(message.Host, out var host)) {
                         client.host = host;
+                        host.connectedClient = client; // Link the client to this host session
                     }
                 }
                 break;
@@ -81,13 +88,26 @@ internal void ProcessMessage(SignalingClient client, ReadOnlySpan<byte> buffer)
             case "offer":
             case "answer":
             case "candidate":
-                RouteWebRtcMessage(client, message);
+                RouteWebRtcMessage(client, message, buffer);
                 break;
         }
     }
 
-    private void RouteWebRtcMessage(SignalingClient sender, SignalingMessage message)
+    private void RouteWebRtcMessage(SignalingClient sender, SignalingMessage message, ReadOnlySpan<byte> buffer)
     {
-
+        // Case 1: Sender is a Client forwarding an offer or candidate to the Host
+        if (sender.host != null && sender != sender.host.client)
+        {
+            _ = sender.host.client.SendAsync(buffer.ToArray());
+        }
+        // Case 2: Sender is a Host forwarding an answer or candidate back to the Client
+        else
+        {
+            var hostEntry = hosts.Values.FirstOrDefault(h => h.client == sender);
+            if (hostEntry?.connectedClient != null)
+            {
+                _ = hostEntry.connectedClient.SendAsync(buffer.ToArray());
+            }
+        }
     }
 }
