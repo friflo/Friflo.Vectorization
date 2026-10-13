@@ -4,6 +4,7 @@
 using System;
 using System.IO;
 using System.Net.WebSockets;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Friflo.TmGui.Session;
@@ -22,11 +23,11 @@ public partial class SignalingListener
         this.loop = loop;
     }
         
-    public Task Start(Uri uri)
+    public Task Start(string host, Uri uri)
     {
         // Dedicated background thread execution equivalent to TaskCreationOptions.LongRunning
         var serverTask = Task.Factory.StartNew(
-            () => Run(uri),
+            () => Run(host, uri),
             CancellationToken.None,
             TaskCreationOptions.LongRunning,
             TaskScheduler.Default
@@ -34,20 +35,15 @@ public partial class SignalingListener
         return serverTask;
     }
         
-    private async Task Run(Uri uri, CancellationToken cancellationToken = default)
+    private async Task Run(string host, Uri uri, CancellationToken cancellationToken = default)
     {
         using var clientWebSocket = new ClientWebSocket();
 
         // Connect to the specified signaling server URL
         await clientWebSocket.ConnectAsync(uri, cancellationToken);
         
-        
-        ReadOnlyMemory<byte> payload = """
-                                       {
-                                            "type": "register",
-                                            "host": "test-host"
-                                       }
-                                       """u8.ToArray();
+        byte[] payload = JsonSerializer.SerializeToUtf8Bytes(new { type = "register", host });
+
         await clientWebSocket.SendAsync(payload, WebSocketMessageType.Text, true, cancellationToken);
 
         // Run the receive loop using the connected websocket
