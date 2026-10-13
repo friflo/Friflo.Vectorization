@@ -57,7 +57,7 @@ public partial class SignalingListener
                     sdp = message.sdpOrCandidate,
                     type = RTCSdpType.offer
                 };
-                pc.setRemoteDescription(remoteDesc);
+                SetDescriptionResultEnum result = pc.setRemoteDescription(remoteDesc);
 
                 // Create and set local answer
                 var answer = pc.createAnswer(null);
