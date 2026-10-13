@@ -1,0 +1,45 @@
+
+
+C# SignalingListener ("GuiHost")     C# SignalingServer (Transport)        Browser (JS Client)
+         |                                         |                                 |
+         | --- 1. Registers itself in memory ----> |                                 |
+         |    (Passively waiting)                  |                                 |
+         |                                         |                                 |
+         |                                         | <--- 2. WebSocket Connection -- |
+         |                                         |                                 |
+         |                                         | <--- 3. Send "connect" msg ---- |
+         |                                         |    { type: "connect", host }    |
+         |                                         |                                 |
+         |                                         | (4. Server checks local dict,   |
+         |                                         |    host found immediately)      |
+         |                                         |                                 |
+         |                                         | --- 5. Send "ConnectResponse" ->|
+         |                                         |        (sdpOrCandidate: "Found")|
+         |                                         |                                 |
+         |                                         |                                 | (Creates Offer & Local Desc)
+         |                                         | <--- 6. Send "offer" msg ------ |
+         | <--- 7. Forward "offer" payload --------|                                 |
+         | (Sets Remote Desc [offer],              |                                 |
+         |  creates Answer & sets Local Desc)      |                                 |
+         |                                         |                                 |
+         | --- 8. Send "answer" payload ---------> |                                 |
+         |                                         | --- 9. Forward "answer" msg --> |
+         |                                         |                                 | (Sets Remote Desc [answer],
+         |                                         |                                 |  flushes candidateQueue)
+         |                                         |                                 |
+         | === 10. ICE Candidate Exchange (Independent & Asynchronous) ============  |
+         |                                         |                                 |
+         | (Both sides gather and send candidates completely independently of each other)
+         |                                         |                                 |
+         | [GuiHost finds local candidate]         |    [Browser finds local candidate]
+         | --- Send candidate ----------------->   |                                 |
+         |                                         | --- Forward candidate --------> |
+         |                                         |                                 |
+         |                                         | <--- Send candidate ----------- |
+         | <--- Forward candidate ---------------  |                                 |
+         |                                         |                                 |
+         | ========================================================================= |
+         |                           11. P2P CONNECTION                              |
+         |                      (DataChannel "tm-gui-channel")                       |
+         |          (Direct UDP/STUN Data Flow: Browser <-> C# GuiHost)              |
+         | ========================================================================= |
