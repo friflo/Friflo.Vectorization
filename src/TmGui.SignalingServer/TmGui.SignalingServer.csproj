@@ -6,6 +6,7 @@
         <RootNamespace>TmGui.SignalingServer</RootNamespace>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
+        <LangVersion>14.0</LangVersion>
     </PropertyGroup>
 
     <ItemGroup>

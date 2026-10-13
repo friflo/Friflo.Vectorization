@@ -40,7 +40,8 @@ internal partial class SignalingClient
                 // Handle text messages (typically JSON payloads for WebRTC SDP/ICE signaling)
                 if (result.MessageType == WebSocketMessageType.Text)
                 {
-                    signaling.ProcessMessage(client, buffer.AsSpan(0, result.Count));
+                    var message = buffer.AsSpan(0, result.Count);
+                    signaling.ProcessMessage(client, message);
                     
                     // Process the signaling message
                     // await signaling.ProcessMessageAsync(client, buffer);
