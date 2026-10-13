@@ -13,7 +13,7 @@ internal record SignalingMessage(string type, string? sdpOrCandidate, string? ho
     public override string ToString() => $"{type} > host: {host}";
 }
 
-public partial class WebRtcListener
+public partial class SignalingListener
 {
     
     private static SignalingMessage? Parse(ReadOnlySpan<byte> buffer)

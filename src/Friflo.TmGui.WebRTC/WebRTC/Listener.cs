@@ -13,11 +13,11 @@ using Friflo.TmGui.Session;
 // ReSharper disable CheckNamespace
 namespace Friflo.TmGui.WebRTC;
 
-public partial class WebRtcListener
+public partial class SignalingListener
 {
     private readonly TmSessionLoop loop;
         
-    public WebRtcListener(TmSessionLoop loop)
+    public SignalingListener(TmSessionLoop loop)
     {
         this.loop = loop;
     }
