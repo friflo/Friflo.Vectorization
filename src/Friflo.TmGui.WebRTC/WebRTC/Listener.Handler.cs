@@ -2,7 +2,9 @@
 // See LICENSE file in the project root for full license information.
 
 using System;
+using System.Net.WebSockets;
 using System.Text.Json;
+using System.Threading.Tasks;
 
 // ReSharper disable InconsistentNaming
 // ReSharper disable CheckNamespace
@@ -26,9 +28,9 @@ public partial class SignalingListener
         }
     }
 
-    private void ProcessSignalingMessage(ReadOnlySpan<byte> buffer)
+    private async Task ProcessSignalingMessage(WebSocket webSocket, ReadOnlyMemory<byte> buffer)
     {
-        var message = Parse(buffer);
+        var message = Parse(buffer.Span);
         
     }
 }

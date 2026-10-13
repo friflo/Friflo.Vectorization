@@ -84,10 +84,10 @@ public partial class SignalingListener
                 // Process the complete message payload based on its type
                 if (result.MessageType == WebSocketMessageType.Text)
                 {
-                    var messageBuffer = memoryStream.GetBuffer().AsSpan(0, (int)memoryStream.Length);
+                    var messageBuffer = memoryStream.GetBuffer().AsMemory(0, (int)memoryStream.Length);
                     
                     // Handle incoming signaling message (e.g., SDP offer/answer or ICE candidate)
-                    ProcessSignalingMessage(messageBuffer);
+                    await ProcessSignalingMessage(webSocket, messageBuffer);
                 }
                 else if (result.MessageType == WebSocketMessageType.Binary)
                 {
