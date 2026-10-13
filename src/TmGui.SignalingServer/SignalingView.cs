@@ -10,8 +10,12 @@ namespace TmGui.SignalingServer;
 /// <summary> Each session has its own <see cref="IGuiView"/> instance. </summary>
 public class SignalingView : IGuiView
 {
+    private readonly Signaling signaling;
+    
     public SignalingView(Signaling signaling, SessionInfo info)
-    { }
+    {
+        this.signaling = signaling;
+    }
     
     public void RenderGui(TmBatch batch, int targetWidth, int targetHeight)
     {
@@ -24,5 +28,10 @@ public class SignalingView : IGuiView
     private void Window1(Gui gui)
     {
         gui.Button("hello Signaling", Dim.Fill_X(0, Fit.Content));
+
+        foreach (var host in signaling.hosts)
+        {
+            gui.Button(host.name);
+        }
     }
 }

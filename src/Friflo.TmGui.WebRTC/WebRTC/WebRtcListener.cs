@@ -32,7 +32,13 @@ public static class WebRtcListener
         // Connect to the specified signaling server URL
         await clientWebSocket.ConnectAsync(uri, cancellationToken);
         
-        ReadOnlyMemory<byte> payload = "Hello signaling server"u8.ToArray();
+        
+        ReadOnlyMemory<byte> payload = """
+                                       {
+                                            "Type": "register",
+                                            "Host": "test-host"
+                                       }
+                                       """u8.ToArray();
         await clientWebSocket.SendAsync(payload, WebSocketMessageType.Text, true, cancellationToken);
 
         // Run the receive loop using the connected websocket
