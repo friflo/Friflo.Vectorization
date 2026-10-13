@@ -27,7 +27,7 @@ public static class TmGuiHttpExtensions
     private static readonly string  WebRoot = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "wwwroot");
 
     
-    public static void UseSessionLoop(this IApplicationBuilder app, TmSessionLoop loop, string? webRoot)
+    public static void UseSessionLoop(this IApplicationBuilder app, TmSessionLoop loop, string? webRoot = null)
     {
         webRoot ??= WebRoot;
         
