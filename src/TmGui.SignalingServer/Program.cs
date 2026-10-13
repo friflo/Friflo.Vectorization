@@ -13,9 +13,9 @@ using TmGui.SignalingServer;
 Console.WriteLine("Signaling Server");
 
 var rootBackend = new CpuBackend("Console", new DefaultGuiAssets());
-var appState    = new AppState(rootBackend);
+var signaling    = new Signaling(rootBackend);
 
-var loop = new TmSessionLoop(false, rootBackend, info => new TestGuiView(appState, info));
+var loop = new TmSessionLoop(false, rootBackend, info => new SignalingView(signaling, info));
 
 var builder = Host.CreateDefaultBuilder();
 
@@ -36,6 +36,7 @@ builder.ConfigureWebHostDefaults(webBuilder =>
 
     webBuilder.Configure(app => {
         app.UseSessionLoop(loop);
+        app.UseSignaling(signaling);
     });
 });
 
