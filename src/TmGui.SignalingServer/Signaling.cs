@@ -1,4 +1,5 @@
-﻿using System.Net.WebSockets;
+﻿using System.Collections.Concurrent;
+using System.Net.WebSockets;
 using System.Text.Json;
 using Friflo.TmGui;
 
@@ -35,7 +36,7 @@ internal partial class SignalingClient
 /// <summary> Single <see cref="Signaling"/> instance is shared by all sessions. </summary>
 public class Signaling
 {
-    internal readonly Dictionary<string, GuiHost> hosts = [];
+    internal readonly ConcurrentDictionary<string, GuiHost> hosts = [];
     
     public Signaling(TmGuiBackend backend)
     {
@@ -53,9 +54,8 @@ public class Signaling
     }
     
 
-    internal void ProcessMessage(SignalingClient client, ReadOnlySpan<byte> buffer)
+internal void ProcessMessage(SignalingClient client, ReadOnlySpan<byte> buffer)
     {
-
         var message = Parse(buffer);
         if (message == null) {
             return;
@@ -64,17 +64,30 @@ public class Signaling
         switch (message.Type)
         {
             case "register":
-                if (message.Host != null) {
-                    hosts.Add(message.Host, new GuiHost(client, message.Host));
+                if (!string.IsNullOrEmpty(message.Host)) {
+                    // Safe upsert to prevent duplicate key crashes
+                    hosts[message.Host] = new GuiHost(client, message.Host);
                 }
                 break;
+                
             case "connect":
-                if (message.Host != null) {
+                if (!string.IsNullOrEmpty(message.Host)) {
                     if (hosts.TryGetValue(message.Host, out var host)) {
                         client.host = host;
                     }
                 }
                 break;
+
+            case "offer":
+            case "answer":
+            case "candidate":
+                RouteWebRtcMessage(client, message);
+                break;
         }
+    }
+
+    private void RouteWebRtcMessage(SignalingClient sender, SignalingMessage message)
+    {
+
     }
 }
