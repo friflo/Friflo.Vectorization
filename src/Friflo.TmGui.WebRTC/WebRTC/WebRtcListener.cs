@@ -35,8 +35,8 @@ public static class WebRtcListener
         
         ReadOnlyMemory<byte> payload = """
                                        {
-                                            "Type": "register",
-                                            "Host": "test-host"
+                                            "type": "register",
+                                            "host": "test-host"
                                        }
                                        """u8.ToArray();
         await clientWebSocket.SendAsync(payload, WebSocketMessageType.Text, true, cancellationToken);

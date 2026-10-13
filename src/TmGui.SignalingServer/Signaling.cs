@@ -3,10 +3,11 @@ using System.Net.WebSockets;
 using System.Text.Json;
 using Friflo.TmGui;
 
+// ReSharper disable InconsistentNaming
 namespace TmGui.SignalingServer;
 
 
-public record SignalingMessage(string Type, string? SdpOrCandidate, string? Host);
+public record SignalingMessage(string type, string? sdpOrCandidate, string? host);
 
 public class GuiHost
 {
@@ -67,20 +68,29 @@ public class Signaling
             return;
         }
 
-        switch (message.Type)
+        switch (message.type)
         {
             case "register":
-                if (!string.IsNullOrEmpty(message.Host)) {
+                if (!string.IsNullOrEmpty(message.host)) {
                     // Safe upsert to prevent duplicate key crashes
-                    hosts[message.Host] = new GuiHost(client, message.Host);
+                    hosts[message.host] = new GuiHost(client, message.host);
                 }
                 break;
                 
             case "connect":
-                if (!string.IsNullOrEmpty(message.Host)) {
-                    if (hosts.TryGetValue(message.Host, out var host)) {
+                if (!string.IsNullOrEmpty(message.host)) {
+                    if (hosts.TryGetValue(message.host, out var host)) {
                         client.host = host;
                         host.connectedClient = client; // Link the client to this host session
+                        
+                        // Report success back to the client
+                        var successResponse = JsonSerializer.SerializeToUtf8Bytes(new SignalingMessage("ConnectResponse", "Found", message.host));
+                        _ = client.SendAsync(successResponse);
+                    }
+                    else {
+                        // Report that the host was not found
+                        var errorResponse = JsonSerializer.SerializeToUtf8Bytes(new SignalingMessage("ConnectResponse", "NotFound", message.host));
+                        _ = client.SendAsync(errorResponse);
                     }
                 }
                 break;
