@@ -19,17 +19,16 @@ public static class TmGuiHttpExtensions
     {
         app.UseWebSockets();
         
-        var guiWebHandler = new SignalingHandler(signaling);
-        app.Use(guiWebHandler.HandleSignalRequestAsync);
+        var handler = new SignalingSocketHandler(signaling);
+        app.Use(handler.HandleSignalRequestAsync);
     }
 }
 
-public class SignalingHandler
+public class SignalingSocketHandler
 {
-    private readonly Signaling signaling
-        ;
+    private readonly Signaling signaling;
 
-    public SignalingHandler(Signaling signaling)
+    public SignalingSocketHandler(Signaling signaling)
     {
         this.signaling = signaling;
     }

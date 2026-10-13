@@ -27,8 +27,6 @@ public class SignalingView : IGuiView
     
     private void Window1(Gui gui)
     {
-        gui.Button("hello Signaling", Dim.Fill_X(0, Fit.Content));
-
         foreach (var host in signaling.hosts)
         {
             gui.Button(host.name);

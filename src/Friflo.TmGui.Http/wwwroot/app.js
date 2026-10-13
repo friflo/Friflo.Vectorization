@@ -1,6 +1,8 @@
 // @ts-check
 // app.js
 import { sendInitGui, initGuiEventListeners, updateMouseCursor, applyVertexChanges, masterVertices } from './app-events.js';
+import {initWebRTC} from "./webrtc.js";
+
 
 // Check WebGPU availability in current browser environment
 if (!navigator.gpu) {
@@ -657,7 +659,14 @@ async function start() {
 
     const gpuReady = await initWebGPU();
     if (gpuReady) {
-        initWebSocket();
+        const urlParams = new URLSearchParams(window.location.search);
+
+        const host = urlParams.get('host');
+        if (host) {
+            initWebRTC(host)
+        } else {
+            initWebSocket();
+        }
     }
 }
 
