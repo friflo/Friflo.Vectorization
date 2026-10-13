@@ -42,7 +42,21 @@ public static class KestrelHttpServer
         return serverTask;
     }
     
-    public static IHostBuilder Create(EndPoint endPoint, TmSessionLoop loop)
+    private static async Task RunAsync(IHost host)
+    {
+        try
+        {
+            Console.WriteLine($"[+] Kestrel Server listening ...");
+            await host.RunAsync();
+        }
+        catch (Exception ex)
+        {
+            // ReSharper disable once MethodHasAsyncOverload
+            Console.Error.WriteLine($"[-] Critical Server error: {ex.Message}");
+        }
+    }
+    
+    public static IHostBuilder Create(EndPoint endPoint, TmSessionLoop loop, string? webRoot = null)
     {
         var builder = Host.CreateDefaultBuilder();
 
@@ -62,25 +76,11 @@ public static class KestrelHttpServer
             });
 
             webBuilder.Configure(app => {
-                Configure(app, loop, WebRoot);
+                Configure(app, loop, webRoot ?? WebRoot);
             });
         });
 
         return builder;
-    }
-
-    private static async Task RunAsync(IHost host)
-    {
-        try
-        {
-            Console.WriteLine($"[+] Kestrel Server listening ...");
-            await host.RunAsync();
-        }
-        catch (Exception ex)
-        {
-            // ReSharper disable once MethodHasAsyncOverload
-            Console.Error.WriteLine($"[-] Critical Server error: {ex.Message}");
-        }
     }
     
     public static void Configure(IApplicationBuilder app, TmSessionLoop loop, string webRoot)
