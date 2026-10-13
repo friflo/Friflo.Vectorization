@@ -48,7 +48,7 @@ public partial class SignalingListener
             case "offer":
             {
                 // Get or create peer session using a method group (no lambdas)
-                var session = _sessions.GetOrAdd(webSocket, CreatePeerSession);
+                var session = _sessions.GetOrAdd(webSocket, new PeerSession(webSocket));
                 var pc = session.peerConnection;
 
                 // Set remote description using RTCSessionDescriptionInit
@@ -93,11 +93,6 @@ public partial class SignalingListener
                 break;
             }
         }
-    }
-
-    private static PeerSession CreatePeerSession(WebSocket webSocket)
-    {
-        return new PeerSession(webSocket);
     }
 }
 
