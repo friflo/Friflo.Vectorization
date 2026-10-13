@@ -9,6 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using SIPSorcery.Net;
 
+// ReSharper disable RedundantLambdaParameterType
 // ReSharper disable InconsistentNaming
 // ReSharper disable CheckNamespace
 namespace Friflo.TmGui.WebRTC;
@@ -106,6 +107,15 @@ internal class PeerSession
         this.webSocket = webSocket;
         peerConnection = new RTCPeerConnection(null);
         peerConnection.onicecandidate += OnIceCandidate;
+        
+        peerConnection.ondatachannel += (RTCDataChannel rtcDataChannel) => {
+            Console.WriteLine("P2P Data Channel opened on host side!");
+            rtcDataChannel.onmessage += (RTCDataChannel dc, DataChannelPayloadProtocols protocol, byte[] data) =>
+            {
+                var message = System.Text.Encoding.UTF8.GetString(data);
+                Console.WriteLine($"Received from client: {message}");
+            }; 
+        };
     }
 
     // Returns void to match the event delegate signature and fix CS0407
