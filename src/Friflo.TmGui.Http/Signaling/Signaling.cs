@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Linq;
-using System.Net.WebSockets;
 using System.Text.Json;
-using System.Threading;
-using System.Threading.Tasks;
 
 
 // ReSharper disable InconsistentNaming
@@ -19,11 +16,11 @@ internal record struct SignalMessage(string type, string? app, string? connectio
 
 public class TmGuiApp
 {
-    public   readonly   string              name;
-    internal readonly   SignalClient     client;
-    internal            SignalClient?    connectedClient; // The client currently connected to this app
+    public   readonly   string          name;
+    internal readonly   SignalClient    client;
+    internal            SignalClient?   connectedClient; // The client currently connected to this app
 
-    public   override   string              ToString() => name;
+    public   override   string          ToString() => name;
 
     internal TmGuiApp(SignalClient client, string name) {
         this.name   = name;
@@ -31,29 +28,6 @@ public class TmGuiApp
     }
 }
 
-internal partial class SignalClient
-{
-    private  readonly   WebSocket   webSocket;
-    internal            TmGuiApp?   guiApp;       // the GUI this client wants to connect to
-    internal readonly   string      connection;
-    
-    public   override   string      ToString() => $"{(guiApp == null ? "App" : "Client")}  conn: {connection}";
-    
-
-    internal SignalClient(WebSocket webSocket, string connection)
-    {
-        this.webSocket  = webSocket;
-        this.connection = connection;
-    }
-
-    internal async Task SendAsync(ReadOnlyMemory<byte> payload, CancellationToken cancellationToken = default)
-    {
-        if (webSocket.State == WebSocketState.Open)
-        {
-            await webSocket.SendAsync(payload, WebSocketMessageType.Text, true, cancellationToken);
-        }
-    }
-}
 
 
 /// <summary> Single <see cref="TmSignaling"/> instance is shared by all sessions. </summary>
