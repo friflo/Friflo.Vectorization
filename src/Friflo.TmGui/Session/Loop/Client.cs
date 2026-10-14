@@ -55,13 +55,13 @@ public abstract class TmClient
 {
     private  SendQueueState    queueState;
     
-    protected void QueueDataAppended(int queueSize)
+    public void QueueDataAppended(int queueSize)
     {
         queueState.lastAppendedTime = Stopwatch.GetTimestamp();
         queueState.queueSize        = queueSize;
     }
     
-    protected void QueueDataSent(int queueSize)
+    public void QueueDataSent(int queueSize)
     {
         Volatile.Write(ref queueState.lastSentTime, Stopwatch.GetTimestamp());
         Volatile.Write(ref queueState.queueSize,    queueSize);

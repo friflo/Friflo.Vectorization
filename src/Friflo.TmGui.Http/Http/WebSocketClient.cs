@@ -8,71 +8,29 @@ using System.Threading;
 using System.Threading.Tasks;
 using Friflo.TmGui.Session;
 
+// ReSharper disable MergeIntoPattern
 // ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable ConvertToAutoPropertyWithPrivateSetter
 // ReSharper disable CheckNamespace
 namespace Friflo.TmGui.Http;
 
-internal struct WsSendBuffer
-{
-    private     byte[]                  data            = [];
-    private     int                     pendingLength;
-    
-    internal    int                     PendingLength   => pendingLength;
-    internal    ReadOnlyMemory<byte>    Memory          => new(data, 0, pendingLength);
-    
-    internal int GetPendingLength() {
-        return Volatile.Read(ref pendingLength);
-    }
-    
-    public override string ToString() => $"byte[{pendingLength}]";
-    
-    internal void Clear() {
-        pendingLength = 0;
-    }
-
-    internal int AppendFrom(TmSendMessage message)
-    {
-        if (message.mode == TmSendMessageMode.DropUnsent) {
-            pendingLength = 0;
-        }
-        int newLength = pendingLength + message.Length;
-        if (data.Length < newLength) {
-            var allocate = Math.Max(data.Length * 2, newLength);
-            // var newBuffer = new byte[allocate];
-            var newBuffer = GC.AllocateUninitializedArray<byte>(allocate);
-            Array.Copy(data, 0, newBuffer, 0, pendingLength);
-            data = newBuffer;
-        }
-        message.buffer.CopyTo(data.AsMemory(pendingLength));
-        return pendingLength = newLength;
-    }
-    
-    public WsSendBuffer() { }
-}
 
 internal class WebSocketClient : TmClient
 {
-    private             WebSocket       webSocket;
-    private readonly    object          bufferLock = new();
-    
-    // Lock-free flag for signaling: 0 = no data, 1 = frame pending
-    private             int             hasPendingFrame;
-    
-    // Double-buffering to prevent race conditions between OnFrame thread and Kestrel flush
-    private             WsSendBuffer    frontBuffer = new();
-    private             WsSendBuffer    backBuffer  = new();
+    private     WebSocket       webSocket;
+    private     WsDoubleBuffer? doubleBuffer;
 
     internal WebSocketClient(WebSocket webSocket)
     {
-        this.webSocket = webSocket;
+        doubleBuffer    = new WsDoubleBuffer(this);
+        this.webSocket  = webSocket;
     }
     
     public override void Dispose()
     {
-        frontBuffer = default;
-        backBuffer  = default;
-        webSocket   = null!;
+        doubleBuffer?.Dispose();
+        doubleBuffer = null!;
+        webSocket    = null!;
     }
 
     protected override async ValueTask<int> SendAsync(TmSendMessage message, CancellationToken cancellationToken)
@@ -91,13 +49,7 @@ internal class WebSocketClient : TmClient
             return 0;
         }
 
-        lock (bufferLock)
-        {
-            var pendingLength = frontBuffer.AppendFrom(message);
-            Volatile.Write(ref hasPendingFrame, 1);
-            QueueDataAppended(pendingLength);
-            // Console.WriteLine(pendingLength);
-        }
+        doubleBuffer?.Send(message);
 
         return message.Length;
     }
@@ -108,31 +60,15 @@ internal class WebSocketClient : TmClient
 
     private async Task FlushPendingBufferAsync(CancellationToken ct)
     {
-        // Swap buffers quickly under lock to minimize OnFrame thread wait time
-        lock (bufferLock)
-        {
-            if (frontBuffer.PendingLength == 0) {
-                Volatile.Write(ref hasPendingFrame, 0);
-                return;
-            }
-
-            // Swap front and back buffer structs
-            (frontBuffer, backBuffer) = (backBuffer, frontBuffer);
-            
-            // Clear pending length on new frontBuffer so it is ready for the next frame
-            frontBuffer.Clear();
-            Volatile.Write(ref hasPendingFrame, 0);
+        if (doubleBuffer == null) {
+            return;
         }
+        doubleBuffer.Swap();
 
         // Send backBuffer asynchronously - OnFrame thread is completely free to write to frontBuffer now
-        if (backBuffer.PendingLength > 0 && webSocket.State == WebSocketState.Open) {
-            var memoryToSend = backBuffer.Memory;
-            await webSocket.SendAsync(memoryToSend, WebSocketMessageType.Binary, true, ct);
-            backBuffer.Clear();
-            
-            var queueSize = frontBuffer.GetPendingLength();
-            QueueDataSent(queueSize);
-            // Console.WriteLine(queueSize);
+        if (doubleBuffer.PendingLength > 0 && webSocket.State == WebSocketState.Open) {
+            await webSocket.SendAsync(doubleBuffer.Memory, WebSocketMessageType.Binary, true, ct);
+            doubleBuffer.Clear();
         }
     }
 
@@ -149,8 +85,7 @@ internal class WebSocketClient : TmClient
             while (client.webSocket.State == WebSocketState.Open && !cancellationToken.IsCancellationRequested)
             {
                 // Wait briefly or check for pending frame signal without WaitAsync allocations
-                if (Volatile.Read(ref client.hasPendingFrame) == 1)
-                {
+                if (client.doubleBuffer != null && client.doubleBuffer.HasPendingFrame) {
                     await client.FlushPendingBufferAsync(cancellationToken);
                 }
 
