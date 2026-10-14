@@ -104,7 +104,7 @@ internal class PeerSession
     private  readonly   string              client;
     internal readonly   RTCPeerConnection   peerConnection;
 
-    public PeerSession(WebSocket webSocket, string client)
+    internal PeerSession(WebSocket webSocket, string client)
     {
         this.webSocket  = webSocket;
         this.client     = client;

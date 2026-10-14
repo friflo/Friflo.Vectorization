@@ -27,11 +27,11 @@ public static class TmSignalingExtensions
     }
 }
 
-public class SignalingSocketHandler
+internal class SignalingSocketHandler
 {
     private readonly Signaling signaling;
 
-    public SignalingSocketHandler(Signaling signaling)
+    internal SignalingSocketHandler(Signaling signaling)
     {
         this.signaling = signaling;
     }
@@ -46,7 +46,7 @@ public class SignalingSocketHandler
     
     private int connectionId;
 
-    public async Task HandleSignalRequestAsync(HttpContext context, Func<Task> next)
+    internal async Task HandleSignalRequestAsync(HttpContext context, Func<Task> next)
     {
         var path = context.Request.Path;
         
