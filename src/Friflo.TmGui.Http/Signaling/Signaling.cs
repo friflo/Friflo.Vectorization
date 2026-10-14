@@ -86,13 +86,12 @@ public sealed class TmSignaling
             case "answer":
             case "candidate":
                 var sender          = client;
-                message             = message with { connection =  sender.connection };
-                var routeMessage    = JsonSerializer.SerializeToUtf8Bytes(message);
-                
                 // Case 1: Sender is a Client forwarding an offer or candidate to the Host
                 if (sender.guiApp != null && sender != sender.guiApp.client)
                 {
-                    await sender.guiApp.client.SendAsync(routeMessage);
+                    var routeMessage    = message with { connection =  sender.connection };
+                    var routeBuffer     = JsonSerializer.SerializeToUtf8Bytes(routeMessage);
+                    await sender.guiApp.client.SendAsync(routeBuffer);
                 }
                 // Case 2: Sender is a Host forwarding an answer or candidate back to the Client
                 else
@@ -100,7 +99,7 @@ public sealed class TmSignaling
                     var guiApp = guiApps.Values.FirstOrDefault(h => h.client == sender);
                     if (guiApp?.connectedClient != null)
                     {
-                        await guiApp.connectedClient.SendAsync(routeMessage);
+                        await guiApp.connectedClient.SendAsync(buffer);
                     }
                 }
                 break;
