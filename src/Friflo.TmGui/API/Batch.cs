@@ -8,6 +8,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Numerics;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Text;
 using Friflo.TmGui.Headless;
 using Friflo.TmGui.Raster;
@@ -56,9 +57,10 @@ namespace Friflo.TmGui;
 public abstract class TmBatch : IDisposable
 {
 #region public
-//  internal readonly   TmGuiBackend        backend;    - intentionally no back reference to its backend. Prevents calling NewFrame() within a Gui scope.
-    public ReadOnlySpan<DrawCommand>        DrawList    => new(drawList, 0, drawCommands.Count);
-    public Span<Vertex2D>                   Vertices    => vertexBuffer.Span.Slice(0, vertexCount);
+//  internal readonly   TmGuiBackend        backend;        - intentionally no back reference to its backend. Prevents calling NewFrame() within a Gui scope.
+    public ReadOnlySpan<DrawCommand>        DrawList        => new(drawList, 0, drawCommands.Count);
+    public Span<Vertex2D>                   Vertices        => vertexBuffer.Span.Slice(0, vertexCount);
+    public ReadOnlySpan<char>               ClientCommand   => CollectionsMarshal.AsSpan(clientCommand);
 #endregion
 
 #region protected
@@ -77,6 +79,7 @@ public abstract class TmBatch : IDisposable
     internal  readonly  Stack<Matrix4x4>    transformStack      = [];
     internal  readonly  Stack<ZIndex>       zIndexStack         = [];
     internal  readonly  Stack<SamplerFilter>samplerFilterStack  = [];
+    private   readonly  List<char>          clientCommand       = [];
     private   readonly  StringBuilder       stringBuilder       = new(512,512); // => first chunk: 512 chars
     internal  readonly  GuiState            guiState            = new();
     
@@ -172,6 +175,13 @@ public abstract class TmBatch : IDisposable
         currentScissor = scissor;
         var lineHeight = currentFont.lineHeight;
         paddedScissor  = new RectVector2(scissor.pos - new Vector2(lineHeight), scissor.size + new Vector2(2 * lineHeight));
+    }
+    
+    internal void OpenPage(ReadOnlySpan<char> url)
+    {
+        clientCommand.Clear();
+        clientCommand.AddRange("open-page:");
+        clientCommand.AddRange(url);
     }
 #endregion
 
@@ -320,6 +330,7 @@ public abstract class TmBatch : IDisposable
         transformStack.Clear();
         zIndexStack.Clear();
         samplerFilterStack.Clear();
+        clientCommand.Clear();
         
         var draw = new TmDraw(this);
         draw.SetViewport(width, height);

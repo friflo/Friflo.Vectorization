@@ -29,7 +29,9 @@ public class SignalingView : IGuiView
     {
         foreach (var guiApp in signaling.guiApps.Values)
         {
-            gui.Button(guiApp.name);
+            if (gui.Button(guiApp.name)) {
+                gui.OpenPage(guiApp.url);
+            }
         }
     }
 }

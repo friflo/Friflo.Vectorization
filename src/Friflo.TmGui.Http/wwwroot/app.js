@@ -340,6 +340,16 @@ function processDrawList(message)
 
         ensureTextureLoaded(textureId, name);
     }
+    const commandLength = view.getInt32(offset, true);
+    offset += SIZEOF_INT;
+    if (commandLength > 0) {
+        const commandBytes = uint8Data.subarray(offset, offset + commandLength);
+        const command = utf8Decoder.decode(commandBytes);
+        offset += commandLength;
+        if (command.startsWith("open-page:")) {
+            window.location.href = command.substring("open-page:".length);
+        }
+    }
 
     // 6. View on WsDrawCommand array
     const drawCommandsByteLength = drawCommandCount * SIZEOF_WS_DRAW_COMMAND;

@@ -28,13 +28,15 @@ internal record struct SignalMessage(string type, string? app, string? connectio
 public sealed class TmGuiApp
 {
     public   readonly   string          name;
+    public   readonly   string          url;
     internal readonly   SignalClient    client;
 
     public   override   string          ToString() => name;
 
-    internal TmGuiApp(SignalClient client, string name) {
+    internal TmGuiApp(SignalClient client, string name, string url) {
         this.name   = name;
         this.client = client;
+        this.url    = url;
     }
 }
 
@@ -62,7 +64,7 @@ public sealed class TmSignaling
             case "register":
                 if (!string.IsNullOrEmpty(message.app)) {
                     Console.WriteLine($"Register app: '{message.app}'");
-                    guiApps[message.app] = new TmGuiApp(client, message.app);
+                    guiApps[message.app] = new TmGuiApp(client, message.app, $"?app={message.app}");
                 }
                 break;
                 
