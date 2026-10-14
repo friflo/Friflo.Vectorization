@@ -185,8 +185,10 @@ public abstract class TmBatch : IDisposable
             commands.AddRange("open-url");
             commands.Add('|');
             commands.AddRange(url);
-            commands.Add('|');
-            commands.AddRange(target);
+            if (target.Length > 0) {
+                commands.Add('|');
+                commands.AddRange(target);
+            }
             commands.Add('\n');
             return;
         }
