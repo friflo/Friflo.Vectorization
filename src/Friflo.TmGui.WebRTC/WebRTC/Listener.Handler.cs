@@ -18,16 +18,8 @@ namespace Friflo.TmGui.WebRTC;
 internal record struct SignalMessage(string type, string? app, string connection, string? sdpOrCandidate)
 {
     public override string ToString() => $"[{type}]  app: {app}  conn: {connection}";
-}
-
-
-
-public sealed partial class SignalingListener
-{
-    // Maps each WebSocket session to its respective peer session wrapper
-    private readonly ConcurrentDictionary<string, PeerSession> _sessions = new();
     
-    private static bool TryParse(ReadOnlySpan<byte> buffer, out SignalMessage message)
+    internal static bool TryParse(ReadOnlySpan<byte> buffer, out SignalMessage message)
     {
         try {
             message = JsonSerializer.Deserialize<SignalMessage>(buffer);
@@ -38,10 +30,18 @@ public sealed partial class SignalingListener
             return false;
         }
     }
+}
+
+
+
+public sealed partial class SignalingListener
+{
+    // Maps each WebSocket session to its respective peer session wrapper
+    private readonly ConcurrentDictionary<string, PeerSession> _sessions = new();
 
     private async Task ProcessSignalingMessage(WebSocket webSocket, ReadOnlyMemory<byte> buffer)
     {
-        if (!TryParse(buffer.Span, out var message)) {
+        if (!SignalMessage.TryParse(buffer.Span, out var message)) {
             return;
         }
 

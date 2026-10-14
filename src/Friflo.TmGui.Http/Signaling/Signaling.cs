@@ -12,6 +12,18 @@ namespace Friflo.TmGui.Http;
 internal record struct SignalMessage(string type, string? app, string? connection, string? sdpOrCandidate)
 {
     public override string ToString() => $"[{type}]  app: {app}  conn: {connection}";
+    
+    internal static bool TryParse(ReadOnlySpan<byte> buffer, out SignalMessage message)
+    {
+        try {
+            message = JsonSerializer.Deserialize<SignalMessage>(buffer);
+            return true;
+        }
+        catch (JsonException) {
+            message = default;
+            return false;
+        }
+    }
 }
 
 public sealed class TmGuiApp
@@ -39,21 +51,9 @@ public sealed class TmSignaling
     {
     }
     
-    private static bool TryParse(ReadOnlySpan<byte> buffer, out SignalMessage message)
-    {
-        try {
-            message = JsonSerializer.Deserialize<SignalMessage>(buffer);
-            return true;
-        }
-        catch (JsonException) {
-            message = default;
-            return false;
-        }
-    }
-    
     internal void ProcessMessage(SignalClient client, ReadOnlySpan<byte> buffer)
     {
-        if (!TryParse(buffer, out var message)) {
+        if (!SignalMessage.TryParse(buffer, out var message)) {
             return;
         }
 
