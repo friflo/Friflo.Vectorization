@@ -1,7 +1,6 @@
 // Copyright (c) Ullrich Praetz - https://github.com/friflo. All rights reserved.
 // See LICENSE file in the project root for full license information.
 
-
 using System;
 using System.Net.WebSockets;
 using System.Threading;
@@ -30,7 +29,7 @@ public static class TmSignalingExtensions
 
 internal sealed class SignalSocketHandler
 {
-    private readonly TmSignaling signaling;
+    private readonly    TmSignaling signaling;
 
     internal SignalSocketHandler(TmSignaling signaling)
     {
@@ -59,10 +58,12 @@ internal sealed class SignalSocketHandler
                 using var webSocket = await context.WebSockets.AcceptWebSocketAsync(acceptContext);
                 
                 var id = Interlocked.Increment(ref connectionId);
-                var connection  = context.Connection;
+                var contextConn  = context.Connection;
                 
-                var clientId    = $"{id}|{connection.RemoteIpAddress?.ToString()}:{connection.RemotePort}";
-                var client      = new SignalClient(webSocket, clientId);
+                var connection  = $"{id}|{contextConn.RemoteIpAddress?.ToString()}:{contextConn.RemotePort}";
+                var client      = new SignalClient(webSocket, connection);
+                signaling.clients[connection] = client;
+                
                 await HandleClientSessionAsync(client, signaling, context.RequestAborted);
             }
             catch (Exception ex)

@@ -15,7 +15,7 @@ namespace Friflo.TmGui.Http;
 internal sealed class SignalClient
 {
     internal readonly   WebSocket   webSocket;
-    internal            TmGuiApp?   guiApp;       // the GUI this client wants to connect to
+    internal            TmGuiApp?   guiApp;       // the GUI app a client wants to connect
     internal readonly   string      connection;
     
     public   override   string      ToString() => $"{(guiApp == null ? "App" : "Client")}  conn: {connection}";

@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
-
 
 // ReSharper disable InconsistentNaming
 // ReSharper disable CheckNamespace
@@ -31,7 +29,6 @@ public sealed class TmGuiApp
 {
     public   readonly   string          name;
     internal readonly   SignalClient    client;
-    internal            SignalClient?   connectedClient; // The client currently connected to this app
 
     public   override   string          ToString() => name;
 
@@ -46,7 +43,9 @@ public sealed class TmGuiApp
 /// <summary> Single <see cref="TmSignaling"/> instance is shared by all sessions. </summary>
 public sealed class TmSignaling
 {
-    public readonly ConcurrentDictionary<string, TmGuiApp> guiApps = [];
+    public   readonly   ConcurrentDictionary<string, TmGuiApp>      guiApps = [];
+    internal readonly   ConcurrentDictionary<string, SignalClient>  clients = [];
+
     
     public TmSignaling(TmGuiBackend backend)
     {
@@ -72,7 +71,6 @@ public sealed class TmSignaling
                     var foundApp = guiApps.TryGetValue(message.app, out var guiApp);
                     if (foundApp) {
                         client.guiApp = guiApp;
-                        guiApp!.connectedClient = client; // Link the client to this app session
                     }
                     var result = foundApp ? "Found" : "NotFound";
                     var msg = new SignalMessage("ConnectResponse", message.app, client.connection, result);
@@ -86,20 +84,20 @@ public sealed class TmSignaling
             case "answer":
             case "candidate":
                 var sender          = client;
-                // Case 1: Sender is a Client forwarding an offer or candidate to the Host
+                // Case 1: Sender is a Client forwarding an offer or candidate to the App
                 if (sender.guiApp != null && sender != sender.guiApp.client)
                 {
                     var routeMessage    = message with { connection =  sender.connection };
                     var routeBuffer     = JsonSerializer.SerializeToUtf8Bytes(routeMessage);
                     await sender.guiApp.client.SendAsync(routeBuffer);
                 }
-                // Case 2: Sender is a Host forwarding an answer or candidate back to the Client
+                // Case 2: Sender is an App forwarding an answer or candidate back to the Client
                 else
                 {
-                    var guiApp = guiApps.Values.FirstOrDefault(h => h.client == sender);
-                    if (guiApp?.connectedClient != null)
-                    {
-                        await guiApp.connectedClient.SendAsync(buffer);
+                    if (message.connection != null) {
+                        if (clients.TryGetValue(message.connection, out var connectedClient)) {
+                            await connectedClient.SendAsync(buffer);
+                        }
                     }
                 }
                 break;
