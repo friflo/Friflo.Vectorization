@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 namespace Friflo.TmGui.Http;
 
 
-internal class SignalClient
+internal sealed class SignalClient
 {
     internal readonly   WebSocket   webSocket;
     internal            TmGuiApp?   guiApp;       // the GUI this client wants to connect to

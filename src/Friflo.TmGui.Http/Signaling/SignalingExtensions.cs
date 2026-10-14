@@ -28,7 +28,7 @@ public static class TmSignalingExtensions
     }
 }
 
-internal class SignalSocketHandler
+internal sealed class SignalSocketHandler
 {
     private readonly TmSignaling signaling;
 

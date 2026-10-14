@@ -22,7 +22,7 @@ internal record struct SignalMessage(string type, string? app, string connection
 
 
 
-public partial class SignalingListener
+public sealed partial class SignalingListener
 {
     // Maps each WebSocket session to its respective peer session wrapper
     private readonly ConcurrentDictionary<string, PeerSession> _sessions = new();
@@ -98,7 +98,7 @@ public partial class SignalingListener
     }
 }
 
-internal class PeerSession
+internal sealed class PeerSession
 {
     private  readonly   WebSocket           webSocket;
     private  readonly   string              connection;

@@ -14,7 +14,7 @@ internal record struct SignalMessage(string type, string? app, string? connectio
     public override string ToString() => $"[{type}]  app: {app}  conn: {connection}";
 }
 
-public class TmGuiApp
+public sealed class TmGuiApp
 {
     public   readonly   string          name;
     internal readonly   SignalClient    client;
@@ -31,7 +31,7 @@ public class TmGuiApp
 
 
 /// <summary> Single <see cref="TmSignaling"/> instance is shared by all sessions. </summary>
-public class TmSignaling
+public sealed class TmSignaling
 {
     public readonly ConcurrentDictionary<string, TmGuiApp> guiApps = [];
     

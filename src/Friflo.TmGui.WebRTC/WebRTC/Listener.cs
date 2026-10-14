@@ -14,7 +14,7 @@ using Friflo.TmGui.Session;
 // ReSharper disable CheckNamespace
 namespace Friflo.TmGui.WebRTC;
 
-public partial class SignalingListener
+public sealed partial class SignalingListener
 {
     private readonly TmSessionLoop loop;
         
