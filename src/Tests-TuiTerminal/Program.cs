@@ -56,7 +56,7 @@ var loop = new TmSessionLoop(runAsync, rootBackend, info => new TestGuiView(appS
 // var builder = HttpUtils.CreateHostBuilder(new IPEndPoint(IPAddress.Any, 8080), loop);
 // _ = HttpUtils.Start(builder.Build());
 
-var signalListener =  new SignalingListener(loop);
+var signalListener =  new TmSignalingListener(loop);
 _ = signalListener.Start("test-app", new Uri("wss://localhost:8081/signaling"));
 
 if (runAsync) {

@@ -1,17 +1,19 @@
 
 
-C# SignalingListener ("GuiHost")     C# SignalingServer (Transport)        Browser (JS Client)
+C# TmSignalingListener                     C# TmSignaling                  Browser (JS Client)
+ 1. WebSocket (permanent)  ----->            http server    <----------     1. WebSocket (on start)
+ 2. RTCDataChannel    <------------------------------------------------>    2. RTCDataChannel
          |                                         |                                 |
-         | --- 1. Registers itself in memory ----> |                                 |
+         | --- 1. "register"s itself in memory --> |                                 |
          |    (Passively waiting)                  |                                 |
          |                                         |                                 |
          |                                         | <--- 2. WebSocket Connection -- |
          |                                         |                                 |
          |                                         | <--- 3. Send "connect" msg ---- |
-         |                                         |    { type: "connect", host }    |
+         |                                         |    { type: "connect", app }     |
          |                                         |                                 |
          |                                         | (4. Server checks local dict,   |
-         |                                         |    host found immediately)      |
+         |                                         |    app found immediately)       |
          |                                         |                                 |
          |                                         | --- 5. Send "ConnectResponse" ->|
          |                                         |        (sdpOrCandidate: "Found")|
@@ -29,14 +31,14 @@ C# SignalingListener ("GuiHost")     C# SignalingServer (Transport)        Brows
          |                                         |                                 |
          | === 10. ICE Candidate Exchange (Independent & Asynchronous) ============  |
          |                                         |                                 |
-         | (Both sides gather and send candidates completely independently of each other)
+         |    (Both sides gather and send candidates independently of each other)    |
          |                                         |                                 |
-         | [GuiHost finds local candidate]         |    [Browser finds local candidate]
-         | --- Send candidate ----------------->   |                                 |
-         |                                         | --- Forward candidate --------> |
+         | [GuiHost finds local candidate]         | [Browser finds local candidate] |
+         | --- Send "candidate" --------------->   |                                 |
+         |                                         | --- Forward "candidate" ------> |
          |                                         |                                 |
-         |                                         | <--- Send candidate ----------- |
-         | <--- Forward candidate ---------------  |                                 |
+         |                                         | <--- Send "candidate" --------- |
+         | <--- Forward "candidate" -------------  |                                 |
          |                                         |                                 |
          | ========================================================================= |
          |                           11. P2P CONNECTION                              |
