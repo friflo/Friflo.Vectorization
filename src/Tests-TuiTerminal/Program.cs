@@ -56,8 +56,8 @@ var loop = new TmSessionLoop(runAsync, rootBackend, info => new TestGuiView(appS
 // var builder = HttpUtils.CreateHostBuilder(new IPEndPoint(IPAddress.Any, 8080), loop);
 // _ = HttpUtils.Start(builder.Build());
 
-var webRtcListener =  new SignalingListener(loop);
-_ = webRtcListener.Start("test-app", new Uri("wss://localhost:8081/signaling"));
+var signalListener =  new SignalingListener(loop);
+_ = signalListener.Start("test-app", new Uri("wss://localhost:8081/signaling"));
 
 if (runAsync) {
     loop.StartAsync(); // Spawns dedicated "ShardLoopThread"

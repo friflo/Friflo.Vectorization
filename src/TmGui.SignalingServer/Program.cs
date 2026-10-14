@@ -13,7 +13,7 @@ using TmGui.SignalingServer;
 Console.WriteLine("Signaling Server");
 
 var rootBackend = new CpuBackend("Console", new DefaultGuiAssets());
-var signaling    = new Signaling(rootBackend);
+var signaling   = new TmSignaling(rootBackend);
 
 var loop = new TmSessionLoop(false, rootBackend, info => new SignalingView(signaling, info));
 

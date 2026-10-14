@@ -15,7 +15,7 @@ using SIPSorcery.Net;
 namespace Friflo.TmGui.WebRTC;
 
 
-internal record struct SignalingMessage(string type, string? app, string connection, string? sdpOrCandidate)
+internal record struct SignalMessage(string type, string? app, string connection, string? sdpOrCandidate)
 {
     public override string ToString() => $"[{type}]  app: {app}  conn: {connection}";
 }
@@ -27,10 +27,10 @@ public partial class SignalingListener
     // Maps each WebSocket session to its respective peer session wrapper
     private readonly ConcurrentDictionary<string, PeerSession> _sessions = new();
     
-    private static bool TryParse(ReadOnlySpan<byte> buffer, out SignalingMessage message)
+    private static bool TryParse(ReadOnlySpan<byte> buffer, out SignalMessage message)
     {
         try {
-            message = JsonSerializer.Deserialize<SignalingMessage>(buffer);
+            message = JsonSerializer.Deserialize<SignalMessage>(buffer);
             return true;
         }
         catch (JsonException) {
@@ -65,7 +65,7 @@ public partial class SignalingListener
                 await pc.setLocalDescription(answer);
 
                 var answerPayload = JsonSerializer.SerializeToUtf8Bytes(
-                    new SignalingMessage("answer", null, message.connection, answer.sdp)
+                    new SignalMessage("answer", null, message.connection, answer.sdp)
                 );
                 if (webSocket.State == WebSocketState.Open) {
                     await webSocket.SendAsync(answerPayload, WebSocketMessageType.Text, true, CancellationToken.None);
@@ -130,7 +130,7 @@ internal class PeerSession
     private async Task SendIceCandidateAsync(RTCIceCandidate candidate)
     {
         var candidateJson = JsonSerializer.Serialize(candidate);
-        var msg              = new SignalingMessage("candidate", null, connection, candidateJson);
+        var msg              = new SignalMessage("candidate", null, connection, candidateJson);
         var candidatePayload = JsonSerializer.SerializeToUtf8Bytes(msg);
         if (webSocket.State == WebSocketState.Open) {
             await webSocket.SendAsync(candidatePayload, WebSocketMessageType.Text, true, CancellationToken.None);

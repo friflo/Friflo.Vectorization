@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 namespace Friflo.TmGui.Http;
 
 
-internal record struct SignalingMessage(string type, string? app, string? connection, string? sdpOrCandidate)
+internal record struct SignalMessage(string type, string? app, string? connection, string? sdpOrCandidate)
 {
     public override string ToString() => $"[{type}]  app: {app}  conn: {connection}";
 }
@@ -20,18 +20,18 @@ internal record struct SignalingMessage(string type, string? app, string? connec
 public class TmGuiApp
 {
     public   readonly   string              name;
-    internal readonly   SignalingClient     client;
-    internal            SignalingClient?    connectedClient; // The client currently connected to this app
+    internal readonly   SignalClient     client;
+    internal            SignalClient?    connectedClient; // The client currently connected to this app
 
     public   override   string              ToString() => name;
 
-    internal TmGuiApp(SignalingClient client, string name) {
+    internal TmGuiApp(SignalClient client, string name) {
         this.name   = name;
         this.client = client;
     }
 }
 
-internal partial class SignalingClient
+internal partial class SignalClient
 {
     private  readonly   WebSocket   webSocket;
     internal            TmGuiApp?   guiApp;       // the GUI this client wants to connect to
@@ -40,7 +40,7 @@ internal partial class SignalingClient
     public   override   string      ToString() => $"{(guiApp == null ? "App" : "Client")}  conn: {connection}";
     
 
-    internal SignalingClient(WebSocket webSocket, string connection)
+    internal SignalClient(WebSocket webSocket, string connection)
     {
         this.webSocket  = webSocket;
         this.connection = connection;
@@ -56,19 +56,19 @@ internal partial class SignalingClient
 }
 
 
-/// <summary> Single <see cref="Signaling"/> instance is shared by all sessions. </summary>
-public class Signaling
+/// <summary> Single <see cref="TmSignaling"/> instance is shared by all sessions. </summary>
+public class TmSignaling
 {
     public readonly ConcurrentDictionary<string, TmGuiApp> guiApps = [];
     
-    public Signaling(TmGuiBackend backend)
+    public TmSignaling(TmGuiBackend backend)
     {
     }
     
-    private static bool TryParse(ReadOnlySpan<byte> buffer, out SignalingMessage message)
+    private static bool TryParse(ReadOnlySpan<byte> buffer, out SignalMessage message)
     {
         try {
-            message = JsonSerializer.Deserialize<SignalingMessage>(buffer);
+            message = JsonSerializer.Deserialize<SignalMessage>(buffer);
             return true;
         }
         catch (JsonException) {
@@ -77,7 +77,7 @@ public class Signaling
         }
     }
     
-    internal void ProcessMessage(SignalingClient client, ReadOnlySpan<byte> buffer)
+    internal void ProcessMessage(SignalClient client, ReadOnlySpan<byte> buffer)
     {
         if (!TryParse(buffer, out var message)) {
             return;
@@ -100,7 +100,7 @@ public class Signaling
                         guiApp!.connectedClient = client; // Link the client to this app session
                     }
                     var result = foundApp ? "Found" : "NotFound";
-                    var msg = new SignalingMessage("ConnectResponse", message.app, client.connection, result);
+                    var msg = new SignalMessage("ConnectResponse", message.app, client.connection, result);
                     var errorResponse = JsonSerializer.SerializeToUtf8Bytes(msg);
                     _ = client.SendAsync(errorResponse);
                     Console.WriteLine($"Connect app: '{message.app}'  {result}");
@@ -115,7 +115,7 @@ public class Signaling
         }
     }
 
-    private void RouteWebRtcMessage(SignalingClient sender, SignalingMessage message)
+    private void RouteWebRtcMessage(SignalClient sender, SignalMessage message)
     {
         message             = message with { connection =  sender.connection };
         var routeMessage    = JsonSerializer.SerializeToUtf8Bytes(message);

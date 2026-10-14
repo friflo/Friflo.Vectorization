@@ -42,7 +42,7 @@ public partial class SignalingListener
         // Connect to the specified signaling server URL
         await clientWebSocket.ConnectAsync(uri, cancellationToken);
         
-        byte[] payload = JsonSerializer.SerializeToUtf8Bytes(new SignalingMessage{ type = "register", app = app });
+        byte[] payload = JsonSerializer.SerializeToUtf8Bytes(new SignalMessage{ type = "register", app = app });
 
         await clientWebSocket.SendAsync(payload, WebSocketMessageType.Text, true, cancellationToken);
 

@@ -10,9 +10,9 @@ namespace TmGui.SignalingServer;
 /// <summary> Each session has its own <see cref="IGuiView"/> instance. </summary>
 public class SignalingView : IGuiView
 {
-    private readonly Signaling signaling;
+    private readonly TmSignaling signaling;
     
-    public SignalingView(Signaling signaling, SessionInfo info)
+    public SignalingView(TmSignaling signaling, SessionInfo info)
     {
         this.signaling = signaling;
     }

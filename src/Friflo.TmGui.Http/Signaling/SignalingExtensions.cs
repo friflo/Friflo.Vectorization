@@ -18,20 +18,20 @@ namespace Friflo.TmGui.Http;
 
 public static class TmSignalingExtensions
 {
-    public static void UseSignaling(this IApplicationBuilder app, Signaling signaling)
+    public static void UseSignaling(this IApplicationBuilder app, TmSignaling signaling)
     {
         app.UseWebSockets();
         
-        var handler = new SignalingSocketHandler(signaling);
+        var handler = new SignalSocketHandler(signaling);
         app.Use(handler.HandleSignalRequestAsync);
     }
 }
 
-internal class SignalingSocketHandler
+internal class SignalSocketHandler
 {
-    private readonly Signaling signaling;
+    private readonly TmSignaling signaling;
 
-    internal SignalingSocketHandler(Signaling signaling)
+    internal SignalSocketHandler(TmSignaling signaling)
     {
         this.signaling = signaling;
     }
@@ -61,8 +61,8 @@ internal class SignalingSocketHandler
                 var connection  = context.Connection;
                 
                 var clientId    = $"{id}|{connection.RemoteIpAddress?.ToString()}:{connection.RemotePort}";
-                var client      = new SignalingClient(webSocket, clientId);
-                await SignalingClient.HandleClientSessionAsync(client, signaling, context.RequestAborted);
+                var client      = new SignalClient(webSocket, clientId);
+                await SignalClient.HandleClientSessionAsync(client, signaling, context.RequestAborted);
             }
             catch (Exception ex)
             {
