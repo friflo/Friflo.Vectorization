@@ -15,9 +15,9 @@ using SIPSorcery.Net;
 namespace Friflo.TmGui.WebRTC;
 
 
-internal record SignalingMessage(string type, string? sdpOrCandidate, string? host)
+internal record SignalingMessage(string type, string? sdpOrCandidate, string? host, string client)
 {
-    public override string ToString() => $"{type} > host: {host}";
+    public override string ToString() => $"{type} > host: {host}  client: {client}";
 }
 
 
@@ -25,22 +25,24 @@ internal record SignalingMessage(string type, string? sdpOrCandidate, string? ho
 public partial class SignalingListener
 {
     // Maps each WebSocket session to its respective peer session wrapper
-    private readonly ConcurrentDictionary<WebSocket, PeerSession> _sessions = new();
+    private readonly ConcurrentDictionary<string, PeerSession> _sessions = new();
     
-    private static SignalingMessage? Parse(ReadOnlySpan<byte> buffer)
+    private static bool TryParse(ReadOnlySpan<byte> buffer, out SignalingMessage message)
     {
         try {
-            return JsonSerializer.Deserialize<SignalingMessage>(buffer);
+            var msg = JsonSerializer.Deserialize<SignalingMessage>(buffer);
+            message = msg!;
+            return msg != null;
         }
         catch (JsonException) {
-            return null;
+            message = null!;
+            return false;
         }
     }
 
     private async Task ProcessSignalingMessage(WebSocket webSocket, ReadOnlyMemory<byte> buffer)
     {
-        var message = Parse(buffer.Span);
-        if (message == null) {
+        if (!TryParse(buffer.Span, out var message)) {
             return;
         }
 
@@ -49,7 +51,7 @@ public partial class SignalingListener
             case "offer":
             {
                 // Get or create peer session using a method group (no lambdas)
-                var session = _sessions.GetOrAdd(webSocket, new PeerSession(webSocket));
+                var session = _sessions.GetOrAdd(message.client, new PeerSession(webSocket, message.client));
                 var pc = session.peerConnection;
 
                 // Set remote description using RTCSessionDescriptionInit
@@ -64,7 +66,7 @@ public partial class SignalingListener
                 await pc.setLocalDescription(answer);
 
                 var answerPayload = JsonSerializer.SerializeToUtf8Bytes(
-                    new SignalingMessage("answer", answer.sdp, null)
+                    new SignalingMessage("answer", answer.sdp, null, message.client)
                 );
                 if (webSocket.State == WebSocketState.Open) {
                     await webSocket.SendAsync(answerPayload, WebSocketMessageType.Text, true, CancellationToken.None);
@@ -73,7 +75,7 @@ public partial class SignalingListener
             }
             case "answer":
             {
-                if (_sessions.TryGetValue(webSocket, out var session) && message.sdpOrCandidate != null) {
+                if (_sessions.TryGetValue(message.client, out var session) && message.sdpOrCandidate != null) {
                     var remoteDesc = new RTCSessionDescriptionInit {
                         sdp = message.sdpOrCandidate,
                         type = RTCSdpType.answer
@@ -84,7 +86,7 @@ public partial class SignalingListener
             }
             case "candidate":
             {
-                if (_sessions.TryGetValue(webSocket, out var session) && !string.IsNullOrEmpty(message.sdpOrCandidate)) {
+                if (_sessions.TryGetValue(message.client, out var session) && !string.IsNullOrEmpty(message.sdpOrCandidate)) {
                     // Deserialize ICE candidate using System.Text.Json
                     var candidateInit = JsonSerializer.Deserialize<RTCIceCandidateInit>(message.sdpOrCandidate);
                     if (candidateInit != null) {
@@ -99,13 +101,15 @@ public partial class SignalingListener
 
 internal class PeerSession
 {
-    private  readonly   WebSocket            webSocket;
-    internal readonly   RTCPeerConnection    peerConnection;
+    private  readonly   WebSocket           webSocket;
+    private  readonly   string              client;
+    internal readonly   RTCPeerConnection   peerConnection;
 
-    public PeerSession(WebSocket webSocket)
+    public PeerSession(WebSocket webSocket, string client)
     {
-        this.webSocket = webSocket;
-        peerConnection = new RTCPeerConnection(null);
+        this.webSocket  = webSocket;
+        this.client     = client;
+        peerConnection  = new RTCPeerConnection(null);
         peerConnection.onicecandidate += OnIceCandidate;
         
         peerConnection.ondatachannel += (RTCDataChannel rtcDataChannel) => {
@@ -121,14 +125,14 @@ internal class PeerSession
     // Returns void to match the event delegate signature and fix CS0407
     private void OnIceCandidate(RTCIceCandidate candidate)
     {
-        _ = SendIceCandidateAsync(webSocket, candidate);
+        _ = SendIceCandidateAsync(candidate);
     }
 
-    private static async Task SendIceCandidateAsync(WebSocket webSocket, RTCIceCandidate candidate)
+    private async Task SendIceCandidateAsync(RTCIceCandidate candidate)
     {
         var candidateJson = JsonSerializer.Serialize(candidate);
         var candidatePayload = JsonSerializer.SerializeToUtf8Bytes(
-            new SignalingMessage("candidate", candidateJson, null)
+            new SignalingMessage("candidate", candidateJson, null, client)
         );
         if (webSocket.State == WebSocketState.Open) {
             await webSocket.SendAsync(candidatePayload, WebSocketMessageType.Text, true, CancellationToken.None);

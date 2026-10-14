@@ -53,7 +53,10 @@ public class SignalingSocketHandler
             {
                 var acceptContext = CreateWebSocketAcceptContext();
                 using var webSocket = await context.WebSockets.AcceptWebSocketAsync(acceptContext);
-                var client = new SignalingClient(webSocket);
+                
+                var connection  = context.Connection;
+                var clientId    = $"{connection.Id}|{connection.RemoteIpAddress?.ToString()}:{connection.RemotePort}";
+                var client      = new SignalingClient(webSocket, clientId);
                 await SignalingClient.HandleClientSessionAsync(client, signaling, context.RequestAborted);
             }
             catch (Exception ex)

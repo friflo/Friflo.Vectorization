@@ -12,9 +12,9 @@ using System.Threading.Tasks;
 namespace Friflo.TmGui.Http;
 
 
-public record SignalingMessage(string type, string? sdpOrCandidate, string? host)
+public record SignalingMessage(string type, string? sdpOrCandidate, string? host, string? client)
 {
-    public override string ToString() => $"{type} > host: {host}";
+    public override string ToString() => $"{type} > host: {host}  client: {client}";
 }
 
 public class GuiHost
@@ -31,13 +31,15 @@ public class GuiHost
 
 internal partial class SignalingClient
 {
-    private readonly    WebSocket   webSocket;
-    internal            GuiHost?    host;   // the GUI this client wants to connect to
+    private  readonly   WebSocket   webSocket;
+    internal            GuiHost?    host;       // the GUI this client wants to connect to
+    internal readonly   string      client;
     
 
-    internal SignalingClient(WebSocket webSocket)
+    internal SignalingClient(WebSocket webSocket, string clientId)
     {
-        this.webSocket = webSocket;
+        this.webSocket  = webSocket;
+        this.client     = clientId;
     }
 
     internal async Task SendAsync(ReadOnlyMemory<byte> payload, CancellationToken cancellationToken = default)
@@ -59,20 +61,22 @@ public class Signaling
     {
     }
     
-    private static SignalingMessage? Parse(ReadOnlySpan<byte> buffer)
+    private static bool TryParse(ReadOnlySpan<byte> buffer, out SignalingMessage message)
     {
         try {
-            return JsonSerializer.Deserialize<SignalingMessage>(buffer);
+            var msg = JsonSerializer.Deserialize<SignalingMessage>(buffer);
+            message = msg!;
+            return msg != null;
         }
         catch (JsonException) {
-            return null;
+            message = null!;
+            return false;
         }
     }
     
     internal void ProcessMessage(SignalingClient client, ReadOnlySpan<byte> buffer)
     {
-        var message = Parse(buffer);
-        if (message == null) {
+        if (!TryParse(buffer, out var message)) {
             return;
         }
 
@@ -92,12 +96,14 @@ public class Signaling
                         host.connectedClient = client; // Link the client to this host session
                         
                         // Report success back to the client
-                        var successResponse = JsonSerializer.SerializeToUtf8Bytes(new SignalingMessage("ConnectResponse", "Found", message.host));
+                        var msg = new SignalingMessage("ConnectResponse", "Found", message.host, client.client);
+                        var successResponse = JsonSerializer.SerializeToUtf8Bytes(msg);
                         _ = client.SendAsync(successResponse);
                     }
                     else {
                         // Report that the host was not found
-                        var errorResponse = JsonSerializer.SerializeToUtf8Bytes(new SignalingMessage("ConnectResponse", "NotFound", message.host));
+                        var msg = new SignalingMessage("ConnectResponse", "NotFound", message.host, client.client);
+                        var errorResponse = JsonSerializer.SerializeToUtf8Bytes(msg);
                         _ = client.SendAsync(errorResponse);
                     }
                 }
@@ -106,17 +112,20 @@ public class Signaling
             case "offer":
             case "answer":
             case "candidate":
-                RouteWebRtcMessage(client, message, buffer);
+                RouteWebRtcMessage(client, message);
                 break;
         }
     }
 
-    private void RouteWebRtcMessage(SignalingClient sender, SignalingMessage message, ReadOnlySpan<byte> buffer)
+    private void RouteWebRtcMessage(SignalingClient sender, SignalingMessage message)
     {
+        message             = message with { client =  sender.client };
+        var routeMessage    = JsonSerializer.SerializeToUtf8Bytes(message);
+        
         // Case 1: Sender is a Client forwarding an offer or candidate to the Host
         if (sender.host != null && sender != sender.host.client)
         {
-            _ = sender.host.client.SendAsync(buffer.ToArray());
+            _ = sender.host.client.SendAsync(routeMessage);
         }
         // Case 2: Sender is a Host forwarding an answer or candidate back to the Client
         else
@@ -124,7 +133,7 @@ public class Signaling
             var hostEntry = hosts.Values.FirstOrDefault(h => h.client == sender);
             if (hostEntry?.connectedClient != null)
             {
-                _ = hostEntry.connectedClient.SendAsync(buffer.ToArray());
+                _ = hostEntry.connectedClient.SendAsync(routeMessage);
             }
         }
     }
