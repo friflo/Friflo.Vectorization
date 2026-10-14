@@ -87,28 +87,24 @@ public class Signaling
         {
             case "register":
                 if (!string.IsNullOrEmpty(message.host)) {
-                    // Safe upsert to prevent duplicate key crashes
+                    Console.WriteLine($"Register host: '{message.host}'");
                     hosts[message.host] = new GuiHost(client, message.host);
                 }
                 break;
                 
             case "connect":
                 if (!string.IsNullOrEmpty(message.host)) {
-                    if (hosts.TryGetValue(message.host, out var host)) {
+                    var foundHost = hosts.TryGetValue(message.host, out var host);
+                    if (foundHost) {
                         client.host = host;
-                        host.connectedClient = client; // Link the client to this host session
-                        
-                        // Report success back to the client
-                        var msg = new SignalingMessage("ConnectResponse", "Found", message.host, client.connection);
-                        var successResponse = JsonSerializer.SerializeToUtf8Bytes(msg);
-                        _ = client.SendAsync(successResponse);
+                        host!.connectedClient = client; // Link the client to this host session
                     }
-                    else {
-                        // Report that the host was not found
-                        var msg = new SignalingMessage("ConnectResponse", "NotFound", message.host, client.connection);
-                        var errorResponse = JsonSerializer.SerializeToUtf8Bytes(msg);
-                        _ = client.SendAsync(errorResponse);
-                    }
+                    // Report that the host was not found
+                    var result = foundHost ? "Found" : "NotFound";
+                    var msg = new SignalingMessage("ConnectResponse", result, message.host, client.connection);
+                    var errorResponse = JsonSerializer.SerializeToUtf8Bytes(msg);
+                    _ = client.SendAsync(errorResponse);
+                    Console.WriteLine($"Connect host: '{message.host}'  {result}");
                 }
                 break;
 
