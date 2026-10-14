@@ -9,6 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using SIPSorcery.Net;
 
+// ReSharper disable SuggestVarOrType_SimpleTypes
 // ReSharper disable RedundantLambdaParameterType
 // ReSharper disable InconsistentNaming
 // ReSharper disable CheckNamespace
@@ -58,15 +59,14 @@ public sealed partial class TmSignalingListener
                     sdp = message.sdpOrCandidate,
                     type = RTCSdpType.offer
                 };
-                SetDescriptionResultEnum result = pc.setRemoteDescription(remoteDesc);
+                SetDescriptionResultEnum _ = pc.setRemoteDescription(remoteDesc);
 
                 // Create and set local answer
                 var answer = pc.createAnswer(null);
                 await pc.setLocalDescription(answer);
 
-                var answerPayload = JsonSerializer.SerializeToUtf8Bytes(
-                    new SignalMessage("answer", null, message.connection, answer.sdp)
-                );
+                var msg = new SignalMessage("answer", null, message.connection, answer.sdp);
+                var answerPayload = JsonSerializer.SerializeToUtf8Bytes(msg);
                 if (webSocket.State == WebSocketState.Open) {
                     await webSocket.SendAsync(answerPayload, WebSocketMessageType.Text, true, CancellationToken.None);
                 }
