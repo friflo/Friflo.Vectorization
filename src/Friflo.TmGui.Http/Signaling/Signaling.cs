@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Linq;
 using System.Text.Json;
+using System.Threading.Tasks;
 
 
 // ReSharper disable InconsistentNaming
@@ -51,9 +52,9 @@ public sealed class TmSignaling
     {
     }
     
-    internal void ProcessMessage(SignalClient client, ReadOnlySpan<byte> buffer)
+    internal async Task ProcessMessageAsync(SignalClient client, ReadOnlyMemory<byte> buffer)
     {
-        if (!SignalMessage.TryParse(buffer, out var message)) {
+        if (!SignalMessage.TryParse(buffer.Span, out var message)) {
             return;
         }
 
@@ -76,7 +77,7 @@ public sealed class TmSignaling
                     var result = foundApp ? "Found" : "NotFound";
                     var msg = new SignalMessage("ConnectResponse", message.app, client.connection, result);
                     var errorResponse = JsonSerializer.SerializeToUtf8Bytes(msg);
-                    _ = client.SendAsync(errorResponse);
+                    await client.SendAsync(errorResponse);
                     Console.WriteLine($"Connect app: '{message.app}'  {result}");
                 }
                 break;
@@ -84,29 +85,25 @@ public sealed class TmSignaling
             case "offer":
             case "answer":
             case "candidate":
-                RouteWebRtcMessage(client, message);
+                var sender          = client;
+                message             = message with { connection =  sender.connection };
+                var routeMessage    = JsonSerializer.SerializeToUtf8Bytes(message);
+                
+                // Case 1: Sender is a Client forwarding an offer or candidate to the Host
+                if (sender.guiApp != null && sender != sender.guiApp.client)
+                {
+                    await sender.guiApp.client.SendAsync(routeMessage);
+                }
+                // Case 2: Sender is a Host forwarding an answer or candidate back to the Client
+                else
+                {
+                    var guiApp = guiApps.Values.FirstOrDefault(h => h.client == sender);
+                    if (guiApp?.connectedClient != null)
+                    {
+                        await guiApp.connectedClient.SendAsync(routeMessage);
+                    }
+                }
                 break;
-        }
-    }
-
-    private void RouteWebRtcMessage(SignalClient sender, SignalMessage message)
-    {
-        message             = message with { connection =  sender.connection };
-        var routeMessage    = JsonSerializer.SerializeToUtf8Bytes(message);
-        
-        // Case 1: Sender is a Client forwarding an offer or candidate to the Host
-        if (sender.guiApp != null && sender != sender.guiApp.client)
-        {
-            _ = sender.guiApp.client.SendAsync(routeMessage);
-        }
-        // Case 2: Sender is a Host forwarding an answer or candidate back to the Client
-        else
-        {
-            var guiApp = guiApps.Values.FirstOrDefault(h => h.client == sender);
-            if (guiApp?.connectedClient != null)
-            {
-                _ = guiApp.connectedClient.SendAsync(routeMessage);
-            }
         }
     }
 }

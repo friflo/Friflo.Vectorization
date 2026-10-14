@@ -107,8 +107,8 @@ internal sealed class SignalSocketHandler
                 // Handle text messages (typically JSON payloads for WebRTC SDP/ICE signaling)
                 if (result.MessageType == WebSocketMessageType.Text)
                 {
-                    var message = buffer.AsSpan(0, result.Count);
-                    signaling.ProcessMessage(client, message);
+                    var message = buffer.AsMemory(0, result.Count);
+                    await signaling.ProcessMessageAsync(client, message);
                     
                     // Process the signaling message
                     // await signaling.ProcessMessageAsync(client, buffer);
