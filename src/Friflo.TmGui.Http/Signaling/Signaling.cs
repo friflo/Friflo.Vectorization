@@ -22,7 +22,9 @@ public class GuiHost
     public   readonly   string              name;
     internal readonly   SignalingClient     client;
     internal            SignalingClient?    connectedClient; // The client currently connected to this host
-    
+
+    public   override   string              ToString() => name;
+
     internal GuiHost(SignalingClient client, string name) {
         this.name   = name;
         this.client = client;
@@ -34,6 +36,8 @@ internal partial class SignalingClient
     private  readonly   WebSocket   webSocket;
     internal            GuiHost?    host;       // the GUI this client wants to connect to
     internal readonly   string      client;
+    
+    public   override   string      ToString() => client;
     
 
     internal SignalingClient(WebSocket webSocket, string clientId)
