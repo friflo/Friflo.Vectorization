@@ -340,14 +340,19 @@ function processDrawList(message)
 
         ensureTextureLoaded(textureId, name);
     }
-    const commandLength = view.getInt32(offset, true);
+    const commandsLength = view.getInt32(offset, true);
     offset += SIZEOF_INT;
-    if (commandLength > 0) {
-        const commandBytes = uint8Data.subarray(offset, offset + commandLength);
-        const command = utf8Decoder.decode(commandBytes);
-        offset += commandLength;
-        if (command.startsWith("open-page:")) {
-            window.location.href = command.substring("open-page:".length);
+    if (commandsLength > 0) {
+        const commandsBytes = uint8Data.subarray(offset, offset + commandsLength);
+        const commandsStr = utf8Decoder.decode(commandsBytes);
+        offset += commandsLength;
+        const commands = commandsStr.split("\n");
+        for (const cmd of commands) {
+            console.log(cmd);
+            const args = cmd.split("|");
+            if (args[0] === "open-page") {
+                window.open(args[1], args[2]);
+            }
         }
     }
 

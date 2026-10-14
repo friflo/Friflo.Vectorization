@@ -163,13 +163,13 @@ internal sealed partial class GuiSession : TmSession
             int encodedBytes = Encoding.UTF8.GetBytes(image.asset.name, span[bytesWritten..]);
             bytesWritten += encodedBytes;
         }
-        var clientCommand = wsBatch.ClientCommand;
-        MemoryMarshal.Write(span[bytesWritten..], clientCommand.Length);
+        var clientCommands = wsBatch.ClientCommands;
+        MemoryMarshal.Write(span[bytesWritten..], clientCommands.Length);
         bytesWritten += sizeof(int);
-        if (clientCommand.Length > 0) {
-            int utf8ByteCount = Encoding.UTF8.GetByteCount(clientCommand);
+        if (clientCommands.Length > 0) {
+            int utf8ByteCount = Encoding.UTF8.GetByteCount(clientCommands);
             MemoryMarshal.Write(span[bytesWritten..], utf8ByteCount);
-            int encodedBytes = Encoding.UTF8.GetBytes(clientCommand, span[bytesWritten..]);
+            int encodedBytes = Encoding.UTF8.GetBytes(clientCommands, span[bytesWritten..]);
             bytesWritten += encodedBytes;
         }
         var texturesLength = bytesWritten - texturesStart;

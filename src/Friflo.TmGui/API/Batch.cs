@@ -60,7 +60,7 @@ public abstract class TmBatch : IDisposable
 //  internal readonly   TmGuiBackend        backend;        - intentionally no back reference to its backend. Prevents calling NewFrame() within a Gui scope.
     public ReadOnlySpan<DrawCommand>        DrawList        => new(drawList, 0, drawCommands.Count);
     public Span<Vertex2D>                   Vertices        => vertexBuffer.Span.Slice(0, vertexCount);
-    public ReadOnlySpan<char>               ClientCommand   => CollectionsMarshal.AsSpan(clientCommand);
+    public ReadOnlySpan<char>               ClientCommands  => CollectionsMarshal.AsSpan(clientCommands);
 #endregion
 
 #region protected
@@ -79,7 +79,7 @@ public abstract class TmBatch : IDisposable
     internal  readonly  Stack<Matrix4x4>    transformStack      = [];
     internal  readonly  Stack<ZIndex>       zIndexStack         = [];
     internal  readonly  Stack<SamplerFilter>samplerFilterStack  = [];
-    private   readonly  List<char>          clientCommand       = [];
+    private   readonly  List<char>          clientCommands      = [];
     private   readonly  StringBuilder       stringBuilder       = new(512,512); // => first chunk: 512 chars
     internal  readonly  GuiState            guiState            = new();
     
@@ -177,11 +177,13 @@ public abstract class TmBatch : IDisposable
         paddedScissor  = new RectVector2(scissor.pos - new Vector2(lineHeight), scissor.size + new Vector2(2 * lineHeight));
     }
     
-    internal void OpenPage(ReadOnlySpan<char> url)
+    internal void OpenPage(ReadOnlySpan<char> url, ReadOnlySpan<char> target)
     {
-        clientCommand.Clear();
-        clientCommand.AddRange("open-page:");
-        clientCommand.AddRange(url);
+        clientCommands.AddRange("open-page|");
+        clientCommands.AddRange(url);
+        clientCommands.Add('|');
+        clientCommands.AddRange(target);
+        clientCommands.Add('\n');
     }
 #endregion
 
@@ -330,7 +332,7 @@ public abstract class TmBatch : IDisposable
         transformStack.Clear();
         zIndexStack.Clear();
         samplerFilterStack.Clear();
-        clientCommand.Clear();
+        clientCommands.Clear();
         
         var draw = new TmDraw(this);
         draw.SetViewport(width, height);

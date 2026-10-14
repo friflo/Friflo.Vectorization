@@ -98,5 +98,5 @@ public readonly ref struct Gui
     
     public void             SetNextDefaultFocus() => widget.SetNextDefaultFocus();
     
-    public void             OpenPage(ReadOnlySpan<char> url) => Draw.Batch.OpenPage(url);
+    public void             OpenPage(ReadOnlySpan<char> url, ReadOnlySpan<char> target = default) => Draw.Batch.OpenPage(url, target);
 }
