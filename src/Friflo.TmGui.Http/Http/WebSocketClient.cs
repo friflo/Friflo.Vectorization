@@ -59,10 +59,7 @@ internal class WebSocketClient : TmClient
 
     private async Task FlushPendingBufferAsync(CancellationToken ct)
     {
-        if (doubleBuffer == null) {
-            return;
-        }
-        doubleBuffer.Swap();
+        doubleBuffer!.Swap();
 
         // Send backBuffer asynchronously - OnFrame thread is completely free to write to frontBuffer now
         if (doubleBuffer.PendingLength > 0 && webSocket.State == WebSocketState.Open) {
