@@ -29,15 +29,15 @@ internal record struct SignalMessage(string type, string? app, string? connectio
 
 public sealed class TmGuiApp
 {
-    public   readonly   string          name;
-    public   readonly   string          url;
-    internal readonly   SignalClient    client;
+    public   readonly   string      name;
+    public   readonly   string      url;
+    internal readonly   SignalPeer  peer;
 
     public   override   string          ToString() => name;
 
-    internal TmGuiApp(SignalClient client, string name, string url) {
+    internal TmGuiApp(SignalPeer peer, string name, string url) {
         this.name   = name;
-        this.client = client;
+        this.peer   = peer;
         this.url    = url;
     }
 }
@@ -48,14 +48,14 @@ public sealed class TmGuiApp
 public sealed class TmSignaling
 {
     public   readonly   ConcurrentDictionary<string, TmGuiApp>      guiApps = [];
-    private  readonly   ConcurrentDictionary<string, SignalClient>  clients = [];
+    private  readonly   ConcurrentDictionary<string, SignalPeer>    clients = [];
 
     
     public TmSignaling(TmGuiBackend backend)
     {
     }
     
-    internal async Task ProcessMessageAsync(SignalClient client, ReadOnlyMemory<byte> buffer)
+    internal async Task ProcessMessageAsync(SignalPeer peer, ReadOnlyMemory<byte> buffer)
     {
         if (!SignalMessage.TryParse(buffer.Span, out var message)) {
             return;
@@ -66,7 +66,7 @@ public sealed class TmSignaling
             case "register":
                 if (!string.IsNullOrEmpty(message.app)) {
                     Console.WriteLine($"Register app: '{message.app}'");
-                    guiApps[message.app] = new TmGuiApp(client, message.app, $"?app={message.app}");
+                    guiApps[message.app] = new TmGuiApp(peer, message.app, $"?app={message.app}");
                 }
                 break;
                 
@@ -74,21 +74,21 @@ public sealed class TmSignaling
                 if (!string.IsNullOrEmpty(message.app)) {
                     var foundApp = guiApps.TryGetValue(message.app, out var guiApp);
                     if (foundApp) {
-                        client.guiApp               = guiApp;
-                        clients[client.connection]  = client;
+                        peer.guiApp               = guiApp;
+                        clients[peer.connection]  = peer;
                     }
                     var result = foundApp ? "Found" : "NotFound";
-                    var msg = new SignalMessage("ConnectResponse", message.app, client.connection, result);
+                    var msg = new SignalMessage("ConnectResponse", message.app, peer.connection, result);
                     var errorResponse = JsonSerializer.SerializeToUtf8Bytes(msg);
-                    await client.SendAsync(errorResponse);
+                    await peer.SendAsync(errorResponse);
                     Console.WriteLine($"Connect app: '{message.app}'  {result}");
                 }
                 break;
             case "close":
                 // close Client signaling webSocket. P2P Data Channel was opened
                 if (message.connection != null) {
-                    if (clients.TryRemove(message.connection, out var connectedClient)) {
-                        await connectedClient.webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, null, CancellationToken.None);
+                    if (clients.TryRemove(message.connection, out var signalPeer)) {
+                        await signalPeer.webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, null, CancellationToken.None);
                     }
                 }
                 break;
@@ -96,20 +96,20 @@ public sealed class TmSignaling
             case "offer":
             case "answer":
             case "candidate":
-                var sender          = client;
+                var sender = peer;
                 // Case 1: Sender is a Client forwarding an offer or candidate to the App
-                if (sender.guiApp != null && sender != sender.guiApp.client)
+                if (sender.guiApp != null && sender != sender.guiApp.peer)
                 {
                     var routeMessage    = message with { connection =  sender.connection };
                     var routeBuffer     = JsonSerializer.SerializeToUtf8Bytes(routeMessage);
-                    await sender.guiApp.client.SendAsync(routeBuffer);
+                    await sender.guiApp.peer.SendAsync(routeBuffer);
                 }
                 // Case 2: Sender is an App forwarding an answer or candidate back to the Client
                 else
                 {
                     if (message.connection != null) {
-                        if (clients.TryGetValue(message.connection, out var connectedClient)) {
-                            await connectedClient.SendAsync(buffer);
+                        if (clients.TryGetValue(message.connection, out var signalPeer)) {
+                            await signalPeer.SendAsync(buffer);
                         }
                     }
                 }

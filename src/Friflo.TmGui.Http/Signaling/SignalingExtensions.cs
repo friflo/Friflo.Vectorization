@@ -61,9 +61,9 @@ internal sealed class SignalSocketHandler
                 var contextConn  = context.Connection;
                 
                 var connection  = $"{id}|{contextConn.RemoteIpAddress?.ToString()}:{contextConn.RemotePort}";
-                var client      = new SignalClient(webSocket, connection);
+                var peer        = new SignalPeer(webSocket, connection);
                 
-                await HandleClientSessionAsync(client, signaling, context.RequestAborted);
+                await HandlePeerSessionAsync(peer, signaling, context.RequestAborted);
             }
             catch (Exception ex)
             {
@@ -82,25 +82,22 @@ internal sealed class SignalSocketHandler
         await next();
     }
     
-    private static async Task HandleClientSessionAsync(SignalClient client, TmSignaling signaling, CancellationToken cancellationToken)
+    private static async Task HandlePeerSessionAsync(SignalPeer peer, TmSignaling signaling, CancellationToken cancellationToken)
     {
         // Allocate a reusable buffer for incoming websocket frames
         var buffer = new byte[1024 * 4];
 
         try
         {
-            while (client.webSocket.State == WebSocketState.Open && !cancellationToken.IsCancellationRequested)
+            while (peer.webSocket.State == WebSocketState.Open && !cancellationToken.IsCancellationRequested)
             {
                 // Receive incoming data segment asynchronously
-                var result = await client.webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), cancellationToken);
+                var result = await peer.webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), cancellationToken);
 
                 // Handle graceful close request from client
                 if (result.MessageType == WebSocketMessageType.Close)
                 {
-                    await client.webSocket.CloseAsync(
-                        WebSocketCloseStatus.NormalClosure, 
-                        "Closing by client request", 
-                        cancellationToken);
+                    await peer.webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Closing by client request", cancellationToken);
                     break;
                 }
 
@@ -108,10 +105,10 @@ internal sealed class SignalSocketHandler
                 if (result.MessageType == WebSocketMessageType.Text)
                 {
                     var message = buffer.AsMemory(0, result.Count);
-                    await signaling.ProcessMessageAsync(client, message);
+                    await signaling.ProcessMessageAsync(peer, message);
                     
                     // Process the signaling message
-                    // await signaling.ProcessMessageAsync(client, buffer);
+                    // await signaling.ProcessMessageAsync(peer, message);
                 }
             }
         }
@@ -122,9 +119,9 @@ internal sealed class SignalSocketHandler
         finally
         {
             // Ensure socket resources are cleaned up when the loop exits
-            if (client.webSocket.State == WebSocketState.Open || client.webSocket.State == WebSocketState.Aborted)
+            if (peer.webSocket.State is WebSocketState.Open or WebSocketState.Aborted)
             {
-                client.webSocket.Dispose();
+                peer.webSocket.Dispose();
             }
         }
     }
