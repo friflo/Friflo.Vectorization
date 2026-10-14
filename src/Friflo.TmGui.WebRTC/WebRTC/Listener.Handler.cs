@@ -15,7 +15,7 @@ using SIPSorcery.Net;
 namespace Friflo.TmGui.WebRTC;
 
 
-internal record SignalingMessage(string type, string? sdpOrCandidate, string? host, string client)
+internal record struct SignalingMessage(string type, string? sdpOrCandidate, string? host, string client)
 {
     public override string ToString() => $"{type} > host: {host}  client: {client}";
 }
@@ -30,12 +30,11 @@ public partial class SignalingListener
     private static bool TryParse(ReadOnlySpan<byte> buffer, out SignalingMessage message)
     {
         try {
-            var msg = JsonSerializer.Deserialize<SignalingMessage>(buffer);
-            message = msg!;
-            return msg != null;
+            message = JsonSerializer.Deserialize<SignalingMessage>(buffer);
+            return true;
         }
         catch (JsonException) {
-            message = null!;
+            message = default;
             return false;
         }
     }
