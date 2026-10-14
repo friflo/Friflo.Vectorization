@@ -48,8 +48,7 @@ internal class WebSocketClient : TmClient
         if (webSocket.State != WebSocketState.Open) {
             return 0;
         }
-
-        doubleBuffer?.Send(message);
+        doubleBuffer?.AppendMessage(message);
 
         return message.Length;
     }

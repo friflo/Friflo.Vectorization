@@ -74,7 +74,7 @@ public class WsDoubleBuffer : IDisposable
         backBuffer  = default;
     }
 
-    public void Send(TmSendMessage message)
+    public void AppendMessage(TmSendMessage message)
     {
         lock (bufferLock)
         {
