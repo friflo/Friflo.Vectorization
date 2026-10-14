@@ -62,7 +62,6 @@ internal sealed class SignalSocketHandler
                 
                 var connection  = $"{id}|{contextConn.RemoteIpAddress?.ToString()}:{contextConn.RemotePort}";
                 var client      = new SignalClient(webSocket, connection);
-                signaling.clients[connection] = client;
                 
                 await HandleClientSessionAsync(client, signaling, context.RequestAborted);
             }

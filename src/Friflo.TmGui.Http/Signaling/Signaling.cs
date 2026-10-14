@@ -44,7 +44,7 @@ public sealed class TmGuiApp
 public sealed class TmSignaling
 {
     public   readonly   ConcurrentDictionary<string, TmGuiApp>      guiApps = [];
-    internal readonly   ConcurrentDictionary<string, SignalClient>  clients = [];
+    private  readonly   ConcurrentDictionary<string, SignalClient>  clients = [];
 
     
     public TmSignaling(TmGuiBackend backend)
@@ -70,7 +70,8 @@ public sealed class TmSignaling
                 if (!string.IsNullOrEmpty(message.app)) {
                     var foundApp = guiApps.TryGetValue(message.app, out var guiApp);
                     if (foundApp) {
-                        client.guiApp = guiApp;
+                        client.guiApp               = guiApp;
+                        clients[client.connection]  = client;
                     }
                     var result = foundApp ? "Found" : "NotFound";
                     var msg = new SignalMessage("ConnectResponse", message.app, client.connection, result);
