@@ -23,11 +23,11 @@ public partial class SignalingListener
         this.loop = loop;
     }
         
-    public Task Start(string host, Uri uri)
+    public Task Start(string app, Uri uri)
     {
         // Dedicated background thread execution equivalent to TaskCreationOptions.LongRunning
         var serverTask = Task.Factory.StartNew(
-            () => Run(host, uri),
+            () => Run(app, uri),
             CancellationToken.None,
             TaskCreationOptions.LongRunning,
             TaskScheduler.Default
@@ -35,14 +35,14 @@ public partial class SignalingListener
         return serverTask;
     }
         
-    private async Task Run(string host, Uri uri, CancellationToken cancellationToken = default)
+    private async Task Run(string app, Uri uri, CancellationToken cancellationToken = default)
     {
         using var clientWebSocket = new ClientWebSocket();
 
         // Connect to the specified signaling server URL
         await clientWebSocket.ConnectAsync(uri, cancellationToken);
         
-        byte[] payload = JsonSerializer.SerializeToUtf8Bytes(new { type = "register", host });
+        byte[] payload = JsonSerializer.SerializeToUtf8Bytes(new SignalingMessage{ type = "register", app = app });
 
         await clientWebSocket.SendAsync(payload, WebSocketMessageType.Text, true, cancellationToken);
 

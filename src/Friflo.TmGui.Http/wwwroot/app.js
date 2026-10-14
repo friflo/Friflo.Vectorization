@@ -661,7 +661,7 @@ async function start() {
     if (gpuReady) {
         const urlParams = new URLSearchParams(window.location.search);
 
-        const host = urlParams.get('host');
+        const host = urlParams.get('app');
         if (host) {
             initWebRTC(host)
         } else {

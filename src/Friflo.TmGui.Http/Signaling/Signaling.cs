@@ -12,12 +12,12 @@ using System.Threading.Tasks;
 namespace Friflo.TmGui.Http;
 
 
-internal record struct SignalingMessage(string type, string? sdpOrCandidate, string? host, string? connection)
+internal record struct SignalingMessage(string type, string? sdpOrCandidate, string? app, string? connection)
 {
-    public override string ToString() => $"[{type}]  host: {host}  conn: {connection}";
+    public override string ToString() => $"[{type}]  app: {app}  conn: {connection}";
 }
 
-public class GuiHost
+public class TmGuiApp
 {
     public   readonly   string              name;
     internal readonly   SignalingClient     client;
@@ -25,7 +25,7 @@ public class GuiHost
 
     public   override   string              ToString() => name;
 
-    internal GuiHost(SignalingClient client, string name) {
+    internal TmGuiApp(SignalingClient client, string name) {
         this.name   = name;
         this.client = client;
     }
@@ -34,7 +34,7 @@ public class GuiHost
 internal partial class SignalingClient
 {
     private  readonly   WebSocket   webSocket;
-    internal            GuiHost?    host;       // the GUI this client wants to connect to
+    internal            TmGuiApp?    host;       // the GUI this client wants to connect to
     internal readonly   string      connection;
     
     public   override   string      ToString() => $"{(host == null ? "Host" : "Client")}  conn: {connection}";
@@ -59,7 +59,7 @@ internal partial class SignalingClient
 /// <summary> Single <see cref="Signaling"/> instance is shared by all sessions. </summary>
 public class Signaling
 {
-    public readonly ConcurrentDictionary<string, GuiHost> hosts = [];
+    public readonly ConcurrentDictionary<string, TmGuiApp> apps = [];
     
     public Signaling(TmGuiBackend backend)
     {
@@ -86,25 +86,25 @@ public class Signaling
         switch (message.type)
         {
             case "register":
-                if (!string.IsNullOrEmpty(message.host)) {
-                    Console.WriteLine($"Register host: '{message.host}'");
-                    hosts[message.host] = new GuiHost(client, message.host);
+                if (!string.IsNullOrEmpty(message.app)) {
+                    Console.WriteLine($"Register app: '{message.app}'");
+                    apps[message.app] = new TmGuiApp(client, message.app);
                 }
                 break;
                 
             case "connect":
-                if (!string.IsNullOrEmpty(message.host)) {
-                    var foundHost = hosts.TryGetValue(message.host, out var host);
-                    if (foundHost) {
+                if (!string.IsNullOrEmpty(message.app)) {
+                    var foundApp = apps.TryGetValue(message.app, out var host);
+                    if (foundApp) {
                         client.host = host;
                         host!.connectedClient = client; // Link the client to this host session
                     }
                     // Report that the host was not found
-                    var result = foundHost ? "Found" : "NotFound";
-                    var msg = new SignalingMessage("ConnectResponse", result, message.host, client.connection);
+                    var result = foundApp ? "Found" : "NotFound";
+                    var msg = new SignalingMessage("ConnectResponse", result, message.app, client.connection);
                     var errorResponse = JsonSerializer.SerializeToUtf8Bytes(msg);
                     _ = client.SendAsync(errorResponse);
-                    Console.WriteLine($"Connect host: '{message.host}'  {result}");
+                    Console.WriteLine($"Connect app: '{message.app}'  {result}");
                 }
                 break;
 
@@ -129,10 +129,10 @@ public class Signaling
         // Case 2: Sender is a Host forwarding an answer or candidate back to the Client
         else
         {
-            var hostEntry = hosts.Values.FirstOrDefault(h => h.client == sender);
-            if (hostEntry?.connectedClient != null)
+            var appEntry = apps.Values.FirstOrDefault(h => h.client == sender);
+            if (appEntry?.connectedClient != null)
             {
-                _ = hostEntry.connectedClient.SendAsync(routeMessage);
+                _ = appEntry.connectedClient.SendAsync(routeMessage);
             }
         }
     }

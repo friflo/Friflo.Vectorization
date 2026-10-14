@@ -15,9 +15,9 @@ using SIPSorcery.Net;
 namespace Friflo.TmGui.WebRTC;
 
 
-internal record struct SignalingMessage(string type, string? sdpOrCandidate, string? host, string connection)
+internal record struct SignalingMessage(string type, string? sdpOrCandidate, string? app, string connection)
 {
-    public override string ToString() => $"[{type}]  host: {host}  conn: {connection}";
+    public override string ToString() => $"[{type}]  app: {app}  conn: {connection}";
 }
 
 
@@ -101,13 +101,13 @@ public partial class SignalingListener
 internal class PeerSession
 {
     private  readonly   WebSocket           webSocket;
-    private  readonly   string              client;
+    private  readonly   string              connection;
     internal readonly   RTCPeerConnection   peerConnection;
 
-    internal PeerSession(WebSocket webSocket, string client)
+    internal PeerSession(WebSocket webSocket, string connection)
     {
         this.webSocket  = webSocket;
-        this.client     = client;
+        this.connection = connection;
         peerConnection  = new RTCPeerConnection(null);
         peerConnection.onicecandidate += OnIceCandidate;
         
@@ -130,9 +130,8 @@ internal class PeerSession
     private async Task SendIceCandidateAsync(RTCIceCandidate candidate)
     {
         var candidateJson = JsonSerializer.Serialize(candidate);
-        var candidatePayload = JsonSerializer.SerializeToUtf8Bytes(
-            new SignalingMessage("candidate", candidateJson, null, client)
-        );
+        var msg              = new SignalingMessage("candidate", candidateJson, null, connection);
+        var candidatePayload = JsonSerializer.SerializeToUtf8Bytes(msg);
         if (webSocket.State == WebSocketState.Open) {
             await webSocket.SendAsync(candidatePayload, WebSocketMessageType.Text, true, CancellationToken.None);
         }

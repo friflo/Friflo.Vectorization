@@ -3,9 +3,9 @@
 
 /**
  * Initializes the signaling WebSocket and the WebRTC peer connection as a client.
- * @param {string} hostName 
+ * @param {string} appName 
  */
-export function initWebRTC(hostName)
+export function initWebRTC(appName)
 {
     const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
     const signalingUrl = `${wsProtocol}//${window.location.host}/signaling`;
@@ -28,37 +28,37 @@ export function initWebRTC(hostName)
 
     // 2. Send the connect request as soon as the signaling socket is open
     socket.addEventListener('open', () => {
-        console.log("Connected to signaling server. Requesting host...");
+        console.log("Connected to signaling server. Requesting app...");
         socket.send(JSON.stringify({
             type: "connect",
-            sdpOrCandidate: null,
-            host: hostName
+            app: appName,
+            sdpOrCandidate: null
         }));
     });
 
     // 3. Handle incoming messages from the signaling server
     socket.addEventListener('message', async (event) => {
-        /** @type {{ type: string, sdpOrCandidate?: string, host?: string }} */
+        /** @type {{ type: string, sdpOrCandidate?: string, app?: string }} */
         const message = JSON.parse(event.data);
 
         switch (message.type) {
             case "ConnectResponse":
                 if (message.sdpOrCandidate === "Found") {
-                    console.log(`Host '${hostName}' found. Creating WebRTC offer...`);
+                    console.log(`Host '${appName}' found. Creating WebRTC offer...`);
                     try {
                         const offer = await pc.createOffer();
                         await pc.setLocalDescription(offer);
 
                         socket.send(JSON.stringify({
                             type: "offer",
-                            sdpOrCandidate: offer.sdp,
-                            host: hostName
+                            app: appName,
+                            sdpOrCandidate: offer.sdp
                         }));
                     } catch (err) {
                         console.error("Failed to create WebRTC offer:", err);
                     }
                 } else {
-                    console.error(`Host '${hostName}' not found on server.`);
+                    console.error(`Host '${appName}' not found on server.`);
                 }
                 break;
 
@@ -119,8 +119,8 @@ export function initWebRTC(hostName)
         if (event.candidate) {
             socket.send(JSON.stringify({
                 type: "candidate",
-                sdpOrCandidate: JSON.stringify(event.candidate),
-                host: hostName
+                app: appName,
+                sdpOrCandidate: JSON.stringify(event.candidate)
             }));
         }
     };
