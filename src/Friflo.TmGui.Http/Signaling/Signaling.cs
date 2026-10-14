@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 namespace Friflo.TmGui.Http;
 
 
-internal record struct SignalingMessage(string type, string? sdpOrCandidate, string? app, string? connection)
+internal record struct SignalingMessage(string type, string? app, string? connection, string? sdpOrCandidate)
 {
     public override string ToString() => $"[{type}]  app: {app}  conn: {connection}";
 }
@@ -101,7 +101,7 @@ public class Signaling
                     }
                     // Report that the host was not found
                     var result = foundApp ? "Found" : "NotFound";
-                    var msg = new SignalingMessage("ConnectResponse", result, message.app, client.connection);
+                    var msg = new SignalingMessage("ConnectResponse", message.app, client.connection, result);
                     var errorResponse = JsonSerializer.SerializeToUtf8Bytes(msg);
                     _ = client.SendAsync(errorResponse);
                     Console.WriteLine($"Connect app: '{message.app}'  {result}");
