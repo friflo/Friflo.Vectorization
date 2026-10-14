@@ -17,6 +17,7 @@ using Friflo.TmGui.Session;
 using Friflo.TmGui.TUI;
 using Hide = System.Diagnostics.DebuggerHiddenAttribute;
 
+// ReSharper disable InlineTemporaryVariable
 // ReSharper disable InvertIf
 // ReSharper disable ConvertIfStatementToReturnStatement
 // ReSharper disable InconsistentNaming
@@ -177,13 +178,15 @@ public abstract class TmBatch : IDisposable
         paddedScissor  = new RectVector2(scissor.pos - new Vector2(lineHeight), scissor.size + new Vector2(2 * lineHeight));
     }
     
-    internal void OpenPage(ReadOnlySpan<char> url, ReadOnlySpan<char> target)
+    internal void OpenUrl(ReadOnlySpan<char> url, ReadOnlySpan<char> target)
     {
-        clientCommands.AddRange("open-page|");
-        clientCommands.AddRange(url);
-        clientCommands.Add('|');
-        clientCommands.AddRange(target);
-        clientCommands.Add('\n');
+        var commands = clientCommands;
+        commands.AddRange("open-url");
+        commands.Add('|');
+        commands.AddRange(url);
+        commands.Add('|');
+        commands.AddRange(target);
+        commands.Add('\n');
     }
 #endregion
 

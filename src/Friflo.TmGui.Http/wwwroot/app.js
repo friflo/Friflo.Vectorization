@@ -350,7 +350,7 @@ function processDrawList(message)
         for (const cmd of commands) {
             console.log(cmd);
             const args = cmd.split("|");
-            if (args[0] === "open-page") {
+            if (args[0] === "open-url") {
                 window.open(args[1], args[2]);
             }
         }
