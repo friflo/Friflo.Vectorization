@@ -112,7 +112,7 @@ internal class PeerSession
         peerConnection.onicecandidate += OnIceCandidate;
         
         peerConnection.ondatachannel += (RTCDataChannel rtcDataChannel) => {
-            Console.WriteLine("P2P Data Channel opened on host side!");
+            Console.WriteLine("P2P Data Channel opened on App side!");
             rtcDataChannel.onmessage += (RTCDataChannel dc, DataChannelPayloadProtocols protocol, byte[] data) =>
             {
                 var message = System.Text.Encoding.UTF8.GetString(data);

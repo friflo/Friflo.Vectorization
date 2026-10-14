@@ -27,9 +27,9 @@ public class SignalingView : IGuiView
     
     private void Window1(Gui gui)
     {
-        foreach (var app in signaling.apps)
+        foreach (var guiApp in signaling.guiApps.Values)
         {
-            gui.Button(app.Value.name);
+            gui.Button(guiApp.name);
         }
     }
 }

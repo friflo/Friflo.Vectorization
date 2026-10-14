@@ -21,7 +21,7 @@ public class TmGuiApp
 {
     public   readonly   string              name;
     internal readonly   SignalingClient     client;
-    internal            SignalingClient?    connectedClient; // The client currently connected to this host
+    internal            SignalingClient?    connectedClient; // The client currently connected to this app
 
     public   override   string              ToString() => name;
 
@@ -34,10 +34,10 @@ public class TmGuiApp
 internal partial class SignalingClient
 {
     private  readonly   WebSocket   webSocket;
-    internal            TmGuiApp?    host;       // the GUI this client wants to connect to
+    internal            TmGuiApp?   guiApp;       // the GUI this client wants to connect to
     internal readonly   string      connection;
     
-    public   override   string      ToString() => $"{(host == null ? "Host" : "Client")}  conn: {connection}";
+    public   override   string      ToString() => $"{(guiApp == null ? "App" : "Client")}  conn: {connection}";
     
 
     internal SignalingClient(WebSocket webSocket, string connection)
@@ -59,7 +59,7 @@ internal partial class SignalingClient
 /// <summary> Single <see cref="Signaling"/> instance is shared by all sessions. </summary>
 public class Signaling
 {
-    public readonly ConcurrentDictionary<string, TmGuiApp> apps = [];
+    public readonly ConcurrentDictionary<string, TmGuiApp> guiApps = [];
     
     public Signaling(TmGuiBackend backend)
     {
@@ -88,18 +88,17 @@ public class Signaling
             case "register":
                 if (!string.IsNullOrEmpty(message.app)) {
                     Console.WriteLine($"Register app: '{message.app}'");
-                    apps[message.app] = new TmGuiApp(client, message.app);
+                    guiApps[message.app] = new TmGuiApp(client, message.app);
                 }
                 break;
                 
             case "connect":
                 if (!string.IsNullOrEmpty(message.app)) {
-                    var foundApp = apps.TryGetValue(message.app, out var host);
+                    var foundApp = guiApps.TryGetValue(message.app, out var guiApp);
                     if (foundApp) {
-                        client.host = host;
-                        host!.connectedClient = client; // Link the client to this host session
+                        client.guiApp = guiApp;
+                        guiApp!.connectedClient = client; // Link the client to this app session
                     }
-                    // Report that the host was not found
                     var result = foundApp ? "Found" : "NotFound";
                     var msg = new SignalingMessage("ConnectResponse", message.app, client.connection, result);
                     var errorResponse = JsonSerializer.SerializeToUtf8Bytes(msg);
@@ -122,17 +121,17 @@ public class Signaling
         var routeMessage    = JsonSerializer.SerializeToUtf8Bytes(message);
         
         // Case 1: Sender is a Client forwarding an offer or candidate to the Host
-        if (sender.host != null && sender != sender.host.client)
+        if (sender.guiApp != null && sender != sender.guiApp.client)
         {
-            _ = sender.host.client.SendAsync(routeMessage);
+            _ = sender.guiApp.client.SendAsync(routeMessage);
         }
         // Case 2: Sender is a Host forwarding an answer or candidate back to the Client
         else
         {
-            var appEntry = apps.Values.FirstOrDefault(h => h.client == sender);
-            if (appEntry?.connectedClient != null)
+            var guiApp = guiApps.Values.FirstOrDefault(h => h.client == sender);
+            if (guiApp?.connectedClient != null)
             {
-                _ = appEntry.connectedClient.SendAsync(routeMessage);
+                _ = guiApp.connectedClient.SendAsync(routeMessage);
             }
         }
     }
