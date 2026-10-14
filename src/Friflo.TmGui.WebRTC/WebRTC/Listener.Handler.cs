@@ -15,9 +15,9 @@ using SIPSorcery.Net;
 namespace Friflo.TmGui.WebRTC;
 
 
-internal record struct SignalingMessage(string type, string? sdpOrCandidate, string? host, string client)
+internal record struct SignalingMessage(string type, string? sdpOrCandidate, string? host, string connection)
 {
-    public override string ToString() => $"{type} > host: {host}  client: {client}";
+    public override string ToString() => $"[{type}]  host: {host}  conn: {connection}";
 }
 
 
@@ -50,7 +50,7 @@ public partial class SignalingListener
             case "offer":
             {
                 // Get or create peer session using a method group (no lambdas)
-                var session = _sessions.GetOrAdd(message.client, new PeerSession(webSocket, message.client));
+                var session = _sessions.GetOrAdd(message.connection, new PeerSession(webSocket, message.connection));
                 var pc = session.peerConnection;
 
                 // Set remote description using RTCSessionDescriptionInit
@@ -65,7 +65,7 @@ public partial class SignalingListener
                 await pc.setLocalDescription(answer);
 
                 var answerPayload = JsonSerializer.SerializeToUtf8Bytes(
-                    new SignalingMessage("answer", answer.sdp, null, message.client)
+                    new SignalingMessage("answer", answer.sdp, null, message.connection)
                 );
                 if (webSocket.State == WebSocketState.Open) {
                     await webSocket.SendAsync(answerPayload, WebSocketMessageType.Text, true, CancellationToken.None);
@@ -74,7 +74,7 @@ public partial class SignalingListener
             }
             case "answer":
             {
-                if (_sessions.TryGetValue(message.client, out var session) && message.sdpOrCandidate != null) {
+                if (_sessions.TryGetValue(message.connection, out var session) && message.sdpOrCandidate != null) {
                     var remoteDesc = new RTCSessionDescriptionInit {
                         sdp = message.sdpOrCandidate,
                         type = RTCSdpType.answer
@@ -85,7 +85,7 @@ public partial class SignalingListener
             }
             case "candidate":
             {
-                if (_sessions.TryGetValue(message.client, out var session) && !string.IsNullOrEmpty(message.sdpOrCandidate)) {
+                if (_sessions.TryGetValue(message.connection, out var session) && !string.IsNullOrEmpty(message.sdpOrCandidate)) {
                     // Deserialize ICE candidate using System.Text.Json
                     var candidateInit = JsonSerializer.Deserialize<RTCIceCandidateInit>(message.sdpOrCandidate);
                     if (candidateInit != null) {

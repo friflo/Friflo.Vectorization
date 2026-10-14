@@ -3,6 +3,7 @@
 
 
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -42,6 +43,8 @@ public class SignalingSocketHandler
             DangerousEnableCompression  = true,
         }; 
     }
+    
+    private int connectionId;
 
     public async Task HandleSignalRequestAsync(HttpContext context, Func<Task> next)
     {
@@ -54,8 +57,10 @@ public class SignalingSocketHandler
                 var acceptContext = CreateWebSocketAcceptContext();
                 using var webSocket = await context.WebSockets.AcceptWebSocketAsync(acceptContext);
                 
+                var id = Interlocked.Increment(ref connectionId);
                 var connection  = context.Connection;
-                var clientId    = $"{connection.Id}|{connection.RemoteIpAddress?.ToString()}:{connection.RemotePort}";
+                
+                var clientId    = $"{id}|{connection.RemoteIpAddress?.ToString()}:{connection.RemotePort}";
                 var client      = new SignalingClient(webSocket, clientId);
                 await SignalingClient.HandleClientSessionAsync(client, signaling, context.RequestAborted);
             }

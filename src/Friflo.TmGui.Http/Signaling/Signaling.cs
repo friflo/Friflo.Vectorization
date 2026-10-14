@@ -12,9 +12,9 @@ using System.Threading.Tasks;
 namespace Friflo.TmGui.Http;
 
 
-internal record struct SignalingMessage(string type, string? sdpOrCandidate, string? host, string? client)
+internal record struct SignalingMessage(string type, string? sdpOrCandidate, string? host, string? connection)
 {
-    public override string ToString() => $"{type} > host: {host}  client: {client}";
+    public override string ToString() => $"[{type}]  host: {host}  conn: {connection}";
 }
 
 public class GuiHost
@@ -35,15 +35,15 @@ internal partial class SignalingClient
 {
     private  readonly   WebSocket   webSocket;
     internal            GuiHost?    host;       // the GUI this client wants to connect to
-    internal readonly   string      client;
+    internal readonly   string      connection;
     
-    public   override   string      ToString() => client;
+    public   override   string      ToString() => $"{(host == null ? "Host" : "Client")}  conn: {connection}";
     
 
-    internal SignalingClient(WebSocket webSocket, string clientId)
+    internal SignalingClient(WebSocket webSocket, string connection)
     {
         this.webSocket  = webSocket;
-        this.client     = clientId;
+        this.connection = connection;
     }
 
     internal async Task SendAsync(ReadOnlyMemory<byte> payload, CancellationToken cancellationToken = default)
@@ -99,13 +99,13 @@ public class Signaling
                         host.connectedClient = client; // Link the client to this host session
                         
                         // Report success back to the client
-                        var msg = new SignalingMessage("ConnectResponse", "Found", message.host, client.client);
+                        var msg = new SignalingMessage("ConnectResponse", "Found", message.host, client.connection);
                         var successResponse = JsonSerializer.SerializeToUtf8Bytes(msg);
                         _ = client.SendAsync(successResponse);
                     }
                     else {
                         // Report that the host was not found
-                        var msg = new SignalingMessage("ConnectResponse", "NotFound", message.host, client.client);
+                        var msg = new SignalingMessage("ConnectResponse", "NotFound", message.host, client.connection);
                         var errorResponse = JsonSerializer.SerializeToUtf8Bytes(msg);
                         _ = client.SendAsync(errorResponse);
                     }
@@ -122,7 +122,7 @@ public class Signaling
 
     private void RouteWebRtcMessage(SignalingClient sender, SignalingMessage message)
     {
-        message             = message with { client =  sender.client };
+        message             = message with { connection =  sender.connection };
         var routeMessage    = JsonSerializer.SerializeToUtf8Bytes(message);
         
         // Case 1: Sender is a Client forwarding an offer or candidate to the Host
