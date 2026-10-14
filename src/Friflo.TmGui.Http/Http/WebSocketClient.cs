@@ -59,12 +59,13 @@ internal class WebSocketClient : TmClient
 
     private async Task FlushPendingBufferAsync(CancellationToken ct)
     {
-        doubleBuffer!.Swap();
+        var buffer = doubleBuffer!;
+        buffer!.Swap();
 
         // Send backBuffer asynchronously - OnFrame thread is completely free to write to frontBuffer now
-        if (doubleBuffer.PendingLength > 0 && webSocket.State == WebSocketState.Open) {
-            await webSocket.SendAsync(doubleBuffer.Memory, WebSocketMessageType.Binary, true, ct);
-            doubleBuffer.Clear();
+        if (buffer.PendingLength > 0 && webSocket.State == WebSocketState.Open) {
+            await webSocket.SendAsync(buffer.Memory, WebSocketMessageType.Binary, true, ct);
+            buffer.Clear();
         }
     }
 
@@ -81,7 +82,8 @@ internal class WebSocketClient : TmClient
             while (client.webSocket.State == WebSocketState.Open && !cancellationToken.IsCancellationRequested)
             {
                 // Wait briefly or check for pending frame signal without WaitAsync allocations
-                if (client.doubleBuffer != null && client.doubleBuffer.HasPendingFrame) {
+                var doubleBuffer = client.doubleBuffer;
+                if (doubleBuffer != null && doubleBuffer.HasPendingFrame) {
                     await client.FlushPendingBufferAsync(cancellationToken);
                 }
 
