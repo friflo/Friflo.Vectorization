@@ -27,6 +27,17 @@ internal sealed class PeerSession
         peerConnection.ondatachannel    += OnDataChannel;
     }
     
+    // Returns void to match the event delegate signature and fix CS0407
+    private void OnIceCandidate(RTCIceCandidate candidate)
+    {
+        var candidateJson = JsonSerializer.Serialize(candidate);
+        var msg              = new SignalMessage("candidate", null, connection, candidateJson);
+        var candidatePayload = JsonSerializer.SerializeToUtf8Bytes(msg);
+        if (webSocket.State == WebSocketState.Open) {
+            _ = webSocket.SendAsync(candidatePayload, WebSocketMessageType.Text, true, CancellationToken.None);
+        }
+    }
+    
     private void OnDataChannel(RTCDataChannel rtcDataChannel)
     {
         Console.WriteLine("P2P Data Channel opened on App side!");
@@ -37,21 +48,5 @@ internal sealed class PeerSession
     {
         var message = System.Text.Encoding.UTF8.GetString(data);
         Console.WriteLine($"Received from client: {message}");
-    }
-
-    // Returns void to match the event delegate signature and fix CS0407
-    private void OnIceCandidate(RTCIceCandidate candidate)
-    {
-        _ = SendIceCandidateAsync(candidate);
-    }
-
-    private async Task SendIceCandidateAsync(RTCIceCandidate candidate)
-    {
-        var candidateJson = JsonSerializer.Serialize(candidate);
-        var msg              = new SignalMessage("candidate", null, connection, candidateJson);
-        var candidatePayload = JsonSerializer.SerializeToUtf8Bytes(msg);
-        if (webSocket.State == WebSocketState.Open) {
-            await webSocket.SendAsync(candidatePayload, WebSocketMessageType.Text, true, CancellationToken.None);
-        }
     }
 }
