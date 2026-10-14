@@ -180,13 +180,17 @@ public abstract class TmBatch : IDisposable
     
     internal void OpenUrl(ReadOnlySpan<char> url, ReadOnlySpan<char> target)
     {
-        var commands = clientCommands;
-        commands.AddRange("open-url");
-        commands.Add('|');
-        commands.AddRange(url);
-        commands.Add('|');
-        commands.AddRange(target);
-        commands.Add('\n');
+        if (this is WsBatch) {
+            var commands = clientCommands;
+            commands.AddRange("open-url");
+            commands.Add('|');
+            commands.AddRange(url);
+            commands.Add('|');
+            commands.AddRange(target);
+            commands.Add('\n');
+            return;
+        }
+        Process.Start(new ProcessStartInfo { FileName = url.ToString(), UseShellExecute = true });
     }
 #endregion
 

@@ -138,6 +138,9 @@ public class TmGuiRenderer : IRenderer, IGuiView
     private void Window1(Gui gui)
     {
         gui.Button("hello GUI", Dim.Fill_X(0, Fit.Content), color: textColors);
+        if (gui.Button("google.com")) {
+            gui.OpenUrl("https://www.google.com/");
+        }
         gui.Spacer();
         using (gui.PushStyle(greenButtonStyle)) {
             if (gui.Button("hello"))                            Console.WriteLine("Clicked: hello");
