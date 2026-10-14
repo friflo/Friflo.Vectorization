@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Net.WebSockets;
 using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
 
 // ReSharper disable InconsistentNaming
@@ -80,6 +82,14 @@ public sealed class TmSignaling
                     var errorResponse = JsonSerializer.SerializeToUtf8Bytes(msg);
                     await client.SendAsync(errorResponse);
                     Console.WriteLine($"Connect app: '{message.app}'  {result}");
+                }
+                break;
+            case "close":
+                // close Client signaling webSocket. P2P Data Channel was opened
+                if (message.connection != null) {
+                    if (clients.TryRemove(message.connection, out var connectedClient)) {
+                        await connectedClient.webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, null, CancellationToken.None);
+                    }
                 }
                 break;
 

@@ -38,7 +38,19 @@ internal record struct SignalMessage(string type, string? app, string connection
 public sealed partial class TmSignalingListener
 {
     // Maps each WebSocket session to its respective peer session wrapper
-    private readonly ConcurrentDictionary<string, PeerSession> _sessions = new();
+    private readonly ConcurrentDictionary<string, PeerSession> sessions = new();
+    
+    internal void RemoveSession(string connection, WebSocket webSocket)
+    {
+        if (!sessions.TryRemove(connection, out _)) {
+            return;
+        }
+        var msg     = new SignalMessage("close", null, connection, null);
+        var payload = JsonSerializer.SerializeToUtf8Bytes(msg);
+        if (webSocket.State == WebSocketState.Open) {
+            _ = webSocket.SendAsync(payload, WebSocketMessageType.Text, true, CancellationToken.None);
+        }
+    }
 
     private async Task ProcessSignalingMessage(WebSocket webSocket, ReadOnlyMemory<byte> buffer)
     {
@@ -51,7 +63,7 @@ public sealed partial class TmSignalingListener
             case "offer":
             {
                 // Get or create peer session using a method group (no lambdas)
-                var session = _sessions.GetOrAdd(message.connection, new PeerSession(webSocket, message.connection));
+                var session = sessions.GetOrAdd(message.connection, new PeerSession(this, webSocket, message.connection));
                 var pc = session.peerConnection;
 
                 // Set remote description using RTCSessionDescriptionInit
@@ -74,7 +86,7 @@ public sealed partial class TmSignalingListener
             }
             case "answer":
             {
-                if (_sessions.TryGetValue(message.connection, out var session) && message.sdpOrCandidate != null) {
+                if (sessions.TryGetValue(message.connection, out var session) && message.sdpOrCandidate != null) {
                     var remoteDesc = new RTCSessionDescriptionInit {
                         sdp = message.sdpOrCandidate,
                         type = RTCSdpType.answer
@@ -85,7 +97,7 @@ public sealed partial class TmSignalingListener
             }
             case "candidate":
             {
-                if (_sessions.TryGetValue(message.connection, out var session) && !string.IsNullOrEmpty(message.sdpOrCandidate)) {
+                if (sessions.TryGetValue(message.connection, out var session) && !string.IsNullOrEmpty(message.sdpOrCandidate)) {
                     // Deserialize ICE candidate using System.Text.Json
                     var candidateInit = JsonSerializer.Deserialize<RTCIceCandidateInit>(message.sdpOrCandidate);
                     if (candidateInit != null) {

@@ -13,12 +13,14 @@ namespace Friflo.TmGui.WebRTC;
 
 internal sealed class PeerSession
 {
+    private  readonly   TmSignalingListener listener;
     private  readonly   WebSocket           webSocket;
     private  readonly   string              connection;
     internal readonly   RTCPeerConnection   peerConnection;
 
-    internal PeerSession(WebSocket webSocket, string connection)
+    internal PeerSession(TmSignalingListener listener, WebSocket webSocket, string connection)
     {
+        this.listener   = listener;
         this.webSocket  = webSocket;
         this.connection = connection;
         peerConnection  = new RTCPeerConnection(null);
@@ -41,6 +43,7 @@ internal sealed class PeerSession
     {
         Console.WriteLine("P2P Data Channel opened on App side!");
         rtcDataChannel.onmessage += OnMessage; 
+        listener.RemoveSession(connection, webSocket);
     }
     
     private void OnMessage (RTCDataChannel dc, DataChannelPayloadProtocols protocol, byte[] data)
