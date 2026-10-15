@@ -16,7 +16,7 @@ namespace Friflo.TmGui.WebRTC;
 
 public sealed partial class TmSignalingListener
 {
-    private readonly TmSessionLoop loop;
+    internal readonly TmSessionLoop loop;
         
     public TmSignalingListener(TmSessionLoop loop)
     {

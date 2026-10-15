@@ -13,7 +13,7 @@ namespace Friflo.TmGui.Session;
 
 internal struct WsSendBuffer
 {
-    private     byte[]                  data            = [];
+    internal    byte[]                  data            = [];
     private     int                     pendingLength;
     
     internal    int                     PendingLength   => pendingLength;
@@ -87,6 +87,7 @@ public class WsDoubleBuffer : IDisposable
     
     public int                  PendingLength   => backBuffer.PendingLength;
     public ReadOnlyMemory<byte> Memory          => backBuffer.Memory;
+    public byte[]               Data            => backBuffer.data;
 
     public bool                 HasPendingFrame => Volatile.Read(ref hasPendingFrame) == 1;
     

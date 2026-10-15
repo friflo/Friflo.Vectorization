@@ -38,7 +38,7 @@ internal record struct SignalMessage(string type, string? app, string connection
 public sealed partial class TmSignalingListener
 {
     // Maps each WebSocket session to its respective peer session wrapper
-    private readonly ConcurrentDictionary<string, PeerSession> sessions = new();
+    private readonly ConcurrentDictionary<string, SignalSession> sessions = new();
     
     internal void RemoveSession(string connection, WebSocket webSocket)
     {
@@ -63,7 +63,7 @@ public sealed partial class TmSignalingListener
             case "offer":
             {
                 // Get or create peer session using a method group (no lambdas)
-                var session = sessions.GetOrAdd(message.connection, new PeerSession(this, webSocket, message.connection));
+                var session = sessions.GetOrAdd(message.connection, new SignalSession(this, webSocket, message.connection));
                 var pc = session.peerConnection;
 
                 // Set remote description using RTCSessionDescriptionInit

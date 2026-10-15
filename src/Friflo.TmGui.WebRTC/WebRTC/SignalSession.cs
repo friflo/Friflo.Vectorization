@@ -11,14 +11,14 @@ using SIPSorcery.Net;
 namespace Friflo.TmGui.WebRTC;
 
 
-internal sealed class PeerSession
+internal sealed class SignalSession
 {
     private  readonly   TmSignalingListener listener;
     private  readonly   WebSocket           webSocket;
     private  readonly   string              connection;
     internal readonly   RTCPeerConnection   peerConnection;
 
-    internal PeerSession(TmSignalingListener listener, WebSocket webSocket, string connection)
+    internal SignalSession(TmSignalingListener listener, WebSocket webSocket, string connection)
     {
         this.listener   = listener;
         this.webSocket  = webSocket;
@@ -39,16 +39,10 @@ internal sealed class PeerSession
         }
     }
     
-    private void OnDataChannel(RTCDataChannel rtcDataChannel)
+    private void OnDataChannel(RTCDataChannel dataChannel)
     {
         Console.WriteLine("P2P Data Channel opened on App side!");
-        rtcDataChannel.onmessage += OnMessage; 
+        // _ = new WebRtcClient(listener.loop, dataChannel);
         listener.RemoveSession(connection, webSocket);
-    }
-    
-    private void OnMessage (RTCDataChannel dc, DataChannelPayloadProtocols protocol, byte[] data)
-    {
-        var message = System.Text.Encoding.UTF8.GetString(data);
-        Console.WriteLine($"Received from client: {message}");
     }
 }
