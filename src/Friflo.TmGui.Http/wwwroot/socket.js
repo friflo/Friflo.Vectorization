@@ -106,10 +106,7 @@ function runSignaling(app)
             return
         }
         try {
-            const stream = new Blob([e.data]).stream().pipeThrough(new DecompressionStream('gzip'));
-            
-            const decompressedBuffer = await new Response(stream).arrayBuffer();
-            const rawData = new Uint8Array(decompressedBuffer);
+            const rawData = await decompressMessage(e.data);
             
             console.log(`Received P2P message: ${e.data.byteLength}  uncompressed: ${rawData.byteLength}`);
             processMessage(rawData);
@@ -214,4 +211,32 @@ function runSignaling(app)
     });
 
     return dataChannel;
+}
+
+
+const blobArray= [null];
+
+/**
+ * @param {ArrayBuffer} arrayBuffer 
+ * @returns {Promise<Uint8Array>}
+ */
+async function decompressMessage(arrayBuffer) {
+    blobArray[0] = arrayBuffer;
+    const stream = new Blob(blobArray).stream().pipeThrough(new DecompressionStream('gzip'));
+    
+    const decompressedBuffer = await new Response(stream).arrayBuffer();
+    return new Uint8Array(decompressedBuffer);
+    
+    /*
+    // decompress without JS-Loop-Overhead.
+    const stream = new ReadableStream({
+        start(controller) {
+            controller.enqueue(new Uint8Array(arrayBuffer));
+            controller.close();
+        }
+    }).pipeThrough(new DecompressionStream('gzip'));
+
+    const decompressedBuffer = await new Response(stream).arrayBuffer();
+    
+    return new Uint8Array(decompressedBuffer); */
 }
