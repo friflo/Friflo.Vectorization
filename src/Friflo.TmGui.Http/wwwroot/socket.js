@@ -1,10 +1,14 @@
 // @ts-check
-// webrtc.js
+// socket.js
 import { sendInitGui } from './app-events.js';
 import { canvas, processMessage } from './app.js';
 
-
+/** @type {WebSocket | null} */
 let webSocket = null;
+
+/** @type {RTCDataChannel | null} */
+let dataChannel = null;
+
 
 // Global WebSocket reference
 export const socket = {
@@ -52,11 +56,16 @@ export function initWebSocket()
 }
 
 // ------------------------------------ WebRTC ------------------------------------
+export function initWebRTC(app)
+{
+    dataChannel = runSignaling(app)
+}
+
 /**
- * Initializes the signaling WebSocket and the WebRTC peer connection as a client.
- * @param {string} appName 
+ * @param {string} app
+ * @returns {RTCDataChannel}
  */
-export function initWebRTC(appName)
+function runSignaling(app)
 {
     const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
     const signalingUrl = `${wsProtocol}//${window.location.host}/signaling`;
@@ -80,11 +89,7 @@ export function initWebRTC(appName)
     // 2. Send the connect request as soon as the signaling socket is open
     signalSocket.addEventListener('open', () => {
         console.log("Connected to signaling server. Requesting app...");
-        signalSocket.send(JSON.stringify({
-            type: "connect",
-            app: appName,
-            sdpOrCandidate: null
-        }));
+        signalSocket.send(JSON.stringify({ type: "connect", app: app, sdpOrCandidate: null }));
     });
 
     // 3. Handle incoming messages from the signaling server
@@ -95,21 +100,17 @@ export function initWebRTC(appName)
         switch (message.type) {
             case "ConnectResponse":
                 if (message.sdpOrCandidate === "Found") {
-                    console.log(`Host '${appName}' found. Creating WebRTC offer...`);
+                    console.log(`Host '${app}' found. Creating WebRTC offer...`);
                     try {
                         const offer = await pc.createOffer();
                         await pc.setLocalDescription(offer);
 
-                        signalSocket.send(JSON.stringify({
-                            type: "offer",
-                            app: appName,
-                            sdpOrCandidate: offer.sdp
-                        }));
+                        signalSocket.send(JSON.stringify({ type: "offer", app:  app, sdpOrCandidate: offer.sdp }));
                     } catch (err) {
                         console.error("Failed to create WebRTC offer:", err);
                     }
                 } else {
-                    console.error(`Host '${appName}' not found on server.`);
+                    console.error(`Host '${app}' not found on server.`);
                 }
                 break;
 
@@ -168,11 +169,7 @@ export function initWebRTC(appName)
     // 4. Send local ICE candidates to the peer via signaling server
     pc.onicecandidate = (event) => {
         if (event.candidate) {
-            signalSocket.send(JSON.stringify({
-                type: "candidate",
-                app: appName,
-                sdpOrCandidate: JSON.stringify(event.candidate)
-            }));
+            signalSocket.send(JSON.stringify({ type: "candidate", app: app, sdpOrCandidate: JSON.stringify(event.candidate) }));
         }
     };
 
@@ -184,5 +181,5 @@ export function initWebRTC(appName)
         console.error("Signaling WebSocket error:", err);
     });
 
-    return { pc, dataChannel };
+    return dataChannel;
 }
