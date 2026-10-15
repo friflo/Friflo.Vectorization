@@ -20,6 +20,7 @@ internal class WebRtcClient : TmClient
     private     RTCDataChannel  dataChannel;
     private     TmSessionLoop   loop;
     private     WsDoubleBuffer? doubleBuffer;
+    private     byte[]          sendBuffer = [];
 
     internal WebRtcClient(TmSessionLoop loop, RTCDataChannel dataChannel)
     {
@@ -27,6 +28,8 @@ internal class WebRtcClient : TmClient
         this.loop           = loop;
         this.dataChannel    = dataChannel;
         dataChannel.ordered = true;
+        // dataChannel.maxPacketLifeTime = 1;
+        // dataChannel.maxRetransmits = 0;
         dataChannel.onmessage   += OnMessage;
         dataChannel.onclose     += OnClose;
     }
@@ -47,14 +50,27 @@ internal class WebRtcClient : TmClient
     
     protected override int Send(TmSendMessage message)
     {
+        if (message.IsEmpty) {
+            return 0;
+        }
         if (doubleBuffer == null || dataChannel.readyState != RTCDataChannelState.open) {
             return 0;
         }
-        doubleBuffer.AppendMessage(message);
+        var length = message.Length;
+        if (sendBuffer.Length < length) {
+            sendBuffer = new byte[length];
+        }
+        message.buffer.CopyTo(new Memory<byte>(sendBuffer));
+
+        // RTCDataChannel.send(byte[] data, int offset, int count) does not store a reference to passed data.
+        // It creates multiple small byte[1020] arrays to ensure they fit in an MTU (Maximum Transmission Unit, 1200 in SIPSorcery).
+        dataChannel.send(sendBuffer, 0, length);
+        
+        /* doubleBuffer.AppendMessage(message);
         if (dataChannel.bufferedAmount == 0) {
             FlushPendingBuffer();
-        }
-        return message.Length;
+        } */
+        return length;
     }
 
     protected override void RestoreTerminal() { } // only applicable for terminal emulators
@@ -79,8 +95,8 @@ internal class WebRtcClient : TmClient
     
     private void OnMessage (RTCDataChannel dc, DataChannelPayloadProtocols protocol, byte[] data)
     {
-        var debugMsg = System.Text.Encoding.UTF8.GetString(data);
-        Console.WriteLine($"Received from client: {debugMsg}");
+        // var debugMsg = System.Text.Encoding.UTF8.GetString(data);
+        // Console.WriteLine($"Received from client: {debugMsg}");
         
         byte[] buffer = ArrayPool<byte>.Shared.Rent(256);
         Array.Copy(data, 0, buffer, 0, data.Length);

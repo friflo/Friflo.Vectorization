@@ -24,6 +24,7 @@ export const socket = {
     send : function(data) {
         if (webSocket !== null) {
             webSocket.send(data);
+            return;
         }
         if (dataChannel !== null) {
             dataChannel.send(data);
@@ -44,9 +45,8 @@ export function initWebSocket()
     ws.binaryType = "arraybuffer";
 
     ws.onopen = () => {
-        console.log("[+] WebSocket connected. Sending WsInitGui event...");
-        
-        // Send initial canvas resolution in zero-allocation key-value format
+        console.log("[+] WebSocket connected. Sending WsInitGui event...");        
+        // Send initial canvas resolution
         sendInitGui(canvas);
     };
 
@@ -93,10 +93,15 @@ function runSignaling(app)
     const candidateQueue = [];
 
     // Optional: Create a data channel for peer-to-peer communication
-    const dataChannel = pc.createDataChannel("tm-gui-channel");
-    dataChannel.onopen = () => console.log("P2P Data Channel opened.");
+    const dataChannel = pc.createDataChannel("tm-gui-channel", { ordered: true });
+    
+    dataChannel.onopen = () => {
+        console.log("P2P Data Channel opened.");
+        // Send initial canvas resolution
+        sendInitGui(canvas);
+    }
     dataChannel.onmessage = (e) => {
-        console.log("Received P2P message:", e.data);
+        // console.log("Received P2P message:", e.data);
         if (e.data instanceof ArrayBuffer) {
             processMessage(e.data);
         }
