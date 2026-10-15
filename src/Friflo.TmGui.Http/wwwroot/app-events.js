@@ -1,21 +1,22 @@
 // @ts-check
 // app-events.js
+import { socket } from './socket.js';
 
 let boundCanvas = null;
 
 // Send current canvas dimensions in physical GPU pixels as text stream
-export function sendInitGui(ws, canvas) {
-    if (!ws || ws.readyState !== WebSocket.OPEN || !canvas) return;
+export function sendInitGui(canvas) {
+    if (!socket.isReady() || !canvas) return;
 
     const width  = canvas.width;
     const height = canvas.height;
 
     // Key-value text payload matching C# ReadOnlySpan parser
-    ws.send(`canvasWidth=${width};canvasHeight=${height};`);
+    socket.send(`canvasWidth=${width};canvasHeight=${height};`);
 }
 
 // Resize Canvas to physical GPU pixels (HiDPI/Retina aware)
-function initCanvasResize(canvas, getSocket) {
+function initCanvasResize(canvas) {
     if (!canvas) return;
 
     const resizeObserver = new ResizeObserver((entries) => {
@@ -39,8 +40,7 @@ function initCanvasResize(canvas, getSocket) {
             if (canvas.width !== width || canvas.height !== height) {
                 canvas.width  = width;
                 canvas.height = height;
-                const socket = getSocket();
-                sendInitGui(socket, canvas);
+                sendInitGui(canvas);
             }
         }
     });
@@ -73,14 +73,11 @@ export function updateMouseCursor(canvas, cursorIndex) {
 }
 
 // Attach all Window & Canvas Event Listeners (Resize, Pointer, Keyboard)
-export function initGuiEventListeners(canvas, getSocketFn) {
+export function initGuiEventListeners(canvas) {
     boundCanvas = canvas;
 
     // Prevent default touch gestures (pinch-zoom, scrolling) on canvas
     canvas.style.touchAction = 'none';
-
-    // Helper to always retrieve active socket reference
-    const getSocket = () => (typeof getSocketFn === 'function' ? getSocketFn() : getSocketFn);
 
     // Helper to calculate exact physical GPU pixel coordinates relative to canvas
     const getCanvasCoords = (e) => {
@@ -92,7 +89,7 @@ export function initGuiEventListeners(canvas, getSocketFn) {
     };
 
     // 1. Resize Listener
-    initCanvasResize(canvas, getSocket);
+    initCanvasResize(canvas);
 
     
     let lastPointerEvent = null;
@@ -107,8 +104,7 @@ export function initGuiEventListeners(canvas, getSocketFn) {
             requestAnimationFrame(() => {
                 isPointerFrameScheduled = false;
     
-                const socket = getSocket();
-                if (!socket || socket.readyState !== WebSocket.OPEN) return;
+                if (!socket.isReady()) return;
     
                 const { x, y } = getCanvasCoords(lastPointerEvent);
                 socket.send(`evt=mousemove;mouseX=${x};mouseY=${y};`);
@@ -120,8 +116,7 @@ export function initGuiEventListeners(canvas, getSocketFn) {
     });
 
     canvas.addEventListener('pointerdown', (e) => {
-        const socket = getSocket();
-        if (!socket || socket.readyState !== WebSocket.OPEN) return;
+        if (!socket.isReady()) return;
 
         // Capture pointer events even if touch moves outside canvas boundaries
         canvas.setPointerCapture(e.pointerId);
@@ -131,8 +126,7 @@ export function initGuiEventListeners(canvas, getSocketFn) {
     });
 
     canvas.addEventListener('pointerup', (e) => {
-        const socket = getSocket();
-        if (!socket || socket.readyState !== WebSocket.OPEN) return;
+        if (!socket.isReady()) return;
 
         if (canvas.hasPointerCapture(e.pointerId)) {
             canvas.releasePointerCapture(e.pointerId);
@@ -143,8 +137,7 @@ export function initGuiEventListeners(canvas, getSocketFn) {
     });
     
     window.addEventListener('wheel', (e) => {
-        const socket = getSocket();
-        if (!socket || socket.readyState !== WebSocket.OPEN) return;
+        if (!socket.isReady()) return;
         
         // Prevent default page scrolling if canvas should capture all scroll events
         e.preventDefault();
@@ -154,8 +147,7 @@ export function initGuiEventListeners(canvas, getSocketFn) {
 
     // 3. Keyboard Input Listeners
     window.addEventListener('keydown', (e) => {
-        const socket = getSocket();
-        if (!socket || socket.readyState !== WebSocket.OPEN) return;
+        if (!socket.isReady()) return;
         
         if (e.key === 'Tab') e.preventDefault()
 
@@ -163,8 +155,7 @@ export function initGuiEventListeners(canvas, getSocketFn) {
     });
 
     window.addEventListener('keyup', (e) => {
-        const socket = getSocket();
-        if (!socket || socket.readyState !== WebSocket.OPEN) return;
+        if (!socket.isReady()) return;
 
         socket.send(`evt=keyup;key=${e.key};code=${e.code};`);
     });

@@ -1,7 +1,7 @@
 // @ts-check
 // app.js
-import { sendInitGui, initGuiEventListeners, updateMouseCursor, applyVertexChanges, masterVertices } from './app-events.js';
-import {initWebRTC} from "./webrtc.js";
+import { initGuiEventListeners, updateMouseCursor, applyVertexChanges, masterVertices } from './app-events.js';
+import { initWebSocket, initWebRTC } from "./socket.js";
 
 
 // Check WebGPU availability in current browser environment
@@ -10,7 +10,7 @@ if (!navigator.gpu) {
     alert("WebGPU is not supported by your browser.");
 }
 
-const canvas = document.getElementById('gpu-canvas');
+export const canvas = document.getElementById('gpu-canvas');
 
 // WebGPU Core Objects
 let device = null;
@@ -32,8 +32,7 @@ let dummySampler = null;
 let minStorageBufferOffsetAlignment = 256;
 let dynamicUniformStride = 256;
 
-// Global WebSocket reference
-let socket = null;
+
 
 // Texture Cache: Key = textureId, Value = { id, name, loaded, gpuTexture, bindGroup }
 const textures = new Map();
@@ -233,40 +232,10 @@ function createStaticIndexBuffer(maxVertices = 65536) {
     indexBuffer.unmap();
 }
 
-// Send initial canvas resolution to C# backend immediately after WebSocket handshake
-function initWebSocket() {
-    const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const wsUrl = `${wsProtocol}//${window.location.host}/ws`;
-    socket = new WebSocket(wsUrl);
-
-    socket.binaryType = "arraybuffer";
-
-    socket.onopen = () => {
-        console.log("[+] WebSocket connected. Sending WsInitGui event...");
-        
-        // Send initial canvas resolution in zero-allocation key-value format
-        sendInitGui(socket, canvas);
-    };
-
-    socket.onclose = () => {
-        console.log("[-] WebSocket connection closed.");
-    };
-
-    socket.onerror = (err) => {
-        console.error("WebSocket error:", err);
-    };
-    
-    socket.onmessage = (event) => {
-        if (event.data instanceof ArrayBuffer) {
-            // Create a lightweight zero-copy TypedArray view over the WebSocket ArrayBuffer
-            processMessage(event.data);
-        }
-    };
-}
 
 // ---------------------------------------------- processDrawList() ----------------------------------------------
 /** @param {ArrayBuffer} data */
-function processMessage(data) {
+export function processMessage(data) {
     let bytesRead    = 0;
     let messageCount = 0;
     const dataLength = data.byteLength;
@@ -670,15 +639,15 @@ function ensureTextureLoaded(textureId, name) {
 // Startup sequence
 async function start() {
     // Register event listeners for resize, mouse, and keyboard inputs
-    initGuiEventListeners(canvas, () => socket);
+    initGuiEventListeners(canvas);
 
     const gpuReady = await initWebGPU();
     if (gpuReady) {
         const urlParams = new URLSearchParams(window.location.search);
 
-        const host = urlParams.get('app');
-        if (host) {
-            initWebRTC(host)
+        const app = urlParams.get('app');
+        if (app) {
+            initWebRTC(app)
         } else {
             initWebSocket();
         }

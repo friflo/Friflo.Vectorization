@@ -1,6 +1,57 @@
 // @ts-check
 // webrtc.js
+import { sendInitGui } from './app-events.js';
+import { canvas, processMessage } from './app.js';
 
+
+let webSocket = null;
+
+// Global WebSocket reference
+export const socket = {
+    isReady : function() {
+        return webSocket !== null && webSocket.readyState === WebSocket.OPEN;
+    },
+    send : function(data) {
+        webSocket.send(data);
+    }
+}
+
+// ----------------------------------- WebSocket -----------------------------------
+
+// Send initial canvas resolution to C# backend immediately after WebSocket handshake
+export function initWebSocket()
+{
+    const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const wsUrl = `${wsProtocol}//${window.location.host}/ws`;
+    const ws = new WebSocket(wsUrl);
+    webSocket = ws;
+
+    ws.binaryType = "arraybuffer";
+
+    ws.onopen = () => {
+        console.log("[+] WebSocket connected. Sending WsInitGui event...");
+        
+        // Send initial canvas resolution in zero-allocation key-value format
+        sendInitGui(canvas);
+    };
+
+    ws.onclose = () => {
+        console.log("[-] WebSocket connection closed.");
+    };
+
+    ws.onerror = (err) => {
+        console.error("WebSocket error:", err);
+    };
+    
+    ws.onmessage = (event) => {
+        if (event.data instanceof ArrayBuffer) {
+            // Create a lightweight zero-copy TypedArray view over the WebSocket ArrayBuffer
+            processMessage(event.data);
+        }
+    };
+}
+
+// ------------------------------------ WebRTC ------------------------------------
 /**
  * Initializes the signaling WebSocket and the WebRTC peer connection as a client.
  * @param {string} appName 
@@ -11,7 +62,7 @@ export function initWebRTC(appName)
     const signalingUrl = `${wsProtocol}//${window.location.host}/signaling`;
     
     // 1. Create the signaling WebSocket connection inside the method
-    const socket = new WebSocket(signalingUrl);
+    const signalSocket = new WebSocket(signalingUrl);
     
     const pc = new RTCPeerConnection({
         iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]
@@ -27,9 +78,9 @@ export function initWebRTC(appName)
     dataChannel.onmessage = (e) => console.log("Received P2P message:", e.data);
 
     // 2. Send the connect request as soon as the signaling socket is open
-    socket.addEventListener('open', () => {
+    signalSocket.addEventListener('open', () => {
         console.log("Connected to signaling server. Requesting app...");
-        socket.send(JSON.stringify({
+        signalSocket.send(JSON.stringify({
             type: "connect",
             app: appName,
             sdpOrCandidate: null
@@ -37,7 +88,7 @@ export function initWebRTC(appName)
     });
 
     // 3. Handle incoming messages from the signaling server
-    socket.addEventListener('message', async (event) => {
+    signalSocket.addEventListener('message', async (event) => {
         /** @type {{ type: string, sdpOrCandidate?: string, app?: string }} */
         const message = JSON.parse(event.data);
 
@@ -49,7 +100,7 @@ export function initWebRTC(appName)
                         const offer = await pc.createOffer();
                         await pc.setLocalDescription(offer);
 
-                        socket.send(JSON.stringify({
+                        signalSocket.send(JSON.stringify({
                             type: "offer",
                             app: appName,
                             sdpOrCandidate: offer.sdp
@@ -117,7 +168,7 @@ export function initWebRTC(appName)
     // 4. Send local ICE candidates to the peer via signaling server
     pc.onicecandidate = (event) => {
         if (event.candidate) {
-            socket.send(JSON.stringify({
+            signalSocket.send(JSON.stringify({
                 type: "candidate",
                 app: appName,
                 sdpOrCandidate: JSON.stringify(event.candidate)
@@ -125,13 +176,13 @@ export function initWebRTC(appName)
         }
     };
 
-    socket.addEventListener('close', () => {
+    signalSocket.addEventListener('close', () => {
         console.log("Signaling WebSocket closed.");
     });
 
-    socket.addEventListener('error', (err) => {
+    signalSocket.addEventListener('error', (err) => {
         console.error("Signaling WebSocket error:", err);
     });
 
-    return { socket, pc, dataChannel };
+    return { pc, dataChannel };
 }
