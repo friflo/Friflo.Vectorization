@@ -3,6 +3,8 @@
 
 using System;
 using System.Buffers;
+using System.IO;
+using System.IO.Compression;
 using System.Threading;
 using System.Threading.Tasks;
 using Friflo.TmGui.Session;
@@ -20,7 +22,6 @@ internal class WebRtcClient : TmClient
     private     RTCDataChannel  dataChannel;
     private     TmSessionLoop   loop;
     private     WsDoubleBuffer? doubleBuffer;
-    private     byte[]          sendBuffer = [];
 
     internal WebRtcClient(TmSessionLoop loop, RTCDataChannel dataChannel)
     {
@@ -48,6 +49,31 @@ internal class WebRtcClient : TmClient
         return ValueTask.FromException<int>(exception);
     }
     
+    private readonly MemoryStream outputGZip = new(1000);
+        
+    private byte[] CompressMessage(ReadOnlySpan<byte> rawData, out int length)
+    {
+        outputGZip.Position = 0;
+        outputGZip.SetLength(0);
+        
+        {
+            using var gzipStream = new GZipStream(outputGZip, CompressionLevel.Fastest, leaveOpen: true);
+            gzipStream.Write(rawData);
+        }
+        length = (int)outputGZip.Length;
+        
+        if (outputGZip.TryGetBuffer(out var buffer)) {
+            var array = buffer.Array; 
+            if (array != null) {
+                return array;
+            }
+        }
+        return outputGZip.ToArray();
+    }
+    
+    // private byte[] sendBuffer = [];
+
+    
     protected override int Send(TmSendMessage message)
     {
         if (message.IsEmpty) {
@@ -56,11 +82,14 @@ internal class WebRtcClient : TmClient
         if (doubleBuffer == null || dataChannel.readyState != RTCDataChannelState.open) {
             return 0;
         }
-        var length = message.Length;
+        var messageSpan = message.buffer.Span;
+        var sendBuffer = CompressMessage(messageSpan, out int  length);
+        
+        /* var length = message.Length;
         if (sendBuffer.Length < length) {
             sendBuffer = new byte[length];
-        }
-        message.buffer.CopyTo(new Memory<byte>(sendBuffer));
+        } 
+        message.buffer.CopyTo(new Memory<byte>(sendBuffer)); */
 
         // RTCDataChannel.send(byte[] data, int offset, int count) does not store a reference to passed data.
         // It creates multiple small byte[1020] arrays to ensure they fit in an MTU (Maximum Transmission Unit, 1200 in SIPSorcery).

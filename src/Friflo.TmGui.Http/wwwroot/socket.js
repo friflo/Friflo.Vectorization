@@ -100,10 +100,21 @@ function runSignaling(app)
         // Send initial canvas resolution
         sendInitGui(canvas);
     }
-    dataChannel.onmessage = (e) => {
-        // console.log("Received P2P message:", e.data);
-        if (e.data instanceof ArrayBuffer) {
-            processMessage(e.data);
+    dataChannel.onmessage = async (e) => {
+        
+        if (!(e.data instanceof ArrayBuffer)) {
+            return
+        }
+        try {
+            const stream = new Blob([e.data]).stream().pipeThrough(new DecompressionStream('gzip'));
+            
+            const decompressedBuffer = await new Response(stream).arrayBuffer();
+            const rawData = new Uint8Array(decompressedBuffer);
+            
+            console.log(`Received P2P message: ${e.data.byteLength}  uncompressed: ${rawData.byteLength}`);
+            processMessage(rawData);
+        } catch (err) {
+            console.error("Failed to decompress message:", err);
         }
     }
 
