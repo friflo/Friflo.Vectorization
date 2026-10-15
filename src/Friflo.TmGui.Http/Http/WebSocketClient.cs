@@ -53,14 +53,12 @@ internal class WebSocketClient : TmClient
         return message.Length;
     }
 
-    protected override void RestoreTerminal() {
-        // only applicable for terminal emulators
-    }
+    protected override void RestoreTerminal() { } // only applicable for terminal emulators
 
     private async Task FlushPendingBufferAsync(CancellationToken ct)
     {
         var buffer = doubleBuffer!;
-        buffer!.Swap();
+        buffer.Swap();
 
         // Send backBuffer asynchronously - OnFrame thread is completely free to write to frontBuffer now
         if (buffer.PendingLength > 0 && webSocket.State == WebSocketState.Open) {
