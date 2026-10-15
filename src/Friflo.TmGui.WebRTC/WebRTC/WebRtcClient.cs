@@ -39,15 +39,10 @@ internal class WebRtcClient : TmClient
         dataChannel     = null!;
     }
 
-    protected override async ValueTask<int> SendAsync(TmSendMessage message, CancellationToken cancellationToken)
+    protected override ValueTask<int> SendAsync(TmSendMessage message, CancellationToken cancellationToken)
     {
-        throw new InvalidOperationException("not implemented");
-        /* if (dataChannel.readyState == RTCDataChannelState.open)
-        {
-            // await webSocket.SendAsync(message.buffer, WebSocketMessageType.Binary, true, cancellationToken);
-            return message.Length;
-        }
-        return 0;*/
+        var exception = new InvalidOperationException("currently not required");
+        return ValueTask.FromException<int>(exception);
     }
     
     protected override int Send(TmSendMessage message)
@@ -68,11 +63,10 @@ internal class WebRtcClient : TmClient
     {
         var buffer = doubleBuffer!;
         buffer.Swap();
-        // Send backBuffer asynchronously - OnFrame thread is completely free to write to frontBuffer now
+
         if (buffer.PendingLength > 0 && dataChannel.readyState == RTCDataChannelState.open) {
             dataChannel.send(buffer.Data, 0, buffer.PendingLength);
 
-            // await webSocket.SendAsync(buffer.Memory, WebSocketMessageType.Binary, true, ct);
             buffer.Clear();
         }
     }
