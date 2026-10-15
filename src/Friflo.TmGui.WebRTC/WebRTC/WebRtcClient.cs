@@ -47,7 +47,7 @@ internal class WebRtcClient : TmClient
     
     protected override int Send(TmSendMessage message)
     {
-        if (doubleBuffer == null || dataChannel.readyState == RTCDataChannelState.open) {
+        if (doubleBuffer == null || dataChannel.readyState != RTCDataChannelState.open) {
             return 0;
         }
         doubleBuffer.AppendMessage(message);

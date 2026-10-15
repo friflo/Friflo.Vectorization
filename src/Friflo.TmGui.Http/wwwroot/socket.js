@@ -13,10 +13,21 @@ let dataChannel = null;
 // Global WebSocket reference
 export const socket = {
     isReady : function() {
-        return webSocket !== null && webSocket.readyState === WebSocket.OPEN;
+        if (webSocket !== null) {
+            return webSocket.readyState === WebSocket.OPEN 
+        }
+        if (dataChannel !== null) {
+            return dataChannel.readyState === "open";
+        }
+        return false;
     },
     send : function(data) {
-        webSocket.send(data);
+        if (webSocket !== null) {
+            webSocket.send(data);
+        }
+        if (dataChannel !== null) {
+            dataChannel.send(data);
+        }
     }
 }
 
@@ -84,7 +95,12 @@ function runSignaling(app)
     // Optional: Create a data channel for peer-to-peer communication
     const dataChannel = pc.createDataChannel("tm-gui-channel");
     dataChannel.onopen = () => console.log("P2P Data Channel opened.");
-    dataChannel.onmessage = (e) => console.log("Received P2P message:", e.data);
+    dataChannel.onmessage = (e) => {
+        console.log("Received P2P message:", e.data);
+        if (e.data instanceof ArrayBuffer) {
+            processMessage(e.data);
+        }
+    }
 
     // 2. Send the connect request as soon as the signaling socket is open
     signalSocket.addEventListener('open', () => {
