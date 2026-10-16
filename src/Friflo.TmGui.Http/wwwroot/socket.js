@@ -75,6 +75,7 @@ export function initWebRTC(app)
  */
 function runSignaling(app)
 {
+    let receivedInitialFrame = false;
     const infoOverlay = document.getElementById("info-overlay");
     if (infoOverlay) {
         infoOverlay.textContent = `Searching app '${app}' ...`;
@@ -100,14 +101,15 @@ function runSignaling(app)
     
     dataChannel.onopen = () => {
         console.log("P2P Data Channel opened.");
-        if (infoOverlay) {
-            infoOverlay.style.display = "none";
-        }
         // Send initial canvas resolution
         sendInitGui(canvas);
     }
     dataChannel.onmessage = async (e) => {
         if (e.data instanceof ArrayBuffer) {
+            if (!receivedInitialFrame) {
+                receivedInitialFrame = true;
+                if (infoOverlay) infoOverlay.style.display = "none";
+            }
             try {
                 const rawData = await decompressMessage(e.data);
                 
