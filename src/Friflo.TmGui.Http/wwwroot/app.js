@@ -494,7 +494,7 @@ function submitDrawList()
     const pass = commandEncoder.beginRenderPass({
         colorAttachments: [{
             view: context.getCurrentTexture().createView(),
-            clearValue: { r: 0.12, g: 0.12, b: 0.12, a: 1.0 },
+            clearValue: { r: 0.4, g: 0.4, b: 0.4, a: 1.0 },
             loadOp: 'clear',
             storeOp: 'store'
         }]
