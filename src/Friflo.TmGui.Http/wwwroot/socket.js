@@ -73,6 +73,8 @@ export function initWebSocket()
 }
 
 // ------------------------------------ WebRTC ------------------------------------
+const availableApps = '<br><a href="/" style="text-decoration: underline;">available apps</a>';
+
 export function initWebRTC(app)
 {
     dataChannel = runSignaling(app)
@@ -121,7 +123,7 @@ function runSignaling(app)
             pc.connectionState === "closed") {
             
             console.log(`Remote peer lost connection.`);
-            updateInfo(`App '${app}' disconnected.`);
+            updateInfo(`App '${app}' disconnected.${availableApps}`);
         }
     };
     
@@ -186,7 +188,7 @@ function runSignaling(app)
                     }
                 } else {
                     console.error(`App '${app}' ${message.sdpOrCandidate}.`);
-                    updateInfo(`App '${app}' ${message.sdpOrCandidate}.<br><a href="/" style="text-decoration: underline;">available apps</a>`);
+                    updateInfo(`App '${app}' ${message.sdpOrCandidate}.${availableApps}`);
                 }
                 break;
 
