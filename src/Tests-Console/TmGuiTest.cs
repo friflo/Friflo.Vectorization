@@ -144,7 +144,7 @@ public class TmGuiRenderer : IRenderer, IGuiView
         }
         gui.Spacer();
         using (gui.PushStyle(greenButtonStyle)) {
-            if (gui.Button("hello"))                            Console.WriteLine("Clicked: hello");
+            if (gui.Button("hello"))                            gui.Action.SetWindowTitle("hello");
         }
         if (gui.MyButton("MyButton", id: 0x7777ffff))           Console.WriteLine("Clicked: MyButton");
 

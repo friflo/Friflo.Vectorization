@@ -33,7 +33,7 @@ internal sealed class RasterBatch : TmBatch
     }
 
     protected internal override void InitBatch() { }
-    protected internal override void SetWindowTitle(string title) { }
+    protected internal override void SetWindowTitle(ReadOnlySpan<char> title) { }
 
 
     /// Fast alternative for <see cref="MathF.Round(float)"/>

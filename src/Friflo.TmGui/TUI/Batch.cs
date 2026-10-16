@@ -65,7 +65,7 @@ public sealed partial class TuiBatch : TmBatch
         xScale      = yScale / CharacterAspectRatio;
     }
     
-    protected internal override void SetWindowTitle(string title)
+    protected internal override void SetWindowTitle(ReadOnlySpan<char> title)
     {
         var sb = StringBuilder();
         sb.Append("\x1b]0;");

@@ -3,6 +3,9 @@
 
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable CheckNamespace
+
+using System;
+
 namespace Friflo.TmGui.Session;
 
 
@@ -14,7 +17,7 @@ internal class WsBatch : TmBatch
 
     protected internal override void InitBatch() { }
     
-    protected internal override void SetWindowTitle(string title)
+    protected internal override void SetWindowTitle(ReadOnlySpan<char> title)
     {
         var sb = StringBuilder();
         sb.Append("set-title");

@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Ullrich Praetz - https://github.com/friflo. All rights reserved.
 // See LICENSE file in the project root for full license information.
 
+using System;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using Friflo.GPU;
@@ -28,7 +29,7 @@ public sealed partial class WgpuBatch : TmBatch
     }
 
     protected override void InitBatch() { }
-    protected override void SetWindowTitle(string title) { }
+    protected override void SetWindowTitle(ReadOnlySpan<char> title) { }
 
     // TextureFormat.BGRA8Unorm / RGBA8Unorm
     /// <summary> Create multiple configs. A single would be sufficient, if not supporting <see cref="GpuBlendState"/>. </summary>

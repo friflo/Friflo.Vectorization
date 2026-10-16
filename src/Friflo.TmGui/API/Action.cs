@@ -17,5 +17,7 @@ public readonly ref struct TmAction
     }
     
     public void OpenUrl(ReadOnlySpan<char> url, ReadOnlySpan<char> target = default) => batch.OpenUrl(url, target);
+    
+    public void SetWindowTitle(ReadOnlySpan<char> title) => batch.SetWindowTitle(title);
 }
 

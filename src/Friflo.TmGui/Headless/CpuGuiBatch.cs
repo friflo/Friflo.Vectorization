@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Ullrich Praetz - https://github.com/friflo. All rights reserved.
 // See LICENSE file in the project root for full license information.
 
+using System;
 using System.Numerics;
 
 // ReSharper disable ConvertToPrimaryConstructor
@@ -15,7 +16,7 @@ public sealed class CpuGuiBatch : TmBatch
     }
     
     protected internal override void InitBatch() { }
-    protected internal override void SetWindowTitle(string title) { }
+    protected internal override void SetWindowTitle(ReadOnlySpan<char> title) { }
     
     public void DrawCommandList()
     {
