@@ -46,7 +46,8 @@ internal sealed partial class TuiSession : TmSession
     {
         this.colorMode      = colorMode;
         shared              = loop.tuiShared;
-        cpuBackend          = client is ConsoleClient ? loop.cpuBackend : new CpuBackend(loop.cpuBackend);
+        var loopBackend     = loop.cpuBackend;
+        cpuBackend          = client is ConsoleClient ? loopBackend : new CpuBackend(loopBackend.backendName, loopBackend);
         
         tuiBatch            = cpuBackend.CreateTuiBatch(colorMode);
         tuiBatch.session    = this;

@@ -2,6 +2,7 @@
 using System.Net;
 using System.Numerics;
 using Friflo.TmGui;
+using Friflo.TmGui.Headless;
 using Friflo.TmGui.Http;
 using Friflo.TmGui.Recorder;
 using Friflo.TmGui.Session;
@@ -74,7 +75,7 @@ public class TmGuiRenderer : IRenderer, IGuiView
         myTexture        = guiBackend.LoadTexture(stream, "world_tileset.png").AsGpuTexture(); 
         myTextureView    = myTexture.CreateView().AsTmTexture();
         
-        loop = new TmSessionLoop(false, guiBackend, _ => new TmGuiRenderer(this));
+        loop = new TmSessionLoop(false, new CpuBackend("TmGui - Remote Test", guiBackend), _ => new TmGuiRenderer(this));
         var builder = HttpUtils.CreateHostBuilder(new IPEndPoint(IPAddress.Any, 8080), loop);
         HttpUtils.Start(builder.Build());
     }

@@ -27,9 +27,9 @@ public sealed class CpuBackend : TmGuiBackend
         rootBackend = null!;
     }
     
-    internal CpuBackend(TmGuiBackend rootBackend) : base(rootBackend.Assets) {
+    public CpuBackend(string name, TmGuiBackend rootBackend) : base(rootBackend.Assets) {
+        backendName         = name;
         this.rootBackend    = rootBackend;
-        backendName         = rootBackend.GetType().Name;
     }
     
     public override void Dispose() {

@@ -40,11 +40,11 @@ public sealed partial class TmSessionLoop : IDisposable
     private const int MaxSyncQueueCapacity = 32;
 #endregion
     
-    public TmSessionLoop(bool isAsync, TmGuiBackend rootBackend, CreateGuiView createGuiView)
+    public TmSessionLoop(bool isAsync, CpuBackend rootBackend, CreateGuiView createGuiView)
     {
         this.isAsync        = isAsync;
         this.createGuiView  = createGuiView;
-        cpuBackend          = rootBackend as CpuBackend ?? new CpuBackend(rootBackend);  // TAG_CPU
+        cpuBackend          = rootBackend;  // TAG_CPU
         resources           = new AssetResources(cpuBackend);
         if (isAsync) {
             // Bounded channel to enforce non-blocking backpressure via TryWrite
@@ -177,7 +177,7 @@ public sealed partial class TmSessionLoop : IDisposable
         sessions[client]= session;
         var msgStart    = firstLine == -1 ? 0 : firstLine + 1;
         firstPayload    = payload.GetMemory(msgStart);
-        session.Batch.SetWindowTitle(cpuBackend.backendName);
+        SetWindowTitle(session);
         return session;
     }
 
@@ -194,8 +194,13 @@ public sealed partial class TmSessionLoop : IDisposable
         session.guiView = guiView;
         sessions[client]= session;
         firstPayload    = default;
-        session.Batch.SetWindowTitle(cpuBackend.backendName);
+        SetWindowTitle(session);
         return session;
+    }
+    
+    private void SetWindowTitle(TmSession session)
+    {
+        session.Batch.SetWindowTitle(cpuBackend.backendName);
     }
     
     private static int _sessionSeq = 1;
