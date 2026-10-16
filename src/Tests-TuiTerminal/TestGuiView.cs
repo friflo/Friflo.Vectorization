@@ -18,7 +18,8 @@ public class TestGuiView : IGuiView
     private readonly    SessionId       sessionId;
     private readonly    Color32[]       textColors = [0x0000FFFF, 0xFF0000FF, 0x009900FF, 0xFF00FFFF, 0xCC6600FF, 0x000000ff];
     private readonly    TmTexture       myTexture;      // texture available only for this session
-    private readonly    TmTexture       canvasTexture;  // canvas only required for TUI. GUI draws to GPU surface 
+    private readonly    TmTexture       canvasTexture;  // canvas only required for TUI. GUI draws to GPU surface
+    private             bool            fullScreen;
     private             float           time;
     private             long            frameStart = Stopwatch.GetTimestamp();
     private             double          frameTime;
@@ -84,6 +85,9 @@ public class TestGuiView : IGuiView
         gui.Button("hello TUI 💻 🙂", Dim.Fill_X(0, Fit.Content), color: textColors);
         if (gui.Button("google.com")) {
             gui.Action.OpenUrl("https://www.google.com/");
+        }
+        if (gui.Checkbox("fullScreen", ref fullScreen)) {
+            gui.Action.SetDisplayMode(fullScreen ? TmDisplayMode.Fullscreen : TmDisplayMode.Windowed);
         }
         gui.Spacer();
         using (gui.BeginHorizontal()) {

@@ -65,6 +65,20 @@ public sealed partial class TuiBatch : TmBatch
         xScale      = yScale / CharacterAspectRatio;
     }
     
+    /* found no terminal supporting this
+    protected internal override void SetDisplayMode(TmDisplayMode mode) {
+        var cmd = mode switch {
+            TmDisplayMode.Windowed      => "\x1b[?1049l"u8,
+            TmDisplayMode.Fullscreen    => "\x1b[?1049h"u8,
+            _                           => default
+        };
+        if (cmd == null) {
+            return;
+        }
+        var msg = new TmSendMessage(cmd.ToArray());
+        session?.client.Send(msg);
+    } */
+    
     protected internal override void SetWindowTitle(ReadOnlySpan<char> title)
     {
         var sb = StringBuilder();
