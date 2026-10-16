@@ -59,10 +59,7 @@ export function initWebSocket()
     };
     
     ws.onmessage = (event) => {
-        if (event.data instanceof ArrayBuffer) {
-            // Create a lightweight zero-copy TypedArray view over the WebSocket ArrayBuffer
-            processMessage(event.data);
-        }
+        processMessage(event.data);
     };
 }
 
@@ -101,17 +98,19 @@ function runSignaling(app)
         sendInitGui(canvas);
     }
     dataChannel.onmessage = async (e) => {
-        
-        if (!(e.data instanceof ArrayBuffer)) {
-            return
+        if (e.data instanceof ArrayBuffer) {
+            try {
+                const rawData = await decompressMessage(e.data);
+                
+                console.log(`Received P2P message: ${e.data.byteLength}  uncompressed: ${rawData.byteLength}`);
+                processMessage(rawData);
+            } catch (err) {
+                console.error("Failed to decompress message:", err);
+            }
+            return;
         }
-        try {
-            const rawData = await decompressMessage(e.data);
-            
-            console.log(`Received P2P message: ${e.data.byteLength}  uncompressed: ${rawData.byteLength}`);
-            processMessage(rawData);
-        } catch (err) {
-            console.error("Failed to decompress message:", err);
+        if (typeof e.data === 'string') {
+            processMessage(e.data);
         }
     }
 

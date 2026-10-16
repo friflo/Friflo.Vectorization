@@ -8,7 +8,6 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Numerics;
 using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 using System.Text;
 using Friflo.TmGui.Headless;
 using Friflo.TmGui.Raster;
@@ -61,7 +60,6 @@ public abstract class TmBatch : IDisposable
 //  internal readonly   TmGuiBackend        backend;        - intentionally no back reference to its backend. Prevents calling NewFrame() within a Gui scope.
     public ReadOnlySpan<DrawCommand>        DrawList        => new(drawList, 0, drawCommands.Count);
     public Span<Vertex2D>                   Vertices        => vertexBuffer.Span.Slice(0, vertexCount);
-    public ReadOnlySpan<char>               ClientCommands  => CollectionsMarshal.AsSpan(clientCommands);
 #endregion
 
 #region protected
@@ -80,7 +78,6 @@ public abstract class TmBatch : IDisposable
     internal  readonly  Stack<Matrix4x4>    transformStack      = [];
     internal  readonly  Stack<ZIndex>       zIndexStack         = [];
     internal  readonly  Stack<SamplerFilter>samplerFilterStack  = [];
-    private   readonly  List<char>          clientCommands      = [];
     private   readonly  StringBuilder       stringBuilder       = new(512,512); // => first chunk: 512 chars
     internal  readonly  GuiState            guiState            = new();
     
@@ -181,15 +178,16 @@ public abstract class TmBatch : IDisposable
     internal void OpenUrl(ReadOnlySpan<char> url, ReadOnlySpan<char> target)
     {
         if (this is WsBatch) {
-            var commands = clientCommands;
-            commands.AddRange("open-url");
-            commands.Add('|');
-            commands.AddRange(url);
+            var sb = StringBuilder();
+            sb.Append("open-url");
+            sb.Append('|');
+            sb.Append(url);
             if (target.Length > 0) {
-                commands.Add('|');
-                commands.AddRange(target);
+                sb.Append('|');
+                sb.Append(target);
             }
-            commands.Add('\n');
+            var command = new TmSendCommand(sb.ToString());
+            session?.client.SendCommand(command);
             return;
         }
         Process.Start(new ProcessStartInfo { FileName = url.ToString(), UseShellExecute = true });
@@ -341,7 +339,6 @@ public abstract class TmBatch : IDisposable
         transformStack.Clear();
         zIndexStack.Clear();
         samplerFilterStack.Clear();
-        clientCommands.Clear();
         
         var draw = new TmDraw(this);
         draw.SetViewport(width, height);

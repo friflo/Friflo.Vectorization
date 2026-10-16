@@ -44,6 +44,8 @@ public class StreamClient : TmClient
         return message.Length;
     }
     
+    protected internal override void SendCommand(TmSendCommand command) { }
+    
     protected internal override void RestoreTerminal()
     {
         Send(new TmSendMessage(VT100.TerminalReset));

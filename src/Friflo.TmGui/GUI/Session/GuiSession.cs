@@ -51,6 +51,7 @@ internal sealed partial class GuiSession : TmSession
         shared              = loop.guiShared;
         wsBackend           = new WsBackend(loop.cpuBackend, loop.guiShared, sessionId);
         wsBatch             = wsBackend.CreateBatch();
+        wsBatch.session     = this;
         wsBatch.frameTimer  = frameTimer;
         
         debugClientQuads = null!;
@@ -163,15 +164,7 @@ internal sealed partial class GuiSession : TmSession
             int encodedBytes = Encoding.UTF8.GetBytes(image.asset.name, span[bytesWritten..]);
             bytesWritten += encodedBytes;
         }
-        var clientCommands = wsBatch.ClientCommands;
-        MemoryMarshal.Write(span[bytesWritten..], clientCommands.Length);
-        bytesWritten += sizeof(int);
-        if (clientCommands.Length > 0) {
-            int utf8ByteCount = Encoding.UTF8.GetByteCount(clientCommands);
-            MemoryMarshal.Write(span[bytesWritten..], utf8ByteCount);
-            int encodedBytes = Encoding.UTF8.GetBytes(clientCommands, span[bytesWritten..]);
-            bytesWritten += encodedBytes;
-        }
+
         var texturesLength = bytesWritten - texturesStart;
 
         // 6. Write wsDrawList elements

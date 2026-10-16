@@ -14,6 +14,16 @@ using Hide = System.Diagnostics.DebuggerHiddenAttribute;
 // ReSharper disable once CheckNamespace
 namespace Friflo.TmGui.Session;
 
+
+public readonly struct TmSendCommand
+{
+    public readonly string  payload;
+    public override string  ToString()      => payload;
+
+    internal TmSendCommand(string payload)  => this.payload = payload;
+}
+
+
 public enum TmSendMessageMode {
     Queue       = 0,
     DropUnsent  = 1
@@ -94,6 +104,7 @@ public abstract class TmClient
 
     protected internal abstract     ValueTask<int>  SendAsync(TmSendMessage message, CancellationToken cancellationToken);
     protected internal abstract     int             Send(TmSendMessage message);
+    protected internal abstract     void            SendCommand(TmSendCommand command);
     protected internal abstract     void            RestoreTerminal();
     
     /// <summary>

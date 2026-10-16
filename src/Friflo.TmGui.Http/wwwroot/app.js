@@ -234,19 +234,28 @@ function createStaticIndexBuffer(maxVertices = 65536) {
 
 
 // ---------------------------------------------- processDrawList() ----------------------------------------------
-/** @param {ArrayBuffer} data */
 export function processMessage(data) {
-    let bytesRead    = 0;
-    let messageCount = 0;
-    const dataLength = data.byteLength;
-    
-    while (bytesRead < dataLength) {
-        messageCount++;
-        bytesRead += processDrawList(new Uint8Array(data, bytesRead, dataLength - bytesRead));
+    if (data instanceof ArrayBuffer) {
+        let bytesRead    = 0;
+        let messageCount = 0;
+        const dataLength = data.byteLength;
+        
+        while (bytesRead < dataLength) {
+            messageCount++;
+            bytesRead += processDrawList(new Uint8Array(data, bytesRead, dataLength - bytesRead));
+        }
+        if (messageCount > 1) console.log(`INFO: received multi message. count: ${messageCount}`);
+        
+        triggerRender();
+        return;
     }
-    if (messageCount > 1) console.log(`INFO: received multi message. count: ${messageCount}`);
-    
-    triggerRender();
+    if (typeof data === 'string') {
+        console.log(data);
+        const args = data.split("|");
+        if (args[0] === "open-url") {
+            window.open(args[1], args[2]);
+        }
+    }
 }
 
 // Keep comment - Key architecture:
@@ -308,21 +317,6 @@ function processDrawList(message)
         offset += nameByteLength;
 
         ensureTextureLoaded(textureId, name);
-    }
-    const commandsLength = view.getInt32(offset, true);
-    offset += SIZEOF_INT;
-    if (commandsLength > 0) {
-        const commandsBytes = uint8Data.subarray(offset, offset + commandsLength);
-        const commandsStr = utf8Decoder.decode(commandsBytes);
-        offset += commandsLength;
-        const commands = commandsStr.split("\n");
-        for (const cmd of commands) {
-            console.log(cmd);
-            const args = cmd.split("|");
-            if (args[0] === "open-url") {
-                window.open(args[1], args[2]);
-            }
-        }
     }
 
     // 6. View on WsDrawCommand array

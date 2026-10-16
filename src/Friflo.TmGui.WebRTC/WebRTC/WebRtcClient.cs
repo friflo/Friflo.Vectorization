@@ -102,6 +102,13 @@ internal class WebRtcClient : TmClient
         return length;
     }
 
+    protected override void SendCommand(TmSendCommand command) {
+        if (dataChannel.readyState != RTCDataChannelState.open) {
+            return;
+        }
+        dataChannel.send(command.payload);
+    }
+
     protected override void RestoreTerminal() { } // only applicable for terminal emulators
 
     private void FlushPendingBuffer()

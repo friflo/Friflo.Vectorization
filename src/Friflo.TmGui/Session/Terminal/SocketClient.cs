@@ -41,6 +41,8 @@ public class SocketClient : TmClient
         return socket.Send(message.buffer.Span, SocketFlags.None);  // Buffer has space -> transmit frame synchronously without blocking
     }
     
+    protected internal override void SendCommand(TmSendCommand command) { }
+    
     protected internal override void RestoreTerminal()
     {
         Send(new TmSendMessage(VT100.TerminalReset));

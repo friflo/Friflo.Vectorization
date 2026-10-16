@@ -4,6 +4,7 @@
 using System;
 using System.Buffers;
 using System.Net.WebSockets;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Friflo.TmGui.Session;
@@ -53,6 +54,14 @@ internal class WebSocketClient : TmClient
         return message.Length;
     }
 
+    protected override void SendCommand(TmSendCommand command)
+    {
+        if (webSocket.State != WebSocketState.Open) {
+            return;
+        }
+        var buffer = Encoding.UTF8.GetBytes(command.payload);
+        _ = webSocket.SendAsync(buffer, WebSocketMessageType.Text, true, CancellationToken.None);
+    }
     protected override void RestoreTerminal() { } // only applicable for terminal emulators
 
     private async Task FlushPendingBufferAsync(CancellationToken ct)

@@ -53,6 +53,8 @@ public sealed class ConsoleClient : TmClient
         return message.Length;
     }
     
+    protected internal override void SendCommand(TmSendCommand command) { }
+    
     protected internal override void RestoreTerminal()
     {
         if (OperatingSystem.IsWindows()) {
