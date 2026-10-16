@@ -153,7 +153,6 @@ public class TmGuiRenderer : IRenderer, IGuiView
 
         gui.Spacer();
         gui.Checkbox("mouse circle", ref mouseCircle);
-        gui.Checkbox("mouse circle", ref mouseCircle);
         if(gui.Checkbox("Monocraft", ref monocraft)) {
             if (monocraft) {
                 batch.SetFont(monocraftFont);
