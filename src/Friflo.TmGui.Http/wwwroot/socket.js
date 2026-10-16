@@ -217,15 +217,14 @@ const blobArray= [null];
 
 /**
  * @param {ArrayBuffer} arrayBuffer 
- * @returns {Promise<Uint8Array>}
+ * @returns {Promise<ArrayBuffer>}
  */
 async function decompressMessage(arrayBuffer) {
     blobArray[0] = arrayBuffer;
     const stream = new Blob(blobArray).stream().pipeThrough(new DecompressionStream('gzip'));
-    
-    const decompressedBuffer = await new Response(stream).arrayBuffer();
-    return new Uint8Array(decompressedBuffer);
-    
+
+    return await new Response(stream).arrayBuffer();
+
     /*
     // decompress without JS-Loop-Overhead.
     const stream = new ReadableStream({
@@ -234,8 +233,7 @@ async function decompressMessage(arrayBuffer) {
             controller.close();
         }
     }).pipeThrough(new DecompressionStream('gzip'));
-
-    const decompressedBuffer = await new Response(stream).arrayBuffer();
     
-    return new Uint8Array(decompressedBuffer); */
+    return await new Response(stream).arrayBuffer();    
+    */
 }
