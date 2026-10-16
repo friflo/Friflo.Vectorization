@@ -69,18 +69,25 @@ export function initWebRTC(app)
     dataChannel = runSignaling(app)
 }
 
+const infoOverlay = document.getElementById("info-overlay");
+
+/** @param {string} info */
+function updateInfo(info) {
+    if (infoOverlay) {
+        infoOverlay.textContent = info;
+    }
+}
+
 /**
  * @param {string} app
  * @returns {RTCDataChannel}
  */
 function runSignaling(app)
 {
+    if (infoOverlay) infoOverlay.style.display = "flex";
+
     let receivedInitialFrame = false;
-    const infoOverlay = document.getElementById("info-overlay");
-    if (infoOverlay) {
-        infoOverlay.textContent = `Searching app '${app}' ...`;
-        infoOverlay.style.display = "flex";
-    }
+    updateInfo(`Searching app '${app}' ...`);
                     
     const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
     const signalingUrl = `${wsProtocol}//${window.location.host}/signaling`;
@@ -103,6 +110,7 @@ function runSignaling(app)
         console.log("P2P Data Channel opened.");
         // Send initial canvas resolution
         sendInitGui(canvas);
+        updateInfo(`App '${app}' connected.`);
     }
     dataChannel.onmessage = async (e) => {
         if (e.data instanceof ArrayBuffer) {
@@ -130,17 +138,19 @@ function runSignaling(app)
         console.log("Connected to signaling server. Requesting app...");
         signalSocket.send(JSON.stringify({ type: "connect", app: app, sdpOrCandidate: null }));
     });
+    let signalMsgCount = 0;
 
     // 3. Handle incoming messages from the signaling server
     signalSocket.addEventListener('message', async (event) => {
         /** @type {{ type: string, sdpOrCandidate?: string, app?: string }} */
         const message = JSON.parse(event.data);
+        signalMsgCount++;
 
         switch (message.type) {
             case "ConnectResponse":
                 if (message.sdpOrCandidate === "Found") {
                     console.log(`app '${app}' found. Creating WebRTC offer...`);
-                    infoOverlay.textContent = `App '${app}' found.\nConnecting ...`;
+                    updateInfo(`App '${app}' found.\nConnecting (${signalMsgCount}) ...`);
                     try {
                         const offer = await pc.createOffer();
                         await pc.setLocalDescription(offer);
@@ -151,12 +161,12 @@ function runSignaling(app)
                     }
                 } else {
                     console.error(`App '${app}' ${message.sdpOrCandidate}.`);
-                    infoOverlay.textContent = `App '${app}' not found.`;
+                    updateInfo(`App '${app}' not found.`);
                 }
-                infoOverlay.style.display = "flex";
                 break;
 
             case "answer":
+                updateInfo(`App '${app}' found.\nConnecting (${signalMsgCount} - answer) ...`);
                 try {
                     await pc.setRemoteDescription(new RTCSessionDescription({
                         type: "answer",
@@ -180,6 +190,7 @@ function runSignaling(app)
                 break;
 
             case "candidate":
+                updateInfo(`App '${app}' found.\nConnecting (${signalMsgCount} - candidate) ...`);
                 try {
                     // Skip if connection is already established or completed
                     if (pc.connectionState === 'connected' || pc.connectionState === 'completed') {
