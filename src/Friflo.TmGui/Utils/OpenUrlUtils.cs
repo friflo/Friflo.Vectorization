@@ -9,9 +9,10 @@ using System.IO;
 // ReSharper disable once CheckNamespace
 namespace Friflo.TmGui.Utils;
 
-internal static class OsUtils
+internal static class OpenUrlUtils
 {
-    internal static bool OpenUrl(ReadOnlySpan<char> url) {
+    internal static bool OpenUrl(ReadOnlySpan<char> url)
+    {
         var urlStr = url.ToString();
 
         // Validate that it is a valid absolute URI and uses safe protocols (http or https)
@@ -30,27 +31,7 @@ internal static class OsUtils
                 }
                 else if (OperatingSystem.IsLinux())
                 {
-                    bool isWsl = File.Exists("/proc/version") && 
-                                 File.ReadAllText("/proc/version").Contains("microsoft", StringComparison.OrdinalIgnoreCase);
-
-                    if (isWsl)
-                    {
-                        Process.Start(new ProcessStartInfo { FileName = "cmd.exe", Arguments = $"/c start {safeUrl.Replace("&", "^&")}", UseShellExecute = false, CreateNoWindow = true });
-                    }
-                    else
-                    {
-                        string[] openers = { "xdg-open", "gio", "gnome-open", "kde-open" };
-                        bool opened = false;
-                        foreach (var opener in openers)
-                        {
-                            try {
-                                Process.Start(new ProcessStartInfo { FileName = opener, Arguments = safeUrl, UseShellExecute = false });
-                                opened = true;
-                                break;
-                            } catch {}
-                        }
-                        if (!opened) return false;
-                    }
+                    return OpenUrlLinux(safeUrl);
                 }
                 return true;
             }
@@ -59,5 +40,31 @@ internal static class OsUtils
             }
         }
         return false;
+    }
+    
+    private static bool OpenUrlLinux(string safeUrl)
+    {
+        bool isWsl = File.Exists("/proc/version") && 
+                     File.ReadAllText("/proc/version").Contains("microsoft", StringComparison.OrdinalIgnoreCase);
+
+        if (isWsl)
+        {
+            Process.Start(new ProcessStartInfo { FileName = "cmd.exe", Arguments = $"/c start {safeUrl.Replace("&", "^&")}", UseShellExecute = false, CreateNoWindow = true });
+        }
+        else
+        {
+            string[] openers = { "xdg-open", "gio", "gnome-open", "kde-open" };
+            bool opened = false;
+            foreach (var opener in openers)
+            {
+                try {
+                    Process.Start(new ProcessStartInfo { FileName = opener, Arguments = safeUrl, UseShellExecute = false });
+                    opened = true;
+                    break;
+                } catch {}
+            }
+            if (!opened) return false;
+        }
+        return true;
     }
 }

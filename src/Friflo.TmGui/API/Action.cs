@@ -45,7 +45,7 @@ public readonly ref struct TmAction : IHostAction
 public interface IHostAction
 {
     public bool OpenUrl(ReadOnlySpan<char> url, ReadOnlySpan<char> target = default) {
-        return OsUtils.OpenUrl(url);
+        return OpenUrlUtils.OpenUrl(url);
     }
     
     public void SetDisplayMode(TmDisplayMode mode) { }
