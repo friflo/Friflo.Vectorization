@@ -25,17 +25,42 @@ internal class WsBatch : TmBatch, IHostAction
     // --- IHostAction
     public bool OpenUrl(ReadOnlySpan<char> url, ReadOnlySpan<char> target)
     {
-        var sb = StringBuilder();
-        sb.Append("open-url");
-        sb.Append('|');
-        sb.Append(url);
-        if (target.Length > 0) {
+        var urlStr = url.ToString();
+
+        // Allow both relative and absolute URIs
+        if (Uri.TryCreate(urlStr, UriKind.RelativeOrAbsolute, out Uri? uriResult))
+        {
+            // If it's an absolute URI, strictly enforce http/https
+            if (uriResult.IsAbsoluteUri) {
+                if (uriResult.Scheme != Uri.UriSchemeHttp && uriResult.Scheme != Uri.UriSchemeHttps) {
+                    return false; // Block unsafe absolute schemes (e.g., file:, ftp:, javascript:)
+                }
+            } else  {
+                // If it's a relative URI, block potential javascript injection attempts
+                if (urlStr.TrimStart().StartsWith("javascript:", StringComparison.OrdinalIgnoreCase) ||
+                    urlStr.TrimStart().StartsWith("data:", StringComparison.OrdinalIgnoreCase))
+                {
+                    return false;
+                }
+            }
+
+            // Safe to build and send the command
+            var sb = StringBuilder();
+            sb.Append("open-url");
             sb.Append('|');
-            sb.Append(target);
+            sb.Append(urlStr); // Pass the original relative or absolute string to the client
+            
+            if (target.Length > 0) {
+                sb.Append('|');
+                sb.Append(target);
+            }
+            
+            var command = new TmSendCommand(sb.ToString());
+            session?.client.SendCommand(command);
+            return true;
         }
-        var command = new TmSendCommand(sb.ToString());
-        session?.client.SendCommand(command);
-        return true;
+        
+        return false; // Invalid URI format
     }
     
     public void SetDisplayMode(TmDisplayMode mode) {
