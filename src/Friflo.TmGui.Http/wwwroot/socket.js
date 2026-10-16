@@ -37,6 +37,9 @@ export const socket = {
 // Send initial canvas resolution to C# backend immediately after WebSocket handshake
 export function initWebSocket()
 {
+    let receivedInitialFrame = false;
+    updateInfo(`Started.\nConnecting ...`);
+    
     const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
     const wsUrl = `${wsProtocol}//${window.location.host}/ws`;
     const ws = new WebSocket(wsUrl);
@@ -48,10 +51,12 @@ export function initWebSocket()
         console.log("[+] WebSocket connected. Sending WsInitGui event...");        
         // Send initial canvas resolution
         sendInitGui(canvas);
+        updateInfo(`Connected.\nStreaming ...`);
     };
 
     ws.onclose = () => {
         console.log("[-] WebSocket connection closed.");
+        updateInfo(`Disconnected.`);
     };
 
     ws.onerror = (err) => {
@@ -59,6 +64,10 @@ export function initWebSocket()
     };
     
     ws.onmessage = (event) => {
+        if (!receivedInitialFrame && event.data instanceof ArrayBuffer) {
+            receivedInitialFrame = true;
+            if (infoOverlay) infoOverlay.style.display = "none";
+        }
         processMessage(event.data);
     };
 }
@@ -75,6 +84,7 @@ const infoOverlay = document.getElementById("info-overlay");
 function updateInfo(info) {
     if (infoOverlay) {
         infoOverlay.textContent = info;
+        infoOverlay.style.display = "flex";
     }
 }
 
@@ -84,8 +94,6 @@ function updateInfo(info) {
  */
 function runSignaling(app)
 {
-    if (infoOverlay) infoOverlay.style.display = "flex";
-
     let receivedInitialFrame = false;
     updateInfo(`Request app '${app}'.\nSearching ...`);
                     
@@ -111,6 +119,10 @@ function runSignaling(app)
         // Send initial canvas resolution
         sendInitGui(canvas);
         updateInfo(`App '${app}' connected.\nStreaming ...`);
+    }
+    dataChannel.onclose = () => {
+        console.log("P2P Data Channel closed.");
+        updateInfo(`App '${app}' disconnected.`);
     }
     dataChannel.onmessage = async (e) => {
         if (e.data instanceof ArrayBuffer) {
