@@ -2,6 +2,7 @@
 // See LICENSE file in the project root for full license information.
 
 using System;
+using System.Linq;
 using System.Net.WebSockets;
 using System.Threading;
 using System.Threading.Tasks;
@@ -121,6 +122,9 @@ internal sealed class SignalSocketHandler
             // Ensure socket resources are cleaned up when the loop exits
             if (peer.webSocket.State is WebSocketState.Open or WebSocketState.Aborted)
             {
+                var app = signaling.guiApps.Values.FirstOrDefault(app => app.peer == peer);
+                app?.online = false;
+                
                 peer.webSocket.Dispose();
             }
         }

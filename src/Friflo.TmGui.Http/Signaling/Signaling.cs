@@ -30,6 +30,7 @@ internal record struct SignalMessage(string type, string? app, string? connectio
 public sealed class TmGuiApp
 {
     public   readonly   string      name;
+    public              bool        online;
     public   readonly   string      url;
     internal readonly   SignalPeer  peer;
 
@@ -39,6 +40,7 @@ public sealed class TmGuiApp
         this.name   = name;
         this.peer   = peer;
         this.url    = url;
+        online      = true;
     }
 }
 
@@ -72,12 +74,19 @@ public sealed class TmSignaling
                 
             case "connect":
                 if (!string.IsNullOrEmpty(message.app)) {
-                    var foundApp = guiApps.TryGetValue(message.app, out var guiApp);
-                    if (foundApp) {
-                        peer.guiApp               = guiApp;
-                        clients[peer.connection]  = peer;
+                    string result;
+                    if (guiApps.TryGetValue(message.app, out var guiApp))
+                    {
+                        peer.guiApp = guiApp;
+                        if (guiApp.online) {
+                            clients[peer.connection] = peer;
+                            result = "Found";
+                        } else {
+                            result = "Offline";
+                        }
+                    } else {
+                        result = "NotFound";
                     }
-                    var result = foundApp ? "Found" : "NotFound";
                     var msg = new SignalMessage("ConnectResponse", message.app, peer.connection, result);
                     var errorResponse = JsonSerializer.SerializeToUtf8Bytes(msg);
                     await peer.SendAsync(errorResponse);

@@ -29,8 +29,13 @@ public class SignalingView : IGuiView
     {
         foreach (var guiApp in signaling.guiApps.Values)
         {
-            if (gui.Button(guiApp.name)) {
-                gui.Action.OpenUrl(guiApp.url, "test-app");
+            using (gui.BeginHorizontal()) {
+                if (gui.Button(guiApp.name)) {
+                    gui.Action.OpenUrl(guiApp.url, guiApp.name);
+                }
+                if (!guiApp.online) {
+                    gui.Label("offline");
+                }
             }
         }
     }

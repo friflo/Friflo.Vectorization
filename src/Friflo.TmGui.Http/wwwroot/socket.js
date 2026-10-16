@@ -186,7 +186,7 @@ function runSignaling(app)
                     }
                 } else {
                     console.error(`App '${app}' ${message.sdpOrCandidate}.`);
-                    updateInfo(`App '${app}' not found.`);
+                    updateInfo(`App '${app}' ${message.sdpOrCandidate}.`);
                 }
                 break;
 
