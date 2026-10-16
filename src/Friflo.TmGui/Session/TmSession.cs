@@ -13,6 +13,7 @@ namespace Friflo.TmGui;
 internal abstract class TmSession
 {
     protected internal          IGuiView?       guiView;
+    internal  readonly          TmClient        client;
     internal  readonly          SessionId       sessionId;
     
     public    override          string          ToString()          => $"session: {sessionId}";
@@ -23,10 +24,11 @@ internal abstract class TmSession
     internal           virtual  void            SendReplayCommands() { }
     
     internal           abstract void            ProcessInput(ReadOnlySpan<byte> input);
-    internal           abstract TmSendMessage   IterateUI(TmClient client, in AssetResources resources);
+    internal           abstract TmSendMessage   IterateUI(in AssetResources resources);
     
-    internal TmSession(SessionId sessionId) {
-        this.sessionId = sessionId;
+    internal TmSession(TmClient client, SessionId sessionId) {
+        this.client     = client;
+        this.sessionId  = sessionId;
     }
 }
 

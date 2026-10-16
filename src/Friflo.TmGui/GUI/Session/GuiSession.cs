@@ -45,8 +45,8 @@ internal sealed partial class GuiSession : TmSession
     private             bool                sendDiffs           = true;
 
     
-    internal GuiSession(SessionId sessionId, TmSessionLoop loop, FrameTimer frameTimer)
-        : base(sessionId)
+    internal GuiSession(TmClient client, SessionId sessionId, TmSessionLoop loop, FrameTimer frameTimer)
+        : base(client, sessionId)
     {
         shared              = loop.guiShared;
         wsBackend           = new WsBackend(loop.cpuBackend, loop.guiShared, sessionId);
@@ -61,7 +61,7 @@ internal sealed partial class GuiSession : TmSession
     protected internal override TmBatch         Batch   => wsBatch;
 
 
-    internal override TmSendMessage IterateUI(TmClient client, in AssetResources resources)
+    internal override TmSendMessage IterateUI(in AssetResources resources)
     {
         wsBackend.NewFrame();
         guiView!.RenderGui(wsBatch, canvasWidth, canvasHeight);
