@@ -174,29 +174,17 @@ public abstract class TmBatch : IDisposable
         var lineHeight = currentFont.lineHeight;
         paddedScissor  = new RectVector2(scissor.pos - new Vector2(lineHeight), scissor.size + new Vector2(2 * lineHeight));
     }
-    
-    internal void OpenUrl(ReadOnlySpan<char> url, ReadOnlySpan<char> target)
-    {
-        if (this is WsBatch) {
-            var sb = StringBuilder();
-            sb.Append("open-url");
-            sb.Append('|');
-            sb.Append(url);
-            if (target.Length > 0) {
-                sb.Append('|');
-                sb.Append(target);
-            }
-            var command = new TmSendCommand(sb.ToString());
-            session?.client.SendCommand(command);
-            return;
-        }
-        Process.Start(new ProcessStartInfo { FileName = url.ToString(), UseShellExecute = true });
-    }
 #endregion
 
 
 #region public
     protected internal abstract void InitBatch();
+    
+    protected internal virtual void OpenUrl(ReadOnlySpan<char> url, ReadOnlySpan<char> target)
+    {
+        Process.Start(new ProcessStartInfo { FileName = url.ToString(), UseShellExecute = true });
+    }
+    
     protected internal abstract void SetWindowTitle(ReadOnlySpan<char> title);
     
     public void Dispose()

@@ -17,6 +17,20 @@ internal class WsBatch : TmBatch
 
     protected internal override void InitBatch() { }
     
+    protected internal override void OpenUrl(ReadOnlySpan<char> url, ReadOnlySpan<char> target)
+    {
+        var sb = StringBuilder();
+        sb.Append("open-url");
+        sb.Append('|');
+        sb.Append(url);
+        if (target.Length > 0) {
+            sb.Append('|');
+            sb.Append(target);
+        }
+        var command = new TmSendCommand(sb.ToString());
+        session?.client.SendCommand(command);
+    }
+    
     protected internal override void SetWindowTitle(ReadOnlySpan<char> title)
     {
         var sb = StringBuilder();
