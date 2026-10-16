@@ -80,11 +80,11 @@ public abstract class TmBatch : IDisposable
     internal  readonly  Stack<SamplerFilter>samplerFilterStack  = [];
     private   readonly  StringBuilder       stringBuilder       = new(512,512); // => first chunk: 512 chars
     internal  readonly  GuiState            guiState            = new();
+    internal            TmSession?          session;
     
     internal            FrameTimer?         frameTimer;
 
     // --- replay
-    internal            TmSession?          session;
     internal            GuiRecorder?        recorder; // gui recording requires a session
     
     internal            int                 beginWidth;
