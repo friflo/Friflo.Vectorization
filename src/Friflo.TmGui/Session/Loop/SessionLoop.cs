@@ -40,11 +40,11 @@ public sealed partial class TmSessionLoop : IDisposable
     private const int MaxSyncQueueCapacity = 32;
 #endregion
     
-    public TmSessionLoop(bool isAsync, CpuBackend rootBackend, CreateGuiView createGuiView)
+    public TmSessionLoop(bool isAsync, CpuBackend cpuBackend, CreateGuiView createGuiView)
     {
         this.isAsync        = isAsync;
         this.createGuiView  = createGuiView;
-        cpuBackend          = rootBackend;  // TAG_CPU
+        this.cpuBackend     = cpuBackend;  // TAG_CPU
         resources           = new AssetResources(cpuBackend);
         if (isAsync) {
             // Bounded channel to enforce non-blocking backpressure via TryWrite

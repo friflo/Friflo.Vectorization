@@ -12,10 +12,10 @@ using TmGui.SignalingServer;
 
 Console.WriteLine("Signaling Server");
 
-var rootBackend = new CpuBackend("TmGui - Signaling Server", new DefaultGuiAssets());
-var signaling   = new TmSignaling(rootBackend);
+var cpuBackend  = new CpuBackend("TmGui - Signaling Server", new DefaultGuiAssets());
+var signaling   = new TmSignaling(cpuBackend);
 
-var loop = new TmSessionLoop(false, rootBackend, info => new SignalingView(signaling, info));
+var loop = new TmSessionLoop(false, cpuBackend, info => new SignalingView(signaling, info));
 
 var builder = Host.CreateDefaultBuilder();
 

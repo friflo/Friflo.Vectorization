@@ -44,21 +44,21 @@ using TuiTerminal;
 
 Console.WriteLine("TmGui App - Server");
 
-var rootBackend = new CpuBackend("TmGui App", new DefaultGuiAssets());
-var appState    = new AppState(rootBackend);
+var cpuBackend  = new CpuBackend("TmGui App", new DefaultGuiAssets());
+var appState    = new AppState(cpuBackend);
 
 // Flag toggles execution mode:
 // true  => UI Loop runs in dedicated background Thread, Main-Thread runs TCP server.
 // false => TCP server runs on ThreadPool, Main-Thread is blocked by UI Loop.
 bool runAsync = false;
 
-var loop = new TmSessionLoop(runAsync, rootBackend, info => new TestGuiView(appState, info));
+var loop = new TmSessionLoop(runAsync, cpuBackend, info => new TestGuiView(appState, info));
 
- var builder = HttpUtils.CreateHostBuilder(new IPEndPoint(IPAddress.Any, 8080), loop);
- _ = HttpUtils.Start(builder.Build());
+//  var builder = HttpUtils.CreateHostBuilder(new IPEndPoint(IPAddress.Any, 8080), loop);
+// _ = HttpUtils.Start(builder.Build());
 
-// var signalListener =  new TmSignalingListener(loop);
-// _ = signalListener.Start("test-app", new Uri("wss://localhost:8081/signaling"));
+var signalListener =  new TmSignalingListener(loop);
+_ = signalListener.Start("test-app", new Uri("wss://localhost:8081/signaling"));
 
 if (runAsync) {
     loop.StartAsync(); // Spawns dedicated "ShardLoopThread"
@@ -75,8 +75,8 @@ else {
 static async Task RunTcpServerAsync(TmSessionLoop loop, int port)
 {
     // Start local console I/O session
-    var localClient = new ConsoleClient();
-    _ = ConsoleClient.HandleClientSessionAsync(localClient, loop, CancellationToken.None);
+//    var localClient = new ConsoleClient();
+//    _ = ConsoleClient.HandleClientSessionAsync(localClient, loop, CancellationToken.None);
 
     using var serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
     serverSocket.Bind(new IPEndPoint(IPAddress.Any, port));
