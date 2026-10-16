@@ -4,6 +4,7 @@
 
 using System;
 using System.Diagnostics;
+using System.IO;
 
 // ReSharper disable once CheckNamespace
 namespace Friflo.TmGui.Utils;
@@ -17,17 +18,46 @@ internal static class OsUtils
         if (Uri.TryCreate(urlStr, UriKind.Absolute, out Uri? uriResult) &&
             (uriResult.Scheme == Uri.UriSchemeHttp || uriResult.Scheme == Uri.UriSchemeHttps))
         {
+            string safeUrl = uriResult.AbsoluteUri;
             try {
-                Process.Start(new ProcessStartInfo { FileName = uriResult.AbsoluteUri, UseShellExecute = true });
+                if (OperatingSystem.IsWindows())
+                {
+                    Process.Start(new ProcessStartInfo { FileName = safeUrl, UseShellExecute = true });
+                }
+                else if (OperatingSystem.IsMacOS())
+                {
+                    Process.Start(new ProcessStartInfo { FileName = "open", Arguments = safeUrl, UseShellExecute = false });
+                }
+                else if (OperatingSystem.IsLinux())
+                {
+                    bool isWsl = File.Exists("/proc/version") && 
+                                 File.ReadAllText("/proc/version").Contains("microsoft", StringComparison.OrdinalIgnoreCase);
+
+                    if (isWsl)
+                    {
+                        Process.Start(new ProcessStartInfo { FileName = "cmd.exe", Arguments = $"/c start {safeUrl.Replace("&", "^&")}", UseShellExecute = false, CreateNoWindow = true });
+                    }
+                    else
+                    {
+                        string[] openers = { "xdg-open", "gio", "gnome-open", "kde-open" };
+                        bool opened = false;
+                        foreach (var opener in openers)
+                        {
+                            try {
+                                Process.Start(new ProcessStartInfo { FileName = opener, Arguments = safeUrl, UseShellExecute = false });
+                                opened = true;
+                                break;
+                            } catch {}
+                        }
+                        if (!opened) return false;
+                    }
+                }
                 return true;
             }
             catch (Exception e) {
                 Console.WriteLine($"OpenUrl failed: {e.Message}");
             }
-
         }
         return false;
-        // Handle invalid or dangerous URL (log, throw exception, or ignore)
-        // throw new ArgumentException("Invalid or unsafe URL provided.", nameof(url));
     }
 }
