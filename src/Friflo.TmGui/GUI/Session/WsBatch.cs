@@ -31,6 +31,15 @@ internal class WsBatch : TmBatch
         session?.client.SendCommand(command);
     }
     
+    protected internal override void SetDisplayMode(TmDisplayMode mode) {
+        var sb = StringBuilder();
+        sb.Append("set-display-mode");
+        sb.Append('|');
+        sb.Append(mode.ToString());
+        var command = new TmSendCommand(sb.ToString());
+        session?.client.SendCommand(command);
+    }
+    
     protected internal override void SetWindowTitle(ReadOnlySpan<char> title)
     {
         var sb = StringBuilder();

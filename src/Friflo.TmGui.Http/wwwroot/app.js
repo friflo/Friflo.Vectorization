@@ -257,11 +257,28 @@ export function processMessage(data) {
 function invokeCommand(data) {
     console.log(data);
     const args = data.split("|");
-    if (args[0] === "open-url") {
-        window.open(args[1], args[2]);
-    }
-    if (args[0] === "set-title") {
-        document.title = args[1];
+    switch (args[0])
+    {
+        case "open-url":
+            window.open(args[1], args[2]);
+            break;
+        case "set-title":
+            document.title = args[1];
+            break;
+        case "set-display-mode":
+            switch (args[1]) {
+                case "Fullscreen":
+                    document.documentElement.requestFullscreen().catch((err) => {
+                        console.error(`error activating fullscreen: ${err.message}`);
+                    });
+                    break;
+                case "Windowed":
+                    document.exitFullscreen().catch((err) => {
+                        console.error(`error leaving fullscreen: ${err.message}`);
+                    });
+                break;
+            }
+            break;
     }
 }
 

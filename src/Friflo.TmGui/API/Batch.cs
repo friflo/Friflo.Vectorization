@@ -185,6 +185,10 @@ public abstract class TmBatch : IDisposable
         Process.Start(new ProcessStartInfo { FileName = url.ToString(), UseShellExecute = true });
     }
     
+    protected internal virtual  void SetDisplayMode(TmDisplayMode mode) {
+    }
+
+    
     protected internal abstract void SetWindowTitle(ReadOnlySpan<char> title);
     
     public void Dispose()

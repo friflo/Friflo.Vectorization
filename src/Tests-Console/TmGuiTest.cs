@@ -27,7 +27,7 @@ public class TmGuiRenderer : IRenderer, IGuiView
     private             bool                    mouseCircle;
     private             bool                    monocraft;
     private readonly    TmFont                  monocraftFont;
-    private             bool                    enabled2;
+    private             bool                    fullScreen;
     private             float                   volume = 0.8f;
     private             float                   update;
     private readonly    List<string>            scrollAreaButtons = [];
@@ -150,6 +150,7 @@ public class TmGuiRenderer : IRenderer, IGuiView
 
         gui.Spacer();
         gui.Checkbox("mouse circle", ref mouseCircle);
+        gui.Checkbox("mouse circle", ref mouseCircle);
         if(gui.Checkbox("Monocraft", ref monocraft)) {
             if (monocraft) {
                 batch.SetFont(monocraftFont);
@@ -176,7 +177,9 @@ public class TmGuiRenderer : IRenderer, IGuiView
             gui.Draw.DrawSpriteRegion(myTextureView, space.Pos, space.Size, srcPos, space.Size, new(1024, 1024), tint);
         }
         gui.Spacer();
-        gui.Checkbox("checkbox", ref enabled2);
+        if (gui.Checkbox("fullScreen", ref fullScreen)) {
+            gui.Action.SetDisplayMode(fullScreen ? TmDisplayMode.Fullscreen : TmDisplayMode.Windowed);
+        }
         
         gui.Spacer();
         

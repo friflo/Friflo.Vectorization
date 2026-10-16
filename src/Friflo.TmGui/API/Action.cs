@@ -7,6 +7,12 @@ using System;
 namespace Friflo.TmGui;
 
 
+public enum TmDisplayMode
+{
+    Windowed,
+    Fullscreen,
+}
+
 public readonly ref struct TmAction
 {
     private readonly    TmBatch batch;  //  8 bytes 
@@ -18,6 +24,8 @@ public readonly ref struct TmAction
     
     public void OpenUrl(ReadOnlySpan<char> url, ReadOnlySpan<char> target = default) => batch.OpenUrl(url, target);
     
-    public void SetWindowTitle(ReadOnlySpan<char> title) => batch.SetWindowTitle(title);
+    public void SetDisplayMode(TmDisplayMode mode)          => batch.SetDisplayMode(mode);
+    
+    public void SetWindowTitle(ReadOnlySpan<char> title)    => batch.SetWindowTitle(title);
 }
 
