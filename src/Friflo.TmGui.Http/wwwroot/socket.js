@@ -128,7 +128,7 @@ function runSignaling(app)
         switch (message.type) {
             case "ConnectResponse":
                 if (message.sdpOrCandidate === "Found") {
-                    console.log(`Host '${app}' found. Creating WebRTC offer...`);
+                    console.log(`App '${app}' found. Creating WebRTC offer...`);
                     try {
                         const offer = await pc.createOffer();
                         await pc.setLocalDescription(offer);
@@ -138,7 +138,14 @@ function runSignaling(app)
                         console.error("Failed to create WebRTC offer:", err);
                     }
                 } else {
-                    console.error(`Host '${app}' not found on server.`);
+                    console.error(`App '${app}' not found on server.`);
+                    
+                    // Show error message overlay on screen
+                    const errorOverlay = document.getElementById("error-overlay");
+                    if (errorOverlay) {
+                        errorOverlay.textContent = `App '${app}' not found.`;
+                        errorOverlay.style.display = "flex";
+                    }
                 }
                 break;
 

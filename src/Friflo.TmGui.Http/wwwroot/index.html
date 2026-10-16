@@ -19,10 +19,31 @@
             height: 100vh;
             /* touch-action: none; ensures direct pointer handling without touch gesture synthesis */
         }
+        /* Error message overlay styling */
+        #error-overlay {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #ffffff;
+            color: #a24800;
+            font-family: system-ui, -apple-system, sans-serif;
+            font-size: 1.1rem;
+            font-weight: 500;
+            padding: 24px 32px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+            z-index: 1000;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
     <canvas id="gpu-canvas"></canvas>
+    
+    <!-- Error overlay element shown when app is not found -->
+    <div id="error-overlay">App not found</div>
 
     <!-- Load the renderer script as a module -->
     <script type="module" src="app.js"></script>
