@@ -287,3 +287,43 @@ export function applyVertexChanges(uint8Data, view, changeOffset, changeCount, d
 
     return masterByteLength;
 }
+
+/** @param {string} text */
+export async function copyToClipboard(text) {
+    if (!text) return;
+
+    try {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            await navigator.clipboard.writeText(text);
+        } else {
+            fallbackCopyText(text);
+        }
+    } catch (err) {
+        console.error("Failed to copy text: ", err);
+    }
+}
+
+/**
+ * Fallback method using a temporary textarea element for older environments.
+ * @param {string} text - The text to copy.
+ */
+function fallbackCopyText(text) {
+    const textArea = document.createElement("textarea");
+    textArea.value = text;
+    textArea.style.position = "fixed";
+    textArea.style.top = "0";
+    textArea.style.left = "0";
+    textArea.style.opacity = "0";
+    
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+
+    try {
+        document.execCommand('copy');
+    } catch (err) {
+        console.error("Fallback: Unable to copy", err);
+    }
+
+    document.body.removeChild(textArea);
+}

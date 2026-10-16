@@ -142,6 +142,9 @@ public class TmGuiRenderer : IRenderer, IGuiView
         if (gui.Button("google.com")) {
             gui.Action.OpenUrl("https://www.google.com/");
         }
+        if (gui.Button("copy to clipboard")) {
+            gui.Action.CopyToClipboard("some clipboard text");
+        }
         gui.Spacer();
         using (gui.PushStyle(greenButtonStyle)) {
             if (gui.Button("hello"))                            gui.Action.SetWindowTitle("hello");

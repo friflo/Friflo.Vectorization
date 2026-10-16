@@ -81,4 +81,14 @@ internal class WsBatch : TmBatch, IHostAction
         var msg = new TmSendCommand(sb.ToString());
         session?.client.SendCommand(msg);
     }
+    
+    public void CopyToClipboard(ReadOnlySpan<char> text)
+    {
+        var sb = StringBuilder();
+        sb.Append("copy-to-clipboard");
+        sb.Append('|');
+        sb.Append(text);
+        var msg = new TmSendCommand(sb.ToString());
+        session?.client.SendCommand(msg);
+    }
 }

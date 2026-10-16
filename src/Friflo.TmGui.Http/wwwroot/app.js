@@ -1,6 +1,12 @@
 // @ts-check
 // app.js
-import { initGuiEventListeners, updateMouseCursor, applyVertexChanges, masterVertices } from './app-events.js';
+import {
+    initGuiEventListeners,
+    updateMouseCursor,
+    applyVertexChanges,
+    masterVertices,
+    copyToClipboard,
+} from './app-events.js';
 import { initWebSocket, initWebRTC } from "./socket.js";
 
 
@@ -250,11 +256,12 @@ export function processMessage(data) {
         return;
     }
     if (typeof data === 'string') {
-        invokeCommand(data)
+        invokeAction(data)
     }
 }
 
-function invokeCommand(data) {
+/** @param {string} data */
+function invokeAction(data) {
     console.log(data);
     const args = data.split("|");
     switch (args[0])
@@ -278,6 +285,10 @@ function invokeCommand(data) {
                     });
                 break;
             }
+            break;
+        case "copy-to-clipboard":
+            const text = data.substring("copy-to-clipboard|".length);
+            const _ = copyToClipboard(text);
             break;
     }
 }

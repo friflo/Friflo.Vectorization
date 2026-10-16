@@ -3,6 +3,7 @@
 
 using System;
 using System.Diagnostics;
+using Friflo.TmGui.Utils;
 
 // ReSharper disable once CheckNamespace
 namespace Friflo.TmGui;
@@ -35,6 +36,11 @@ public readonly ref struct TmAction : IHostAction
     public void SetWindowTitle(ReadOnlySpan<char> title) {
         batch.HostAction.SetWindowTitle(title);
     }
+
+    public void CopyToClipboard(ReadOnlySpan<char> text)
+    {
+        batch.HostAction.CopyToClipboard(text);
+    }
 }
 
 public interface IHostAction
@@ -57,5 +63,10 @@ public interface IHostAction
     public void SetDisplayMode(TmDisplayMode mode) { }
     
     public void SetWindowTitle(ReadOnlySpan<char> title) { }
+    
+    public void CopyToClipboard(ReadOnlySpan<char> text)
+    {
+        ClipboardUtils.CopyToClipboard(text);
+    }
 }
 
