@@ -13,7 +13,7 @@ public enum TmDisplayMode
     Fullscreen,
 }
 
-public readonly ref struct TmAction
+public readonly ref struct TmAction : IHostAction
 {
     private readonly    TmBatch batch;  //  8 bytes 
     
@@ -27,5 +27,12 @@ public readonly ref struct TmAction
     public void SetDisplayMode(TmDisplayMode mode)          => batch.SetDisplayMode(mode);
     
     public void SetWindowTitle(ReadOnlySpan<char> title)    => batch.SetWindowTitle(title);
+}
+
+public interface IHostAction
+{
+    public void SetDisplayMode(TmDisplayMode mode);
+    
+    public void SetWindowTitle(ReadOnlySpan<char> title);
 }
 

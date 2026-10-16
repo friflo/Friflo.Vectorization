@@ -186,10 +186,13 @@ public abstract class TmBatch : IDisposable
     }
     
     protected internal virtual  void SetDisplayMode(TmDisplayMode mode) {
+        host.hostAction?.SetDisplayMode(mode);
     }
-
     
-    protected internal abstract void SetWindowTitle(ReadOnlySpan<char> title);
+    protected internal virtual void SetWindowTitle(ReadOnlySpan<char> title)
+    {
+        host.hostAction?.SetWindowTitle(title);
+    }
     
     public void Dispose()
     {

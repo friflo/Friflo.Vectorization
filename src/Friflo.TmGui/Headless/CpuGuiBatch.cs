@@ -16,7 +16,6 @@ public sealed class CpuGuiBatch : TmBatch
     }
     
     protected internal override void InitBatch() { }
-    protected internal override void SetWindowTitle(ReadOnlySpan<char> title) { }
     
     public void DrawCommandList()
     {

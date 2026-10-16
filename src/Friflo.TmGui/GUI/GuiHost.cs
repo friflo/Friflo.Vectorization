@@ -15,6 +15,8 @@ internal sealed class GuiHost
     internal readonly   Dictionary<string, GuiWindow>   windows     = new();
     internal readonly   List<GuiWindow>                 windowOrder = [];
     private             GuiWindow?                      topWindow;
+    public              IHostAction?                    hostAction;
+
     internal            GuiWindow?                      TopWindow   => topWindow;
 
     public   override   string                          ToString()  => $"windows: {windows.Count}";

@@ -96,4 +96,8 @@ public abstract class TmGuiBackend : IDisposable
         
         return TmFont.CreateTtfFont(this, asset, alphaBitmapTarget, fontSize, width, height, name, true);
     }
+
+    public void SetPlatformAction(IHostAction hostAction) {
+        host.hostAction = hostAction;
+    }
 }

@@ -23,7 +23,7 @@ public interface IRenderer
     public void OnShutdown();
 }
 
-public class SdlWindow(string title, int width, int height, Func<WgpuHost, IRenderer> createRenderer)
+public class SdlWindow(string title, int width, int height, Func<WgpuHost, IRenderer> createRenderer) : IHostAction
 {
     private             nint                   window;
     private             WgpuHost?              wgpuHost;
@@ -125,6 +125,7 @@ public class SdlWindow(string title, int width, int height, Func<WgpuHost, IRend
         SDL.SetWindowTitle(window, $"{title} - {backend}");
         renderer    = createRenderer(wgpuHost);
         guiBackend  = wgpuHost.GuiBackend;
+        guiBackend.SetPlatformAction(this);
         SetWindowSize();
         Sdl3Cursor.Init();
         return SDL.AppResult.Continue;
@@ -210,6 +211,23 @@ public class SdlWindow(string title, int width, int height, Func<WgpuHost, IRend
         wgpuHost = null;
         SDL.DestroyWindow(window);
         SDL.Quit();
+    }
+
+    public void SetDisplayMode(TmDisplayMode mode)
+    {
+        switch (mode) {
+            case TmDisplayMode.Fullscreen:
+                SDL.SetWindowFullscreen(window, true);
+                break;
+            case TmDisplayMode.Windowed:
+                SDL.SetWindowFullscreen(window, false);
+                break;
+        }
+    }
+
+    public void SetWindowTitle(ReadOnlySpan<char> value)
+    {
+        SDL.SetWindowTitle(window, value.ToString());
     }
 }
 
