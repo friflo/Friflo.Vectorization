@@ -45,28 +45,45 @@ internal static class ClipboardUtils
             if (process != null)
             {
                 process.StandardInput.Write(textStr);
-                process.StandardInput.Close(); // Wichtig: Signalisiert pbcopy, dass die Eingabe fertig ist
-                process.WaitForExit();         // Wartet kurz, bis der Prozess sauber durchgelaufen ist
+                process.StandardInput.Close();
+                process.WaitForExit();
             }
         }
         else if (OperatingSystem.IsLinux())
         {
-            // Linux: Uses xclip via stdin
-            var psi = new ProcessStartInfo
+            // Try Wayland first (wl-copy), then fallback to X11 (xclip)
+            string[] tools = { "wl-copy", "xclip" };
+
+            foreach (var tool in tools)
             {
-                FileName = "xclip",
-                Arguments = "-selection clipboard",
-                RedirectStandardInput = true,
-                UseShellExecute = false
-            };
-            try
-            {
-                using var process = Process.Start(psi);
-                process?.StandardInput.Write(textStr);
-            }
-            catch
-            {
-                // Fallback or ignore if xclip is not installed
+                try
+                {
+                    var arguments = tool == "xclip" ? "-selection clipboard" : "";
+                    var psi = new ProcessStartInfo
+                    {
+                        FileName = tool,
+                        Arguments = arguments,
+                        RedirectStandardInput = true,
+                        UseShellExecute = false,
+                        CreateNoWindow = true
+                    };
+
+                    using var process = Process.Start(psi);
+                    if (process != null)
+                    {
+                        process.StandardInput.Write(textStr);
+                        process.StandardInput.Close(); // required: signal tool, input is ready
+                        process.WaitForExit();
+                        
+                        if (process.ExitCode == 0) {
+                            break;
+                        }
+                    }
+                }
+                catch
+                {
+                    // Tool not installed or failed, try next one
+                }
             }
         }
     }
