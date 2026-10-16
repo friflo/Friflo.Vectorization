@@ -83,7 +83,7 @@ const infoOverlay = document.getElementById("info-overlay");
 /** @param {string} info */
 function updateInfo(info) {
     if (infoOverlay) {
-        infoOverlay.textContent = info;
+        infoOverlay.innerHTML = info;
         infoOverlay.style.display = "flex";
     }
 }
@@ -186,7 +186,7 @@ function runSignaling(app)
                     }
                 } else {
                     console.error(`App '${app}' ${message.sdpOrCandidate}.`);
-                    updateInfo(`App '${app}' ${message.sdpOrCandidate}.`);
+                    updateInfo(`App '${app}' ${message.sdpOrCandidate}.<br><a href="/" style="text-decoration: underline;">available apps</a>`);
                 }
                 break;
 
