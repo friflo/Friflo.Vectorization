@@ -113,6 +113,17 @@ function runSignaling(app)
 
     // Optional: Create a data channel for peer-to-peer communication
     const dataChannel = pc.createDataChannel("tm-gui-channel", { ordered: true });
+    pc.onconnectionstatechange = () => {
+        console.log(`Connection state changed: ${pc.connectionState}`);
+        
+        if (pc.connectionState === "disconnected" || 
+            pc.connectionState === "failed" || 
+            pc.connectionState === "closed") {
+            
+            console.log(`Remote peer lost connection.`);
+            updateInfo(`App '${app}' disconnected.`);
+        }
+    };
     
     dataChannel.onopen = () => {
         console.log("P2P Data Channel opened.");
@@ -122,7 +133,9 @@ function runSignaling(app)
     }
     dataChannel.onclose = () => {
         console.log("P2P Data Channel closed.");
-        updateInfo(`App '${app}' disconnected.`);
+    }
+    dataChannel.onerror = (ev) => {
+        console.log("P2P Data Channel error.");
     }
     dataChannel.onmessage = async (e) => {
         if (e.data instanceof ArrayBuffer) {
