@@ -52,8 +52,14 @@ public interface IHostAction
         if (Uri.TryCreate(urlStr, UriKind.Absolute, out Uri? uriResult) &&
             (uriResult.Scheme == Uri.UriSchemeHttp || uriResult.Scheme == Uri.UriSchemeHttps))
         {
-            Process.Start(new ProcessStartInfo { FileName = uriResult.AbsoluteUri, UseShellExecute = true });
-            return true;
+            try {
+                Process.Start(new ProcessStartInfo { FileName = uriResult.AbsoluteUri, UseShellExecute = true });
+                return true;
+            }
+            catch (Exception e) {
+                Console.WriteLine($"OpenUrl failed: {e.Message}");
+            }
+
         }
         return false;
         // Handle invalid or dangerous URL (log, throw exception, or ignore)
