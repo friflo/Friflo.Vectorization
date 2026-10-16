@@ -30,7 +30,7 @@ internal sealed class GuiSessionShared
 }
 
 
-internal sealed partial class GuiSession : TmSession
+internal sealed partial class GuiSession : TmSession, IHostAction
 {
     private  readonly   WsBackend           wsBackend;          // instance: creates / owns
     internal readonly   WsBatch             wsBatch;            // instance: creates / owns
@@ -51,6 +51,7 @@ internal sealed partial class GuiSession : TmSession
         shared              = loop.guiShared;
         wsBackend           = new WsBackend(loop.cpuBackend, loop.guiShared, sessionId);
         wsBatch             = wsBackend.CreateBatch();
+        wsBackend.SetHostActions(wsBatch);
         wsBatch.session     = this;
         wsBatch.frameTimer  = frameTimer;
         

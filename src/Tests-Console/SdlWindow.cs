@@ -125,7 +125,7 @@ public class SdlWindow(string title, int width, int height, Func<WgpuHost, IRend
         SDL.SetWindowTitle(window, $"{title} - {backend}");
         renderer    = createRenderer(wgpuHost);
         guiBackend  = wgpuHost.GuiBackend;
-        guiBackend.SetPlatformAction(this);
+        guiBackend?.SetHostActions(this);
         SetWindowSize();
         Sdl3Cursor.Init();
         return SDL.AppResult.Continue;
@@ -213,6 +213,7 @@ public class SdlWindow(string title, int width, int height, Func<WgpuHost, IRend
         SDL.Quit();
     }
 
+    // --- IHostAction
     public void SetDisplayMode(TmDisplayMode mode)
     {
         switch (mode) {

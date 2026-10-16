@@ -92,6 +92,7 @@ public abstract class TmBatch : IDisposable
 
     // --- resources owned by DrawModule
     internal readonly   GuiHost             host;
+    internal            IHostAction?        HostAction => host.hostAction;
     internal readonly   GuiInput            input;
     internal readonly   TmFont              backendDefaultFont;
     internal readonly   TuiBatch?           tui;
@@ -179,20 +180,6 @@ public abstract class TmBatch : IDisposable
 
 #region public
     protected internal abstract void InitBatch();
-    
-    protected internal virtual void OpenUrl(ReadOnlySpan<char> url, ReadOnlySpan<char> target)
-    {
-        Process.Start(new ProcessStartInfo { FileName = url.ToString(), UseShellExecute = true });
-    }
-    
-    protected internal virtual  void SetDisplayMode(TmDisplayMode mode) {
-        host.hostAction?.SetDisplayMode(mode);
-    }
-    
-    protected internal virtual void SetWindowTitle(ReadOnlySpan<char> title)
-    {
-        host.hostAction?.SetWindowTitle(title);
-    }
     
     public void Dispose()
     {

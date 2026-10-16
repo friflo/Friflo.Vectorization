@@ -19,7 +19,7 @@ using Friflo.TmGui.Session;
 // ReSharper disable ConvertToPrimaryConstructor
 namespace Friflo.TmGui.TUI;
 
-public sealed partial class TuiBatch : TmBatch
+public sealed partial class TuiBatch : TmBatch, IHostAction
 {
     private readonly    string                  batchName;
     public              TuiFocusBorder          focusBorder;
@@ -78,17 +78,6 @@ public sealed partial class TuiBatch : TmBatch
         var msg = new TmSendMessage(cmd.ToArray());
         session?.client.Send(msg);
     } */
-    
-    protected internal override void SetWindowTitle(ReadOnlySpan<char> title)
-    {
-        var sb = StringBuilder();
-        sb.Append("\x1b]0;");
-        sb.Append(title);
-        sb.Append("\x07");
-        var bytes = Encoding.UTF8.GetBytes(sb.ToString());
-        var msg = new TmSendMessage(bytes);
-        session?.client.Send(msg);
-    }
     
     // Snap position to center of terminal grid cells for TUI mode
     internal void SnapPositionToGrid(ref Vector2 position)
@@ -370,6 +359,18 @@ public sealed partial class TuiBatch : TmBatch
         cells.Fill(clear);
         
         DrawRectCommandsInternal(targetWidth, cells);
+    }
+    
+    // --- IHostAction
+    public void SetWindowTitle(ReadOnlySpan<char> title)
+    {
+        var sb = StringBuilder();
+        sb.Append("\x1b]0;");
+        sb.Append(title);
+        sb.Append("\x07");
+        var bytes = Encoding.UTF8.GetBytes(sb.ToString());
+        var msg = new TmSendMessage(bytes);
+        session?.client.Send(msg);
     }
 #endregion
 }

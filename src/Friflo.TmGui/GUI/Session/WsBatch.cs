@@ -9,7 +9,7 @@ using System;
 namespace Friflo.TmGui.Session;
 
 
-internal class WsBatch : TmBatch
+internal class WsBatch : TmBatch, IHostAction
 {
     internal WsBatch(TmGuiBackend backend, int maxVertices) : base(backend, maxVertices)
     {
@@ -17,7 +17,13 @@ internal class WsBatch : TmBatch
 
     protected internal override void InitBatch() { }
     
-    protected internal override void OpenUrl(ReadOnlySpan<char> url, ReadOnlySpan<char> target)
+    internal void DrawCommandList()
+    {
+        EndBatch();
+    }
+    
+    // --- IHostAction
+    public void OpenUrl(ReadOnlySpan<char> url, ReadOnlySpan<char> target)
     {
         var sb = StringBuilder();
         sb.Append("open-url");
@@ -31,7 +37,7 @@ internal class WsBatch : TmBatch
         session?.client.SendCommand(command);
     }
     
-    protected internal override void SetDisplayMode(TmDisplayMode mode) {
+    public void SetDisplayMode(TmDisplayMode mode) {
         var sb = StringBuilder();
         sb.Append("set-display-mode");
         sb.Append('|');
@@ -40,7 +46,7 @@ internal class WsBatch : TmBatch
         session?.client.SendCommand(command);
     }
     
-    protected internal override void SetWindowTitle(ReadOnlySpan<char> title)
+    public void SetWindowTitle(ReadOnlySpan<char> title)
     {
         var sb = StringBuilder();
         sb.Append("set-title");
@@ -48,10 +54,5 @@ internal class WsBatch : TmBatch
         sb.Append(title);
         var msg = new TmSendCommand(sb.ToString());
         session?.client.SendCommand(msg);
-    }
-    
-    internal void DrawCommandList()
-    {
-        EndBatch();
     }
 }
