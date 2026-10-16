@@ -87,7 +87,7 @@ function runSignaling(app)
     if (infoOverlay) infoOverlay.style.display = "flex";
 
     let receivedInitialFrame = false;
-    updateInfo(`Searching app '${app}' ...`);
+    updateInfo(`Request app '${app}'.\nSearching ...`);
                     
     const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
     const signalingUrl = `${wsProtocol}//${window.location.host}/signaling`;
@@ -110,7 +110,7 @@ function runSignaling(app)
         console.log("P2P Data Channel opened.");
         // Send initial canvas resolution
         sendInitGui(canvas);
-        updateInfo(`App '${app}' connected.`);
+        updateInfo(`App '${app}' connected.\nStreaming ...`);
     }
     dataChannel.onmessage = async (e) => {
         if (e.data instanceof ArrayBuffer) {
@@ -166,7 +166,7 @@ function runSignaling(app)
                 break;
 
             case "answer":
-                updateInfo(`App '${app}' found.\nConnecting (${signalMsgCount} - answer) ...`);
+                updateInfo(`App '${app}' found.\nConnecting (${signalMsgCount}) [answer] ...`);
                 try {
                     await pc.setRemoteDescription(new RTCSessionDescription({
                         type: "answer",
@@ -190,7 +190,7 @@ function runSignaling(app)
                 break;
 
             case "candidate":
-                updateInfo(`App '${app}' found.\nConnecting (${signalMsgCount} - candidate) ...`);
+                updateInfo(`App '${app}' found.\nConnecting (${signalMsgCount}) [candidate] ...`);
                 try {
                     // Skip if connection is already established or completed
                     if (pc.connectionState === 'connected' || pc.connectionState === 'completed') {
