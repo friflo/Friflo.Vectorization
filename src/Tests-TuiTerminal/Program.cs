@@ -44,7 +44,7 @@ using TuiTerminal;
 
 Console.WriteLine("TmGui App - Server");
 
-var cpuBackend  = new CpuBackend("TmGui App", new DefaultGuiAssets());
+var cpuBackend  = new CpuBackend("TmGui test-app", new DefaultGuiAssets());
 var appState    = new AppState(cpuBackend);
 
 // Flag toggles execution mode:

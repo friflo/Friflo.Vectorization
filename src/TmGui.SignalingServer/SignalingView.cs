@@ -30,7 +30,7 @@ public class SignalingView : IGuiView
         foreach (var guiApp in signaling.guiApps.Values)
         {
             if (gui.Button(guiApp.name)) {
-                gui.OpenUrl(guiApp.url, "test-app");
+                gui.Action.OpenUrl(guiApp.url, "test-app");
             }
         }
     }

@@ -83,7 +83,7 @@ public class TestGuiView : IGuiView
     {
         gui.Button("hello TUI 💻 🙂", Dim.Fill_X(0, Fit.Content), color: textColors);
         if (gui.Button("google.com")) {
-            gui.OpenUrl("https://www.google.com/");
+            gui.Action.OpenUrl("https://www.google.com/");
         }
         gui.Spacer();
         using (gui.BeginHorizontal()) {

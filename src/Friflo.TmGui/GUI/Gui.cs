@@ -30,6 +30,8 @@ public readonly ref struct Gui
     public              GuiInput    Input               { [Hide] get => widget.input;                           }
     public              Vector2     TerminalPixelSize   { [Hide] get => widget.draw.batch.terminalPixelSize;    }
     public              TmBatch     Batch               { [Hide] get => widget.draw.batch;                      }
+    public              TmAction    Action              { [Hide] get => new(widget.draw.batch);                 }
+    
 
     /// <summary>
     /// TUI - Expands the given pixel size to fully cover discrete terminal cell boundaries. <br/>
@@ -97,6 +99,4 @@ public readonly ref struct Gui
     
     
     public void             SetNextDefaultFocus() => widget.SetNextDefaultFocus();
-    
-    public void             OpenUrl(ReadOnlySpan<char> url, ReadOnlySpan<char> target = default) => Draw.Batch.OpenUrl(url, target);
 }
