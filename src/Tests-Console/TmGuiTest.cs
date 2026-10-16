@@ -28,6 +28,7 @@ public class TmGuiRenderer : IRenderer, IGuiView
     private             bool                    monocraft;
     private readonly    TmFont                  monocraftFont;
     private             bool                    fullScreen;
+    private             int                     helloCounter;
     private             float                   volume = 0.8f;
     private             float                   update;
     private readonly    List<string>            scrollAreaButtons = [];
@@ -147,7 +148,7 @@ public class TmGuiRenderer : IRenderer, IGuiView
         }
         gui.Spacer();
         using (gui.PushStyle(greenButtonStyle)) {
-            if (gui.Button("hello"))                            gui.Action.SetWindowTitle("hello");
+            if (gui.Button("hello"))                            gui.Action.SetWindowTitle($"hello {++helloCounter}");
         }
         if (gui.MyButton("MyButton", id: 0x7777ffff))           Console.WriteLine("Clicked: MyButton");
 
