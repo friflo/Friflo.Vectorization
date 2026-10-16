@@ -24,23 +24,34 @@ public readonly ref struct TmAction : IHostAction
     }
     
     // --- IHostAction
-    public void OpenUrl(ReadOnlySpan<char> url, ReadOnlySpan<char> target = default) {
-        batch.HostAction?.OpenUrl(url, target);
+    public bool OpenUrl(ReadOnlySpan<char> url, ReadOnlySpan<char> target = default) {
+        return batch.HostAction.OpenUrl(url, target);
     }
 
     public void SetDisplayMode(TmDisplayMode mode) {
-        batch.HostAction?.SetDisplayMode(mode);
+        batch.HostAction.SetDisplayMode(mode);
     }
 
     public void SetWindowTitle(ReadOnlySpan<char> title) {
-        batch.HostAction?.SetWindowTitle(title);
+        batch.HostAction.SetWindowTitle(title);
     }
 }
 
 public interface IHostAction
 {
-    public void OpenUrl(ReadOnlySpan<char> url, ReadOnlySpan<char> target = default) {
-        Process.Start(new ProcessStartInfo { FileName = url.ToString(), UseShellExecute = true });
+    public bool OpenUrl(ReadOnlySpan<char> url, ReadOnlySpan<char> target = default) {
+        var urlStr = url.ToString();
+
+        // Validate that it is a valid absolute URI and uses safe protocols (http or https)
+        if (Uri.TryCreate(urlStr, UriKind.Absolute, out Uri? uriResult) &&
+            (uriResult.Scheme == Uri.UriSchemeHttp || uriResult.Scheme == Uri.UriSchemeHttps))
+        {
+            Process.Start(new ProcessStartInfo { FileName = uriResult.AbsoluteUri, UseShellExecute = true });
+            return true;
+        }
+        return false;
+        // Handle invalid or dangerous URL (log, throw exception, or ignore)
+        // throw new ArgumentException("Invalid or unsafe URL provided.", nameof(url));
     }
     
     public void SetDisplayMode(TmDisplayMode mode) { }

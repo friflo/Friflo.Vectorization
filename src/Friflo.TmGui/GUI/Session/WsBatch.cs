@@ -23,7 +23,7 @@ internal class WsBatch : TmBatch, IHostAction
     }
     
     // --- IHostAction
-    public void OpenUrl(ReadOnlySpan<char> url, ReadOnlySpan<char> target)
+    public bool OpenUrl(ReadOnlySpan<char> url, ReadOnlySpan<char> target)
     {
         var sb = StringBuilder();
         sb.Append("open-url");
@@ -35,6 +35,7 @@ internal class WsBatch : TmBatch, IHostAction
         }
         var command = new TmSendCommand(sb.ToString());
         session?.client.SendCommand(command);
+        return true;
     }
     
     public void SetDisplayMode(TmDisplayMode mode) {
