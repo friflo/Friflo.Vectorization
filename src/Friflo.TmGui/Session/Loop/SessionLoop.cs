@@ -177,6 +177,7 @@ public sealed partial class TmSessionLoop : IDisposable
         sessions[client]= session;
         var msgStart    = firstLine == -1 ? 0 : firstLine + 1;
         firstPayload    = payload.GetMemory(msgStart);
+        session.Batch.SetWindowTitle(cpuBackend.backendName);
         return session;
     }
 
@@ -193,6 +194,7 @@ public sealed partial class TmSessionLoop : IDisposable
         session.guiView = guiView;
         sessions[client]= session;
         firstPayload    = default;
+        session.Batch.SetWindowTitle(cpuBackend.backendName);
         return session;
     }
     

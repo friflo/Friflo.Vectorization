@@ -32,10 +32,8 @@ internal sealed class RasterBatch : TmBatch
         this.frameTimer = frameTimer;
     }
 
-    protected internal override void InitBatch()
-    {
-    }
-    
+    protected internal override void InitBatch() { }
+    protected internal override void SetWindowTitle(string title) { }
 
 
     /// Fast alternative for <see cref="MathF.Round(float)"/>

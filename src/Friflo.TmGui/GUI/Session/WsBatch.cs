@@ -12,9 +12,16 @@ internal class WsBatch : TmBatch
     {
     }
 
-    protected internal override void InitBatch()
+    protected internal override void InitBatch() { }
+    
+    protected internal override void SetWindowTitle(string title)
     {
-        
+        var sb = StringBuilder();
+        sb.Append("set-title");
+        sb.Append('|');
+        sb.Append(title);
+        var msg = new TmSendCommand(sb.ToString());
+        session?.client.SendCommand(msg);
     }
     
     internal void DrawCommandList()

@@ -8,6 +8,7 @@ using System.Numerics;
 using System.Runtime.InteropServices;
 using System.Text;
 using Friflo.TmGui.Headless;
+using Friflo.TmGui.Session;
 
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable UseWithExpressionToCopyStruct
@@ -62,6 +63,17 @@ public sealed partial class TuiBatch : TmBatch
         charWidth   = lineHeight * CharacterAspectRatio;
         yScale      = 1f / lineHeight;
         xScale      = yScale / CharacterAspectRatio;
+    }
+    
+    protected internal override void SetWindowTitle(string title)
+    {
+        var sb = StringBuilder();
+        sb.Append("\x1b]0;");
+        sb.Append(title);
+        sb.Append("\x07");
+        var bytes = Encoding.UTF8.GetBytes(sb.ToString());
+        var msg = new TmSendMessage(bytes);
+        session?.client.Send(msg);
     }
     
     // Snap position to center of terminal grid cells for TUI mode

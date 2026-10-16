@@ -28,6 +28,7 @@ public sealed partial class WgpuBatch : TmBatch
     }
 
     protected override void InitBatch() { }
+    protected override void SetWindowTitle(string title) { }
 
     // TextureFormat.BGRA8Unorm / RGBA8Unorm
     /// <summary> Create multiple configs. A single would be sufficient, if not supporting <see cref="GpuBlendState"/>. </summary>

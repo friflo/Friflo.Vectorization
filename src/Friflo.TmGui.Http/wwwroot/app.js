@@ -250,11 +250,18 @@ export function processMessage(data) {
         return;
     }
     if (typeof data === 'string') {
-        console.log(data);
-        const args = data.split("|");
-        if (args[0] === "open-url") {
-            window.open(args[1], args[2]);
-        }
+        invokeCommand(data)
+    }
+}
+
+function invokeCommand(data) {
+    console.log(data);
+    const args = data.split("|");
+    if (args[0] === "open-url") {
+        window.open(args[1], args[2]);
+    }
+    if (args[0] === "set-title") {
+        document.title = args[1];
     }
 }
 

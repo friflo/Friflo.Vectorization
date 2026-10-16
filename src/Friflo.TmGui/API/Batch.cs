@@ -197,6 +197,7 @@ public abstract class TmBatch : IDisposable
 
 #region public
     protected internal abstract void InitBatch();
+    protected internal abstract void SetWindowTitle(string title);
     
     public void Dispose()
     {
