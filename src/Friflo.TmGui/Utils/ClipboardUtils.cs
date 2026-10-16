@@ -35,7 +35,6 @@ internal static class ClipboardUtils
         }
         else if (OperatingSystem.IsMacOS())
         {
-            // macOS: Uses pbcopy via stdin
             var psi = new ProcessStartInfo
             {
                 FileName = "pbcopy",
@@ -43,7 +42,12 @@ internal static class ClipboardUtils
                 UseShellExecute = false
             };
             using var process = Process.Start(psi);
-            process?.StandardInput.Write(textStr);
+            if (process != null)
+            {
+                process.StandardInput.Write(textStr);
+                process.StandardInput.Close(); // Wichtig: Signalisiert pbcopy, dass die Eingabe fertig ist
+                process.WaitForExit();         // Wartet kurz, bis der Prozess sauber durchgelaufen ist
+            }
         }
         else if (OperatingSystem.IsLinux())
         {
