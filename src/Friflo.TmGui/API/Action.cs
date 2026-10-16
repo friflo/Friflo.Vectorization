@@ -2,7 +2,6 @@
 // See LICENSE file in the project root for full license information.
 
 using System;
-using System.Diagnostics;
 using Friflo.TmGui.Utils;
 
 // ReSharper disable once CheckNamespace
@@ -46,24 +45,7 @@ public readonly ref struct TmAction : IHostAction
 public interface IHostAction
 {
     public bool OpenUrl(ReadOnlySpan<char> url, ReadOnlySpan<char> target = default) {
-        var urlStr = url.ToString();
-
-        // Validate that it is a valid absolute URI and uses safe protocols (http or https)
-        if (Uri.TryCreate(urlStr, UriKind.Absolute, out Uri? uriResult) &&
-            (uriResult.Scheme == Uri.UriSchemeHttp || uriResult.Scheme == Uri.UriSchemeHttps))
-        {
-            try {
-                Process.Start(new ProcessStartInfo { FileName = uriResult.AbsoluteUri, UseShellExecute = true });
-                return true;
-            }
-            catch (Exception e) {
-                Console.WriteLine($"OpenUrl failed: {e.Message}");
-            }
-
-        }
-        return false;
-        // Handle invalid or dangerous URL (log, throw exception, or ignore)
-        // throw new ArgumentException("Invalid or unsafe URL provided.", nameof(url));
+        return OsUtils.OpenUrl(url);
     }
     
     public void SetDisplayMode(TmDisplayMode mode) { }
