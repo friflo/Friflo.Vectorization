@@ -75,6 +75,12 @@ export function initWebRTC(app)
  */
 function runSignaling(app)
 {
+    const infoOverlay = document.getElementById("info-overlay");
+    if (infoOverlay) {
+        infoOverlay.textContent = `Searching app '${app}' ...`;
+        infoOverlay.style.display = "flex";
+    }
+                    
     const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
     const signalingUrl = `${wsProtocol}//${window.location.host}/signaling`;
     
@@ -94,6 +100,9 @@ function runSignaling(app)
     
     dataChannel.onopen = () => {
         console.log("P2P Data Channel opened.");
+        if (infoOverlay) {
+            infoOverlay.style.display = "none";
+        }
         // Send initial canvas resolution
         sendInitGui(canvas);
     }
@@ -128,7 +137,8 @@ function runSignaling(app)
         switch (message.type) {
             case "ConnectResponse":
                 if (message.sdpOrCandidate === "Found") {
-                    console.log(`App '${app}' found. Creating WebRTC offer...`);
+                    console.log(`app '${app}' found. Creating WebRTC offer...`);
+                    infoOverlay.textContent = `App '${app}' found.\nConnecting ...`;
                     try {
                         const offer = await pc.createOffer();
                         await pc.setLocalDescription(offer);
@@ -138,15 +148,10 @@ function runSignaling(app)
                         console.error("Failed to create WebRTC offer:", err);
                     }
                 } else {
-                    console.error(`App '${app}' not found on server.`);
-                    
-                    // Show error message overlay on screen
-                    const errorOverlay = document.getElementById("error-overlay");
-                    if (errorOverlay) {
-                        errorOverlay.textContent = `App '${app}' not found.`;
-                        errorOverlay.style.display = "flex";
-                    }
+                    console.error(`App '${app}' ${message.sdpOrCandidate}.`);
+                    infoOverlay.textContent = `App '${app}' not found.`;
                 }
+                infoOverlay.style.display = "flex";
                 break;
 
             case "answer":
