@@ -40,13 +40,39 @@
             flex-direction: column; /* stack elements vertically */
             align-items: center;
         }
+        
+        /* Log window styling (Top Left) */
+        #log-window {
+            position: fixed;
+            top: 16px;
+            left: 16px;
+            width: calc(100vw - 32px); /* Adapts to screen width minus margins */
+            max-width: 420px;          /* Maximum width limit */
+            min-height: 60px;          /* Minimum height limit */
+            max-height: calc(100vh - 32px); /* Never exceeds screen height */
+            overflow-y: auto;          /* Scrollbar if content overflows */
+            background-color: rgba(30, 30, 30, 0.85); /* Modern dark gray with transparency */
+            color: #00ff66;            /* Terminal green for logs */
+            font-family: monospace;    /* Fixed-width font for clean logs */
+            font-size: 0.85rem;
+            padding: 12px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            z-index: 900;
+            box-sizing: border-box;
+            white-space: pre-wrap;     /* Keep line breaks */
+            word-break: break-all;
+            pointer-events: auto;      /* Allow mouse interaction like text selection */
+        }
     </style>
 </head>
 <body>
     <canvas id="gpu-canvas"></canvas>
-    
+
+    <div id="log-window">Log initialized.&#10;Loading ...</div>
+
     <!-- Error overlay element shown when app is not found -->
-    <div style="display:flex;" id="info-overlay">TmGui loading ...</div>
+    <div style="display:flex;" id="info-overlay">TmGui starting ...</div>
 
     <!-- Load the renderer script as a module -->
     <script type="module" src="app.js"></script>

@@ -38,7 +38,7 @@ export const socket = {
 export function initWebSocket()
 {
     let receivedInitialFrame = false;
-    updateInfo(`Started.\nConnecting ...`);
+    addLog(` finished.\nConnecting ...`);
     
     const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
     const wsUrl = `${wsProtocol}//${window.location.host}/ws`;
@@ -51,11 +51,12 @@ export function initWebSocket()
         console.log("[+] WebSocket connected. Sending WsInitGui event...");        
         // Send initial canvas resolution
         sendInitGui(canvas);
-        updateInfo(`Connected.\nStreaming ...`);
+        addLog(` connected.\nStreaming ...`);
     };
 
     ws.onclose = () => {
         console.log("[-] WebSocket connection closed.");
+        addLog(`\nDisconnected.`, false);
         updateInfo(`Disconnected.`);
     };
 
@@ -67,6 +68,7 @@ export function initWebSocket()
         if (!receivedInitialFrame && event.data instanceof ArrayBuffer) {
             receivedInitialFrame = true;
             if (infoOverlay) infoOverlay.style.display = "none";
+            if (logWindow)   logWindow.style.display = "none";   
         }
         processMessage(event.data);
     };
@@ -78,6 +80,18 @@ const availableApps = '<br><a href="/" style="text-decoration: underline;">avail
 export function initWebRTC(app)
 {
     dataChannel = runSignaling(app)
+}
+
+const logWindow = document.getElementById("log-window");
+
+/** @param {string} info
+ * @param {boolean} showLog */
+function addLog(info, showLog = true) {
+    if (logWindow) {
+        logWindow.textContent = logWindow.textContent + info;
+        logWindow.scrollTop = logWindow.scrollHeight;
+        if (showLog) logWindow.style.display = "block";
+    }
 }
 
 const infoOverlay = document.getElementById("info-overlay");
@@ -97,7 +111,7 @@ function updateInfo(info) {
 function runSignaling(app)
 {
     let receivedInitialFrame = false;
-    updateInfo(`Request app '${app}'.\nSearching ...`);
+    addLog(` finished.\nStart app: '${app}'.\nSearching app ...`);
                     
     const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
     const signalingUrl = `${wsProtocol}//${window.location.host}/signaling`;
@@ -123,7 +137,8 @@ function runSignaling(app)
             pc.connectionState === "closed") {
             
             console.log(`Remote peer lost connection.`);
-            updateInfo(`App '${app}' disconnected.${availableApps}`);
+            addLog("\nApp disconnected", false);
+            updateInfo(`'${app}' disconnected.${availableApps}`);
         }
     };
     
@@ -131,7 +146,7 @@ function runSignaling(app)
         console.log("P2P Data Channel opened.");
         // Send initial canvas resolution
         sendInitGui(canvas);
-        updateInfo(`App '${app}' connected.\nStreaming ...`);
+        addLog(`\n... connected.\nStreaming ...`);
     }
     dataChannel.onclose = () => {
         console.log("P2P Data Channel closed.");
@@ -144,6 +159,7 @@ function runSignaling(app)
             if (!receivedInitialFrame) {
                 receivedInitialFrame = true;
                 if (infoOverlay) infoOverlay.style.display = "none";
+                if (logWindow)   logWindow.style.display = "none";                
             }
             try {
                 const rawData = await decompressMessage(e.data);
@@ -177,7 +193,7 @@ function runSignaling(app)
             case "ConnectResponse":
                 if (message.sdpOrCandidate === "Found") {
                     console.log(`app '${app}' found. Creating WebRTC offer...`);
-                    updateInfo(`App '${app}' found.\nConnecting (${signalMsgCount}) ...`);
+                    addLog(` found.\nConnecting (${signalMsgCount}) ...`);
                     try {
                         const offer = await pc.createOffer();
                         await pc.setLocalDescription(offer);
@@ -188,12 +204,13 @@ function runSignaling(app)
                     }
                 } else {
                     console.error(`App '${app}' ${message.sdpOrCandidate}.`);
-                    updateInfo(`App '${app}' ${message.sdpOrCandidate}.${availableApps}`);
+                    addLog(` ${message.sdpOrCandidate}.`);
+                    updateInfo(`'${app}' ${message.sdpOrCandidate}.${availableApps}`);
                 }
                 break;
 
             case "answer":
-                updateInfo(`App '${app}' found.\nConnecting (${signalMsgCount}) [answer] ...`);
+                addLog(`\n[answer] (${signalMsgCount})`);
                 try {
                     await pc.setRemoteDescription(new RTCSessionDescription({
                         type: "answer",
@@ -217,7 +234,7 @@ function runSignaling(app)
                 break;
 
             case "candidate":
-                updateInfo(`App '${app}' found.\nConnecting (${signalMsgCount}) [candidate] ...`);
+                addLog(`\n[candidate] (${signalMsgCount})`);
                 try {
                     // Skip if connection is already established or completed
                     if (pc.connectionState === 'connected' || pc.connectionState === 'completed') {
