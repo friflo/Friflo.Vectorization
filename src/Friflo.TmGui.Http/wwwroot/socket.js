@@ -57,7 +57,7 @@ export function initWebSocket()
     ws.onclose = () => {
         console.log("[-] WebSocket connection closed.");
         addLog(`\ndisconnected.`, false);
-        updateInfo(`Disconnected.`);
+        updateInfo(`disconnected`);
     };
 
     ws.onerror = (err) => {
@@ -154,7 +154,7 @@ function runSignaling(app)
             
             console.log(`Remote peer lost connection.`);
             addLog(`\napp ${pc.connectionState}`, false);
-            updateInfo(`'${app}' ${pc.connectionState}.${availableApps}`);
+            updateInfo(`${app}&#10;${pc.connectionState}${availableApps}`);
         } else {
             const ellipsis = pc.connectionState === "connecting" ? " ..." : ".";
             addLog(`\napp ${pc.connectionState}${ellipsis}`, false);
@@ -224,7 +224,7 @@ function runSignaling(app)
                 } else {
                     console.error(`App '${app}' ${message.sdpOrCandidate}.`);
                     addLog(` ${message.sdpOrCandidate}.`);
-                    updateInfo(`'${app}' ${message.sdpOrCandidate}.${availableApps}`);
+                    updateInfo(`${app}&#10;${message.sdpOrCandidate}${availableApps}`);
                 }
                 break;
 

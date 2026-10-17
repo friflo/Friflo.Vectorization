@@ -72,13 +72,15 @@
     <div id="log-window">log initialized.&#10;loading ...</div>
 
     <!-- Error overlay element shown when app is not found -->
-    <div style="display:flex;" id="info-overlay">TmGui starting ...</div>
+    <div style="display:flex;" id="info-overlay">TmGui&#10;starting ...</div>
 
     <script>
         const urlParams = new URLSearchParams(window.location.search);
         const app = urlParams.get('app');
         if (app) {
             document.title = app;
+            const infoOverlay = document.getElementById("info-overlay");
+            infoOverlay.textContent = `${app}\nconnecting ...`;
         }
     </script>
     <!-- Load the renderer script as a module -->
