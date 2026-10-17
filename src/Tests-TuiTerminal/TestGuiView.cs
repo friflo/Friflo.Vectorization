@@ -4,6 +4,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using Friflo.TmGui;
 using Friflo.TmGui.Headless;
+using Friflo.TmGui.Session;
 using Friflo.TmGui.TUI;
 using TuiTerminal.Draw;
 
@@ -14,6 +15,7 @@ namespace TuiTerminal;
 /// <summary> Each session has its own <see cref="IGuiView"/> instance. </summary>
 public class TestGuiView : IGuiView
 {
+    private readonly    TmSessionLoop   loop;
     private readonly    AppState        appState;
     private readonly    SessionId       sessionId;
     private readonly    Color32[]       textColors = [0x0000FFFF, 0xFF0000FF, 0x009900FF, 0xFF00FFFF, 0xCC6600FF, 0x000000ff];
@@ -35,6 +37,7 @@ public class TestGuiView : IGuiView
     
     public TestGuiView(AppState appState, SessionInfo info)
     {
+        loop                = info.loop;
         this.appState       = appState;
         sessionId           = info.sessionId;
         using var stream    = typeof(TestGuiView).Assembly.GetManifestResourceStream("TuiTerminal.Assets.sixel_test.png")!;
@@ -83,8 +86,8 @@ public class TestGuiView : IGuiView
     private void Window1(Gui gui)
     {
         gui.Button("hello TUI 💻 🙂", Dim.Fill_X(0, Fit.Content), color: textColors);
-        if (gui.Button("google.com")) {
-            gui.Action.OpenUrl("https://www.google.com/");
+        if (gui.Button("web app")) {
+            gui.Action.OpenUrl($"https://localhost:8081/?app={loop.app}");
         }
         if (gui.Checkbox("fullScreen", ref fullScreen)) {
             gui.Action.SetDisplayMode(fullScreen ? TmDisplayMode.Fullscreen : TmDisplayMode.Windowed);

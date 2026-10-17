@@ -21,6 +21,7 @@ namespace Friflo.TmGui.Session;
 public sealed partial class TmSessionLoop : IDisposable
 {
     public   readonly   AssetResources  resources;
+    public              string?         app;
 
 #region private fields
     private  readonly   bool                                isAsync;
@@ -171,7 +172,7 @@ public sealed partial class TmSessionLoop : IDisposable
         var sessionId   = new SessionId(_sessionSeq++);
         var session     = new TuiSession(client, sessionId, this, frameTimer, TuiColorMode.RGB24);
 
-        var sessionInfo = new SessionInfo{ sessionId = sessionId, client = client, backend = session.Backend, args = args };
+        var sessionInfo = new SessionInfo{ loop = this, sessionId = sessionId, client = client, backend = session.Backend, args = args };
         var guiView     = createGuiView(sessionInfo);
         
         session.guiView = guiView;
@@ -189,7 +190,7 @@ public sealed partial class TmSessionLoop : IDisposable
         var sessionId   = new SessionId(_sessionSeq++);
         var session     = new GuiSession(client, sessionId, this, frameTimer);
         
-        var sessionInfo = new SessionInfo{ sessionId = sessionId, client = client, backend = session.Backend, args = [] };
+        var sessionInfo = new SessionInfo{ loop = this, sessionId = sessionId, client = client, backend = session.Backend, args = [] };
         var guiView     = createGuiView(sessionInfo);
         
         session.guiView = guiView;

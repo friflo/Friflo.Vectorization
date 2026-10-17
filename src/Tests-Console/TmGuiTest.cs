@@ -77,9 +77,11 @@ public class TmGuiRenderer : IRenderer, IGuiView
         myTextureView    = myTexture.CreateView().AsTmTexture();
         
         loop = new TmSessionLoop(false, new CpuBackend("TmGui - Remote Test", guiBackend), _ => new TmGuiRenderer(this));
-        var builder = HttpUtils.CreateHostBuilder(new IPEndPoint(IPAddress.Any, 8080), loop);
+        var builder = HttpUtils.CreateHostBuilder(new IPEndPoint(IPAddress.Any, port), loop);
         HttpUtils.Start(builder.Build());
     }
+    
+    private const int port = 8080;
     
     public TmGuiRenderer(TmGuiRenderer renderer)
     {
@@ -140,8 +142,8 @@ public class TmGuiRenderer : IRenderer, IGuiView
     private void Window1(Gui gui)
     {
         gui.Button("hello GUI", Dim.Fill_X(0, Fit.Content), color: textColors);
-        if (gui.Button("google.com")) {
-            gui.Action.OpenUrl("https://www.google.com/");
+        if (gui.Button("web console")) {
+            gui.Action.OpenUrl($"https://localhost:{port}");
         }
         if (gui.Button("copy to clipboard")) {
             gui.Action.CopyToClipboard("some clipboard text");

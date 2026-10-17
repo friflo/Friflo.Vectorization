@@ -44,6 +44,7 @@ public interface IGuiView
 
 public struct SessionInfo
 {
+    public  TmSessionLoop   loop;
     public  SessionId       sessionId;
     public  string[]        args;
     public  TmClient        client;
