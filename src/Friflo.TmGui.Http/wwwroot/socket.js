@@ -38,7 +38,7 @@ export const socket = {
 export function initWebSocket()
 {
     let receivedInitialFrame = false;
-    addLog(` finished.\nConnecting ...`);
+    addLog(` finished.\nconnecting ...`);
     
     const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
     const wsUrl = `${wsProtocol}//${window.location.host}/ws`;
@@ -51,12 +51,12 @@ export function initWebSocket()
         console.log("[+] WebSocket connected. Sending WsInitGui event...");        
         // Send initial canvas resolution
         sendInitGui(canvas);
-        addLog(` connected.\nStreaming ...`);
+        addLog(` connected.\nstreaming started ...`);
     };
 
     ws.onclose = () => {
         console.log("[-] WebSocket connection closed.");
-        addLog(`\nDisconnected.`, false);
+        addLog(`\ndisconnected.`, false);
         updateInfo(`Disconnected.`);
     };
 
@@ -111,7 +111,7 @@ function updateInfo(info) {
 function runSignaling(app)
 {
     let receivedInitialFrame = false;
-    addLog(` finished.\nStart app: '${app}'.\nSearching app ...`);
+    addLog(` finished.\nstart app: '${app}'.\nsearching app ...`);
                     
     const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
     const signalingUrl = `${wsProtocol}//${window.location.host}/signaling`;
@@ -137,8 +137,11 @@ function runSignaling(app)
             pc.connectionState === "closed") {
             
             console.log(`Remote peer lost connection.`);
-            addLog("\nApp disconnected", false);
-            updateInfo(`'${app}' disconnected.${availableApps}`);
+            addLog(`\napp ${pc.connectionState}`, false);
+            updateInfo(`'${app}' ${pc.connectionState}.${availableApps}`);
+        } else {
+            const ellipsis = pc.connectionState === "connecting" ? " ..." : ".";
+            addLog(`\napp ${pc.connectionState}${ellipsis}`, false);
         }
     };
     
@@ -146,7 +149,7 @@ function runSignaling(app)
         console.log("P2P Data Channel opened.");
         // Send initial canvas resolution
         sendInitGui(canvas);
-        addLog(`\n... connected.\nStreaming ...`);
+        addLog(`\nchannel opened.\nstreaming started ...`);
     }
     dataChannel.onclose = () => {
         console.log("P2P Data Channel closed.");
@@ -193,7 +196,7 @@ function runSignaling(app)
             case "ConnectResponse":
                 if (message.sdpOrCandidate === "Found") {
                     console.log(`app '${app}' found. Creating WebRTC offer...`);
-                    addLog(` found.\nConnecting (${signalMsgCount}) ...`);
+                    addLog(` found.\nsignaling started (${signalMsgCount}) ...`);
                     try {
                         const offer = await pc.createOffer();
                         await pc.setLocalDescription(offer);
@@ -210,7 +213,7 @@ function runSignaling(app)
                 break;
 
             case "answer":
-                addLog(`\n[answer] (${signalMsgCount})`);
+                addLog(`\nsignaling [answer] (${signalMsgCount})`);
                 try {
                     await pc.setRemoteDescription(new RTCSessionDescription({
                         type: "answer",
@@ -234,7 +237,7 @@ function runSignaling(app)
                 break;
 
             case "candidate":
-                addLog(`\n[candidate] (${signalMsgCount})`);
+                addLog(`\nsignaling [candidate] (${signalMsgCount})`);
                 try {
                     // Skip if connection is already established or completed
                     if (pc.connectionState === 'connected' || pc.connectionState === 'completed') {
