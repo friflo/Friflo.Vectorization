@@ -168,6 +168,8 @@ internal sealed partial class GuiSession : TmSession, IHostAction
             int encodedBytes = Encoding.UTF8.GetBytes(image.asset.name, span[bytesWritten..]);
             bytesWritten += encodedBytes;
         }
+        // Note! Important for subsequent index calculations: Align bytesWritten to the next multiple of 4
+        bytesWritten = (bytesWritten + 3) & ~3;
 
         var texturesLength = bytesWritten - texturesStart;
 

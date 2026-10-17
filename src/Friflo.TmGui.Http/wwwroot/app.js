@@ -322,6 +322,8 @@ function processDrawList(message)
 
         ensureTextureLoaded(textureId, name);
     }
+    // Note! Important for subsequent index calculations: Align bytesWritten to the next multiple of 4
+    offset = (offset + 3) & ~3;
 
     // 6. View on WsDrawCommand array
     const drawCommandsByteLength = drawCommandCount * SIZEOF_WS_DRAW_COMMAND;
