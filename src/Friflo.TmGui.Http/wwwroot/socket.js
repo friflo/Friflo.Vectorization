@@ -166,6 +166,7 @@ function runSignaling(app)
     dataChannel.onmessage = async (e) => {
         if (e.data instanceof ArrayBuffer) {
             if (!receivedInitialFrame) {
+                document.title = app;
                 receivedInitialFrame = true;
                 if (infoOverlay) infoOverlay.style.display = "none";
                 if (logWindow)   logWindow.style.display = "none";                
