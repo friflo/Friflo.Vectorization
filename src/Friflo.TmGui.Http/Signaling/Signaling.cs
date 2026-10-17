@@ -4,6 +4,7 @@ using System.Net.WebSockets;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using Friflo.TmGui.Session;
 
 // ReSharper disable InconsistentNaming
 // ReSharper disable CheckNamespace
@@ -51,14 +52,19 @@ public sealed class TmGuiApp
 /// <summary> Single <see cref="TmSignaling"/> instance is shared by all sessions. </summary>
 public sealed class TmSignaling
 {
-    public              bool                                        isDirty;
     public   readonly   ConcurrentDictionary<string, TmGuiApp>      guiApps = [];
     public   readonly   ConcurrentDictionary<string, TmSignalPeer>  clients = [];
     private             int                                         instanceSeq;
+    public              TmSessionLoop?                              loop;
 
-    
+
     public TmSignaling(TmGuiBackend backend)
     {
+    }
+    
+    internal void SetDirty()
+    {
+        loop?.SetAllSessionsDirty();
     }
     
     internal async Task ProcessMessageAsync(TmSignalPeer peer, ReadOnlyMemory<byte> buffer)
@@ -79,7 +85,7 @@ public sealed class TmSignaling
                     var appId = instance == null ? app : $"{app}.{instance}";
                     Console.WriteLine($"Register app: '{appId}'");
                     guiApps[appId] = new TmGuiApp(peer, appId, $"?app={appId}");
-                    isDirty = true;
+                    SetDirty();
                     
                     var msg = new SignalMessage("RegisterResponse", appId, peer.connection, "registered");
                     var errorResponse = JsonSerializer.SerializeToUtf8Bytes(msg);
@@ -95,6 +101,7 @@ public sealed class TmSignaling
                         peer.guiApp = guiApp;
                         if (guiApp.online) {
                             clients[peer.connection] = peer;
+                            SetDirty();
                             result = "found";
                         } else {
                             result = "offline";
@@ -112,6 +119,7 @@ public sealed class TmSignaling
                 // close Client signaling webSocket. P2P Data Channel was opened
                 if (message.connection != null) {
                     if (clients.TryRemove(message.connection, out var signalPeer)) {
+                        SetDirty();
                         await signalPeer.webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, null, CancellationToken.None);
                     }
                 }

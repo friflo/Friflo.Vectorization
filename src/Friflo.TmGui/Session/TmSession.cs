@@ -15,6 +15,7 @@ internal abstract class TmSession
     protected internal          IGuiView?       guiView;
     internal  readonly          TmClient        client;
     internal  readonly          SessionId       sessionId;
+    internal                    bool            isDirty;
     
     public    override          string          ToString()          => $"session: {sessionId}";
     

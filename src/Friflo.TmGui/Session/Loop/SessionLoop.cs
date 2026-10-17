@@ -28,6 +28,7 @@ public sealed partial class TmSessionLoop : IDisposable
     private  readonly   AutoResetEvent                      eventReady;     // used by: sync loop
     private  readonly   Channel<ClientEvent>                eventChannel;   // used by: async loop
     private  readonly   Dictionary<TmClient, TmSession>     sessions;       // Raw non-thread-safe state (accessed exclusively by _shardThread)
+    private  readonly   List<TmSession>                     sessionBuffer   = [];
     private  readonly   CreateGuiView                       createGuiView;  // IBatchRenderer factory
     private  readonly   CancellationTokenSource             cts             = new();
     private             Thread?                             shardThread;
@@ -211,6 +212,21 @@ public sealed partial class TmSessionLoop : IDisposable
         batch.frameTimer?.Dispose();
         batch.frameTimer = null;
         resources.RemoveSessionResources(session.sessionId);
+    }
+
+    public void SetAllSessionsDirty()
+    {
+        sessionBuffer.Clear();
+        sessionBuffer.AddRange(sessions.Values);
+        
+        foreach (var session in sessionBuffer) {
+            if (Volatile.Read(ref session.isDirty)) {
+                continue;
+            }
+            Volatile.Write(ref session.isDirty, true);
+            TryEnqueueEvent(session.client, ClientEventType.FrameTick, default);
+        }
+        sessionBuffer.Clear();
     }
 }
 

@@ -124,7 +124,7 @@ internal sealed class SignalSocketHandler
             {
                 var app = signaling.guiApps.Values.FirstOrDefault(app => app.peer == peer);
                 app?.online = false;
-                signaling.isDirty = true;
+                signaling.SetDirty();
                 
                 peer.webSocket.Dispose();
             }

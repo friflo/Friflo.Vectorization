@@ -7,6 +7,7 @@ using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading;
 
 // ReSharper disable ConvertIfStatementToReturnStatement
 // ReSharper disable ConvertToConstant.Local
@@ -65,6 +66,8 @@ internal sealed partial class GuiSession : TmSession, IHostAction
 
     internal override TmSendMessage IterateUI(in AssetResources resources)
     {
+        Volatile.Write(ref isDirty, false);
+
         wsBackend.NewFrame();
         guiView!.RenderGui(wsBatch, canvasWidth, canvasHeight);
         
