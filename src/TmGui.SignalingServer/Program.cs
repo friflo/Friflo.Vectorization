@@ -10,7 +10,7 @@ using TmGui.SignalingServer;
 
 
 
-Console.WriteLine("Signaling Server");
+Console.WriteLine("Signaling Server for WebRTC");
 
 var cpuBackend  = new CpuBackend("TmGui - Signaling Server", new DefaultGuiAssets());
 var signaling   = new TmSignaling(cpuBackend);

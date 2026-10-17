@@ -42,9 +42,9 @@ using TuiTerminal;
 //   - Config:  Match User tmgui -> ForceCommand nc 127.0.0.1 9000
 
 
-Console.WriteLine("TmGui - App");
+Console.WriteLine("App");
 
-var cpuBackend  = new CpuBackend("TmGui - App", new DefaultGuiAssets());
+var cpuBackend  = new CpuBackend("App", new DefaultGuiAssets());
 var appState    = new AppState(cpuBackend);
 
 // Flag toggles execution mode:
