@@ -93,7 +93,7 @@ public sealed class TmSignaling
                         peer.guiApp = guiApp;
                         if (guiApp.online) {
                             clients[peer.connection] = peer;
-                            result = "Found";
+                            result = "found";
                         } else {
                             result = "offline";
                         }
