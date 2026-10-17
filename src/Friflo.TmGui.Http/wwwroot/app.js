@@ -20,6 +20,7 @@ export const canvas = document.getElementById('gpu-canvas');
 
 // WebGPU Core Objects
 let device = null;
+/** @type {RenderingContext | null} */
 let context = null;
 let presentationFormat = null;
 
@@ -72,7 +73,7 @@ async function initWebGPU() {
         alphaMode: 'premultiplied',        
         // colorSpace: 'srgb' Prevents unnecessary color space conversions on the GPU
         // colorSpace: 'srgb',
-        presentMode: 'immediate'
+        // presentMode: 'immediate'  NOTE! not available in Browser WebGPU API
     });
 
     // 1. Create Initial Dynamic Vertex Buffer
