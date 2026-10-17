@@ -220,10 +220,10 @@ public sealed partial class TmSessionLoop : IDisposable
         sessionBuffer.AddRange(sessions.Values);
         
         foreach (var session in sessionBuffer) {
-            if (Volatile.Read(ref session.isDirty)) {
+            if (session.isDirty) {
                 continue;
             }
-            Volatile.Write(ref session.isDirty, true);
+            session.isDirty = true;
             TryEnqueueEvent(session.client, ClientEventType.FrameTick, default);
         }
         sessionBuffer.Clear();

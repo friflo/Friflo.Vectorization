@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Numerics;
 using System.Text;
-using System.Threading;
 using Friflo.TmGui.Headless;
 using Friflo.TmGui.Recorder;
 using Friflo.TmGui.Session;
@@ -121,7 +120,7 @@ internal sealed partial class TuiSession : TmSession
     
     internal override TmSendMessage IterateUI(in AssetResources resources)
     {
-        Volatile.Write(ref isDirty, false);
+        isDirty = false;
 
         cpuBackend.NewFrame();
         
