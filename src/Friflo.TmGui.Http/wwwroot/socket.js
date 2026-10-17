@@ -111,7 +111,7 @@ function updateInfo(info) {
 function runSignaling(app)
 {
     let receivedInitialFrame = false;
-    addLog(` finished.\nstart app: '${app}'.\nsearching app ...`);
+    addLog(` finished.\nstart app: '${app}'\nsearching app ...`);
                     
     const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
     const signalingUrl = `${wsProtocol}//${window.location.host}/signaling`;
@@ -128,7 +128,13 @@ function runSignaling(app)
     const candidateQueue = [];
 
     // Optional: Create a data channel for peer-to-peer communication
-    const dataChannel = pc.createDataChannel("tm-gui-channel", { ordered: true });
+    const dataChannel = pc.createDataChannel("tm-gui-channel", { ordered: true });    
+    pc.oniceconnectionstatechange = () => {
+        const state = pc.iceConnectionState; 
+        if (state === "connected" || state === "closed" || state === "completed" || state === "failed") {
+            addLog(`\nsignaling finished: ${state}.`);
+        }
+    }
     pc.onconnectionstatechange = () => {
         console.log(`Connection state changed: ${pc.connectionState}`);
         
@@ -149,7 +155,7 @@ function runSignaling(app)
         console.log("P2P Data Channel opened.");
         // Send initial canvas resolution
         sendInitGui(canvas);
-        addLog(`\nchannel opened.\nstreaming started ...`);
+        addLog(`\napp channel opened.\napp streaming started ...`);
     }
     dataChannel.onclose = () => {
         console.log("P2P Data Channel closed.");
