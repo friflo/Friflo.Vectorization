@@ -42,7 +42,7 @@ internal sealed class SignalSession
     
     private void OnDataChannel(RTCDataChannel dataChannel)
     {
-        Console.WriteLine("P2P Data Channel opened on App side!");
+        // Console.WriteLine("P2P Data Channel opened on App side!");
         var client = new WebRtcClient(listener.loop, dataChannel);
         
         _ = listener.loop.EnqueueEventAsync(client, ClientEventType.WebsocketConnected, default);

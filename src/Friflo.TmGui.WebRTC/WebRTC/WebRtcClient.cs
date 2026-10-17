@@ -126,7 +126,7 @@ internal class WebRtcClient : TmClient
     private void OnClose()
     {
         _ = loop.EnqueueEventAsync(this, ClientEventType.WebsocketDisconnected, default);
-        Console.WriteLine($"RTCDataChannel closed");
+        // Console.WriteLine($"RTCDataChannel closed");
     }
     
     private void OnMessage (RTCDataChannel dc, DataChannelPayloadProtocols protocol, byte[] data)
