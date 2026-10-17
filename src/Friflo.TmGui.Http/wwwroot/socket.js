@@ -76,10 +76,20 @@ export function initWebSocket()
 
 // ------------------------------------ WebRTC ------------------------------------
 const availableApps = '<br><a href="/" style="text-decoration: underline;">available apps</a>';
+let app = null;
 
-export function initWebRTC(app)
+export function setWindowTitle(title) {
+    if (app) {
+        document.title = `${app} - ${title}`;
+    } else {
+        document.title = title;
+    }
+}
+
+export function initWebRTC(appName)
 {
-    dataChannel = runSignaling(app)
+    app = appName;
+    dataChannel = runSignaling(appName)
 }
 
 const logWindow = document.getElementById("log-window");
@@ -165,8 +175,7 @@ function runSignaling(app)
     }
     dataChannel.onmessage = async (e) => {
         if (e.data instanceof ArrayBuffer) {
-            if (!receivedInitialFrame) {
-                document.title = `${document.title} - ${app}`;
+            if (!receivedInitialFrame) {                
                 receivedInitialFrame = true;
                 if (infoOverlay) infoOverlay.style.display = "none";
                 if (logWindow)   logWindow.style.display = "none";                

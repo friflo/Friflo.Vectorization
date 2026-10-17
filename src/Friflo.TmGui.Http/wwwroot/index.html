@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TmGui WebGPU</title>
+    <title>TmGui</title>
     <style>
         html, body {
             margin: 0;
@@ -74,6 +74,13 @@
     <!-- Error overlay element shown when app is not found -->
     <div style="display:flex;" id="info-overlay">TmGui starting ...</div>
 
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const app = urlParams.get('app');
+        if (app) {
+            document.title = app;
+        }
+    </script>
     <!-- Load the renderer script as a module -->
     <script type="module" src="app.js"></script>
 </body>
