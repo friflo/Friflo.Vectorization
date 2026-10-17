@@ -32,6 +32,7 @@ public sealed class TmGuiApp
     public   readonly   string      name;
     public              bool        online;
     public   readonly   string      url;
+    public   readonly   DateTime    registered;
     internal readonly   SignalPeer  peer;
 
     public   override   string          ToString() => name;
@@ -41,6 +42,7 @@ public sealed class TmGuiApp
         this.peer   = peer;
         this.url    = url;
         online      = true;
+        registered  = DateTime.Now;
     }
 }
 

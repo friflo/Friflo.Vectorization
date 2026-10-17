@@ -10,7 +10,8 @@ namespace TmGui.SignalingServer;
 /// <summary> Each session has its own <see cref="IGuiView"/> instance. </summary>
 public class SignalingView : IGuiView
 {
-    private readonly TmSignaling signaling;
+    private readonly    TmSignaling     signaling;
+    private readonly    List<TmGuiApp>  apps = [];
     
     public SignalingView(TmSignaling signaling, SessionInfo info)
     {
@@ -27,7 +28,11 @@ public class SignalingView : IGuiView
     
     private void Window1(Gui gui)
     {
-        foreach (var guiApp in signaling.guiApps.Values)
+        apps.Clear();
+        apps.AddRange(signaling.guiApps.Values);
+        apps.Sort((app1, app2) => app1.registered.CompareTo(app2.registered));
+        
+        foreach (var guiApp in apps)
         {
             using (gui.BeginHorizontal()) {
                 if (gui.Button(guiApp.name)) {

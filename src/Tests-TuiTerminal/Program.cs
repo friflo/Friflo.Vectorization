@@ -58,7 +58,7 @@ var loop = new TmSessionLoop(runAsync, cpuBackend, info => new TestGuiView(appSt
 // _ = HttpUtils.Start(builder.Build());
 
 var signalListener =  new TmSignalingListener(loop);
-_ = signalListener.Start("test-app", new Uri("wss://localhost:8081/signaling"));
+_ = signalListener.Start(new Uri("wss://localhost:8081/signaling"), "test-app", "auto");
 
 if (runAsync) {
     loop.StartAsync(); // Spawns dedicated "ShardLoopThread"
@@ -75,8 +75,8 @@ else {
 static async Task RunTcpServerAsync(TmSessionLoop loop, int port)
 {
     // Start local console I/O session
-//    var localClient = new ConsoleClient();
-//    _ = ConsoleClient.HandleClientSessionAsync(localClient, loop, CancellationToken.None);
+    var localClient = new ConsoleClient();
+    _ = ConsoleClient.HandleClientSessionAsync(localClient, loop, CancellationToken.None);
 
     using var serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
     serverSocket.Bind(new IPEndPoint(IPAddress.Any, port));
