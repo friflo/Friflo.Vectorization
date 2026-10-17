@@ -123,9 +123,10 @@ internal sealed class SignalSocketHandler
             if (peer.webSocket.State is WebSocketState.Open or WebSocketState.Aborted)
             {
                 var app = signaling.guiApps.Values.FirstOrDefault(app => app.peer == peer);
-                app?.online = false;
-                signaling.SetDirty();
-                
+                if (app != null) {
+                    app.online = false;
+                    signaling.SetDirty();
+                }
                 peer.webSocket.Dispose();
             }
         }

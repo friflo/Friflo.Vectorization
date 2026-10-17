@@ -56,7 +56,7 @@ public class SignalingView : IGuiView
         clients.Clear();
         clients.AddRange(signaling.clients.Values);
         clients.Sort((c1, c2) => c1.registered.CompareTo(c2.registered));
-        gui.Label("clients");
+        gui.Label("pending connects");
         gui.Spacer();
         
         foreach (var client in clients)
