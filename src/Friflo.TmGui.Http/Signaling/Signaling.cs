@@ -29,15 +29,15 @@ internal record struct SignalMessage(string type, string? app, string? connectio
 
 public sealed class TmGuiApp
 {
-    public   readonly   string      name;
-    public              bool        online;
-    public   readonly   string      url;
-    public   readonly   DateTime    registered;
-    internal readonly   SignalPeer  peer;
+    public   readonly   string          name;
+    public              bool            online;
+    public   readonly   string          url;
+    public   readonly   DateTime        registered;
+    internal readonly   TmSignalPeer    peer;
 
     public   override   string          ToString() => name;
 
-    internal TmGuiApp(SignalPeer peer, string name, string url) {
+    internal TmGuiApp(TmSignalPeer peer, string name, string url) {
         this.name   = name;
         this.peer   = peer;
         this.url    = url;
@@ -51,16 +51,17 @@ public sealed class TmGuiApp
 /// <summary> Single <see cref="TmSignaling"/> instance is shared by all sessions. </summary>
 public sealed class TmSignaling
 {
+    public              bool                                        isDirty;
     public   readonly   ConcurrentDictionary<string, TmGuiApp>      guiApps = [];
-    private  readonly   ConcurrentDictionary<string, SignalPeer>    clients = [];
-    private             int                                         instanceSeq;             
+    public   readonly   ConcurrentDictionary<string, TmSignalPeer>  clients = [];
+    private             int                                         instanceSeq;
 
     
     public TmSignaling(TmGuiBackend backend)
     {
     }
     
-    internal async Task ProcessMessageAsync(SignalPeer peer, ReadOnlyMemory<byte> buffer)
+    internal async Task ProcessMessageAsync(TmSignalPeer peer, ReadOnlyMemory<byte> buffer)
     {
         if (!SignalMessage.TryParse(buffer.Span, out var message)) {
             return;
@@ -78,6 +79,7 @@ public sealed class TmSignaling
                     var appId = instance == null ? app : $"{app}.{instance}";
                     Console.WriteLine($"Register app: '{appId}'");
                     guiApps[appId] = new TmGuiApp(peer, appId, $"?app={appId}");
+                    isDirty = true;
                     
                     var msg = new SignalMessage("RegisterResponse", appId, peer.connection, "registered");
                     var errorResponse = JsonSerializer.SerializeToUtf8Bytes(msg);

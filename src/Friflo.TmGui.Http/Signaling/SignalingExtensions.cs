@@ -62,7 +62,7 @@ internal sealed class SignalSocketHandler
                 var contextConn  = context.Connection;
                 
                 var connection  = $"{id}|{contextConn.RemoteIpAddress?.ToString()}:{contextConn.RemotePort}";
-                var peer        = new SignalPeer(webSocket, connection);
+                var peer        = new TmSignalPeer(webSocket, connection);
                 
                 await HandlePeerSessionAsync(peer, signaling, context.RequestAborted);
             }
@@ -83,7 +83,7 @@ internal sealed class SignalSocketHandler
         await next();
     }
     
-    private static async Task HandlePeerSessionAsync(SignalPeer peer, TmSignaling signaling, CancellationToken cancellationToken)
+    private static async Task HandlePeerSessionAsync(TmSignalPeer peer, TmSignaling signaling, CancellationToken cancellationToken)
     {
         // Allocate a reusable buffer for incoming websocket frames
         var buffer = new byte[1024 * 4];
@@ -124,6 +124,7 @@ internal sealed class SignalSocketHandler
             {
                 var app = signaling.guiApps.Values.FirstOrDefault(app => app.peer == peer);
                 app?.online = false;
+                signaling.isDirty = true;
                 
                 peer.webSocket.Dispose();
             }

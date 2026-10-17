@@ -10,19 +10,21 @@ using System.Threading.Tasks;
 namespace Friflo.TmGui.Http;
 
 
-internal sealed class SignalPeer
+public sealed class TmSignalPeer
 {
+    public              TmGuiApp?   guiApp;       // the GUI app a client wants to connect
+    public   readonly   DateTime    registered;
+    public   readonly   string      connection;
     internal readonly   WebSocket   webSocket;
-    internal            TmGuiApp?   guiApp;       // the GUI app a client wants to connect
-    internal readonly   string      connection;
     
     public   override   string      ToString() => $"{(guiApp == null ? "App" : "Client")}  conn: {connection}";
     
 
-    internal SignalPeer(WebSocket webSocket, string connection)
+    internal TmSignalPeer(WebSocket webSocket, string connection)
     {
         this.webSocket  = webSocket;
         this.connection = connection;
+        registered      = DateTime.Now;
     }
 
     internal async Task SendAsync(ReadOnlyMemory<byte> payload, CancellationToken cancellationToken = default)
