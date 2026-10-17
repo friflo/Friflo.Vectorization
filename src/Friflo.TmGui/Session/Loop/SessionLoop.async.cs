@@ -78,7 +78,7 @@ public partial class TmSessionLoop
                     
                     await client.SendAsync(sendBuffer, CancellationToken.None);
                     
-                    newSession.tuiBatch.frameTimer!.Start(CancellationToken.None);
+                    // newSession.tuiBatch.frameTimer!.InitTimer(CancellationToken.None);
                     break;
                 }
                 case ClientEventType.TerminalDisconnected:

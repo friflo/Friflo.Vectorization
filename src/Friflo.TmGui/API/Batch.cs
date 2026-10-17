@@ -203,7 +203,7 @@ public abstract class TmBatch : IDisposable
                 return;
             }
             if (value) {
-                timer.Restart();
+                timer.Start();
             } else {
                 timer.Stop();
             }

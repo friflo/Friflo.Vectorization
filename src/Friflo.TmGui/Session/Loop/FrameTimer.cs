@@ -22,6 +22,7 @@ internal sealed class FrameTimer : IDisposable
     private  readonly   bool              isSync;
     private             int               Period => 1000 / tickRate; // ms
     internal            int               tickRate;                  // Hz
+    private             bool              isInitialized;
     internal volatile   bool              isRunning;
 
     internal FrameTimer(TmSessionLoop loop, TmClient client, int tickRate, bool isSync)
@@ -41,7 +42,9 @@ internal sealed class FrameTimer : IDisposable
 
     internal void Stop()
     {
-        if (!isRunning) return;
+        if (!isRunning) {
+            return;
+        }
         isRunning = false;
 
         if (isSync) {
@@ -55,9 +58,12 @@ internal sealed class FrameTimer : IDisposable
         }
     }
 
-    internal void Restart()
+    internal void Start()
     {
-        if (isRunning) return;
+        if (isRunning) {
+            return;
+        }
+        InitTimer(cancellationToken);
         isRunning = true;
 
         if (isSync) {
@@ -81,10 +87,14 @@ internal sealed class FrameTimer : IDisposable
         }
     }
 
-    internal void Start(CancellationToken ct)
+    private void InitTimer(CancellationToken ct)
     {
-        cancellationToken = ct;
-        isRunning = true;
+        if (isInitialized) {
+            return;
+        }
+        isInitialized       = true;
+        cancellationToken   = ct;
+        isRunning           = true;
 
         if (isSync) {
             StartFrameTickerSync();
