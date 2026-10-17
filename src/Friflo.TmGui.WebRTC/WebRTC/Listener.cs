@@ -23,11 +23,11 @@ public sealed partial class TmSignalingListener
         this.loop = loop;
     }
         
-    public Task Start(string app, Uri uri)
+    public Task Start(Uri uri, string app, string? instance = null)
     {
         // Dedicated background thread execution equivalent to TaskCreationOptions.LongRunning
         var serverTask = Task.Factory.StartNew(
-            () => Run(app, uri),
+            () => Run(uri, app, instance),
             CancellationToken.None,
             TaskCreationOptions.LongRunning,
             TaskScheduler.Default
@@ -35,70 +35,90 @@ public sealed partial class TmSignalingListener
         return serverTask;
     }
         
-    private async Task Run(string app, Uri uri, CancellationToken cancellationToken = default)
-    {
-        using var clientWebSocket = new ClientWebSocket();
-
-        // Connect to the specified signaling server URL
-        await clientWebSocket.ConnectAsync(uri, cancellationToken);
-        
-        byte[] payload = JsonSerializer.SerializeToUtf8Bytes(new SignalMessage{ type = "register", app = app });
-
-        await clientWebSocket.SendAsync(payload, WebSocketMessageType.Text, true, cancellationToken);
-
-        // Run the receive loop using the connected websocket
-        await RunWebSocketReceiveLoopAsync(clientWebSocket, cancellationToken);
-    }
-    
-    private async Task RunWebSocketReceiveLoopAsync(WebSocket webSocket, CancellationToken cancellationToken)
+    private async Task Run(Uri uri, string app, string? instance, CancellationToken cancellationToken = default)
     {
         // Reusable buffer for incoming data chunks
-        var buffer = new byte[1024 * 4];
-        using var memoryStream = new MemoryStream();
-
         try
         {
-            while (webSocket.State == WebSocketState.Open && !cancellationToken.IsCancellationRequested)
-            {
-                memoryStream.SetLength(0); // Reset stream for each new message
-                WebSocketReceiveResult result;
+            using var clientWebSocket = new ClientWebSocket();
 
-                // Read chunks until the complete message is received (handles fragmentation)
-                do
-                {
-                    result = await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), cancellationToken);
+            // Connect to the specified signaling server URL
+            await clientWebSocket.ConnectAsync(uri, cancellationToken);
+            
+            byte[] payload = JsonSerializer.SerializeToUtf8Bytes(new SignalMessage{ type = "register", app = app, sdpOrCandidate = instance });
 
-                    if (result.MessageType == WebSocketMessageType.Close)
-                    {
-                        await webSocket.CloseAsync(
-                            WebSocketCloseStatus.NormalClosure, 
-                            "Closing by remote peer request", 
-                            CancellationToken.None);
-                        return;
-                    }
-
-                    memoryStream.Write(buffer, 0, result.Count);
-                } 
-                while (!result.EndOfMessage);
-
-                // Process the complete message payload based on its type
-                if (result.MessageType == WebSocketMessageType.Text)
-                {
-                    var messageBuffer = memoryStream.GetBuffer().AsMemory(0, (int)memoryStream.Length);
-                    
-                    // Handle incoming signaling message (e.g., SDP offer/answer or ICE candidate)
-                    await ProcessSignalingMessage(webSocket, messageBuffer);
-                }
-                else if (result.MessageType == WebSocketMessageType.Binary)
-                {
-                    // Handle binary payloads if needed
-                    // byte[] binaryData = memoryStream.ToArray();
-                }
+            await clientWebSocket.SendAsync(payload, WebSocketMessageType.Text, true, cancellationToken);
+            
+            var result = await ReadChunksAsync(clientWebSocket, cancellationToken);
+            
+            if (result.MessageType != WebSocketMessageType.Text) {
+                return;
             }
+            var messageBuffer = memoryStream.GetBuffer().AsMemory(0, (int)memoryStream.Length);
+            if (!SignalMessage.TryParse(messageBuffer.Span, out var message)) {
+                return;
+            }
+            if (message.sdpOrCandidate != "registered") {
+                return;
+            }
+            
+            // Run the receive loop using the connected websocket
+            await RunWebSocketReceiveLoopAsync(clientWebSocket, cancellationToken);
         }
         catch (WebSocketException)
         {
             // Handle unexpected drops or client disconnects gracefully
         }
     }
+    
+    private readonly    MemoryStream    memoryStream = new();
+    private readonly    byte[]          buffer = new byte[1024 * 4];
+    
+    private async Task RunWebSocketReceiveLoopAsync(WebSocket webSocket, CancellationToken cancellationToken)
+    {
+        while (webSocket.State == WebSocketState.Open && !cancellationToken.IsCancellationRequested)
+        {
+            var result = await ReadChunksAsync(webSocket, cancellationToken);
+
+            // Process the complete message payload based on its type
+            if (result.MessageType == WebSocketMessageType.Text)
+            {
+                var messageBuffer = memoryStream.GetBuffer().AsMemory(0, (int)memoryStream.Length);
+                
+                // Handle incoming signaling message (e.g., SDP offer/answer or ICE candidate)
+                await ProcessSignalingMessage(webSocket, messageBuffer);
+            }
+            else if (result.MessageType == WebSocketMessageType.Binary)
+            {
+                // Handle binary payloads if needed
+                // byte[] binaryData = memoryStream.ToArray();
+            }
+        }
+    }
+    
+    private async Task<WebSocketReceiveResult> ReadChunksAsync(WebSocket webSocket, CancellationToken cancellationToken)
+    {
+        memoryStream.SetLength(0); // Reset stream for each new message
+
+        WebSocketReceiveResult result;
+        // Read chunks until the complete message is received (handles fragmentation)
+        do
+        {
+            result = await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), cancellationToken);
+
+            if (result.MessageType == WebSocketMessageType.Close)
+            {
+                await webSocket.CloseAsync(
+                    WebSocketCloseStatus.NormalClosure, 
+                    "Closing by remote peer request", 
+                    CancellationToken.None);
+                return result;
+            }
+
+            memoryStream.Write(buffer, 0, result.Count);
+        } 
+        while (!result.EndOfMessage);
+        
+        return result;
+    }  
 }

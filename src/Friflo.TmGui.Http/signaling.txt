@@ -16,7 +16,7 @@ C# TmSignalingListener                     C# TmSignaling                  Brows
          |                                         |    app found immediately)       |
          |                                         |                                 |
          |                                         | --- 5. Send "ConnectResponse" ->|
-         |                                         |        (sdpOrCandidate: "Found")|
+         |                                         |        (sdpOrCandidate: "found")|
          |                                         |                                 |
          |                                         |                                 | (Creates Offer & Local Desc)
          |                                         | <--- 6. Send "offer" msg ------ |

@@ -69,7 +69,7 @@ internal sealed class SignalSocketHandler
             catch (Exception ex)
             {
                 // ReSharper disable once MethodHasAsyncOverload
-                Console.Error.WriteLine($"[-] WebSocket error: {ex.Message}");
+                // Console.Error.WriteLine($"[-] WebSocket error: {ex.Message}");
             }
             return;
         }

@@ -200,7 +200,7 @@ function runSignaling(app)
 
         switch (message.type) {
             case "ConnectResponse":
-                if (message.sdpOrCandidate === "Found") {
+                if (message.sdpOrCandidate === "found") {
                     console.log(`app '${app}' found. Creating WebRTC offer...`);
                     addLog(` found.\nsignaling started (${signalMsgCount}) ...`);
                     try {

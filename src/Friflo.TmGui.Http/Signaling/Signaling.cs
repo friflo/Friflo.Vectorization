@@ -51,6 +51,7 @@ public sealed class TmSignaling
 {
     public   readonly   ConcurrentDictionary<string, TmGuiApp>      guiApps = [];
     private  readonly   ConcurrentDictionary<string, SignalPeer>    clients = [];
+    private             int                                         instanceSeq;             
 
     
     public TmSignaling(TmGuiBackend backend)
@@ -67,8 +68,18 @@ public sealed class TmSignaling
         {
             case "register":
                 if (!string.IsNullOrEmpty(message.app)) {
-                    Console.WriteLine($"Register app: '{message.app}'");
-                    guiApps[message.app] = new TmGuiApp(peer, message.app, $"?app={message.app}");
+                    var instance = message.sdpOrCandidate;
+                    var app = message.app;
+                    if (instance == "auto") {
+                        instance = $"{++instanceSeq}";
+                    }
+                    var appId = instance == null ? app : $"{app}.{instance}";
+                    Console.WriteLine($"Register app: '{appId}'");
+                    guiApps[appId] = new TmGuiApp(peer, appId, $"?app={appId}");
+                    
+                    var msg = new SignalMessage("RegisterResponse", appId, peer.connection, "registered");
+                    var errorResponse = JsonSerializer.SerializeToUtf8Bytes(msg);
+                    await peer.SendAsync(errorResponse);
                 }
                 break;
                 
@@ -82,10 +93,10 @@ public sealed class TmSignaling
                             clients[peer.connection] = peer;
                             result = "Found";
                         } else {
-                            result = "Offline";
+                            result = "offline";
                         }
                     } else {
-                        result = "NotFound";
+                        result = "not-found";
                     }
                     var msg = new SignalMessage("ConnectResponse", message.app, peer.connection, result);
                     var errorResponse = JsonSerializer.SerializeToUtf8Bytes(msg);
