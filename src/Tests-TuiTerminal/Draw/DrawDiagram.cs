@@ -21,24 +21,31 @@ public class DrawDiagram
     private const uint VioletColor = 0xAA33FFFF;
     private const uint AxisColor = 0x000000FF;   // Black X-Axis
     private const uint GridColor = 0xffffffFF;
-    private const uint SweepColor = 0xa0a0a0FF;  // vertical sweep line for current time
+    private const uint SweepColor = 0x000000FF;  // Black vertical sweep line for current time
 
-    public void UpdateAndDraw(TmDraw draw, float currentTime, float canvasWidth, float canvasHeight)
+    // Updates the data buffer at 60 Hz, catching up if called intermittently
+    public void Update(float currentTime)
     {
         const float updateInterval = 1.0f / 60.0f; // 60 updates per second
-        const float timeWindow = 2.0f;      // Graph spans 2 seconds across screen (120 samples at 60 Hz)
+        const float timeWindow = 2.0f;
 
-        // Push new data point onto ring buffer at 60 Hz
-        if (currentTime - lastUpdateTime >= updateInterval)
+        // Prevent massive catch-up loops if the app was paused for a long time
+        if (currentTime - lastUpdateTime > timeWindow)
         {
-            lastUpdateTime = currentTime;
+            lastUpdateTime = currentTime - timeWindow;
+        }
+
+        // Catch up on missed updates if not called permanently
+        while (currentTime - lastUpdateTime >= updateInterval)
+        {
+            lastUpdateTime += updateInterval;
 
             int prev = (head - 1 + HistorySize) % HistorySize;
             float prevRed = redValues[prev] == 0 ? 0.5f : redValues[prev];
             float prevOrange = orangeValues[prev] == 0 ? 0.5f : orangeValues[prev];
             float prevViolet = violetValues[prev] == 0 ? 0.5f : violetValues[prev];
 
-            timestamps[head] = currentTime;
+            timestamps[head] = lastUpdateTime;
             redValues[head] = Math.Clamp(prevRed + ((float)random.NextDouble() - 0.5f) * 0.12f, 0.05f, 0.95f);
             orangeValues[head] = Math.Clamp(prevOrange + ((float)random.NextDouble() - 0.5f) * 0.12f, 0.05f, 0.95f);
             violetValues[head] = Math.Clamp(prevViolet + ((float)random.NextDouble() - 0.5f) * 0.12f, 0.05f, 0.95f);
@@ -52,6 +59,12 @@ public class DrawDiagram
                 timestamps[clearIdx] = 0;
             }
         }
+    }
+
+    // Renders the chart and the smooth sweep line
+    public void Draw(TmDraw draw, float currentTime, float canvasWidth, float canvasHeight)
+    {
+        const float timeWindow = 2.0f;      // Graph spans 2 seconds across screen
 
         float width  = canvasWidth;
         float height = canvasHeight;
@@ -98,8 +111,9 @@ public class DrawDiagram
             draw.StrokeLine(new Vector2(x1, yViolet1), new Vector2(x2, yViolet2), 2, VioletColor);
         }
 
-        // 4. Draw Current Time Sweep Line moving from left to right
-        float sweepX = MathF.Floor(((float)head / HistorySize) * width);
+        // 4. Draw Current Time Sweep Line smoothly based on frame time (currentTime)
+        float sweepProgress = (currentTime % timeWindow) / timeWindow;
+        float sweepX = MathF.Floor(sweepProgress * width);
         draw.StrokeLine(new Vector2(sweepX, plotTop), new Vector2(sweepX, plotBottom), 4, SweepColor);
     }
 }

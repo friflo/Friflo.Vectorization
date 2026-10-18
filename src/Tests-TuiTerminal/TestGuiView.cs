@@ -154,9 +154,10 @@ public class TestGuiView : IGuiView
         gui.EndHorizontal();
         
         gui.Checkbox("terminal pixels", ref appState.useTerminalPixels);
+        diagram.Update(time);
         var canvasSize = new Vector2(CanvasWidth, CanvasHeight);
+
         if (appState.useTerminalPixels) canvasSize *= gui.TerminalPixelSize;
-        
         using (var space = gui.BeginSpace(gui.ExpandToCellGrid(canvasSize), "canvas")) {
             if (appState.drawType != DrawType.None) {
                 // gui.Draw.FillRect(space.Pos, canvasSize, 0xffffffff);
@@ -305,10 +306,10 @@ public class TestGuiView : IGuiView
         }
 
         switch (appState.drawType) {
-            case DrawType.Primitives:   DrawPrimitives(draw);                                           break;
-            case DrawType.Cubes:        DrawCubes.Draw(draw,        time, CanvasWidth, CanvasHeight);   break;
-            case DrawType.Donut:        DrawDonut.Draw(draw,        time, CanvasWidth, CanvasHeight);   break;
-            case DrawType.LiveDiagram:  diagram.UpdateAndDraw(draw, time, CanvasWidth, CanvasHeight);   break;
+            case DrawType.Primitives:   DrawPrimitives(draw);                                    break;
+            case DrawType.Cubes:        DrawCubes.Draw(draw, time, CanvasWidth, CanvasHeight);   break;
+            case DrawType.Donut:        DrawDonut.Draw(draw, time, CanvasWidth, CanvasHeight);   break;
+            case DrawType.LiveDiagram:  diagram.Draw  (draw, time, CanvasWidth, CanvasHeight);   break;
         }
         if (appState.textureScissor) draw.PopScissor();
     }
