@@ -84,7 +84,7 @@ public class TestGuiView : IGuiView
     {
         gui.Button("hello TUI 💻 🙂", Dim.Fill_X(0, Fit.Content), color: textColors);
         if (gui.Button("web client")) {
-            gui.Action.OpenUrl($"https://localhost:8081/?app={client.AppId}");
+            gui.Action.OpenUrl($"https://localhost:8081/?app={client.AppId}", client.AppId);
         }
         if (gui.Checkbox("fullScreen", ref fullScreen)) {
             client.SetAppDirty();
