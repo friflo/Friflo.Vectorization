@@ -60,6 +60,11 @@ export function updateInfo(info) {
     }
 }
 
+function hideInfoOverlay() {
+    if (infoOverlay) infoOverlay.style.display = "none";
+}          
+
+
 
 // ----------------------------------- WebSocket -----------------------------------
 
@@ -96,7 +101,7 @@ export function initWebSocket()
     ws.onmessage = (event) => {
         if (!receivedInitialFrame && event.data instanceof ArrayBuffer) {
             receivedInitialFrame = true;
-            if (infoOverlay) infoOverlay.style.display = "none";
+            hideInfoOverlay();
             hideLogWindow()
         }
         processMessage(event.data);
@@ -184,7 +189,7 @@ function runSignaling(app)
         if (e.data instanceof ArrayBuffer) {
             if (!receivedInitialFrame) {                
                 receivedInitialFrame = true;
-                if (infoOverlay) infoOverlay.style.display = "none";
+                hideInfoOverlay();
                 hideLogWindow();
             }
             try {
