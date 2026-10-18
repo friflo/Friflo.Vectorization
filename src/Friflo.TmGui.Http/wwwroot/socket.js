@@ -109,7 +109,7 @@ export function initWebSocket()
 }
 
 // ------------------------------------ WebRTC ------------------------------------
-const availableApps = '<br><a href="/" style="text-decoration: underline;">available apps</a>';
+const availableApps = '<br><a href="/" style="text-decoration: none;">available apps</a>';
 let app = null;
 
 export function setWindowTitle(title) {
