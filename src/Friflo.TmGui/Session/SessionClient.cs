@@ -75,11 +75,23 @@ public sealed class SessionClient
         sessionId       = session.sessionId;
     }
     
+    /// <summary>
+    /// Triggers <see cref="IGuiView.RenderGui"/> for all clients of the app.
+    /// </summary>
+    /// <remarks>
+    /// Applies to native GUI window, console TUI, browser clients, and terminal emulators.
+    /// </remarks>
     public void SetAppDirty()
     {
         loop.SetAppDirty();
     }
     
+    /// <summary>
+    /// Triggers <see cref="IGuiView.RenderGui"/> for all clients of a specific session.
+    /// </summary>
+    /// <remarks>
+    /// Applies to native GUI window, console TUI, browser clients, and terminal emulators.
+    /// </remarks>
     public void SetDirty()
     {
         loop.SetSessionDirty(sessionId);
