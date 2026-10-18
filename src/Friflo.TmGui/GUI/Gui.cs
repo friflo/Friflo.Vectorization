@@ -21,16 +21,16 @@ public static class HorizontalAlignment  // move const values to UI class
 
 public readonly ref struct Gui
 {
-    public readonly     GuiWidget   widget;     // 32 bytes
+    public readonly     GuiWidget       widget;     // 32 bytes
     
-    public ref readonly GuiColors   Colors              { [Hide] get => ref widget.Colors;                      }
-    public ref readonly GuiSizes    Sizes               { [Hide] get => ref widget.Sizes;                       }
-    public              TmDraw      Draw                { [Hide] get => widget.draw;                            }
-    public              float       LineHeight          { [Hide] get => widget.draw.Font.lineHeight;            }
-    public              GuiInput    Input               { [Hide] get => widget.input;                           }
-    public              Vector2     TerminalPixelSize   { [Hide] get => widget.draw.batch.terminalPixelSize;    }
-    public              TmBatch     Batch               { [Hide] get => widget.draw.batch;                      }
-    public              TmAction    Action              { [Hide] get => new(widget.draw.batch);                 }
+    public ref readonly GuiColors       Colors              { [Hide] get => ref widget.Colors;                      }
+    public ref readonly GuiSizes        Sizes               { [Hide] get => ref widget.Sizes;                       }
+    public              TmDraw          Draw                { [Hide] get => widget.draw;                            }
+    public              float           LineHeight          { [Hide] get => widget.draw.Font.lineHeight;            }
+    public              GuiInput        Input               { [Hide] get => widget.input;                           }
+    public              Vector2         TerminalPixelSize   { [Hide] get => widget.draw.batch.terminalPixelSize;    }
+    public              TmBatch         Batch               { [Hide] get => widget.draw.batch;                      }
+    public              TmClientAction  Action              { [Hide] get => new(widget.draw.batch);                 }
     
 
     /// <summary>

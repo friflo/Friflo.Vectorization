@@ -42,14 +42,14 @@ internal struct ZIndex
 
 public readonly ref partial struct TmDraw
 {
-    internal readonly   TmBatch     batch;  //  8 bytes
+    internal readonly   TmBatch         batch;  //  8 bytes
 
-    public              TmFont      Font        => batch.currentFont;
-    public              TuiBatch?   Tui         => batch.tui;
-    public              TmBatch     Batch       => batch;
-    public              TmAction    Action      { [Hide] get => new(batch);  }
+    public              TmFont          Font        => batch.currentFont;
+    public              TuiBatch?       Tui         => batch.tui;
+    public              TmBatch         Batch       => batch;
+    public              TmClientAction  Action      { [Hide] get => new(batch);  }
     
-    public override     string?     ToString()  => batch.ToString();
+    public override     string?         ToString()  => batch.ToString();
     
     internal TmDraw(TmBatch batch)
     {

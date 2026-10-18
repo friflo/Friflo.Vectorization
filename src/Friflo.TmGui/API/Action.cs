@@ -14,11 +14,11 @@ public enum TmDisplayMode
     Fullscreen,
 }
 
-public readonly ref struct TmAction : IClientAction
+public readonly ref struct TmClientAction : IClientAction
 {
     private readonly    TmBatch batch;  //  8 bytes 
     
-    internal TmAction(TmBatch batch)
+    internal TmClientAction(TmBatch batch)
     {
         this.batch = batch;
     }
