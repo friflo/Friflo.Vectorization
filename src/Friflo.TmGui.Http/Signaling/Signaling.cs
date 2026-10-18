@@ -64,7 +64,7 @@ public sealed class TmSignaling
     
     internal void SetDirty()
     {
-        loop?.SetAllSessionsDirty();
+        loop?.SetAppDirty();
     }
     
     internal async Task ProcessMessageAsync(TmSignalPeer peer, ReadOnlyMemory<byte> buffer)

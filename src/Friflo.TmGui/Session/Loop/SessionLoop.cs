@@ -12,6 +12,7 @@ using Friflo.TmGui.Headless;
 using Friflo.TmGui.TUI;
 using Friflo.TmGui.TUI.Session;
 
+// ReSharper disable InlineTemporaryVariable
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable ConvertConstructorToMemberInitializers
 // ReSharper disable CheckNamespace
@@ -163,17 +164,16 @@ public sealed partial class TmSessionLoop : IDisposable
     
     private TuiSession CreateTuiSession(ClientEvent evt, bool isSync, out Memory<byte> firstPayload)
     {
-        var payload     = evt.Payload;
-        var firstLine   = payload.Span.IndexOf((byte)'\n');
-        var client      = evt.Client;
-        var args        = firstLine == -1 ? [] : GetArgs(payload.Span.Slice(0, firstLine));
+        var payload         = evt.Payload;
+        var firstLine       = payload.Span.IndexOf((byte)'\n');
+        var client          = evt.Client;
+        var args            = firstLine == -1 ? [] : GetArgs(payload.Span.Slice(0, firstLine));
 
-        var frameTimer  = new FrameTimer(this, client, 60, isSync);
-        var sessionId   = new SessionId(_sessionSeq++);
-        var session     = new TuiSession(client, sessionId, this, frameTimer, TuiColorMode.RGB24);
-
-        var sessionInfo = new SessionInfo{ loop = this, sessionId = sessionId, client = client, backend = session.Backend, args = args };
-        var guiView     = createGuiView(sessionInfo);
+        var frameTimer      = new FrameTimer(this, client, 60, isSync);
+        var sessionId       = new SessionId(_sessionSeq++);
+        var session         = new TuiSession(client, sessionId, this, frameTimer, TuiColorMode.RGB24);
+        var sessionClient   = new SessionClient(this, session, args, client, session.Backend);
+        var guiView         = createGuiView(sessionClient);
         
         session.guiView = guiView;
         sessions[client]= session;
@@ -186,12 +186,12 @@ public sealed partial class TmSessionLoop : IDisposable
     // protected virtual TmSession CreateGuiSession(TmClient client, bool isSync, out Memory<byte> firstPayload) => throw new NotImplementedException();
     private GuiSession CreateGuiSession(TmClient client, bool isSync, out Memory<byte> firstPayload)
     {
-        var frameTimer  = new FrameTimer(this, client, 60, isSync);
-        var sessionId   = new SessionId(_sessionSeq++);
-        var session     = new GuiSession(client, sessionId, this, frameTimer);
+        var frameTimer      = new FrameTimer(this, client, 60, isSync);
+        var sessionId       = new SessionId(_sessionSeq++);
+        var session         = new GuiSession(client, sessionId, this, frameTimer);
         
-        var sessionInfo = new SessionInfo{ loop = this, sessionId = sessionId, client = client, backend = session.Backend, args = [] };
-        var guiView     = createGuiView(sessionInfo);
+        var sessionClient   = new SessionClient(this, session, [], client, session.Backend);
+        var guiView         = createGuiView(sessionClient);
         
         session.guiView = guiView;
         sessions[client]= session;
@@ -215,18 +215,37 @@ public sealed partial class TmSessionLoop : IDisposable
         resources.RemoveSessionResources(session.sessionId);
     }
 
-    public void SetAllSessionsDirty()
+    public void SetAppDirty()
     {
-        sessionBuffer.Clear();
-        sessionBuffer.AddRange(sessions.Values);
+        var buffer = sessionBuffer;
+        buffer.Clear();
+        buffer.AddRange(sessions.Values);
         
-        foreach (var session in sessionBuffer) {
+        foreach (var session in buffer) {
             if (session.SetDirty()) {
                 continue;
             }
             TryEnqueueEvent(session.client, ClientEventType.FrameTick, default);
         }
-        sessionBuffer.Clear();
+        buffer.Clear();
+    }
+    
+    public void SetSessionDirty(in SessionId sessionId)
+    {
+        var buffer = sessionBuffer;
+        buffer.Clear();
+        buffer.AddRange(sessions.Values);
+        
+        foreach (var session in buffer) {
+            if (session.sessionId != sessionId) {
+                continue;
+            }
+            if (session.SetDirty()) {
+                continue;
+            }
+            TryEnqueueEvent(session.client, ClientEventType.FrameTick, default);
+        }
+        buffer.Clear();
     }
 }
 

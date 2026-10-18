@@ -4,7 +4,6 @@ using System.Runtime.InteropServices;
 using System.Text;
 using Friflo.TmGui;
 using Friflo.TmGui.Headless;
-using Friflo.TmGui.Session;
 using Friflo.TmGui.TUI;
 using TuiTerminal.Draw;
 
@@ -15,9 +14,8 @@ namespace TuiTerminal;
 /// <summary> Each session has its own <see cref="IGuiView"/> instance. </summary>
 public class TestGuiView : IGuiView
 {
-    private readonly    TmSessionLoop   loop;
+    private readonly    SessionClient   client;
     private readonly    AppState        appState;
-    private readonly    SessionId       sessionId;
     private readonly    Color32[]       textColors = [0x0000FFFF, 0xFF0000FF, 0x009900FF, 0xFF00FFFF, 0xCC6600FF, 0x000000ff];
     private readonly    TmTexture       myTexture;      // texture available only for this session
     private readonly    TmTexture       canvasTexture;  // canvas only required for TUI. GUI draws to GPU surface
@@ -35,16 +33,15 @@ public class TestGuiView : IGuiView
     private const int CanvasWidth   = 800;
     private const int CanvasHeight  = 500;
     
-    public TestGuiView(AppState appState, SessionInfo info)
+    public TestGuiView(AppState appState, SessionClient client)
     {
-        loop                = info.loop;
+        this.client         = client;
         this.appState       = appState;
-        sessionId           = info.sessionId;
         using var stream    = typeof(TestGuiView).Assembly.GetManifestResourceStream("TuiTerminal.Assets.sixel_test.png")!;
-        var backend     = info.backend;
-        myTexture       = backend.LoadTexture(stream, "sixel_test.png");
-        var tui         = backend as CpuBackend;
-        canvasTexture   = tui?.CreateTexture("canvas", CanvasWidth, CanvasHeight, new byte[CanvasWidth * CanvasHeight * 4]) ?? default;
+        var backend         = client.backend;
+        myTexture           = backend.LoadTexture(stream, "sixel_test.png");
+        var tui             = backend as CpuBackend;
+        canvasTexture       = tui?.CreateTexture("canvas", CanvasWidth, CanvasHeight, new byte[CanvasWidth * CanvasHeight * 4]) ?? default;
     }
     
     static class Static { internal static void Noop() { } }
@@ -87,10 +84,10 @@ public class TestGuiView : IGuiView
     {
         gui.Button("hello TUI 💻 🙂", Dim.Fill_X(0, Fit.Content), color: textColors);
         if (gui.Button("web app")) {
-            gui.Action.OpenUrl($"https://localhost:8081/?app={loop.app}");
+            gui.Action.OpenUrl($"https://localhost:8081/?app={client.App}");
         }
         if (gui.Checkbox("fullScreen", ref fullScreen)) {
-            gui.SetDirty();
+            client.SetAppDirty();
             gui.Action.SetDisplayMode(fullScreen ? TmDisplayMode.Fullscreen : TmDisplayMode.Windowed);
         }
         gui.Spacer();
@@ -132,19 +129,19 @@ public class TestGuiView : IGuiView
             if (gui.Checkbox("live",        ref live)       && live)        drawType = DrawType.LiveDiagram;
             gui.Spacer();
             if (gui.Checkbox("none",        ref none)       && none)        drawType = DrawType.None;
-            if (drawType != currentType) gui.SetDirty();
+            if (drawType != currentType) client.SetAppDirty();
         }
         
         var batch = gui.Batch;
         var animate = batch.TickEnabled;
         if (gui.Checkbox("animate", ref animate)) {
             batch.TickEnabled = animate;
-            gui.SetDirty();
+            client.SetAppDirty();
         }
         gui.Checkbox("texture scissor", ref appState.textureScissor);
         gui.Checkbox("rotate texture", ref appState.rotateTexture);
         gui.Spacer();
-        if (gui.Slider("Speed", ref appState.speed, 0f, 1f, 300)) gui.SetDirty();
+        if (gui.Slider("Speed", ref appState.speed, 0f, 1f, 300)) client.SetAppDirty();
         gui.Spacer();
         
         gui.BeginHorizontal();
@@ -249,11 +246,11 @@ public class TestGuiView : IGuiView
                 for (int n = 0; n < 100_000; n++) {
                     buttons.Add($"Added {buttons.Count}");
                 }
-                gui.SetDirty();
+                client.SetAppDirty();
             }
             if (gui.Button("Clear")) {
                 appState.scrollAreaButtons.Clear();
-                gui.SetDirty();
+                client.SetAppDirty();
             }
         }
         var scrollArea = gui.BeginScrollArea(3, Dim.Fill(0, 60));

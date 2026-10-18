@@ -14,7 +14,7 @@ public class SignalingView : IGuiView
     private readonly    List<TmGuiApp>      apps    = [];
     private readonly    List<TmSignalPeer>  clients = [];
     
-    public SignalingView(TmSignaling signaling, SessionInfo info)
+    public SignalingView(TmSignaling signaling, SessionClient client)
     {
         this.signaling = signaling;
     }
