@@ -21,14 +21,14 @@ public class DrawDiagram
     private const uint VioletColor = 0xAA33FFFF;
     private const uint AxisColor = 0x000000FF;   // Black X-Axis
     private const uint GridColor = 0xffffffFF;
+    private const uint SweepColor = 0xa0a0a0FF;  // vertical sweep line for current time
 
     public void UpdateAndDraw(TmDraw draw, float currentTime, float canvasWidth, float canvasHeight)
     {
-        const float updateInterval = 0.05f; // 20 updates per second
-        const float timeWindow = 6.0f;      // Graph spans 6 seconds across screen
-        var scrollSpeed = canvasWidth / timeWindow;
+        const float updateInterval = 1.0f / 60.0f; // 60 updates per second
+        const float timeWindow = 2.0f;      // Graph spans 2 seconds across screen (120 samples at 60 Hz)
 
-        // Push new data point onto ring buffer
+        // Push new data point onto ring buffer at 60 Hz
         if (currentTime - lastUpdateTime >= updateInterval)
         {
             lastUpdateTime = currentTime;
@@ -44,6 +44,13 @@ public class DrawDiagram
             violetValues[head] = Math.Clamp(prevViolet + ((float)random.NextDouble() - 0.5f) * 0.12f, 0.05f, 0.95f);
 
             head = (head + 1) % HistorySize;
+
+            // Clear a small clearing zone ahead of the write head to prevent connecting to old sweep data
+            for (int c = 0; c < 4; c++)
+            {
+                int clearIdx = (head + c) % HistorySize;
+                timestamps[clearIdx] = 0;
+            }
         }
 
         float width  = canvasWidth;
@@ -53,30 +60,27 @@ public class DrawDiagram
         float plotBottom = height - 20.0f;
         float plotHeight = plotBottom - plotTop;
 
-        // 1. Draw Darker Gray Y-Axis Grid Lines (3 pixels wide) Scrolling Synchronously with Time
-        float gridSpacing = 120.0f;
-        float scrollOffset = (currentTime * scrollSpeed) % gridSpacing;
-
-        for (float x = width - scrollOffset; x >= 0; x -= gridSpacing)
+        // 1. Draw Static Vertical Grid Lines across the time window
+        int gridDivisions = 4;
+        for (int g = 1; g < gridDivisions; g++)
         {
-            draw.StrokeLine(new Vector2(x, plotTop), new Vector2(MathF.Floor(x), plotBottom), 4, GridColor);
+            float gx = (g / (float)gridDivisions) * width;
+            draw.StrokeLine(new Vector2(gx, plotTop), new Vector2(MathF.Floor(gx), plotBottom), 1, GridColor);
         }
 
         // 2. Draw Black X-Axis Line at Bottom
         draw.StrokeLine(new Vector2(0, plotBottom), new Vector2(width, plotBottom), 3, AxisColor);
 
-        // 3. Render Graph Lines Continuously Gliding using 'currentTime'
+        // 3. Render Cyclic Sweep Graph Lines mapped to fixed buffer indices
         for (int i = 0; i < HistorySize - 1; i++)
         {
-            int idx1 = (head - HistorySize + i + HistorySize) % HistorySize;
-            int idx2 = (head - HistorySize + i + 1 + HistorySize) % HistorySize;
+            int idx1 = i;
+            int idx2 = i + 1;
 
             if (timestamps[idx1] == 0 || timestamps[idx2] == 0) continue;
 
-            float x1 = MathF.Floor(width - (currentTime - timestamps[idx1]) * scrollSpeed);
-            float x2 = MathF.Floor(width - (currentTime - timestamps[idx2]) * scrollSpeed);
-
-            if (x2 < 0 || x1 > width) continue;
+            float x1 = MathF.Floor(((float)idx1 / HistorySize) * width);
+            float x2 = MathF.Floor(((float)idx2 / HistorySize) * width);
 
             // Red Line
             float yRed1 = plotBottom - (redValues[idx1] * plotHeight);
@@ -93,5 +97,9 @@ public class DrawDiagram
             float yViolet2 = plotBottom - (violetValues[idx2] * plotHeight);
             draw.StrokeLine(new Vector2(x1, yViolet1), new Vector2(x2, yViolet2), 2, VioletColor);
         }
+
+        // 4. Draw Current Time Sweep Line moving from left to right
+        float sweepX = MathF.Floor(((float)head / HistorySize) * width);
+        draw.StrokeLine(new Vector2(sweepX, plotTop), new Vector2(sweepX, plotBottom), 4, SweepColor);
     }
 }
