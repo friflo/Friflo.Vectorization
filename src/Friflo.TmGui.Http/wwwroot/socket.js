@@ -32,13 +32,42 @@ export const socket = {
     }
 }
 
+// ----------------------------------- overlays ------------------------------------
+const logWindow = document.getElementById("log-window");
+
+/** @param {string} info
+ * @param {boolean} showLog */
+export function addLog(info, showLog = true) {
+    if (logWindow) {
+        logWindow.textContent = logWindow.textContent + info;
+        logWindow.scrollTop = logWindow.scrollHeight;
+        if (showLog) logWindow.style.display = "block";
+    }
+}
+
+function hideLogWindow() {
+    if (logWindow)   logWindow.style.display = "none";
+}
+
+
+const infoOverlay = document.getElementById("info-overlay");
+
+/** @param {string} info */
+export function updateInfo(info) {
+    if (infoOverlay) {
+        infoOverlay.innerHTML = info;
+        infoOverlay.style.display = "flex";
+    }
+}
+
+
 // ----------------------------------- WebSocket -----------------------------------
 
 // Send initial canvas resolution to C# backend immediately after WebSocket handshake
 export function initWebSocket()
 {
     let receivedInitialFrame = false;
-    addLog(` finished.\nconnecting ...`);
+    addLog(`connecting ...`);
     
     const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
     const wsUrl = `${wsProtocol}//${window.location.host}/ws`;
@@ -68,7 +97,7 @@ export function initWebSocket()
         if (!receivedInitialFrame && event.data instanceof ArrayBuffer) {
             receivedInitialFrame = true;
             if (infoOverlay) infoOverlay.style.display = "none";
-            if (logWindow)   logWindow.style.display = "none";   
+            hideLogWindow()
         }
         processMessage(event.data);
     };
@@ -92,28 +121,6 @@ export function initWebRTC(appName)
     dataChannel = runSignaling(appName)
 }
 
-const logWindow = document.getElementById("log-window");
-
-/** @param {string} info
- * @param {boolean} showLog */
-function addLog(info, showLog = true) {
-    if (logWindow) {
-        logWindow.textContent = logWindow.textContent + info;
-        logWindow.scrollTop = logWindow.scrollHeight;
-        if (showLog) logWindow.style.display = "block";
-    }
-}
-
-const infoOverlay = document.getElementById("info-overlay");
-
-/** @param {string} info */
-function updateInfo(info) {
-    if (infoOverlay) {
-        infoOverlay.innerHTML = info;
-        infoOverlay.style.display = "flex";
-    }
-}
-
 /**
  * @param {string} app
  * @returns {RTCDataChannel}
@@ -121,7 +128,7 @@ function updateInfo(info) {
 function runSignaling(app)
 {
     let receivedInitialFrame = false;
-    addLog(` finished.\nstart app: '${app}'\nsearching app ...`);
+    addLog(`app '${app}'\napp lookup ...`);
                     
     const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
     const signalingUrl = `${wsProtocol}//${window.location.host}/signaling`;
@@ -178,7 +185,7 @@ function runSignaling(app)
             if (!receivedInitialFrame) {                
                 receivedInitialFrame = true;
                 if (infoOverlay) infoOverlay.style.display = "none";
-                if (logWindow)   logWindow.style.display = "none";                
+                hideLogWindow();
             }
             try {
                 const rawData = await decompressMessage(e.data);

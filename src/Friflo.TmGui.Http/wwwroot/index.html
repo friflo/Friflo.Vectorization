@@ -69,7 +69,7 @@
 <body>
     <canvas id="gpu-canvas"></canvas>
 
-    <div id="log-window">log initialized.&#10;loading ...</div>
+    <div id="log-window">log initialized.&#10;</div>
 
     <!-- Error overlay element shown when app is not found -->
     <div style="display:flex;" id="info-overlay">TmGui&#10;starting ...</div>
@@ -83,7 +83,8 @@
             infoOverlay.textContent = `${app}\nconnecting ...`;
         }
     </script>
-    <!-- Load the renderer script as a module -->
+    <link rel="modulepreload" href="socket.js">
+    <link rel="modulepreload" href="app-events.js">
     <script type="module" src="app.js"></script>
 </body>
 </html>

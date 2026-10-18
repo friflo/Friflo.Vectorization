@@ -7,7 +7,7 @@ import {
     masterVertices,
     invokeAction,
 } from './app-events.js';
-import { initWebSocket, initWebRTC } from "./socket.js";
+import {initWebSocket, initWebRTC, addLog, updateInfo} from "./socket.js";
 
 
 // Check WebGPU availability in current browser environment
@@ -55,6 +55,8 @@ const SIZEOF_MATRIX = 64;
 async function initWebGPU() {
     const adapter = await navigator.gpu.requestAdapter();
     if (!adapter) {
+        addLog("WebGPU not available.\n");
+        updateInfo("WebGPU not available");
         console.error("Failed to acquire WebGPU adapter.");
         return false;
     }
@@ -209,7 +211,7 @@ async function initWebGPU() {
             { binding: 2, resource: dummySampler }
         ]
     });
-
+    addLog("WebGPU initialized.\n");
     console.log("[+] WebGPU device, Buffers, Uniforms, and BindGroup initialized successfully.");
     return true;
 }
@@ -638,6 +640,7 @@ function ensureTextureLoaded(textureId, name) {
 
 // Startup sequence
 async function start() {
+    addLog(`page loaded.\n`);
     // Register event listeners for resize, mouse, and keyboard inputs
     initGuiEventListeners(canvas);
 
