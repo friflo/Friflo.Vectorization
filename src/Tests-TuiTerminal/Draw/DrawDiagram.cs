@@ -12,7 +12,6 @@ public class DrawDiagram
     private readonly float[] timestamps = new float[HistorySize];
 
     private int head;
-    private readonly Random random = new();
     private float lastUpdateTime;
 
     // Colors (RGBA packed)
@@ -23,7 +22,7 @@ public class DrawDiagram
     private const uint GridColor = 0xffffffFF;
     private const uint SweepColor = 0x000000FF;  // Black vertical sweep line for current time
 
-    // Updates the data buffer at 60 Hz, catching up if called intermittently
+    // Updates the data buffer at 60 Hz with more dynamic, rich wave variations
     public void Update(float currentTime)
     {
         const float updateInterval = 1.0f / 60.0f; // 60 updates per second
@@ -40,15 +39,16 @@ public class DrawDiagram
         {
             lastUpdateTime += updateInterval;
 
-            int prev = (head - 1 + HistorySize) % HistorySize;
-            float prevRed = redValues[prev] == 0 ? 0.5f : redValues[prev];
-            float prevOrange = orangeValues[prev] == 0 ? 0.5f : orangeValues[prev];
-            float prevViolet = violetValues[prev] == 0 ? 0.5f : violetValues[prev];
+            // Generate dynamic, multi-frequency smooth curves for more variations
+            float t = lastUpdateTime;
+            float red = 0.5f + 0.22f * MathF.Sin(t * 3.5f) + 0.15f * MathF.Cos(t * 7.1f) + 0.08f * MathF.Sin(t * 12.4f);
+            float orange = 0.5f + 0.22f * MathF.Cos(t * 2.8f) + 0.15f * MathF.Sin(t * 6.3f) + 0.08f * MathF.Cos(t * 10.1f);
+            float violet = 0.5f + 0.22f * MathF.Sin(t * 4.1f + 1.0f) + 0.15f * MathF.Cos(t * 8.5f) + 0.08f * MathF.Sin(t * 14.2f);
 
             timestamps[head] = lastUpdateTime;
-            redValues[head] = Math.Clamp(prevRed + ((float)random.NextDouble() - 0.5f) * 0.12f, 0.05f, 0.95f);
-            orangeValues[head] = Math.Clamp(prevOrange + ((float)random.NextDouble() - 0.5f) * 0.12f, 0.05f, 0.95f);
-            violetValues[head] = Math.Clamp(prevViolet + ((float)random.NextDouble() - 0.5f) * 0.12f, 0.05f, 0.95f);
+            redValues[head] = Math.Clamp(red, 0.05f, 0.95f);
+            orangeValues[head] = Math.Clamp(orange, 0.05f, 0.95f);
+            violetValues[head] = Math.Clamp(violet, 0.05f, 0.95f);
 
             head = (head + 1) % HistorySize;
 
