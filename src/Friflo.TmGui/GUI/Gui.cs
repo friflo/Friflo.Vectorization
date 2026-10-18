@@ -99,4 +99,7 @@ public readonly ref struct Gui
     
     
     public void             SetNextDefaultFocus() => widget.SetNextDefaultFocus();
+
+    public void             SetDirty() => widget.draw.batch.session?.SetDirty();
+
 }

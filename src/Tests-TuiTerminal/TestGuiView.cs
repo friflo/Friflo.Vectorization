@@ -90,6 +90,7 @@ public class TestGuiView : IGuiView
             gui.Action.OpenUrl($"https://localhost:8081/?app={loop.app}");
         }
         if (gui.Checkbox("fullScreen", ref fullScreen)) {
+            gui.SetDirty();
             gui.Action.SetDisplayMode(fullScreen ? TmDisplayMode.Fullscreen : TmDisplayMode.Windowed);
         }
         gui.Spacer();
@@ -115,6 +116,7 @@ public class TestGuiView : IGuiView
         
         using (gui.BeginHorizontal()) {
             ref var drawType = ref appState.drawType;
+            var currentType = drawType;
             var primitives  = drawType == DrawType.Primitives;
             var cubes       = drawType == DrawType.Cubes;
             var donut       = drawType == DrawType.Donut;
@@ -130,26 +132,28 @@ public class TestGuiView : IGuiView
             if (gui.Checkbox("live",        ref live)       && live)        drawType = DrawType.LiveDiagram;
             gui.Spacer();
             if (gui.Checkbox("none",        ref none)       && none)        drawType = DrawType.None;
+            if (drawType != currentType) gui.SetDirty();
         }
         
         var batch = gui.Batch;
         var animate = batch.TickEnabled;
         if (gui.Checkbox("animate", ref animate)) {
             batch.TickEnabled = animate;
+            gui.SetDirty();
         }
         gui.Checkbox("texture scissor", ref appState.textureScissor);
         gui.Checkbox("rotate texture", ref appState.rotateTexture);
         gui.Spacer();
-        if (gui.Slider("Volume", ref appState.speed, 0f, 1f, 300)) { Debug.WriteLine($"Volume: changed"); }
+        if (gui.Slider("Speed", ref appState.speed, 0f, 1f, 300)) gui.SetDirty();
         gui.Spacer();
         
         gui.BeginHorizontal();
             gui.SetNextDefaultFocus();
-            if (gui.Button("First"))                            Debug.WriteLine("Clicked: First");
+            gui.Button("First");
             gui.Spacer(10);
-            if (gui.Button("Second"))                           Debug.WriteLine("Clicked: Second");
+            gui.Button("Second");
             gui.Spacer(10);
-            if (gui.Button("Red", style: redButtonStyle))       Debug.WriteLine("Clicked: Red");
+            gui.Button("Red", style: redButtonStyle);
         gui.EndHorizontal();
         
         gui.Checkbox("terminal pixels", ref appState.useTerminalPixels);
@@ -245,9 +249,11 @@ public class TestGuiView : IGuiView
                 for (int n = 0; n < 100_000; n++) {
                     buttons.Add($"Added {buttons.Count}");
                 }
+                gui.SetDirty();
             }
             if (gui.Button("Clear")) {
                 appState.scrollAreaButtons.Clear();
+                gui.SetDirty();
             }
         }
         var scrollArea = gui.BeginScrollArea(3, Dim.Fill(0, 60));

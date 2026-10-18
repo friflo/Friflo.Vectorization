@@ -221,10 +221,9 @@ public sealed partial class TmSessionLoop : IDisposable
         sessionBuffer.AddRange(sessions.Values);
         
         foreach (var session in sessionBuffer) {
-            if (session.isDirty) {
+            if (session.SetDirty()) {
                 continue;
             }
-            session.isDirty = true;
             TryEnqueueEvent(session.client, ClientEventType.FrameTick, default);
         }
         sessionBuffer.Clear();

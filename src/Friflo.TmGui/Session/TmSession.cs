@@ -15,7 +15,7 @@ internal abstract class TmSession
     protected internal          IGuiView?       guiView;
     internal  readonly          TmClient        client;
     internal  readonly          SessionId       sessionId;
-    internal  volatile          bool            isDirty;
+    protected volatile          bool            isDirty;
     public    override          string          ToString()          => $"session: {sessionId}";
     
     protected internal abstract TmGuiBackend    Backend             { get; }
@@ -29,6 +29,15 @@ internal abstract class TmSession
     internal TmSession(TmClient client, SessionId sessionId) {
         this.client     = client;
         this.sessionId  = sessionId;
+    }
+    
+    internal bool SetDirty()
+    {
+        if (isDirty) {
+            return true;
+        }
+        isDirty = false;
+        return false;
     }
 }
 
