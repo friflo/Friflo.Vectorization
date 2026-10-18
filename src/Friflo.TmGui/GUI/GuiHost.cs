@@ -9,13 +9,13 @@ using System.Numerics;
 // ReSharper disable once CheckNamespace
 namespace Friflo.TmGui;
 
-internal sealed class GuiHost : IHostAction
+internal sealed class GuiHost : IClientAction
 {
     internal readonly   GuiInput                        input;
     internal readonly   Dictionary<string, GuiWindow>   windows     = new();
     internal readonly   List<GuiWindow>                 windowOrder = [];
     private             GuiWindow?                      topWindow;
-    internal            IHostAction                     hostAction;
+    internal            IClientAction                   clientAction;
 
     internal            GuiWindow?                      TopWindow   => topWindow;
 
@@ -23,7 +23,7 @@ internal sealed class GuiHost : IHostAction
 
     internal GuiHost(GuiInput input) {
         this.input = input;
-        hostAction = this;
+        clientAction = this;
     }
  
     internal void Dispose()

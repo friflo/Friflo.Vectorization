@@ -19,7 +19,7 @@ using Friflo.TmGui.Session;
 // ReSharper disable ConvertToPrimaryConstructor
 namespace Friflo.TmGui.TUI;
 
-public sealed partial class TuiBatch : TmBatch, IHostAction
+public sealed partial class TuiBatch : TmBatch, IClientAction
 {
     private readonly    string                  batchName;
     public              TuiFocusBorder          focusBorder;
@@ -361,7 +361,7 @@ public sealed partial class TuiBatch : TmBatch, IHostAction
         DrawRectCommandsInternal(targetWidth, cells);
     }
     
-    // --- IHostAction
+    // --- IClientAction
     public void SetWindowTitle(ReadOnlySpan<char> title)
     {
         var sb = StringBuilder();

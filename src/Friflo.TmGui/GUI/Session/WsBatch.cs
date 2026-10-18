@@ -9,7 +9,7 @@ using System;
 namespace Friflo.TmGui.Session;
 
 
-internal class WsBatch : TmBatch, IHostAction
+internal class WsBatch : TmBatch, IClientAction
 {
     internal WsBatch(TmGuiBackend backend, int maxVertices) : base(backend, maxVertices)
     {
@@ -22,7 +22,7 @@ internal class WsBatch : TmBatch, IHostAction
         EndBatch();
     }
     
-    // --- IHostAction
+    // --- IClientAction
     public bool OpenUrl(ReadOnlySpan<char> url, ReadOnlySpan<char> target)
     {
         var urlStr = url.ToString();

@@ -93,7 +93,7 @@ public abstract class TmBatch : IDisposable
 
     // --- resources owned by DrawModule
     internal readonly   GuiHost             host;
-    internal            IHostAction         HostAction => host.hostAction;
+    internal            IClientAction       ClientAction => host.clientAction;
     internal readonly   GuiInput            input;
     internal readonly   TmFont              backendDefaultFont;
     internal readonly   TuiBatch?           tui;
