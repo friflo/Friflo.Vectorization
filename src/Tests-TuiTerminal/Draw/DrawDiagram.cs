@@ -20,9 +20,8 @@ public class DrawDiagram
     private const uint VioletColor = 0xAA33FFFF;
     private const uint AxisColor = 0x000000FF;   // Black X-Axis
     private const uint GridColor = 0xffffffFF;
-    private const uint SweepColor = 0x000000FF;  // Black vertical sweep line for current time
 
-    // Updates the data buffer at 60 Hz with more dynamic, rich wave variations
+    // Updates the data buffer at 60 Hz with smooth wave variations
     public void Update(float currentTime)
     {
         const float updateInterval = 1.0f / 60.0f; // 60 updates per second
@@ -53,7 +52,7 @@ public class DrawDiagram
             head = (head + 1) % HistorySize;
 
             // Clear a small clearing zone ahead of the write head to prevent connecting to old sweep data
-            for (int c = 0; c < 4; c++)
+            for (int c = 0; c < 6; c++)
             {
                 int clearIdx = (head + c) % HistorySize;
                 timestamps[clearIdx] = 0;
@@ -61,7 +60,7 @@ public class DrawDiagram
         }
     }
 
-    // Renders the chart and the smooth sweep line
+    // Renders the chart and smooth marker circles without lingering old data artifacts
     public void Draw(TmDraw draw, float currentTime, float canvasWidth, float canvasHeight)
     {
         const float timeWindow = 2.0f;      // Graph spans 2 seconds across screen
@@ -84,13 +83,18 @@ public class DrawDiagram
         // 2. Draw Black X-Axis Line at Bottom
         draw.StrokeLine(new Vector2(0, plotBottom), new Vector2(width, plotBottom), 3, AxisColor);
 
-        // 3. Render Cyclic Sweep Graph Lines mapped to fixed buffer indices
+        // 3. Render Cyclic Sweep Graph Lines (only valid, non-stale points within current time window)
         for (int i = 0; i < HistorySize - 1; i++)
         {
             int idx1 = i;
             int idx2 = i + 1;
 
             if (timestamps[idx1] == 0 || timestamps[idx2] == 0) continue;
+
+            // Ensure points belong to the current active time sweep window and are contiguous
+            if (currentTime - timestamps[idx1] > timeWindow || currentTime - timestamps[idx2] > timeWindow) continue;
+            if (timestamps[idx1] > currentTime || timestamps[idx2] > currentTime) continue;
+            if (MathF.Abs(timestamps[idx2] - timestamps[idx1]) > 0.1f) continue;
 
             float x1 = MathF.Floor(((float)idx1 / HistorySize) * width);
             float x2 = MathF.Floor(((float)idx2 / HistorySize) * width);
@@ -111,9 +115,20 @@ public class DrawDiagram
             draw.StrokeLine(new Vector2(x1, yViolet1), new Vector2(x2, yViolet2), 2, VioletColor);
         }
 
-        // 4. Draw Current Time Sweep Line smoothly based on frame time (currentTime)
+        // 4. Draw smooth marker circles (radius 5.0f) at the exact smooth frame-time position
         float sweepProgress = (currentTime % timeWindow) / timeWindow;
         float sweepX = MathF.Floor(sweepProgress * width);
-        draw.StrokeLine(new Vector2(sweepX, plotTop), new Vector2(sweepX, plotBottom), 4, SweepColor);
+        int currentIdx = (head - 1 + HistorySize) % HistorySize;
+
+        if (timestamps[currentIdx] != 0 && (currentTime - timestamps[currentIdx] <= timeWindow))
+        {
+            float yRed = plotBottom - (redValues[currentIdx] * plotHeight);
+            float yOrange = plotBottom - (orangeValues[currentIdx] * plotHeight);
+            float yViolet = plotBottom - (violetValues[currentIdx] * plotHeight);
+
+            draw.FillCircle(new Vector2(sweepX, yRed), 5.0f, RedColor);
+            draw.FillCircle(new Vector2(sweepX, yOrange), 5.0f, OrangeColor);
+            draw.FillCircle(new Vector2(sweepX, yViolet), 5.0f, VioletColor);
+        }
     }
 }
