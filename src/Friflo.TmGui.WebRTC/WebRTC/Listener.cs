@@ -61,7 +61,7 @@ public sealed partial class TmSignalingListener
             if (message.sdpOrCandidate != "registered") {
                 return;
             }
-            loop.app = message.app;
+            loop.appId = message.app;
             
             // Run the receive loop using the connected websocket
             await RunWebSocketReceiveLoopAsync(clientWebSocket, cancellationToken);

@@ -22,7 +22,7 @@ namespace Friflo.TmGui.Session;
 public sealed partial class TmSessionLoop : IDisposable
 {
     public   readonly   AssetResources  resources;
-    public              string?         app;
+    public              string?         appId;
 
 #region private fields
     private  readonly   bool                                isAsync;

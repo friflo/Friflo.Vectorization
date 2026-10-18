@@ -63,7 +63,7 @@ public sealed class SessionClient
     private  readonly   TmSessionLoop   loop;
     private  readonly   TmSession       session;
     
-    public              string?         App => loop.app;
+    public              string?         AppId => loop.appId;
     
     internal SessionClient(TmSessionLoop loop, TmSession session, string[] args, TmClient client, TmGuiBackend backend)
     {
