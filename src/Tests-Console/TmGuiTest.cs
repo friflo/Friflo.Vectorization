@@ -142,7 +142,7 @@ public class TmGuiRenderer : IRenderer, IGuiView
     private void Window1(Gui gui)
     {
         gui.Button("hello GUI", Dim.Fill_X(0, Fit.Content), color: textColors);
-        if (gui.Button("web console")) {
+        if (gui.Button("web client")) {
             gui.Action.OpenUrl($"https://localhost:{port}");
         }
         if (gui.Button("copy to clipboard")) {
