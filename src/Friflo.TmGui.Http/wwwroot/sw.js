@@ -29,9 +29,10 @@ self.addEventListener('fetch', (event) => {
         // Create a MessageChannel port pair for asynchronous response handling
         const messageChannel = new MessageChannel();
         messageChannel.port1.onmessage = (e) => {
-            resolve(new Response(e.data.body, {
-                status: e.data.status,
-                headers: e.data.headers
+            const response = e.data;
+            resolve(new Response(response.body, {
+                status:         response.status,
+                headers:        response.headers
             }));
         };
 

@@ -47,21 +47,22 @@ internal sealed class WebRtcApiChannel
 
         var path = uri.PathAndQuery;
         if (!path.StartsWith("/textures/", StringComparison.Ordinal)) {
+            SendResponse(apiRequest.requestId, 404, null, []);
             return;
         }
         var assetName = path.Substring("/textures/".Length);
-
+        
         if (!loop.resources.stringToImage.TryGetValue(assetName, out var image)) {
+            SendResponse(apiRequest.requestId, 404, null, []);
             return;
         }
-        
         var body = image.GetAsPng();
-        SendResponse(apiRequest.requestId, 200, body);
+        SendResponse(apiRequest.requestId, 200, "image/png", body);
     }
     
-    private void SendResponse(string requestId, int status, byte[] body)
+    private void SendResponse(string requestId, int status, string? contentType, byte[] body)
     {
-        var response = new ApiResponse {  requestId = requestId, status = status };
+        var response = new ApiResponse { requestId = requestId, status = status, contentType = contentType };
         var header = JsonSerializer.SerializeToUtf8Bytes(response);
         
         var payload = new byte[4 + header.Length + body.Length];
@@ -92,7 +93,7 @@ internal record struct ApiRequest(string requestId, string url)
     }
 }
 
-internal readonly record struct ApiResponse(string requestId, int status)
+internal readonly record struct ApiResponse(string requestId, int status, string? contentType)
 {
     public override string ToString() => $"{requestId}  status: {status}";
 }

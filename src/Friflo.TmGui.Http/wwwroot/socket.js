@@ -374,9 +374,12 @@ function processApiResponse(response) {
         return;
     }
     handler({
-        status:     header.status,
-        headers:    {},
-        body:       bodyBuffer
+        status: header.status,
+        headers: {            
+            "Content-Type":   header.contentType,
+            "Content-Length": bodyBuffer.byteLength
+        },
+        body: bodyBuffer
     });
 }
 
@@ -389,9 +392,9 @@ navigator.serviceWorker.addEventListener('message', async (event) => {
         // Register callback to handle the response once received back via WebRTC
         pendingRequests.set(requestId, (response) => {
             event.ports[0].postMessage({
-                status:  response.status,
-                headers: response.headers,
-                body:    response.body,
+                status:     response.status,
+                headers:    response.headers,
+                body:       response.body,
             });
         });
 
