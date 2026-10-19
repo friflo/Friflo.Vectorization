@@ -23,7 +23,7 @@ public class SignalingView : IGuiView
     public void RenderGui(TmBatch batch, int targetWidth, int targetHeight)
     {
         var gui = batch.BeginGui(targetWidth, targetHeight);
-        using (gui.BeginWindow("Signaling Server for WebRTC", new Vector2(50, 50), new Vector2(600, 700), traits: 0, TuiBorder.Rounded)) { // (500, 450) (1000, 850)
+        using (gui.BeginWindow("WebRTC apps", new Vector2(50, 50), new Vector2(600, 700), traits: 0, TuiBorder.Rounded)) { // (500, 450) (1000, 850)
             Apps(gui);
         }
         using (gui.BeginWindow("Web clients", new Vector2(700, 50), new Vector2(600, 700), traits: 0, TuiBorder.Rounded)) { // (500, 450) (1000, 850)
@@ -36,7 +36,7 @@ public class SignalingView : IGuiView
         apps.Clear();
         apps.AddRange(signaling.guiApps.Values);
         apps.Sort((app1, app2) => app1.registered.CompareTo(app2.registered));
-        gui.Label("connected apps");
+        gui.Label("registered apps");
         gui.Spacer();
         
         foreach (var guiApp in apps)
