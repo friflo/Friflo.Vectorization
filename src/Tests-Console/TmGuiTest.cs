@@ -143,7 +143,7 @@ public class TmGuiRenderer : IRenderer, IGuiView
     {
         gui.Button("hello GUI", Dim.Fill_X(0, Fit.Content), color: textColors);
         if (gui.Button("web client")) {
-            gui.Action.OpenUrl($"https://localhost:{port}");
+            gui.Action.OpenUrl($"https://localhost:{port}", "remote-gui");
         }
         if (gui.Button("copy to clipboard")) {
             gui.Action.CopyToClipboard("some clipboard text");

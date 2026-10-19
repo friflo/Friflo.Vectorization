@@ -44,6 +44,10 @@ public readonly ref struct TmClientAction : IClientAction
 
 public interface IClientAction
 {
+    /// <summary>
+    /// Opens the passed <paramref name="url"/> in a browser.<br/>
+    /// In a browser GUI this method calls <c>window.open(url, target)</c>.
+    /// </summary>
     public bool OpenUrl(ReadOnlySpan<char> url, ReadOnlySpan<char> target = default) {
         return OpenUrlUtils.OpenUrl(url);
     }
