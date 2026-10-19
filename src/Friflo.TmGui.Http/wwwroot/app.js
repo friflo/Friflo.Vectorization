@@ -588,6 +588,14 @@ function getTextureBindGroup(textureEntry) {
     return textureEntry.bindGroup;
 }
 
+const urlParams = new URLSearchParams(window.location.search);
+const app = urlParams.get('app');
+const assetHeaders = !app ? undefined : {
+    headers: {
+        'X-App-Name': app
+    }
+}
+
 // Ensure texture is tracked and trigger async fetch from /textures/{name} if missing
 function ensureTextureLoaded(textureId, name) {
     if (textures.has(textureId)) return;
@@ -602,7 +610,7 @@ function ensureTextureLoaded(textureId, name) {
     textures.set(textureId, textureEntry);
 
     // Fetch image asynchronously from endpoint
-    fetch(`/textures/${name}`)
+    fetch(`/textures/${name}`, assetHeaders)
         .then(response => {
             if (!response.ok) throw new Error(`HTTP ${response.status}`);
             return response.blob();
@@ -641,14 +649,19 @@ function ensureTextureLoaded(textureId, name) {
 // Startup sequence
 async function start() {
     addLog(`page loaded.\n`);
+    
+    // Register service worker for HTTP-to-WebRTC bridging
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/sw.js').catch(error => {
+            console.error('Service Worker registration failed:', error);
+        });
+    }
+    
     // Register event listeners for resize, mouse, and keyboard inputs
     initGuiEventListeners(canvas);
 
     const gpuReady = await initWebGPU();
     if (gpuReady) {
-        const urlParams = new URLSearchParams(window.location.search);
-
-        const app = urlParams.get('app');
         if (app) {
             initWebRTC(app)
         } else {

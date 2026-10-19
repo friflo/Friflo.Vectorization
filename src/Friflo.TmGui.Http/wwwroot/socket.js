@@ -126,6 +126,9 @@ export function initWebRTC(appName)
     dataChannel = runSignaling(appName)
 }
 
+/** @type {RTCDataChannel | null} */
+let apiChannel = null;
+
 /**
  * @param {string} app
  * @returns {RTCDataChannel}
@@ -150,7 +153,21 @@ function runSignaling(app)
     const candidateQueue = [];
 
     // Optional: Create a data channel for peer-to-peer communication
-    const dataChannel = pc.createDataChannel("tm-gui-channel", { ordered: true });    
+    const dataChannel = pc.createDataChannel("tm-gui-channel", { ordered: true });
+    
+    apiChannel = pc.createDataChannel("api-channel", { ordered: true });
+    apiChannel.onmessage = async (e) => {
+        if (e.data instanceof ArrayBuffer) {
+            try {
+                const rawData = await decompressMessage(e.data);                
+                console.log(`Received API message: ${e.data.byteLength}  uncompressed: ${rawData.byteLength}`);
+                
+            } catch (err) {
+                console.error("Failed to decompress API message:", err);
+            }
+        }
+    }
+    
     pc.oniceconnectionstatechange = () => {
         const state = pc.iceConnectionState; 
         if (state === "connected" || state === "closed" || state === "completed" || state === "failed") {
@@ -195,7 +212,7 @@ function runSignaling(app)
             try {
                 const rawData = await decompressMessage(e.data);
                 
-                console.log(`Received P2P message: ${e.data.byteLength}  uncompressed: ${rawData.byteLength}`);
+                // console.log(`Received P2P message: ${e.data.byteLength}  uncompressed: ${rawData.byteLength}`);
                 processMessage(rawData);
             } catch (err) {
                 console.error("Failed to decompress message:", err);
@@ -337,3 +354,32 @@ async function decompressMessage(arrayBuffer) {
     return await new Response(stream).arrayBuffer();    
     */
 }
+
+// ------------------------------------ Service Worker ------------------------------------
+const pendingRequests = new Map();
+
+// Listen for intercepted fetch requests forwarded by the Service Worker
+navigator.serviceWorker.addEventListener('message', async (event) => {
+    if (event.data && event.data.type === 'HTTP_VIA_WEBRTC') {
+        const { url, method } = event.data;
+        const requestId = Math.random().toString(36).substring(7);
+
+        // Register callback to handle the response once received back via WebRTC
+        pendingRequests.set(requestId, (responsePayload) => {
+            event.ports[0].postMessage({
+                body: responsePayload.body,
+                status: 404,
+                headers: ""
+            });
+
+            /* event.ports[0].postMessage({
+                body: responsePayload.body,
+                status: responsePayload.status,
+                headers: responsePayload.headers
+            }); */
+        });
+
+        // Transmit request payload over the active WebRTC Data Channel
+        apiChannel.send(JSON.stringify({ requestId, url, method }));
+    }
+});

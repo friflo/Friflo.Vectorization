@@ -42,9 +42,15 @@ internal sealed class SignalSession
     private void OnDataChannel(RTCDataChannel dataChannel)
     {
         // Console.WriteLine("P2P Data Channel opened on App side!");
-        var client = new WebRtcClient(listener.loop, dataChannel);
-        
-        _ = listener.loop.EnqueueEventAsync(client, ClientEventType.WebsocketConnected, default);
-        listener.RemoveSession(connection, webSocket);
+        if (dataChannel.label == "tm-gui-channel") {
+            var client = new WebRtcClient(listener.loop, dataChannel);
+            
+            _ = listener.loop.EnqueueEventAsync(client, ClientEventType.WebsocketConnected, default);
+            listener.RemoveSession(connection, webSocket);
+            return;
+        }
+        if (dataChannel.label == "api-channel") {
+            _ = new WebRtcApiChannel(listener.loop, dataChannel);
+        }
     }
 }
