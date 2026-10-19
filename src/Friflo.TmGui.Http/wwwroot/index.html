@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="TmGui WebGPU Application Interface">
     <title>TmGui</title>
     <style>
         html, body {
@@ -89,14 +90,16 @@
     </style>
 </head>
 <body>
-    <canvas id="gpu-canvas"></canvas>
+    <main>
+        <canvas id="gpu-canvas"></canvas>
 
-    <div id="log-window">log initialized.&#10;</div>
+        <div id="log-window">log initialized.&#10;</div>
 
-    <!-- Error overlay element shown when app is not found -->
-    <div style="display:flex;" id="info-overlay">
-        <span id="info-text">TmGui&#10;starting ...</span>
-    </div>
+        <!-- Error overlay element shown when app is not found -->
+        <div style="display:flex;" id="info-overlay">
+            <span id="info-text">TmGui&#10;starting ...</span>
+        </div>
+    </main>
 
     <script>
         const urlParams = new URLSearchParams(window.location.search);
