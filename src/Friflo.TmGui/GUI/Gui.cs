@@ -30,7 +30,7 @@ public readonly ref struct Gui
     public              GuiInput        Input               { [Hide] get => widget.input;                           }
     public              Vector2         TerminalPixelSize   { [Hide] get => widget.draw.batch.terminalPixelSize;    }
     public              TmBatch         Batch               { [Hide] get => widget.draw.batch;                      }
-    public              TmClientAction  Action              { [Hide] get => new(widget.draw.batch);                 }
+    public              IClientAction   Action              { [Hide] get => widget.draw.batch.Action;               }   
     
 
     /// <summary>

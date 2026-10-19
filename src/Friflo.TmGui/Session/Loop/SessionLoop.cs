@@ -202,7 +202,7 @@ public sealed partial class TmSessionLoop : IDisposable
     
     private void SetWindowTitle(TmSession session)
     {
-        session.Batch.ClientAction.SetWindowTitle(cpuBackend.backendName);
+        session.Batch.Action.SetWindowTitle(cpuBackend.backendName);
     }
     
     private static int _sessionSeq = 1;

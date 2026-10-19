@@ -14,34 +14,6 @@ public enum TmDisplayMode
     Fullscreen,
 }
 
-public readonly ref struct TmClientAction : IClientAction
-{
-    private readonly    TmBatch batch;  //  8 bytes 
-    
-    internal TmClientAction(TmBatch batch)
-    {
-        this.batch = batch;
-    }
-    
-    // --- IClientAction
-    public bool OpenUrl(ReadOnlySpan<char> url, ReadOnlySpan<char> target = default) {
-        return batch.ClientAction.OpenUrl(url, target);
-    }
-
-    public void SetDisplayMode(TmDisplayMode mode) {
-        batch.ClientAction.SetDisplayMode(mode);
-    }
-
-    public void SetWindowTitle(ReadOnlySpan<char> title) {
-        batch.ClientAction.SetWindowTitle(title);
-    }
-
-    public void CopyToClipboard(ReadOnlySpan<char> text)
-    {
-        batch.ClientAction.CopyToClipboard(text);
-    }
-}
-
 public interface IClientAction
 {
     /// <summary>

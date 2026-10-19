@@ -6,7 +6,7 @@ using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using Friflo.TmGui.TUI;
-using Hide = System.Diagnostics.DebuggerHiddenAttribute;
+
 
 // ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable InconsistentNaming
@@ -47,7 +47,7 @@ public readonly ref partial struct TmDraw
     public              TmFont          Font        => batch.currentFont;
     public              TuiBatch?       Tui         => batch.tui;
     public              TmBatch         Batch       => batch;
-    public              TmClientAction  Action      { [Hide] get => new(batch);  }
+    public              IClientAction   Action      => batch.host.clientAction;
     
     public override     string?         ToString()  => batch.ToString();
     
