@@ -651,10 +651,14 @@ async function start() {
     addLog(`page loaded.\n`);
     
     // Register service worker for HTTP-to-WebRTC bridging
-    if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('/sw.js').catch(error => {
+    if (app && 'serviceWorker' in navigator) {
+        try {
+            await navigator.serviceWorker.register('/sw.js');
+            // Wait until the service worker is fully active and controlling the page
+            await navigator.serviceWorker.ready;
+        } catch (error) {
             console.error('Service Worker registration failed:', error);
-        });
+        }
     }
     
     // Register event listeners for resize, mouse, and keyboard inputs

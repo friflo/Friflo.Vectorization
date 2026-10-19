@@ -1,23 +1,14 @@
+// @ts-check
+// sw.js
 
 
 // Service Worker to intercept HTTP requests and bridge them to the main window
 self.addEventListener('fetch', (event) => {
-    const url = new URL(event.request.url);
-    
-    // Intercept requests matching the bridge path prefix
-    /* if (!url.pathname.startsWith('/textures/')) {
-        return;
-    } */
+   
     const appHeader = event.request.headers.get('X-App-Name');
     if (!appHeader) {
         return;
-    }
-    /* const requestUrl = new URL(event.request.url);
-    const app = requestUrl.searchParams.get('app');
-    if (!app) {
-        return;
-    }*/
-    
+    }    
     event.respondWith(new Promise(async (resolve) =>
     {
         const client = await self.clients.get(event.clientId);        
