@@ -16,7 +16,7 @@ var cpuBackend  = new CpuBackend("TmGui - Signaling Server", new DefaultGuiAsset
 var signaling   = new TmSignaling();
 
 var loop = new TmSessionLoop(false, cpuBackend, info => new SignalingView(signaling, info));
-signaling.loop = loop;
+signaling.StateChanged = loop.SetAppDirty;
 
 var builder = Host.CreateDefaultBuilder();
 
