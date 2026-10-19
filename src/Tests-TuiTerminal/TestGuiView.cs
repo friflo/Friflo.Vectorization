@@ -83,7 +83,7 @@ public class TestGuiView : IGuiView
     private void Window1(Gui gui)
     {
         gui.Button("hello TUI 💻 🙂", Dim.Fill_X(0, Fit.Content), color: textColors);
-        if (gui.Button("web client")) {
+        if (gui.Button("WebRTC client")) {
             gui.Action.OpenUrl($"https://localhost:8081/?app={client.AppId}", client.AppId);
         }
         if (gui.Checkbox("fullScreen", ref fullScreen)) {
