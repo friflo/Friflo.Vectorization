@@ -112,13 +112,14 @@ export function initWebSocket()
 const availableApps = '<br><a href="/" style="text-decoration: none;">available apps</a>';
 let app = null;
 
-export function setWindowTitle(title) {
+/* export function setWindowTitle(title) {
     if (app) {
         document.title = `${app} - ${title}`;
     } else {
         document.title = title;
     }
-}
+    document.title = title;
+} */
 
 export function initWebRTC(appName)
 {

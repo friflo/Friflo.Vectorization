@@ -33,7 +33,7 @@ public class TmGuiRenderer : IRenderer, IGuiView
     private             float                   update;
     private readonly    List<string>            scrollAreaButtons = [];
     private readonly    Color32[]               textColors = [0x0000FFFF, 0xFF0000FF, 0x009900FF, 0xFF00FFFF, 0xCC6600FF, 0x000000ff];
-    private readonly    TmSessionLoop           loop;
+    private readonly    TmSessionLoop?          loop;
     
     private readonly GuiStyle redButtonStyle = new() {
         colors = new GuiColors {
@@ -76,21 +76,22 @@ public class TmGuiRenderer : IRenderer, IGuiView
         myTexture        = guiBackend.LoadTexture(stream, "world_tileset.png").AsGpuTexture(); 
         myTextureView    = myTexture.CreateView().AsTmTexture();
         
-        loop = new TmSessionLoop(false, new CpuBackend("TmGui - Remote Test", guiBackend), _ => new TmGuiRenderer(this));
+        loop = new TmSessionLoop(false, new CpuBackend("TmGui - Remote Test", guiBackend), client => new TmGuiRenderer(this, client));
         var builder = HttpUtils.CreateHostBuilder(new IPEndPoint(IPAddress.Any, port), loop);
         HttpUtils.Start(builder.Build());
     }
     
     private const int port = 8080;
     
-    public TmGuiRenderer(TmGuiRenderer renderer)
+    public TmGuiRenderer(TmGuiRenderer renderer, SessionClient client)
     {
         batch               = renderer.batch;
         monocraftFont       = renderer.monocraftFont;
         
         myTexture           = renderer.myTexture;
         myTextureView       = renderer.myTextureView;
-        loop                = null!;
+        
+        client.Action.SetWindowTitle("Web client");
     }
     
     public void OnWindowChanged(int width, int height)
@@ -108,7 +109,7 @@ public class TmGuiRenderer : IRenderer, IGuiView
     {
         perfLog.Trace(10000);
         if (stopwatch.ElapsedMilliseconds >= update) {
-            loop.IterateSessions();
+            loop?.IterateSessions();
             stopwatch.Restart();
         }
         // loop.IterateSessions();
@@ -142,7 +143,7 @@ public class TmGuiRenderer : IRenderer, IGuiView
     private void Window1(Gui gui)
     {
         gui.Button("hello GUI", Dim.Fill_X(0, Fit.Content), color: textColors);
-        if (gui.Button("web client")) {
+        if (gui.Button("Web client")) {
             gui.Action.OpenUrl($"https://localhost:{port}", "remote-gui");
         }
         if (gui.Button("copy to clipboard")) {

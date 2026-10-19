@@ -63,8 +63,8 @@ internal sealed class SignalSocketHandler
                 
                 var connection  = $"{id}|{contextConn.RemoteIpAddress?.ToString()}:{contextConn.RemotePort}";
                 var peer        = new TmSignalPeer(webSocket, connection);
-                
-                await HandlePeerSessionAsync(peer, signaling, context.RequestAborted);
+                var ct = context.RequestAborted;
+                await HandlePeerSessionAsync(peer, signaling, ct);
             }
             catch (Exception _)
             {

@@ -3,6 +3,7 @@
 
 using System;
 using System.IO;
+using System.Net;
 using System.Net.WebSockets;
 using System.Text.Json;
 using System.Threading;
@@ -16,18 +17,46 @@ namespace Friflo.TmGui.WebRTC;
 
 public sealed partial class TmSignalingListener
 {
-    internal readonly TmSessionLoop loop;
+    internal readonly   TmSessionLoop       loop;
+    private             ClientWebSocket?    clientWebSocket;
         
     public TmSignalingListener(TmSessionLoop loop)
     {
         this.loop = loop;
     }
         
-    public Task Start(Uri uri, string app, string? instance = null)
+    public async Task ConnectAsync(Uri uri, string app, string? instance = null, CancellationToken cancellationToken = default)
     {
+        clientWebSocket = new ClientWebSocket();
+
+        // Connect to the specified signaling server URL
+        await clientWebSocket.ConnectAsync(uri, cancellationToken);
+        
+        byte[] payload = JsonSerializer.SerializeToUtf8Bytes(new SignalMessage{ type = "register", app = app, sdpOrCandidate = instance });
+
+        await clientWebSocket.SendAsync(payload, WebSocketMessageType.Text, true, cancellationToken);
+        
+        var result = await ReadChunksAsync(clientWebSocket, cancellationToken);
+        
+        if (result.MessageType != WebSocketMessageType.Text) {
+            throw new ProtocolViolationException($"expect Text message. was {result.MessageType}");
+        }
+        var messageBuffer = memoryStream.GetBuffer().AsMemory(0, (int)memoryStream.Length);
+        if (!SignalMessage.TryParse(messageBuffer.Span, out var message)) {
+            throw new ProtocolViolationException($"invalid message response");
+        }
+        if (message.sdpOrCandidate != "registered") {
+            throw new ProtocolViolationException($"register failed: {message.sdpOrCandidate}");
+        }
+        loop.appId = message.app;
+    }
+    
+    public Task RunAsync()
+    {
+        if (clientWebSocket == null) throw new InvalidOperationException("ClientWebSocket not initialized");
         // Dedicated background thread execution equivalent to TaskCreationOptions.LongRunning
         var serverTask = Task.Factory.StartNew(
-            () => Run(uri, app, instance),
+            () => RunLoopAsync(),
             CancellationToken.None,
             TaskCreationOptions.LongRunning,
             TaskScheduler.Default
@@ -35,36 +64,11 @@ public sealed partial class TmSignalingListener
         return serverTask;
     }
         
-    private async Task Run(Uri uri, string app, string? instance, CancellationToken cancellationToken = default)
+    private async Task RunLoopAsync(CancellationToken cancellationToken = default)
     {
-        // Reusable buffer for incoming data chunks
         try
         {
-            using var clientWebSocket = new ClientWebSocket();
-
-            // Connect to the specified signaling server URL
-            await clientWebSocket.ConnectAsync(uri, cancellationToken);
-            
-            byte[] payload = JsonSerializer.SerializeToUtf8Bytes(new SignalMessage{ type = "register", app = app, sdpOrCandidate = instance });
-
-            await clientWebSocket.SendAsync(payload, WebSocketMessageType.Text, true, cancellationToken);
-            
-            var result = await ReadChunksAsync(clientWebSocket, cancellationToken);
-            
-            if (result.MessageType != WebSocketMessageType.Text) {
-                return;
-            }
-            var messageBuffer = memoryStream.GetBuffer().AsMemory(0, (int)memoryStream.Length);
-            if (!SignalMessage.TryParse(messageBuffer.Span, out var message)) {
-                return;
-            }
-            if (message.sdpOrCandidate != "registered") {
-                return;
-            }
-            loop.appId = message.app;
-            
-            // Run the receive loop using the connected websocket
-            await RunWebSocketReceiveLoopAsync(clientWebSocket, cancellationToken);
+            await RunWebSocketReceiveLoopAsync(clientWebSocket!, cancellationToken);
         }
         catch (WebSocketException)
         {

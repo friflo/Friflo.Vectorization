@@ -42,6 +42,7 @@ public class TestGuiView : IGuiView
         myTexture           = backend.LoadTexture(stream, "sixel_test.png");
         var tui             = backend as CpuBackend;
         canvasTexture       = tui?.CreateTexture("canvas", CanvasWidth, CanvasHeight, new byte[CanvasWidth * CanvasHeight * 4]) ?? default;
+        client.Action.SetWindowTitle(client.AppId);
     }
     
     static class Static { internal static void Noop() { } }

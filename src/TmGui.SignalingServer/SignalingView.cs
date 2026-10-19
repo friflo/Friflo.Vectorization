@@ -17,6 +17,7 @@ public class SignalingView : IGuiView
     public SignalingView(TmSignaling signaling, SessionClient client)
     {
         this.signaling = signaling;
+        client.Action.SetWindowTitle("Signaling Server");
     }
     
     public void RenderGui(TmBatch batch, int targetWidth, int targetHeight)

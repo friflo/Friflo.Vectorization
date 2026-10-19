@@ -1,6 +1,6 @@
 // @ts-check
 // app-events.js
-import { socket, setWindowTitle } from './socket.js';
+import { socket } from './socket.js';
 
 let boundCanvas = null;
 
@@ -299,7 +299,8 @@ export function invokeAction(data) {
             window.open(args[1], args[2]);
             break;
         case "set-title":
-            setWindowTitle(args[1]);
+            document.title = args[1];
+            // setWindowTitle(args[1]);
             break;
         case "set-display-mode":
             switch (args[1]) {
