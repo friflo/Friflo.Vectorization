@@ -30,7 +30,7 @@ builder.ConfigureWebHostDefaults(webBuilder =>
         socketOptions.NoDelay = true;
     });
     webBuilder.UseKestrel(options => {
-        options.Listen(new IPEndPoint(IPAddress.Any, 8081), listenOptions => {
+        options.Listen(new IPEndPoint(IPAddress.IPv6Any, 8081), listenOptions => {
             listenOptions.UseHttps(); // uses automatically dotnet dev-certs
         });
     });
