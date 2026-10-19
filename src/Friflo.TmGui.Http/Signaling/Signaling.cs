@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Friflo.TmGui.Session;
 
+// ReSharper disable EmptyConstructor
 // ReSharper disable InconsistentNaming
 // ReSharper disable CheckNamespace
 namespace Friflo.TmGui.Http;
@@ -58,9 +59,7 @@ public sealed class TmSignaling
     public              TmSessionLoop?                              loop;
 
 
-    public TmSignaling(TmGuiBackend backend)
-    {
-    }
+    public TmSignaling() { }
     
     internal void SetDirty()
     {

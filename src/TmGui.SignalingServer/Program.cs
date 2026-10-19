@@ -13,7 +13,7 @@ using TmGui.SignalingServer;
 Console.WriteLine("Signaling Server for WebRTC");
 
 var cpuBackend  = new CpuBackend("TmGui - Signaling Server", new DefaultGuiAssets());
-var signaling   = new TmSignaling(cpuBackend);
+var signaling   = new TmSignaling();
 
 var loop = new TmSessionLoop(false, cpuBackend, info => new SignalingView(signaling, info));
 signaling.loop = loop;
