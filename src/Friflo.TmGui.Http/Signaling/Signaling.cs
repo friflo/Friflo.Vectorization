@@ -4,6 +4,7 @@ using System.Net.WebSockets;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using Friflo.TmGui.Session;
 
 
 // ReSharper disable EmptyConstructor
@@ -55,6 +56,10 @@ public sealed class TmSignaling
     public   readonly   ConcurrentDictionary<string, TmGuiApp>      guiApps = [];
     public   readonly   ConcurrentDictionary<string, TmSignalPeer>  clients = [];
     private             int                                         instanceSeq;
+    /// <summary>
+    /// This action is invoked from arbitrary threads if apps or clients are added or removed. <br/>
+    /// If connected to a UI it should call <see cref="TmSessionLoop.SetAppDirty"/>.
+    /// </summary>
     public              Action?                                     StateChanged;
 
 
