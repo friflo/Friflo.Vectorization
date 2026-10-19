@@ -654,6 +654,13 @@ async function start() {
     if (app && 'serviceWorker' in navigator) {
         try {
             await navigator.serviceWorker.register('/sw.js');
+            
+            // If the page is not yet controlled, reload once so the service worker takes over immediately
+            if (!navigator.serviceWorker.controller) {
+                addLog('sw.js, reload page...\n');
+                window.location.reload();
+                return; // Halt execution here as the page is reloading
+            }
             // Wait until the service worker is fully active and controlling the page
             await navigator.serviceWorker.ready;
         } catch (error) {
