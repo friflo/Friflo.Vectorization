@@ -17,7 +17,7 @@ using SIPSorcery.Net;
 namespace Friflo.TmGui.WebRTC;
 
 
-internal class WebRtcClient : TmClient
+internal sealed class WebRtcClient : TmClient
 {
     private     RTCDataChannel  dataChannel;
     private     TmSessionLoop   loop;

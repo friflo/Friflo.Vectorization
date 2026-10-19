@@ -155,19 +155,6 @@ function runSignaling(app)
     // Optional: Create a data channel for peer-to-peer communication
     const dataChannel = pc.createDataChannel("tm-gui-channel", { ordered: true });
     
-    apiChannel = pc.createDataChannel("api-channel", { ordered: true });
-    apiChannel.onmessage = async (e) => {
-        if (e.data instanceof ArrayBuffer) {
-            try {
-                const rawData = await decompressMessage(e.data);                
-                console.log(`Received API message: ${e.data.byteLength}  uncompressed: ${rawData.byteLength}`);
-                
-            } catch (err) {
-                console.error("Failed to decompress API message:", err);
-            }
-        }
-    }
-    
     pc.oniceconnectionstatechange = () => {
         const state = pc.iceConnectionState; 
         if (state === "connected" || state === "closed" || state === "completed" || state === "failed") {
@@ -325,7 +312,18 @@ function runSignaling(app)
     signalSocket.addEventListener('error', (err) => {
         console.error("Signaling WebSocket error:", err);
     });
-
+    
+    apiChannel = pc.createDataChannel("api-channel", { ordered: true });
+    apiChannel.onmessage = async (e) => {
+        if (e.data instanceof ArrayBuffer) {
+            try {
+                processApiResponse(e.data);
+                console.log(`Received API message: ${e.data.byteLength}`);                
+            } catch (err) {
+                console.error("Failed to process API response:", err);
+            }
+        }
+    }
     return dataChannel;
 }
 
@@ -358,6 +356,30 @@ async function decompressMessage(arrayBuffer) {
 // ------------------------------------ Service Worker ------------------------------------
 const pendingRequests = new Map();
 
+/** @param {ArrayBuffer} response */
+function processApiResponse(response) {
+    const dataView = new DataView(response);
+    const decoder = new TextDecoder('utf-8');
+
+    const headerLength = dataView.getInt32(0, true);
+
+    const headerBytes = new Uint8Array(response, 4, headerLength);
+    const header = JSON.parse(decoder.decode(headerBytes));
+
+    const bodyOffset = 4 + headerLength;
+    const bodyBuffer = response.slice(bodyOffset);
+    
+    const handler = pendingRequests.get(header.requestId);
+    if (!handler) {
+        return;
+    }
+    handler({
+        status:     header.status,
+        headers:    {},
+        body:       bodyBuffer
+    });
+}
+
 // Listen for intercepted fetch requests forwarded by the Service Worker
 navigator.serviceWorker.addEventListener('message', async (event) => {
     if (event.data && event.data.type === 'HTTP_VIA_WEBRTC') {
@@ -365,18 +387,12 @@ navigator.serviceWorker.addEventListener('message', async (event) => {
         const requestId = Math.random().toString(36).substring(7);
 
         // Register callback to handle the response once received back via WebRTC
-        pendingRequests.set(requestId, (responsePayload) => {
+        pendingRequests.set(requestId, (response) => {
             event.ports[0].postMessage({
-                body: responsePayload.body,
-                status: 404,
-                headers: ""
+                status:  response.status,
+                headers: response.headers,
+                body:    response.body,
             });
-
-            /* event.ports[0].postMessage({
-                body: responsePayload.body,
-                status: responsePayload.status,
-                headers: responsePayload.headers
-            }); */
         });
 
         // Transmit request payload over the active WebRTC Data Channel

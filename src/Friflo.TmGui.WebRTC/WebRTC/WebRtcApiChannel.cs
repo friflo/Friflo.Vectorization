@@ -2,8 +2,6 @@
 // See LICENSE file in the project root for full license information.
 
 using System;
-using System.IO;
-using System.IO.Compression;
 using System.Text.Json;
 using Friflo.TmGui.Session;
 using SIPSorcery.Net;
@@ -16,7 +14,7 @@ using SIPSorcery.Net;
 namespace Friflo.TmGui.WebRTC;
 
 
-internal class WebRtcApiChannel
+internal sealed class WebRtcApiChannel
 {
     private readonly    RTCDataChannel  dataChannel;
     private readonly    TmSessionLoop   loop;
@@ -31,51 +29,6 @@ internal class WebRtcApiChannel
         dataChannel.onmessage   += OnMessage;
         dataChannel.onclose     += OnClose;
     }
-   
-    private readonly MemoryStream outputGZip = new(1000);
-        
-    private byte[] CompressMessage(ReadOnlySpan<byte> rawData, out int length)
-    {
-        outputGZip.Position = 0;
-        outputGZip.SetLength(0);
-        
-        {
-            using var gzipStream = new GZipStream(outputGZip, CompressionLevel.Fastest, leaveOpen: true);
-            gzipStream.Write(rawData);
-        }
-        length = (int)outputGZip.Length;
-        
-        if (outputGZip.TryGetBuffer(out var buffer)) {
-            var array = buffer.Array; 
-            if (array != null) {
-                return array;
-            }
-        }
-        return outputGZip.ToArray();
-    }
-    
-    // private byte[] sendBuffer = [];
-
-    
-    private int Send(TmSendMessage message)
-    {
-        if (message.IsEmpty) {
-            return 0;
-        }
-        if (dataChannel.readyState != RTCDataChannelState.open) {
-            return 0;
-        }
-        var messageSpan = message.buffer.Span;
-        var sendBuffer = CompressMessage(messageSpan, out int  length);
-        
-
-        // RTCDataChannel.send(byte[] data, int offset, int count) does not store a reference to passed data.
-        // It creates multiple small byte[1020] arrays to ensure they fit in an MTU (Maximum Transmission Unit, 1200 in SIPSorcery).
-        dataChannel.send(sendBuffer, 0, length);
-        
-        return length;
-    }
-
     
     private void OnClose()
     {
@@ -90,17 +43,41 @@ internal class WebRtcApiChannel
         if (!ApiRequest.TryParse(data, out var apiRequest)) {
             return;
         }
-        if (!loop.resources.stringToImage.TryGetValue(apiRequest.url, out var image)) {
+        var uri = new Uri(apiRequest.url);
+
+        var path = uri.PathAndQuery;
+        if (!path.StartsWith("/textures/", StringComparison.Ordinal)) {
+            return;
+        }
+        var assetName = path.Substring("/textures/".Length);
+
+        if (!loop.resources.stringToImage.TryGetValue(assetName, out var image)) {
             return;
         }
         
-        dataChannel.send(image.GetAsPng());
+        var body = image.GetAsPng();
+        SendResponse(apiRequest.requestId, 200, body);
+    }
+    
+    private void SendResponse(string requestId, int status, byte[] body)
+    {
+        var response = new ApiResponse {  requestId = requestId, status = status };
+        var header = JsonSerializer.SerializeToUtf8Bytes(response);
+        
+        var payload = new byte[4 + header.Length + body.Length];
+        
+        BitConverter.TryWriteBytes(payload.AsSpan(0, 4), header.Length);
+
+        header.CopyTo(payload.AsSpan(4));
+        body.CopyTo(payload.AsSpan(4 + header.Length));
+        
+        dataChannel.send(payload);
     }
 }
 
-internal record struct ApiRequest(string requestId, string url, string method)
+internal record struct ApiRequest(string requestId, string url)
 {
-    public override string ToString() => $"{requestId}  urL: {url}";
+    public override string ToString() => $"{requestId}  url: {url}";
     
     internal static bool TryParse(ReadOnlySpan<byte> buffer, out ApiRequest message)
     {
@@ -113,5 +90,10 @@ internal record struct ApiRequest(string requestId, string url, string method)
             return false;
         }
     }
+}
+
+internal readonly record struct ApiResponse(string requestId, int status)
+{
+    public override string ToString() => $"{requestId}  status: {status}";
 }
 
