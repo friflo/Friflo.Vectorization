@@ -35,11 +35,12 @@ public enum TmTextureUsage
 
 public abstract class TmGuiBackend : IDisposable
 {
-    private             TmFont?     defaultFont;
-    protected readonly  IGuiAssets  assets;
-    public    readonly  GuiInput    input;
-    internal  readonly  GuiHost     host;
-    public              IGuiAssets  Assets => assets;
+    private             TmFont?         defaultFont;
+    protected readonly  IGuiAssets      assets;
+    public    readonly  GuiInput        input;
+    internal  readonly  GuiHost         host;
+    public              IGuiAssets      Assets => assets;
+    public              IClientAction   Action => host.clientAction;
     
     public    virtual   TmFont      DefaultFont => defaultFont ??= assets.CreateDefaultFont(this);
 

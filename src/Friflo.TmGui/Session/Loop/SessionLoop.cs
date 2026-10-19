@@ -172,6 +172,8 @@ public sealed partial class TmSessionLoop : IDisposable
         var frameTimer      = new FrameTimer(this, client, 60, isSync);
         var sessionId       = new SessionId(_sessionSeq++);
         var session         = new TuiSession(client, sessionId, this, frameTimer, TuiColorMode.RGB24);
+        SetWindowTitle(session);
+        
         var sessionClient   = new SessionClient(this, session, args, client, session.Backend);
         var guiView         = createGuiView(sessionClient);
         
@@ -179,7 +181,6 @@ public sealed partial class TmSessionLoop : IDisposable
         sessions[client]= session;
         var msgStart    = firstLine == -1 ? 0 : firstLine + 1;
         firstPayload    = payload.GetMemory(msgStart);
-        SetWindowTitle(session);
         return session;
     }
 
@@ -189,6 +190,7 @@ public sealed partial class TmSessionLoop : IDisposable
         var frameTimer      = new FrameTimer(this, client, 60, isSync);
         var sessionId       = new SessionId(_sessionSeq++);
         var session         = new GuiSession(client, sessionId, this, frameTimer);
+        SetWindowTitle(session);
         
         var sessionClient   = new SessionClient(this, session, [], client, session.Backend);
         var guiView         = createGuiView(sessionClient);
@@ -196,13 +198,12 @@ public sealed partial class TmSessionLoop : IDisposable
         session.guiView = guiView;
         sessions[client]= session;
         firstPayload    = default;
-        SetWindowTitle(session);
         return session;
     }
     
     private void SetWindowTitle(TmSession session)
     {
-        session.Batch.Action.SetWindowTitle(cpuBackend.backendName);
+        // session.Batch.Action.SetWindowTitle(cpuBackend.backendName);  TODO remove
     }
     
     private static int _sessionSeq = 1;
