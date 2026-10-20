@@ -78,7 +78,7 @@ public class TmGuiRenderer : IRenderer, IGuiView
         myTextureView    = myTexture.CreateView().AsTmTexture();
         
         loop = new TmSessionLoop(false, new CpuBackend("TmGui - Remote Test", guiBackend), client => new TmGuiRenderer(this, client));
-        var builder = HttpUtils.CreateHostBuilder(new IPEndPoint(IPAddress.Any, port), loop);
+        var builder = HttpUtils.CreateHostBuilder(new IPEndPoint(IPAddress.IPv6Any, port), loop);
         HttpUtils.Start(builder.Build());
     }
     
