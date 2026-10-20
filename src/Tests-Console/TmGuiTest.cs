@@ -77,9 +77,16 @@ public class TmGuiRenderer : IRenderer, IGuiView
         myTexture        = guiBackend.LoadTexture(stream, "world_tileset.png").AsGpuTexture(); 
         myTextureView    = myTexture.CreateView().AsTmTexture();
         
-        loop = new TmSessionLoop(false, new CpuBackend("TmGui - Remote Test", guiBackend), client => new TmGuiRenderer(this, client));
+        loop = CreateSessionLoop(guiBackend, this);
+    }
+    
+    /// Starts an http server and creates a session loop that handle all web client sessions on the main thread.
+    private static TmSessionLoop CreateSessionLoop(TmGuiBackend backend, TmGuiRenderer renderer)
+    {
+        var loop = new TmSessionLoop(false, new CpuBackend("TmGui - Remote Test", backend), client => new TmGuiRenderer(renderer, client));
         var builder = HttpUtils.CreateHostBuilder(new IPEndPoint(IPAddress.IPv6Any, port), loop);
         HttpUtils.Start(builder.Build());
+        return loop;
     }
     
     private const int port = 8080;
