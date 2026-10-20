@@ -80,7 +80,11 @@ public class TmGuiRenderer : IRenderer, IGuiView
         loop = CreateSessionLoop(guiBackend, this);
     }
     
-    /// Starts an http server and creates a session loop that handle all web client sessions on the main thread.
+    /// <summary>
+    /// Starts an HTTP server and creates a session loop that handles all web client sessions on the main thread.<br/>
+    /// By calling <see cref="TmSessionLoop.IterateSessions"/> periodically, queued user input (mouse and keyboard) is processed. 
+    /// Every client with pending input or a dirty session renders a new frame via <see cref="OnFrame"/>, which is then sent to the client. 
+    /// </summary>
     private static TmSessionLoop CreateSessionLoop(TmGuiBackend backend, TmGuiRenderer renderer)
     {
         var loop = new TmSessionLoop(false, new CpuBackend("TmGui - Remote Test", backend), client => new TmGuiRenderer(renderer, client));
