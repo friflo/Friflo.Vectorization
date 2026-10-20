@@ -58,6 +58,7 @@ public class TmGuiRenderer : IRenderer, IGuiView
     };
     
     public void OnShutdown() {
+        loop?.Dispose();
         monocraftFont.Dispose();
         myTexture.Dispose();
         batch.Dispose();

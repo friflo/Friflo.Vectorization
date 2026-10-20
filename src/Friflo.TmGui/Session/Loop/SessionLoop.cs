@@ -28,7 +28,7 @@ public sealed partial class TmSessionLoop : IDisposable
     private  readonly   bool                                isAsync;
     private  readonly   ConcurrentQueue<ClientEvent>        eventQueue;     // used by: sync loop
     private  readonly   AutoResetEvent                      eventReady;     // used by: sync loop
-    private  readonly   Channel<ClientEvent>                eventChannel;   // used by: async loop
+    private  readonly   Channel<ClientEvent>?               eventChannel;   // used by: async loop
     private  readonly   Dictionary<TmClient, TmSession>     sessions;       // Raw non-thread-safe state (accessed exclusively by _shardThread)
     private  readonly   List<TmSession>                     sessionBuffer   = [];
     private  readonly   CreateGuiView                       createGuiView;  // IBatchRenderer factory
@@ -60,7 +60,6 @@ public sealed partial class TmSessionLoop : IDisposable
             eventQueue      = null!;
             eventReady      = null!;
         } else {
-            eventChannel    = null!;
             eventQueue      = new ConcurrentQueue<ClientEvent>();
             eventReady      = new AutoResetEvent(false);
         }
@@ -78,7 +77,7 @@ public sealed partial class TmSessionLoop : IDisposable
         
         if (isAsync) {
             ObjectDisposedException.ThrowIf(isDisposed, this);
-            await eventChannel.Writer.WriteAsync(evt);
+            await eventChannel!.Writer.WriteAsync(evt);
             return;
         }
         eventQueue.Enqueue(evt);
@@ -100,7 +99,7 @@ public sealed partial class TmSessionLoop : IDisposable
         {
             client.IncrementPendingEvents();
             // Non-blocking try-write to the channel
-            if (eventChannel.Writer.TryWrite(evt)) {
+            if (eventChannel!.Writer.TryWrite(evt)) {
                 return true;
             }
             client.DecrementPendingEvents(); // decrement - TryWrite() failed
@@ -138,11 +137,17 @@ public sealed partial class TmSessionLoop : IDisposable
     
     public void Dispose()
     {
-        if (isDisposed) return;
+        if (isDisposed) {
+            return;
+        }
         isDisposed = true;
+        
+        foreach (var session in sessions.Values) {
+            session.client.Dispose();
+        }
 
         // signal all loops to stop
-        eventChannel.Writer.TryComplete();
+        eventChannel?.Writer.TryComplete();
         cts.Cancel();
         
         // wait until ShardLoopThread thread has finished

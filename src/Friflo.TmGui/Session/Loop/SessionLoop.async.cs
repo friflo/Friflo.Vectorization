@@ -47,7 +47,7 @@ public partial class TmSessionLoop
     // run event loop
     private async Task RunEventLoopAsync(CancellationToken cancellationToken)
     {
-        var reader = eventChannel.Reader;
+        var reader = eventChannel!.Reader;
 
         while (await reader.WaitToReadAsync(cancellationToken))
         {
