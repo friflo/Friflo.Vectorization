@@ -56,7 +56,7 @@ public class WsDoubleBuffer : IDisposable
     private readonly    object          bufferLock = new();
     
     // Lock-free flag for signaling: 0 = no data, 1 = frame pending
-    private             int             hasPendingFrame;
+    private volatile    bool            hasPendingFrame;
     
     // Double-buffering to prevent race conditions between OnFrame thread and Kestrel flush
     private             WsSendBuffer    frontBuffer = new();
@@ -79,7 +79,7 @@ public class WsDoubleBuffer : IDisposable
         lock (bufferLock)
         {
             var pendingLength = frontBuffer.AppendFrom(message);
-            Volatile.Write(ref hasPendingFrame, 1);
+            hasPendingFrame = true;
             client.QueueDataAppended(pendingLength);
             // Console.WriteLine(pendingLength);
         }
@@ -89,7 +89,7 @@ public class WsDoubleBuffer : IDisposable
     public ReadOnlyMemory<byte> Memory          => backBuffer.Memory;
     public byte[]               Data            => backBuffer.data;
 
-    public bool                 HasPendingFrame => Volatile.Read(ref hasPendingFrame) == 1;
+    public bool                 HasPendingFrame => hasPendingFrame;
     
 
     public void Swap()
@@ -98,7 +98,7 @@ public class WsDoubleBuffer : IDisposable
         lock (bufferLock)
         {
             if (frontBuffer.PendingLength == 0) {
-                Volatile.Write(ref hasPendingFrame, 0);
+                hasPendingFrame = false;
                 return;
             }
 
@@ -107,7 +107,7 @@ public class WsDoubleBuffer : IDisposable
             
             // Clear pending length on new frontBuffer so it is ready for the next frame
             frontBuffer.Clear();
-            Volatile.Write(ref hasPendingFrame, 0);
+            hasPendingFrame = false;
         }
     }
     
