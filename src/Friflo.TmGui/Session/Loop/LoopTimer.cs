@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 namespace Friflo.TmGui.Session;
 
 
-internal sealed class FrameTimer : IDisposable
+internal sealed class LoopTimer : IDisposable
 {
     private  readonly   TmSessionLoop     loop;
     private  readonly   TmClient          client;
@@ -25,7 +25,7 @@ internal sealed class FrameTimer : IDisposable
     private             bool              isInitialized;
     private  volatile   bool              isRunning;
 
-    internal FrameTimer(TmSessionLoop loop, TmClient client, int tickRate, bool isSync)
+    internal LoopTimer(TmSessionLoop loop, TmClient client, int tickRate, bool isSync)
     {
         this.loop     = loop;
         this.client   = client;
@@ -154,13 +154,13 @@ internal sealed class FrameTimer : IDisposable
 
     private static void OnSyncTimer(object? s)
     {
-        var timer = (FrameTimer)s!;
+        var timer = (LoopTimer)s!;
         if (timer.cancellationToken.IsCancellationRequested || !timer.isRunning) return;
 
         timer.loop.TryEnqueueEvent(timer.client, ClientEventType.FrameTick, default);
     }
     
-    static FrameTimer()
+    static LoopTimer()
     {
         if (OperatingSystem.IsWindows()) {
             NativeTimer.timeBeginPeriod(1);

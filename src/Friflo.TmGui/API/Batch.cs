@@ -83,7 +83,7 @@ public abstract class TmBatch : IDisposable
     internal  readonly  GuiState            guiState            = new();
     internal            TmSession?          session;
     
-    internal            FrameTimer?         frameTimer;
+    internal            LoopTimer?          loopTimer;
 
     // --- replay
     internal            GuiRecorder?        recorder; // gui recording requires a session
@@ -193,15 +193,15 @@ public abstract class TmBatch : IDisposable
     /// Disabling this stops timer-driven ticks without preventing manual or event-driven redraws.
     /// </remarks>
     public bool TickEnabled {
-        get => frameTimer?.TickEnabled ?? false;
-        set => frameTimer?.TickEnabled =  value;
+        get => loopTimer?.TickEnabled ?? false;
+        set => loopTimer?.TickEnabled =  value;
     }
     
     /// <summary> Gets or sets the execution frequency of the timer in Hertz (ticks per second). </summary>
     public int TickRate
     {
-        get => frameTimer?.TickRate ?? 0;
-        set => frameTimer?.TickRate = value;
+        get => loopTimer?.TickRate ?? 0;
+        set => loopTimer?.TickRate = value;
     }
     
     public void SetFont(TmFont font) {
@@ -257,7 +257,7 @@ public abstract class TmBatch : IDisposable
     private RasterBatch CreateTextureBatch(TmTexture texture)
     {
         if (texture.IsNull) throw new ArgumentNullException(nameof(texture));
-        return new RasterBatch(new CpuBackend("Raster", rasterAssets), texture, frameTimer);
+        return new RasterBatch(new CpuBackend("Raster", rasterAssets), texture, loopTimer);
     }
     
     public void EndTextureDraw()

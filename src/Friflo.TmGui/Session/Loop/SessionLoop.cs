@@ -174,9 +174,9 @@ public sealed partial class TmSessionLoop : IDisposable
         var client          = evt.Client;
         var args            = firstLine == -1 ? [] : GetArgs(payload.Span.Slice(0, firstLine));
 
-        var frameTimer      = new FrameTimer(this, client, 60, isSync);
+        var loopTimer       = new LoopTimer(this, client, 60, isSync);
         var sessionId       = new SessionId(_sessionSeq++);
-        var session         = new TuiSession(client, sessionId, this, frameTimer, TuiColorMode.RGB24);
+        var session         = new TuiSession(client, sessionId, this, loopTimer, TuiColorMode.RGB24);
         var sessionClient   = new SessionClient(this, session, args, client, session.Backend);
         var guiView         = createGuiView(sessionClient);
         
@@ -190,9 +190,9 @@ public sealed partial class TmSessionLoop : IDisposable
     // protected virtual TmSession CreateGuiSession(TmClient client, bool isSync, out Memory<byte> firstPayload) => throw new NotImplementedException();
     private GuiSession CreateGuiSession(TmClient client, bool isSync, out Memory<byte> firstPayload)
     {
-        var frameTimer      = new FrameTimer(this, client, 60, isSync);
+        var loopTimer       = new LoopTimer(this, client, 60, isSync);
         var sessionId       = new SessionId(_sessionSeq++);
-        var session         = new GuiSession(client, sessionId, this, frameTimer);
+        var session         = new GuiSession(client, sessionId, this, loopTimer);
         var sessionClient   = new SessionClient(this, session, [], client, session.Backend);
         var guiView         = createGuiView(sessionClient);
         
@@ -207,8 +207,8 @@ public sealed partial class TmSessionLoop : IDisposable
     private void DisposeSession(TmSession session)
     {
         var batch = session.Batch;
-        batch.frameTimer?.Dispose();
-        batch.frameTimer = null;
+        batch.loopTimer?.Dispose();
+        batch.loopTimer = null;
         resources.RemoveSessionResources(session.sessionId);
     }
 

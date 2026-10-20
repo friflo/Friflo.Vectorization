@@ -41,7 +41,7 @@ internal sealed partial class TuiSession : TmSession
     private             ulong[]             lastLineHashes  = new ulong[10];
 
     
-    internal TuiSession(TmClient client, SessionId sessionId, TmSessionLoop loop, FrameTimer frameTimer, TuiColorMode colorMode)
+    internal TuiSession(TmClient client, SessionId sessionId, TmSessionLoop loop, LoopTimer loopTimer, TuiColorMode colorMode)
         : base(client, sessionId)
     {
         this.colorMode      = colorMode;
@@ -51,7 +51,7 @@ internal sealed partial class TuiSession : TmSession
         
         tuiBatch            = cpuBackend.CreateTuiBatch(colorMode);
         tuiBatch.session    = this;
-        tuiBatch.frameTimer = frameTimer;
+        tuiBatch.loopTimer  = loopTimer;
     }
     
     // --- TmSession

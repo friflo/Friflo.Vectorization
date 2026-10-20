@@ -25,11 +25,11 @@ internal sealed class RasterBatch : TmBatch
 {
     internal readonly TuiSixel sixel;
     
-    internal RasterBatch(TmGuiBackend backend, TmTexture texture, FrameTimer? frameTimer) : base(backend)
+    internal RasterBatch(TmGuiBackend backend, TmTexture texture, LoopTimer? loopTimer) : base(backend)
     {
         var cpuTexture = (CpuTexture)texture.native!;
         sixel = cpuTexture.sixel;
-        this.frameTimer = frameTimer;
+        this.loopTimer = loopTimer;
     }
 
     protected internal override void InitBatch() { }

@@ -69,7 +69,7 @@ public partial class TmSessionLoop
             {
                 case ClientEventType.WebsocketConnected: {
                     var newSession = CreateGuiSession(client, true, out var _);
-                    // newSession.wsBatch.frameTimer!.InitTimer(CancellationToken.None);
+                    // newSession.wsBatch.loopTimer!.InitTimer(CancellationToken.None);
                     break;
                 }
                 case ClientEventType.WebsocketInput:
@@ -97,7 +97,7 @@ public partial class TmSessionLoop
                     
                     client.Send(sendBuffer);
                     
-                    // newSession.tuiBatch.frameTimer!.InitTimer(CancellationToken.None);
+                    // newSession.tuiBatch.loopTimer!.InitTimer(CancellationToken.None);
                     break;
                 }
                 case ClientEventType.TerminalDisconnected:
