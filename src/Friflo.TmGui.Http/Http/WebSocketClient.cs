@@ -6,9 +6,11 @@ using System.Buffers;
 using System.Net.WebSockets;
 using System.Text;
 using System.Threading;
+using System.Threading.Channels;
 using System.Threading.Tasks;
 using Friflo.TmGui.Session;
 
+// ReSharper disable SuggestVarOrType_SimpleTypes
 // ReSharper disable MergeIntoPattern
 // ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable ConvertToAutoPropertyWithPrivateSetter
@@ -18,9 +20,11 @@ namespace Friflo.TmGui.Http;
 
 internal class WebSocketClient : TmClient
 {
-    private     WebSocket                   webSocket;
-    private     WsDoubleBuffer?             doubleBuffer;
-    private     TaskCompletionSource<bool>  sendTcs = new(TaskCreationOptions.RunContinuationsAsynchronously);
+    private             WebSocket       webSocket;
+    private             WsDoubleBuffer? doubleBuffer;
+    private readonly    Channel<bool>   sendChannel = Channel.CreateBounded<bool>(new BoundedChannelOptions(1) {
+        FullMode = BoundedChannelFullMode.DropOldest
+    });
 
     internal WebSocketClient(WebSocket webSocket)
     {
@@ -30,6 +34,7 @@ internal class WebSocketClient : TmClient
     
     public override void Dispose()
     {
+        sendChannel.Writer.TryComplete();
         doubleBuffer?.Dispose();
         doubleBuffer = null!;
         webSocket    = null!;
@@ -52,10 +57,8 @@ internal class WebSocketClient : TmClient
         }
         doubleBuffer?.AppendMessage(message);
         
-        // Signal the session loop thread-safely that new outgoing data is ready
-        lock (sendTcs) {
-            sendTcs.TrySetResult(true);
-        }
+        // Signal the send loop thread-safely without locks or allocations
+        sendChannel.Writer.TryWrite(true);
 
         return message.Length;
     }
@@ -82,85 +85,95 @@ internal class WebSocketClient : TmClient
         }
     }
 
-    internal static async Task HandleClientSessionAsync(WebSocketClient client, TmSessionLoop loop, CancellationToken cancellationToken)
+    // Dedicated loop for receiving incoming messages from client
+    private static async Task ReceiveLoopAsync(WebSocketClient client, TmSessionLoop loop, CancellationToken cancellationToken)
     {
-        await loop.EnqueueEventAsync(client, ClientEventType.WebsocketConnected, default);
-
-        // Prepare initial receive task
         byte[] buffer = ArrayPool<byte>.Shared.Rent(256);
-        Task<WebSocketReceiveResult> receiveTask = client.webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), cancellationToken);
-
         try
         {
             while (client.webSocket.State == WebSocketState.Open && !cancellationToken.IsCancellationRequested)
             {
-                // Flush any pending frame before waiting
+                WebSocketReceiveResult result;
+                try
+                {
+                    result = await client.webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), cancellationToken);
+                }
+                catch (Exception)
+                {
+                    ArrayPool<byte>.Shared.Return(buffer);
+                    break;
+                }
+
+                if (result.MessageType == WebSocketMessageType.Close)
+                {
+                    ArrayPool<byte>.Shared.Return(buffer);
+                    await client.webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Closing", cancellationToken);
+                    break;
+                }
+
+                if (result.MessageType == WebSocketMessageType.Text || result.MessageType == WebSocketMessageType.Binary)
+                {
+                    var payload = new Payload(buffer, result.Count);
+                    await loop.EnqueueEventAsync(client, ClientEventType.WebsocketInput, payload);
+                }
+                else
+                {
+                    ArrayPool<byte>.Shared.Return(buffer);
+                }
+
+                // Rent a new buffer for next incoming message
+                buffer = ArrayPool<byte>.Shared.Rent(256);
+            }
+        }
+        finally
+        {
+            ArrayPool<byte>.Shared.Return(buffer);
+        }
+    }
+
+    // Dedicated loop for sending outgoing frames/buffers to client
+    private static async Task SendLoopAsync(WebSocketClient client, CancellationToken cancellationToken)
+    {
+        try
+        {
+            while (client.webSocket.State == WebSocketState.Open && !cancellationToken.IsCancellationRequested)
+            {
                 var doubleBuffer = client.doubleBuffer;
                 if (doubleBuffer != null && doubleBuffer.HasPendingFrame) {
                     await client.FlushPendingBufferAsync(cancellationToken);
                 }
 
-                // Grab the current send signal task thread-safely
-                Task sendSignalTask;
-                lock (client.sendTcs) {
-                    sendSignalTask = client.sendTcs.Task;
-                }
-
-                // Wait for either an incoming receive message OR a send signal
-                Task completedTask = await Task.WhenAny(receiveTask, sendSignalTask);
-
-                // If woken up by send signal, reset the TCS and loop back immediately to flush
-                if (completedTask == sendSignalTask)
-                {
-                    lock (client.sendTcs) {
-                        client.sendTcs = new(TaskCreationOptions.RunContinuationsAsynchronously);
-                    }
-                    continue;
-                }
-
-                if (receiveTask.IsCompleted)
-                {
-                    WebSocketReceiveResult result;
-                    try
-                    {
-                        result = await receiveTask;
-                    }
-                    catch (Exception)
-                    {
-                        ArrayPool<byte>.Shared.Return(buffer);
-                        break;
-                    }
-
-                    if (result.MessageType == WebSocketMessageType.Close)
-                    {
-                        ArrayPool<byte>.Shared.Return(buffer);
-                        await client.webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Closing", cancellationToken);
-                        break;
-                    }
-
-                    if (result.MessageType == WebSocketMessageType.Text || result.MessageType == WebSocketMessageType.Binary)
-                    {
-                        var payload = new Payload(buffer, result.Count);
-                        await loop.EnqueueEventAsync(client, ClientEventType.WebsocketInput, payload);
-                    }
-                    else
-                    {
-                        ArrayPool<byte>.Shared.Return(buffer);
-                    }
-
-                    // Rent a new buffer and arm receiveTask for next incoming message
-                    buffer = ArrayPool<byte>.Shared.Rent(256);
-                    receiveTask = client.webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), cancellationToken);
-                }
+                // Await signal from sendChannel asynchronously with 0% CPU usage and zero allocations
+                await client.sendChannel.Reader.ReadAsync(cancellationToken);
             }
         }
         catch (Exception)
         {
-            // Catch socket drops / tab closes during Task.Delay or ReceiveAsync
+            // Catch socket drops during send
+        }
+    }
+
+    internal static async Task HandleClientSessionAsync(WebSocketClient client, TmSessionLoop loop, CancellationToken cancellationToken)
+    {
+        await loop.EnqueueEventAsync(client, ClientEventType.WebsocketConnected, default);
+
+        // Run independent receive and send loops concurrently
+        Task receiveLoop = ReceiveLoopAsync(client, loop, cancellationToken);
+        Task sendLoop    = SendLoopAsync   (client, cancellationToken);
+
+        try
+        {
+            // Wait until either loop finishes (due to disconnection or error)
+            await Task.WhenAny(receiveLoop, sendLoop);
+        }
+        catch (Exception)
+        {
+            // Catch session-level exceptions
         }
         finally
         {
             // Guaranteed to run even if the browser tab was force-closed
+            client.Dispose();
             await loop.EnqueueEventAsync(client, ClientEventType.WebsocketDisconnected, default);
         }
     }
