@@ -83,7 +83,7 @@ public class TmGuiRenderer : IRenderer, IGuiView
     /// <summary>
     /// Starts an HTTP server and creates a session loop that handles all web client sessions on the main thread.<br/>
     /// By calling <see cref="TmSessionLoop.IterateSessions"/> periodically, queued user input (mouse and keyboard) is processed. 
-    /// Every client with pending input or a dirty session renders a new frame via <see cref="OnFrame"/>, which is then sent to the client. 
+    /// Every client with pending input or a dirty session renders a new frame via <see cref="RenderGui"/>, which is then sent to the client. 
     /// </summary>
     private static TmSessionLoop CreateSessionLoop(TmGuiBackend backend, TmGuiRenderer renderer)
     {
@@ -115,17 +115,13 @@ public class TmGuiRenderer : IRenderer, IGuiView
         };
     }
     
-    private readonly Stopwatch   stopwatch = Stopwatch.StartNew();
-
     public void OnFrame(in RenderTarget target)
     {
-        batch.Timer.Enabled = false; // only ensure Timer instance != null
+        _ = batch.Timer.Enabled;    // not relevant - only smoke test to ensure Timer instance != null
+        
         perfLog.Trace(10000);
-        if (stopwatch.ElapsedMilliseconds >= update) {
-            loop?.IterateSessions();
-            stopwatch.Restart();
-        }
-        // loop.IterateSessions();   // todo  use only this call - remove if (stopwatch) ... branch.
+        
+        loop?.IterateSessions();
         
         RenderGui(batch, target.Width, target.Height);
 
