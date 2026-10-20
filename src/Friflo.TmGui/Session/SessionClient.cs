@@ -4,8 +4,10 @@
 using System;
 using Friflo.TmGui.Session;
 
+// ReSharper disable ConvertToAutoProperty
 // ReSharper disable CheckNamespace
 namespace Friflo.TmGui;
+
 
 public readonly struct SessionId : IEquatable<SessionId>
 {
@@ -62,17 +64,21 @@ public sealed class SessionClient
     
     private  readonly   TmSessionLoop   loop;
     private  readonly   TmSession       session;
+    private  readonly   LoopTimer       loopTimer;
     
-    public              string?         AppId   => loop.appId;
-    public              IClientAction   Action  => backend.host.clientAction;
-    
-    internal SessionClient(TmSessionLoop loop, TmSession session, string[] args, TmClient client, TmGuiBackend backend)
+    public              string?         AppId       => loop.appId;
+    public              IClientAction   Action      => backend.host.clientAction;
+    public              LoopTimer       Timer       => loopTimer;
+    public   override   string          ToString()  => $"sessionId: {sessionId}";
+
+    internal SessionClient(TmSessionLoop loop, TmSession session, string[] args, TmClient client, TmGuiBackend backend, LoopTimer loopTimer)
     {
         this.loop       = loop;
         this.session    = session;
         this.args       = args;
         this.client     = client;
         this.backend    = backend;
+        this.loopTimer  = loopTimer;
         sessionId       = session.sessionId;
     }
     

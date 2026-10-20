@@ -42,6 +42,8 @@ public class TestGuiView : IGuiView
         myTexture           = backend.LoadTexture(stream, "sixel_test.png");
         var tui             = backend as CpuBackend;
         canvasTexture       = tui?.CreateTexture("canvas", CanvasWidth, CanvasHeight, new byte[CanvasWidth * CanvasHeight * 4]) ?? default;
+        client.Timer.TickRate   = 60;
+        client.Timer.Enabled    = true;
         client.Action.SetWindowTitle(client.AppId ?? "App");
     }
     
@@ -52,8 +54,7 @@ public class TestGuiView : IGuiView
     public void RenderGui(TmBatch batch, int targetWidth, int targetHeight)
     {
         oldDrawType = appState.drawType;
-        batch.Timer.TickRate = 60;
-        // batch.Timer.Enabled = false;
+
         Static.Noop();
         
         var timestamp   = Stopwatch.GetTimestamp();

@@ -177,7 +177,7 @@ public sealed partial class TmSessionLoop : IDisposable
         var loopTimer       = new LoopTimer(this, client, 60, isSync);
         var sessionId       = new SessionId(_sessionSeq++);
         var session         = new TuiSession(client, sessionId, this, loopTimer, TuiColorMode.RGB24);
-        var sessionClient   = new SessionClient(this, session, args, client, session.Backend);
+        var sessionClient   = new SessionClient(this, session, args, client, session.Backend, loopTimer);
         var guiView         = createGuiView(sessionClient);
         
         session.guiView = guiView;
@@ -193,7 +193,7 @@ public sealed partial class TmSessionLoop : IDisposable
         var loopTimer       = new LoopTimer(this, client, 60, isSync);
         var sessionId       = new SessionId(_sessionSeq++);
         var session         = new GuiSession(client, sessionId, this, loopTimer);
-        var sessionClient   = new SessionClient(this, session, [], client, session.Backend);
+        var sessionClient   = new SessionClient(this, session, [], client, session.Backend, loopTimer);
         var guiView         = createGuiView(sessionClient);
         
         session.guiView = guiView;
