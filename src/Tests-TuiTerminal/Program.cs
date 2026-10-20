@@ -54,12 +54,12 @@ bool runAsync = false;
 
 var loop = new TmSessionLoop(runAsync, cpuBackend, info => new TestGuiView(appState, info));
 
-// var builder = HttpUtils.CreateHostBuilder(new IPEndPoint(IPAddress.Any, 8080), loop);
-// _ = HttpUtils.Start(builder.Build());
+var builder = HttpUtils.CreateHostBuilder(new IPEndPoint(IPAddress.IPv6Any, 8080), loop);
+_ = HttpUtils.Start(builder.Build());
 
-var signalListener =  new TmSignalingListener(loop);
-await signalListener.ConnectAsync(new Uri("wss://localhost:8081/signaling"), "test-app", "auto");
-_ = signalListener.RunAsync();
+// var signalListener =  new TmSignalingListener(loop);
+// await signalListener.ConnectAsync(new Uri("wss://localhost:8081/signaling"), "test-app", "auto");
+// _ = signalListener.RunAsync();
 
 if (runAsync) {
     loop.StartAsync(); // Spawns dedicated "ShardLoopThread"
