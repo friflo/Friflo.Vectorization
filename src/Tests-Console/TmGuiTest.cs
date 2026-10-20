@@ -125,7 +125,7 @@ public class TmGuiRenderer : IRenderer, IGuiView
             loop?.IterateSessions();
             stopwatch.Restart();
         }
-        // loop.IterateSessions();
+        // loop.IterateSessions();   // todo  use only this call - remove if (stopwatch) ... branch.
         
         RenderGui(batch, target.Width, target.Height);
 
