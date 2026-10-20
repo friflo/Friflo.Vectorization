@@ -192,37 +192,17 @@ public abstract class TmBatch : IDisposable
     /// When set to <c>true</c>, continuous frame updates are triggered at the configured <see cref="TickRate"/>.
     /// Disabling this stops timer-driven ticks without preventing manual or event-driven redraws.
     /// </remarks>
-    public bool TickEnabled
-    {
-        get => frameTimer?.isRunning ?? false;
-        set {
-            var timer = frameTimer;
-            if (timer == null) return;
-            if (value == timer.isRunning) { 
-                return;
-            }
-            if (value) {
-                timer.Start();
-            } else {
-                timer.Stop();
-            }
-        }
+    public bool TickEnabled {
+        get => frameTimer?.TickEnabled ?? false;
+        set => frameTimer?.TickEnabled =  value;
     }
     
     /// <summary> Gets or sets the execution frequency of the timer in Hertz (ticks per second). </summary>
     public int TickRate
     {
-        get => frameTimer?.tickRate ?? 0;
-        set {
-            var timer = frameTimer;
-            if (timer == null) return;
-            if (value == timer.tickRate) { 
-                return;
-            }
-            timer.SetTickRate(value);
-        }
+        get => frameTimer?.TickRate ?? 0;
+        set => frameTimer?.TickRate = value;
     }
-
     
     public void SetFont(TmFont font) {
         currentFont         = font;

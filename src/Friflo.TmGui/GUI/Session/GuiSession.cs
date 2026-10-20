@@ -33,7 +33,7 @@ internal sealed class GuiSessionShared
 internal sealed partial class GuiSession : TmSession, IClientAction
 {
     private  readonly   WsBackend           wsBackend;          // instance: creates / owns
-    internal readonly   WsBatch             wsBatch;            // instance: creates / owns
+    private  readonly   WsBatch             wsBatch;            // instance: creates / owns
     private  readonly   GuiSessionShared    shared;             // instance: shared
     
     private  readonly   HashSet<int>        clientTextures      = [];

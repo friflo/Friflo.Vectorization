@@ -21,9 +21,9 @@ internal sealed class FrameTimer : IDisposable
     private             CancellationToken cancellationToken;
     private  readonly   bool              isSync;
     private             int               Period => 1000 / tickRate; // ms
-    internal            int               tickRate;                  // Hz
+    private             int               tickRate;                  // Hz
     private             bool              isInitialized;
-    internal volatile   bool              isRunning;
+    private  volatile   bool              isRunning;
 
     internal FrameTimer(TmSessionLoop loop, TmClient client, int tickRate, bool isSync)
     {
@@ -39,8 +39,44 @@ internal sealed class FrameTimer : IDisposable
         syncTimer?.Dispose();
         asyncTimer?.Dispose();
     }
+    
+    internal bool TickEnabled
+    {
+        get => isRunning;
+        set {
 
-    internal void Stop()
+            if (value == isRunning) { 
+                return;
+            }
+            if (value) {
+                Start();
+            } else {
+                Stop();
+            }
+        }
+    }
+    
+    /// <summary> Gets or sets the execution frequency of the timer in Hertz (ticks per second). </summary>
+    internal int TickRate
+    {
+        get => tickRate;
+        set {
+            if (value == tickRate) { 
+                return;
+            }
+            tickRate = value;
+
+            if (isSync) {
+                if (isRunning) {
+                    syncTimer?.Change(0, Period);
+                }
+            } else if (asyncTimer != null) {
+                asyncTimer.Period = TimeSpan.FromMilliseconds(Period);
+            }
+        }
+    }
+
+    private void Stop()
     {
         if (!isRunning) {
             return;
@@ -58,7 +94,7 @@ internal sealed class FrameTimer : IDisposable
         }
     }
 
-    internal void Start()
+    private void Start()
     {
         if (isRunning) {
             return;
@@ -71,19 +107,6 @@ internal sealed class FrameTimer : IDisposable
             syncTimer?.Change(0, Period);
         } else {
             _ = StartFrameTickerAsync(cancellationToken);
-        }
-    }
-
-    internal void SetTickRate(int rate)
-    {
-        tickRate = rate;
-
-        if (isSync) {
-            if (isRunning) {
-                syncTimer?.Change(0, Period);
-            }
-        } else if (asyncTimer != null) {
-            asyncTimer.Period = TimeSpan.FromMilliseconds(Period);
         }
     }
 
