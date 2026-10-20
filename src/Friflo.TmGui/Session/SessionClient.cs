@@ -63,7 +63,6 @@ public sealed class SessionClient
     public   readonly   TmGuiBackend    backend;
     
     private  readonly   TmSessionLoop   loop;
-    private  readonly   TmSession       session;
     private  readonly   LoopTimer       loopTimer;
     
     public              string?         AppId       => loop.appId;
@@ -74,7 +73,6 @@ public sealed class SessionClient
     internal SessionClient(TmSessionLoop loop, TmSession session, string[] args, TmClient client, TmGuiBackend backend, LoopTimer timer)
     {
         this.loop       = loop;
-        this.session    = session;
         this.args       = args;
         this.client     = client;
         this.backend    = backend;
