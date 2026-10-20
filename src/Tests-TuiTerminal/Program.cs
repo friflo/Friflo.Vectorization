@@ -52,7 +52,7 @@ var appState    = new AppState(cpuBackend);
 // false => TCP server runs on ThreadPool, Main-Thread is blocked by UI Loop.
 bool runAsync = false;
 
-var loop = new TmSessionLoop(runAsync, cpuBackend, info => new TestGuiView(appState, info));
+var loop = new TmSessionLoop(runAsync, cpuBackend, client => new TestGuiView(appState, client));
 
 var builder = HttpUtils.CreateHostBuilder(new IPEndPoint(IPAddress.IPv6Any, 8080), loop);
 _ = HttpUtils.Start(builder.Build());
