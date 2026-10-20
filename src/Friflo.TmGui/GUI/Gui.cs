@@ -3,6 +3,7 @@
 
 using System;
 using System.Numerics;
+using Friflo.TmGui.Session;
 using Friflo.TmGui.TUI;
 using Hide = System.Diagnostics.DebuggerHiddenAttribute;
 
@@ -25,12 +26,13 @@ public readonly ref struct Gui
     
     public ref readonly GuiColors       Colors              { [Hide] get => ref widget.Colors;                      }
     public ref readonly GuiSizes        Sizes               { [Hide] get => ref widget.Sizes;                       }
+    public              GuiInput        Input               { [Hide] get => widget.input;                           }
     public              TmDraw          Draw                { [Hide] get => widget.draw;                            }
     public              float           LineHeight          { [Hide] get => widget.draw.Font.lineHeight;            }
-    public              GuiInput        Input               { [Hide] get => widget.input;                           }
     public              Vector2         TerminalPixelSize   { [Hide] get => widget.draw.batch.terminalPixelSize;    }
     public              TmBatch         Batch               { [Hide] get => widget.draw.batch;                      }
-    public              IClientAction   Action              { [Hide] get => widget.draw.batch.Action;               }   
+    public              IClientAction   Action              { [Hide] get => widget.draw.batch.Action;               }
+    public              LoopTimer       Timer               { [Hide] get => widget.draw.batch.loopTimer;            }
     
 
     /// <summary>
