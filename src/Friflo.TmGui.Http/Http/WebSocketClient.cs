@@ -18,8 +18,9 @@ namespace Friflo.TmGui.Http;
 
 internal class WebSocketClient : TmClient
 {
-    private     WebSocket       webSocket;
-    private     WsDoubleBuffer? doubleBuffer;
+    private     WebSocket                   webSocket;
+    private     WsDoubleBuffer?             doubleBuffer;
+    private     TaskCompletionSource<bool>  sendTcs = new(TaskCreationOptions.RunContinuationsAsynchronously);
 
     internal WebSocketClient(WebSocket webSocket)
     {
@@ -50,6 +51,11 @@ internal class WebSocketClient : TmClient
             return 0;
         }
         doubleBuffer?.AppendMessage(message);
+        
+        // Signal the session loop thread-safely that new outgoing data is ready
+        lock (sendTcs) {
+            sendTcs.TrySetResult(true);
+        }
 
         return message.Length;
     }
@@ -88,10 +94,28 @@ internal class WebSocketClient : TmClient
         {
             while (client.webSocket.State == WebSocketState.Open && !cancellationToken.IsCancellationRequested)
             {
-                // Wait briefly or check for pending frame signal without WaitAsync allocations
+                // Flush any pending frame before waiting
                 var doubleBuffer = client.doubleBuffer;
                 if (doubleBuffer != null && doubleBuffer.HasPendingFrame) {
                     await client.FlushPendingBufferAsync(cancellationToken);
+                }
+
+                // Grab the current send signal task thread-safely
+                Task sendSignalTask;
+                lock (client.sendTcs) {
+                    sendSignalTask = client.sendTcs.Task;
+                }
+
+                // Wait for either an incoming receive message OR a send signal
+                Task completedTask = await Task.WhenAny(receiveTask, sendSignalTask);
+
+                // If woken up by send signal, reset the TCS and loop back immediately to flush
+                if (completedTask == sendSignalTask)
+                {
+                    lock (client.sendTcs) {
+                        client.sendTcs = new(TaskCreationOptions.RunContinuationsAsynchronously);
+                    }
+                    continue;
                 }
 
                 if (receiveTask.IsCompleted)
@@ -128,9 +152,6 @@ internal class WebSocketClient : TmClient
                     buffer = ArrayPool<byte>.Shared.Rent(256);
                     receiveTask = client.webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), cancellationToken);
                 }
-
-                // Yield control briefly to avoid CPU spinning when idle
-                await Task.Delay(1, cancellationToken);
             }
         }
         catch (Exception)
