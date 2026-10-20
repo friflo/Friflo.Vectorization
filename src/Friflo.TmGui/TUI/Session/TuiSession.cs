@@ -41,7 +41,7 @@ internal sealed partial class TuiSession : TmSession
     private             ulong[]             lastLineHashes  = new ulong[10];
 
     
-    internal TuiSession(TmClient client, SessionId sessionId, TmSessionLoop loop, LoopTimer loopTimer, TuiColorMode colorMode)
+    internal TuiSession(TmClient client, SessionId sessionId, TmSessionLoop loop, LoopTimer timer, TuiColorMode colorMode)
         : base(client, sessionId)
     {
         this.colorMode      = colorMode;
@@ -49,9 +49,8 @@ internal sealed partial class TuiSession : TmSession
         var loopBackend     = loop.cpuBackend;
         cpuBackend          = client is ConsoleClient ? loopBackend : new CpuBackend(loopBackend.backendName, loopBackend);
         
-        tuiBatch            = cpuBackend.CreateTuiBatch(colorMode);
+        tuiBatch            = cpuBackend.CreateTuiBatch(colorMode, timer);
         tuiBatch.session    = this;
-        tuiBatch.loopTimer  = loopTimer;
     }
     
     // --- TmSession
@@ -61,7 +60,7 @@ internal sealed partial class TuiSession : TmSession
     internal override GuiReplay CreateReplay()
     {
         var replayBackend   = new CpuBackend("Replay", cpuBackend.Assets);
-        var replayBatch     = replayBackend.CreateTuiBatch(colorMode);
+        var replayBatch     = replayBackend.CreateTuiBatch(colorMode, null);
         return new GuiReplay(replayBackend, replayBatch, this);
     }
     

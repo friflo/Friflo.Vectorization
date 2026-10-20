@@ -1,8 +1,8 @@
 ﻿// Copyright (c) Ullrich Praetz - https://github.com/friflo. All rights reserved.
 // See LICENSE file in the project root for full license information.
 
-using System;
 using System.Numerics;
+using Friflo.TmGui.Session;
 
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable CheckNamespace
@@ -10,8 +10,8 @@ namespace Friflo.TmGui.Headless;
 
 public sealed class CpuGuiBatch : TmBatch
 {
-    internal CpuGuiBatch(CpuBackend backend, int maxVertices)
-        : base(backend, maxVertices)
+    internal CpuGuiBatch(CpuBackend backend, int maxVertices, LoopTimer? timer)
+        : base(backend, maxVertices, timer)
     {
     }
     

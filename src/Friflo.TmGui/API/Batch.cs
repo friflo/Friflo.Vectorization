@@ -84,7 +84,7 @@ public abstract class TmBatch : IDisposable
     internal  readonly  GuiState            guiState            = new();
     internal            TmSession?          session;
     
-    internal            LoopTimer?          loopTimer;
+    internal  readonly  LoopTimer           loopTimer;
 
     // --- replay
     internal            GuiRecorder?        recorder; // gui recording requires a session
@@ -124,16 +124,17 @@ public abstract class TmBatch : IDisposable
     internal            int                 vertexCount;
     internal            TmTexture           currentTexture;
     
-    protected TmBatch(TmGuiBackend backend) : this(backend, 4)
+    protected TmBatch(TmGuiBackend backend, LoopTimer? timer) : this(backend, 4, timer)
     {
         isRasterBatch = true;
     }
 
-    protected TmBatch(TmGuiBackend backend, int maxVertices)
+    protected TmBatch(TmGuiBackend backend, int maxVertices, LoopTimer? timer)
     {
         formatProvider  = CultureInfo.InvariantCulture;
         host            = backend.host;
         input           = backend.input;
+        loopTimer       = timer ?? new LoopTimer(60, true); // create Noop timer for all non session related batches
         if (this is TuiBatch typeTuiBatch) {
             tui = typeTuiBatch;
         }

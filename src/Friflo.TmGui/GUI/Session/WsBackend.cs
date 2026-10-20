@@ -61,9 +61,9 @@ internal class WsBackend : TmGuiBackend
         return cpuBackend.GetTextureImage(texture);
     }
     
-    internal WsBatch CreateBatch()  // WS_TAG
+    internal WsBatch CreateBatch(LoopTimer timer)  // WS_TAG
     {
-        var batch = new WsBatch(this, 60000);
+        var batch = new WsBatch(this, 60000, timer);
         InitBatch(batch);
         return batch;
     }

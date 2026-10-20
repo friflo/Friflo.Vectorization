@@ -3,6 +3,7 @@
 
 using System;
 using System.IO;
+using Friflo.TmGui.Session;
 using Friflo.TmGui.TUI;
 
 // ReSharper disable ConvertToPrimaryConstructor
@@ -36,15 +37,15 @@ public sealed class CpuBackend : TmGuiBackend
         base.Dispose();
     }
     
-    public CpuGuiBatch CreateGuiBatch(int maxVertices = 60_000) {
-        var batch = new CpuGuiBatch(this, maxVertices);
+    public CpuGuiBatch CreateGuiBatch(int maxVertices = 60_000, LoopTimer? timer = null) {
+        var batch = new CpuGuiBatch(this, maxVertices, timer);
         InitBatch(batch);
         return batch;
     }
     
-    public TuiBatch CreateTuiBatch(TuiColorMode colorMode)
+    public TuiBatch CreateTuiBatch(TuiColorMode colorMode, LoopTimer? timer)
     {
-        var batch = new TuiBatch(this, colorMode);
+        var batch = new TuiBatch(this, colorMode, timer);
         InitBatch(batch);
         SetClientActions(batch);
         return batch;

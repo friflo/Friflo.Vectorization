@@ -108,6 +108,7 @@ public class TmGuiRenderer : IRenderer, IGuiView
 
     public void OnFrame(in RenderTarget target)
     {
+        batch.Timer.Enabled = false; // only ensure Timer instance != null
         perfLog.Trace(10000);
         if (stopwatch.ElapsedMilliseconds >= update) {
             loop?.IterateSessions();

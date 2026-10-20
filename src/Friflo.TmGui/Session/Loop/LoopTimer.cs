@@ -14,8 +14,8 @@ namespace Friflo.TmGui.Session;
 
 public sealed class LoopTimer : IDisposable
 {
-    private  readonly   TmSessionLoop     loop;
-    private  readonly   TmClient          client;
+    private             TmSessionLoop?    loop;
+    private             TmClient?         client;
     private             Timer?            syncTimer;
     private             PeriodicTimer?    asyncTimer;
     private             CancellationToken cancellationToken;
@@ -24,6 +24,13 @@ public sealed class LoopTimer : IDisposable
     private             int               tickRate;                  // Hz
     private             bool              isInitialized;
     private  volatile   bool              isRunning;
+    
+    /// Creates a Noop LoopTimer
+    internal LoopTimer(int tickRate, bool isSync)
+    {
+        this.tickRate = tickRate;
+        this.isSync   = isSync;
+    }
 
     internal LoopTimer(TmSessionLoop loop, TmClient client, int tickRate, bool isSync)
     {
@@ -38,6 +45,10 @@ public sealed class LoopTimer : IDisposable
         isRunning = false;
         syncTimer?.Dispose();
         asyncTimer?.Dispose();
+        syncTimer   = null;
+        asyncTimer  = null;
+        loop        = null;
+        client      = null;
     }
     
     /// <summary> Gets or sets a value indicating whether the session's loop ticker is active. </summary>
@@ -49,8 +60,7 @@ public sealed class LoopTimer : IDisposable
     {
         get => isRunning;
         set {
-
-            if (value == isRunning) { 
+            if (value == isRunning || client == null) { 
                 return;
             }
             if (value) {
@@ -66,7 +76,7 @@ public sealed class LoopTimer : IDisposable
     {
         get => tickRate;
         set {
-            if (value == tickRate) { 
+            if (value == tickRate || client == null) { 
                 return;
             }
             tickRate = value;
@@ -139,7 +149,7 @@ public sealed class LoopTimer : IDisposable
         {
             while (await asyncTimer.WaitForNextTickAsync(ct))
             {
-                loop.TryEnqueueEvent(client, ClientEventType.FrameTick, default);
+                EnqueueFrameTick();
             }
         }
         catch (OperationCanceledException)
@@ -150,6 +160,11 @@ public sealed class LoopTimer : IDisposable
         {
             // Expected when Stop() disposes the asyncTimer
         }
+    }
+    
+    private void EnqueueFrameTick()
+    {
+        loop!.TryEnqueueEvent(client!, ClientEventType.FrameTick, default);
     }
 
     private void StartFrameTickerSync()
@@ -162,7 +177,7 @@ public sealed class LoopTimer : IDisposable
         var timer = (LoopTimer)s!;
         if (timer.cancellationToken.IsCancellationRequested || !timer.isRunning) return;
 
-        timer.loop.TryEnqueueEvent(timer.client, ClientEventType.FrameTick, default);
+        timer.EnqueueFrameTick();
     }
     
     static LoopTimer()

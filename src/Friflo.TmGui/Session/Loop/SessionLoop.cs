@@ -207,8 +207,7 @@ public sealed partial class TmSessionLoop : IDisposable
     private void DisposeSession(TmSession session)
     {
         var batch = session.Batch;
-        batch.loopTimer?.Dispose();
-        batch.loopTimer = null;
+        batch.loopTimer.Dispose();
         resources.RemoveSessionResources(session.sessionId);
     }
 

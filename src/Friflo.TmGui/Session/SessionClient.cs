@@ -71,14 +71,14 @@ public sealed class SessionClient
     public              LoopTimer       Timer       => loopTimer;
     public   override   string          ToString()  => $"sessionId: {sessionId}";
 
-    internal SessionClient(TmSessionLoop loop, TmSession session, string[] args, TmClient client, TmGuiBackend backend, LoopTimer loopTimer)
+    internal SessionClient(TmSessionLoop loop, TmSession session, string[] args, TmClient client, TmGuiBackend backend, LoopTimer timer)
     {
         this.loop       = loop;
         this.session    = session;
         this.args       = args;
         this.client     = client;
         this.backend    = backend;
-        this.loopTimer  = loopTimer;
+        loopTimer       = timer;
         sessionId       = session.sessionId;
     }
     
