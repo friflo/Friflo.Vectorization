@@ -52,15 +52,15 @@ public class TestGuiView : IGuiView
     public void RenderGui(TmBatch batch, int targetWidth, int targetHeight)
     {
         oldDrawType = appState.drawType;
-        batch.TickRate = 60;
-        // batch.TickEnabled = false;
+        batch.Timer.TickRate = 60;
+        // batch.Timer.Enabled = false;
         Static.Noop();
         
         var timestamp   = Stopwatch.GetTimestamp();
         frameTime       = Stopwatch.GetElapsedTime(frameStart, timestamp).TotalMilliseconds;
         frameStart      = timestamp;
         
-        if (batch.TickEnabled) time += (float)frameTime * appState.speed * 2f * 0.001f;
+        if (batch.Timer.Enabled) time += (float)frameTime * appState.speed * 2f * 0.001f;
         
         var mem     = GC.GetAllocatedBytesForCurrentThread();
         memDiff     = mem - memStart;
@@ -107,7 +107,7 @@ public class TestGuiView : IGuiView
         gui.Label(e.Current.Span, Color32.Gray);
         
         sb.Clear().Append($"frame time: ");
-        if (gui.Batch.TickEnabled) sb.Append($"{frameTime,5:F1} ms  "); else sb.Append($" ---  ");
+        if (gui.Batch.Timer.Enabled) sb.Append($"{frameTime,5:F1} ms  "); else sb.Append($" ---  ");
         e = sb.Append($"alloc: {memDiff}").GetChunks().GetEnumerator();
         e.MoveNext();
         gui.Label(e.Current.Span, Color32.Teal);
@@ -134,9 +134,9 @@ public class TestGuiView : IGuiView
         }
         
         var batch = gui.Batch;
-        var animate = batch.TickEnabled;
+        var animate = batch.Timer.Enabled;
         if (gui.Checkbox("animate", ref animate)) {
-            batch.TickEnabled = animate;
+            batch.Timer.Enabled = animate;
             client.SetAppDirty();
         }
         gui.Checkbox("texture scissor", ref appState.textureScissor);
@@ -164,7 +164,7 @@ public class TestGuiView : IGuiView
                 // gui.Draw.FillRect(space.Pos, canvasSize, 0xffffffff);
                 gui.Draw.Tui?.DrawSprite(canvasTexture, space.Pos, canvasSize);
             }
-            if (oldDrawType != appState.drawType || batch.TickEnabled) {
+            if (oldDrawType != appState.drawType || batch.Timer.Enabled) {
                 var draw = batch.BeginTextureDraw(canvasTexture, Color32.Transparent);
                 TextureDraw(draw);
                 batch.EndTextureDraw();

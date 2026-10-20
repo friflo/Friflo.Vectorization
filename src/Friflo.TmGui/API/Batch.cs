@@ -61,6 +61,7 @@ public abstract class TmBatch : IDisposable
     public  ReadOnlySpan<DrawCommand>       DrawList        => new(drawList, 0, drawCommands.Count);
     public  Span<Vertex2D>                  Vertices        => vertexBuffer.Span.Slice(0, vertexCount);
     public  IClientAction                   Action          => host.clientAction;
+    public  LoopTimer                       Timer           => loopTimer!;
 #endregion
 
 #region protected
@@ -185,23 +186,6 @@ public abstract class TmBatch : IDisposable
     {
         gpuVertexBuffer.Dispose();
         gpuIndexBuffer.Dispose();
-    }
-    
-    /// <summary> Gets or sets a value indicating whether the session's frame ticker is active. </summary>
-    /// <remarks>
-    /// When set to <c>true</c>, continuous frame updates are triggered at the configured <see cref="TickRate"/>.
-    /// Disabling this stops timer-driven ticks without preventing manual or event-driven redraws.
-    /// </remarks>
-    public bool TickEnabled {
-        get => loopTimer?.TickEnabled ?? false;
-        set => loopTimer?.TickEnabled =  value;
-    }
-    
-    /// <summary> Gets or sets the execution frequency of the timer in Hertz (ticks per second). </summary>
-    public int TickRate
-    {
-        get => loopTimer?.TickRate ?? 0;
-        set => loopTimer?.TickRate = value;
     }
     
     public void SetFont(TmFont font) {

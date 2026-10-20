@@ -28,7 +28,7 @@ internal sealed partial class TuiSession : TmSession
     private  readonly   TuiColorMode        colorMode;
     private  readonly   TuiSessionShared    shared;         // instance: shared
     private  readonly   CpuBackend          cpuBackend;     // instance: creates / owns
-    internal readonly   TuiBatch            tuiBatch;       // instance: creates / owns
+    private  readonly   TuiBatch            tuiBatch;       // instance: creates / owns
     private  readonly   byte[]              sendBuffer      = new byte[60000];  // TODO  should be shared / grow if needed
     private             int                 sendBufferCount;
     private             int                 frameWidth      = 50;

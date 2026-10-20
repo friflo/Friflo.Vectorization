@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 namespace Friflo.TmGui.Session;
 
 
-internal sealed class LoopTimer : IDisposable
+public sealed class LoopTimer : IDisposable
 {
     private  readonly   TmSessionLoop     loop;
     private  readonly   TmClient          client;
@@ -40,7 +40,12 @@ internal sealed class LoopTimer : IDisposable
         asyncTimer?.Dispose();
     }
     
-    internal bool TickEnabled
+    /// <summary> Gets or sets a value indicating whether the session's loop ticker is active. </summary>
+    /// <remarks>
+    /// When set to <c>true</c>, continuous frame updates are triggered at the configured <see cref="TickRate"/>.
+    /// Disabling this stops timer-driven ticks without preventing manual or event-driven redraws.
+    /// </remarks>
+    public bool Enabled
     {
         get => isRunning;
         set {
@@ -57,7 +62,7 @@ internal sealed class LoopTimer : IDisposable
     }
     
     /// <summary> Gets or sets the execution frequency of the timer in Hertz (ticks per second). </summary>
-    internal int TickRate
+    public int TickRate
     {
         get => tickRate;
         set {
