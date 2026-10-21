@@ -66,7 +66,7 @@ internal sealed class SignalSocketHandler
                 var ct = context.RequestAborted;
                 await HandlePeerSessionAsync(peer, signaling, ct);
             }
-            catch (Exception _)
+            catch (Exception)
             {
                 // ReSharper disable once MethodHasAsyncOverload
                 // Console.Error.WriteLine($"[-] WebSocket error: {ex.Message}");
