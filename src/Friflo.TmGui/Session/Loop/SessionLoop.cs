@@ -19,6 +19,15 @@ using Friflo.TmGui.TUI.Session;
 namespace Friflo.TmGui.Session;
 
 
+/// <summary>
+/// Manages client (web, terminal or console) sessions, processing queued user input (mouse and keyboard) 
+/// and coordinating frame rendering and transmission for clients with pending input or dirty sessions.
+/// </summary>
+/// <remarks>
+/// Handles all client sessions on the main thread. This enables lock-free implementations, as application and session state are always accessed from the same thread.<br/>
+/// Use <see cref="RunSync"/> or <see cref="RunAsync"/> to let the loop run automatically (ideal for console and terminal applications).<br/>
+/// Alternatively, call <see cref="IterateSessions"/> periodically if your application manages its own custom event loop, e.g., in your game loop.
+/// </remarks>
 public sealed partial class TmSessionLoop : IDisposable
 {
     public   readonly   AssetResources  resources;

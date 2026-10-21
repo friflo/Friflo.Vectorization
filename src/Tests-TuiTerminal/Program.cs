@@ -62,14 +62,14 @@ _ = HttpUtils.Start(builder.Build());
 // _ = signalListener.RunAsync();
 
 if (runAsync) {
-    loop.StartAsync(); // Spawns dedicated "ShardLoopThread"
+    loop.RunAsync(); // Spawns dedicated "ShardLoopThread"
     await RunTcpServerAsync(loop, port: 9000);
 }
 else {
     // Run TCP accept loop in background and lock Main-Thread for engine execution
     _ = Task.Run(() => RunTcpServerAsync(loop, port: 9000));
     
-    loop.StartSync(); // Blocks Main-Thread directly
+    loop.RunSync(); // Blocks Main-Thread directly
 }
 
 

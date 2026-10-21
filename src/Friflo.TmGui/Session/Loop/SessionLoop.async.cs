@@ -14,7 +14,7 @@ namespace Friflo.TmGui.Session;
 public partial class TmSessionLoop
 {
     // start
-    public void StartAsync()
+    public void RunAsync()
     {
         ObjectDisposedException.ThrowIf(isDisposed, this);
         if (shardThread != null)        {
