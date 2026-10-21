@@ -111,4 +111,9 @@ public sealed class SessionClient
     }
 }
 
+/// <summary>
+/// Represents a factory delegate used by <see cref="TmSessionLoop"/> to create a new <see cref="IGuiView"/> instance for a given client session.
+/// </summary>
+/// <param name="client">The client associated with the session.</param>
+/// <returns>An instance implementing <see cref="IGuiView"/> for the client.</returns>
 public delegate IGuiView CreateGuiView(SessionClient client);

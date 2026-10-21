@@ -25,7 +25,7 @@ namespace Friflo.TmGui.Session;
 /// </summary>
 /// <remarks>
 /// Handles all client sessions on the main thread. This enables lock-free implementations, as application and session state are always accessed from the same thread.<br/>
-/// The <see cref="CreateGuiView"/> passed to the <see cref="TmSessionLoop"/> constructor has to return an instance implementing <see cref="IGuiView"/>.<br/>
+/// The <see cref="CreateGuiView"/> delegate passed to the <see cref="TmSessionLoop"/> constructor has to return an instance implementing <see cref="IGuiView"/>.<br/>
 /// If a client has pending input or a dirty session, a new frame is rendered via <see cref="IGuiView.RenderGui"/>, which is then sent to the client.<br/>
 /// <br/>
 /// Use <see cref="RunSync"/> or <see cref="RunAsync"/> to let the loop run automatically (ideal for console and terminal applications).<br/>
