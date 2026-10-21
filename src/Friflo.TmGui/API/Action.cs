@@ -14,6 +14,13 @@ public enum TmDisplayMode
     Fullscreen,
 }
 
+/// <summary>
+/// Defines actions and commands that can be executed on a client interface.
+/// </summary>
+/// <remarks>
+/// For a native application - e.g. based on SDL - you may create a custom implementation
+/// and use it with <see cref="TmGuiBackend.SetClientActions"/>.
+/// </remarks>
 public interface IClientAction
 {
     /// <summary>
