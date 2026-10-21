@@ -173,7 +173,7 @@ internal sealed partial class TuiSession : TmSession
     
     private void AppendFrameBuffer(TmGuiBackend backend, TuiBatch batch, int width, int height)
     {
-        var background = WindowUtils.IsDarkMode ? batch.backgroundDark : batch.backgroundLight;
+        var background = WindowSettingsUtils.IsDarkMode ? batch.backgroundDark : batch.backgroundLight;
         var clear = new TuiColorCell { Character = ' ', color = 0x000000ff, background = background };
         batch.DrawRectCommands(shared.frameBuffer, width, height, clear);
         
