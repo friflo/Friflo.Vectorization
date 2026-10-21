@@ -289,7 +289,9 @@ export function applyVertexChanges(uint8Data, view, changeOffset, changeCount, d
 }
 
 // ----------------------------------------- host actions -----------------------------------------
-export let clearValue = { r: 0.4, g: 0.4, b: 0.4, a: 1.0 };
+export let clearLight = { r: 0.4, g: 0.4, b: 0.4, a: 1.0 };
+export let clearDark  = { r: 0.4, g: 0.4, b: 0.4, a: 1.0 };
+
 
 /** @param {string} data */
 export function invokeAction(data) {
@@ -305,13 +307,8 @@ export function invokeAction(data) {
             // setWindowTitle(args[1]);
             break;
         case "set-clear-color":
-            const hex = args[1];
-            clearValue = {
-                r: parseInt(hex.substring(0, 2), 16) / 255,
-                g: parseInt(hex.substring(2, 4), 16) / 255,
-                b: parseInt(hex.substring(4, 6), 16) / 255,
-                a: parseInt(hex.substring(6, 8), 16) / 255
-            };
+            clearLight = parseColor(args[1]);
+            clearDark  = parseColor(args[2]);
             break;
         case "set-display-mode":
             switch (args[1]) {
@@ -331,6 +328,15 @@ export function invokeAction(data) {
             const text = data.substring("copy-to-clipboard|".length);
             const _ = copyToClipboard(text);
             break;
+    }
+}
+
+function parseColor(hex) {
+    return {
+        r: parseInt(hex.substring(0, 2), 16) / 255,
+        g: parseInt(hex.substring(2, 4), 16) / 255,
+        b: parseInt(hex.substring(4, 6), 16) / 255,
+        a: parseInt(hex.substring(6, 8), 16) / 255
     }
 }
 

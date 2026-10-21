@@ -45,7 +45,7 @@ public class TestGuiView : IGuiView
         client.Timer.TickRate   = 60;
         client.Timer.Enabled    = true;
         client.Action.SetWindowTitle(client.AppId ?? "App");
-        client.Action.SetClearColor(0x999c9eff);
+        client.Action.SetClearColor(0x999c9eff, 0x404142ff);
     }
     
     static class Static { internal static void Noop() { } }

@@ -63,12 +63,14 @@ internal class WsBatch : TmBatch, IClientAction
         return false; // Invalid URI format
     }
     
-    public void SetClearColor(Color32 color)
+    public void SetClearColor(Color32 light, Color32 dark)
     {
         var sb = StringBuilder();
         sb.Append("set-clear-color");
         sb.Append('|');
-        sb.Append($"{color.R:x2}{color.G:x2}{color.B:x2}{color.A:x2}");
+        sb.Append($"{light.R:x2}{light.G:x2}{light.B:x2}{light.A:x2}");
+        sb.Append('|');
+        sb.Append($"{dark.R:x2}{dark.G:x2}{dark.B:x2}{dark.A:x2}");
         
         var command = new TmSendCommand(sb.ToString());
         session?.client.SendCommand(command);

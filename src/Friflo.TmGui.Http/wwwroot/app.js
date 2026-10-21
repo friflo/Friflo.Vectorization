@@ -6,7 +6,7 @@ import {
     applyVertexChanges,
     masterVertices,
     invokeAction,
-    clearValue,
+    clearLight, clearDark,
 } from './app-events.js';
 import {initWebSocket, initWebRTC, addLog, updateInfo} from "./socket.js";
 
@@ -496,11 +496,12 @@ function submitDrawList()
     device.queue.writeBuffer(uniformBuffer, 0, uniformStaging, 0, requiredStagingFloats);
 
     // Encode Render Pass
+    const isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
     const commandEncoder = device.createCommandEncoder();
     const pass = commandEncoder.beginRenderPass({
         colorAttachments: [{
             view: context.getCurrentTexture().createView(),
-            clearValue: clearValue,
+            clearValue: isDarkMode ? clearDark : clearLight,
             loadOp:     'clear',
             storeOp:    'store'
         }]
