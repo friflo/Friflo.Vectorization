@@ -5,11 +5,12 @@
 // ReSharper disable CheckNamespace
 
 using System;
+using System.Text;
 
 namespace Friflo.TmGui.Session;
 
 
-internal class WsBatch : TmBatch, IClientAction
+internal class WsBatch : TmBatch
 {
     internal WsBatch(TmGuiBackend backend, int maxVertices, LoopTimer timer) : base(backend, maxVertices, timer)
     {
@@ -20,6 +21,24 @@ internal class WsBatch : TmBatch, IClientAction
     internal void DrawCommandList()
     {
         EndBatch();
+    }
+}
+
+internal sealed class WsClientAction : IClientAction
+{
+    private readonly    StringBuilder   stringBuilder;
+    private readonly    TmClient        client;
+        
+    internal WsClientAction(WsBatch batch, TmClient client)
+    {
+        stringBuilder   = batch.stringBuilder;
+        this.client     = client;
+    }
+    
+    private StringBuilder StringBuilder()
+    {
+        stringBuilder.Clear();
+        return stringBuilder;
     }
     
     // --- IClientAction
@@ -56,7 +75,7 @@ internal class WsBatch : TmBatch, IClientAction
             }
             
             var command = new TmSendCommand(sb.ToString());
-            session?.client.SendCommand(command);
+            client.SendCommand(command);
             return true;
         }
         
@@ -73,7 +92,7 @@ internal class WsBatch : TmBatch, IClientAction
         sb.Append($"{dark.R:x2}{dark.G:x2}{dark.B:x2}{dark.A:x2}");
         
         var command = new TmSendCommand(sb.ToString());
-        session?.client.SendCommand(command);
+        client.SendCommand(command);
     }    
     
     public void SetDisplayMode(TmDisplayMode mode) {
@@ -82,7 +101,7 @@ internal class WsBatch : TmBatch, IClientAction
         sb.Append('|');
         sb.Append(mode.ToString());
         var command = new TmSendCommand(sb.ToString());
-        session?.client.SendCommand(command);
+        client.SendCommand(command);
     }
     
     public void SetWindowTitle(ReadOnlySpan<char> title)
@@ -92,7 +111,7 @@ internal class WsBatch : TmBatch, IClientAction
         sb.Append('|');
         sb.Append(title);
         var msg = new TmSendCommand(sb.ToString());
-        session?.client.SendCommand(msg);
+        client.SendCommand(msg);
     }
     
     public void CopyToClipboard(ReadOnlySpan<char> text)
@@ -102,6 +121,6 @@ internal class WsBatch : TmBatch, IClientAction
         sb.Append('|');
         sb.Append(text);
         var msg = new TmSendCommand(sb.ToString());
-        session?.client.SendCommand(msg);
+        client.SendCommand(msg);
     }
 }
