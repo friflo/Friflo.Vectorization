@@ -30,7 +30,7 @@ internal sealed class GuiSessionShared
 }
 
 
-internal sealed partial class GuiSession : TmSession, IClientAction
+internal sealed partial class GuiSession : TmSession
 {
     private  readonly   WsBackend           wsBackend;          // instance: creates / owns
     private  readonly   WsBatch             wsBatch;            // instance: creates / owns
