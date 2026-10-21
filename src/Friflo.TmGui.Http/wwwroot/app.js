@@ -6,6 +6,7 @@ import {
     applyVertexChanges,
     masterVertices,
     invokeAction,
+    clearValue,
 } from './app-events.js';
 import {initWebSocket, initWebRTC, addLog, updateInfo} from "./socket.js";
 
@@ -499,9 +500,9 @@ function submitDrawList()
     const pass = commandEncoder.beginRenderPass({
         colorAttachments: [{
             view: context.getCurrentTexture().createView(),
-            clearValue: { r: 0.4, g: 0.4, b: 0.4, a: 1.0 },
-            loadOp: 'clear',
-            storeOp: 'store'
+            clearValue: clearValue,
+            loadOp:     'clear',
+            storeOp:    'store'
         }]
     });
 

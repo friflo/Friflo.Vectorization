@@ -28,6 +28,7 @@ public sealed partial class TuiBatch : TmBatch, IClientAction
     private             float                   lineHeight;
     private             float                   charWidth;
     private             int                     rectStart;
+    internal            Color32                 background      = 0x888888ff;
     internal readonly   List<TuiRect>           tuiRects        = [];
     private  readonly   List<TuiRectCommand>    rectCommands    = [];
     private  readonly   List<char>              textBuffer      = [];
@@ -362,6 +363,11 @@ public sealed partial class TuiBatch : TmBatch, IClientAction
     }
     
     // --- IClientAction
+    public void SetClearColor(Color32 color)
+    {
+        background = color;
+    }
+    
     public void SetWindowTitle(ReadOnlySpan<char> title)
     {
         var sb = StringBuilder();

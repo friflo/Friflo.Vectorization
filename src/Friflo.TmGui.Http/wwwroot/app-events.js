@@ -289,6 +289,8 @@ export function applyVertexChanges(uint8Data, view, changeOffset, changeCount, d
 }
 
 // ----------------------------------------- host actions -----------------------------------------
+export let clearValue = { r: 0.4, g: 0.4, b: 0.4, a: 1.0 };
+
 /** @param {string} data */
 export function invokeAction(data) {
     console.log(data);
@@ -301,6 +303,15 @@ export function invokeAction(data) {
         case "set-title":
             document.title = args[1];
             // setWindowTitle(args[1]);
+            break;
+        case "set-clear-color":
+            const hex = args[1];
+            clearValue = {
+                r: parseInt(hex.substring(0, 2), 16) / 255,
+                g: parseInt(hex.substring(2, 4), 16) / 255,
+                b: parseInt(hex.substring(4, 6), 16) / 255,
+                a: parseInt(hex.substring(6, 8), 16) / 255
+            };
             break;
         case "set-display-mode":
             switch (args[1]) {

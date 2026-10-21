@@ -24,6 +24,11 @@ public interface IClientAction
         return OpenUrlUtils.OpenUrl(url);
     }
     
+    /// <summary>
+    /// Sets the background color (GPU surface clear value) of a remote client. 
+    /// </summary>
+    public void SetClearColor(Color32 color) { }
+    
     public void SetDisplayMode(TmDisplayMode mode) { }
     
     public void SetWindowTitle(ReadOnlySpan<char> title) { }

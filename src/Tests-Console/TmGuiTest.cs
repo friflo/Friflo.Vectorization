@@ -104,6 +104,7 @@ public class TmGuiRenderer : IRenderer, IGuiView
         myTextureView       = renderer.myTextureView;
         
         client.Action.SetWindowTitle("Web client");
+        client.Action.SetClearColor(0x999c9eff); // same color as clearValue
     }
     
     public void OnWindowChanged(int width, int height)
