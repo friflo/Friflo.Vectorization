@@ -48,8 +48,14 @@ public readonly struct SessionId : IEquatable<SessionId>
 
 
 
+/// <summary>
+/// Represents a GUI view managed by a <see cref="TmSessionLoop"/>, capable of rendering user interface frames.
+/// </summary>
 public interface IGuiView
 {
+    /// <summary>
+    /// Renders the GUI into the specified <paramref name="batch"/> for the given viewport dimensions.
+    /// </summary>
     void RenderGui(TmBatch batch, int targetWidth, int targetHeight);
 }
 
