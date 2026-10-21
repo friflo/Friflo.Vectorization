@@ -60,7 +60,15 @@ public interface IGuiView
 }
 
 
-
+/// <summary>
+/// Represents an individual client connection managed by a <see cref="TmSessionLoop"/>, 
+/// providing access to client-specific state, backend services, and actions.
+/// </summary>
+/// <remarks>
+/// <see cref="SessionClient"/> acts as the execution context for remote views or browser clients.<br/>
+/// Note that a native local backend does not utilize a client session; it is created and owned directly 
+/// by the user rather than through the session loop.
+/// </remarks>
 public sealed class SessionClient
 {
     public   readonly   SessionId       sessionId;
