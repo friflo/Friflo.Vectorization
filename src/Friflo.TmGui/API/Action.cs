@@ -25,7 +25,8 @@ public interface IClientAction
     }
     
     /// <summary>
-    /// Sets the background color (GPU surface clear value) of a remote client. 
+    /// Sets the background color (GPU surface clear value) of a remote client.<br/>
+    /// Has no effect on a native application (Vulkan, DX12, Metal). The application controls this color on its own.
     /// </summary>
     public void SetClearColor(Color32 color) { }
     
