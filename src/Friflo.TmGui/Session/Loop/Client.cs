@@ -63,7 +63,17 @@ internal struct SendQueueState
 
 public abstract class TmClient
 {
-    private  SendQueueState    queueState;
+    private             SendQueueState  queueState;
+    public   readonly   SessionId       sessionId;
+
+    public   override   string          ToString() => $"session {sessionId}";
+
+    private static int _sessionSeq;
+    
+    protected TmClient() {
+        var id = Interlocked.Increment(ref _sessionSeq);
+        this.sessionId = new SessionId(id);
+    }
     
     public void QueueDataAppended(int queueSize)
     {

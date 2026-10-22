@@ -191,8 +191,7 @@ public sealed partial class TmSessionLoop : IDisposable
         var args            = firstLine == -1 ? [] : GetArgs(payload.Span.Slice(0, firstLine));
 
         var loopTimer       = new LoopTimer(this, client, 60, isSync);
-        var sessionId       = new SessionId(_sessionSeq++);
-        var keys            = new SessionKeys(sessionId, default);
+        var keys            = new SessionKeys(client.sessionId, default);
         var session         = new TuiSession(client, keys, this, loopTimer, TuiColorMode.RGB24);
         var sessionClient   = new SessionClient(this, session, args, client, session.Backend, loopTimer);
         var guiView         = createGuiView(sessionClient);
@@ -208,7 +207,7 @@ public sealed partial class TmSessionLoop : IDisposable
     private GuiSession CreateGuiSession(TmClient client, bool isSync, out Memory<byte> firstPayload)
     {
         var loopTimer       = new LoopTimer(this, client, 60, isSync);
-        var sessionId       = new SessionId(_sessionSeq++);
+        var sessionId       = client.sessionId;
         var sessionGuid     = UseSecureSessionGuids ? new SessionGuid(Guid.NewGuid()) : new SessionGuid(sessionId.value);
         var keys            = new SessionKeys(sessionId, sessionGuid);
         var session         = new GuiSession(client, keys, this, loopTimer);
@@ -220,8 +219,7 @@ public sealed partial class TmSessionLoop : IDisposable
         firstPayload    = default;
         return session;
     }
-    
-    private static int _sessionSeq = 1;
+
     
     private void DisposeSession(TmSession session)
     {
