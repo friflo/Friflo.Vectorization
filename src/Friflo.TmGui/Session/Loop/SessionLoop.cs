@@ -37,11 +37,11 @@ namespace Friflo.TmGui.Session;
 /// </remarks>
 public sealed partial class TmSessionLoop : IDisposable
 {
-    public   readonly   AssetResources  resources;
-    public              string?         appId;
-    public              bool            UseSecureSessionGuids   { get; init; }
-    public              int             SessionCount            => sessions.Count;
-    public              SessionRemoved? sessionRemoved;
+    public   readonly   AssetResources      resources;
+    public              string?             appId;
+    public              bool                UseSecureSessionGuids   { get; init; }
+    public              int                 SessionCount            => sessions.Count;
+    public   event      SessionsChanged?    SessionsChanged;
 
 #region private fields
     private  readonly   bool                                isAsync;
@@ -204,6 +204,8 @@ public sealed partial class TmSessionLoop : IDisposable
         sessions[client.sessionId] = session;
         var msgStart    = firstLine == -1 ? 0 : firstLine + 1;
         firstPayload    = payload.GetMemory(msgStart);
+        
+        SessionsChanged?.Invoke(client.sessionId);
         return session;
     }
 
@@ -222,6 +224,8 @@ public sealed partial class TmSessionLoop : IDisposable
         session.guiView = guiView;
         sessions[client.sessionId] = session;
         firstPayload    = default;
+        
+        SessionsChanged?.Invoke(client.sessionId);
         return session;
     }
 
@@ -233,7 +237,8 @@ public sealed partial class TmSessionLoop : IDisposable
         resources.RemoveSessionResources(session.keys.guid);
         session.viewSession?.Reset();
         session.viewSession = null;
-        sessionRemoved?.Invoke(session.client.sessionId);
+        
+        SessionsChanged?.Invoke(session.client.sessionId);
     }
 
     /// <summary>

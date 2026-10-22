@@ -110,4 +110,4 @@ public sealed class ViewSession
 /// <returns>An instance implementing <see cref="IGuiView"/> for the session.</returns>
 public delegate IGuiView CreateGuiView(ViewSession session);
 
-public delegate void SessionRemoved(SessionId sessionId);
+public delegate void SessionsChanged(SessionId sessionId);

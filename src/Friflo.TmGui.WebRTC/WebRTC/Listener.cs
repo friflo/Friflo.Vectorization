@@ -23,10 +23,10 @@ public sealed partial class TmSignalingListener
     public TmSignalingListener(TmSessionLoop loop)
     {
         this.loop = loop;
-        loop.sessionRemoved += OnSessionRemoved;
+        loop.SessionsChanged += SessionsChanged;
     }
     
-    private void OnSessionRemoved(SessionId sessionId)
+    private void SessionsChanged(SessionId sessionId)
     {
         var msg     = new SignalMessage{ type = "stats", app = loop.appId, sessions = loop.SessionCount };
         var payload = JsonSerializer.SerializeToUtf8Bytes(msg);
