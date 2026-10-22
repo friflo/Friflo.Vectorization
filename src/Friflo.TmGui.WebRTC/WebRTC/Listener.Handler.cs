@@ -16,7 +16,7 @@ using SIPSorcery.Net;
 namespace Friflo.TmGui.WebRTC;
 
 
-internal record struct SignalMessage(string type, string? app, string connection, string? sdpOrCandidate)
+internal record struct SignalMessage(string type, string? app, string connection, string? sdpOrCandidate, int? sessions = null)
 {
     public override string ToString() => $"[{type}]  app: {app}  conn: {connection}";
     
@@ -45,16 +45,16 @@ public sealed partial class TmSignalingListener
         if (!sessions.TryRemove(connection, out _)) {
             return;
         }
-        var msg     = new SignalMessage("close", null, connection, null);
+        var msg     = new SignalMessage("close", null, connection, null, loop.SessionCount);
         var payload = JsonSerializer.SerializeToUtf8Bytes(msg);
         if (webSocket.State == WebSocketState.Open) {
             _ = webSocket.SendAsync(payload, WebSocketMessageType.Text, true, CancellationToken.None);
         }
     }
 
-    private async Task ProcessSignalingMessage(WebSocket webSocket, ReadOnlyMemory<byte> buffer)
+    private async Task ProcessSignalingMessage(WebSocket webSocket, ReadOnlyMemory<byte> messageBuffer)
     {
-        if (!SignalMessage.TryParse(buffer.Span, out var message)) {
+        if (!SignalMessage.TryParse(messageBuffer.Span, out var message)) {
             return;
         }
 
@@ -77,7 +77,7 @@ public sealed partial class TmSignalingListener
                 var answer = pc.createAnswer(null);
                 await pc.setLocalDescription(answer);
 
-                var msg = new SignalMessage("answer", null, message.connection, answer.sdp);
+                var msg = new SignalMessage("answer", null, message.connection, answer.sdp, loop.SessionCount);
                 var answerPayload = JsonSerializer.SerializeToUtf8Bytes(msg);
                 if (webSocket.State == WebSocketState.Open) {
                     await webSocket.SendAsync(answerPayload, WebSocketMessageType.Text, true, CancellationToken.None);

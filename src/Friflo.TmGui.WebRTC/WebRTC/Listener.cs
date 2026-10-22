@@ -32,7 +32,7 @@ public sealed partial class TmSignalingListener
         // Connect to the specified signaling server URL
         await clientWebSocket.ConnectAsync(uri, cancellationToken);
         
-        byte[] payload = JsonSerializer.SerializeToUtf8Bytes(new SignalMessage{ type = "register", app = app, sdpOrCandidate = instance });
+        byte[] payload = JsonSerializer.SerializeToUtf8Bytes(new SignalMessage{ type = "register", app = app, sdpOrCandidate = instance, sessions = loop.SessionCount });
 
         await clientWebSocket.SendAsync(payload, WebSocketMessageType.Text, true, cancellationToken);
         

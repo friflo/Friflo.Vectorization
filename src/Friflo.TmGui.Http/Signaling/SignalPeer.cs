@@ -12,12 +12,13 @@ namespace Friflo.TmGui.Http;
 
 public sealed class TmSignalPeer
 {
-    public              TmGuiApp?   guiApp;       // the GUI app a client wants to connect
+    public              TmGuiApp?   connectApp;     // an app a client wants to connect
+    public              TmGuiApp?   app;            // the app that clients can connect
     public   readonly   DateTime    registered;
     public   readonly   string      connection;
     internal readonly   WebSocket   webSocket;
     
-    public   override   string      ToString() => $"{(guiApp == null ? "App" : "Client")}  conn: {connection}";
+    public   override   string      ToString() => $"{(connectApp == null ? "App" : "Client")}  conn: {connection}";
     
 
     internal TmSignalPeer(WebSocket webSocket, string connection)
@@ -25,6 +26,14 @@ public sealed class TmSignalPeer
         this.webSocket  = webSocket;
         this.connection = connection;
         registered      = DateTime.Now;
+    }
+    
+    internal void SetAppSessionCount(in SignalMessage message)
+    {
+        if (app == null || message.sessions == null) {
+            return;
+        }
+        app.sessionCount = message.sessions.Value;
     }
 
     internal async Task SendAsync(ReadOnlyMemory<byte> payload, CancellationToken cancellationToken = default)

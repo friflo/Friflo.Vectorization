@@ -38,7 +38,8 @@ public sealed partial class TmSessionLoop : IDisposable
 {
     public   readonly   AssetResources  resources;
     public              string?         appId;
-    public              bool            UseSecureSessionGuids { get; init; }
+    public              bool            UseSecureSessionGuids   { get; init; }
+    public              int             SessionCount            => sessions.Count;
 
 #region private fields
     private  readonly   bool                                isAsync;

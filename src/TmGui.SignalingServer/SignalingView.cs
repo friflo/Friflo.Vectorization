@@ -45,7 +45,10 @@ public class SignalingView : IGuiView
                 if (gui.Button(guiApp.name)) {
                     gui.Action.OpenUrl(guiApp.url, guiApp.name);
                 }
-                if (!guiApp.online) {
+                if (guiApp.Online) {
+                    gui.Label("sessions: ");
+                    gui.Label(guiApp.SessionCount.ToString());   // todo  remove allocation
+                } else {
                     gui.Label("offline");
                 }
             }
