@@ -24,7 +24,7 @@ internal sealed class TuiSessionShared
 }
 
 
-internal sealed partial class TuiSession : TmSession, IClientAction
+internal sealed partial class TuiSession : TmSession
 {
     private  readonly   TuiColorMode        colorMode;
     private  readonly   TuiSessionShared    shared;         // instance: shared
@@ -36,8 +36,7 @@ internal sealed partial class TuiSession : TmSession, IClientAction
     private             int                 frameHeight     = 20;
     private             bool                supportsSixel;
     private             Vector2             cellPixelSize   = new(10, 20);
-    private             Color32             backgroundLight = 0x888888ff;
-    private             Color32             backgroundDark  = 0x404142ff;
+    private  readonly   TuiClientAction     action;
     private             bool                sessionStart;
     //
     private             ulong               lastFrameHash;
@@ -53,7 +52,8 @@ internal sealed partial class TuiSession : TmSession, IClientAction
         cpuBackend          = client is ConsoleClient ? loopBackend : new CpuBackend(loopBackend.backendName, loopBackend);
         
         tuiBatch            = cpuBackend.CreateTuiBatch(colorMode, timer);
-        cpuBackend.SetClientActions(this);
+        action              = new TuiClientAction(client, tuiBatch.stringBuilder);
+        cpuBackend.SetClientActions(action);
         tuiBatch.session    = this;
     }
     
@@ -176,7 +176,7 @@ internal sealed partial class TuiSession : TmSession, IClientAction
     
     private void AppendFrameBuffer(TmGuiBackend backend, TuiBatch batch, int width, int height)
     {
-        var background = WindowSettingsUtils.IsDarkMode ? backgroundDark : backgroundLight;
+        var background = action.Background;
         var clear = new TuiColorCell { Character = ' ', color = 0x000000ff, background = background };
         batch.DrawRectCommands(shared.frameBuffer, width, height, clear);
         
@@ -334,22 +334,5 @@ internal sealed partial class TuiSession : TmSession, IClientAction
         buffer.SetCell(x,     y, cell with { rune = new Rune(shape.center) });
         buffer.SetCell(x + 1, y, cell with { rune = new Rune(shape.right)  });
     }
-    
-    // --- IClientAction
-    public void SetClearColor(Color32 light, Color32 dark)
-    {
-        backgroundLight = light;
-        backgroundDark  = dark;
-    }
-    
-    public void SetWindowTitle(ReadOnlySpan<char> title)
-    {
-        var sb = new StringBuilder();
-        sb.Append("\x1b]0;");
-        sb.Append(title);
-        sb.Append("\x07");
-        var bytes = Encoding.UTF8.GetBytes(sb.ToString());
-        var msg = new TmSendMessage(bytes);
-        client.Send(msg);
-    }
 }
+
