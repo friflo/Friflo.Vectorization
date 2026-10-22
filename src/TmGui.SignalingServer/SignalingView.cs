@@ -60,7 +60,7 @@ public class SignalingView : IGuiView
         clients.Clear();
         clients.AddRange(signaling.clients.Values);
         clients.Sort((c1, c2) => c1.registered.CompareTo(c2.registered));
-        gui.Label("pending connects");
+        gui.Label("connecting clients"); // WebRTC uses term: "negotiation"
         gui.Spacer();
         
         foreach (var client in clients)
