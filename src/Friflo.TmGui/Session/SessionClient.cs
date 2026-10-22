@@ -3,6 +3,7 @@
 
 using Friflo.TmGui.Session;
 
+// ReSharper disable InconsistentNaming
 // ReSharper disable ConvertToAutoProperty
 // ReSharper disable CheckNamespace
 namespace Friflo.TmGui;
@@ -31,18 +32,20 @@ public interface IGuiView
 /// </remarks>
 public sealed class SessionClient
 {
-    public   readonly   SessionId       sessionId;
+    public   readonly   SessionId       SessionId;
     public   readonly   string[]        args;
-    public   readonly   TmClient        client;
-    public   readonly   TmGuiBackend    backend;
     
+    private  readonly   TmClient        client;
+    private  readonly   TmGuiBackend    backend;
     private  readonly   TmSessionLoop   loop;
     private  readonly   LoopTimer       loopTimer;
     
+    public              TmGuiBackend    Backend     => backend;
+    public              TmClient        Client      => client;
     public              string?         AppId       => loop.appId;
-    public              IClientAction   Action      => backend.host.clientAction;
+    public              IClientAction   Action      => Backend.host.clientAction;
     public              LoopTimer       Timer       => loopTimer;
-    public   override   string          ToString()  => $"sessionId: {sessionId}";
+    public   override   string          ToString()  => $"sessionId: {SessionId}";
 
     internal SessionClient(TmSessionLoop loop, TmSession session, string[] args, TmClient client, TmGuiBackend backend, LoopTimer timer)
     {
@@ -52,7 +55,7 @@ public sealed class SessionClient
         this.client     = client;
         this.backend    = backend;
         loopTimer       = timer;
-        sessionId       = session.keys.id;
+        SessionId       = session.keys.id;
     }
     
     /// <summary>
@@ -76,7 +79,7 @@ public sealed class SessionClient
     /// </remarks>
     public void SetDirty()
     {
-        loop.SetSessionDirty(sessionId);
+        loop.SetSessionDirty(SessionId);
     }
 }
 

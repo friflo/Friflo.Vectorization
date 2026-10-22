@@ -38,7 +38,7 @@ public class TestGuiView : IGuiView
         this.client         = client;
         this.appState       = appState;
         using var stream    = typeof(TestGuiView).Assembly.GetManifestResourceStream("TuiTerminal.Assets.sixel_test.png")!;
-        var backend         = client.backend;
+        var backend         = client.Backend;
         myTexture           = backend.LoadTexture(stream, "sixel_test.png");
         var tui             = backend as CpuBackend;
         canvasTexture       = tui?.CreateTexture("canvas", CanvasWidth, CanvasHeight, new byte[CanvasWidth * CanvasHeight * 4]) ?? default;
