@@ -12,7 +12,8 @@ namespace Friflo.TmGui;
 
 
 /// <summary>
-/// Represents a GUI view managed by a <see cref="TmSessionLoop"/>, capable of rendering user interface frames.
+/// Represents a GUI view managed by a <see cref="TmSessionLoop"/> and associated with a <see cref="ViewSession"/>, 
+/// capable of rendering user interface frames.
 /// </summary>
 public interface IGuiView
 {
@@ -105,6 +106,6 @@ public sealed class ViewSession
 /// <summary>
 /// Represents a factory delegate used by <see cref="TmSessionLoop"/> to create a new <see cref="IGuiView"/> instance for a given session.
 /// </summary>
-/// <param name="session">The session associated with <see cref="IGuiView"/>.</param>
+/// <param name="session">The <see cref="ViewSession"/> associated with <see cref="IGuiView"/>.</param>
 /// <returns>An instance implementing <see cref="IGuiView"/> for the session.</returns>
 public delegate IGuiView CreateGuiView(ViewSession session);
