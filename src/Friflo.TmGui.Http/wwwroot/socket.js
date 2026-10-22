@@ -148,6 +148,13 @@ function runSignaling(app)
     const pc = new RTCPeerConnection({
         iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]
     });
+    window.addEventListener('beforeunload', () => {
+        // Close the peer connection locally before the page unloads
+        if (pc) {
+            pc.close();
+        }
+    });
+    
 
     // Queue to buffer incoming ICE candidates until remote description is set
     /** @type {RTCIceCandidateInit[]} */
