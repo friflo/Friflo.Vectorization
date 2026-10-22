@@ -8,7 +8,6 @@ using System.Text;
 using Friflo.TmGui.Headless;
 using Friflo.TmGui.Recorder;
 using Friflo.TmGui.Session;
-using Friflo.TmGui.Utils;
 
 // ReSharper disable InconsistentNaming
 // ReSharper disable InlineTemporaryVariable
