@@ -257,7 +257,7 @@ public sealed partial class TmSessionLoop : IDisposable
     /// Applies to native GUI window, console TUI, browser clients, and terminal emulators.<br/>
     /// The method is threadsafe and can be called from any thread.
     /// </remarks>
-    public void SetSessionDirty(in SessionId sessionId)
+    public void SetSessionDirty(SessionId sessionId)
     {
         var buffer = sessionBuffer;
         buffer.Clear();
