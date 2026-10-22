@@ -1,7 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Numerics;
 using System.Runtime.InteropServices;
-using System.Text;
 using Friflo.TmGui;
 using Friflo.TmGui.Headless;
 using Friflo.TmGui.TUI;
@@ -26,7 +25,6 @@ public class TestGuiView : IGuiView
     private             bool            mouseCircle;
     private             long            memStart;
     private             long            memDiff;
-    private readonly    StringBuilder   sb = new(200, 200);
     private readonly    DrawDiagram     diagram = new ();
     
     
@@ -104,15 +102,13 @@ public class TestGuiView : IGuiView
 
         gui.Spacer();
 
-        var e = sb.Clear().Append($"{RuntimeInformation.OSArchitecture} - {RuntimeInformation.OSDescription}").GetChunks().GetEnumerator();
-        e.MoveNext();
-        gui.Label(e.Current.Span, Color32.Gray);
+        var sb = gui.widget.StringBuilder().Append($"{RuntimeInformation.OSArchitecture} - {RuntimeInformation.OSDescription}");
+        gui.Label(sb.Span(), Color32.Gray);
         
         sb.Clear().Append($"frame time: ");
         if (gui.Batch.Timer.Enabled) sb.Append($"{frameTime,5:F1} ms  "); else sb.Append($" ---  ");
-        e = sb.Append($"alloc: {memDiff}").GetChunks().GetEnumerator();
-        e.MoveNext();
-        gui.Label(e.Current.Span, Color32.Teal);
+        sb.Append($"alloc: {memDiff}").GetChunks().GetEnumerator();
+        gui.Label(sb.Span(), Color32.Teal);
         
         using (gui.BeginHorizontal()) {
             ref var drawType = ref appState.drawType;

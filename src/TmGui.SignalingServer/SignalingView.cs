@@ -47,7 +47,8 @@ public class SignalingView : IGuiView
                 }
                 if (guiApp.Online) {
                     gui.Label("sessions: ");
-                    gui.Label(guiApp.SessionCount.ToString());   // todo  remove allocation
+                    var sb = gui.widget.StringBuilder().Append(guiApp.SessionCount);
+                    gui.Label(sb.Span());
                 } else {
                     gui.Label("offline");
                 }
