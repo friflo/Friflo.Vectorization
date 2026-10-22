@@ -1,6 +1,8 @@
 // Copyright (c) Ullrich Praetz - https://github.com/friflo. All rights reserved.
 // See LICENSE file in the project root for full license information.
 
+using System;
+using System.Runtime.CompilerServices;
 using Friflo.TmGui.Session;
 
 // ReSharper disable InconsistentNaming
@@ -35,17 +37,24 @@ public sealed class SessionClient
     public   readonly   SessionId       SessionId;
     public   readonly   string[]        args;
     
-    private  readonly   TmClient        client;
-    private  readonly   TmGuiBackend    backend;
+    private             TmGuiBackend?   backend;
+    private             TmClient?       client;
+    private             LoopTimer?      loopTimer;
     private  readonly   TmSessionLoop   loop;
-    private  readonly   LoopTimer       loopTimer;
     
-    public              TmGuiBackend    Backend     => backend;
-    public              TmClient        Client      => client;
+    public              TmGuiBackend    Backend     => backend      ?? throw SessionTerminatedException();
+    public              TmClient        Client      => client       ?? throw SessionTerminatedException();
     public              string?         AppId       => loop.appId;
     public              IClientAction   Action      => Backend.host.clientAction;
-    public              LoopTimer       Timer       => loopTimer;
+    public              LoopTimer       Timer       => loopTimer    ?? throw SessionTerminatedException();
+    
     public   override   string          ToString()  => $"sessionId: {SessionId}";
+    
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    private InvalidOperationException SessionTerminatedException()
+    {
+        return new InvalidOperationException($"Session has already been terminated. sessionId: {SessionId}");
+    }
 
     internal SessionClient(TmSessionLoop loop, TmSession session, string[] args, TmClient client, TmGuiBackend backend, LoopTimer timer)
     {
@@ -56,6 +65,13 @@ public sealed class SessionClient
         this.backend    = backend;
         loopTimer       = timer;
         SessionId       = session.keys.id;
+    }
+    
+    internal void Reset()
+    {
+        client      = null;
+        backend     = null;
+        loopTimer   = null;
     }
     
     /// <summary>
