@@ -259,20 +259,13 @@ public sealed partial class TmSessionLoop : IDisposable
     /// </remarks>
     public void SetSessionDirty(SessionId sessionId)
     {
-        var buffer = sessionBuffer;
-        buffer.Clear();
-        buffer.AddRange(sessions.Values);
-        
-        foreach (var session in buffer) {
-            if (session.keys.id != sessionId) {
-                continue;
-            }
-            if (session.SetDirty()) {
-                continue;
-            }
-            TryEnqueueEvent(session.client, ClientEventType.FrameTick, default);
+        if (!sessions.TryGetValue(sessionId, out var session)) {
+            return;
         }
-        buffer.Clear();
+        if (session.SetDirty()) {
+            return;
+        }
+        TryEnqueueEvent(session.client, ClientEventType.FrameTick, default);
     }
 }
 
