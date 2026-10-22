@@ -26,7 +26,7 @@ public sealed partial class TmSignalingListener
         loop.SessionsChanged += SessionsChanged;
     }
     
-    private void SessionsChanged(SessionId sessionId)
+    private void SessionsChanged(SessionsChangedArgs args)
     {
         var msg     = new SignalMessage{ type = "stats", app = loop.appId, sessions = loop.SessionCount };
         var payload = JsonSerializer.SerializeToUtf8Bytes(msg);

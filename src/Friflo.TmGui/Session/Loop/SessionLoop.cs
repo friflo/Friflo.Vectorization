@@ -19,6 +19,24 @@ using Friflo.TmGui.TUI.Session;
 // ReSharper disable CheckNamespace
 namespace Friflo.TmGui.Session;
 
+public enum SessionsChangedType
+{
+    Added,
+    Removed,
+}
+
+public readonly struct SessionsChangedArgs
+{
+    public readonly SessionId           sessionId;
+    public readonly SessionsChangedType type;
+    
+    public SessionsChangedArgs(SessionId sessionId, SessionsChangedType type) {
+        this.sessionId  = sessionId;
+        this.type       = type;
+    }
+}
+
+public delegate void SessionsChanged(SessionsChangedArgs args);
 
 /// <summary>
 /// Manages concurrent client sessions (such as web browsers, remote terminals, or consoles), 
@@ -205,7 +223,7 @@ public sealed partial class TmSessionLoop : IDisposable
         var msgStart    = firstLine == -1 ? 0 : firstLine + 1;
         firstPayload    = payload.GetMemory(msgStart);
         
-        SessionsChanged?.Invoke(client.sessionId);
+        SessionsChanged?.Invoke(new SessionsChangedArgs(client.sessionId, SessionsChangedType.Added));
         return session;
     }
 
@@ -225,7 +243,7 @@ public sealed partial class TmSessionLoop : IDisposable
         sessions[client.sessionId] = session;
         firstPayload    = default;
         
-        SessionsChanged?.Invoke(client.sessionId);
+        SessionsChanged?.Invoke(new SessionsChangedArgs(client.sessionId, SessionsChangedType.Added));
         return session;
     }
 
@@ -238,7 +256,7 @@ public sealed partial class TmSessionLoop : IDisposable
         session.viewSession?.Reset();
         session.viewSession = null;
         
-        SessionsChanged?.Invoke(session.client.sessionId);
+        SessionsChanged?.Invoke(new SessionsChangedArgs(session.client.sessionId, SessionsChangedType.Removed));
     }
 
     /// <summary>
