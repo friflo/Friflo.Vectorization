@@ -37,18 +37,21 @@ public sealed class SessionClient
     public   readonly   SessionId       SessionId;
     public   readonly   string[]        args;
     
-    private             TmGuiBackend?   backend;
-    private             TmClient?       client;
-    private             LoopTimer?      loopTimer;
-    private  readonly   TmSessionLoop   loop;
-    
     public              TmGuiBackend    Backend     => backend      ?? throw SessionTerminatedException();
     public              TmClient        Client      => client       ?? throw SessionTerminatedException();
     public              string?         AppId       => loop.appId;
     public              IClientAction   Action      => Backend.host.clientAction;
     public              LoopTimer       Timer       => loopTimer    ?? throw SessionTerminatedException();
-    
+
     public   override   string          ToString()  => $"sessionId: {SessionId}";
+
+#region private fields
+    private             TmGuiBackend?   backend;
+    private             TmClient?       client;
+    private             LoopTimer?      loopTimer;
+    private  readonly   TmSessionLoop   loop;
+#endregion
+    
     
     [MethodImpl(MethodImplOptions.NoInlining)]
     private InvalidOperationException SessionTerminatedException()
