@@ -65,19 +65,19 @@ public sealed partial class TmSessionLoop : IDisposable
 
 #region private fields
     private  readonly   bool                                isAsync;
-    private  readonly   ConcurrentQueue<ClientEvent>        eventQueue;     // used by: sync loop
-    private  readonly   AutoResetEvent                      eventReady;     // used by: sync loop
-    private  readonly   Channel<ClientEvent>?               eventChannel;   // used by: async loop
-    private  readonly   Dictionary<SessionId, TmSession>    sessions;       // Raw non-thread-safe state (accessed exclusively by _shardThread)
+    private  readonly   ConcurrentQueue<ClientEvent>        eventQueue;             // used by: sync loop
+    private  readonly   AutoResetEvent                      eventReady;             // used by: sync loop
+    private  readonly   Channel<ClientEvent>?               eventChannel;           // used by: async loop
+    private  readonly   Dictionary<SessionId, TmSession>    sessions        = new();// Raw non-thread-safe state (accessed exclusively by _shardThread)
     private  readonly   List<TmSession>                     sessionBuffer   = [];
-    private  readonly   CreateGuiView                       createGuiView;  // IBatchRenderer factory
+    private  readonly   CreateGuiView                       createGuiView;          // IBatchRenderer factory
     private  readonly   CancellationTokenSource             cts             = new();
     private             Thread?                             shardThread;
     private             bool                                isDisposed;
     private  readonly   Action                              exitHandler;
-    internal readonly   TuiSessionShared                    tuiShared;      // shared among all TuiSession's
-    internal readonly   GuiSessionShared                    guiShared;      // shared among all GuiSession's
-    internal readonly   CpuBackend                          cpuBackend;     // shared among all sessions
+    internal readonly   TuiSessionShared                    tuiShared;              // shared among all TuiSession's
+    internal readonly   GuiSessionShared                    guiShared;              // shared among all GuiSession's
+    internal readonly   CpuBackend                          cpuBackend;             // shared among all sessions
 
     private const int MaxSyncQueueCapacity = 32;
 #endregion
@@ -102,7 +102,6 @@ public sealed partial class TmSessionLoop : IDisposable
             eventQueue      = new ConcurrentQueue<ClientEvent>();
             eventReady      = new AutoResetEvent(false);
         }
-        sessions            = new Dictionary<SessionId, TmSession>();
         exitHandler         = ExitHandler;
         tuiShared           = new TuiSessionShared();
         guiShared           = new GuiSessionShared();
