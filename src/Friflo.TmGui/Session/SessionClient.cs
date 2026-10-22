@@ -9,6 +9,21 @@ using Friflo.TmGui.Session;
 namespace Friflo.TmGui;
 
 
+/**
+ * <summary>
+ * A session id identifies a specific client connection. It never leaves the server / host.
+ * </summary>
+ * <remarks>
+ * Architectural overview of identifier roles and library boundaries:
+ * <code>
+ * | Identifier       | Scope / Purpose                                  | Scope     | Used By       |
+ * |------------------|--------------------------------------------------|-----------|---------------|
+ * | SessionId        | Server-side client / session id in TmSessionLoop | TmGui     | Server        |
+ * | Reconnect Token  | Transport recovery and session resumption        | TmGui     | Client/Server |
+ * | User / Domain ID | Application business logic, accounts, grouping   | User Code | Client/Server |
+ * </code>
+ * </remarks>
+ */
 public readonly struct SessionId : IEquatable<SessionId>
 {
     public   readonly   Guid    value;
