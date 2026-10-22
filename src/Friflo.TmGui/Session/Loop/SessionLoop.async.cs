@@ -63,7 +63,8 @@ public partial class TmSessionLoop
     // process event
     private async ValueTask ProcessEventAsync(ClientEvent evt, bool isQueueEmpty)
     {
-        var client = evt.Client;
+        var client      = evt.Client;
+        var sessionId   = client.sessionId;
         try {
             switch (evt.Type)
             {
@@ -82,13 +83,13 @@ public partial class TmSessionLoop
                     break;
                 }
                 case ClientEventType.TerminalDisconnected:
-                    if (sessions.Remove(client, out TmSession? session)) {
+                    if (sessions.Remove(sessionId, out TmSession? session)) {
                         DisposeSession(session);
                     }
                     break;
 
                 case ClientEventType.TerminalInput:
-                    if (sessions.TryGetValue(client, out session))
+                    if (sessions.TryGetValue(sessionId, out session))
                     {
                         var payload = evt.Payload.Span;
                         session.ProcessInput(payload);
@@ -99,7 +100,7 @@ public partial class TmSessionLoop
                     }
                     break;
                 case ClientEventType.FrameTick:
-                    if (sessions.TryGetValue(client, out session) && isQueueEmpty)
+                    if (sessions.TryGetValue(sessionId, out session) && isQueueEmpty)
                     {
                         var sendBuffer = session.IterateUI(resources);
                         await client.SendAsync(sendBuffer, CancellationToken.None);

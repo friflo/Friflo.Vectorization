@@ -45,7 +45,7 @@ public sealed partial class TmSessionLoop : IDisposable
     private  readonly   ConcurrentQueue<ClientEvent>        eventQueue;     // used by: sync loop
     private  readonly   AutoResetEvent                      eventReady;     // used by: sync loop
     private  readonly   Channel<ClientEvent>?               eventChannel;   // used by: async loop
-    private  readonly   Dictionary<TmClient, TmSession>     sessions;       // Raw non-thread-safe state (accessed exclusively by _shardThread)
+    private  readonly   Dictionary<SessionId, TmSession>    sessions;       // Raw non-thread-safe state (accessed exclusively by _shardThread)
     private  readonly   List<TmSession>                     sessionBuffer   = [];
     private  readonly   CreateGuiView                       createGuiView;  // IBatchRenderer factory
     private  readonly   CancellationTokenSource             cts             = new();
@@ -79,7 +79,7 @@ public sealed partial class TmSessionLoop : IDisposable
             eventQueue      = new ConcurrentQueue<ClientEvent>();
             eventReady      = new AutoResetEvent(false);
         }
-        sessions            = new Dictionary<TmClient, TmSession>();
+        sessions            = new Dictionary<SessionId, TmSession>();
         exitHandler         = ExitHandler;
         tuiShared           = new TuiSessionShared();
         guiShared           = new GuiSessionShared();
@@ -140,9 +140,9 @@ public sealed partial class TmSessionLoop : IDisposable
     {
         PosixSignalUtils.RemoveExitHandler(exitHandler);
         
-        foreach (var client in sessions.Keys) {
+        foreach (var session in sessions.Values) {
             try {
-                client.RestoreTerminal();
+                session.client.RestoreTerminal();
             }
             // ReSharper disable once EmptyGeneralCatchClause
             catch {
@@ -197,7 +197,7 @@ public sealed partial class TmSessionLoop : IDisposable
         var guiView         = createGuiView(sessionClient);
         
         session.guiView = guiView;
-        sessions[client]= session;
+        sessions[client.sessionId] = session;
         var msgStart    = firstLine == -1 ? 0 : firstLine + 1;
         firstPayload    = payload.GetMemory(msgStart);
         return session;
@@ -215,7 +215,7 @@ public sealed partial class TmSessionLoop : IDisposable
         var guiView         = createGuiView(sessionClient);
         
         session.guiView = guiView;
-        sessions[client]= session;
+        sessions[client.sessionId] = session;
         firstPayload    = default;
         return session;
     }

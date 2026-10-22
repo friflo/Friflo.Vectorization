@@ -63,17 +63,18 @@ public partial class TmSessionLoop
     // process event
     private void ProcessEventSync(ClientEvent evt, bool isQueueEmpty)
     {
-        var client = evt.Client;
+        var client      = evt.Client;
+        var sessionId   = client.sessionId;
         try {
             switch (evt.Type)
             {
                 case ClientEventType.WebsocketConnected: {
-                    var newSession = CreateGuiSession(client, true, out var _);
+                    CreateGuiSession(client, true, out var _);
                     // newSession.wsBatch.loopTimer!.InitTimer(CancellationToken.None);
                     break;
                 }
                 case ClientEventType.WebsocketInput:
-                    if (sessions.TryGetValue(client, out TmSession? session))
+                    if (sessions.TryGetValue(sessionId, out TmSession? session))
                     {
                         var payload = evt.Payload.Span;
                         session.ProcessInput(payload);
@@ -102,13 +103,13 @@ public partial class TmSessionLoop
                 }
                 case ClientEventType.TerminalDisconnected:
                 case ClientEventType.WebsocketDisconnected:
-                    if (sessions.Remove(client, out session)) {
+                    if (sessions.Remove(sessionId, out session)) {
                         DisposeSession(session);
                     }
                     break;
 
                 case ClientEventType.TerminalInput:
-                    if (sessions.TryGetValue(client, out session))
+                    if (sessions.TryGetValue(sessionId, out session))
                     {
                         var payload = evt.Payload.Span;
                         session.ProcessInput(payload);
@@ -119,7 +120,7 @@ public partial class TmSessionLoop
                     }
                     break;
                 case ClientEventType.FrameTick:
-                    if (sessions.TryGetValue(client, out session) && isQueueEmpty)
+                    if (sessions.TryGetValue(sessionId, out session) && isQueueEmpty)
                     {
                         var sendBuffer = session.IterateUI(resources);
                         client.Send(sendBuffer);
