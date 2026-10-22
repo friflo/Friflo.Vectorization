@@ -42,6 +42,7 @@ public readonly struct SessionId : IEquatable<SessionId>
     public static   bool operator !=(SessionId left, SessionId right)   => left.value != right.value;
 }
 
+
 /// <summary>
 /// Secure public token for asset URLs & Reconnect's
 /// </summary>
@@ -74,7 +75,7 @@ internal readonly struct SessionGuid : IEquatable<SessionGuid>
         return default;
     }
     
-    public override bool Equals(object? obj)        => obj is SessionId other && Equals(other);
+    public override bool Equals(object? obj)        => obj is SessionGuid other && Equals(other);
     public override int  GetHashCode()              => guid.GetHashCode();
     public          bool Equals(SessionGuid other)  => guid == other.guid;
     
