@@ -25,7 +25,7 @@ namespace Friflo.TmGui.Session;
 /// exclusively for clients with pending input or dirty states.
 /// </summary>
 /// <remarks>
-/// Handles all client sessions on the main thread, drastically simplifying application development. 
+/// Handles all client sessions on the main thread, drastically simplifying application development.<br/>
 /// This enables lock-free execution since application and session state are always accessed from the same thread.<br/>
 /// <br/>
 /// The <see cref="CreateGuiView"/> delegate passed to the <see cref="TmSessionLoop"/> constructor must return an instance implementing <see cref="IGuiView"/>.<br/>
