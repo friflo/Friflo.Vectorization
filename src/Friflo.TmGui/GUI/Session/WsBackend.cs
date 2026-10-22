@@ -11,16 +11,16 @@ namespace Friflo.TmGui.Session;
 
 internal class WsBackend : TmGuiBackend
 {
-    private  readonly   SessionId           sessionId;
+    private  readonly   SessionKeys         keys;
     private  readonly   CpuBackend          cpuBackend;
     private  readonly   GuiSessionShared    shared;
     
 
-    public   override   string          ToString() => $"session: {sessionId}";
+    public   override   string          ToString() => $"session: {keys.id}";
 
-    internal WsBackend(CpuBackend cpuBackend, GuiSessionShared guiShared, SessionId sessionId) : base(cpuBackend.Assets)
+    internal WsBackend(CpuBackend cpuBackend, GuiSessionShared guiShared, SessionKeys keys) : base(cpuBackend.Assets)
     {
-        this.sessionId      = sessionId;
+        this.keys           = keys;
         this.cpuBackend     = cpuBackend;
         shared              = guiShared;
     }
@@ -46,13 +46,13 @@ internal class WsBackend : TmGuiBackend
 
     public override TmTexture CreateTexture(string name, int width, int height, ReadOnlySpan<byte> rgbaPixels)
     {
-        name = $"{Sid}{sessionId.str}/{name}";
+        name = $"{Sid}{keys.guid.str}/{name}";
         return cpuBackend.CreateTexture(name, width, height, rgbaPixels);
     }
 
     public override TmTexture LoadTexture(Stream stream, string? label = null, TmTextureUsage usage = TmTextureUsage.None | TmTextureUsage.CopyDst | TmTextureUsage.TextureBinding)
     {
-        label = $"{Sid}{sessionId.str}/{label}";
+        label = $"{Sid}{keys.guid.str}/{label}";
         return cpuBackend.LoadTexture(stream, label, usage);
     }
     

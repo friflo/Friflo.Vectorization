@@ -45,11 +45,11 @@ internal sealed partial class GuiSession : TmSession
     private             bool                sendDiffs           = true;
 
     
-    internal GuiSession(TmClient client, SessionId sessionId, TmSessionLoop loop, LoopTimer timer)
-        : base(client, sessionId)
+    internal GuiSession(TmClient client, SessionKeys keys, TmSessionLoop loop, LoopTimer timer)
+        : base(client, keys)
     {
         shared              = loop.guiShared;
-        wsBackend           = new WsBackend(loop.cpuBackend, loop.guiShared, sessionId);
+        wsBackend           = new WsBackend(loop.cpuBackend, loop.guiShared, keys);
         wsBatch             = wsBackend.CreateBatch(timer);
         wsBackend.SetClientActions(new WsClientAction(wsBatch, client));
         wsBatch.session     = this;

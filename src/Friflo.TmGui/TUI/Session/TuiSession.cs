@@ -44,8 +44,8 @@ internal sealed partial class TuiSession : TmSession, IClientAction
     private             ulong[]             lastLineHashes  = new ulong[10];
 
     
-    internal TuiSession(TmClient client, SessionId sessionId, TmSessionLoop loop, LoopTimer timer, TuiColorMode colorMode)
-        : base(client, sessionId)
+    internal TuiSession(TmClient client, SessionKeys keys, TmSessionLoop loop, LoopTimer timer, TuiColorMode colorMode)
+        : base(client, keys)
     {
         this.colorMode      = colorMode;
         shared              = loop.tuiShared;

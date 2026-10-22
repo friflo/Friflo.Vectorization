@@ -19,42 +19,24 @@ namespace Friflo.TmGui;
  * | Identifier       | Scope / Purpose                                  | Scope     | Used By       |
  * |------------------|--------------------------------------------------|-----------|---------------|
  * | SessionId        | Server-side client / session id in TmSessionLoop | TmGui     | Server        |
- * | Reconnect Token  | Transport recovery and session resumption        | TmGui     | Client/Server |
+ * | SessionGuid      | Secure public token for asset URLs & Reconnect   | TmGui     | Client/Server |
  * | User / Domain ID | Application business logic, accounts, grouping   | User Code | Client/Server |
  * </code>
  * </remarks>
  */
 public readonly struct SessionId : IEquatable<SessionId>
 {
-    public   readonly   Guid    value;
-    internal readonly   string? str;
+    public   readonly   int    value;
 
-    public   override   string  ToString() => str ?? "none";
+    public   override   string  ToString() => value.ToString();
     
-    internal SessionId(long id)
+    public SessionId(int id)
     {
-        value   = Guid.Parse($"{id:D32}");
-        str     = id.ToString();
+        value = id;
     }
    
-    private SessionId(Guid guid) {
-        value   = guid;
-        str     = value.ToString();
-    }
-    
-    internal static SessionId FromSpan(ReadOnlySpan<char> sidSpan)
-    {
-        if (long.TryParse(sidSpan, out var sidInt)) {
-            return new SessionId(sidInt);
-        }
-        if (Guid.TryParse(sidSpan, out Guid guid)) {
-            return new SessionId(guid);
-        }
-        return default;
-    }
-    
     public override bool Equals(object? obj)        => obj is SessionId other && Equals(other);
-    public override int  GetHashCode()              => value.GetHashCode();
+    public override int  GetHashCode()              => value;
     public          bool Equals(SessionId other)    => value == other.value;
     
     public static   bool operator ==(SessionId left, SessionId right)   => left.value == right.value;
@@ -107,7 +89,7 @@ public sealed class SessionClient
         this.client     = client;
         this.backend    = backend;
         loopTimer       = timer;
-        sessionId       = session.sessionId;
+        sessionId       = session.keys.id;
     }
     
     /// <summary>

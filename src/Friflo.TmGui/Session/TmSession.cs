@@ -14,9 +14,9 @@ internal abstract class TmSession
 {
     protected internal          IGuiView?       guiView;
     internal  readonly          TmClient        client;
-    internal  readonly          SessionId       sessionId;
+    internal  readonly          SessionKeys     keys;
     protected volatile          bool            isDirty;
-    public    override          string          ToString()          => $"session: {sessionId}";
+    public    override          string          ToString()          => $"session: {keys.id}";
     
     protected internal abstract TmGuiBackend    Backend             { get; }
     protected internal abstract TmBatch         Batch               { get; }
@@ -26,9 +26,9 @@ internal abstract class TmSession
     internal           abstract void            ProcessInput(ReadOnlySpan<byte> input);
     internal           abstract TmSendMessage   IterateUI(in AssetResources resources);
     
-    internal TmSession(TmClient client, SessionId sessionId) {
-        this.client     = client;
-        this.sessionId  = sessionId;
+    internal TmSession(TmClient client, SessionKeys keys) {
+        this.client = client;
+        this.keys   = keys;
     }
     
     internal bool SetDirty()

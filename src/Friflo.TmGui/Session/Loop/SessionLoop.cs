@@ -38,6 +38,7 @@ public sealed partial class TmSessionLoop : IDisposable
 {
     public   readonly   AssetResources  resources;
     public              string?         appId;
+    public              bool            UseSecureSessionGuids { get; init; }
 
 #region private fields
     private  readonly   bool                                isAsync;
@@ -191,7 +192,8 @@ public sealed partial class TmSessionLoop : IDisposable
 
         var loopTimer       = new LoopTimer(this, client, 60, isSync);
         var sessionId       = new SessionId(_sessionSeq++);
-        var session         = new TuiSession(client, sessionId, this, loopTimer, TuiColorMode.RGB24);
+        var keys            = new SessionKeys(sessionId, default);
+        var session         = new TuiSession(client, keys, this, loopTimer, TuiColorMode.RGB24);
         var sessionClient   = new SessionClient(this, session, args, client, session.Backend, loopTimer);
         var guiView         = createGuiView(sessionClient);
         
@@ -207,7 +209,9 @@ public sealed partial class TmSessionLoop : IDisposable
     {
         var loopTimer       = new LoopTimer(this, client, 60, isSync);
         var sessionId       = new SessionId(_sessionSeq++);
-        var session         = new GuiSession(client, sessionId, this, loopTimer);
+        var sessionGuid     = UseSecureSessionGuids ? new SessionGuid(Guid.NewGuid()) : new SessionGuid(sessionId.value);
+        var keys            = new SessionKeys(sessionId, sessionGuid);
+        var session         = new GuiSession(client, keys, this, loopTimer);
         var sessionClient   = new SessionClient(this, session, [], client, session.Backend, loopTimer);
         var guiView         = createGuiView(sessionClient);
         
@@ -223,7 +227,7 @@ public sealed partial class TmSessionLoop : IDisposable
     {
         var batch = session.Batch;
         batch.loopTimer.Dispose();
-        resources.RemoveSessionResources(session.sessionId);
+        resources.RemoveSessionResources(session.keys.guid);
     }
 
     /// <summary>
@@ -262,7 +266,7 @@ public sealed partial class TmSessionLoop : IDisposable
         buffer.AddRange(sessions.Values);
         
         foreach (var session in buffer) {
-            if (session.sessionId != sessionId) {
+            if (session.keys.id != sessionId) {
                 continue;
             }
             if (session.SetDirty()) {
