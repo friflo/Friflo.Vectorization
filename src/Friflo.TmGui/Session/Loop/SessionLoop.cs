@@ -29,7 +29,9 @@ public readonly struct SessionsChangedArgs
 {
     public readonly SessionId           sessionId;
     public readonly SessionsChangedType type;
-    
+
+    public override string              ToString() => $"sessionId: {sessionId}  {type}";
+
     public SessionsChangedArgs(SessionId sessionId, SessionsChangedType type) {
         this.sessionId  = sessionId;
         this.type       = type;
