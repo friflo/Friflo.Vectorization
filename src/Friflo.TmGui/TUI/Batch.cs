@@ -19,7 +19,7 @@ using Friflo.TmGui.Session;
 // ReSharper disable ConvertToPrimaryConstructor
 namespace Friflo.TmGui.TUI;
 
-public sealed partial class TuiBatch : TmBatch, IClientAction
+public sealed partial class TuiBatch : TmBatch
 {
     private readonly    string                  batchName;
     public              TuiFocusBorder          focusBorder;
@@ -28,8 +28,6 @@ public sealed partial class TuiBatch : TmBatch, IClientAction
     private             float                   lineHeight;
     private             float                   charWidth;
     private             int                     rectStart;
-    internal            Color32                 backgroundLight = 0x888888ff;
-    internal            Color32                 backgroundDark  = 0x404142ff;
     internal readonly   List<TuiRect>           tuiRects        = [];
     private  readonly   List<TuiRectCommand>    rectCommands    = [];
     private  readonly   List<char>              textBuffer      = [];
@@ -361,24 +359,6 @@ public sealed partial class TuiBatch : TmBatch, IClientAction
         cells.Fill(clear);
         
         DrawRectCommandsInternal(targetWidth, cells);
-    }
-    
-    // --- IClientAction
-    public void SetClearColor(Color32 light, Color32 dark)
-    {
-        backgroundLight = light;
-        backgroundDark  = dark;
-    }
-    
-    public void SetWindowTitle(ReadOnlySpan<char> title)
-    {
-        var sb = StringBuilder();
-        sb.Append("\x1b]0;");
-        sb.Append(title);
-        sb.Append("\x07");
-        var bytes = Encoding.UTF8.GetBytes(sb.ToString());
-        var msg = new TmSendMessage(bytes);
-        session?.client.Send(msg);
     }
 #endregion
 }

@@ -47,7 +47,6 @@ public sealed class CpuBackend : TmGuiBackend
     {
         var batch = new TuiBatch(this, colorMode, timer);
         InitBatch(batch);
-        SetClientActions(batch);
         return batch;
     }
     
