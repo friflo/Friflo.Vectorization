@@ -101,7 +101,7 @@ public sealed class SessionClient
 
     internal SessionClient(TmSessionLoop loop, TmSession session, string[] args, TmClient client, TmGuiBackend backend, LoopTimer timer)
     {
-        // NOTE! Must not store a reference to session. User may store a reference which prevents GC collecting the session.
+        // NOTE! Must not store a reference to a heavy session instance. User may store a reference which prevents GC collecting the session.
         this.loop       = loop;
         this.args       = args;
         this.client     = client;
