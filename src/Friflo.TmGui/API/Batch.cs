@@ -61,7 +61,7 @@ public abstract class TmBatch : IDisposable
     public  ReadOnlySpan<DrawCommand>       DrawList        => new(drawList, 0, drawCommands.Count);
     public  Span<Vertex2D>                  Vertices        => vertexBuffer.Span.Slice(0, vertexCount);
     public  IClientAction                   Action          => host.clientAction;
-    public  LoopTimer                       Timer           => loopTimer!;
+    public  LoopTimer                       Timer           => loopTimer;
 #endregion
 
 #region protected
@@ -123,6 +123,12 @@ public abstract class TmBatch : IDisposable
     private             int                 vertexStart;                // start of next Draw()
     internal            int                 vertexCount;
     internal            TmTexture           currentTexture;
+    
+    internal void Reset() {
+        // Goal: Clear references of heavy instances. User may store a TmBatch reference which prevents GC collecting them.
+        session = null;
+        loopTimer.Dispose();
+    }
     
     protected TmBatch(TmGuiBackend backend, LoopTimer? timer) : this(backend, 4, timer)
     {
