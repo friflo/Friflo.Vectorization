@@ -95,7 +95,7 @@ public class TmGuiRenderer : IRenderer, IGuiView
     
     private const int port = 8080;
     
-    public TmGuiRenderer(TmGuiRenderer renderer, SessionClient client)
+    public TmGuiRenderer(TmGuiRenderer renderer, ViewSession session)
     {
         batch               = renderer.batch;
         monocraftFont       = renderer.monocraftFont;
@@ -103,8 +103,8 @@ public class TmGuiRenderer : IRenderer, IGuiView
         myTexture           = renderer.myTexture;
         myTextureView       = renderer.myTextureView;
         
-        client.Action.SetWindowTitle("Web client");
-        client.Action.SetClearColor(0x999c9eff, 0x404142ff); // same color as clearValue
+        session.Action.SetWindowTitle("Web client");
+        session.Action.SetClearColor(0x999c9eff, 0x404142ff); // same color as clearValue
     }
     
     public void OnWindowChanged(int width, int height)

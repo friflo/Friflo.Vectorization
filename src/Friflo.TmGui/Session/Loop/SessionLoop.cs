@@ -193,9 +193,9 @@ public sealed partial class TmSessionLoop : IDisposable
         var loopTimer       = new LoopTimer(this, client, 60, isSync);
         var keys            = new SessionKeys(client.sessionId, default);
         var session         = new TuiSession(client, keys, this, loopTimer, TuiColorMode.RGB24);
-        var sessionClient   = new SessionClient(this, session, args, client, session.Backend, loopTimer);
-        var guiView         = createGuiView(sessionClient);
-        session.sessionClient = sessionClient;
+        var viewSession     = new ViewSession(this, session, args, client, session.Backend, loopTimer);
+        var guiView         = createGuiView(viewSession);
+        session.viewSession = viewSession;
         
         session.guiView = guiView;
         sessions[client.sessionId] = session;
@@ -212,9 +212,9 @@ public sealed partial class TmSessionLoop : IDisposable
         var sessionGuid     = UseSecureSessionGuids ? new SessionGuid(Guid.NewGuid()) : new SessionGuid(sessionId.value);
         var keys            = new SessionKeys(sessionId, sessionGuid);
         var session         = new GuiSession(client, keys, this, loopTimer);
-        var sessionClient   = new SessionClient(this, session, [], client, session.Backend, loopTimer);
-        var guiView         = createGuiView(sessionClient);
-        session.sessionClient = sessionClient;
+        var viewSession     = new ViewSession(this, session, [], client, session.Backend, loopTimer);
+        var guiView         = createGuiView(viewSession);
+        session.viewSession = viewSession;
         
         session.guiView = guiView;
         sessions[client.sessionId] = session;
@@ -228,8 +228,8 @@ public sealed partial class TmSessionLoop : IDisposable
         var batch = session.Batch;
         batch.loopTimer.Dispose();
         resources.RemoveSessionResources(session.keys.guid);
-        session.sessionClient?.Reset();
-        session.sessionClient = null;
+        session.viewSession?.Reset();
+        session.viewSession = null;
     }
 
     /// <summary>

@@ -14,10 +14,10 @@ public class SignalingView : IGuiView
     private readonly    List<TmGuiApp>      apps    = [];
     private readonly    List<TmSignalPeer>  clients = [];
     
-    public SignalingView(TmSignaling signaling, SessionClient client)
+    public SignalingView(TmSignaling signaling, ViewSession session)
     {
         this.signaling = signaling;
-        client.Action.SetWindowTitle("Signaling Server");
+        session.Action.SetWindowTitle("Signaling Server");
     }
     
     public void RenderGui(TmBatch batch, int targetWidth, int targetHeight)

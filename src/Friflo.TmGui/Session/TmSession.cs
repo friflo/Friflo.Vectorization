@@ -16,7 +16,7 @@ internal abstract class TmSession
     internal  readonly          TmClient        client;
     internal  readonly          SessionKeys     keys;
     protected volatile          bool            isDirty;
-    internal                    SessionClient?  sessionClient;
+    internal                    ViewSession?    viewSession;
     
     public    override          string          ToString()          => $"session: {keys.id}";
     

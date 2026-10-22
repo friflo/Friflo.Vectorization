@@ -28,11 +28,11 @@ public interface IGuiView
 /// providing access to client-specific state, backend services, and actions.
 /// </summary>
 /// <remarks>
-/// <see cref="SessionClient"/> acts as the execution context for remote views or browser clients.<br/>
-/// Note that a native local backend does not utilize a client session; it is created and owned directly 
+/// <see cref="ViewSession"/> acts as the execution context for remote views or browser clients.<br/>
+/// Note that a native local backend does not utilize a session; it is created and owned directly 
 /// by the user rather than through the session loop.
 /// </remarks>
-public sealed class SessionClient
+public sealed class ViewSession
 {
     public   readonly   SessionId       SessionId;
     public   readonly   string[]        args;
@@ -59,7 +59,7 @@ public sealed class SessionClient
         return new InvalidOperationException($"Session has already been terminated. sessionId: {SessionId}");
     }
 
-    internal SessionClient(TmSessionLoop loop, TmSession session, string[] args, TmClient client, TmGuiBackend backend, LoopTimer timer)
+    internal ViewSession(TmSessionLoop loop, TmSession session, string[] args, TmClient client, TmGuiBackend backend, LoopTimer timer)
     {
         // NOTE! Must not store a reference to a heavy session instance. User may store a reference which prevents GC collecting the session.
         this.loop       = loop;
@@ -103,8 +103,8 @@ public sealed class SessionClient
 }
 
 /// <summary>
-/// Represents a factory delegate used by <see cref="TmSessionLoop"/> to create a new <see cref="IGuiView"/> instance for a given client session.
+/// Represents a factory delegate used by <see cref="TmSessionLoop"/> to create a new <see cref="IGuiView"/> instance for a given session.
 /// </summary>
-/// <param name="client">The client associated with the session.</param>
-/// <returns>An instance implementing <see cref="IGuiView"/> for the client.</returns>
-public delegate IGuiView CreateGuiView(SessionClient client);
+/// <param name="session">The session associated with <see cref="IGuiView"/>.</param>
+/// <returns>An instance implementing <see cref="IGuiView"/> for the session.</returns>
+public delegate IGuiView CreateGuiView(ViewSession session);
