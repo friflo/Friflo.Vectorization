@@ -91,7 +91,7 @@ public sealed class ViewSession
     }
     
     /// <summary>
-    /// Enqueues a redraw (<see cref="IGuiView.RenderGui"/>) for all clients of a specific session.
+    /// Enqueues a redraw (<see cref="IGuiView.RenderGui"/>) for a specific session.
     /// </summary>
     /// <remarks>
     /// Applies to native GUI window, console TUI, browser clients, and terminal emulators.<br/>
