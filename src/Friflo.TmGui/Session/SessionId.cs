@@ -16,10 +16,10 @@ namespace Friflo.TmGui;
  * <remarks>
  * Architectural overview of identifier roles and library boundaries:
  * <code>
- * | Identifier       | Scope / Purpose                                  | Scope     | Used By       |
+ * | Identifier       | Scope / Purpose                                  | Code      | Used By       |
  * |------------------|--------------------------------------------------|-----------|---------------|
  * | SessionId        | Server-side client / session id in TmSessionLoop | TmGui     | Server        |
- * | SessionGuid      | Secure public token for asset URLs & Reconnect   | TmGui     | Client/Server |
+ * | SessionGuid      | Secure public token for asset URLs and Reconnect | TmGui     | Client/Server |
  * | User / Domain ID | Application business logic, accounts, grouping   | User Code | Client/Server |
  * </code>
  * </remarks>
@@ -44,7 +44,7 @@ public readonly struct SessionId : IEquatable<SessionId>
 
 
 /// <summary>
-/// Secure public token for asset URLs & Reconnect's
+/// Secure public token for asset URLs and Reconnect's
 /// </summary>
 internal readonly struct SessionGuid : IEquatable<SessionGuid>
 {
