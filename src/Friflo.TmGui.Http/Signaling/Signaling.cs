@@ -74,6 +74,19 @@ public sealed class TmSignaling
         StateChanged?.Invoke();
     }
     
+    private void SetAppSessionCount(TmSignalPeer peer, in SignalMessage message)
+    {
+        var app = peer.app;
+        if (app == null || message.sessions == null) {
+            return;
+        }
+        var curCount = app.sessionCount;
+        app.sessionCount = message.sessions.Value;
+        if  (curCount != app.sessionCount) {
+            SetDirty();    
+        }
+    }
+    
     internal async Task ProcessMessageAsync(TmSignalPeer peer, ReadOnlyMemory<byte> buffer)
     {
         if (!SignalMessage.TryParse(buffer.Span, out var message)) {
@@ -94,13 +107,16 @@ public sealed class TmSignaling
                     Console.WriteLine($"Register app: '{appId}'");
                     var guiApp = peer.app = new TmGuiApp(peer, appId, $"?app={appId}");
                     guiApps[appId] = guiApp;
-                    peer.SetAppSessionCount(message);
+                    SetAppSessionCount(peer, message);
                     SetDirty();
                     
                     var msg = new SignalMessage("RegisterResponse", appId, peer.connection, "registered");
                     var errorResponse = JsonSerializer.SerializeToUtf8Bytes(msg);
                     await peer.SendAsync(errorResponse);
                 }
+                break;
+            case "stats":
+                SetAppSessionCount(peer, message);
                 break;
 
             // ---------------------------------- called by:  clients ----------------------------------
@@ -128,7 +144,7 @@ public sealed class TmSignaling
                 break;
             case "close":
                 // close Client signaling webSocket. P2P Data Channel was opened
-                peer.SetAppSessionCount(message);
+                SetAppSessionCount(peer, message);
                 
                 if (message.connection != null) {
                     if (clients.TryRemove(message.connection, out var signalPeer)) {
@@ -153,7 +169,7 @@ public sealed class TmSignaling
                 // Case 2: Sender is an App forwarding an answer or candidate back to the Client
                 else
                 {
-                    peer.SetAppSessionCount(message);
+                    SetAppSessionCount(peer, message);
                     
                     if (message.connection != null) {
                         if (clients.TryGetValue(message.connection, out var signalPeer)) {

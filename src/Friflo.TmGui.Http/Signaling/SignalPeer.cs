@@ -28,14 +28,6 @@ public sealed class TmSignalPeer
         registered      = DateTime.Now;
     }
     
-    internal void SetAppSessionCount(in SignalMessage message)
-    {
-        if (app == null || message.sessions == null) {
-            return;
-        }
-        app.sessionCount = message.sessions.Value;
-    }
-
     internal async Task SendAsync(ReadOnlyMemory<byte> payload, CancellationToken cancellationToken = default)
     {
         if (webSocket.State == WebSocketState.Open)

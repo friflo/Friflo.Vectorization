@@ -109,3 +109,5 @@ public sealed class ViewSession
 /// <param name="session">The <see cref="ViewSession"/> associated with <see cref="IGuiView"/>.</param>
 /// <returns>An instance implementing <see cref="IGuiView"/> for the session.</returns>
 public delegate IGuiView CreateGuiView(ViewSession session);
+
+public delegate void SessionRemoved(SessionId sessionId);

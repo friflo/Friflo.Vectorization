@@ -23,6 +23,14 @@ public sealed partial class TmSignalingListener
     public TmSignalingListener(TmSessionLoop loop)
     {
         this.loop = loop;
+        loop.sessionRemoved += OnSessionRemoved;
+    }
+    
+    private void OnSessionRemoved(SessionId sessionId)
+    {
+        var msg     = new SignalMessage{ type = "stats", app = loop.appId, sessions = loop.SessionCount };
+        var payload = JsonSerializer.SerializeToUtf8Bytes(msg);
+        _ =  clientWebSocket?.SendAsync(payload, WebSocketMessageType.Text, true, CancellationToken.None);
     }
         
     public async Task ConnectAsync(Uri uri, string app, string? instance = null, CancellationToken cancellationToken = default)

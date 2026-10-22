@@ -12,6 +12,7 @@ using Friflo.TmGui.Headless;
 using Friflo.TmGui.TUI;
 using Friflo.TmGui.TUI.Session;
 
+// ReSharper disable UnusedAutoPropertyAccessor.Global
 // ReSharper disable InlineTemporaryVariable
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable ConvertConstructorToMemberInitializers
@@ -40,6 +41,7 @@ public sealed partial class TmSessionLoop : IDisposable
     public              string?         appId;
     public              bool            UseSecureSessionGuids   { get; init; }
     public              int             SessionCount            => sessions.Count;
+    public              SessionRemoved? sessionRemoved;
 
 #region private fields
     private  readonly   bool                                isAsync;
@@ -231,6 +233,7 @@ public sealed partial class TmSessionLoop : IDisposable
         resources.RemoveSessionResources(session.keys.guid);
         session.viewSession?.Reset();
         session.viewSession = null;
+        sessionRemoved?.Invoke(session.client.sessionId);
     }
 
     /// <summary>
