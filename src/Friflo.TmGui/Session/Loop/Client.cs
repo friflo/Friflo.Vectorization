@@ -63,11 +63,16 @@ internal struct SendQueueState
 [Flags]
 public enum TmUiType
 {
+    /// <summary>Native App GUI - Vulkan, DX12, Metal, OpenGL (wgpu-native)</summary>
     NativeGui   =  1,
+    /// <summary>Browser GUI (WebSocket) - WebGPU</summary>
     WebGui      =  2,
+    /// <summary>Browser GUI (WebRTC) - WebGPU</summary>
     WebRtcGui   =  4,
     
+    /// <summary>Console TUI</summary>
     TerminalTui =  8,
+    /// <summary>Terminal Emulator (TCP) TUI</summary>
     ConsoleTui  = 16,
     
     Gui = NativeGui | WebGui | WebRtcGui,
