@@ -13,7 +13,7 @@ namespace Friflo.TmGui;
 /// <summary>
 /// TmGui - One UI. High Performance. Every Platform. Any Distance.
 /// A cross-platform, immediate-mode UI library optimized for GPU-accelerated rendering.
-/// Supports native GUIs and browser-based GUIs streamed as vector data.
+/// Supports native GUIs and browser-based GUIs streamed as delta vector data.
 /// Provides native and remote terminal user interfaces (TUI).
 /// Runs locally or remotely, across desktop, mobile, browser, and terminal environments.
 /// </summary>
