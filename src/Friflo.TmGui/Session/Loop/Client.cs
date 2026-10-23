@@ -71,9 +71,9 @@ public enum TmUiType
     WebRtcGui   =  4,
     
     /// <summary>Console TUI</summary>
-    TerminalTui =  8,
+    ConsoleTui  =  8,
     /// <summary>Terminal Emulator (TCP) TUI</summary>
-    ConsoleTui  = 16,
+    TerminalTui = 16,
     
     Gui = NativeGui | WebGui | WebRtcGui,
     Tui = TerminalTui | ConsoleTui
