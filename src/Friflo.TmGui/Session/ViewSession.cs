@@ -11,6 +11,38 @@ using Friflo.TmGui.Session;
 namespace Friflo.TmGui;
 
 
+[Flags]
+public enum UiType
+{
+    /// <summary>Native App GUI - Vulkan, DX12, Metal, OpenGL (wgpu-native)</summary>
+    /// <remarks>Pure native setup for apps or games. Windows, Linux, macOS, Android, iOS. No server / client code included.</remarks>
+    NativeGui   =  1,
+    /// <summary>Browser GUI (WebSocket) - WebGPU</summary>
+    /// <remarks>Requires an TmGui http / WebSocket server streaming the GUI</remarks>
+    WebGui      =  2,
+    /// <summary>Browser GUI (WebRTC) - WebGPU</summary>
+    /// <remarks>Browser connects to another TmGui WebRTC peer which streams the GUI</remarks>
+    WebRtcGui   =  3,
+    
+    /// <summary>Native Console TUI</summary>
+    /// <remarks>Pure native. No server / client is used.</remarks>
+    ConsoleTui  =  4,
+    /// <summary>Terminal Emulator (TCP) TUI</summary>
+    /// <remarks>Requires a TCP server streaming the TUI. Same TUI as in console.</remarks>
+    TerminalTui =  5,
+}
+
+public static class UiTypeExtensions
+{
+    extension (UiType type) {
+        public bool IsGui()     => type is UiType.NativeGui  or UiType.WebGui or UiType.WebRtcGui;
+        public bool IsTui()     => type is UiType.ConsoleTui or UiType.TerminalTui;
+        public bool IsNative()  => type is UiType.NativeGui  or UiType.ConsoleTui;
+        public bool IsRemote()  => type is UiType.WebGui or UiType.WebRtcGui or UiType.TerminalTui;
+    }
+}
+
+
 /// <summary>
 /// Represents a GUI view managed by a <see cref="TmSessionLoop"/> and associated with a <see cref="ViewSession"/>, 
 /// capable of rendering user interface frames.

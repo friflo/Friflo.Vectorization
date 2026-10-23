@@ -94,7 +94,7 @@ public sealed partial class TuiBatch : TmBatch
     }
     
 #region internal
-    internal void Reset()
+    internal void TuiReset()
     {
         rectStart   = 0;   
         tuiRects.Clear();

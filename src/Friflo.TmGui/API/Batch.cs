@@ -274,7 +274,7 @@ public abstract class TmBatch : IDisposable
         beginWidth          = width;
         beginHeight         = height;
         recorder?.Reset();
-        tui?.Reset();
+        tui?.TuiReset();
         guiState.Reset();
         currentTexture      = currentFontTexture;
         vertexStart         = 0;
