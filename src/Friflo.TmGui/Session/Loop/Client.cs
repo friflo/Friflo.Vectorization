@@ -60,6 +60,17 @@ internal struct SendQueueState
     internal    int     queueSize;
 }
 
+[Flags]
+public enum TmClientType
+{
+    WebGui      = 1,
+    WebRtcGui   = 2,
+    TerminalTui = 4,
+    ConsoleTui  = 8,
+    
+    Gui = WebGui      | WebRtcGui,
+    Tui = TerminalTui | ConsoleTui
+}
 
 public abstract class TmClient
 {
@@ -112,6 +123,7 @@ public abstract class TmClient
     internal bool DecrementPendingEvents() => Interlocked.Decrement(ref pendingEvents) == 0;
 
 
+    public             abstract     TmClientType    ClientType { get; }
     protected internal abstract     ValueTask<int>  SendAsync(TmSendMessage message, CancellationToken cancellationToken);
     protected internal abstract     int             Send(TmSendMessage message);
     protected internal abstract     void            SendCommand(TmSendCommand command);

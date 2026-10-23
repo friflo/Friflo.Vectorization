@@ -37,14 +37,14 @@ public sealed class ViewSession
 {
     public   readonly   SessionId       SessionId;
     public   readonly   string[]        args;
+    public   readonly   TmClientType    ClientType;
     
     public              TmGuiBackend    Backend     => backend      ?? throw SessionTerminatedException();
-    public              TmClient        Client      => client       ?? throw SessionTerminatedException();
     public              string?         AppId       => loop.appId;
     public              ClientAction    Action      => Backend.host.clientAction;
     public              LoopTimer       Timer       => loopTimer    ?? throw SessionTerminatedException();
 
-    public   override   string          ToString()  => $"sessionId: {SessionId}";
+    public   override   string          ToString()  => $"sessionId: {SessionId}  {ClientType}";
 
 #region private fields
     private             TmGuiBackend?   backend;
@@ -69,6 +69,7 @@ public sealed class ViewSession
         this.backend    = backend;
         loopTimer       = timer;
         SessionId       = session.keys.id;
+        ClientType      = client.ClientType;
     }
     
     internal void Reset()

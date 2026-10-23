@@ -39,6 +39,8 @@ internal class WebSocketClient : TmClient
         doubleBuffer = null!;
         webSocket    = null!;
     }
+    
+    public override TmClientType ClientType => TmClientType.WebGui;
 
     protected override async ValueTask<int> SendAsync(TmSendMessage message, CancellationToken cancellationToken)
     {

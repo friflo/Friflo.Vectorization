@@ -39,6 +39,8 @@ public sealed class ConsoleClient : TmClient
         outputStream    = null!;
     }
     
+    public override TmClientType ClientType => TmClientType.ConsoleTui;
+    
     protected internal override async ValueTask<int> SendAsync(TmSendMessage message, CancellationToken cancellationToken)
     {
         await outputStream.WriteAsync(message.buffer, cancellationToken);

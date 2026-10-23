@@ -3,6 +3,7 @@ using System.Numerics;
 using System.Runtime.InteropServices;
 using Friflo.TmGui;
 using Friflo.TmGui.Headless;
+using Friflo.TmGui.Session;
 using Friflo.TmGui.TUI;
 using TuiTerminal.Draw;
 
@@ -41,7 +42,7 @@ public class TestGuiView : IGuiView
         var tui             = backend as CpuBackend;
         canvasTexture       = tui?.CreateTexture("canvas", CanvasWidth, CanvasHeight, new byte[CanvasWidth * CanvasHeight * 4]) ?? default;
         session.Timer.TickRate   = 60;
-        session.Timer.Enabled    = true;
+        session.Timer.Enabled    = TmClientType.Gui.HasFlag(session.ClientType);
         session.Action.SetWindowTitle(session.AppId ?? "App");
         session.Action.SetClearColor(0x999c9eff, 0x404142ff);
     }
