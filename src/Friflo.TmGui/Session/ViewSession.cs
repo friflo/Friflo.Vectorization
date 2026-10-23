@@ -48,7 +48,6 @@ public sealed class ViewSession
 
 #region private fields
     private             TmGuiBackend?   backend;
-    private             TmClient?       client;
     private             LoopTimer?      loopTimer;
     private  readonly   TmSessionLoop   loop;
 #endregion
@@ -65,7 +64,6 @@ public sealed class ViewSession
         // NOTE! Must not store a reference to a heavy session instance. User may store a reference which prevents GC collecting the session.
         this.loop       = loop;
         this.args       = args;
-        this.client     = client;
         this.backend    = backend;
         loopTimer       = timer;
         SessionId       = session.keys.id;
@@ -74,7 +72,6 @@ public sealed class ViewSession
     
     internal void Reset()
     {
-        client      = null;
         backend     = null;
         loopTimer   = null;
     }
