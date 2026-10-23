@@ -47,3 +47,15 @@ public interface IClientAction
     }
 }
 
+internal sealed class NoopClientAction : IClientAction
+{
+    internal static readonly  NoopClientAction Instance = new();
+    
+    private         NoopClientAction() { }
+    
+    public void     SetClearColor(Color32 light, Color32 dark) { }
+    public void     SetDisplayMode(TmDisplayMode mode)         { }
+    public void     SetWindowTitle(ReadOnlySpan<char> title)   { }
+    public void     CopyToClipboard(ReadOnlySpan<char> text)   { }
+}
+

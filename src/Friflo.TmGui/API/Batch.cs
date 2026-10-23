@@ -80,7 +80,7 @@ public abstract class TmBatch : IDisposable
     internal  readonly  Stack<Matrix4x4>    transformStack      = [];
     internal  readonly  Stack<ZIndex>       zIndexStack         = [];
     internal  readonly  Stack<SamplerFilter>samplerFilterStack  = [];
-    internal  readonly  StringBuilder       stringBuilder       = new(512,512); // => first chunk: 512 chars
+    private   readonly  StringBuilder       stringBuilder       = new(512,512); // => first chunk: 512 chars
     internal  readonly  GuiState            guiState            = new();
     internal            TmSession?          session;
     

@@ -9,7 +9,7 @@ using System.Numerics;
 // ReSharper disable once CheckNamespace
 namespace Friflo.TmGui;
 
-internal sealed class GuiHost : IClientAction
+internal sealed class GuiHost
 {
     internal readonly   GuiInput                        input;
     internal readonly   Dictionary<string, GuiWindow>   windows     = new();
@@ -22,8 +22,8 @@ internal sealed class GuiHost : IClientAction
     public   override   string                          ToString()  => $"windows: {windows.Count}";
 
     internal GuiHost(GuiInput input) {
-        this.input = input;
-        clientAction = this;
+        this.input      = input;
+        clientAction    = NoopClientAction.Instance;
     }
  
     internal void Dispose()

@@ -51,7 +51,7 @@ internal sealed partial class TuiSession : TmSession
         cpuBackend          = client is ConsoleClient ? loopBackend : new CpuBackend(loopBackend.backendName, loopBackend);
         
         tuiBatch            = cpuBackend.CreateTuiBatch(colorMode, timer);
-        action              = new TuiClientAction(client, tuiBatch.stringBuilder);
+        action              = new TuiClientAction(client);
         cpuBackend.SetClientActions(action);
         tuiBatch.session    = this;
     }

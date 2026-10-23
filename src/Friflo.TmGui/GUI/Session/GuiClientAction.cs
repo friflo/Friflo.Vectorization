@@ -11,13 +11,12 @@ namespace Friflo.TmGui.Session;
 /// <see cref="IClientAction"/> is not implemented by <see cref="GuiSession"/> to avoid exposing its reference. 
 internal sealed class GuiClientAction : IClientAction
 {
-    private readonly    StringBuilder   stringBuilder;
+    private readonly    StringBuilder   stringBuilder = new(512, 512);
     private readonly    TmClient        client;
         
-    internal GuiClientAction(WsBatch batch, TmClient client)
+    internal GuiClientAction(TmClient client)
     {
-        stringBuilder   = batch.stringBuilder;
-        this.client     = client;
+        this.client = client;
     }
     
     private StringBuilder StringBuilder()

@@ -15,13 +15,12 @@ internal sealed class TuiClientAction : IClientAction
     private             Color32         backgroundLight = 0x888888ff;
     private             Color32         backgroundDark  = 0x404142ff;
     private readonly    TmClient        client;
-    private readonly    StringBuilder   sb;
+    private readonly    StringBuilder   sb = new(512, 512);
     
     internal            Color32     Background => WindowSettingsUtils.IsDarkMode ? backgroundDark : backgroundLight;
     
-    internal TuiClientAction(TmClient client, StringBuilder sb) {
+    internal TuiClientAction(TmClient client) {
         this.client = client;
-        this.sb     = sb;
     }
 
     // --- IClientAction
