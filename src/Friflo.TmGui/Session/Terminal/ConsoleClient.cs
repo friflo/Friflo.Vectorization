@@ -39,7 +39,7 @@ public sealed class ConsoleClient : TmClient
         outputStream    = null!;
     }
     
-    public override TmUiType UiType => TmUiType.ConsoleTui;
+    public override UiType UiType => UiType.ConsoleTui;
     
     protected internal override async ValueTask<int> SendAsync(TmSendMessage message, CancellationToken cancellationToken)
     {

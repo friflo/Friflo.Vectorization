@@ -61,7 +61,7 @@ internal struct SendQueueState
 }
 
 [Flags]
-public enum TmUiType
+public enum UiType
 {
     /// <summary>Native App GUI - Vulkan, DX12, Metal, OpenGL (wgpu-native)</summary>
     NativeGui   =  1,
@@ -130,7 +130,7 @@ public abstract class TmClient
     internal bool DecrementPendingEvents() => Interlocked.Decrement(ref pendingEvents) == 0;
 
 
-    public             abstract     TmUiType        UiType { get; }
+    public             abstract     UiType          UiType { get; }
     protected internal abstract     ValueTask<int>  SendAsync(TmSendMessage message, CancellationToken cancellationToken);
     protected internal abstract     int             Send(TmSendMessage message);
     protected internal abstract     void            SendCommand(TmSendCommand command);

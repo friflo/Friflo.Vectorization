@@ -37,7 +37,7 @@ public sealed class ViewSession
 {
     public   readonly   SessionId       SessionId;
     public   readonly   string[]        args;
-    public   readonly   TmUiType        UiType;
+    public   readonly   UiType          UiType;
     
     public              TmGuiBackend    Backend     => backend      ?? throw SessionTerminatedException();
     public              string?         AppId       => loop.appId;
