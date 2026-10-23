@@ -64,15 +64,20 @@ internal struct SendQueueState
 public enum UiType
 {
     /// <summary>Native App GUI - Vulkan, DX12, Metal, OpenGL (wgpu-native)</summary>
+    /// <remarks>Pure native setup for apps or games. Windows, Linux, macOS, Android, iOS. No server / client code included.</remarks>
     NativeGui   =  1,
     /// <summary>Browser GUI (WebSocket) - WebGPU</summary>
+    /// <remarks>Requires an TmGui http / WebSocket server streaming the GUI</remarks>
     WebGui      =  2,
     /// <summary>Browser GUI (WebRTC) - WebGPU</summary>
+    /// <remarks>Browser connects to another TmGui WebRTC peer which streams the GUI</remarks>
     WebRtcGui   =  4,
     
     /// <summary>Console TUI</summary>
+    /// <remarks>Pure native. No server / client is used.</remarks>
     ConsoleTui  =  8,
     /// <summary>Terminal Emulator (TCP) TUI</summary>
+    /// <remarks>Requires a TCP server streaming the TUI. Same TUI as in console.</remarks>
     TerminalTui = 16,
     
     Gui = NativeGui | WebGui | WebRtcGui,
