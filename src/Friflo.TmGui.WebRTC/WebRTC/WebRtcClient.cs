@@ -43,7 +43,7 @@ internal sealed class WebRtcClient : TmClient
         dataChannel     = null!;
     }
     
-    public override TmClientType ClientType => TmClientType.WebRtcGui;
+    public override TmUiType UiType => TmUiType.WebRtcGui;
 
     protected override ValueTask<int> SendAsync(TmSendMessage message, CancellationToken cancellationToken)
     {

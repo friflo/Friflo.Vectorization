@@ -30,7 +30,7 @@ public class StreamClient : TmClient
         outputStream    = null!;
     }
     
-    public override TmClientType ClientType => TmClientType.TerminalTui;
+    public override TmUiType UiType => TmUiType.TerminalTui;
     
     protected internal override async ValueTask<int> SendAsync(TmSendMessage message, CancellationToken cancellationToken)
     {

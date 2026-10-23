@@ -42,7 +42,7 @@ public class TestGuiView : IGuiView
         var tui             = backend as CpuBackend;
         canvasTexture       = tui?.CreateTexture("canvas", CanvasWidth, CanvasHeight, new byte[CanvasWidth * CanvasHeight * 4]) ?? default;
         session.Timer.TickRate   = 60;
-        session.Timer.Enabled    = TmClientType.Gui.HasFlag(session.ClientType);
+        session.Timer.Enabled    = TmUiType.Gui.HasFlag(session.UiType);
         session.Action.SetWindowTitle(session.AppId ?? "App");
         session.Action.SetClearColor(0x999c9eff, 0x404142ff);
     }

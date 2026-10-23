@@ -27,7 +27,7 @@ public class SocketClient : TmClient
         socket = null!;
     }
     
-    public override TmClientType ClientType => TmClientType.TerminalTui;
+    public override TmUiType UiType => TmUiType.TerminalTui;
     
     protected internal override async ValueTask<int> SendAsync(TmSendMessage message, CancellationToken cancellationToken)
     {
