@@ -23,7 +23,7 @@ public enum UiType
     /// <remarks>Pure native setup for apps or games. Windows, Linux, macOS, Android, iOS. No server / client code included.</remarks>
     NativeGui   =  1,
     /// <summary>Browser GUI (WebSocket) - WebGPU</summary>
-    /// <remarks>Requires an TmGui http / WebSocket server streaming the GUI as vector data.</remarks>
+    /// <remarks>Requires an TmGui http / WebSocket server streaming the GUI as delta vector data.</remarks>
     WebGui      =  2,
     /// <summary>Browser GUI (WebRTC) - WebGPU</summary>
     /// <remarks>Browser connects via a signaling server to another TmGui WebRTC peer which streams the GUI as vector data.</remarks>
