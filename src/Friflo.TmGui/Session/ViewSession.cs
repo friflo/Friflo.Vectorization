@@ -10,18 +10,21 @@ using Friflo.TmGui.Session;
 // ReSharper disable CheckNamespace
 namespace Friflo.TmGui;
 
-
-[Flags]
+/// <summary>
+/// TmGui's core concept: Write UI code once, run it anywhere.<br/>
+/// A cross-platform, immediate-mode UI library designed for high-performance, GPU-accelerated rendering.
+/// Supports native GUIs, browser-based GUIs streamed as vector data, and terminal user interfaces, both locally and remotely.
+/// </summary>
 public enum UiType
 {
     /// <summary>Native App GUI - Vulkan, DX12, Metal, OpenGL (wgpu-native)</summary>
     /// <remarks>Pure native setup for apps or games. Windows, Linux, macOS, Android, iOS. No server / client code included.</remarks>
     NativeGui   =  1,
     /// <summary>Browser GUI (WebSocket) - WebGPU</summary>
-    /// <remarks>Requires an TmGui http / WebSocket server streaming the GUI</remarks>
+    /// <remarks>Requires an TmGui http / WebSocket server streaming the GUI as vector data.</remarks>
     WebGui      =  2,
     /// <summary>Browser GUI (WebRTC) - WebGPU</summary>
-    /// <remarks>Browser connects to another TmGui WebRTC peer which streams the GUI</remarks>
+    /// <remarks>Browser connects via a signaling server to another TmGui WebRTC peer which streams the GUI as vector data.</remarks>
     WebRtcGui   =  3,
     
     /// <summary>Native Console TUI</summary>
@@ -37,7 +40,7 @@ public static class UiTypeExtensions
     extension (UiType type) {
         public bool IsGui()     => type is UiType.NativeGui  or UiType.WebGui or UiType.WebRtcGui;
         public bool IsTui()     => type is UiType.ConsoleTui or UiType.TerminalTui;
-        public bool IsNative()  => type is UiType.NativeGui  or UiType.ConsoleTui;
+        public bool IsLocal()   => type is UiType.NativeGui  or UiType.ConsoleTui;
         public bool IsRemote()  => type is UiType.WebGui or UiType.WebRtcGui or UiType.TerminalTui;
     }
 }
