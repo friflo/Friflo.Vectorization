@@ -7,6 +7,7 @@ using Friflo.TmGui.Session;
 using Friflo.TmGui.TUI;
 using Hide = System.Diagnostics.DebuggerHiddenAttribute;
 
+// ReSharper disable UnusedMember.Global
 // ReSharper disable InconsistentNaming
 // ReSharper disable once CheckNamespace
 namespace Friflo.TmGui;
@@ -33,6 +34,7 @@ public readonly ref struct Gui
     public              TmBatch         Batch               { [Hide] get => widget.draw.batch;                      }
     public              ClientAction    Action              { [Hide] get => widget.draw.batch.Action;               }
     public              LoopTimer       Timer               { [Hide] get => widget.draw.batch.loopTimer;            }
+    public              UiType          UiType              { [Hide] get => widget.draw.batch.UiType;               }
     
 
     /// <summary>
@@ -43,7 +45,7 @@ public readonly ref struct Gui
         return widget.draw.Tui?.ExpandToCellGrid(size) ?? size;
     }
 
-    public override     string?     ToString() {
+    public override string ToString() {
         var recorder = widget.Recorder;
         if (recorder != null) {
             recorder.Replay();

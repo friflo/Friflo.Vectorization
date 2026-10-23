@@ -7,7 +7,7 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using Friflo.TmGui.TUI;
 
-
+// ReSharper disable UnusedMember.Global
 // ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable InconsistentNaming
 // ReSharper disable once CheckNamespace
@@ -48,6 +48,7 @@ public readonly ref partial struct TmDraw
     public              TuiBatch?       Tui         => batch.tui;
     public              TmBatch         Batch       => batch;
     public              ClientAction    Action      => batch.host.clientAction;
+    public              UiType          UiType      => batch.UiType;
     
     public override     string?         ToString()  => batch.ToString();
     

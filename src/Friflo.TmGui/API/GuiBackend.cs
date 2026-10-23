@@ -99,6 +99,6 @@ public abstract class TmGuiBackend : IDisposable
     }
 
     public void SetClientActions(ClientAction clientAction) {
-        host.clientAction = clientAction;
+        host.clientAction = clientAction ?? throw new ArgumentNullException(nameof(clientAction));
     }
 }
