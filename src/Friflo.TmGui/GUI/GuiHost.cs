@@ -15,7 +15,7 @@ internal sealed class GuiHost
     internal readonly   Dictionary<string, GuiWindow>   windows     = new();
     internal readonly   List<GuiWindow>                 windowOrder = [];
     private             GuiWindow?                      topWindow;
-    internal            IClientAction                   clientAction;
+    internal            ClientAction                    clientAction;
 
     internal            GuiWindow?                      TopWindow   => topWindow;
 

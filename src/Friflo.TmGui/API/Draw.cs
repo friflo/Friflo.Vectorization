@@ -47,7 +47,7 @@ public readonly ref partial struct TmDraw
     public              TmFont          Font        => batch.currentFont;
     public              TuiBatch?       Tui         => batch.tui;
     public              TmBatch         Batch       => batch;
-    public              IClientAction   Action      => batch.host.clientAction;
+    public              ClientAction    Action      => batch.host.clientAction;
     
     public override     string?         ToString()  => batch.ToString();
     

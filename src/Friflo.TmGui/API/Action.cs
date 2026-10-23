@@ -21,13 +21,13 @@ public enum TmDisplayMode
 /// For a native application - e.g. based on SDL - you may create a custom implementation
 /// and use it with <see cref="TmGuiBackend.SetClientActions"/>.
 /// </remarks>
-public interface IClientAction
+public abstract class ClientAction
 {
     /// <summary>
     /// Opens the passed <paramref name="url"/> in a browser.<br/>
     /// In a browser GUI this method calls <c>window.open(url, target)</c>.
     /// </summary>
-    public bool OpenUrl(ReadOnlySpan<char> url, ReadOnlySpan<char> target = default) {
+    public virtual bool OpenUrl(ReadOnlySpan<char> url, ReadOnlySpan<char> target = default) {
         return OpenUrlUtils.OpenUrl(url);
     }
     
@@ -35,28 +35,28 @@ public interface IClientAction
     /// Sets the background color (GPU surface clear value) of a remote client.<br/>
     /// Has no effect on a native application (Vulkan, DX12, Metal). The application controls this color on its own.
     /// </summary>
-    public void SetClearColor(Color32 light, Color32 dark) { }
+    public virtual void SetClearColor(Color32 light, Color32 dark) { }
     
-    public void SetDisplayMode(TmDisplayMode mode) { }
+    public virtual void SetDisplayMode(TmDisplayMode mode) { }
     
-    public void SetWindowTitle(ReadOnlySpan<char> title) { }
+    public virtual void SetWindowTitle(ReadOnlySpan<char> title) { }
     
-    public void CopyToClipboard(ReadOnlySpan<char> text)
+    public virtual void CopyToClipboard(ReadOnlySpan<char> text)
     {
         ClipboardUtils.CopyToClipboard(text);
     }
 }
 
-internal sealed class NoopClientAction : IClientAction
+internal sealed class NoopClientAction : ClientAction
 {
     internal static readonly  NoopClientAction Instance = new();
     
     private         NoopClientAction() { }
     
-    public bool     OpenUrl(ReadOnlySpan<char> url, ReadOnlySpan<char> target) => false;
-    public void     SetClearColor(Color32 light, Color32 dark) { }
-    public void     SetDisplayMode(TmDisplayMode mode)         { }
-    public void     SetWindowTitle(ReadOnlySpan<char> title)   { }
-    public void     CopyToClipboard(ReadOnlySpan<char> text)   { }
+    public override bool    OpenUrl(ReadOnlySpan<char> url, ReadOnlySpan<char> target = default) => false;
+    public override void    SetClearColor(Color32 light, Color32 dark) { }
+    public override void    SetDisplayMode(TmDisplayMode mode)         { }
+    public override void    SetWindowTitle(ReadOnlySpan<char> title)   { }
+    public override void    CopyToClipboard(ReadOnlySpan<char> text)   { }
 }
 

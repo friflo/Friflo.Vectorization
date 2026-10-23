@@ -41,7 +41,7 @@ public sealed class ViewSession
     public              TmGuiBackend    Backend     => backend      ?? throw SessionTerminatedException();
     public              TmClient        Client      => client       ?? throw SessionTerminatedException();
     public              string?         AppId       => loop.appId;
-    public              IClientAction   Action      => Backend.host.clientAction;
+    public              ClientAction    Action      => Backend.host.clientAction;
     public              LoopTimer       Timer       => loopTimer    ?? throw SessionTerminatedException();
 
     public   override   string          ToString()  => $"sessionId: {SessionId}";

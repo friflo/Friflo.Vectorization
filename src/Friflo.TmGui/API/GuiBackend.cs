@@ -40,7 +40,7 @@ public abstract class TmGuiBackend : IDisposable
     public    readonly  GuiInput        input;
     internal  readonly  GuiHost         host;
     public              IGuiAssets      Assets => assets;
-    public              IClientAction   Action => host.clientAction;
+    public              ClientAction    Action => host.clientAction;
     
     public    virtual   TmFont      DefaultFont => defaultFont ??= assets.CreateDefaultFont(this);
 
@@ -98,7 +98,7 @@ public abstract class TmGuiBackend : IDisposable
         return TmFont.CreateTtfFont(this, asset, alphaBitmapTarget, fontSize, width, height, name, true);
     }
 
-    public void SetClientActions(IClientAction clientAction) {
+    public void SetClientActions(ClientAction clientAction) {
         host.clientAction = clientAction;
     }
 }

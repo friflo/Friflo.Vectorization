@@ -8,8 +8,8 @@ using System.Text;
 namespace Friflo.TmGui.Session;
 
 
-/// <see cref="IClientAction"/> is not implemented by <see cref="GuiSession"/> to avoid exposing its reference. 
-internal sealed class GuiClientAction : IClientAction
+/// <see cref="ClientAction"/> is not implemented by <see cref="GuiSession"/> to avoid exposing its reference. 
+internal sealed class GuiClientAction : ClientAction
 {
     private readonly    StringBuilder   stringBuilder = new(512, 512);
     private readonly    TmClient        client;
@@ -25,8 +25,7 @@ internal sealed class GuiClientAction : IClientAction
         return stringBuilder;
     }
     
-    // --- IClientAction
-    public bool OpenUrl(ReadOnlySpan<char> url, ReadOnlySpan<char> target)
+    public override bool OpenUrl(ReadOnlySpan<char> url, ReadOnlySpan<char> target = default)
     {
         var urlStr = url.ToString();
 
@@ -66,7 +65,7 @@ internal sealed class GuiClientAction : IClientAction
         return false; // Invalid URI format
     }
     
-    public void SetClearColor(Color32 light, Color32 dark)
+    public override void SetClearColor(Color32 light, Color32 dark)
     {
         var sb = StringBuilder();
         sb.Append("set-clear-color");
@@ -79,7 +78,7 @@ internal sealed class GuiClientAction : IClientAction
         client.SendCommand(command);
     }    
     
-    public void SetDisplayMode(TmDisplayMode mode) {
+    public override void SetDisplayMode(TmDisplayMode mode) {
         var sb = StringBuilder();
         sb.Append("set-display-mode");
         sb.Append('|');
@@ -88,7 +87,7 @@ internal sealed class GuiClientAction : IClientAction
         client.SendCommand(command);
     }
     
-    public void SetWindowTitle(ReadOnlySpan<char> title)
+    public override  void SetWindowTitle(ReadOnlySpan<char> title)
     {
         var sb = StringBuilder();
         sb.Append("set-title");
@@ -98,7 +97,7 @@ internal sealed class GuiClientAction : IClientAction
         client.SendCommand(msg);
     }
     
-    public void CopyToClipboard(ReadOnlySpan<char> text)
+    public override void CopyToClipboard(ReadOnlySpan<char> text)
     {
         var sb = StringBuilder();
         sb.Append("copy-to-clipboard");

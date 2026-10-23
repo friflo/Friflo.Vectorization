@@ -31,7 +31,7 @@ public readonly ref struct Gui
     public              float           LineHeight          { [Hide] get => widget.draw.Font.lineHeight;            }
     public              Vector2         TerminalPixelSize   { [Hide] get => widget.draw.batch.terminalPixelSize;    }
     public              TmBatch         Batch               { [Hide] get => widget.draw.batch;                      }
-    public              IClientAction   Action              { [Hide] get => widget.draw.batch.Action;               }
+    public              ClientAction    Action              { [Hide] get => widget.draw.batch.Action;               }
     public              LoopTimer       Timer               { [Hide] get => widget.draw.batch.loopTimer;            }
     
 

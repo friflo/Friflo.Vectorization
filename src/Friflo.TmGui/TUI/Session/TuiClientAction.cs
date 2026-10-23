@@ -9,8 +9,8 @@ using Friflo.TmGui.Utils;
 namespace Friflo.TmGui.TUI.Session;
 
 
-/// <see cref="IClientAction"/> is not implemented by <see cref="TuiSession"/> to avoid exposing its reference.
-internal sealed class TuiClientAction : IClientAction
+/// <see cref="ClientAction"/> is not implemented by <see cref="TuiSession"/> to avoid exposing its reference.
+internal sealed class TuiClientAction : ClientAction
 {
     private             Color32         backgroundLight = 0x888888ff;
     private             Color32         backgroundDark  = 0x404142ff;
@@ -23,14 +23,13 @@ internal sealed class TuiClientAction : IClientAction
         this.client = client;
     }
 
-    // --- IClientAction
-    public void SetClearColor(Color32 light, Color32 dark)
+    public override void SetClearColor(Color32 light, Color32 dark)
     {
         backgroundLight = light;
         backgroundDark  = dark;
     }
     
-    public void SetWindowTitle(ReadOnlySpan<char> title)
+    public override void SetWindowTitle(ReadOnlySpan<char> title)
     {
         sb.Clear();
         sb.Append("\x1b]0;");

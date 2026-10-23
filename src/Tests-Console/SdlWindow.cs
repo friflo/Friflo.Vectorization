@@ -23,7 +23,7 @@ public interface IRenderer
     public void OnShutdown();
 }
 
-public class SdlWindow(string title, int width, int height, Func<WgpuHost, IRenderer> createRenderer) : IClientAction
+public class SdlWindow(string title, int width, int height, Func<WgpuHost, IRenderer> createRenderer)
 {
     private             nint                   window;
     private             WgpuHost?              wgpuHost;
@@ -125,7 +125,7 @@ public class SdlWindow(string title, int width, int height, Func<WgpuHost, IRend
         SDL.SetWindowTitle(window, $"{title} - {backend}");
         renderer    = createRenderer(wgpuHost);
         guiBackend  = wgpuHost.GuiBackend;
-        guiBackend?.SetClientActions(this);
+        guiBackend?.SetClientActions(new SdlClientAction(window));
         SetWindowSize();
         Sdl3Cursor.Init();
         return SDL.AppResult.Continue;
@@ -212,9 +212,18 @@ public class SdlWindow(string title, int width, int height, Func<WgpuHost, IRend
         SDL.DestroyWindow(window);
         SDL.Quit();
     }
+}
 
-    // --- IClientAction
-    public void SetDisplayMode(TmDisplayMode mode)
+
+internal sealed class SdlClientAction : ClientAction
+{
+    private readonly nint window;
+    
+    internal SdlClientAction (nint window) {
+        this.window = window;
+    }
+        
+    public override void SetDisplayMode(TmDisplayMode mode)
     {
         switch (mode) {
             case TmDisplayMode.Fullscreen:
@@ -226,11 +235,11 @@ public class SdlWindow(string title, int width, int height, Func<WgpuHost, IRend
         }
     }
 
-    public void SetWindowTitle(ReadOnlySpan<char> value)
+    public override void SetWindowTitle(ReadOnlySpan<char> value)
     {
         SDL.SetWindowTitle(window, value.ToString());
     }
-}
+} 
 
 #region Friflo.TmGui
 
