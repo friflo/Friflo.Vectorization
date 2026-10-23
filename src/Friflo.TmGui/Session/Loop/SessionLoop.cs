@@ -41,13 +41,12 @@ public readonly struct SessionsChangedArgs
 public delegate void SessionsChanged(SessionsChangedArgs args);
 
 /// <summary>
-/// Manages concurrent client sessions (such as web browsers, remote terminals, or consoles), 
-/// processing queued user inputs and coordinating on-demand frame rendering and transmission 
+/// Manages concurrent client sessions (such as web browsers, remote terminals, or consoles),
+/// processing queued user inputs and coordinating on-demand frame rendering and transmission
 /// exclusively for clients with pending input or dirty states.
 /// </summary>
 /// <remarks>
-/// Handles all client sessions on the main thread, drastically simplifying application development.<br/>
-/// This enables lock-free execution since application and session state are always accessed from the same thread.<br/>
+/// Handles all client sessions on the main thread, simplifying application development and enabling lock-free access to application and session state.<br/>
 /// <br/>
 /// The <see cref="CreateGuiView"/> delegate passed to the <see cref="TmSessionLoop"/> constructor must return an instance implementing <see cref="IGuiView"/>.<br/>
 /// If a client has pending input or a dirty session, a new frame is rendered via <see cref="IGuiView.RenderGui"/> and transmitted to the client.<br/>
