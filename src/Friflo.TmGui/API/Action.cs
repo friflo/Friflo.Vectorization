@@ -53,6 +53,7 @@ internal sealed class NoopClientAction : IClientAction
     
     private         NoopClientAction() { }
     
+    public bool     OpenUrl(ReadOnlySpan<char> url, ReadOnlySpan<char> target) => false;
     public void     SetClearColor(Color32 light, Color32 dark) { }
     public void     SetDisplayMode(TmDisplayMode mode)         { }
     public void     SetWindowTitle(ReadOnlySpan<char> title)   { }
