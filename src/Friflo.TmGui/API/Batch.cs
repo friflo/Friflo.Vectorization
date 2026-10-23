@@ -62,6 +62,9 @@ public abstract class TmBatch : IDisposable
     public  Span<Vertex2D>                  Vertices        => vertexBuffer.Span.Slice(0, vertexCount);
     public  ClientAction                    Action          => host.clientAction;
     public  LoopTimer                       Timer           => loopTimer;
+    public  UiType                          UiType          => host.clientAction.UiType;
+    
+    public override string                  ToString()      => UiType.ToString();
 #endregion
 
 #region protected

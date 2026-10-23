@@ -219,7 +219,7 @@ internal sealed class SdlClientAction : ClientAction
 {
     private readonly nint window;
     
-    internal SdlClientAction (nint window) {
+    internal SdlClientAction (nint window) : base(UiType.NativeGui) {
         this.window = window;
     }
         

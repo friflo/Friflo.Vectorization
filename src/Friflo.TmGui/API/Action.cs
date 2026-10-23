@@ -4,6 +4,8 @@
 using System;
 using Friflo.TmGui.Utils;
 
+// ReSharper disable InconsistentNaming
+// ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable once CheckNamespace
 namespace Friflo.TmGui;
 
@@ -23,6 +25,12 @@ public enum TmDisplayMode
 /// </remarks>
 public abstract class ClientAction
 {
+    public readonly UiType UiType;
+    
+    protected ClientAction(UiType uiType) {
+        UiType = uiType;
+    }
+    
     /// <summary>
     /// Opens the passed <paramref name="url"/> in a browser.<br/>
     /// In a browser GUI this method calls <c>window.open(url, target)</c>.
@@ -51,7 +59,7 @@ internal sealed class NoopClientAction : ClientAction
 {
     internal static readonly  NoopClientAction Instance = new();
     
-    private         NoopClientAction() { }
+    private         NoopClientAction() : base (UiType.None) { }
     
     public override bool    OpenUrl(ReadOnlySpan<char> url, ReadOnlySpan<char> target = default) => false;
     public override void    SetClearColor(Color32 light, Color32 dark) { }

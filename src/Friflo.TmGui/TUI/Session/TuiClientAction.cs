@@ -19,7 +19,7 @@ internal sealed class TuiClientAction : ClientAction
     
     internal            Color32     Background => WindowSettingsUtils.IsDarkMode ? backgroundDark : backgroundLight;
     
-    internal TuiClientAction(TmClient client) {
+    internal TuiClientAction(TmClient client) : base(client.UiType) {
         this.client = client;
     }
 
