@@ -205,7 +205,7 @@ function runSignaling(app)
                 hideLogWindow();
             }
             try {
-                const rawData = await decompressMessage(e.data);
+                const rawData = await decompressDataChannelMessage(e.data);
                 
                 // console.log(`Received P2P message: ${e.data.byteLength}  uncompressed: ${rawData.byteLength}`);
                 processMessage(rawData);
@@ -335,7 +335,89 @@ function runSignaling(app)
     return dataChannel;
 }
 
+// ------------------------------------ Pako decompression -----------------------------------
+/*
+let currentChunks = [];
 
+const pakoInflate = new pako.Inflate({
+    raw: true,
+});
+
+// Pako catches decompressed chunks here
+pakoInflate.onData = (chunk) => {
+    currentChunks.push(chunk);
+};
+
+function decompressDataChannelMessagePako(arrayBuffer) {
+    currentChunks = [];
+
+    const incomingData = new Uint8Array(arrayBuffer, 4, arrayBuffer.byteLength - 4);
+
+    const success = pakoInflate.push(incomingData, pako.constants.Z_SYNC_FLUSH);
+
+    const totalLength = currentChunks.reduce((sum, chunk) => sum + chunk.length, 0);
+
+    // console.log("Compressed input:", incomingData.length);
+    // console.log("Decompressed output:", totalLength);
+    // console.log("Pako total output:", pakoInflate.strm.total_out);
+
+    if (!success) {
+        throw new Error(`Pako decompression error: ${pakoInflate.err} - ${pakoInflate.msg}`);
+    }
+    // combine chunks to single sequential array
+    const result = new Uint8Array(totalLength);
+    let offset = 0;
+
+    for (const chunk of currentChunks) {
+        result.set(chunk, offset);
+        offset += chunk.length;
+    }
+    if (offset !== totalLength) {
+        throw new Error(`Output length mismatch: expected ${totalLength}, got ${offset}`);
+    }
+    return result.buffer;
+}
+*/
+
+
+// ------------------------------- DecompressionStream decompression -------------------------------
+const decompressionStream = new DecompressionStream("deflate-raw");
+const writer = decompressionStream.writable.getWriter();
+const reader = decompressionStream.readable.getReader();
+
+async function decompressDataChannelMessage(arrayBuffer)
+{
+    const input = new Uint8Array(arrayBuffer);
+    const messageLength = new DataView(arrayBuffer).getUint32(0, true);
+    const readPromise = (async () => {
+        const chunks = [];
+        let length = 0;
+
+        while (length < messageLength) {
+            const { value, done } = await reader.read();
+            if (done) throw new Error("Decompression failed.");
+            chunks.push(value);
+            length += value.length;
+        }
+
+        const result = new Uint8Array(messageLength);
+        let offset = 0;
+        for (const chunk of chunks) {
+            const count = Math.min(chunk.length, messageLength - offset);
+            result.set(chunk.subarray(0, count), offset);
+            offset += count;
+            if (offset === messageLength) break;
+        }
+
+        return result.buffer;
+    })();
+
+    await writer.write(input.subarray(4));
+    return await readPromise;
+}
+
+
+// ------------------------------- gzip decompression - obsolete -----------------------------------
 const blobArray= [null];
 
 /**
@@ -348,8 +430,7 @@ async function decompressMessage(arrayBuffer) {
 
     return await new Response(stream).arrayBuffer();
 
-    /*
-    // decompress without JS-Loop-Overhead.
+/*  // decompress without JS-Loop-Overhead.
     const stream = new ReadableStream({
         start(controller) {
             controller.enqueue(new Uint8Array(arrayBuffer));
@@ -357,8 +438,7 @@ async function decompressMessage(arrayBuffer) {
         }
     }).pipeThrough(new DecompressionStream('gzip'));
     
-    return await new Response(stream).arrayBuffer();    
-    */
+    return await new Response(stream).arrayBuffer(); */
 }
 
 // ------------------------------------ Service Worker ------------------------------------

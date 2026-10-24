@@ -5,6 +5,7 @@ using System;
 using System.Buffers;
 using System.IO;
 using System.IO.Compression;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Friflo.TmGui.Session;
@@ -19,13 +20,19 @@ namespace Friflo.TmGui.WebRTC;
 
 internal sealed class WebRtcClient : TmClient
 {
-    private     RTCDataChannel  dataChannel;
-    private     TmSessionLoop   loop;
-    private     WsDoubleBuffer? doubleBuffer;
+    private             RTCDataChannel  dataChannel;
+    private             TmSessionLoop   loop;
+    private             WsDoubleBuffer? doubleBuffer;
+    
+    private readonly    MemoryStream    outputStream        = new();
+    private readonly    DeflateStream   statefulCompressor;
 
     internal WebRtcClient(TmSessionLoop loop, RTCDataChannel dataChannel)
     {
+        statefulCompressor  = new DeflateStream(outputStream, CompressionLevel.Fastest, leaveOpen: true);
         doubleBuffer        = new WsDoubleBuffer(this);
+        // compressor = new DeflaterOutputStream(outputStream, deflater) { IsStreamOwner = false };
+        
         this.loop           = loop;
         this.dataChannel    = dataChannel;
         dataChannel.ordered = true;
@@ -51,26 +58,30 @@ internal sealed class WebRtcClient : TmClient
         return ValueTask.FromException<int>(exception);
     }
     
-    private readonly MemoryStream outputGZip = new(1000);
-        
-    private byte[] CompressMessage(ReadOnlySpan<byte> rawData, out int length)
+    // private static readonly byte[] SyncFlushTail = [0x00, 0x00, 0xFF, 0xFF];
+    private readonly byte[] lengthBuffer = new byte[sizeof(int)]; 
+
+    private byte[] CompressMessage(ReadOnlyMemory<byte> rawData, out int length)
     {
-        outputGZip.Position = 0;
-        outputGZip.SetLength(0);
+        MemoryMarshal.Write(lengthBuffer, rawData.Length);
+        outputStream.Position = 0;
+        outputStream.SetLength(0);
+        outputStream.Write(lengthBuffer);
         
-        {
-            using var gzipStream = new GZipStream(outputGZip, CompressionLevel.Fastest, leaveOpen: true);
-            gzipStream.Write(rawData);
-        }
-        length = (int)outputGZip.Length;
+        statefulCompressor.Write(rawData.Span);
+        statefulCompressor.Flush();
         
-        if (outputGZip.TryGetBuffer(out var buffer)) {
+        // outputStream.Write(SyncFlushTail);
+        
+        length = (int)outputStream.Length;
+        
+        if (outputStream.TryGetBuffer(out var buffer)) {
             var array = buffer.Array; 
             if (array != null) {
                 return array;
             }
         }
-        return outputGZip.ToArray();
+        return outputStream.ToArray();
     }
     
     // private byte[] sendBuffer = [];
@@ -84,8 +95,8 @@ internal sealed class WebRtcClient : TmClient
         if (doubleBuffer == null || dataChannel.readyState != RTCDataChannelState.open) {
             return 0;
         }
-        var messageSpan = message.buffer.Span;
-        var sendBuffer = CompressMessage(messageSpan, out int  length);
+        // var sendBuffer = CompressMessageSharpZipLib(message.buffer, out int length);
+        var sendBuffer = CompressMessage(message.buffer, out int length);
         
         /* var length = message.Length;
         if (sendBuffer.Length < length) {
