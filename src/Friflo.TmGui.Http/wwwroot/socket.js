@@ -389,6 +389,8 @@ async function decompressDataChannelMessage(arrayBuffer)
 {
     const input = new Uint8Array(arrayBuffer);
     const messageLength = new DataView(arrayBuffer).getUint32(0, true);
+    // console.log(`RTC message length: ${arrayBuffer.byteLength}  uncompressed: ${messageLength}`);
+    
     const readPromise = (async () => {
         const chunks = [];
         let length = 0;
