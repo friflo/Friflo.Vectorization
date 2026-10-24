@@ -14,7 +14,7 @@ internal sealed class GuiClientAction : ClientAction
     private readonly    StringBuilder   stringBuilder = new(512, 512);
     private readonly    TmClient        client;
         
-    internal GuiClientAction(TmClient client) : base(client.UiType)
+    internal GuiClientAction(TmClient client)
     {
         this.client = client;
     }

@@ -32,7 +32,7 @@ public sealed class WgpuGuiBackend : TmGuiBackend
     }
     
     public WgpuBatch CreateBatch(TextureFormat targetFormat, int maxVertices = 60_000) {
-        var batch = new WgpuBatch(this, targetFormat, maxVertices);
+        var batch = new WgpuBatch(this, targetFormat, maxVertices) { UiType = UiType.NativeGui };
         InitBatch(batch);
         return batch;
     }

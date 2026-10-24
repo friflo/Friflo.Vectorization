@@ -37,15 +37,15 @@ public sealed class CpuBackend : TmGuiBackend
         base.Dispose();
     }
     
-    public CpuGuiBatch CreateGuiBatch(int maxVertices = 60_000, LoopTimer? timer = null) {
-        var batch = new CpuGuiBatch(this, maxVertices, timer);
+    public CpuGuiBatch CreateGuiBatch(int maxVertices = 60_000, LoopTimer? timer = null, UiType uiType = UiType.None) {
+        var batch = new CpuGuiBatch(this, maxVertices, timer) { UiType = uiType };
         InitBatch(batch);
         return batch;
     }
     
-    public TuiBatch CreateTuiBatch(TuiColorMode colorMode, LoopTimer? timer)
+    public TuiBatch CreateTuiBatch(TuiColorMode colorMode, LoopTimer? timer, UiType uiType = UiType.None)
     {
-        var batch = new TuiBatch(this, colorMode, timer);
+        var batch = new TuiBatch(this, colorMode, timer) { UiType = uiType };
         InitBatch(batch);
         return batch;
     }
