@@ -13,10 +13,15 @@ namespace Friflo.TmGui;
 /// <summary>
 /// UiType goals: One UI. High Performance. Every Platform. Any Distance.<br/>
 /// A cross-platform, immediate-mode UI library optimized for GPU-accelerated rendering.<br/>
-/// Supports native GUIs and browser-based GUIs streamed as delta vector data.<br/>
+/// Supports native GUIs and browser-based GUIs streamed as delta vector data.
+/// </summary>
+/// <remarks>
 /// Runs locally or remotely, across desktop, mobile, browser, and terminal environments.<br/>
 /// Provides console and remote terminal user interfaces (TUI).<br/>
-/// </summary>
+/// <br/>
+/// For remote GUI's or TUI's a <see cref="TmSessionLoop"/> is required.<br/>
+/// It renders all client sessions on the main thread, simplifying application development and enabling lock-free access to application and session state.<br/>
+/// </remarks>
 public enum UiType
 {
     None        =  0,
