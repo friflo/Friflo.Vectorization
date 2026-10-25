@@ -12,7 +12,7 @@ namespace Friflo.TmGui;
 
 /// <summary>
 /// UiType defines the supported UI execution modes.<br/>
-/// <b>One UI. High Performance. Every Platform. Any Distance.</b><br/>
+/// <b>One UI. High Performance. Zero-Alloc. Every Platform. Any Distance.</b><br/>
 /// A cross-platform, immediate-mode UI library optimized for GPU-accelerated rendering.<br/>
 /// Supports native GUIs and browser-based GUIs streamed as delta vector data.
 /// </summary>
