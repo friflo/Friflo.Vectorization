@@ -106,7 +106,7 @@ public sealed class ViewSession
     /// <summary> Provides access to client actions not related to GUI or rendering. </summary>
     public              ClientAction Action  => Backend.host.clientAction;
 
-    /// <summary> Enables triggering <see cref="IGuiView.RenderView"/> at fixed time intervals. </summary>
+    /// <summary> Enables triggering <see cref="IGuiView.RenderView"/> at configured time intervals. </summary>
     public              LoopTimer   Timer   => loopTimer ?? throw SessionTerminatedException();
 
 #region private fields
