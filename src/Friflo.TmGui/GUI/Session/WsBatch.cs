@@ -12,7 +12,8 @@ namespace Friflo.TmGui.Session;
 
 internal class WsBatch : TmBatch
 {
-    internal WsBatch(TmGuiBackend backend, int maxVertices, LoopTimer timer) : base(backend, maxVertices, timer)
+    internal WsBatch(SessionId sessionId, TmGuiBackend backend, int maxVertices, LoopTimer timer)
+        : base(sessionId, backend, maxVertices, timer)
     {
     }
 

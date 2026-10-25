@@ -50,7 +50,7 @@ internal sealed partial class TuiSession : TmSession
         var loopBackend     = loop.cpuBackend;
         cpuBackend          = client is ConsoleClient ? loopBackend : new CpuBackend(loopBackend.backendName, loopBackend);
         
-        tuiBatch            = cpuBackend.CreateTuiBatch(colorMode, timer, client.UiType);
+        tuiBatch            = cpuBackend.CreateTuiBatch(colorMode, client.sessionId, timer, client.UiType);
         action              = new TuiClientAction(client);
         cpuBackend.SetClientActions(action);
         tuiBatch.session    = this;
@@ -63,7 +63,7 @@ internal sealed partial class TuiSession : TmSession
     internal override GuiReplay CreateReplay()
     {
         var replayBackend   = new CpuBackend("Replay", cpuBackend.Assets);
-        var replayBatch     = replayBackend.CreateTuiBatch(colorMode, null);
+        var replayBatch     = replayBackend.CreateTuiBatch(colorMode, client.sessionId);
         return new GuiReplay(replayBackend, replayBatch, this);
     }
     

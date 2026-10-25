@@ -18,7 +18,7 @@ namespace Friflo.TmGui;
  * <code>
  * | Identifier       | Scope / Purpose                                  | Code      | Used By       |
  * |------------------|--------------------------------------------------|-----------|---------------|
- * | SessionId        | Server-side client / session id in TmSessionLoop | TmGui     | Server        |
+ * | SessionId (int)  | Server-side client / session id in TmSessionLoop | TmGui     | Server        |
  * | SessionGuid      | Secure public token for asset URLs and Reconnect | TmGui     | Client/Server |
  * | User / Domain ID | Application business logic, accounts, grouping   | User Code | Client/Server |
  * </code>
@@ -26,20 +26,20 @@ namespace Friflo.TmGui;
  */
 public readonly struct SessionId : IEquatable<SessionId>
 {
-    public   readonly   int    value;
+    public   readonly   int     id;
 
-    public   override   string  ToString() => value.ToString();
+    public   override   string  ToString() => id.ToString();
     
     public SessionId(int id) {
-        value = id;
+        this.id = id;
     }
    
     public override bool Equals(object? obj)        => obj is SessionId other && Equals(other);
-    public override int  GetHashCode()              => value;
-    public          bool Equals(SessionId other)    => value == other.value;
+    public override int  GetHashCode()              => id;
+    public          bool Equals(SessionId other)    => id == other.id;
     
-    public static   bool operator ==(SessionId left, SessionId right)   => left.value == right.value;
-    public static   bool operator !=(SessionId left, SessionId right)   => left.value != right.value;
+    public static   bool operator ==(SessionId left, SessionId right)   => left.id == right.id;
+    public static   bool operator !=(SessionId left, SessionId right)   => left.id != right.id;
 }
 
 

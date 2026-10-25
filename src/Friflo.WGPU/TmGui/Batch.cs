@@ -19,7 +19,7 @@ public sealed partial class WgpuBatch : TmBatch
     private  readonly   RenderConfig[]  renderConfigs;      // each RenderConfig is a 4 bytes ID. used to support blend states
 
     internal WgpuBatch(WgpuGuiBackend backend, TextureFormat targetFormat, int maxVertices)
-        : base(backend, maxVertices, null)
+        : base(default, backend, maxVertices, null)
     {
         renderConfigs   = CreateRenderConfigs(targetFormat);
         

@@ -50,7 +50,7 @@ internal sealed partial class GuiSession : TmSession
     {
         shared              = loop.guiShared;
         wsBackend           = new WsBackend(loop.cpuBackend, loop.guiShared, keys);
-        wsBatch             = wsBackend.CreateBatch(timer, client.UiType);
+        wsBatch             = wsBackend.CreateBatch(client.sessionId, timer, client.UiType);
         wsBackend.SetClientActions(new GuiClientAction(client));
         wsBatch.session     = this;
         

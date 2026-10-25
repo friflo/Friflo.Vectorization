@@ -45,7 +45,8 @@ public sealed partial class TuiBatch : TmBatch
 
     public   override   string                  ToString()  => batchName;
 
-    public TuiBatch(CpuBackend backend, TuiColorMode colorMode, LoopTimer? timer) : base(backend, 0, timer)
+    public TuiBatch(SessionId sessionId, CpuBackend backend, TuiColorMode colorMode, LoopTimer? timer)
+        : base(sessionId, backend, 0, timer)
     {
         batchName = backend.backendName;
         if  (colorMode == TuiColorMode.Monochrome) {

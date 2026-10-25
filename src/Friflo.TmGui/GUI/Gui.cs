@@ -35,6 +35,7 @@ public readonly ref struct Gui
     public              ClientAction    Action              { [Hide] get => widget.draw.batch.Action;               }
     public              LoopTimer       Timer               { [Hide] get => widget.draw.batch.loopTimer;            }
     public              UiType          UiType              { [Hide] get => widget.draw.batch.UiType;               }
+    public              SessionId       SessionId           { [Hide] get => widget.draw.batch.SessionId;            }
     
 
     /// <summary>

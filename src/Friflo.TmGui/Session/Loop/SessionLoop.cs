@@ -232,7 +232,7 @@ public sealed partial class TmSessionLoop : IDisposable
     {
         var loopTimer       = new LoopTimer(this, client, 60, isSync);
         var sessionId       = client.sessionId;
-        var sessionGuid     = UseSecureSessionGuids ? new SessionGuid(Guid.NewGuid()) : new SessionGuid(sessionId.value);
+        var sessionGuid     = UseSecureSessionGuids ? new SessionGuid(Guid.NewGuid()) : new SessionGuid(sessionId.id);
         var keys            = new SessionKeys(sessionId, sessionGuid);
         var session         = new GuiSession(client, keys, this, loopTimer);
         var viewSession     = new ViewSession(this, session, [], client, session.Backend, loopTimer);

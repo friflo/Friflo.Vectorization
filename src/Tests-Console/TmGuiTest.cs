@@ -19,7 +19,7 @@ namespace TestConsole;
 
 public class TmGuiRenderer : IRenderer, IGuiView
 {
-    private readonly    WgpuBatch               batch;
+    private readonly    WgpuBatch               gpuBatch;
     private readonly    GpuTexture              myTexture;
     private readonly    TmTexture               myTextureView;
     private readonly    GpuRenderPassDescriptor renderPassDescriptor    = new () { colorAttachments = [ default ] };
@@ -61,13 +61,13 @@ public class TmGuiRenderer : IRenderer, IGuiView
         loop?.Dispose();
         monocraftFont.Dispose();
         myTexture.Dispose();
-        batch.Dispose();
+        gpuBatch.Dispose();
     }
     
     public TmGuiRenderer(WgpuHost wgpuHost)
     {
         var guiBackend      = wgpuHost.CreateGuiBackend();
-        batch               = guiBackend.CreateBatch(wgpuHost.SwapChainFormat);
+        gpuBatch            = guiBackend.CreateBatch(wgpuHost.SwapChainFormat);
         using var monoTtf   = typeof(TmGuiRenderer).Assembly.GetManifestResourceStream("Tests-Console.Assets.Monocraft.ttf")!;  
         monocraftFont       = guiBackend.CreateTtfFont(monoTtf, 48, 256, 256, 32, 95, "Monocraft");
         Debug.Assert(monocraftFont.maxY == 244);
@@ -97,7 +97,7 @@ public class TmGuiRenderer : IRenderer, IGuiView
     
     public TmGuiRenderer(TmGuiRenderer renderer, ViewSession session)
     {
-        batch               = renderer.batch;
+        gpuBatch            = renderer.gpuBatch;
         monocraftFont       = renderer.monocraftFont;
         
         myTexture           = renderer.myTexture;
@@ -118,21 +118,25 @@ public class TmGuiRenderer : IRenderer, IGuiView
     
     public void OnFrame(in RenderTarget target)
     {
-        _ = batch.Timer.Enabled;    // not relevant - only smoke test to ensure Timer instance != null
+        _ = gpuBatch.Timer.Enabled;    // not relevant - only smoke test to ensure Timer instance != null
         
         perfLog.Trace(10000);
         
         loop?.IterateSessions();
         
-        RenderView(batch, target.Width, target.Height);
+        RenderOverlay(gpuBatch, target.Width, target.Height);
 
-        batch.DrawCommandList(target, renderPassDescriptor);
+        gpuBatch.DrawCommandList(target, renderPassDescriptor);
     }
     
-    
-    public void RenderView(TmBatch tmBatch, int width, int height)
+    public void RenderView(TmBatch batch, int width, int height)
     {
-        var gui = tmBatch.BeginGui(width, height);
+        RenderOverlay(batch, width, height);
+    }
+    
+    private void RenderOverlay(TmBatch batch, int width, int height)
+    {
+        var gui = batch.BeginGui(width, height);
         
         using (gui.BeginWindow("Window 1", new(100, 20), new(400, 950))) {
             if (loop != null) {
@@ -169,9 +173,9 @@ public class TmGuiRenderer : IRenderer, IGuiView
         gui.Checkbox("mouse circle", ref mouseCircle);
         if(gui.Checkbox("Monocraft", ref monocraft)) {
             if (monocraft) {
-                batch.SetFont(monocraftFont);
+                gpuBatch.SetFont(monocraftFont);
             } else {
-                batch.SetFontDefault();
+                gpuBatch.SetFontDefault();
             }
         }
         gui.Spacer();

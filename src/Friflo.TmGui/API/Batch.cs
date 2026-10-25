@@ -57,14 +57,15 @@ namespace Friflo.TmGui;
 public abstract class TmBatch : IDisposable
 {
 #region public
-//  internal readonly   TmGuiBackend        backend;        - intentionally no back reference to its backend. Prevents calling NewFrame() within a Gui scope.
-    public  ReadOnlySpan<DrawCommand>       DrawList        => new(drawList, 0, drawCommands.Count);
-    public  Span<Vertex2D>                  Vertices        => vertexBuffer.Span.Slice(0, vertexCount);
-    public  ClientAction                    Action          => host.clientAction;
-    public  LoopTimer                       Timer           => loopTimer;
-    public  UiType                          UiType          { get; init; }
+    public          ReadOnlySpan<DrawCommand>   DrawList    => new(drawList, 0, drawCommands.Count);
+    public          Span<Vertex2D>              Vertices    => vertexBuffer.Span.Slice(0, vertexCount);
+    public          ClientAction                Action      => host.clientAction;
+    public          LoopTimer                   Timer       => loopTimer;
+    public readonly SessionId                   SessionId;
+    public          UiType                      UiType      { get; init; }
+    //     readonly TmGuiBackend                backend;    - intentionally no back reference to its backend. Prevents calling NewFrame() within a Gui scope.
     
-    public override string                  ToString()      => UiType.ToString();
+    public override string                      ToString()  => UiType.ToString();
 #endregion
 
 #region protected
@@ -133,13 +134,14 @@ public abstract class TmBatch : IDisposable
         loopTimer.Dispose();
     }
     
-    protected TmBatch(TmGuiBackend backend, LoopTimer? timer) : this(backend, 4, timer)
+    protected TmBatch(SessionId sessionId, TmGuiBackend backend, LoopTimer? timer) : this(sessionId, backend, 4, timer)
     {
         isRasterBatch = true;
     }
 
-    protected TmBatch(TmGuiBackend backend, int maxVertices, LoopTimer? timer)
+    protected TmBatch(SessionId sessionId, TmGuiBackend backend, int maxVertices, LoopTimer? timer)
     {
+        SessionId       = sessionId;
         formatProvider  = CultureInfo.InvariantCulture;
         host            = backend.host;
         input           = backend.input;
@@ -251,7 +253,7 @@ public abstract class TmBatch : IDisposable
     private RasterBatch CreateTextureBatch(TmTexture texture)
     {
         if (texture.IsNull) throw new ArgumentNullException(nameof(texture));
-        return new RasterBatch(new CpuBackend("Raster", rasterAssets), texture, loopTimer);
+        return new RasterBatch(SessionId, new CpuBackend("Raster", rasterAssets), texture, loopTimer);
     }
     
     public void EndTextureDraw()

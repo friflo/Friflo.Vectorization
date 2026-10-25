@@ -10,8 +10,8 @@ namespace Friflo.TmGui.Headless;
 
 public sealed class CpuGuiBatch : TmBatch
 {
-    internal CpuGuiBatch(CpuBackend backend, int maxVertices, LoopTimer? timer)
-        : base(backend, maxVertices, timer)
+    internal CpuGuiBatch(SessionId sessionId, CpuBackend backend, int maxVertices, LoopTimer? timer)
+        : base(sessionId, backend, maxVertices, timer)
     {
     }
     
