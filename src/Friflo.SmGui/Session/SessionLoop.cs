@@ -12,6 +12,7 @@ using Friflo.SmGui.Headless;
 using Friflo.SmGui.TUI;
 using Friflo.SmGui.TUI.Session;
 
+// ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable UnusedAutoPropertyAccessor.Global
 // ReSharper disable InlineTemporaryVariable
 // ReSharper disable ConvertToPrimaryConstructor
