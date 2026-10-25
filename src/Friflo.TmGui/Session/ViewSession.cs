@@ -11,11 +11,11 @@ using Friflo.TmGui.Session;
 namespace Friflo.TmGui;
 
 /// <summary>
-/// TmGui - One UI. High Performance. Every Platform. Any Distance.
-/// A cross-platform, immediate-mode UI library optimized for GPU-accelerated rendering.
-/// Supports native GUIs and browser-based GUIs streamed as delta vector data.
-/// Provides native and remote terminal user interfaces (TUI).
-/// Runs locally or remotely, across desktop, mobile, browser, and terminal environments.
+/// UiType goals: One UI. High Performance. Every Platform. Any Distance.<br/>
+/// A cross-platform, immediate-mode UI library optimized for GPU-accelerated rendering.<br/>
+/// Supports native GUIs and browser-based GUIs streamed as delta vector data.<br/>
+/// Runs locally or remotely, across desktop, mobile, browser, and terminal environments.<br/>
+/// Provides console and remote terminal user interfaces (TUI).<br/>
 /// </summary>
 public enum UiType
 {
