@@ -130,11 +130,11 @@ internal sealed partial class TuiSession : TmSession
         var pixelWidth  = (int)(frameWidth  * tuiBatch.CharWidth);
         var pixelHeight = (int)(frameHeight * tuiBatch.LineHeight);
         
-        guiView!.RenderGui(tuiBatch, pixelWidth, pixelHeight);
+        guiView!.RenderView(tuiBatch, pixelWidth, pixelHeight);
         
         if (tuiBatch.guiState.scrollAreaChanged) {
             cpuBackend.NewFrame();
-            guiView.RenderGui(tuiBatch, pixelWidth, pixelHeight);
+            guiView.RenderView(tuiBatch, pixelWidth, pixelHeight);
             // Console.WriteLine("Scroll Area Changed");
         }
         

@@ -50,7 +50,7 @@ public class TestGuiView : IGuiView
     
     DrawType oldDrawType;
     
-    public void RenderGui(TmBatch batch, int targetWidth, int targetHeight)
+    public void RenderView(TmBatch batch, int targetWidth, int targetHeight)
     {
         oldDrawType = appState.drawType;
 

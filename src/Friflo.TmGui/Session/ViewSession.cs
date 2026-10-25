@@ -59,7 +59,7 @@ public interface IGuiView
     /// <summary>
     /// Renders the GUI into the specified <paramref name="batch"/> for the given viewport dimensions.
     /// </summary>
-    void RenderGui(TmBatch batch, int targetWidth, int targetHeight);
+    void RenderView(TmBatch batch, int targetWidth, int targetHeight);
 }
 
 
@@ -116,7 +116,7 @@ public sealed class ViewSession
     }
     
     /// <summary>
-    /// Enqueues a redraw (<see cref="IGuiView.RenderGui"/>) for all clients of the app.
+    /// Enqueues a redraw (<see cref="IGuiView.RenderView"/>) for all clients of the app.
     /// </summary>
     /// <remarks>
     /// Applies to native GUI window, console TUI, browser clients, and terminal emulators.<br/>
@@ -128,7 +128,7 @@ public sealed class ViewSession
     }
     
     /// <summary>
-    /// Enqueues a redraw (<see cref="IGuiView.RenderGui"/>) for a specific session.
+    /// Enqueues a redraw (<see cref="IGuiView.RenderView"/>) for a specific session.
     /// </summary>
     /// <remarks>
     /// Applies to native GUI window, console TUI, browser clients, and terminal emulators.<br/>

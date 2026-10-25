@@ -49,7 +49,7 @@ public delegate void SessionsChanged(SessionsChangedArgs args);
 /// Handles all client sessions on the main thread, simplifying application development and enabling lock-free access to application and session state.<br/>
 /// <br/>
 /// The <see cref="CreateGuiView"/> delegate passed to the <see cref="TmSessionLoop"/> constructor must return an instance implementing <see cref="IGuiView"/>.<br/>
-/// If a client has pending input or a dirty session, a new frame is rendered via <see cref="IGuiView.RenderGui"/> and transmitted to the client.<br/>
+/// If a client has pending input or a dirty session, a new frame is rendered via <see cref="IGuiView.RenderView"/> and transmitted to the client.<br/>
 /// <br/>
 /// Use <see cref="RunSync"/> or <see cref="RunAsync"/> to let the loop run automatically (ideal for console and terminal applications).<br/>
 /// Alternatively, call <see cref="IterateSessions"/> periodically if your application manages its own custom event loop, such as a game loop.
@@ -260,7 +260,7 @@ public sealed partial class TmSessionLoop : IDisposable
     }
 
     /// <summary>
-    /// Enqueues a redraw (<see cref="IGuiView.RenderGui"/>) for all clients of the app.
+    /// Enqueues a redraw (<see cref="IGuiView.RenderView"/>) for all clients of the app.
     /// </summary>
     /// <remarks>
     /// Applies to native GUI window, console TUI, browser clients, and terminal emulators.<br/>
@@ -282,7 +282,7 @@ public sealed partial class TmSessionLoop : IDisposable
     }
     
     /// <summary>
-    /// Enqueues a redraw (<see cref="IGuiView.RenderGui"/>) for all clients of a specific session.
+    /// Enqueues a redraw (<see cref="IGuiView.RenderView"/>) for all clients of a specific session.
     /// </summary>
     /// <remarks>
     /// Applies to native GUI window, console TUI, browser clients, and terminal emulators.<br/>

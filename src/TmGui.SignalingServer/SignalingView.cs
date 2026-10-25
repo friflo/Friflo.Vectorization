@@ -20,7 +20,7 @@ public class SignalingView : IGuiView
         session.Action.SetWindowTitle("Signaling Server");
     }
     
-    public void RenderGui(TmBatch batch, int targetWidth, int targetHeight)
+    public void RenderView(TmBatch batch, int targetWidth, int targetHeight)
     {
         var gui = batch.BeginGui(targetWidth, targetHeight);
         using (gui.BeginWindow("WebRTC apps", new Vector2(50, 50), new Vector2(600, 700), traits: 0, TuiBorder.Rounded)) { // (500, 450) (1000, 850)

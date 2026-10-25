@@ -67,7 +67,7 @@ internal sealed partial class GuiSession : TmSession
         isDirty = false;
 
         wsBackend.NewFrame();
-        guiView!.RenderGui(wsBatch, canvasWidth, canvasHeight);
+        guiView!.RenderView(wsBatch, canvasWidth, canvasHeight);
         
         wsBatch.DrawCommandList();
 
