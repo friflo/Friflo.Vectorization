@@ -1,4 +1,4 @@
-# friflo TmGui
+# friflo SmGui
 
 
 TODO fill content

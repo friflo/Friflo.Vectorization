@@ -1,6 +1,6 @@
 
 
-C# TmSignalingListener                     C# TmSignaling                  Browser (JS Client)
+C# SmSignalingListener                     C# SmSignaling                  Browser (JS Client)
  1. WebSocket (permanent)  ----->            http server    <----------     1. WebSocket (on start)
  2. RTCDataChannel    <------------------------------------------------>    2. RTCDataChannel
          |                                         |                                 |

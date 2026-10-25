@@ -1,4 +1,4 @@
-# friflo TmGui HTTP
+# friflo SmGui HTTP
 
 
 TODO fill content

@@ -1,4 +1,4 @@
-# friflo TmGui WebRTC
+# friflo SmGui WebRTC
 
 
 TODO fill content
