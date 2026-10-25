@@ -90,16 +90,24 @@ public delegate IGuiView CreateGuiView(ViewSession session);
 /// </remarks>
 public sealed class ViewSession
 {
-    public   readonly   SessionId       SessionId;
-    public   readonly   string[]        args;
-    public   readonly   UiType          UiType;
+    /// <summary> The internal session id (<c>int</c>) for this session. </summary>
+    public readonly SessionId      SessionId;
     
-    public              SmGuiBackend    Backend     => backend      ?? throw SessionTerminatedException();
-    public              string?         AppId       => loop.appId;
-    public              ClientAction    Action      => Backend.host.clientAction;
-    public              LoopTimer       Timer       => loopTimer    ?? throw SessionTerminatedException();
+    public readonly string[]       args;
 
-    public   override   string          ToString()  => $"sessionId: {SessionId}  {UiType}";
+    /// <summary> The UI execution mode for this session. </summary>
+    public readonly UiType         UiType;
+
+    public              SmGuiBackend Backend => backend ?? throw SessionTerminatedException();
+
+    /// <summary> The app id passed to <see cref="SmSessionLoop.appId"/>. </summary>
+    public              string?     AppId   => loop.appId;
+
+    /// <summary> Provides access to client actions not related to GUI or rendering. </summary>
+    public              ClientAction Action  => Backend.host.clientAction;
+
+    /// <summary> Enables triggering <see cref="IGuiView.RenderView"/> at fixed time intervals. </summary>
+    public              LoopTimer   Timer   => loopTimer ?? throw SessionTerminatedException();
 
 #region private fields
     private             SmGuiBackend?   backend;
