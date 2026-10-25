@@ -64,6 +64,14 @@ public interface IGuiView
 
 
 /// <summary>
+/// Represents a factory delegate used by <see cref="TmSessionLoop"/> to create a new <see cref="IGuiView"/> instance for a given session.
+/// </summary>
+/// <param name="session">The <see cref="ViewSession"/> associated with <see cref="IGuiView"/>.</param>
+/// <returns>An instance implementing <see cref="IGuiView"/> for the session.</returns>
+public delegate IGuiView CreateGuiView(ViewSession session);
+
+
+/// <summary>
 /// Represents an individual client connection managed by a <see cref="TmSessionLoop"/>, 
 /// providing access to client-specific state, backend services, and actions.
 /// </summary>
@@ -140,9 +148,3 @@ public sealed class ViewSession
     }
 }
 
-/// <summary>
-/// Represents a factory delegate used by <see cref="TmSessionLoop"/> to create a new <see cref="IGuiView"/> instance for a given session.
-/// </summary>
-/// <param name="session">The <see cref="ViewSession"/> associated with <see cref="IGuiView"/>.</param>
-/// <returns>An instance implementing <see cref="IGuiView"/> for the session.</returns>
-public delegate IGuiView CreateGuiView(ViewSession session);
