@@ -16,7 +16,7 @@ using Browse = System.Diagnostics.DebuggerBrowsableAttribute;
 // ReSharper disable ConvertToAutoPropertyWhenPossible
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable CheckNamespace
-namespace Friflo.TmGui.Session;
+namespace Friflo.SmGui.Session;
 
 
 public enum SeqChangeType : byte

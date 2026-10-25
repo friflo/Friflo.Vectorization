@@ -1,5 +1,5 @@
 using System.Numerics;
-using Friflo.TmGui;
+using Friflo.SmGui;
 
 namespace TuiTerminal.Draw;
 
@@ -21,7 +21,7 @@ public static class DrawCubes
         0x7700ff00, 0x00fff000, 0xff007700, 0xffb70000
     ];
         
-    public static void Draw(TmDraw draw, float time, float canvasWidth, float canvasHeight)
+    public static void Draw(SmDraw draw, float time, float canvasWidth, float canvasHeight)
     {
         // Canvas background
         // draw.FillRect(new Vector2(0, 0), new Vector2(CanvasWidth, CanvasHeight), Color32.Black);

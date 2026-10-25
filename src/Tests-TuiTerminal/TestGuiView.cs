@@ -1,9 +1,9 @@
 ﻿using System.Diagnostics;
 using System.Numerics;
 using System.Runtime.InteropServices;
-using Friflo.TmGui;
-using Friflo.TmGui.Headless;
-using Friflo.TmGui.TUI;
+using Friflo.SmGui;
+using Friflo.SmGui.Headless;
+using Friflo.SmGui.TUI;
 using TuiTerminal.Draw;
 
 // ReSharper disable ConvertToPrimaryConstructor
@@ -16,8 +16,8 @@ public class TestGuiView : IGuiView
     private readonly    ViewSession     session;
     private readonly    AppState        appState;
     private readonly    Color32[]       textColors = [0x0000FFFF, 0xFF0000FF, 0x009900FF, 0xFF00FFFF, 0xCC6600FF, 0x000000ff];
-    private readonly    TmTexture       myTexture;      // texture available only for this session
-    private readonly    TmTexture       canvasTexture;  // canvas only required for TUI. GUI draws to GPU surface
+    private readonly    SmTexture       myTexture;      // texture available only for this session
+    private readonly    SmTexture       canvasTexture;  // canvas only required for TUI. GUI draws to GPU surface
     private             bool            fullScreen;
     private             float           time;
     private             long            frameStart = Stopwatch.GetTimestamp();
@@ -50,7 +50,7 @@ public class TestGuiView : IGuiView
     
     DrawType oldDrawType;
     
-    public void RenderView(TmBatch batch, int targetWidth, int targetHeight)
+    public void RenderView(SmBatch batch, int targetWidth, int targetHeight)
     {
         oldDrawType = appState.drawType;
 
@@ -89,7 +89,7 @@ public class TestGuiView : IGuiView
         }
         if (gui.Checkbox("fullScreen", ref fullScreen)) {
             session.SetAppDirty();
-            gui.Action.SetDisplayMode(fullScreen ? TmDisplayMode.Fullscreen : TmDisplayMode.Windowed);
+            gui.Action.SetDisplayMode(fullScreen ? SmDisplayMode.Fullscreen : SmDisplayMode.Windowed);
         }
         gui.Spacer();
         using (gui.BeginHorizontal()) {
@@ -297,7 +297,7 @@ public class TestGuiView : IGuiView
         gui.Button("after scroll area");
     }
     
-    private void TextureDraw(TmDraw draw)
+    private void TextureDraw(SmDraw draw)
     {
         if (appState.textureScissor) {
             draw.StrokeRect (new Vector2(50, 30), new(450, 350), 3, 0x999999ff);
@@ -313,7 +313,7 @@ public class TestGuiView : IGuiView
         if (appState.textureScissor) draw.PopScissor();
     }
     
-    private void DrawPrimitives(TmDraw draw)
+    private void DrawPrimitives(SmDraw draw)
     {
         Matrix4x4 translation = Matrix4x4.CreateTranslation(100f, 0f, 0f);
         Matrix4x4 transform = translation;

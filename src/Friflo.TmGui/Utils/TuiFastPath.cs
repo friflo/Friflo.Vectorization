@@ -9,7 +9,7 @@ using System.Runtime.Intrinsics;
 
 // ReSharper disable ReplaceSliceWithRangeIndexer
 // ReSharper disable once CheckNamespace
-namespace Friflo.TmGui;
+namespace Friflo.SmGui;
 
 
 internal static class TuiFastPath

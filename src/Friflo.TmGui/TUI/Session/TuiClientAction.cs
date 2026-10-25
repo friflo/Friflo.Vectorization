@@ -3,10 +3,10 @@
 
 using System;
 using System.Text;
-using Friflo.TmGui.Session;
-using Friflo.TmGui.Utils;
+using Friflo.SmGui.Session;
+using Friflo.SmGui.Utils;
 
-namespace Friflo.TmGui.TUI.Session;
+namespace Friflo.SmGui.TUI.Session;
 
 
 /// <see cref="ClientAction"/> is not implemented by <see cref="TuiSession"/> to avoid exposing its reference.
@@ -14,12 +14,12 @@ internal sealed class TuiClientAction : ClientAction
 {
     private             Color32         backgroundLight = 0x888888ff;
     private             Color32         backgroundDark  = 0x404142ff;
-    private readonly    TmClient        client;
+    private readonly    SmClient        client;
     private readonly    StringBuilder   sb = new(512, 512);
     
     internal            Color32     Background => WindowSettingsUtils.IsDarkMode ? backgroundDark : backgroundLight;
     
-    internal TuiClientAction(TmClient client) {
+    internal TuiClientAction(SmClient client) {
         this.client = client;
     }
 
@@ -36,7 +36,7 @@ internal sealed class TuiClientAction : ClientAction
         sb.Append(title);
         sb.Append("\x07");
         var bytes = Encoding.UTF8.GetBytes(sb.ToString());
-        var msg = new TmSendMessage(bytes);
+        var msg = new SmSendMessage(bytes);
         client.Send(msg);
     }
 }

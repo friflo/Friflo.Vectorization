@@ -1,13 +1,13 @@
 ﻿using System.Diagnostics;
 using System.Net;
 using System.Numerics;
-using Friflo.TmGui;
-using Friflo.TmGui.Headless;
-using Friflo.TmGui.Http;
-using Friflo.TmGui.Recorder;
-using Friflo.TmGui.Session;
+using Friflo.SmGui;
+using Friflo.SmGui.Headless;
+using Friflo.SmGui.Http;
+using Friflo.SmGui.Recorder;
+using Friflo.SmGui.Session;
 using Friflo.WGPU;
-using Friflo.WGPU.TmGui;
+using Friflo.WGPU.SmGui;
 
 // ReSharper disable ArrangeObjectCreationWhenTypeNotEvident
 // ReSharper disable SuggestVarOrType_BuiltInTypes
@@ -17,23 +17,23 @@ using Friflo.WGPU.TmGui;
 // ReSharper disable ConvertToPrimaryConstructor
 namespace TestConsole;
 
-public class TmGuiRenderer : IRenderer, IGuiView
+public class SmGuiRenderer : IRenderer, IGuiView
 {
     private readonly    WgpuBatch               gpuBatch;
     private readonly    GpuTexture              myTexture;
-    private readonly    TmTexture               myTextureView;
+    private readonly    SmTexture               myTextureView;
     private readonly    GpuRenderPassDescriptor renderPassDescriptor    = new () { colorAttachments = [ default ] };
     private readonly    PerfLog                 perfLog                 = new();
     private             bool                    mouseCircle;
     private             bool                    monocraft;
-    private readonly    TmFont                  monocraftFont;
+    private readonly    SmFont                  monocraftFont;
     private             bool                    fullScreen;
     private             int                     helloCounter;
     private             float                   volume = 0.8f;
     private             float                   update;
     private readonly    List<string>            scrollAreaButtons = [];
     private readonly    Color32[]               textColors = [0x0000FFFF, 0xFF0000FF, 0x009900FF, 0xFF00FFFF, 0xCC6600FF, 0x000000ff];
-    private readonly    TmSessionLoop?          loop;
+    private readonly    SmSessionLoop?          loop;
     
     private readonly GuiStyle redButtonStyle = new() {
         colors = new GuiColors {
@@ -64,30 +64,30 @@ public class TmGuiRenderer : IRenderer, IGuiView
         gpuBatch.Dispose();
     }
     
-    public TmGuiRenderer(WgpuHost wgpuHost)
+    public SmGuiRenderer(WgpuHost wgpuHost)
     {
         var guiBackend      = wgpuHost.CreateGuiBackend();
         gpuBatch            = guiBackend.CreateBatch(wgpuHost.SwapChainFormat);
-        using var monoTtf   = typeof(TmGuiRenderer).Assembly.GetManifestResourceStream("Tests-Console.Assets.Monocraft.ttf")!;  
+        using var monoTtf   = typeof(SmGuiRenderer).Assembly.GetManifestResourceStream("Tests-Console.Assets.Monocraft.ttf")!;  
         monocraftFont       = guiBackend.CreateTtfFont(monoTtf, 48, 256, 256, 32, 95, "Monocraft");
         Debug.Assert(monocraftFont.maxY == 244);
         
         // create tile texture
         using var stream = typeof(SdlWindow).Assembly.GetManifestResourceStream("Tests-Console.Assets.img.world_tileset.png")!;
         myTexture        = guiBackend.LoadTexture(stream, "world_tileset.png").AsGpuTexture(); 
-        myTextureView    = myTexture.CreateView().AsTmTexture();
+        myTextureView    = myTexture.CreateView().AsSmTexture();
         
         loop = CreateSessionLoop(guiBackend, this);
     }
     
     /// <summary>
     /// Starts an HTTP server and creates a session loop that handles all web client sessions on the main thread.<br/>
-    /// By calling <see cref="TmSessionLoop.IterateSessions"/> periodically, queued user input (mouse and keyboard) is processed. 
+    /// By calling <see cref="SmSessionLoop.IterateSessions"/> periodically, queued user input (mouse and keyboard) is processed. 
     /// Every client with pending input or a dirty session renders a new frame via <see cref="RenderView"/>, which is then sent to the client. 
     /// </summary>
-    private static TmSessionLoop CreateSessionLoop(TmGuiBackend backend, TmGuiRenderer renderer)
+    private static SmSessionLoop CreateSessionLoop(SmGuiBackend backend, SmGuiRenderer renderer)
     {
-        var loop = new TmSessionLoop(false, new CpuBackend("TmGui - Remote Test", backend), client => new TmGuiRenderer(renderer, client));
+        var loop = new SmSessionLoop(false, new CpuBackend("SmGui - Remote Test", backend), client => new SmGuiRenderer(renderer, client));
         var builder = HttpUtils.CreateHostBuilder(new IPEndPoint(IPAddress.IPv6Any, port), loop);
         HttpUtils.Start(builder.Build());
         return loop;
@@ -95,7 +95,7 @@ public class TmGuiRenderer : IRenderer, IGuiView
     
     private const int port = 8080;
     
-    public TmGuiRenderer(TmGuiRenderer renderer, ViewSession session)
+    public SmGuiRenderer(SmGuiRenderer renderer, ViewSession session)
     {
         gpuBatch            = renderer.gpuBatch;
         monocraftFont       = renderer.monocraftFont;
@@ -129,12 +129,12 @@ public class TmGuiRenderer : IRenderer, IGuiView
         gpuBatch.DrawCommandList(target, renderPassDescriptor);
     }
     
-    public void RenderView(TmBatch batch, int width, int height)
+    public void RenderView(SmBatch batch, int width, int height)
     {
         RenderOverlay(batch, width, height);
     }
     
-    private void RenderOverlay(TmBatch batch, int width, int height)
+    private void RenderOverlay(SmBatch batch, int width, int height)
     {
         var gui = batch.BeginGui(width, height);
         
@@ -198,7 +198,7 @@ public class TmGuiRenderer : IRenderer, IGuiView
         }
         gui.Spacer();
         if (gui.Checkbox("fullScreen", ref fullScreen)) {
-            gui.Action.SetDisplayMode(fullScreen ? TmDisplayMode.Fullscreen : TmDisplayMode.Windowed);
+            gui.Action.SetDisplayMode(fullScreen ? SmDisplayMode.Fullscreen : SmDisplayMode.Windowed);
         }
         
         gui.Spacer();

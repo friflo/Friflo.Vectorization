@@ -3,7 +3,7 @@
 
 using System;
 using System.Text.Json;
-using Friflo.TmGui.Session;
+using Friflo.SmGui.Session;
 using SIPSorcery.Net;
 
 // ReSharper disable InconsistentNaming
@@ -11,15 +11,15 @@ using SIPSorcery.Net;
 // ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable ConvertToAutoPropertyWithPrivateSetter
 // ReSharper disable CheckNamespace
-namespace Friflo.TmGui.WebRTC;
+namespace Friflo.SmGui.WebRTC;
 
 
 internal sealed class WebRtcApiChannel
 {
     private readonly    RTCDataChannel  dataChannel;
-    private readonly    TmSessionLoop   loop;
+    private readonly    SmSessionLoop   loop;
 
-    internal WebRtcApiChannel(TmSessionLoop loop, RTCDataChannel dataChannel)
+    internal WebRtcApiChannel(SmSessionLoop loop, RTCDataChannel dataChannel)
     {
         this.loop           = loop;
         this.dataChannel    = dataChannel;

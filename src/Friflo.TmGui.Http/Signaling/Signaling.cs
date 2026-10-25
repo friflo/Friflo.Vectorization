@@ -4,13 +4,13 @@ using System.Net.WebSockets;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using Friflo.TmGui.Session;
+using Friflo.SmGui.Session;
 
 
 // ReSharper disable EmptyConstructor
 // ReSharper disable InconsistentNaming
 // ReSharper disable CheckNamespace
-namespace Friflo.TmGui.Http;
+namespace Friflo.SmGui.Http;
 
 
 internal record struct SignalMessage(string type, string? app, string? connection, string? sdpOrCandidate, int? sessions = null)
@@ -30,7 +30,7 @@ internal record struct SignalMessage(string type, string? app, string? connectio
     }
 }
 
-public sealed class TmGuiApp
+public sealed class SmGuiApp
 {
     public   readonly   string          name;
     public   readonly   string          url;
@@ -38,13 +38,13 @@ public sealed class TmGuiApp
     public              bool            Online          => online;
     public              int             SessionCount    => sessionCount;
     
-    internal readonly   TmSignalPeer    peer;
+    internal readonly   SmSignalPeer    peer;
     internal            bool            online;
     internal            int             sessionCount;
 
     public   override   string          ToString() => name;
 
-    internal TmGuiApp(TmSignalPeer peer, string name, string url) {
+    internal SmGuiApp(SmSignalPeer peer, string name, string url) {
         this.name   = name;
         this.peer   = peer;
         this.url    = url;
@@ -54,27 +54,27 @@ public sealed class TmGuiApp
 }
 
 
-/// <summary> Single <see cref="TmSignaling"/> instance is shared by all sessions. </summary>
-public sealed class TmSignaling
+/// <summary> Single <see cref="SmSignaling"/> instance is shared by all sessions. </summary>
+public sealed class SmSignaling
 {
-    public   readonly   ConcurrentDictionary<string, TmGuiApp>      guiApps = [];
-    public   readonly   ConcurrentDictionary<string, TmSignalPeer>  clients = [];
+    public   readonly   ConcurrentDictionary<string, SmGuiApp>      guiApps = [];
+    public   readonly   ConcurrentDictionary<string, SmSignalPeer>  clients = [];
     private             int                                         instanceSeq;
     /// <summary>
     /// This action is invoked from arbitrary threads if apps or clients are added or removed. <br/>
-    /// If connected to a UI it should call <see cref="TmSessionLoop.SetAppDirty"/>.
+    /// If connected to a UI it should call <see cref="SmSessionLoop.SetAppDirty"/>.
     /// </summary>
     public              Action?                                     StateChanged;
 
 
-    public TmSignaling() { }
+    public SmSignaling() { }
     
     internal void SetDirty()
     {
         StateChanged?.Invoke();
     }
     
-    private void SetAppSessionCount(TmSignalPeer peer, in SignalMessage message)
+    private void SetAppSessionCount(SmSignalPeer peer, in SignalMessage message)
     {
         var app = peer.app;
         if (app == null || message.sessions == null) {
@@ -87,7 +87,7 @@ public sealed class TmSignaling
         }
     }
     
-    internal async Task ProcessMessageAsync(TmSignalPeer peer, ReadOnlyMemory<byte> buffer)
+    internal async Task ProcessMessageAsync(SmSignalPeer peer, ReadOnlyMemory<byte> buffer)
     {
         if (!SignalMessage.TryParse(buffer.Span, out var message)) {
             return;
@@ -105,7 +105,7 @@ public sealed class TmSignaling
                     }
                     var appId = instance == null ? app : $"{app}.{instance}";
                     Console.WriteLine($"Register app: '{appId}'");
-                    var guiApp = peer.app = new TmGuiApp(peer, appId, $"?app={appId}");
+                    var guiApp = peer.app = new SmGuiApp(peer, appId, $"?app={appId}");
                     guiApps[appId] = guiApp;
                     SetAppSessionCount(peer, message);
                     SetDirty();

@@ -5,16 +5,16 @@ using System;
 using System.Text;
 
 // ReSharper disable CheckNamespace
-namespace Friflo.TmGui.Session;
+namespace Friflo.SmGui.Session;
 
 
 /// <see cref="ClientAction"/> is not implemented by <see cref="GuiSession"/> to avoid exposing its reference. 
 internal sealed class GuiClientAction : ClientAction
 {
     private readonly    StringBuilder   stringBuilder = new(512, 512);
-    private readonly    TmClient        client;
+    private readonly    SmClient        client;
         
-    internal GuiClientAction(TmClient client)
+    internal GuiClientAction(SmClient client)
     {
         this.client = client;
     }
@@ -57,7 +57,7 @@ internal sealed class GuiClientAction : ClientAction
                 sb.Append(target);
             }
             
-            var command = new TmSendCommand(sb.ToString());
+            var command = new SmSendCommand(sb.ToString());
             client.SendCommand(command);
             return true;
         }
@@ -74,16 +74,16 @@ internal sealed class GuiClientAction : ClientAction
         sb.Append('|');
         sb.Append($"{dark.R:x2}{dark.G:x2}{dark.B:x2}{dark.A:x2}");
         
-        var command = new TmSendCommand(sb.ToString());
+        var command = new SmSendCommand(sb.ToString());
         client.SendCommand(command);
     }    
     
-    public override void SetDisplayMode(TmDisplayMode mode) {
+    public override void SetDisplayMode(SmDisplayMode mode) {
         var sb = StringBuilder();
         sb.Append("set-display-mode");
         sb.Append('|');
         sb.Append(mode.ToString());
-        var command = new TmSendCommand(sb.ToString());
+        var command = new SmSendCommand(sb.ToString());
         client.SendCommand(command);
     }
     
@@ -93,7 +93,7 @@ internal sealed class GuiClientAction : ClientAction
         sb.Append("set-title");
         sb.Append('|');
         sb.Append(title);
-        var msg = new TmSendCommand(sb.ToString());
+        var msg = new SmSendCommand(sb.ToString());
         client.SendCommand(msg);
     }
     
@@ -103,7 +103,7 @@ internal sealed class GuiClientAction : ClientAction
         sb.Append("copy-to-clipboard");
         sb.Append('|');
         sb.Append(text);
-        var msg = new TmSendCommand(sb.ToString());
+        var msg = new SmSendCommand(sb.ToString());
         client.SendCommand(msg);
     }
 }

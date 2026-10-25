@@ -13,7 +13,7 @@ using System.Text;
 // ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable InlineTemporaryVariable
 // ReSharper disable CheckNamespace
-namespace Friflo.TmGui.Session;
+namespace Friflo.SmGui.Session;
 
 
 internal sealed class GuiSessionShared
@@ -30,7 +30,7 @@ internal sealed class GuiSessionShared
 }
 
 
-internal sealed partial class GuiSession : TmSession
+internal sealed partial class GuiSession : SmSession
 {
     private  readonly   WsBackend           wsBackend;          // instance: creates / owns
     private  readonly   WsBatch             wsBatch;            // instance: creates / owns
@@ -45,7 +45,7 @@ internal sealed partial class GuiSession : TmSession
     private             bool                sendDiffs           = true;
 
     
-    internal GuiSession(TmClient client, SessionKeys keys, TmSessionLoop loop, LoopTimer timer)
+    internal GuiSession(SmClient client, SessionKeys keys, SmSessionLoop loop, LoopTimer timer)
         : base(client, keys)
     {
         shared              = loop.guiShared;
@@ -58,11 +58,11 @@ internal sealed partial class GuiSession : TmSession
         DebugInit();
     }
     
-    protected internal override TmGuiBackend    Backend => wsBackend;
-    protected internal override TmBatch         Batch   => wsBatch;
+    protected internal override SmGuiBackend    Backend => wsBackend;
+    protected internal override SmBatch         Batch   => wsBatch;
 
 
-    internal override TmSendMessage IterateUI(in AssetResources resources)
+    internal override SmSendMessage IterateUI(in AssetResources resources)
     {
         isDirty = false;
 
@@ -100,7 +100,7 @@ internal sealed partial class GuiSession : TmSession
         var diffVertexCount =  -1;
         
         var sendMode = client.GetSendMode(500_000, 300);
-        sendDiffs    = sendMode == TmSendMessageMode.Queue;
+        sendDiffs    = sendMode == SmSendMessageMode.Queue;
         if (sendDiffs) {
             diffVertexCount = vertices.Length;
             vertices = CalcVerticesDiff(vertices);
@@ -204,7 +204,7 @@ internal sealed partial class GuiSession : TmSession
             var sendDiff = lastSendBufferHash != sendHash || changes.Length > 0;
             lastSendBufferHash = sendHash;
             if (sendDiff) {
-                return new TmSendMessage(memory, sendMode);
+                return new SmSendMessage(memory, sendMode);
             }
             return default;
         } else {
@@ -213,7 +213,7 @@ internal sealed partial class GuiSession : TmSession
                 return default;
             }
             lastSendBufferHash = sendHash;
-            return new TmSendMessage(memory, sendMode);
+            return new SmSendMessage(memory, sendMode);
         }
     }
 }

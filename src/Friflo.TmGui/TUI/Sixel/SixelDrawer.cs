@@ -10,7 +10,7 @@ using System.Numerics;
 
 // ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable once CheckNamespace
-namespace Friflo.TmGui.TUI;
+namespace Friflo.SmGui.TUI;
 
 
 internal sealed class SixelDrawer

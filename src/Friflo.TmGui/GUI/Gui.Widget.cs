@@ -7,18 +7,18 @@ using System.Diagnostics;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Text;
-using Friflo.TmGui.Recorder;
+using Friflo.SmGui.Recorder;
 using Hide = System.Diagnostics.DebuggerHiddenAttribute;
 
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable ConvertIfStatementToReturnStatement
 // ReSharper disable once CheckNamespace
-namespace Friflo.TmGui;
+namespace Friflo.SmGui;
 
 
 public readonly ref partial struct GuiWidget
 {
-    public   readonly   TmDraw          draw;           //  8 bytes
+    public   readonly   SmDraw          draw;           //  8 bytes
     public   readonly   GuiInput        input;          //  8 bytes
     internal readonly   GuiState        guiState;       //  8 bytes
     private  readonly   GuiStyle        currentStyle;   //  8 bytes
@@ -92,7 +92,7 @@ public readonly ref partial struct GuiWidget
         return new StyleScope(this);
     }
     
-    internal GuiWidget(TmDraw draw, TmBatch batch) {
+    internal GuiWidget(SmDraw draw, SmBatch batch) {
         this.draw       = draw;
         input           = batch.input;
         guiState        = batch.guiState;

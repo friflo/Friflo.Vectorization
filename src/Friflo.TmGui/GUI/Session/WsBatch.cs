@@ -7,12 +7,12 @@
 using System;
 using System.Text;
 
-namespace Friflo.TmGui.Session;
+namespace Friflo.SmGui.Session;
 
 
-internal class WsBatch : TmBatch
+internal class WsBatch : SmBatch
 {
-    internal WsBatch(SessionId sessionId, TmGuiBackend backend, int maxVertices, LoopTimer timer)
+    internal WsBatch(SessionId sessionId, SmGuiBackend backend, int maxVertices, LoopTimer timer)
         : base(sessionId, backend, maxVertices, timer)
     {
     }

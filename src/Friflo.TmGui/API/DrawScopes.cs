@@ -3,34 +3,34 @@
 
 
 // ReSharper disable once CheckNamespace
-namespace Friflo.TmGui;
+namespace Friflo.SmGui;
 
 
-public readonly ref struct ScissorScope(TmDraw draw)
+public readonly ref struct ScissorScope(SmDraw draw)
 {
-    private readonly TmDraw    draw     = draw;
+    private readonly SmDraw    draw     = draw;
 
     public void Dispose() => draw.PopScissor();
 }
 
-public readonly ref struct TransformScope(TmDraw draw)
+public readonly ref struct TransformScope(SmDraw draw)
 {
-    private readonly TmDraw    draw     = draw;
+    private readonly SmDraw    draw     = draw;
 
     public void Dispose() => draw.PopTransform();
 }
 
 
-public readonly ref struct ZIndexScope(TmDraw draw)
+public readonly ref struct ZIndexScope(SmDraw draw)
 {
-    private readonly TmDraw    draw     = draw;
+    private readonly SmDraw    draw     = draw;
 
     public void Dispose() => draw.PopZIndex();
 }
 
-public readonly ref struct SamplerFilterScope(TmDraw draw)
+public readonly ref struct SamplerFilterScope(SmDraw draw)
 {
-    private readonly TmDraw    draw     = draw;
+    private readonly SmDraw    draw     = draw;
 
     public void Dispose() => draw.PopSamplerFilter();
 }

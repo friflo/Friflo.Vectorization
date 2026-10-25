@@ -13,7 +13,7 @@ using System.Text;
 // ReSharper disable InconsistentNaming
 // ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable once CheckNamespace
-namespace Friflo.TmGui;
+namespace Friflo.SmGui;
 
 public enum TextAlignment
 {
@@ -40,9 +40,9 @@ public struct GlyphInfo
     public override string ToString() => sourceSize == Vector2.Zero ? "null" : $"{sourceSize}";
 }
 
-public sealed class TmFont : IDisposable
+public sealed class SmFont : IDisposable
 {
-    internal readonly   TmTexture                           texture;
+    internal readonly   SmTexture                           texture;
     public   readonly   Vector2                             textureSize;
     public   readonly   float                               lineHeight;
     public   readonly   FrozenDictionary<int, GlyphInfo>    glyphs;
@@ -55,8 +55,8 @@ public sealed class TmFont : IDisposable
     
     private const int fastGlyphsMax = 256;
 
-    internal TmFont (
-        in TmTexture                texture,
+    internal SmFont (
+        in SmTexture                texture,
         Vector2                     textureSize,
         float                       lineHeight,
         Dictionary<int, GlyphInfo>  glyphs,
@@ -145,7 +145,7 @@ public sealed class TmFont : IDisposable
         return int.TryParse(valueSpan, out int result) ? result : 0;
     }
 
-    internal static TmFont CreateBMFont(TmGuiBackend backend, ReadOnlySpan<char> fntContent, TmImageAsset image, string name, bool disposable)
+    internal static SmFont CreateBMFont(SmGuiBackend backend, ReadOnlySpan<char> fntContent, SmImageAsset image, string name, bool disposable)
     {
         var glyphs  = ReadBmFont(fntContent, out float lineHeight);
         var width   = image.width;
@@ -156,19 +156,19 @@ public sealed class TmFont : IDisposable
 
         var fontTexture = backend.CreateTexture(name, width, height, image.data);
         
-        var imTexture   = new TmTexture(fontTexture, whitePixelUv);
+        var imTexture   = new SmTexture(fontTexture, whitePixelUv);
         var textureSize = new Vector2(image.width, image.height);
         
-        return new TmFont(imTexture, textureSize, lineHeight, glyphs, name, -1, disposable);
+        return new SmFont(imTexture, textureSize, lineHeight, glyphs, name, -1, disposable);
     }
 #endregion
 
 
 
 #region TTF
-    internal static TmFont CreateTtfFont(
-        TmGuiBackend        backend,
-        TmTrueTypeFontAsset fontAsset,
+    internal static SmFont CreateTtfFont(
+        SmGuiBackend        backend,
+        SmTrueTypeFontAsset fontAsset,
         byte[]              alphaBitmapTarget,
         float               fontSize,
         int                 width,
@@ -189,10 +189,10 @@ public sealed class TmFont : IDisposable
 
         var fontTexture = backend.CreateTexture(name, width, height, rgba32);
         
-        var imTexture   = new TmTexture(fontTexture, whitePixelUv);
+        var imTexture   = new SmTexture(fontTexture, whitePixelUv);
         var textureSize = new Vector2(width, height);
         
-        return new TmFont(imTexture, textureSize, fontSize, fontAsset.glyphs, name, fontAsset.maxY, disposable);
+        return new SmFont(imTexture, textureSize, fontSize, fontAsset.glyphs, name, fontAsset.maxY, disposable);
     }
 #endregion
     

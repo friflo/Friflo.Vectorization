@@ -2,11 +2,11 @@
 // See LICENSE file in the project root for full license information.
 
 using System;
-using Friflo.TmGui.Recorder;
+using Friflo.SmGui.Recorder;
 
 // ReSharper disable InconsistentNaming
 // ReSharper disable once CheckNamespace
-namespace Friflo.TmGui {
+namespace Friflo.SmGui {
 
 
 public readonly ref partial struct GuiWidget

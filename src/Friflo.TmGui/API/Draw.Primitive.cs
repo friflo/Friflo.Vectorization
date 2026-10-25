@@ -12,10 +12,10 @@ using System.Runtime.CompilerServices;
 // ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable MergeIntoPattern
 // ReSharper disable once CheckNamespace
-namespace Friflo.TmGui;
+namespace Friflo.SmGui;
 
 
-public readonly ref partial struct TmDraw
+public readonly ref partial struct SmDraw
 {
     public void FillRect(Vector2 position, Vector2 size, Color32 color)
     {

@@ -11,27 +11,27 @@ using System.Numerics;
 // ReSharper disable EmptyConstructor
 // ReSharper disable RedundantOverriddenMember
 // ReSharper disable once CheckNamespace
-namespace Friflo.TmGui.Headless;
+namespace Friflo.SmGui.Headless;
 
 
 public class TuiAssets : IGuiAssets
 {
-    public TmFont CreateDefaultFont(TmGuiBackend backend)
+    public SmFont CreateDefaultFont(SmGuiBackend backend)
     {
         return CreateHeadlessFont();
     }
     
-    public TmImageAsset LoadImage(Stream stream, TmColorComponents colorComponents)
+    public SmImageAsset LoadImage(Stream stream, SmColorComponents colorComponents)
     {
-        throw Requires_Friflo_TmGui_Assets_Exception(nameof(LoadImage));
+        throw Requires_Friflo_SmGui_Assets_Exception(nameof(LoadImage));
     }
     
-    public Stream CreatePng(TmImageAsset asset)
+    public Stream CreatePng(SmImageAsset asset)
     {
-       throw Requires_Friflo_TmGui_Assets_Exception(nameof(CreatePng));
+       throw Requires_Friflo_SmGui_Assets_Exception(nameof(CreatePng));
     }
     
-    public TmTrueTypeFontAsset LoadTrueTypeFont(
+    public SmTrueTypeFontAsset LoadTrueTypeFont(
         Stream  ttfStream,
         float   fontSize,
         int     atlasWidth,
@@ -40,15 +40,15 @@ public class TuiAssets : IGuiAssets
         int     firstChar,    		// ASCII 32 to 126
         int     charCount)
     {
-        throw Requires_Friflo_TmGui_Assets_Exception(nameof(LoadTrueTypeFont));
+        throw Requires_Friflo_SmGui_Assets_Exception(nameof(LoadTrueTypeFont));
     }
     
-    private static InvalidOperationException Requires_Friflo_TmGui_Assets_Exception(string symbol)
+    private static InvalidOperationException Requires_Friflo_SmGui_Assets_Exception(string symbol)
     {
-        return new InvalidOperationException($"{symbol}() requires IGuiAssets from package: Friflo.TmGui.Assets - instance: new DefaultGuiAssets()");
+        return new InvalidOperationException($"{symbol}() requires IGuiAssets from package: Friflo.SmGui.Assets - instance: new DefaultGuiAssets()");
     }
     
-    private static TmFont CreateHeadlessFont()
+    private static SmFont CreateHeadlessFont()
     {
          // Simulate monospace font
         var glyph = new GlyphInfo {
@@ -65,10 +65,10 @@ public class TuiAssets : IGuiAssets
             glyphs.Add((char)n, glyph);
         }
         var fontTexture = new TuiTexture("Default-Font", 512, 512);
-        var texture     = new TmTexture(fontTexture, 0, default);   // use texture with simulated white UV pixel for testing
+        var texture     = new SmTexture(fontTexture, 0, default);   // use texture with simulated white UV pixel for testing
         var textureSize = new Vector2(fontTexture.width, fontTexture.height);
         
-        return new TmFont(texture, textureSize, 47, glyphs, "Headless-Font", -1, false);
+        return new SmFont(texture, textureSize, 47, glyphs, "Headless-Font", -1, false);
     }
 }
 

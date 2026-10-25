@@ -7,7 +7,7 @@ using System.Numerics;
 
 // ReSharper disable InlineTemporaryVariable
 // ReSharper disable once CheckNamespace
-namespace Friflo.TmGui;
+namespace Friflo.SmGui;
 
 internal sealed class GuiHost
 {

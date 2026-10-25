@@ -6,23 +6,23 @@ using System.IO;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
-using Friflo.TmGui.Session;
+using Friflo.SmGui.Session;
 
 
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable CheckNamespace
-namespace Friflo.TmGui.Http;
+namespace Friflo.SmGui.Http;
 
 public sealed class HttpListenerServer
 {
     private readonly string             webRoot = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "wwwroot");
-    private readonly TmSessionLoop      loop;
+    private readonly SmSessionLoop      loop;
     private readonly int                port;
     
     private CancellationTokenSource?    cts;
     private Task?                       serverTask;
 
-    public HttpListenerServer(TmSessionLoop loop, int port)
+    public HttpListenerServer(SmSessionLoop loop, int port)
     {
         this.loop = loop;
         this.port = port;

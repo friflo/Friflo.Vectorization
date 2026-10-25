@@ -6,7 +6,7 @@ using System.Buffers;
 
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable once CheckNamespace
-namespace Friflo.TmGui.Session;
+namespace Friflo.SmGui.Session;
 
 
 public enum ClientEventType : byte
@@ -42,7 +42,7 @@ public readonly struct Payload
 
 internal readonly struct ClientEvent
 {
-    internal required   TmClient        Client  { get; init; }
+    internal required   SmClient        Client  { get; init; }
     internal required   ClientEventType Type    { get; init; }
     internal required   Payload         Payload { get; init; }
 }

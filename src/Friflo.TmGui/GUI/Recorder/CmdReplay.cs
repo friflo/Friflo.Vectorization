@@ -4,11 +4,11 @@
 using System;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
-using Friflo.TmGui.TUI;
+using Friflo.SmGui.TUI;
 
 
 // ReSharper disable once CheckNamespace
-namespace Friflo.TmGui.Recorder;
+namespace Friflo.SmGui.Recorder;
 
 
 public abstract class CmdReplay

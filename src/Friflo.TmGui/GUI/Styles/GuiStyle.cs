@@ -3,7 +3,7 @@
 
 
 // ReSharper disable once CheckNamespace
-namespace Friflo.TmGui;
+namespace Friflo.SmGui;
 
 
 public sealed class GuiStyle

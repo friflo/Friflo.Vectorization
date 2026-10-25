@@ -2,11 +2,11 @@
 using System.Runtime.CompilerServices;
 using Friflo.GPU;
 using Friflo.GPU.Runtime;
-using Friflo.TmGui;
+using Friflo.SmGui;
 using Friflo.WGPU;
 using Friflo.WGPU.Runtime;
 using NUnit.Framework;
-using Tests.TmGui;
+using Tests.SmGui;
 
 // ReSharper disable InconsistentNaming
 namespace Kernel.Lab;
@@ -90,11 +90,11 @@ MaxComputeInvocationsPerWorkgroup:  {adapterLimits.MaxComputeInvocationsPerWorkg
     }
     
     /// These size checks requires net9.0 or higher.
-    /// Other checks at: <see cref="Tests_TmGui_Misc.Tests_TmGui_SizeOf"/>
+    /// Other checks at: <see cref="Tests_SmGui_Misc.Tests_SmGui_SizeOf"/>
     [Test]
-    public void Test_TmGui_SizeOf()
+    public void Test_SmGui_SizeOf()
     {
-        Assert.AreEqual(  8, Unsafe.SizeOf<TmDraw>());
+        Assert.AreEqual(  8, Unsafe.SizeOf<SmDraw>());
         Assert.AreEqual( 32, Unsafe.SizeOf<Gui>());
     }
 }

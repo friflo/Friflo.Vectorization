@@ -2,19 +2,19 @@
 // See LICENSE file in the project root for full license information.
 
 using System.Numerics;
-using Friflo.TmGui.Recorder;
-using Friflo.TmGui.TUI;
+using Friflo.SmGui.Recorder;
+using Friflo.SmGui.TUI;
 
 
 // ReSharper disable InconsistentNaming
 // ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable once CheckNamespace
-namespace Friflo.TmGui {
+namespace Friflo.SmGui {
 
 
 public readonly ref partial struct GuiWidget
 {
-    internal WindowScope BeginWindow(string title, Vector2? pos, Vector2? size, TmTrait traits, TuiBorder tuiBorder)
+    internal WindowScope BeginWindow(string title, Vector2? pos, Vector2? size, SmTrait traits, TuiBorder tuiBorder)
     {
         WindowBeginReplay.Record(Recorder, new WindowBegin(title, pos, size, traits, tuiBorder));
         
@@ -68,7 +68,7 @@ public readonly ref partial struct GuiWidget
             window.bounds = new RectVector2(window.Pos + input.MousePosDelta, window.Size);
         }
         
-        if (tui != null && (traits.Has(TmTrait.Shadow) || window.IsTopWindow)) {
+        if (tui != null && (traits.Has(SmTrait.Shadow) || window.IsTopWindow)) {
             tui.DrawWindowShadow(window.Pos, window.Size);
         }
         // ensure every drawing is clipped
@@ -108,7 +108,7 @@ public readonly ref partial struct GuiWidget
         
         draw.PopScissor();
         
-        if (window.traits.Has(TmTrait.Border)) {
+        if (window.traits.Has(SmTrait.Border)) {
             var tui = draw.Tui;
             if (tui != null) {
                 tui.DrawWindowBorder(window.Pos, window.Size, Colors, window.tuiBorder);
@@ -128,7 +128,7 @@ public readonly ref partial struct GuiWidget
 // --------------------------------------------- Step-Rendering ---------------------------------------------
 namespace Recorder {
     
-internal readonly record struct WindowBegin(string title, Vector2? pos, Vector2? size, TmTrait traits, TuiBorder tuiBorder);
+internal readonly record struct WindowBegin(string title, Vector2? pos, Vector2? size, SmTrait traits, TuiBorder tuiBorder);
 
 internal sealed class WindowBeginReplay : CmdReplay<WindowBegin>
 {

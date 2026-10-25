@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using Friflo.TmGui;
-using Friflo.TmGui.Session;
+using Friflo.SmGui;
+using Friflo.SmGui.Session;
 using NUnit.Framework;
 
 
@@ -9,14 +9,14 @@ using NUnit.Framework;
 // ReSharper disable SuggestVarOrType_SimpleTypes
 // ReSharper disable UnusedMember.Local
 // ReSharper disable once InconsistentNaming
-namespace Tests.TmGui;
+namespace Tests.SmGui;
 
-public static class Tests_TmGui_Diff
+public static class Tests_SmGui_Diff
 {
     private const int Lookahead = 64;
             
     [Test]
-    public static void Tests_TmGui_Diff_Changes()
+    public static void Tests_SmGui_Diff_Changes()
     {
         var change = new SeqChange(SeqChangeType.Insert, 10, 20);
         Assert.That(change.Type,    Is.EqualTo(SeqChangeType.Insert));
@@ -72,7 +72,7 @@ public static class Tests_TmGui_Diff
     }
     
     [Test]
-    public static void Tests_TmGui_Diff_Changes_Modify_Remove_1()
+    public static void Tests_SmGui_Diff_Changes_Modify_Remove_1()
     {
         int[] start     = [1, 2, 3, 4, 5, 6];
         int[] target1   = [1, 2, 7,    5, 6];
@@ -96,7 +96,7 @@ public static class Tests_TmGui_Diff
     }
     
     [Test]
-    public static void Tests_TmGui_Diff_Changes_Modify_Insert_1()
+    public static void Tests_SmGui_Diff_Changes_Modify_Insert_1()
     {
         int[] start     = [1, 2, 3,    5, 6];
         int[] target1   = [1, 2, 7, 4, 5, 6];
@@ -121,7 +121,7 @@ public static class Tests_TmGui_Diff
     }
     
     [Test]
-    public static void Tests_TmGui_Diff_Changes_Modify_Remove_5()
+    public static void Tests_SmGui_Diff_Changes_Modify_Remove_5()
     {
         int[] start     = [1, 2, 3, 8, 8, 8, 8, 8, 5, 6];
         int[] target1   = [1, 2, 7,                5, 6];
@@ -145,7 +145,7 @@ public static class Tests_TmGui_Diff
     }
 
     [Test]
-    public static void Tests_TmGui_Diff_Changes_Modify_Insert_5()
+    public static void Tests_SmGui_Diff_Changes_Modify_Insert_5()
     {
         int[] start     = [1, 2, 3,                5, 6];
         int[] target1   = [1, 2, 7, 4, 4, 4, 4, 4, 5, 6];
@@ -170,7 +170,7 @@ public static class Tests_TmGui_Diff
     }
     
     [Test]
-    public static void Tests_TmGui_Diff_Changes_Modify_3_Remove_2()
+    public static void Tests_SmGui_Diff_Changes_Modify_3_Remove_2()
     {
         int[] start     = [1, 2, 3, 4, 5, 8, 8, 5, 6];
         int[] target1   = [1, 2, 7, 7, 7,       5, 6];
@@ -194,7 +194,7 @@ public static class Tests_TmGui_Diff
     }
 
     [Test]
-    public static void Tests_TmGui_Diff_Changes_Modify_3_Insert_2()
+    public static void Tests_SmGui_Diff_Changes_Modify_3_Insert_2()
     {
         int[] start     = [1, 2, 3, 4, 5,       6, 7];
         int[] target1   = [1, 2, 8, 8, 8, 9, 9, 6, 7];
@@ -222,7 +222,7 @@ public static class Tests_TmGui_Diff
     }
     
     [Test]
-    public static void Tests_TmGui_Diff_Changes_perf()
+    public static void Tests_SmGui_Diff_Changes_perf()
     {
         var start   = new int[2000];
         var target1 = new int[2000];
@@ -246,7 +246,7 @@ public static class Tests_TmGui_Diff
     }
     
     [Test]
-    public static void Tests_TmGui_Diff_Quad_GetHashCode()
+    public static void Tests_SmGui_Diff_Quad_GetHashCode()
     {
         var quads = new VertexQuad[2000];
         const int repeat  = 10; // 1_000_000 - 5.1 sec

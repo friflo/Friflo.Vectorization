@@ -8,19 +8,19 @@ using System.Net.WebSockets;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using Friflo.TmGui.Session;
+using Friflo.SmGui.Session;
 
 
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable CheckNamespace
-namespace Friflo.TmGui.WebRTC;
+namespace Friflo.SmGui.WebRTC;
 
-public sealed partial class TmSignalingListener
+public sealed partial class SmSignalingListener
 {
-    internal readonly   TmSessionLoop       loop;
+    internal readonly   SmSessionLoop       loop;
     private             ClientWebSocket?    clientWebSocket;
         
-    public TmSignalingListener(TmSessionLoop loop)
+    public SmSignalingListener(SmSessionLoop loop)
     {
         this.loop = loop;
         loop.SessionsChanged += SessionsChanged;

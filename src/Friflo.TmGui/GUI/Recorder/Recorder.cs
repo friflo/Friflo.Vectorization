@@ -5,12 +5,12 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
-using Friflo.TmGui.TUI;
+using Friflo.SmGui.TUI;
 
 
 // ReSharper disable ConvertIfStatementToReturnStatement
 // ReSharper disable once CheckNamespace
-namespace Friflo.TmGui.Recorder;
+namespace Friflo.SmGui.Recorder;
 
 
 public sealed partial class GuiRecorder
@@ -19,7 +19,7 @@ public sealed partial class GuiRecorder
     internal            bool            rewindStack;
     private             int             replayCounter;
     internal            int             recordsSendCount;
-    private  readonly   TmBatch         batch;
+    private  readonly   SmBatch         batch;
     internal readonly   GuiReplay       replay;
     
     private  readonly   List<char>      textBuffer  = [];
@@ -28,7 +28,7 @@ public sealed partial class GuiRecorder
     public   override   string          ToString()  => $"replays: {replayCounter}";
 
 
-    internal GuiRecorder(TmBatch batch, GuiReplay replay)
+    internal GuiRecorder(SmBatch batch, GuiReplay replay)
     {
         this.replay = replay;
         this.batch  = batch;
@@ -87,15 +87,15 @@ public sealed partial class GuiRecorder
     {
         Color32Span colorSpan;
         switch (color.kind) {
-            case TmColorKind.Span:
+            case SmColorKind.Span:
                 colorSpan = new Color32Span(colorBuffer.Count, color.colors.Length);
                 colorBuffer.AddRange(color.colors);
                 break;
-            case TmColorKind.Value:
+            case SmColorKind.Value:
                 colorSpan = new Color32Span(color.value);
                 break;
             default:
-            case TmColorKind.None:
+            case SmColorKind.None:
                 colorSpan = new Color32Span();
                 break;
         }
@@ -115,11 +115,11 @@ public sealed partial class GuiRecorder
 
 internal sealed class GuiReplay
 {
-    internal readonly   TmGuiBackend    backend;
-    internal readonly   TmBatch         batch;
-    internal readonly   TmSession       session;
+    internal readonly   SmGuiBackend    backend;
+    internal readonly   SmBatch         batch;
+    internal readonly   SmSession       session;
     
-    internal GuiReplay(TmGuiBackend backend, TmBatch batch, TmSession session) {
+    internal GuiReplay(SmGuiBackend backend, SmBatch batch, SmSession session) {
         this.backend    = backend;
         this.batch      = batch;
         this.session    = session;

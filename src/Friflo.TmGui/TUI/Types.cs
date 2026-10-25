@@ -12,7 +12,7 @@ using System.Text;
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable ArrangeThisQualifier
 // ReSharper disable InconsistentNaming
-namespace Friflo.TmGui.TUI;
+namespace Friflo.SmGui.TUI;
 
 public enum TuiColorMode
 {

@@ -2,13 +2,13 @@
 // See LICENSE file in the project root for full license information.
 
 using System.Numerics;
-using Friflo.TmGui.Session;
+using Friflo.SmGui.Session;
 
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable CheckNamespace
-namespace Friflo.TmGui.Headless;
+namespace Friflo.SmGui.Headless;
 
-public sealed class CpuGuiBatch : TmBatch
+public sealed class CpuGuiBatch : SmBatch
 {
     internal CpuGuiBatch(SessionId sessionId, CpuBackend backend, int maxVertices, LoopTimer? timer)
         : base(sessionId, backend, maxVertices, timer)

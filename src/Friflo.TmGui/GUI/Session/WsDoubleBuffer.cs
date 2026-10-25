@@ -8,7 +8,7 @@ using System.Threading;
 // ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable ConvertToAutoPropertyWithPrivateSetter
 // ReSharper disable CheckNamespace
-namespace Friflo.TmGui.Session;
+namespace Friflo.SmGui.Session;
 
 
 internal struct WsSendBuffer
@@ -29,9 +29,9 @@ internal struct WsSendBuffer
         pendingLength = 0;
     }
 
-    internal int AppendFrom(TmSendMessage message)
+    internal int AppendFrom(SmSendMessage message)
     {
-        if (message.mode == TmSendMessageMode.DropUnsent) {
+        if (message.mode == SmSendMessageMode.DropUnsent) {
             pendingLength = 0;
         }
         int newLength = pendingLength + message.Length;
@@ -52,7 +52,7 @@ internal struct WsSendBuffer
 
 public class WsDoubleBuffer : IDisposable
 {
-    private             TmClient        client;
+    private             SmClient        client;
     private readonly    object          bufferLock = new();
     
     // Lock-free flag for signaling: 0 = no data, 1 = frame pending
@@ -62,7 +62,7 @@ public class WsDoubleBuffer : IDisposable
     private             WsSendBuffer    frontBuffer = new();
     private             WsSendBuffer    backBuffer  = new();
     
-    public WsDoubleBuffer(TmClient client)
+    public WsDoubleBuffer(SmClient client)
     {
         this.client = client;
     }
@@ -74,7 +74,7 @@ public class WsDoubleBuffer : IDisposable
         backBuffer  = default;
     }
 
-    public void AppendMessage(TmSendMessage message)
+    public void AppendMessage(SmSendMessage message)
     {
         lock (bufferLock)
         {

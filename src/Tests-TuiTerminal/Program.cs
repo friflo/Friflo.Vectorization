@@ -1,10 +1,10 @@
 ﻿using System.Net;
 using System.Net.Sockets;
-using Friflo.TmGui;
-using Friflo.TmGui.Headless;
-using Friflo.TmGui.Http;
-using Friflo.TmGui.Session;
-using Friflo.TmGui.WebRTC;
+using Friflo.SmGui;
+using Friflo.SmGui.Headless;
+using Friflo.SmGui.Http;
+using Friflo.SmGui.Session;
+using Friflo.SmGui.WebRTC;
 using TuiTerminal;
 
 
@@ -32,7 +32,7 @@ using TuiTerminal;
 //       - Window   > Appearance    Font:                                   Cascadia Code, Regular, 12 px
 //                  > Translation   Remote character set:                   UTF-8
 //
-// Or use an SSH Proxy to redirect SSH client connections to the TmGui TCP server:
+// Or use an SSH Proxy to redirect SSH client connections to the SmGui TCP server:
 // Client (All OS):         ssh tmgui@127.0.0.1
 // Server Windows:
 //   - Setup:   Add-WindowsCapability -Online -Name OpenSSH.Server~~~~0.0.1.0; Start-Service sshd
@@ -52,14 +52,14 @@ var appState    = new AppState(cpuBackend);
 // false => TCP server runs on ThreadPool, Main-Thread is blocked by UI Loop.
 bool runAsync = false;
 
-var loop = new TmSessionLoop(runAsync, cpuBackend, client => new TestGuiView(appState, client));
+var loop = new SmSessionLoop(runAsync, cpuBackend, client => new TestGuiView(appState, client));
 
 var builder = HttpUtils.CreateHostBuilder(new IPEndPoint(IPAddress.IPv6Any, 8080), loop);
 _ = HttpUtils.Start(builder.Build());
 
-// var signalListener =  new TmSignalingListener(loop);
-// await signalListener.ConnectAsync(new Uri("wss://localhost:8081/signaling"), "test-app", "auto");
-// _ = signalListener.RunAsync();
+var signalListener =  new SmSignalingListener(loop);
+await signalListener.ConnectAsync(new Uri("wss://localhost:8081/signaling"), "test-app", "auto");
+_ = signalListener.RunAsync();
 
 if (runAsync) {
     loop.RunAsync(); // Spawns dedicated "ShardLoopThread"
@@ -73,7 +73,7 @@ else {
 }
 
 
-static async Task RunTcpServerAsync(TmSessionLoop loop, int port)
+static async Task RunTcpServerAsync(SmSessionLoop loop, int port)
 {
     // Start local console I/O session
     var localClient = new ConsoleClient();

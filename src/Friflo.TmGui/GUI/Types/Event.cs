@@ -8,10 +8,10 @@ using System.Numerics;
 // ReSharper disable InconsistentNaming
 // ReSharper disable UnusedMember.Global
 // ReSharper disable once CheckNamespace
-namespace Friflo.TmGui;
+namespace Friflo.SmGui;
 
 
-public enum TmEventType
+public enum SmEventType
 {
     MouseMotion,
     MouseButtonUp,
@@ -23,9 +23,9 @@ public enum TmEventType
     GamepadButtonDown,
 }
 
-public struct TmEvent
+public struct SmEvent
 {
-    public  TmEventType     type;
+    public  SmEventType     type;
     public  Vector2         mouse;
     public  Vector2         wheel;
     public  KeyEvent        key;
@@ -33,22 +33,22 @@ public struct TmEvent
 
     public override string ToString() => type.ToString();
     
-    public TmEvent(TmEventType type) {
+    public SmEvent(SmEventType type) {
         this.type       = type;
     }
 
-    public TmEvent(TmEventType type, Vector2 mouse) {
+    public SmEvent(SmEventType type, Vector2 mouse) {
         this.type    = type;
         this.mouse   = mouse;
     }
     
-    public TmEvent(TmEventType type, TmGamepadButton button, bool isDown) {
+    public SmEvent(SmEventType type, SmGamepadButton button, bool isDown) {
         this.type       = type;
         gamepad.button  = button;
         gamepad.isDown  = isDown;
     }
     
-    public TmEvent(TmEventType type, KeyEvent keyEvent) {
+    public SmEvent(SmEventType type, KeyEvent keyEvent) {
         this.type       = type;
         key             = keyEvent;
     }
@@ -124,7 +124,7 @@ public struct KeyEvent
 
 
 /// <summary> Same enums as <c>SDL3.SDL.GamepadButton</c> </summary>
-public enum TmGamepadButton
+public enum SmGamepadButton
 {
     Invalid = -1,
     South,          // Bottom face button (e.g. Xbox A button)
@@ -159,7 +159,7 @@ public enum TmGamepadButton
 
 public struct GamepadEvent
 {
-    public  TmGamepadButton button;
+    public  SmGamepadButton button;
     public  bool            isDown;
 
     public override string ToString() => button.ToString();

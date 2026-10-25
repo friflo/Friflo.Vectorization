@@ -7,8 +7,8 @@ using System.Collections.Generic;
 using System.Numerics;
 using System.Runtime.InteropServices;
 using System.Text;
-using Friflo.TmGui.Headless;
-using Friflo.TmGui.Session;
+using Friflo.SmGui.Headless;
+using Friflo.SmGui.Session;
 
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable UseWithExpressionToCopyStruct
@@ -17,9 +17,9 @@ using Friflo.TmGui.Session;
 // ReSharper disable ConvertToAutoPropertyWithPrivateSetter
 // ReSharper disable InconsistentNaming
 // ReSharper disable ConvertToPrimaryConstructor
-namespace Friflo.TmGui.TUI;
+namespace Friflo.SmGui.TUI;
 
-public sealed partial class TuiBatch : TmBatch
+public sealed partial class TuiBatch : SmBatch
 {
     private readonly    string                  batchName;
     public              TuiFocusBorder          focusBorder;
@@ -67,16 +67,16 @@ public sealed partial class TuiBatch : TmBatch
     }
     
     /* found no terminal supporting this
-    protected internal override void SetDisplayMode(TmDisplayMode mode) {
+    protected internal override void SetDisplayMode(SmDisplayMode mode) {
         var cmd = mode switch {
-            TmDisplayMode.Windowed      => "\x1b[?1049l"u8,
-            TmDisplayMode.Fullscreen    => "\x1b[?1049h"u8,
+            SmDisplayMode.Windowed      => "\x1b[?1049l"u8,
+            SmDisplayMode.Fullscreen    => "\x1b[?1049h"u8,
             _                           => default
         };
         if (cmd == null) {
             return;
         }
-        var msg = new TmSendMessage(cmd.ToArray());
+        var msg = new SmSendMessage(cmd.ToArray());
         session?.client.Send(msg);
     } */
     

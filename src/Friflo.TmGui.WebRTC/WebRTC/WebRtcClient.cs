@@ -8,26 +8,26 @@ using System.IO.Compression;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
-using Friflo.TmGui.Session;
+using Friflo.SmGui.Session;
 using SIPSorcery.Net;
 
 // ReSharper disable MergeIntoPattern
 // ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable ConvertToAutoPropertyWithPrivateSetter
 // ReSharper disable CheckNamespace
-namespace Friflo.TmGui.WebRTC;
+namespace Friflo.SmGui.WebRTC;
 
 
-internal sealed class WebRtcClient : TmClient
+internal sealed class WebRtcClient : SmClient
 {
     private             RTCDataChannel  dataChannel;
-    private             TmSessionLoop   loop;
+    private             SmSessionLoop   loop;
     private             WsDoubleBuffer? doubleBuffer;
     
     private readonly    MemoryStream    outputStream        = new();
     private readonly    DeflateStream   statefulCompressor;
 
-    internal WebRtcClient(TmSessionLoop loop, RTCDataChannel dataChannel)
+    internal WebRtcClient(SmSessionLoop loop, RTCDataChannel dataChannel)
     {
         statefulCompressor  = new DeflateStream(outputStream, CompressionLevel.Fastest, leaveOpen: true);
         doubleBuffer        = new WsDoubleBuffer(this);
@@ -52,7 +52,7 @@ internal sealed class WebRtcClient : TmClient
     
     public override UiType UiType => UiType.WebRtcGui;
 
-    protected override ValueTask<int> SendAsync(TmSendMessage message, CancellationToken cancellationToken)
+    protected override ValueTask<int> SendAsync(SmSendMessage message, CancellationToken cancellationToken)
     {
         var exception = new InvalidOperationException("currently not required");
         return ValueTask.FromException<int>(exception);
@@ -87,7 +87,7 @@ internal sealed class WebRtcClient : TmClient
     // private byte[] sendBuffer = [];
 
     
-    protected override int Send(TmSendMessage message)
+    protected override int Send(SmSendMessage message)
     {
         if (message.IsEmpty) {
             return 0;
@@ -115,7 +115,7 @@ internal sealed class WebRtcClient : TmClient
         return length;
     }
 
-    protected override void SendCommand(TmSendCommand command) {
+    protected override void SendCommand(SmSendCommand command) {
         if (dataChannel.readyState != RTCDataChannelState.open) {
             return;
         }

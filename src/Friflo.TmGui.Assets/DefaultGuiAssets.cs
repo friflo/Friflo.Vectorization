@@ -15,12 +15,12 @@ using StbTrueTypeSharp;
 // ReSharper disable RedundantSwitchExpressionArms
 // ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable once CheckNamespace
-namespace Friflo.TmGui;
+namespace Friflo.SmGui;
 
 
 public class DefaultGuiAssets : IGuiAssets
 {
-    public TmFont CreateDefaultFont(TmGuiBackend backend)
+    public SmFont CreateDefaultFont(SmGuiBackend backend)
     {
         var assembly        = typeof(DefaultGuiAssets).Assembly;
         using var fontAtlas = assembly.GetManifestResourceStream("Friflo.TmGui.Assets.fonts.arial-48-latin_0.png");
@@ -30,17 +30,17 @@ public class DefaultGuiAssets : IGuiAssets
         return backend.CreateBMFont(fntContent, fontAtlas!, "Default-Font");
     }
     
-    public TmImageAsset LoadImage(Stream stream, TmColorComponents colorComponents)
+    public SmImageAsset LoadImage(Stream stream, SmColorComponents colorComponents)
     {
         var result = ImageResult.FromStream(stream, (StbImageSharp.ColorComponents)colorComponents);
-        return new TmImageAsset {
+        return new SmImageAsset {
             width   = result.Width,
             height  = result.Height,
             data    = result.Data,
         };  
     }
     
-    public Stream CreatePng(TmImageAsset asset)
+    public Stream CreatePng(SmImageAsset asset)
     {
         var stream = new MemoryStream();
         var writer = new ImageWriter();
@@ -61,7 +61,7 @@ public class DefaultGuiAssets : IGuiAssets
     }
     
     
-    public TmTrueTypeFontAsset LoadTrueTypeFont(
+    public SmTrueTypeFontAsset LoadTrueTypeFont(
         Stream  ttfStream,
         float   fontSize,
         int     atlasWidth,
@@ -128,7 +128,7 @@ public class DefaultGuiAssets : IGuiAssets
                 advance    = baked.xadvance
             };
         }
-        return new TmTrueTypeFontAsset {
+        return new SmTrueTypeFontAsset {
             glyphs  = glyphs,
             maxY    = maxY
         };

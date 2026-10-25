@@ -4,7 +4,7 @@
 using System;
 using System.IO;
 using System.Threading.Tasks;
-using Friflo.TmGui.Session;
+using Friflo.SmGui.Session;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.StaticFiles;
@@ -14,15 +14,15 @@ using Microsoft.Extensions.FileProviders;
 // ReSharper disable ConvertClosureToMethodGroup
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable CheckNamespace
-namespace Friflo.TmGui.Http;
+namespace Friflo.SmGui.Http;
 
 
-public static class TmGuiHttpExtensions
+public static class SmGuiHttpExtensions
 {
     private static readonly string  WebRoot = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "wwwroot");
 
     
-    public static void UseSessionLoop(this IApplicationBuilder app, TmSessionLoop loop, string? webRoot = null)
+    public static void UseSessionLoop(this IApplicationBuilder app, SmSessionLoop loop, string? webRoot = null)
     {
         webRoot ??= WebRoot;
         
@@ -61,9 +61,9 @@ public static class TmGuiHttpExtensions
 
 public class HttpGuiHandler
 {
-    private readonly TmSessionLoop loop;
+    private readonly SmSessionLoop loop;
 
-    public HttpGuiHandler(TmSessionLoop loop)
+    public HttpGuiHandler(SmSessionLoop loop)
     {
         this.loop = loop;
     }

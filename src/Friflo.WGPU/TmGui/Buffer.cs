@@ -4,18 +4,18 @@
 
 using System;
 using Friflo.GPU;
-using Friflo.TmGui;
+using Friflo.SmGui;
 
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable CheckNamespace
-namespace Friflo.WGPU.TmGui;
+namespace Friflo.WGPU.SmGui;
 
-internal sealed class TmWgpuBuffer<T> : TmBuffer<T> where T : unmanaged
+internal sealed class SmWgpuBuffer<T> : SmBuffer<T> where T : unmanaged
 {
     internal readonly GpuBuffer<T>  native;
     public   override Memory<T>     Memory => native.hostMemory;
     
-    public TmWgpuBuffer(GpuBuffer<T> buffer) {
+    public SmWgpuBuffer(GpuBuffer<T> buffer) {
         native = buffer;
     }
 

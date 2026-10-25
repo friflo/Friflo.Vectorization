@@ -3,14 +3,14 @@
 
 using System;
 using System.Numerics;
-using Friflo.TmGui.Recorder;
-using Friflo.TmGui.TUI;
+using Friflo.SmGui.Recorder;
+using Friflo.SmGui.TUI;
 
 // ReSharper disable InconsistentNaming
 // ReSharper disable CompareOfFloatsByEqualityOperator
 // ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable once CheckNamespace
-namespace Friflo.TmGui {
+namespace Friflo.SmGui {
     
 
 public readonly ref partial struct GuiWidget

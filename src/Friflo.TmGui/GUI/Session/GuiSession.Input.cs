@@ -7,7 +7,7 @@ using System.Numerics;
 using System.Text;
 
 // ReSharper disable CheckNamespace
-namespace Friflo.TmGui.Session;
+namespace Friflo.SmGui.Session;
 
 
 internal sealed partial class GuiSession
@@ -59,22 +59,22 @@ internal sealed partial class GuiSession
 
         // Dispatch aggregated MouseMove event
         if (isMouseMoveEvent) {
-            wsBackend.AddEvent(new TmEvent(TmEventType.MouseMotion, pendingMousePos));
+            wsBackend.AddEvent(new SmEvent(SmEventType.MouseMotion, pendingMousePos));
         }
         if (isMouseDownEvent) {
-            wsBackend.AddEvent(new TmEvent(TmEventType.MouseButtonDown, pendingMousePos));
+            wsBackend.AddEvent(new SmEvent(SmEventType.MouseButtonDown, pendingMousePos));
         }
         if (isMouseUpEvent) {
-            wsBackend.AddEvent(new TmEvent(TmEventType.MouseButtonUp, pendingMousePos));
+            wsBackend.AddEvent(new SmEvent(SmEventType.MouseButtonUp, pendingMousePos));
         }
         if (isKeyDownEvent) {
-            wsBackend.AddEvent(new TmEvent(TmEventType.KeyDown, new KeyEvent { code =  keyCode, isDown = true }));
+            wsBackend.AddEvent(new SmEvent(SmEventType.KeyDown, new KeyEvent { code =  keyCode, isDown = true }));
         }
         if (isKeyUpEvent) {
-            wsBackend.AddEvent(new TmEvent(TmEventType.KeyDown, new KeyEvent { code =  keyCode, isDown = false }));
+            wsBackend.AddEvent(new SmEvent(SmEventType.KeyDown, new KeyEvent { code =  keyCode, isDown = false }));
         }
         if (isWheelEvent) {
-            wsBackend.AddEvent(new TmEvent(TmEventType.MouseWheel) { wheel = wheel });
+            wsBackend.AddEvent(new SmEvent(SmEventType.MouseWheel) { wheel = wheel });
         }
     }
 

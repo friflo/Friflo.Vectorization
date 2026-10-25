@@ -7,7 +7,7 @@ using System.Diagnostics;
 using System.IO;
 
 // ReSharper disable once CheckNamespace
-namespace Friflo.TmGui.Utils;
+namespace Friflo.SmGui.Utils;
 
 internal static class OpenUrlUtils
 {

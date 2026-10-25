@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable CheckNamespace
-namespace Friflo.TmGui.Session;
+namespace Friflo.SmGui.Session;
 
 
 internal sealed class WinConsoleIn : Stream

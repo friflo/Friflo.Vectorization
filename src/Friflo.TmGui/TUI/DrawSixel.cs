@@ -4,7 +4,7 @@
 using System.Numerics;
 using System.Runtime.CompilerServices;
 
-namespace Friflo.TmGui.TUI;
+namespace Friflo.SmGui.TUI;
 
 
 internal struct DrawSixel

@@ -13,7 +13,7 @@ using SIPSorcery.Net;
 // ReSharper disable RedundantLambdaParameterType
 // ReSharper disable InconsistentNaming
 // ReSharper disable CheckNamespace
-namespace Friflo.TmGui.WebRTC;
+namespace Friflo.SmGui.WebRTC;
 
 
 internal record struct SignalMessage(string type, string? app, string connection, string? sdpOrCandidate, int? sessions = null)
@@ -35,7 +35,7 @@ internal record struct SignalMessage(string type, string? app, string connection
 
 
 
-public sealed partial class TmSignalingListener
+public sealed partial class SmSignalingListener
 {
     // Maps each WebSocket session to its respective peer session wrapper
     private readonly ConcurrentDictionary<string, SignalSession> sessions = new();

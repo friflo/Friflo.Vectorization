@@ -9,7 +9,7 @@ using System.Runtime.InteropServices;
 
 // ReSharper disable CompareOfFloatsByEqualityOperator
 // ReSharper disable once CheckNamespace
-namespace Friflo.TmGui;
+namespace Friflo.SmGui;
 
 [StructLayout(LayoutKind.Sequential)]
 public readonly struct Padding2D : IEquatable<Padding2D>

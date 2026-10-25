@@ -4,7 +4,7 @@
 using System;
 using System.Text;
 
-namespace Friflo.TmGui.TUI;
+namespace Friflo.SmGui.TUI;
 
 /// <summary>
 /// Can be used among multiple sessions if all sessions are handled in a single thread. 

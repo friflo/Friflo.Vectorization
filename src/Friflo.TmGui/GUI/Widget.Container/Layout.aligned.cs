@@ -4,12 +4,12 @@
 
 using System.Numerics;
 using System.Runtime.InteropServices;
-using Friflo.TmGui.Recorder;
+using Friflo.SmGui.Recorder;
 
 // ReSharper disable InconsistentNaming
 // ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable once CheckNamespace
-namespace Friflo.TmGui {
+namespace Friflo.SmGui {
 
 
 public readonly ref partial struct GuiWidget

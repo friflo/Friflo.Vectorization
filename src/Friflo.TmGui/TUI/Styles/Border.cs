@@ -4,7 +4,7 @@
 // ReSharper disable InconsistentNaming
 // ReSharper disable CheckNamespace
 // ReSharper disable UnusedMember.Global
-namespace Friflo.TmGui.TUI;
+namespace Friflo.SmGui.TUI;
 
 
 public struct TuiBorder

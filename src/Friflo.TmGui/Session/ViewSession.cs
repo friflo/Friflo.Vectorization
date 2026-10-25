@@ -3,12 +3,12 @@
 
 using System;
 using System.Runtime.CompilerServices;
-using Friflo.TmGui.Session;
+using Friflo.SmGui.Session;
 
 // ReSharper disable InconsistentNaming
 // ReSharper disable ConvertToAutoProperty
 // ReSharper disable CheckNamespace
-namespace Friflo.TmGui;
+namespace Friflo.SmGui;
 
 /// <summary>
 /// UiType defines the supported UI execution modes.<br/>
@@ -20,7 +20,7 @@ namespace Friflo.TmGui;
 /// Runs locally or remotely, across desktop, mobile, browser, and terminal environments.<br/>
 /// Provides console and remote terminal user interfaces (TUI).<br/>
 /// <br/>
-/// For remote GUIs or TUIs a <see cref="TmSessionLoop"/> is required.<br/>
+/// For remote GUIs or TUIs a <see cref="SmSessionLoop"/> is required.<br/>
 /// It processes all client sessions on the main thread, simplifying application development and enabling
 /// lock-free access to application and session state.
 /// This keeps remote multi-client execution as simple to program as a classic single-threaded application.
@@ -33,10 +33,10 @@ public enum UiType
     /// <remarks>Pure native setup for apps or games. Windows, Linux, macOS, Android, iOS. No server / client code included.</remarks>
     NativeGui   =  1,
     /// <summary>Browser GUI (WebSocket) - WebGPU</summary>
-    /// <remarks>Requires an TmGui http / WebSocket server streaming the GUI as delta vector data.</remarks>
+    /// <remarks>Requires an SmGui http / WebSocket server streaming the GUI as delta vector data.</remarks>
     WebGui      =  2,
     /// <summary>Browser GUI (WebRTC) - WebGPU</summary>
-    /// <remarks>Browser connects via a signaling server to another TmGui WebRTC peer which streams the GUI as vector data.</remarks>
+    /// <remarks>Browser connects via a signaling server to another SmGui WebRTC peer which streams the GUI as vector data.</remarks>
     WebRtcGui   =  3,
     
     /// <summary>Native Console TUI</summary>
@@ -59,7 +59,7 @@ public static class UiTypeExtensions
 
 
 /// <summary>
-/// Represents a GUI view managed by a <see cref="TmSessionLoop"/> and associated with a <see cref="ViewSession"/>, 
+/// Represents a GUI view managed by a <see cref="SmSessionLoop"/> and associated with a <see cref="ViewSession"/>, 
 /// capable of rendering user interface frames.
 /// </summary>
 public interface IGuiView
@@ -67,12 +67,12 @@ public interface IGuiView
     /// <summary>
     /// Renders the GUI into the specified <paramref name="batch"/> for the given viewport dimensions.
     /// </summary>
-    void RenderView(TmBatch batch, int targetWidth, int targetHeight);
+    void RenderView(SmBatch batch, int targetWidth, int targetHeight);
 }
 
 
 /// <summary>
-/// Represents a factory delegate used by <see cref="TmSessionLoop"/> to create a new <see cref="IGuiView"/> instance for a given session.
+/// Represents a factory delegate used by <see cref="SmSessionLoop"/> to create a new <see cref="IGuiView"/> instance for a given session.
 /// </summary>
 /// <param name="session">The <see cref="ViewSession"/> associated with <see cref="IGuiView"/>.</param>
 /// <returns>An instance implementing <see cref="IGuiView"/> for the session.</returns>
@@ -80,7 +80,7 @@ public delegate IGuiView CreateGuiView(ViewSession session);
 
 
 /// <summary>
-/// Represents an individual client connection managed by a <see cref="TmSessionLoop"/>, 
+/// Represents an individual client connection managed by a <see cref="SmSessionLoop"/>, 
 /// providing access to client-specific state, backend services, and actions.
 /// </summary>
 /// <remarks>
@@ -94,7 +94,7 @@ public sealed class ViewSession
     public   readonly   string[]        args;
     public   readonly   UiType          UiType;
     
-    public              TmGuiBackend    Backend     => backend      ?? throw SessionTerminatedException();
+    public              SmGuiBackend    Backend     => backend      ?? throw SessionTerminatedException();
     public              string?         AppId       => loop.appId;
     public              ClientAction    Action      => Backend.host.clientAction;
     public              LoopTimer       Timer       => loopTimer    ?? throw SessionTerminatedException();
@@ -102,9 +102,9 @@ public sealed class ViewSession
     public   override   string          ToString()  => $"sessionId: {SessionId}  {UiType}";
 
 #region private fields
-    private             TmGuiBackend?   backend;
+    private             SmGuiBackend?   backend;
     private             LoopTimer?      loopTimer;
-    private  readonly   TmSessionLoop   loop;
+    private  readonly   SmSessionLoop   loop;
 #endregion
     
     
@@ -114,7 +114,7 @@ public sealed class ViewSession
         return new InvalidOperationException($"Session has already been terminated. sessionId: {SessionId}");
     }
 
-    internal ViewSession(TmSessionLoop loop, TmSession session, string[] args, TmClient client, TmGuiBackend backend, LoopTimer timer)
+    internal ViewSession(SmSessionLoop loop, SmSession session, string[] args, SmClient client, SmGuiBackend backend, LoopTimer timer)
     {
         // NOTE! Must not store a reference to a heavy session instance. User may store a reference which prevents GC collecting the session.
         this.loop       = loop;

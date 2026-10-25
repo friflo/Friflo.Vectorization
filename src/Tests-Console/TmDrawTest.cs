@@ -1,8 +1,8 @@
 ﻿using System.Diagnostics;
 using System.Numerics;
-using Friflo.TmGui;
+using Friflo.SmGui;
 using Friflo.WGPU;
-using Friflo.WGPU.TmGui;
+using Friflo.WGPU.SmGui;
 
 
 // ReSharper disable MemberCanBePrivate.Global
@@ -10,11 +10,11 @@ using Friflo.WGPU.TmGui;
 // ReSharper disable ConvertToPrimaryConstructor
 namespace TestConsole;
 
-public class TmDrawRenderer : IRenderer
+public class SmDrawRenderer : IRenderer
 {
     private readonly    WgpuBatch               batch;
     private readonly    GpuTexture              myTexture;
-    private readonly    TmTexture               myTextureView;
+    private readonly    SmTexture               myTextureView;
     private readonly    GpuRenderPassDescriptor renderPassDescriptor    = new () { colorAttachments = [ default ] };
     private readonly    Stopwatch               stopwatch               = Stopwatch.StartNew();
     private             float                   lastTime;
@@ -26,7 +26,7 @@ public class TmDrawRenderer : IRenderer
         batch.Dispose();
     }
     
-    public TmDrawRenderer(WgpuHost wgpuHost)
+    public SmDrawRenderer(WgpuHost wgpuHost)
     {
         var guiBackend = wgpuHost.CreateGuiBackend();
         batch = guiBackend.CreateBatch(wgpuHost.SwapChainFormat);
@@ -34,7 +34,7 @@ public class TmDrawRenderer : IRenderer
         // create tile texture
         using var stream = typeof(SdlWindow).Assembly.GetManifestResourceStream("Tests-Console.Assets.img.world_tileset.png")!;
         myTexture        = guiBackend.LoadTexture(stream, "world_tileset.png").AsGpuTexture(); 
-        myTextureView    = myTexture.CreateView().AsTmTexture();
+        myTextureView    = myTexture.CreateView().AsSmTexture();
     }
     
     public void OnWindowChanged(int width, int height)
@@ -78,7 +78,7 @@ public class TmDrawRenderer : IRenderer
              * Matrix4x4.CreateTranslation(center.X, center.Y, 0f);
     }
     
-    public void DrawSprites(TmDraw draw, float deltaTime)
+    public void DrawSprites(SmDraw draw, float deltaTime)
     {
         // --- sprites
         draw.DrawSprite(myTextureView, new Vector2( 50, 150), new Vector2(256, 256));
@@ -106,7 +106,7 @@ public class TmDrawRenderer : IRenderer
             sourceRectSize: srcSize, textureSize: texSize, borderThickness: borders);
     }
     
-    public static void DrawShapes(TmDraw draw, int width, int height)
+    public static void DrawShapes(SmDraw draw, int width, int height)
     {
         draw.FillRect(new Vector2(1, 1), new Vector2(99, 99), 0xFFFFFFFF);
         draw.FillRect(new Vector2(width - 100, height - 100), new Vector2(99, 99), 0xFFFFFFFF);
@@ -140,7 +140,7 @@ public class TmDrawRenderer : IRenderer
         draw.FillTriangleStrip(stripVertices, color: 0xbb00bbff);
     }
     
-    public static void DrawText(TmDraw draw)
+    public static void DrawText(SmDraw draw)
     {
         var textSize = draw.MeasureText("wgpu");
         draw.StrokeRect(new Vector2(700, 50), textSize, 2, Color32.Gray);

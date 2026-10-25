@@ -5,15 +5,15 @@ using System;
 using System.Collections.Generic;
 using System.Numerics;
 using System.Text;
-using Friflo.TmGui.Headless;
-using Friflo.TmGui.Recorder;
-using Friflo.TmGui.Session;
+using Friflo.SmGui.Headless;
+using Friflo.SmGui.Recorder;
+using Friflo.SmGui.Session;
 
 // ReSharper disable InconsistentNaming
 // ReSharper disable InlineTemporaryVariable
 // ReSharper disable CanSimplifyStringEscapeSequence
 // ReSharper disable ConvertToPrimaryConstructor
-namespace Friflo.TmGui.TUI.Session;
+namespace Friflo.SmGui.TUI.Session;
 
 
 internal sealed class TuiSessionShared
@@ -23,7 +23,7 @@ internal sealed class TuiSessionShared
 }
 
 
-internal sealed partial class TuiSession : TmSession
+internal sealed partial class TuiSession : SmSession
 {
     private  readonly   TuiColorMode        colorMode;
     private  readonly   TuiSessionShared    shared;         // instance: shared
@@ -42,7 +42,7 @@ internal sealed partial class TuiSession : TmSession
     private             ulong[]             lastLineHashes  = new ulong[10];
 
     
-    internal TuiSession(TmClient client, SessionKeys keys, TmSessionLoop loop, LoopTimer timer, TuiColorMode colorMode)
+    internal TuiSession(SmClient client, SessionKeys keys, SmSessionLoop loop, LoopTimer timer, TuiColorMode colorMode)
         : base(client, keys)
     {
         this.colorMode      = colorMode;
@@ -56,9 +56,9 @@ internal sealed partial class TuiSession : TmSession
         tuiBatch.session    = this;
     }
     
-    // --- TmSession
-    protected internal override TmGuiBackend    Backend => cpuBackend;
-    protected internal override TmBatch         Batch   => tuiBatch;
+    // --- SmSession
+    protected internal override SmGuiBackend    Backend => cpuBackend;
+    protected internal override SmBatch         Batch   => tuiBatch;
     
     internal override GuiReplay CreateReplay()
     {
@@ -75,7 +75,7 @@ internal sealed partial class TuiSession : TmSession
         
         sendBufferCount     = 0;
         var framePayload    = RenderFrame(replayBackend, replayBatch);
-        client.Send(new TmSendMessage(framePayload));
+        client.Send(new SmSendMessage(framePayload));
     }
 
     // --- internal
@@ -120,7 +120,7 @@ internal sealed partial class TuiSession : TmSession
         AppendSpan("\x1b[18t"u8);       // Request current terminal size from terminal via stdout - answer handled by HandleInBandResize()
     }
     
-    internal override TmSendMessage IterateUI(in AssetResources resources)
+    internal override SmSendMessage IterateUI(in AssetResources resources)
     {
         isDirty = false;
 
@@ -144,10 +144,10 @@ internal sealed partial class TuiSession : TmSession
             sendBufferCount = 0;
         }
         var memory = RenderFrame(cpuBackend, tuiBatch);
-        return new TmSendMessage(memory);
+        return new SmSendMessage(memory);
     }
         
-    private Memory<byte> RenderFrame(TmGuiBackend backend, TuiBatch batch)
+    private Memory<byte> RenderFrame(SmGuiBackend backend, TuiBatch batch)
     {
         // \x1b[?2026h      Sync Start (atomic frame)
         // \x1b[H           Cursor Home
@@ -173,7 +173,7 @@ internal sealed partial class TuiSession : TmSession
     
     // private int sendCounter;
     
-    private void AppendFrameBuffer(TmGuiBackend backend, TuiBatch batch, int width, int height)
+    private void AppendFrameBuffer(SmGuiBackend backend, TuiBatch batch, int width, int height)
     {
         var background = action.Background;
         var clear = new TuiColorCell { Character = ' ', color = 0x000000ff, background = background };
@@ -315,7 +315,7 @@ internal sealed partial class TuiSession : TmSession
         }
     }
     
-    private void DrawMouseCursor(TmGuiBackend backend)
+    private void DrawMouseCursor(SmGuiBackend backend)
     {
         var mouse   = backend.input.MousePos;
         var x       = (int)(mouse.X / tuiBatch.CharWidth)  - 1;

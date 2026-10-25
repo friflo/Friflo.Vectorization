@@ -1,11 +1,11 @@
 using System.Numerics;
-using Friflo.TmGui;
+using Friflo.SmGui;
 
 namespace TuiTerminal.Draw;
 
 public static class DrawDonut
 {
-    internal static void Draw(TmDraw draw, float time, float canvasWidth, float canvasHeight)
+    internal static void Draw(SmDraw draw, float time, float canvasWidth, float canvasHeight)
     {
         const int numMajor = 32;
         const int numMinor = 20;

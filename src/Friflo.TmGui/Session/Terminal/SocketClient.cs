@@ -11,10 +11,10 @@ using System.Threading.Tasks;
 // ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable once CheckNamespace
-namespace Friflo.TmGui.Session;
+namespace Friflo.SmGui.Session;
 
 
-public class SocketClient : TmClient
+public class SocketClient : SmClient
 {
     private  Socket socket;
     
@@ -29,12 +29,12 @@ public class SocketClient : TmClient
     
     public override UiType UiType => UiType.TerminalTui;
     
-    protected internal override async ValueTask<int> SendAsync(TmSendMessage message, CancellationToken cancellationToken)
+    protected internal override async ValueTask<int> SendAsync(SmSendMessage message, CancellationToken cancellationToken)
     {
         return await socket.SendAsync(message.buffer, SocketFlags.None, cancellationToken);
     }
     
-    protected internal override int Send(TmSendMessage message)
+    protected internal override int Send(SmSendMessage message)
     {
         // Check if the OS send buffer can accept data immediately (0 microseconds wait time)
         if (!socket.Poll(0, SelectMode.SelectWrite)) {
@@ -43,16 +43,16 @@ public class SocketClient : TmClient
         return socket.Send(message.buffer.Span, SocketFlags.None);  // Buffer has space -> transmit frame synchronously without blocking
     }
     
-    protected internal override void SendCommand(TmSendCommand command) { }
+    protected internal override void SendCommand(SmSendCommand command) { }
     
     protected internal override void RestoreTerminal()
     {
-        Send(new TmSendMessage(VT100.TerminalReset));
+        Send(new SmSendMessage(VT100.TerminalReset));
     }
     
     
     // I/O Loop: Reads raw socket bytes and pushes them into the session loop queue
-    public static async ValueTask HandleClientSessionAsync(SocketClient client, TmSessionLoop loop, CancellationToken cancellationToken)
+    public static async ValueTask HandleClientSessionAsync(SocketClient client, SmSessionLoop loop, CancellationToken cancellationToken)
     {
         var socket = client.socket;
         try

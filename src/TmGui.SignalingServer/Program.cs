@@ -1,21 +1,21 @@
 ﻿using System.Net;
-using Friflo.TmGui;
-using Friflo.TmGui.Headless;
-using Friflo.TmGui.Http;
-using Friflo.TmGui.Session;
+using Friflo.SmGui;
+using Friflo.SmGui.Headless;
+using Friflo.SmGui.Http;
+using Friflo.SmGui.Session;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using TmGui.SignalingServer;
+using SmGui.SignalingServer;
 
 
 
 Console.WriteLine("Signaling Server for WebRTC");
 
 var cpuBackend  = new CpuBackend("Signaling Server", new DefaultGuiAssets());
-var signaling   = new TmSignaling();
+var signaling   = new SmSignaling();
 
-var loop = new TmSessionLoop(false, cpuBackend, client => new SignalingView(signaling, client));
+var loop = new SmSessionLoop(false, cpuBackend, client => new SignalingView(signaling, client));
 signaling.StateChanged = loop.SetAppDirty;
 
 var builder = Host.CreateDefaultBuilder();

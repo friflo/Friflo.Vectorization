@@ -5,13 +5,13 @@ using System;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
-using Friflo.TmGui.Session;
+using Friflo.SmGui.Session;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
 // ReSharper disable CheckNamespace
-namespace Friflo.TmGui.Http;
+namespace Friflo.SmGui.Http;
 
 
 public static class HttpUtils
@@ -45,7 +45,7 @@ public static class HttpUtils
         }
     }
     
-    public static IHostBuilder CreateHostBuilder(EndPoint endPoint, TmSessionLoop loop, string? webRoot = null)
+    public static IHostBuilder CreateHostBuilder(EndPoint endPoint, SmSessionLoop loop, string? webRoot = null)
     {
         var builder = Host.CreateDefaultBuilder();
 

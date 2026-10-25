@@ -6,7 +6,7 @@ using System;
 using System.Diagnostics;
 
 // ReSharper disable once CheckNamespace
-namespace Friflo.TmGui.Utils;
+namespace Friflo.SmGui.Utils;
 
 internal static class ClipboardUtils
 {

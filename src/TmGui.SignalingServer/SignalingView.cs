@@ -1,26 +1,26 @@
 ﻿using System.Numerics;
-using Friflo.TmGui;
-using Friflo.TmGui.Http;
-using Friflo.TmGui.TUI;
+using Friflo.SmGui;
+using Friflo.SmGui.Http;
+using Friflo.SmGui.TUI;
 
 // ReSharper disable ConvertToPrimaryConstructor
-namespace TmGui.SignalingServer;
+namespace SmGui.SignalingServer;
 
 
 /// <summary> Each session has its own <see cref="IGuiView"/> instance. </summary>
 public class SignalingView : IGuiView
 {
-    private readonly    TmSignaling         signaling;
-    private readonly    List<TmGuiApp>      apps    = [];
-    private readonly    List<TmSignalPeer>  clients = [];
+    private readonly    SmSignaling         signaling;
+    private readonly    List<SmGuiApp>      apps    = [];
+    private readonly    List<SmSignalPeer>  clients = [];
     
-    public SignalingView(TmSignaling signaling, ViewSession session)
+    public SignalingView(SmSignaling signaling, ViewSession session)
     {
         this.signaling = signaling;
         session.Action.SetWindowTitle("Signaling Server");
     }
     
-    public void RenderView(TmBatch batch, int targetWidth, int targetHeight)
+    public void RenderView(SmBatch batch, int targetWidth, int targetHeight)
     {
         var gui = batch.BeginGui(targetWidth, targetHeight);
         using (gui.BeginWindow("WebRTC apps", new Vector2(50, 50), new Vector2(600, 700), traits: 0, TuiBorder.Rounded)) { // (500, 450) (1000, 850)

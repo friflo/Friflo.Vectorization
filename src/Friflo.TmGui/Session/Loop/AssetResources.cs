@@ -3,12 +3,12 @@
 
 using System;
 using System.Collections.Generic;
-using Friflo.TmGui.Headless;
+using Friflo.SmGui.Headless;
 
 
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable CheckNamespace
-namespace Friflo.TmGui.Session;
+namespace Friflo.SmGui.Session;
 
 
 public readonly struct AssetResources
@@ -18,7 +18,7 @@ public readonly struct AssetResources
     public   readonly   Dictionary<string, ImageResource>   stringToImage   = new();
     public   readonly   List<ImageResource?>                images          = [null];
     
-    private int AddTexture(TmTexture texture)
+    private int AddTexture(SmTexture texture)
     {
         var textureId = images.Count;
         texture2Id.Add(texture.native!, textureId);
@@ -41,7 +41,7 @@ public readonly struct AssetResources
         this.cpuBackend = cpuBackend;
     }
 
-    internal int GetTexture(TmTexture texture)
+    internal int GetTexture(SmTexture texture)
     {
         var native = texture.native;
         if (native == null) {
@@ -69,8 +69,8 @@ public readonly struct AssetResources
 public sealed class ImageResource
 {
     public   required   int             textureId;
-    public   required   TmImageAsset    asset;
-    public   required   TmTexture       texture;
+    public   required   SmImageAsset    asset;
+    public   required   SmTexture       texture;
     public   required   IGuiAssets      assets;
     internal readonly   SessionGuid     sessionGuid;
     private             byte[]?         pngArray;

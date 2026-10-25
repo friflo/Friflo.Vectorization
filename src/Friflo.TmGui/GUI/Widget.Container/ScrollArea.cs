@@ -8,7 +8,7 @@ using System.Numerics;
 // ReSharper disable UseWithExpressionToCopyStruct
 // ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable once CheckNamespace
-namespace Friflo.TmGui;
+namespace Friflo.SmGui;
 
 
 public readonly ref partial struct GuiWidget

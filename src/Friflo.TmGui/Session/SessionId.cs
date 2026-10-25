@@ -6,7 +6,7 @@ using System;
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable ConvertToAutoProperty
 // ReSharper disable CheckNamespace
-namespace Friflo.TmGui;
+namespace Friflo.SmGui;
 
 
 /**
@@ -18,8 +18,8 @@ namespace Friflo.TmGui;
  * <code>
  * | Identifier       | Scope / Purpose                                  | Code      | Used By       |
  * |------------------|--------------------------------------------------|-----------|---------------|
- * | SessionId (int)  | Server-side client / session id in TmSessionLoop | TmGui     | Server        |
- * | SessionGuid      | Secure public token for asset URLs and Reconnect | TmGui     | Client/Server |
+ * | SessionId (int)  | Server-side client / session id in SmSessionLoop | SmGui     | Server        |
+ * | SessionGuid      | Secure public token for asset URLs and Reconnect | SmGui     | Client/Server |
  * | User / Domain ID | Application business logic, accounts, grouping   | User Code | Client/Server |
  * </code>
  * </remarks>

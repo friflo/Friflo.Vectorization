@@ -12,27 +12,27 @@ using Hide = System.Diagnostics.DebuggerHiddenAttribute;
 // ReSharper disable ArrangeThisQualifier
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable once CheckNamespace
-namespace Friflo.TmGui.Session;
+namespace Friflo.SmGui.Session;
 
 
-public readonly struct TmSendCommand
+public readonly struct SmSendCommand
 {
     public readonly string  payload;
     public override string  ToString()      => payload;
 
-    internal TmSendCommand(string payload)  => this.payload = payload;
+    internal SmSendCommand(string payload)  => this.payload = payload;
 }
 
 
-public enum TmSendMessageMode {
+public enum SmSendMessageMode {
     Queue       = 0,
     DropUnsent  = 1
 }
 
-public readonly struct TmSendMessage
+public readonly struct SmSendMessage
 {
     public readonly ReadOnlyMemory<byte>    buffer;
-    public readonly TmSendMessageMode       mode;
+    public readonly SmSendMessageMode       mode;
     
     public          int                     Length  => buffer.Length;
     public          bool                    IsEmpty => buffer.IsEmpty;
@@ -40,13 +40,13 @@ public readonly struct TmSendMessage
     public override string                  ToString() => $"{mode} [{Length}]";
 
     [Hide]
-    public TmSendMessage(ReadOnlyMemory<byte> buffer) {
+    public SmSendMessage(ReadOnlyMemory<byte> buffer) {
         this.buffer = buffer;
-        this.mode   = TmSendMessageMode.Queue;
+        this.mode   = SmSendMessageMode.Queue;
     }
     
     [Hide]
-    public TmSendMessage(ReadOnlyMemory<byte> buffer, TmSendMessageMode mode) {
+    public SmSendMessage(ReadOnlyMemory<byte> buffer, SmSendMessageMode mode) {
         this.buffer = buffer;
         this.mode   = mode;
     }
@@ -61,7 +61,7 @@ internal struct SendQueueState
 }
 
 
-public abstract class TmClient
+public abstract class SmClient
 {
     private             SendQueueState  queueState;
     public   readonly   SessionId       sessionId;
@@ -70,7 +70,7 @@ public abstract class TmClient
 
     private static int _sessionSeq;
     
-    protected TmClient() {
+    protected SmClient() {
         var id = Interlocked.Increment(ref _sessionSeq);
         this.sessionId = new SessionId(id);
     }
@@ -87,24 +87,24 @@ public abstract class TmClient
         Volatile.Write(ref queueState.queueSize,    queueSize);
     }
     
-    internal TmSendMessageMode GetSendMode(int maxQueueSize, double maxAgeMs)
+    internal SmSendMessageMode GetSendMode(int maxQueueSize, double maxAgeMs)
     {
         var queueSize = Volatile.Read(ref queueState.queueSize);
         if (queueSize > maxQueueSize) {
-            return TmSendMessageMode.DropUnsent;
+            return SmSendMessageMode.DropUnsent;
         }
         var lastSentTime = Volatile.Read(ref queueState.lastSentTime);
         var age = Stopwatch.GetElapsedTime(queueState.lastAppendedTime, lastSentTime).TotalMilliseconds;
         if (age > maxAgeMs) {
-            return TmSendMessageMode.DropUnsent;
+            return SmSendMessageMode.DropUnsent;
         }
-        return TmSendMessageMode.Queue;
+        return SmSendMessageMode.Queue;
     }
     
     /// <summary>
     /// Important!<br/>
-    /// Must be incremented when enqueueing an event to the <see cref="TmSessionLoop"/>.<br/>
-    /// Must be decremented when dequeueing an event from the <see cref="TmSessionLoop"/>.<br/> 
+    /// Must be incremented when enqueueing an event to the <see cref="SmSessionLoop"/>.<br/>
+    /// Must be decremented when dequeueing an event from the <see cref="SmSessionLoop"/>.<br/> 
     /// </summary>
     private    int     pendingEvents;
     
@@ -113,14 +113,14 @@ public abstract class TmClient
 
 
     public             abstract     UiType          UiType { get; }
-    protected internal abstract     ValueTask<int>  SendAsync(TmSendMessage message, CancellationToken cancellationToken);
-    protected internal abstract     int             Send(TmSendMessage message);
-    protected internal abstract     void            SendCommand(TmSendCommand command);
+    protected internal abstract     ValueTask<int>  SendAsync(SmSendMessage message, CancellationToken cancellationToken);
+    protected internal abstract     int             Send(SmSendMessage message);
+    protected internal abstract     void            SendCommand(SmSendCommand command);
     protected internal abstract     void            RestoreTerminal();
     
     /// <summary>
     /// Extending classes should null field references to managed types.<br/>
-    /// <see cref="TmClient"/> instances may be captured by local variables in async state machines.
+    /// <see cref="SmClient"/> instances may be captured by local variables in async state machines.
     /// E.g. like <c>WebSocketClient</c> created within <c>KestrelHttpServer</c>.
     /// </summary>
     public             abstract  void           Dispose();

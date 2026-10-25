@@ -13,7 +13,7 @@ using System.Runtime.Intrinsics;
 // ReSharper disable UnusedMember.Local
 // ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable once CheckNamespace
-namespace Friflo.TmGui.TUI;
+namespace Friflo.SmGui.TUI;
 
 internal sealed class TuiSixel
 {

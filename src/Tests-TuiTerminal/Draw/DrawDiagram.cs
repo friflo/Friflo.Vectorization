@@ -1,5 +1,5 @@
 using System.Numerics;
-using Friflo.TmGui;
+using Friflo.SmGui;
 
 namespace TuiTerminal.Draw;
 
@@ -61,7 +61,7 @@ public class DrawDiagram
     }
 
     // Renders the chart and smooth marker circles without lingering old data artifacts
-    public void Draw(TmDraw draw, float currentTime, float canvasWidth, float canvasHeight)
+    public void Draw(SmDraw draw, float currentTime, float canvasWidth, float canvasHeight)
     {
         const float timeWindow = 2.0f;      // Graph spans 2 seconds across screen
 

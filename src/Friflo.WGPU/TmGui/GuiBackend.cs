@@ -4,16 +4,16 @@
 using System;
 using System.IO;
 using Friflo.GPU;
-using Friflo.TmGui;
+using Friflo.SmGui;
 
 
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable InconsistentNaming
 // ReSharper disable UnusedMember.Global
 // ReSharper disable once CheckNamespace
-namespace Friflo.WGPU.TmGui;
+namespace Friflo.WGPU.SmGui;
 
-public sealed class WgpuGuiBackend : TmGuiBackend
+public sealed class WgpuGuiBackend : SmGuiBackend
 {
     private  readonly   GpuDevice       device;
     internal readonly   GpuSampler      samplerLinear;
@@ -37,7 +37,7 @@ public sealed class WgpuGuiBackend : TmGuiBackend
         return batch;
     }
     
-    public override TmTexture CreateTexture(string name, int width, int height, ReadOnlySpan<byte> rgbaPixels)
+    public override SmTexture CreateTexture(string name, int width, int height, ReadOnlySpan<byte> rgbaPixels)
     {
         var texture = device.CreateTexture(new GpuTextureDescriptor {
             label   = name,
@@ -48,26 +48,26 @@ public sealed class WgpuGuiBackend : TmGuiBackend
         texture.Write(rgbaPixels, bytesPerRow: width * 4, rowsPerImage: height);
 
         var view = texture.CreateView();
-        return new TmTexture(texture, view.Handle);
+        return new SmTexture(texture, view.Handle);
     }
 
-    protected override TmBuffer<Vertex2D> CreateVertexBuffer(int vertexCount)
+    protected override SmBuffer<Vertex2D> CreateVertexBuffer(int vertexCount)
     {
         var vertices = new Memory<Vertex2D>(new Vertex2D[vertexCount]);
-        var buffer   = device.CreateBuffer(vertices, "TmBatch Vertices", BufferProfile.StaticIn, BufferType.Vertex);
-        return new TmWgpuBuffer<Vertex2D>(buffer);
+        var buffer   = device.CreateBuffer(vertices, "SmBatch Vertices", BufferProfile.StaticIn, BufferType.Vertex);
+        return new SmWgpuBuffer<Vertex2D>(buffer);
     }
 
-    protected override TmBuffer<uint> CreateIndexBuffer(int indexCount)
+    protected override SmBuffer<uint> CreateIndexBuffer(int indexCount)
     {
         var indices = new Memory<uint>(new uint[indexCount]);
-        var buffer  = device.CreateBuffer(indices, "TmBatch Indices", BufferProfile.StaticIn, BufferType.Index);
-        return new TmWgpuBuffer<uint>(buffer);
+        var buffer  = device.CreateBuffer(indices, "SmBatch Indices", BufferProfile.StaticIn, BufferType.Index);
+        return new SmWgpuBuffer<uint>(buffer);
     }
     
-    public override TmTexture LoadTexture(Stream stream, string label = null, TmTextureUsage usage = TmTextureUsage.TextureBinding | TmTextureUsage.CopyDst)
+    public override SmTexture LoadTexture(Stream stream, string label = null, SmTextureUsage usage = SmTextureUsage.TextureBinding | SmTextureUsage.CopyDst)
     {
-        var image = assets.LoadImage(stream, TmColorComponents.RedGreenBlueAlpha);
+        var image = assets.LoadImage(stream, SmColorComponents.RedGreenBlueAlpha);
 
         var texture = device.CreateTexture(new GpuTextureDescriptor {
             label  = label,
@@ -76,12 +76,12 @@ public sealed class WgpuGuiBackend : TmGuiBackend
             usage  = (TextureUsage)usage
         });
         texture.Write(image.data, bytesPerRow: image.width * 4, rowsPerImage: image.height);
-        return new TmTexture(texture, 0);
+        return new SmTexture(texture, 0);
     }
     
-    public override TmImageAsset GetTextureImage(TmTexture texture)
+    public override SmImageAsset GetTextureImage(SmTexture texture)
     {
         var tex = (GpuTexture)texture.native!;
-        return new TmImageAsset { width = tex.Descriptor.size.width, height = tex.Descriptor.size.height, data = tex.guiPixels, name = tex.Label };
+        return new SmImageAsset { width = tex.Descriptor.size.width, height = tex.Descriptor.size.height, data = tex.guiPixels, name = tex.Label };
     }
 }

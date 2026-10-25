@@ -9,11 +9,11 @@ using System.Globalization;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Text;
-using Friflo.TmGui.Headless;
-using Friflo.TmGui.Raster;
-using Friflo.TmGui.Recorder;
-using Friflo.TmGui.Session;
-using Friflo.TmGui.TUI;
+using Friflo.SmGui.Headless;
+using Friflo.SmGui.Raster;
+using Friflo.SmGui.Recorder;
+using Friflo.SmGui.Session;
+using Friflo.SmGui.TUI;
 using Hide = System.Diagnostics.DebuggerHiddenAttribute;
 
 // ReSharper disable InlineTemporaryVariable
@@ -22,18 +22,18 @@ using Hide = System.Diagnostics.DebuggerHiddenAttribute;
 // ReSharper disable InconsistentNaming
 // ReSharper disable PrivateFieldCanBeConvertedToLocalVariable
 // ReSharper disable once CheckNamespace
-namespace Friflo.TmGui;
+namespace Friflo.SmGui;
 
 /// <summary>
-/// Provides <see cref="TmDraw"/> for low-level geometry drawing and <see cref="Gui"/> for high-level widgets and interaction.<br/>
+/// Provides <see cref="SmDraw"/> for low-level geometry drawing and <see cref="Gui"/> for high-level widgets and interaction.<br/>
 /// Stores vertex/index buffers and sorts draw commands for backend rendering.
 /// </summary>
 /// <remarks>
 /// <para>
 /// <b>Lifecycle &amp; Architecture:</b><br/>
-/// The frame lifecycle - <see cref="TmGuiBackend.NewFrame"/> and <see cref="TmGuiBackend.AddEvent"/> - is owned by the <see cref="TmGuiBackend"/>, 
-/// which can manage one or multiple <see cref="TmBatch"/> instances.<br/>
-/// <see cref="TmDraw"/> and <see cref="Gui"/> operate directly on <see cref="TmBatch"/> with zero memory allocations.
+/// The frame lifecycle - <see cref="SmGuiBackend.NewFrame"/> and <see cref="SmGuiBackend.AddEvent"/> - is owned by the <see cref="SmGuiBackend"/>, 
+/// which can manage one or multiple <see cref="SmBatch"/> instances.<br/>
+/// <see cref="SmDraw"/> and <see cref="Gui"/> operate directly on <see cref="SmBatch"/> with zero memory allocations.
 /// </para>
 /// <br/>
 /// <b>Core Architecture &amp; Data Flow</b>
@@ -45,16 +45,16 @@ namespace Friflo.TmGui;
 ///     │ (Mouse, Keys)   │ (Scopes, Pushes)│ (Button, Slider..) │ (Colors, Paddings) │
 ///     └─────────────────┴────────┬────────┴────────────────────┴────────────────────┘
 ///                                │
-///                                ▼ (one-way access: Gui uses TmDraw)
+///                                ▼ (one-way access: Gui uses SmDraw)
 ///     ┌─────────────────────────────────────────────────────────────────────────────┐
-///     │                                TmDraw                                       │
+///     │                                SmDraw                                       │
 ///     ├───────────────────────────────────┬─────────────────────────────────────────┤
-///     │          TmDraw - Draw            │             TmDraw - States             │
+///     │          SmDraw - Draw            │             SmDraw - States             │
 ///     │ (Fill, Stroke, Sprite, Quad, Text)│ (Push/Pop Scissor, Transform, ZIndex)   │
 ///     └───────────────────────────────────┴─────────────────────────────────────────┘
 /// </code>
 /// </remarks>
-public abstract class TmBatch : IDisposable
+public abstract class SmBatch : IDisposable
 {
 #region public
     public          ReadOnlySpan<DrawCommand>   DrawList    => new(drawList, 0, drawCommands.Count);
@@ -63,14 +63,14 @@ public abstract class TmBatch : IDisposable
     public          LoopTimer                   Timer       => loopTimer;
     public          UiType                      UiType      { get; init; }
     public readonly SessionId                   SessionId;
-    //     readonly TmGuiBackend                backend;    - intentionally no back reference to its backend. Prevents calling NewFrame() within a Gui scope.
+    //     readonly SmGuiBackend                backend;    - intentionally no back reference to its backend. Prevents calling NewFrame() within a Gui scope.
     
     public override string                      ToString()  => UiType.ToString();
 #endregion
 
 #region protected
-    protected readonly  TmBuffer<Vertex2D>  gpuVertexBuffer;
-    protected readonly  TmBuffer<uint>      gpuIndexBuffer;
+    protected readonly  SmBuffer<Vertex2D>  gpuVertexBuffer;
+    protected readonly  SmBuffer<uint>      gpuIndexBuffer;
     protected internal  Vector2             viewport;
 #endregion
 
@@ -86,7 +86,7 @@ public abstract class TmBatch : IDisposable
     internal  readonly  Stack<SamplerFilter>samplerFilterStack  = [];
     private   readonly  StringBuilder       stringBuilder       = new(512,512); // => first chunk: 512 chars
     internal  readonly  GuiState            guiState            = new();
-    internal            TmSession?          session;
+    internal            SmSession?          session;
     
     internal  readonly  LoopTimer           loopTimer;
 
@@ -99,10 +99,10 @@ public abstract class TmBatch : IDisposable
     // --- resources owned by DrawModule
     internal readonly   GuiHost             host;
     internal readonly   GuiInput            input;
-    internal readonly   TmFont              backendDefaultFont;
+    internal readonly   SmFont              backendDefaultFont;
     internal readonly   TuiBatch?           tui;
-    internal            TmFont              currentFont;
-    internal            TmTexture           currentFontTexture;
+    internal            SmFont              currentFont;
+    internal            SmTexture           currentFontTexture;
     //
     internal            Vector2             terminalPixelSize  = new(1, 1);
     private  readonly   IGuiAssets          rasterAssets;
@@ -110,7 +110,7 @@ public abstract class TmBatch : IDisposable
     internal readonly   bool                isRasterBatch;
     internal            RasterBatch         AsRasterBatch { [Hide] get => (RasterBatch)this; }
 
-    // --- TmDraw - state
+    // --- SmDraw - state
     internal            IFormatProvider     formatProvider;
     internal            Matrix4x4           defaultOrtho;
     internal            Matrix4x4           currentTransform;
@@ -126,20 +126,20 @@ public abstract class TmBatch : IDisposable
     internal            Matrix4x4           projection;
     private             int                 vertexStart;                // start of next Draw()
     internal            int                 vertexCount;
-    internal            TmTexture           currentTexture;
+    internal            SmTexture           currentTexture;
     
     internal void Reset() {
-        // Goal: Clear references of heavy instances. User may store a TmBatch reference which prevents GC collecting them.
+        // Goal: Clear references of heavy instances. User may store a SmBatch reference which prevents GC collecting them.
         session = null;
         loopTimer.Dispose();
     }
     
-    protected TmBatch(SessionId sessionId, TmGuiBackend backend, LoopTimer? timer) : this(sessionId, backend, 4, timer)
+    protected SmBatch(SessionId sessionId, SmGuiBackend backend, LoopTimer? timer) : this(sessionId, backend, 4, timer)
     {
         isRasterBatch = true;
     }
 
-    protected TmBatch(SessionId sessionId, TmGuiBackend backend, int maxVertices, LoopTimer? timer)
+    protected SmBatch(SessionId sessionId, SmGuiBackend backend, int maxVertices, LoopTimer? timer)
     {
         SessionId       = sessionId;
         formatProvider  = CultureInfo.InvariantCulture;
@@ -200,7 +200,7 @@ public abstract class TmBatch : IDisposable
         gpuIndexBuffer.Dispose();
     }
     
-    public void SetFont(TmFont font) {
+    public void SetFont(SmFont font) {
         currentFont         = font;
         currentFontTexture  = font.texture;
     }
@@ -235,10 +235,10 @@ public abstract class TmBatch : IDisposable
         }
     }
     
-    public TmDraw BeginTextureDraw(TmTexture texture, Color32 color)
+    public SmDraw BeginTextureDraw(SmTexture texture, Color32 color)
     {
         if (this is WsBatch) {
-            var draw = new TmDraw(this);
+            var draw = new SmDraw(this);
             var cursor = guiState.window.Cursor;
             var translate = Matrix4x4.CreateTranslation(new Vector3(cursor.X, cursor.Y, 0));
             draw.PushTransform(currentTransform * translate);
@@ -250,7 +250,7 @@ public abstract class TmBatch : IDisposable
     }
     
     [MethodImpl(MethodImplOptions.NoInlining)]
-    private RasterBatch CreateTextureBatch(TmTexture texture)
+    private RasterBatch CreateTextureBatch(SmTexture texture)
     {
         if (texture.IsNull) throw new ArgumentNullException(nameof(texture));
         return new RasterBatch(SessionId, new CpuBackend("Raster", rasterAssets), texture, loopTimer);
@@ -259,7 +259,7 @@ public abstract class TmBatch : IDisposable
     public void EndTextureDraw()
     {
         if (this is WsBatch) {
-            var draw = new TmDraw(this);
+            var draw = new SmDraw(this);
             draw.PopTransform();
         }
     }
@@ -270,7 +270,7 @@ public abstract class TmBatch : IDisposable
         return new Gui(draw, this);
     }
     
-    public TmDraw BeginDraw(int width, int height)
+    public SmDraw BeginDraw(int width, int height)
     {
         // reset batcher state
         /* if (defaultFontTexture.IsDisposed) {    // TODO IM_TEX
@@ -299,7 +299,7 @@ public abstract class TmBatch : IDisposable
         zIndexStack.Clear();
         samplerFilterStack.Clear();
         
-        var draw = new TmDraw(this);
+        var draw = new SmDraw(this);
         draw.SetViewport(width, height);
         return draw;
     }

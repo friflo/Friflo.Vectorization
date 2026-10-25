@@ -2,9 +2,9 @@
 using System.Globalization;
 using System.IO;
 using System.Text;
-using Friflo.TmGui;
+using Friflo.SmGui;
 using Friflo.WGPU;
-using Friflo.WGPU.TmGui;
+using Friflo.WGPU.SmGui;
 using NUnit.Framework;
 using StbImageWriteSharp;
 
@@ -12,12 +12,12 @@ using StbImageWriteSharp;
 // ReSharper disable SuggestVarOrType_SimpleTypes
 // ReSharper disable UnusedMember.Local
 // ReSharper disable once InconsistentNaming
-namespace Tests.TmGui;
+namespace Tests.SmGui;
 
-public static class Tests_TmGui
+public static class Tests_SmGui
 {
     [Test]
-    public static void Tests_TmGui_GuiStyle()
+    public static void Tests_SmGui_GuiStyle()
     {
         var style = new GuiStyle();
         var repeat = 10; // 1_000_000_000   3.95 sec
@@ -48,7 +48,7 @@ public static class Tests_TmGui
     }
     
     [Test]
-    public static void Tests_TmGui_StringBuilderExtensions()
+    public static void Tests_SmGui_StringBuilderExtensions()
     {
         {
             var sb = new StringBuilder();
@@ -64,19 +64,19 @@ public static class Tests_TmGui
     
     [Test]
     [Platform(Exclude = "MacOsX", Reason = "Hangs occasionally on macOS (Metal issue)")]
-    public static void Tests_TmGui_DrawGui()
+    public static void Tests_SmGui_DrawGui()
     {
         // TODO  hangs occasionally in macOS. Debugging it when in fitting Mood
 
         using var instance    = WgpuInstance.CreateInstance();
         
-        TmGui_DrawGui_Offscreen(instance);
+        SmGui_DrawGui_Offscreen(instance);
     
         var handles = instance.GenerateHandles();
         Assert.IsTrue(handles.IsActiveZero());
     }
     
-    private static void TmGui_DrawGui_Offscreen(WgpuInstance instance)
+    private static void SmGui_DrawGui_Offscreen(WgpuInstance instance)
     {
         using var adapter     = instance.RequestAdapter(default); // specific backend: new GpuRequestAdapterOptions { backendType = BackendType.D3D12 }
         using var device      = adapter.CreateDevice("test");

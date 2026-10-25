@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using Friflo.GPU;
-using Friflo.TmGui;
+using Friflo.SmGui;
 using Friflo.WGPU.Runtime;
 using Shaders.Imdraw;
 
@@ -13,7 +13,7 @@ using Shaders.Imdraw;
 // ReSharper disable InconsistentNaming
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable CheckNamespace
-namespace Friflo.WGPU.TmGui;
+namespace Friflo.WGPU.SmGui;
 
 // Note: Copied from source generated file to avoid build deadlock in case of generator issues.
 public sealed partial class WgpuBatch
@@ -21,7 +21,7 @@ public sealed partial class WgpuBatch
     private static partial void Draw(
         RenderPass                  pass,
         RenderConfig                config,
-        in TmUniforms               globals,
+        in SmUniforms               globals,
         GpuTextureView              texture,
         GpuSampler                  sampler,
         InBuffer<Vertex2D>          vertices,
@@ -46,7 +46,7 @@ public sealed partial class WgpuBatch
         // --- bind group 0
         var key_0 = (texture.Handle, sampler.Handle);
         if (!bindGroupCache.bindGroup_0.TryGetValue(key_0, out var bindGroup_0)) {
-            recorder.BindGroupEntryUniform<TmUniforms>(0);
+            recorder.BindGroupEntryUniform<SmUniforms>(0);
             recorder.BindGroupEntryTexture(1, texture);
             recorder.BindGroupEntrySampler(2, sampler);
             bindGroup_0 = recorder.CreateBindGroup(pipelineCache.layouts[0], "Draw_bindGroup_0"u8);

@@ -9,13 +9,13 @@ using System.Threading.Tasks;
 // ReSharper disable RedundantLambdaParameterType
 // ReSharper disable UseNullPropagation
 // ReSharper disable CheckNamespace
-namespace Friflo.TmGui.Session;
+namespace Friflo.SmGui.Session;
 
 
 public sealed class LoopTimer : IDisposable
 {
-    private             TmSessionLoop?    loop;
-    private             TmClient?         client;
+    private             SmSessionLoop?    loop;
+    private             SmClient?         client;
     private             Timer?            syncTimer;
     private             PeriodicTimer?    asyncTimer;
     private             CancellationToken cancellationToken;
@@ -32,7 +32,7 @@ public sealed class LoopTimer : IDisposable
         this.isSync   = isSync;
     }
 
-    internal LoopTimer(TmSessionLoop loop, TmClient client, int tickRate, bool isSync)
+    internal LoopTimer(SmSessionLoop loop, SmClient client, int tickRate, bool isSync)
     {
         this.loop     = loop;
         this.client   = client;

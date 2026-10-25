@@ -7,7 +7,7 @@ using System.Text;
 
 // ReSharper disable ReplaceSliceWithRangeIndexer
 // ReSharper disable once CheckNamespace
-namespace Friflo.TmGui;
+namespace Friflo.SmGui;
 
 
 public static class StringBuilderExtensions

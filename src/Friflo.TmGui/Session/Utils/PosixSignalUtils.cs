@@ -5,7 +5,7 @@ using System;
 using System.Runtime.InteropServices;
 
 // ReSharper disable CheckNamespace
-namespace Friflo.TmGui.Session;
+namespace Friflo.SmGui.Session;
 
 
 internal static class PosixSignalUtils

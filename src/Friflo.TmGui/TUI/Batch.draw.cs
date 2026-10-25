@@ -5,13 +5,13 @@ using System;
 using System.Collections.Generic;
 using System.Numerics;
 using System.Runtime.CompilerServices;
-using Friflo.TmGui.Headless;
+using Friflo.SmGui.Headless;
 
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable ConditionalTernaryEqualBranch
 // ReSharper disable UseWithExpressionToCopyStruct
 // ReSharper disable ConvertIfStatementToConditionalTernaryExpression
-namespace Friflo.TmGui.TUI;
+namespace Friflo.SmGui.TUI;
 
 
 public partial class TuiBatch
@@ -141,10 +141,10 @@ public partial class TuiBatch
         }
     }
     
-    internal void DrawWindowTitle(ReadOnlySpan<char> title, Vector2 pos, Vector2 size, in GuiColors colors, TmTrait traits, in TuiBorder tuiBorder)
+    internal void DrawWindowTitle(ReadOnlySpan<char> title, Vector2 pos, Vector2 size, in GuiColors colors, SmTrait traits, in TuiBorder tuiBorder)
     {
         FillRect(pos, size, colors.WindowColor);
-        if (traits.Has(TmTrait.Border)) {
+        if (traits.Has(SmTrait.Border)) {
             var border = tuiBorder.isSet ? tuiBorder : TuiBorder.Outer;
             var headerColor = border.useTitleBg ? colors.ButtonColor: colors.WindowColor;
             FillRectChar(pos, new Vector2(size.X, lineHeight), headerColor, border.top,   colors.WindowBorder);
@@ -197,7 +197,7 @@ public partial class TuiBatch
         FillRectChar(bl, horizontal + yOffset - xOffset, shadow, (char)0, shadow);
     }
 
-    public void DrawSprite(in TmTexture texture, Vector2 position, Vector2 size)
+    public void DrawSprite(in SmTexture texture, Vector2 position, Vector2 size)
     {
         if (texture.IsNull) throw new ArgumentNullException(nameof(texture));
         var cpuTexture = (CpuTexture?)texture.native!;

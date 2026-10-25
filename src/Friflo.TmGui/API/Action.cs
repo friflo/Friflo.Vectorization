@@ -2,16 +2,16 @@
 // See LICENSE file in the project root for full license information.
 
 using System;
-using Friflo.TmGui.Utils;
+using Friflo.SmGui.Utils;
 
 // ReSharper disable EmptyConstructor
 // ReSharper disable InconsistentNaming
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable once CheckNamespace
-namespace Friflo.TmGui;
+namespace Friflo.SmGui;
 
 
-public enum TmDisplayMode
+public enum SmDisplayMode
 {
     Windowed,
     Fullscreen,
@@ -22,7 +22,7 @@ public enum TmDisplayMode
 /// </summary>
 /// <remarks>
 /// For a native application - e.g. based on SDL - you may create a custom implementation
-/// and use it with <see cref="TmGuiBackend.SetClientActions"/>.
+/// and use it with <see cref="SmGuiBackend.SetClientActions"/>.
 /// </remarks>
 public abstract class ClientAction
 {
@@ -42,7 +42,7 @@ public abstract class ClientAction
     /// </summary>
     public virtual void SetClearColor(Color32 light, Color32 dark) { }
     
-    public virtual void SetDisplayMode(TmDisplayMode mode) { }
+    public virtual void SetDisplayMode(SmDisplayMode mode) { }
     
     public virtual void SetWindowTitle(ReadOnlySpan<char> title) { }
     
@@ -60,7 +60,7 @@ internal sealed class NoopClientAction : ClientAction
     
     public override bool    OpenUrl(ReadOnlySpan<char> url, ReadOnlySpan<char> target = default) => false;
     public override void    SetClearColor(Color32 light, Color32 dark) { }
-    public override void    SetDisplayMode(TmDisplayMode mode)         { }
+    public override void    SetDisplayMode(SmDisplayMode mode)         { }
     public override void    SetWindowTitle(ReadOnlySpan<char> title)   { }
     public override void    CopyToClipboard(ReadOnlySpan<char> text)   { }
 }

@@ -7,11 +7,11 @@ using System;
 // ReSharper disable ConvertToAutoProperty
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable CheckNamespace
-namespace Friflo.TmGui.Headless;
+namespace Friflo.SmGui.Headless;
 
 
 
-internal sealed class CpuMemoryBuffer<T> : TmBuffer<T> where T : unmanaged
+internal sealed class CpuMemoryBuffer<T> : SmBuffer<T> where T : unmanaged
 {
     private readonly  Memory<T>     native;
     

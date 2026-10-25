@@ -4,39 +4,39 @@ using System.Globalization;
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Text;
-using Friflo.TmGui;
-using Friflo.TmGui.Headless;
-using Friflo.TmGui.TUI;
+using Friflo.SmGui;
+using Friflo.SmGui.Headless;
+using Friflo.SmGui.TUI;
 using NUnit.Framework;
 using Tests.Utils;
 
 
 // ReSharper disable ArrangeObjectCreationWhenTypeNotEvident
 // ReSharper disable once InconsistentNaming
-namespace Tests.TmGui;
+namespace Tests.SmGui;
 
-public class Tests_TmGui_window1
+public class Tests_SmGui_window1
 {
     private bool    mouseCircle;
     private bool    monocraft;
     private bool    enabled2    = true;
     private float   volume      = 0.8f;
     
-    private static void EnsureBatchApi(TmBatch batch)
+    private static void EnsureBatchApi(SmBatch batch)
     {
         batch.SetFormatProvider(CultureInfo.InvariantCulture);
     }
     
     /// Result in FrameBuffer.RuneCells - Note: not supported anymore
     [Test]
-    public void Tests_TmGui_window1_TUI_char()
+    public void Tests_SmGui_window1_TUI_char()
     {
         var backend     = new CpuBackend("Test", new TuiAssets());
         var frameBuffer = new FrameBuffer();
         var batch       = backend.CreateTuiBatch(TuiColorMode.Monochrome);
 
         long        start   = 0;
-        const int   repeat  = 10; // 2_000_000 - 4.9 sec - now same as Tests_TmGui_window1_TUI_color
+        const int   repeat  = 10; // 2_000_000 - 4.9 sec - now same as Tests_SmGui_window1_TUI_color
         
         for (int n = 0; n < repeat; n++)
         {
@@ -64,7 +64,7 @@ public class Tests_TmGui_window1
 
     /// Result in <see cref="FrameBuffer.ColorCells"/>
     [Test]
-    public void Tests_TmGui_window1_TUI_color()
+    public void Tests_SmGui_window1_TUI_color()
     {
         var backend     = new CpuBackend("Test", new TuiAssets());
         var frameBuffer = new FrameBuffer();
@@ -104,7 +104,7 @@ public class Tests_TmGui_window1
     }
     
     [Test]
-    public void Tests_TmGui_window1_headless()
+    public void Tests_SmGui_window1_headless()
     {
         var         backend = new CpuBackend("CPU", new TuiAssets());
         var         batch   = backend.CreateGuiBatch();

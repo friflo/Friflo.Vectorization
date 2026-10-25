@@ -8,13 +8,13 @@ using System;
 
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable once CheckNamespace
-namespace Friflo.TmGui;
+namespace Friflo.SmGui;
 
 /// <summary>
 /// A struct containing a reference or an opaque handle to a backend-specific texture.<br/>
 /// In case of the WGPU backend, both are used to reuse a texture view once created.
 /// </summary>
-public readonly struct TmTexture : IEquatable<TmTexture>
+public readonly struct SmTexture : IEquatable<SmTexture>
 {
     public readonly object? native;         // 8 byte
     public readonly nint    handle;         // 8 byte
@@ -25,7 +25,7 @@ public readonly struct TmTexture : IEquatable<TmTexture>
 
     public override string  ToString()  => native != null ? $"{native.GetType().Name} - {native}" : "null";
 
-    public TmTexture(object native, nint handle, Vector2 whiteUv)
+    public SmTexture(object native, nint handle, Vector2 whiteUv)
     {
         this.native     = native;
         this.handle     = handle;
@@ -33,7 +33,7 @@ public readonly struct TmTexture : IEquatable<TmTexture>
         hasWhitePixel   = true;
     }
     
-    public TmTexture(in TmTexture texture, Vector2 whiteUv)
+    public SmTexture(in SmTexture texture, Vector2 whiteUv)
     {
         native          = texture.native;
         handle          = texture.handle;
@@ -41,19 +41,19 @@ public readonly struct TmTexture : IEquatable<TmTexture>
         hasWhitePixel   = true;
     }
     
-    public TmTexture(object native, nint handle)
+    public SmTexture(object native, nint handle)
     {
         this.native     = native;
         this.handle     = handle;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool Equals(TmTexture other) {
+    public bool Equals(SmTexture other) {
         return ReferenceEquals(native, other.native) && handle == other.handle;
     }
 
     public override bool Equals(object? obj) {
-        return obj is TmTexture other && Equals(other);
+        return obj is SmTexture other && Equals(other);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -64,8 +64,8 @@ public readonly struct TmTexture : IEquatable<TmTexture>
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static bool operator ==(in TmTexture left, in TmTexture right) => left.Equals(right);
+    public static bool operator ==(in SmTexture left, in SmTexture right) => left.Equals(right);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static bool operator !=(in TmTexture left, in TmTexture right) => !left.Equals(right);
+    public static bool operator !=(in SmTexture left, in SmTexture right) => !left.Equals(right);
 }

@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 // ReSharper disable UseCollectionExpression
 // ReSharper disable CheckNamespace
-namespace Friflo.TmGui.Session;
+namespace Friflo.SmGui.Session;
 
 
 internal sealed class AnsiConsoleIn : Stream

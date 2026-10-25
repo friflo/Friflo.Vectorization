@@ -7,10 +7,10 @@ using System.Threading;
 
 
 // ReSharper disable CheckNamespace
-namespace Friflo.TmGui.Session;
+namespace Friflo.SmGui.Session;
 
 //                                  --- sync session loop ---
-public partial class TmSessionLoop
+public partial class SmSessionLoop
 {
     // start
     public void RunSync()
@@ -74,7 +74,7 @@ public partial class TmSessionLoop
                     break;
                 }
                 case ClientEventType.WebsocketInput:
-                    if (sessions.TryGetValue(sessionId, out TmSession? session))
+                    if (sessions.TryGetValue(sessionId, out SmSession? session))
                     {
                         var payload = evt.Payload.Span;
                         session.ProcessInput(payload);
@@ -91,7 +91,7 @@ public partial class TmSessionLoop
                     var newSession      = CreateTuiSession(evt, true, out var payload);
                     var initialMessage  = newSession.StartSession();
                     
-                    client.Send(new TmSendMessage(initialMessage));
+                    client.Send(new SmSendMessage(initialMessage));
                     
                     newSession.ProcessInput(payload.Span);
                     var sendBuffer = newSession.IterateUI(resources);

@@ -7,13 +7,13 @@ using System.Threading;
 using System.Threading.Tasks;
 
 // ReSharper disable CheckNamespace
-namespace Friflo.TmGui.Http;
+namespace Friflo.SmGui.Http;
 
 
-public sealed class TmSignalPeer
+public sealed class SmSignalPeer
 {
-    public              TmGuiApp?   connectApp;     // an app a client wants to connect
-    public              TmGuiApp?   app;            // the app that clients can connect
+    public              SmGuiApp?   connectApp;     // an app a client wants to connect
+    public              SmGuiApp?   app;            // the app that clients can connect
     public   readonly   DateTime    registered;
     public   readonly   string      connection;
     internal readonly   WebSocket   webSocket;
@@ -21,7 +21,7 @@ public sealed class TmSignalPeer
     public   override   string      ToString() => $"{(connectApp == null ? "App" : "Client")}  conn: {connection}";
     
 
-    internal TmSignalPeer(WebSocket webSocket, string connection)
+    internal SmSignalPeer(WebSocket webSocket, string connection)
     {
         this.webSocket  = webSocket;
         this.connection = connection;

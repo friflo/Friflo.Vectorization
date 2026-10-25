@@ -1,18 +1,18 @@
 ﻿
-using Friflo.TmGui;
-using Friflo.TmGui.Headless;
+using Friflo.SmGui;
+using Friflo.SmGui.Headless;
 using NUnit.Framework;
 using Tests.Utils;
 
 
 // ReSharper disable ArrangeObjectCreationWhenTypeNotEvident
 // ReSharper disable once InconsistentNaming
-namespace Tests.TmGui;
+namespace Tests.SmGui;
 
-public class Tests_TmGui_window2
+public class Tests_SmGui_window2
 {
     [Test]
-    public void Tests_TmDraw_window2_headless()
+    public void Tests_SmDraw_window2_headless()
     {
         var         backend = new CpuBackend("CPU", new TuiAssets());
         var         batch   = backend.CreateGuiBatch();

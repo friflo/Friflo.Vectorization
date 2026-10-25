@@ -9,7 +9,7 @@ using ICSharpCode.SharpZipLib.Zip.Compression;
 using ICSharpCode.SharpZipLib.Zip.Compression.Streams;
 
 // ReSharper disable CheckNamespace
-namespace Friflo.TmGui.WebRTC;
+namespace Friflo.SmGui.WebRTC;
 
 
 internal partial class WebRtcClient

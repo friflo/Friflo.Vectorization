@@ -4,21 +4,21 @@
 using System.Net.WebSockets;
 using System.Text.Json;
 using System.Threading;
-using Friflo.TmGui.Session;
+using Friflo.SmGui.Session;
 using SIPSorcery.Net;
 
 // ReSharper disable CheckNamespace
-namespace Friflo.TmGui.WebRTC;
+namespace Friflo.SmGui.WebRTC;
 
 
 internal sealed class SignalSession
 {
-    private  readonly   TmSignalingListener listener;
+    private  readonly   SmSignalingListener listener;
     private  readonly   WebSocket           webSocket;
     private  readonly   string              connection;
     internal readonly   RTCPeerConnection   peerConnection;
 
-    internal SignalSession(TmSignalingListener listener, WebSocket webSocket, string connection)
+    internal SignalSession(SmSignalingListener listener, WebSocket webSocket, string connection)
     {
         this.listener   = listener;
         this.webSocket  = webSocket;

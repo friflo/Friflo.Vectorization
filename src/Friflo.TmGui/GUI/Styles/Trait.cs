@@ -5,17 +5,17 @@ using System;
 using System.Runtime.CompilerServices;
 
 // ReSharper disable once CheckNamespace
-namespace Friflo.TmGui;
+namespace Friflo.SmGui;
 
 [Flags]
-public enum TmTrait
+public enum SmTrait
 {
     Border = 1 << 0,
     Shadow = 2 << 0,
 }
 
-public static class TmTraitExtensions
+public static class SmTraitExtensions
 {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static bool Has(this TmTrait traits, TmTrait trait) => (traits & trait) != 0;
+    public static bool Has(this SmTrait traits, SmTrait trait) => (traits & trait) != 0;
 }

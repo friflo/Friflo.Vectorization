@@ -6,9 +6,9 @@ using System;
 using System.Runtime.CompilerServices;
 using System.Numerics;
 using System.Runtime.InteropServices;
-using Friflo.TmGui.Headless;
-using Friflo.TmGui.Session;
-using Friflo.TmGui.TUI;
+using Friflo.SmGui.Headless;
+using Friflo.SmGui.Session;
+using Friflo.SmGui.TUI;
 
 // ReSharper disable CompareOfFloatsByEqualityOperator
 // ReSharper disable MergeIntoPattern
@@ -18,14 +18,14 @@ using Friflo.TmGui.TUI;
 // ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable once CheckNamespace
-namespace Friflo.TmGui.Raster;
+namespace Friflo.SmGui.Raster;
 
 
-internal sealed class RasterBatch : TmBatch
+internal sealed class RasterBatch : SmBatch
 {
     internal readonly TuiSixel sixel;
     
-    internal RasterBatch(SessionId sessionId, TmGuiBackend backend, TmTexture texture, LoopTimer? timer)
+    internal RasterBatch(SessionId sessionId, SmGuiBackend backend, SmTexture texture, LoopTimer? timer)
         : base(sessionId, backend, timer)
     {
         var cpuTexture = (CpuTexture)texture.native!;
@@ -820,7 +820,7 @@ internal sealed class RasterBatch : TmBatch
     
     // --------------------------------------------------- Sprite ---------------------------------------------------
     
-    private static void GetImageProperties (in TmTexture texture, out byte[] rgbaPixels, out int width, out int height)
+    private static void GetImageProperties (in SmTexture texture, out byte[] rgbaPixels, out int width, out int height)
     {
         if (texture.native is CpuTexture tex) {
             rgbaPixels  = tex.rgbaPixels;
@@ -831,7 +831,7 @@ internal sealed class RasterBatch : TmBatch
         throw new NotSupportedException("texture not supported");
     }
     
-    internal void DrawSprite(in TmTexture texture, in VertexQuad quad, Color32 color)
+    internal void DrawSprite(in SmTexture texture, in VertexQuad quad, Color32 color)
     {
         vertexCount = 0; // NOTE! Prevent growing of vertices
         

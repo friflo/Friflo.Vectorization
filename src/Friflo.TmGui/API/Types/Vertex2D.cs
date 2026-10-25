@@ -12,7 +12,7 @@ using System.Runtime.Intrinsics;
 // ReSharper disable SuggestVarOrType_Elsewhere
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable once CheckNamespace
-namespace Friflo.TmGui;
+namespace Friflo.SmGui;
 
 
 [StructLayout(LayoutKind.Sequential, Pack = 1, Size = 20)]

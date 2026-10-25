@@ -7,7 +7,7 @@ using System;
 // ReSharper disable CanSimplifyStringEscapeSequence
 // ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable CheckNamespace
-namespace Friflo.TmGui.Session;
+namespace Friflo.SmGui.Session;
 
 
 internal static class VT100

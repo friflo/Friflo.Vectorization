@@ -2,13 +2,13 @@
 // See LICENSE file in the project root for full license information.
 
 
-using Friflo.TmGui.TUI;
+using Friflo.SmGui.TUI;
 
 // ReSharper disable NotAccessedField.Global
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable CheckNamespace
-namespace Friflo.TmGui.Headless;
+namespace Friflo.SmGui.Headless;
 
 internal sealed class CpuTexture
 {

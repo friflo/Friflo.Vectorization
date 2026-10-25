@@ -8,10 +8,10 @@ using System.Threading.Tasks;
 
 // ReSharper disable SuggestVarOrType_SimpleTypes
 // ReSharper disable CheckNamespace
-namespace Friflo.TmGui.Session;
+namespace Friflo.SmGui.Session;
 
 //                                  --- async session loop ---
-public partial class TmSessionLoop
+public partial class SmSessionLoop
 {
     // start
     public void RunAsync()
@@ -72,7 +72,7 @@ public partial class TmSessionLoop
                     var newSession      = CreateTuiSession(evt, false, out var payload);
                     var initialMessage  = newSession.StartSession();
                     
-                    await client.SendAsync(new TmSendMessage(initialMessage), CancellationToken.None);
+                    await client.SendAsync(new SmSendMessage(initialMessage), CancellationToken.None);
                     
                     newSession.ProcessInput(payload.Span);
                     var sendBuffer = newSession.IterateUI(resources);
@@ -83,7 +83,7 @@ public partial class TmSessionLoop
                     break;
                 }
                 case ClientEventType.TerminalDisconnected:
-                    if (sessions.Remove(sessionId, out TmSession? session)) {
+                    if (sessions.Remove(sessionId, out SmSession? session)) {
                         DisposeSession(session);
                     }
                     break;

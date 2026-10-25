@@ -8,17 +8,17 @@ using System.Text;
 using System.Threading;
 using System.Threading.Channels;
 using System.Threading.Tasks;
-using Friflo.TmGui.Session;
+using Friflo.SmGui.Session;
 
 // ReSharper disable SuggestVarOrType_SimpleTypes
 // ReSharper disable MergeIntoPattern
 // ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable ConvertToAutoPropertyWithPrivateSetter
 // ReSharper disable CheckNamespace
-namespace Friflo.TmGui.Http;
+namespace Friflo.SmGui.Http;
 
 
-internal class WebSocketClient : TmClient
+internal class WebSocketClient : SmClient
 {
     private             WebSocket       webSocket;
     private             WsDoubleBuffer? doubleBuffer;
@@ -42,7 +42,7 @@ internal class WebSocketClient : TmClient
     
     public override UiType UiType => UiType.WebGui;
 
-    protected override async ValueTask<int> SendAsync(TmSendMessage message, CancellationToken cancellationToken)
+    protected override async ValueTask<int> SendAsync(SmSendMessage message, CancellationToken cancellationToken)
     {
         if (webSocket.State == WebSocketState.Open)
         {
@@ -52,7 +52,7 @@ internal class WebSocketClient : TmClient
         return 0;
     }
     
-    protected override int Send(TmSendMessage message)
+    protected override int Send(SmSendMessage message)
     {
         if (webSocket.State != WebSocketState.Open) {
             return 0;
@@ -65,7 +65,7 @@ internal class WebSocketClient : TmClient
         return message.Length;
     }
 
-    protected override void SendCommand(TmSendCommand command)
+    protected override void SendCommand(SmSendCommand command)
     {
         if (webSocket.State != WebSocketState.Open) {
             return;
@@ -88,7 +88,7 @@ internal class WebSocketClient : TmClient
     }
 
     // Dedicated loop for receiving incoming messages from client
-    private static async Task ReceiveLoopAsync(WebSocketClient client, TmSessionLoop loop, CancellationToken cancellationToken)
+    private static async Task ReceiveLoopAsync(WebSocketClient client, SmSessionLoop loop, CancellationToken cancellationToken)
     {
         byte[] buffer = ArrayPool<byte>.Shared.Rent(256);
         try
@@ -155,7 +155,7 @@ internal class WebSocketClient : TmClient
         }
     }
 
-    internal static async Task HandleClientSessionAsync(WebSocketClient client, TmSessionLoop loop, CancellationToken cancellationToken)
+    internal static async Task HandleClientSessionAsync(WebSocketClient client, SmSessionLoop loop, CancellationToken cancellationToken)
     {
         await loop.EnqueueEventAsync(client, ClientEventType.WebsocketConnected, default);
 

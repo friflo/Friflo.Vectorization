@@ -7,7 +7,7 @@ using Browse = System.Diagnostics.DebuggerBrowsableAttribute;
 using Hide = System.Diagnostics.DebuggerHiddenAttribute;
 
 // ReSharper disable once CheckNamespace
-namespace Friflo.TmGui;
+namespace Friflo.SmGui;
 
 public enum ColorId
 {

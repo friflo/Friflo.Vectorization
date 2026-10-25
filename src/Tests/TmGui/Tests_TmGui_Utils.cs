@@ -3,18 +3,18 @@ using System.IO.Hashing;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Runtime.Intrinsics;
-using Friflo.TmGui;
+using Friflo.SmGui;
 using NUnit.Framework;
 
 // ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable ConvertToConstant.Local
-namespace Tests.TmGui;
+namespace Tests.SmGui;
 
 // ReSharper disable InconsistentNaming
-public static class Tests_TmGui_Utils
+public static class Tests_SmGui_Utils
 {
     [Test]
-    public static void Tests_TmGui_Utils_XxHash3()
+    public static void Tests_SmGui_Utils_XxHash3()
     {
         var array = CreateByteArray(1000);
         var hash = HashUtils.XxHash3(array);
@@ -37,7 +37,7 @@ public static class Tests_TmGui_Utils
     }
     
     [Test]
-    public static void Tests_TmGui_Utils_XxHash3_perf()
+    public static void Tests_SmGui_Utils_XxHash3_perf()
     {
         var array = CreateByteArray(3200);
         
@@ -51,7 +51,7 @@ public static class Tests_TmGui_Utils
     }
     
     [Test]
-    public static void Tests_TmGui_Utils_System_IO_Hashing_XxHash3_perf()
+    public static void Tests_SmGui_Utils_System_IO_Hashing_XxHash3_perf()
     {
         var array = CreateByteArray(3200);
        
@@ -65,7 +65,7 @@ public static class Tests_TmGui_Utils
     }
     
     [Test]
-    public static void Tests_TmGui_Utils_System_HashCode_perf()
+    public static void Tests_SmGui_Utils_System_HashCode_perf()
     {
         var array = CreateByteArray(3200);
        
@@ -80,7 +80,7 @@ public static class Tests_TmGui_Utils
     }
     
     [Test]
-    public static void Tests_TmGui_Utils_HashFNV_1a_perf()
+    public static void Tests_SmGui_Utils_HashFNV_1a_perf()
     {
         var array = CreateByteArray(3200);
        
@@ -114,7 +114,7 @@ public static class Tests_TmGui_Utils
     }
     
     [Test]
-    public static void Tests_TmGui_Utils_HashFNV_1a()
+    public static void Tests_SmGui_Utils_HashFNV_1a()
     {
         var array = CreateByteArray(10);
 

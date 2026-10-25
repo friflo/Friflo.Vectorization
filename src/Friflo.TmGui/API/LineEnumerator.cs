@@ -9,7 +9,7 @@ using System;
 // ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable once CheckNamespace
-namespace Friflo.TmGui;
+namespace Friflo.SmGui;
 
 /// <summary>
 /// Allocation-free enumerator that yields word-wrapped line spans.
@@ -18,7 +18,7 @@ internal ref struct WrappedLineEnumerator
 {
     private readonly    ReadOnlySpan<char>  text;
     private readonly    float               maxWidth;
-    private readonly    TmFont              font; 
+    private readonly    SmFont              font; 
     private readonly    float               scale;
     private readonly    float               lineHeight;
 
@@ -31,7 +31,7 @@ internal ref struct WrappedLineEnumerator
 
     public              ReadOnlySpan<char>  Current { get; private set; }
 
-    public WrappedLineEnumerator(ReadOnlySpan<char> text, float maxWidth, TmFont font, bool isTui, float scale)
+    public WrappedLineEnumerator(ReadOnlySpan<char> text, float maxWidth, SmFont font, bool isTui, float scale)
     {
         this.text               = text;
         this.maxWidth           = maxWidth;

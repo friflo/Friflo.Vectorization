@@ -11,17 +11,17 @@ using System.Runtime.CompilerServices;
 // ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable MergeIntoPattern
 // ReSharper disable once CheckNamespace
-namespace Friflo.TmGui;
+namespace Friflo.SmGui;
 
 
-public readonly ref partial struct TmDraw
+public readonly ref partial struct SmDraw
 {
 
     /// <summary>
     /// Draws a sprite using normal 0..1 UV coordinates.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void DrawSprite(in TmTexture texture, Vector2 position, Vector2 size)
+    public void DrawSprite(in SmTexture texture, Vector2 position, Vector2 size)
     {
         if (Tui != null) {
             Tui.DrawSprite(texture, position, size); // * Tui.cellPixelScale);
@@ -31,19 +31,19 @@ public readonly ref partial struct TmDraw
     }
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void DrawSprite(in TmTexture texture, Vector2 position, Vector2 size, Color32 color)
+    public void DrawSprite(in SmTexture texture, Vector2 position, Vector2 size, Color32 color)
     {
         DrawSprite(texture, position, size, default, new Vector2(1f, 1f), color);
     }
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void DrawSprite(in TmTexture texture, Vector2 position, Vector2 size, Vector2 uvMin, Vector2 uvMax)
+    public void DrawSprite(in SmTexture texture, Vector2 position, Vector2 size, Vector2 uvMin, Vector2 uvMax)
     {
         DrawSprite(texture, position, size, uvMin, uvMax, Color32.White);
     }
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void DrawSprite(in TmTexture texture, Vector2 position, Vector2 size, Vector2 uvMin, Vector2 uvMax, Color32 color)
+    public void DrawSprite(in SmTexture texture, Vector2 position, Vector2 size, Vector2 uvMin, Vector2 uvMax, Color32 color)
     {
         if (Tui != null) return;
         var bat = batch;
@@ -72,7 +72,7 @@ public readonly ref partial struct TmDraw
     /// Draws a sub-region (source rect in pixels) from a texture/spritesheet.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void DrawSpriteRegion(in TmTexture texture, Vector2 position, Vector2 size, Vector2 sourceRectPos, Vector2 sourceRectSize, Vector2 textureSize)
+    public void DrawSpriteRegion(in SmTexture texture, Vector2 position, Vector2 size, Vector2 sourceRectPos, Vector2 sourceRectSize, Vector2 textureSize)
     {
         DrawSpriteRegion(texture, position, size, sourceRectPos, sourceRectSize, textureSize, Color32.White);
     }
@@ -81,7 +81,7 @@ public readonly ref partial struct TmDraw
     /// Draws a sub-region (source rect in pixels) from a texture/spritesheet.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void DrawSpriteRegion(in TmTexture texture, Vector2 position, Vector2 size, Vector2 sourceRectPos, Vector2 sourceRectSize, Vector2 textureSize, Color32 color)
+    public void DrawSpriteRegion(in SmTexture texture, Vector2 position, Vector2 size, Vector2 sourceRectPos, Vector2 sourceRectSize, Vector2 textureSize, Color32 color)
     {
         Vector2 uvMin = sourceRectPos / textureSize;
         Vector2 uvMax = (sourceRectPos + sourceRectSize) / textureSize;
@@ -92,7 +92,7 @@ public readonly ref partial struct TmDraw
     /// Draws a rotated sprite with pivot (0..1 normalized).
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void DrawSpriteRotated(in TmTexture texture, Vector2 position, Vector2 size, float rotation, Vector2 pivot, Color32? color = null)
+    public void DrawSpriteRotated(in SmTexture texture, Vector2 position, Vector2 size, float rotation, Vector2 pivot, Color32? color = null)
     {
         DrawSpriteRotated(texture, position, size, rotation, pivot, default, new Vector2(1f, 1f), color);
     }
@@ -101,7 +101,7 @@ public readonly ref partial struct TmDraw
     /// Draws a rotated sub-region from a texture with pivot (0..1 normalized).
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void DrawSpriteRegionRotated(in TmTexture texture, Vector2 position, Vector2 size, float rotation, Vector2 pivot, Vector2 sourceRectPos, Vector2 sourceRectSize, Vector2 textureSize, Color32? color = null)
+    public void DrawSpriteRegionRotated(in SmTexture texture, Vector2 position, Vector2 size, float rotation, Vector2 pivot, Vector2 sourceRectPos, Vector2 sourceRectSize, Vector2 textureSize, Color32? color = null)
     {
         Vector2 uvMin = sourceRectPos / textureSize;
         Vector2 uvMax = (sourceRectPos + sourceRectSize) / textureSize;
@@ -112,7 +112,7 @@ public readonly ref partial struct TmDraw
     /// Draws a rotated quad transform around a normalized pivot (0..1).
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void DrawSpriteRotated(in TmTexture texture, Vector2 position, Vector2 size, float rotation, Vector2 pivot, Vector2 uvMin, Vector2 uvMax, Color32? color = null)
+    public void DrawSpriteRotated(in SmTexture texture, Vector2 position, Vector2 size, float rotation, Vector2 pivot, Vector2 uvMin, Vector2 uvMax, Color32? color = null)
     {
         if (Tui != null) return;
         var colorVal = color ?? Color32.White;
@@ -151,7 +151,7 @@ public readonly ref partial struct TmDraw
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Draw9SliceTiled(
-        in TmTexture	texture,
+        in SmTexture	texture,
         Vector2         position, 
         Vector2         size, 
         Vector4         borderThickness, 
@@ -166,7 +166,7 @@ public readonly ref partial struct TmDraw
     /// borderThickness: (Left, Top, Right, Bottom) in pixels.
     /// </summary>
     public void Draw9SliceTiled(
-    	in TmTexture 	texture,
+    	in SmTexture 	texture,
         Vector2 	    position,
         Vector2 	    size,
         Vector2 	    sourceRectPos,

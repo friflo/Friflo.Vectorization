@@ -6,14 +6,14 @@ using System.Collections.Generic;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using Friflo.TmGui.TUI;
+using Friflo.SmGui.TUI;
 using Hide = System.Diagnostics.DebuggerHiddenAttribute;
 
 
 // ReSharper disable RedundantSwitchExpressionArms
 // ReSharper disable MergeIntoPattern
 // ReSharper disable once CheckNamespace
-namespace Friflo.TmGui;
+namespace Friflo.SmGui;
 
 
 public sealed class GuiWindow
@@ -23,7 +23,7 @@ public sealed class GuiWindow
     
     internal                WindowState     state;
     internal                RectVector2     bounds;
-    internal                TmTrait         traits;
+    internal                SmTrait         traits;
     internal                TuiBorder       tuiBorder;
     internal                Vector2         Pos                 { [Hide] get => bounds.pos; }
     internal                Vector2         Size                { [Hide] get => bounds.size; }
@@ -183,7 +183,7 @@ public sealed class GuiWindow
     
     internal bool IsTopWindow => host.TopWindow == this;
     
-    public bool IsHoverAt(Vector2 pos, Vector2 size, TmDraw draw)
+    public bool IsHoverAt(Vector2 pos, Vector2 size, SmDraw draw)
     {
         var input       = host.input;
         var widgetRect  = new RectVector2(pos, size);
@@ -200,7 +200,7 @@ public sealed class GuiWindow
         return host.IsTopWindowAt(input.MousePosWindow, this);
     }
     
-    public bool IsHoverAtCapture(Vector2 pos, Vector2 size, TmDraw draw)
+    public bool IsHoverAtCapture(Vector2 pos, Vector2 size, SmDraw draw)
     {
         var input = host.input;
         if (input.actionHoverCaptured) {

@@ -5,10 +5,10 @@
 using System;
 using System.Collections.Generic;
 using System.Numerics;
-using Friflo.TmGui.TUI;
+using Friflo.SmGui.TUI;
 
 // ReSharper disable once CheckNamespace
-namespace Friflo.TmGui;
+namespace Friflo.SmGui;
 
 
 internal struct RevertStyle
@@ -42,7 +42,7 @@ internal sealed class GuiState
 
     public   override   string                      ToString()          => $"window: {window}";
     
-    internal void SetDefaultStyle(TmBatch batch)
+    internal void SetDefaultStyle(SmBatch batch)
     {
         defaultStyle.colors = CreateDefaultColors();
         if (batch is TuiBatch tuiBatch) {
@@ -56,7 +56,7 @@ internal sealed class GuiState
         }
     }
     
-    private static GuiSizes CreateDefaultSizes(TmBatch batch)
+    private static GuiSizes CreateDefaultSizes(SmBatch batch)
     {
         // Snap sizes to integral values to ensure pixel accuracy
         var pt = MathF.Floor(batch.currentFont.lineHeight / 20f);

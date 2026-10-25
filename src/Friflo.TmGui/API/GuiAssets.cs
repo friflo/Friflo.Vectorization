@@ -6,16 +6,16 @@ using System.Collections.Generic;
 using System.IO;
 
 // ReSharper disable once CheckNamespace
-namespace Friflo.TmGui;
+namespace Friflo.SmGui;
 
 
 public interface IGuiAssets
 {
-    TmFont              CreateDefaultFont  (TmGuiBackend backend);
+    SmFont              CreateDefaultFont  (SmGuiBackend backend);
     
-    TmImageAsset        LoadImage(Stream stream, TmColorComponents colorComponents);
-    Stream              CreatePng(TmImageAsset asset);
-    TmTrueTypeFontAsset LoadTrueTypeFont(
+    SmImageAsset        LoadImage(Stream stream, SmColorComponents colorComponents);
+    Stream              CreatePng(SmImageAsset asset);
+    SmTrueTypeFontAsset LoadTrueTypeFont(
                             Stream  ttfStream,
                             float   fontSize,
                             int     atlasWidth,
@@ -25,7 +25,7 @@ public interface IGuiAssets
                             int     charCount);
 }
 
-public struct TmImageAsset
+public struct SmImageAsset
 {
     public int      width;
     public int      height;
@@ -33,7 +33,7 @@ public struct TmImageAsset
     public string   name;
 }
 
-public enum TmColorComponents
+public enum SmColorComponents
 {
     Default,
     Grey,
@@ -42,7 +42,7 @@ public enum TmColorComponents
     RedGreenBlueAlpha,
 }
 
-public struct TmTrueTypeFontAsset
+public struct SmTrueTypeFontAsset
 {
     public  Dictionary<int, GlyphInfo>  glyphs;
     public  int                         maxY;

@@ -3,13 +3,13 @@
 
 using System;
 using System.IO;
-using Friflo.TmGui.Headless;
+using Friflo.SmGui.Headless;
 
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable CheckNamespace
-namespace Friflo.TmGui.Session;
+namespace Friflo.SmGui.Session;
 
-internal class WsBackend : TmGuiBackend
+internal class WsBackend : SmGuiBackend
 {
     private  readonly   SessionKeys         keys;
     private  readonly   CpuBackend          cpuBackend;
@@ -25,9 +25,9 @@ internal class WsBackend : TmGuiBackend
         shared              = guiShared;
     }
     
-    public    override   TmFont      DefaultFont => cpuBackend.DefaultFont;
+    public    override   SmFont      DefaultFont => cpuBackend.DefaultFont;
 
-    protected internal override TmBuffer<Vertex2D> CreateVertexBuffer(int vertexCount)
+    protected internal override SmBuffer<Vertex2D> CreateVertexBuffer(int vertexCount)
     {
         var vertexBuffer = shared.vertexBuffer;
         if (vertexBuffer.Memory.Length < vertexCount) {
@@ -36,7 +36,7 @@ internal class WsBackend : TmGuiBackend
         return vertexBuffer;
     }
 
-    protected internal override TmBuffer<uint> CreateIndexBuffer(int indexCount)
+    protected internal override SmBuffer<uint> CreateIndexBuffer(int indexCount)
     {
         // no index buffer used for remote Gui
         return new GuiBuffer<uint>(0);
@@ -44,19 +44,19 @@ internal class WsBackend : TmGuiBackend
 
     internal const string Sid = "sid/";
 
-    public override TmTexture CreateTexture(string name, int width, int height, ReadOnlySpan<byte> rgbaPixels)
+    public override SmTexture CreateTexture(string name, int width, int height, ReadOnlySpan<byte> rgbaPixels)
     {
         name = $"{Sid}{keys.guid.str}/{name}";
         return cpuBackend.CreateTexture(name, width, height, rgbaPixels);
     }
 
-    public override TmTexture LoadTexture(Stream stream, string? label = null, TmTextureUsage usage = TmTextureUsage.None | TmTextureUsage.CopyDst | TmTextureUsage.TextureBinding)
+    public override SmTexture LoadTexture(Stream stream, string? label = null, SmTextureUsage usage = SmTextureUsage.None | SmTextureUsage.CopyDst | SmTextureUsage.TextureBinding)
     {
         label = $"{Sid}{keys.guid.str}/{label}";
         return cpuBackend.LoadTexture(stream, label, usage);
     }
     
-    public override TmImageAsset GetTextureImage(TmTexture texture)
+    public override SmImageAsset GetTextureImage(SmTexture texture)
     {
         return cpuBackend.GetTextureImage(texture);
     }
@@ -69,7 +69,7 @@ internal class WsBackend : TmGuiBackend
     }
 }
 
-internal sealed class GuiBuffer<T> : TmBuffer<T> where T : unmanaged
+internal sealed class GuiBuffer<T> : SmBuffer<T> where T : unmanaged
 {
     private readonly    Memory<T>   memory;
     

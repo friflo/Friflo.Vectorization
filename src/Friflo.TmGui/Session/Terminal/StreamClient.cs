@@ -11,10 +11,10 @@ using System.Threading.Tasks;
 // ReSharper disable MemberCanBeProtected.Global
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable once CheckNamespace
-namespace Friflo.TmGui.Session;
+namespace Friflo.SmGui.Session;
 
 
-public class StreamClient : TmClient
+public class StreamClient : SmClient
 {
     private Stream inputStream;
     private Stream outputStream;
@@ -32,29 +32,29 @@ public class StreamClient : TmClient
     
     public override UiType UiType => UiType.TerminalTui;
     
-    protected internal override async ValueTask<int> SendAsync(TmSendMessage message, CancellationToken cancellationToken)
+    protected internal override async ValueTask<int> SendAsync(SmSendMessage message, CancellationToken cancellationToken)
     {
         await outputStream.WriteAsync(message.buffer, cancellationToken);
         await outputStream.FlushAsync(cancellationToken);
         return message.Length;
     }
     
-    protected internal override int Send(TmSendMessage message)
+    protected internal override int Send(SmSendMessage message)
     {
         outputStream.Write(message.buffer.Span);
         outputStream.Flush();
         return message.Length;
     }
     
-    protected internal override void SendCommand(TmSendCommand command) { }
+    protected internal override void SendCommand(SmSendCommand command) { }
     
     protected internal override void RestoreTerminal()
     {
-        Send(new TmSendMessage(VT100.TerminalReset));
+        Send(new SmSendMessage(VT100.TerminalReset));
     }
 
     // I/O Loop: Reads raw stream bytes and pushes them into the session loop queue
-    public static async ValueTask HandleClientSessionAsync(StreamClient client, TmSessionLoop loop, CancellationToken cancellationToken)
+    public static async ValueTask HandleClientSessionAsync(StreamClient client, SmSessionLoop loop, CancellationToken cancellationToken)
     {
         try
         {

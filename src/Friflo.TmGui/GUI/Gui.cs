@@ -3,14 +3,14 @@
 
 using System;
 using System.Numerics;
-using Friflo.TmGui.Session;
-using Friflo.TmGui.TUI;
+using Friflo.SmGui.Session;
+using Friflo.SmGui.TUI;
 using Hide = System.Diagnostics.DebuggerHiddenAttribute;
 
 // ReSharper disable UnusedMember.Global
 // ReSharper disable InconsistentNaming
 // ReSharper disable once CheckNamespace
-namespace Friflo.TmGui;
+namespace Friflo.SmGui;
 
 public static class HorizontalAlignment  // move const values to UI class
 {
@@ -28,10 +28,10 @@ public readonly ref struct Gui
     public ref readonly GuiColors       Colors              { [Hide] get => ref widget.Colors;                      }
     public ref readonly GuiSizes        Sizes               { [Hide] get => ref widget.Sizes;                       }
     public              GuiInput        Input               { [Hide] get => widget.input;                           }
-    public              TmDraw          Draw                { [Hide] get => widget.draw;                            }
+    public              SmDraw          Draw                { [Hide] get => widget.draw;                            }
     public              float           LineHeight          { [Hide] get => widget.draw.Font.lineHeight;            }
     public              Vector2         TerminalPixelSize   { [Hide] get => widget.draw.batch.terminalPixelSize;    }
-    public              TmBatch         Batch               { [Hide] get => widget.draw.batch;                      }
+    public              SmBatch         Batch               { [Hide] get => widget.draw.batch;                      }
     public              ClientAction    Action              { [Hide] get => widget.draw.batch.Action;               }
     public              LoopTimer       Timer               { [Hide] get => widget.draw.batch.loopTimer;            }
     public              UiType          UiType              { [Hide] get => widget.draw.batch.UiType;               }
@@ -55,11 +55,11 @@ public readonly ref struct Gui
         return Draw.batch.ToString();
     }
 
-    internal Gui(TmDraw draw, TmBatch batch) {
+    internal Gui(SmDraw draw, SmBatch batch) {
         widget = new GuiWidget(draw, batch);
     }
     
-    public WindowScope  BeginWindow(string title, Vector2? pos = null, Vector2? size = null, TmTrait traits = TmTrait.Border, in TuiBorder tuiBorder = default)
+    public WindowScope  BeginWindow(string title, Vector2? pos = null, Vector2? size = null, SmTrait traits = SmTrait.Border, in TuiBorder tuiBorder = default)
                                                             => widget.BeginWindow(title, pos, size, traits, tuiBorder);
     public void         EndWindow(in WindowScope scope)     => widget.EndWindow(scope);
     

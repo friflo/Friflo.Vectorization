@@ -8,16 +8,16 @@ using System.Text;
 using System.Threading;
 using System.Threading.Channels;
 using System.Threading.Tasks;
-using Friflo.TmGui.Headless;
-using Friflo.TmGui.TUI;
-using Friflo.TmGui.TUI.Session;
+using Friflo.SmGui.Headless;
+using Friflo.SmGui.TUI;
+using Friflo.SmGui.TUI.Session;
 
 // ReSharper disable UnusedAutoPropertyAccessor.Global
 // ReSharper disable InlineTemporaryVariable
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable ConvertConstructorToMemberInitializers
 // ReSharper disable CheckNamespace
-namespace Friflo.TmGui.Session;
+namespace Friflo.SmGui.Session;
 
 public enum SessionsChangedType
 {
@@ -48,13 +48,13 @@ public delegate void SessionsChanged(SessionsChangedArgs args);
 /// <remarks>
 /// Handles all client sessions on the main thread, simplifying application development and enabling lock-free access to application and session state.<br/>
 /// <br/>
-/// The <see cref="CreateGuiView"/> delegate passed to the <see cref="TmSessionLoop"/> constructor must return an instance implementing <see cref="IGuiView"/>.<br/>
+/// The <see cref="CreateGuiView"/> delegate passed to the <see cref="SmSessionLoop"/> constructor must return an instance implementing <see cref="IGuiView"/>.<br/>
 /// If a client has pending input or a dirty session, a new frame is rendered via <see cref="IGuiView.RenderView"/> and transmitted to the client.<br/>
 /// <br/>
 /// Use <see cref="RunSync"/> or <see cref="RunAsync"/> to let the loop run automatically (ideal for console and terminal applications).<br/>
 /// Alternatively, call <see cref="IterateSessions"/> periodically if your application manages its own custom event loop, such as a game loop.
 /// </remarks>
-public sealed partial class TmSessionLoop : IDisposable
+public sealed partial class SmSessionLoop : IDisposable
 {
     public   readonly   AssetResources      resources;
     public              string?             appId;
@@ -67,8 +67,8 @@ public sealed partial class TmSessionLoop : IDisposable
     private  readonly   ConcurrentQueue<ClientEvent>        eventQueue;             // used by: sync loop
     private  readonly   AutoResetEvent                      eventReady;             // used by: sync loop
     private  readonly   Channel<ClientEvent>?               eventChannel;           // used by: async loop
-    private  readonly   Dictionary<SessionId, TmSession>    sessions        = new();// Raw non-thread-safe state (accessed exclusively by _shardThread)
-    private  readonly   List<TmSession>                     sessionBuffer   = [];
+    private  readonly   Dictionary<SessionId, SmSession>    sessions        = new();// Raw non-thread-safe state (accessed exclusively by _shardThread)
+    private  readonly   List<SmSession>                     sessionBuffer   = [];
     private  readonly   CreateGuiView                       createGuiView;          // IBatchRenderer factory
     private  readonly   CancellationTokenSource             cts             = new();
     private             Thread?                             shardThread;
@@ -81,7 +81,7 @@ public sealed partial class TmSessionLoop : IDisposable
     private const int MaxSyncQueueCapacity = 32;
 #endregion
     
-    public TmSessionLoop(bool isAsync, CpuBackend cpuBackend, CreateGuiView createGuiView)
+    public SmSessionLoop(bool isAsync, CpuBackend cpuBackend, CreateGuiView createGuiView)
     {
         this.isAsync        = isAsync;
         this.createGuiView  = createGuiView;
@@ -107,7 +107,7 @@ public sealed partial class TmSessionLoop : IDisposable
         PosixSignalUtils.AddExitHandler(exitHandler);
     }
     
-    public async ValueTask EnqueueEventAsync(TmClient client, ClientEventType type, Payload payload)
+    public async ValueTask EnqueueEventAsync(SmClient client, ClientEventType type, Payload payload)
     {
         var evt = new ClientEvent { Client = client, Type = type, Payload = payload };
         client.IncrementPendingEvents();
@@ -126,7 +126,7 @@ public sealed partial class TmSessionLoop : IDisposable
     /// If the queue is saturated, the event is dropped and its payload is returned to the pool.
     /// </summary>
     /// <returns>True if the event was queued; false if it was dropped due to backpressure.</returns>
-    internal bool TryEnqueueEvent(TmClient client, ClientEventType type, Payload payload)
+    internal bool TryEnqueueEvent(SmClient client, ClientEventType type, Payload payload)
     {
         ObjectDisposedException.ThrowIf(isDisposed, this);
 
@@ -227,8 +227,8 @@ public sealed partial class TmSessionLoop : IDisposable
         return session;
     }
 
-    // protected virtual TmSession CreateGuiSession(TmClient client, bool isSync, out Memory<byte> firstPayload) => throw new NotImplementedException();
-    private GuiSession CreateGuiSession(TmClient client, bool isSync, out Memory<byte> firstPayload)
+    // protected virtual SmSession CreateGuiSession(SmClient client, bool isSync, out Memory<byte> firstPayload) => throw new NotImplementedException();
+    private GuiSession CreateGuiSession(SmClient client, bool isSync, out Memory<byte> firstPayload)
     {
         var loopTimer       = new LoopTimer(this, client, 60, isSync);
         var sessionId       = client.sessionId;
@@ -248,7 +248,7 @@ public sealed partial class TmSessionLoop : IDisposable
     }
 
     
-    private void DisposeSession(TmSession session)
+    private void DisposeSession(SmSession session)
     {
         var batch = session.Batch;
         batch.Reset();

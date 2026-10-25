@@ -12,7 +12,7 @@ using System.Runtime.InteropServices;
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable UnusedMember.Global
 // ReSharper disable once CheckNamespace
-namespace Friflo.TmGui;
+namespace Friflo.SmGui;
 
 
 /// <summary>

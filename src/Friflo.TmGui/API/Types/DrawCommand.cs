@@ -9,7 +9,7 @@ using System.Runtime.CompilerServices;
 // ReSharper disable InconsistentNaming
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable once CheckNamespace
-namespace Friflo.TmGui;
+namespace Friflo.SmGui;
 
 public readonly struct MemoryView
 {
@@ -27,7 +27,7 @@ public readonly struct MemoryView
 public readonly struct DrawCommand(
     ulong           zIndex,
     int             sequence,
-    in TmTexture    texture,
+    in SmTexture    texture,
     MemoryView      vertexView,
     MemoryView      indexView,
     BlendState      blendState,
@@ -37,7 +37,7 @@ public readonly struct DrawCommand(
 {
     public readonly ulong           zIndex          = zIndex;           //  8 bytes
     public readonly int             sequence        = sequence;         //  4 bytes
-    public readonly TmTexture       texture         = texture;          // 32 bytes
+    public readonly SmTexture       texture         = texture;          // 32 bytes
     public readonly MemoryView      vertexView      = vertexView;       //  8 bytes
     public readonly MemoryView      indexView       = indexView;        //  8 bytes
     public readonly BlendState      blendState      = blendState;       //  4 bytes

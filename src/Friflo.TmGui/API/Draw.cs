@@ -5,13 +5,13 @@
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using Friflo.TmGui.TUI;
+using Friflo.SmGui.TUI;
 
 // ReSharper disable UnusedMember.Global
 // ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable InconsistentNaming
 // ReSharper disable once CheckNamespace
-namespace Friflo.TmGui;
+namespace Friflo.SmGui;
 
 
 public enum BlendState
@@ -40,20 +40,20 @@ internal struct ZIndex
 } 
 
 
-public readonly ref partial struct TmDraw
+public readonly ref partial struct SmDraw
 {
-    internal readonly   TmBatch         batch;  //  8 bytes
+    internal readonly   SmBatch         batch;  //  8 bytes
 
-    public              TmFont          Font        => batch.currentFont;
+    public              SmFont          Font        => batch.currentFont;
     public              TuiBatch?       Tui         => batch.tui;
-    public              TmBatch         Batch       => batch;
+    public              SmBatch         Batch       => batch;
     public              ClientAction    Action      => batch.host.clientAction;
     public              UiType          UiType      => batch.UiType;
     public              SessionId       SessionId   => batch.SessionId;
     
     public override     string          ToString()  => batch.ToString();
     
-    internal TmDraw(TmBatch batch)
+    internal SmDraw(SmBatch batch)
     {
         this.batch  = batch;
     }

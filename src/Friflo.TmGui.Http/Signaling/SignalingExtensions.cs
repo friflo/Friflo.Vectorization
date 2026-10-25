@@ -14,12 +14,12 @@ using Microsoft.AspNetCore.Http;
 // ReSharper disable ConvertClosureToMethodGroup
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable CheckNamespace
-namespace Friflo.TmGui.Http;
+namespace Friflo.SmGui.Http;
 
 
-public static class TmSignalingExtensions
+public static class SmSignalingExtensions
 {
-    public static void UseSignaling(this IApplicationBuilder app, TmSignaling signaling)
+    public static void UseSignaling(this IApplicationBuilder app, SmSignaling signaling)
     {
         app.UseWebSockets();
         
@@ -30,9 +30,9 @@ public static class TmSignalingExtensions
 
 internal sealed class SignalSocketHandler
 {
-    private readonly    TmSignaling signaling;
+    private readonly    SmSignaling signaling;
 
-    internal SignalSocketHandler(TmSignaling signaling)
+    internal SignalSocketHandler(SmSignaling signaling)
     {
         this.signaling = signaling;
     }
@@ -62,7 +62,7 @@ internal sealed class SignalSocketHandler
                 var contextConn  = context.Connection;
                 
                 var connection  = $"{id}|{contextConn.RemoteIpAddress?.ToString()}:{contextConn.RemotePort}";
-                var peer        = new TmSignalPeer(webSocket, connection);
+                var peer        = new SmSignalPeer(webSocket, connection);
                 var ct = context.RequestAborted;
                 await HandlePeerSessionAsync(peer, signaling, ct);
             }
@@ -83,7 +83,7 @@ internal sealed class SignalSocketHandler
         await next();
     }
     
-    private static async Task HandlePeerSessionAsync(TmSignalPeer peer, TmSignaling signaling, CancellationToken cancellationToken)
+    private static async Task HandlePeerSessionAsync(SmSignalPeer peer, SmSignaling signaling, CancellationToken cancellationToken)
     {
         // Allocate a reusable buffer for incoming websocket frames
         var buffer = new byte[1024 * 4];
