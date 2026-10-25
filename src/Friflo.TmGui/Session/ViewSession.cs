@@ -19,7 +19,7 @@ namespace Friflo.TmGui;
 /// Runs locally or remotely, across desktop, mobile, browser, and terminal environments.<br/>
 /// Provides console and remote terminal user interfaces (TUI).<br/>
 /// <br/>
-/// For remote GUI's or TUI's a <see cref="TmSessionLoop"/> is required.<br/>
+/// For remote GUIs or TUIs a <see cref="TmSessionLoop"/> is required.<br/>
 /// It renders all client sessions on the main thread, simplifying application development and enabling lock-free access to application and session state.<br/>
 /// </remarks>
 public enum UiType
