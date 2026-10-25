@@ -28,7 +28,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Friflo.SmGui.Assets", "src\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Friflo.SmGui.Http", "src\Friflo.SmGui.Http\Friflo.SmGui.Http.csproj", "{C548E404-EDB8-414E-8E83-91C0AB608DDE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TmGui.SignalingServer", "src\TmGui.SignalingServer\TmGui.SignalingServer.csproj", "{41A962AD-E755-4EF5-B728-AF45AB6B9A37}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SignalingServer", "src\SignalingServer\SignalingServer.csproj", "{41A962AD-E755-4EF5-B728-AF45AB6B9A37}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Friflo.SmGui.WebRTC", "src\Friflo.SmGui.WebRTC\Friflo.SmGui.WebRTC.csproj", "{B7CC6832-B934-4296-8404-50984A67C078}"
 EndProject
