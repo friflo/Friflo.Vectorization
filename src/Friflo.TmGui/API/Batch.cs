@@ -61,8 +61,8 @@ public abstract class TmBatch : IDisposable
     public          Span<Vertex2D>              Vertices    => vertexBuffer.Span.Slice(0, vertexCount);
     public          ClientAction                Action      => host.clientAction;
     public          LoopTimer                   Timer       => loopTimer;
-    public readonly SessionId                   SessionId;
     public          UiType                      UiType      { get; init; }
+    public readonly SessionId                   SessionId;
     //     readonly TmGuiBackend                backend;    - intentionally no back reference to its backend. Prevents calling NewFrame() within a Gui scope.
     
     public override string                      ToString()  => UiType.ToString();

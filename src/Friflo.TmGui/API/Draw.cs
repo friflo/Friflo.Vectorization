@@ -49,8 +49,9 @@ public readonly ref partial struct TmDraw
     public              TmBatch         Batch       => batch;
     public              ClientAction    Action      => batch.host.clientAction;
     public              UiType          UiType      => batch.UiType;
+    public              SessionId       SessionId   => batch.SessionId;
     
-    public override     string?         ToString()  => batch.ToString();
+    public override     string          ToString()  => batch.ToString();
     
     internal TmDraw(TmBatch batch)
     {
