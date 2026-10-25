@@ -20,17 +20,17 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Friflo.WGSL.Transpiler", "s
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Friflo.Generators.CodeFixes", "src\Friflo.Generators.CodeFixes\Friflo.Generators.CodeFixes.csproj", "{1AD07C07-E282-44D4-9780-069FEBD22DB9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Friflo.TmGui", "src\Friflo.TmGui\Friflo.TmGui.csproj", "{C79EDF8C-9DA8-42B1-9C22-35BF1364A398}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Friflo.SmGui", "src\Friflo.SmGui\Friflo.SmGui.csproj", "{C79EDF8C-9DA8-42B1-9C22-35BF1364A398}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests-TuiTerminal", "src\Tests-TuiTerminal\Tests-TuiTerminal.csproj", "{F1063E3C-546B-47DF-B69C-304AB6283E19}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Friflo.TmGui.Assets", "src\Friflo.TmGui.Assets\Friflo.TmGui.Assets.csproj", "{C6BA8462-C8AF-4250-98C1-F39A6F24EB76}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Friflo.SmGui.Assets", "src\Friflo.SmGui.Assets\Friflo.SmGui.Assets.csproj", "{C6BA8462-C8AF-4250-98C1-F39A6F24EB76}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Friflo.TmGui.Http", "src\Friflo.TmGui.Http\Friflo.TmGui.Http.csproj", "{C548E404-EDB8-414E-8E83-91C0AB608DDE}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Friflo.SmGui.Http", "src\Friflo.SmGui.Http\Friflo.SmGui.Http.csproj", "{C548E404-EDB8-414E-8E83-91C0AB608DDE}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TmGui.SignalingServer", "src\TmGui.SignalingServer\TmGui.SignalingServer.csproj", "{41A962AD-E755-4EF5-B728-AF45AB6B9A37}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Friflo.TmGui.WebRTC", "src\Friflo.TmGui.WebRTC\Friflo.TmGui.WebRTC.csproj", "{B7CC6832-B934-4296-8404-50984A67C078}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Friflo.SmGui.WebRTC", "src\Friflo.SmGui.WebRTC\Friflo.SmGui.WebRTC.csproj", "{B7CC6832-B934-4296-8404-50984A67C078}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

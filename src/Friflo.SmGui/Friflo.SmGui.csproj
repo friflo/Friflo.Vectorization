@@ -5,8 +5,8 @@
     <TargetFramework>net8</TargetFramework>
     <ImplicitUsings>disable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <RootNamespace>Friflo.TmGui</RootNamespace>
-    <AssemblyName>Friflo.TmGui</AssemblyName>
+    <RootNamespace>Friflo.SmGui</RootNamespace>
+    <AssemblyName>Friflo.SmGui</AssemblyName>
     <LangVersion>14.0</LangVersion>
     
     <!--

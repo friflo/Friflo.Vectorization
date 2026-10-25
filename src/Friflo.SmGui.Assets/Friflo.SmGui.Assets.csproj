@@ -5,8 +5,8 @@
     <TargetFramework>net8</TargetFramework>
     <ImplicitUsings>disable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <RootNamespace>Friflo.TmGui.Assets</RootNamespace>
-    <AssemblyName>Friflo.TmGui.Assets</AssemblyName>
+    <RootNamespace>Friflo.SmGui.Assets</RootNamespace>
+    <AssemblyName>Friflo.SmGui.Assets</AssemblyName>
     <LangVersion>14.0</LangVersion>
     
     <!--
@@ -79,7 +79,7 @@
   </ItemGroup>
   
   <ItemGroup>
-    <ProjectReference Include="..\Friflo.TmGui\Friflo.TmGui.csproj" />
+    <ProjectReference Include="..\Friflo.SmGui\Friflo.SmGui.csproj" />
   </ItemGroup>
   
 </Project>

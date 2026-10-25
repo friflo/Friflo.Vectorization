@@ -5,8 +5,8 @@
     <TargetFramework>net8</TargetFramework>
     <ImplicitUsings>disable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <RootNamespace>Friflo.TmGui.WebRTC</RootNamespace>
-    <AssemblyName>Friflo.TmGui.WebRTC</AssemblyName>
+    <RootNamespace>Friflo.SmGui.Http</RootNamespace>
+    <AssemblyName>Friflo.SmGui.Http</AssemblyName>
     <LangVersion>14.0</LangVersion>
     
     <!--
@@ -19,7 +19,7 @@
     <AssemblyVersion>0.0.0.0</AssemblyVersion>
     <FileVersion>0.0.0.0</FileVersion>
 
-    <Title>"TmGui WebRTC</Title>
+    <Title>"TmGui Http</Title>
     <Authors>Ullrich Praetz</Authors>
     <Description>Immediate Mode API for friflo WGPU - https://github.com/friflo/Friflo.Vectorization</Description>
     <Copyright>Ullrich Praetz</Copyright>
@@ -48,20 +48,24 @@
   </ItemGroup>
     
   <ItemGroup>
-    <PackageReference Include="SIPSorcery" Version="10.0.17" />
-    <!-- Use latest dependencies used by SIPSorcery to avoid vulnerabilities -->
-    <PackageReference Include="System.Net.Http" Version="4.3.4" />
-    <PackageReference Include="System.Text.RegularExpressions" Version="4.3.1" />
+    <!-- Enables use of Kestrel without additional NuGet-Packages -->
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
     
   <ItemGroup>
-    <ProjectReference Include="..\Friflo.TmGui\Friflo.TmGui.csproj" />
+    <ProjectReference Include="..\Friflo.SmGui\Friflo.SmGui.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <None Include="..\package-icon.png" Pack="true" PackagePath="" />
   </ItemGroup>
     
+  <ItemGroup>
+    <None Update="wwwroot\**\*">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  
   <PropertyGroup>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <NoWarn>1591;CS1573</NoWarn>

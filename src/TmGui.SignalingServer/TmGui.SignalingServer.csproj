@@ -10,8 +10,8 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Friflo.TmGui.Assets\Friflo.TmGui.Assets.csproj" />
-      <ProjectReference Include="..\Friflo.TmGui.Http\Friflo.TmGui.Http.csproj" />
+      <ProjectReference Include="..\Friflo.SmGui.Assets\Friflo.SmGui.Assets.csproj" />
+      <ProjectReference Include="..\Friflo.SmGui.Http\Friflo.SmGui.Http.csproj" />
     </ItemGroup>
     
 

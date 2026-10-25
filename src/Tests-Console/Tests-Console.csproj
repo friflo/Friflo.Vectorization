@@ -26,8 +26,8 @@
       <ProjectReference Include="..\Friflo.Generators\Friflo.Generators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
       <ProjectReference Include="..\Friflo.Generators.CodeFixes\Friflo.Generators.CodeFixes.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
       <ProjectReference Include="..\Friflo.WGPU\Friflo.WGPU.csproj" />
-      <ProjectReference Include="..\Friflo.TmGui\Friflo.TmGui.csproj" />
-      <ProjectReference Include="..\Friflo.TmGui.Http\Friflo.TmGui.Http.csproj" />
+      <ProjectReference Include="..\Friflo.SmGui\Friflo.SmGui.csproj" />
+      <ProjectReference Include="..\Friflo.SmGui.Http\Friflo.SmGui.Http.csproj" />
     </ItemGroup>
     
     <ItemGroup>

@@ -23,8 +23,8 @@ public class DefaultGuiAssets : IGuiAssets
     public SmFont CreateDefaultFont(SmGuiBackend backend)
     {
         var assembly        = typeof(DefaultGuiAssets).Assembly;
-        using var fontAtlas = assembly.GetManifestResourceStream("Friflo.TmGui.Assets.fonts.arial-48-latin_0.png");
-        using var fntFile   = assembly.GetManifestResourceStream("Friflo.TmGui.Assets.fonts.arial-48-latin.fnt");
+        using var fontAtlas = assembly.GetManifestResourceStream("Friflo.SmGui.Assets.fonts.arial-48-latin_0.png");
+        using var fntFile   = assembly.GetManifestResourceStream("Friflo.SmGui.Assets.fonts.arial-48-latin.fnt");
         using var reader    = new StreamReader(fntFile!, Encoding.UTF8);
         var fntContent      = reader.ReadToEnd();
         return backend.CreateBMFont(fntContent, fontAtlas!, "Default-Font");
