@@ -64,20 +64,20 @@ public sealed partial class SmSessionLoop : IDisposable
     public   event      SessionsChanged?    SessionsChanged;
 
 #region private fields
-    private  readonly   bool                                isAsync;
-    private  readonly   ConcurrentQueue<ClientEvent>        eventQueue;             // used by: sync loop
-    private  readonly   AutoResetEvent                      eventReady;             // used by: sync loop
-    private  readonly   Channel<ClientEvent>?               eventChannel;           // used by: async loop
-    private  readonly   Dictionary<SessionId, SmSession>    sessions        = new();// Raw non-thread-safe state (accessed exclusively by _shardThread)
-    private  readonly   List<SmSession>                     sessionBuffer   = [];
-    private  readonly   CreateGuiView                       createGuiView;          // IBatchRenderer factory
-    private  readonly   CancellationTokenSource             cts             = new();
-    private             Thread?                             shardThread;
-    private             bool                                isDisposed;
-    private  readonly   Action                              exitHandler;
-    internal readonly   TuiSessionShared                    tuiShared;              // shared among all TuiSession's
-    internal readonly   GuiSessionShared                    guiShared;              // shared among all GuiSession's
-    internal readonly   CpuBackend                          cpuBackend;             // shared among all sessions
+    private  readonly   bool                                        isAsync;
+    private  readonly   ConcurrentQueue<ClientEvent>                eventQueue;             // used by: sync loop
+    private  readonly   AutoResetEvent                              eventReady;             // used by: sync loop
+    private  readonly   Channel<ClientEvent>?                       eventChannel;           // used by: async loop
+    private  readonly   ConcurrentDictionary<SessionId, SmSession>  sessions        = new();// Raw non-thread-safe state (accessed exclusively by _shardThread)
+    private  readonly   List<SmSession>                             sessionBuffer   = [];
+    private  readonly   CreateGuiView                               createGuiView;          // IBatchRenderer factory
+    private  readonly   CancellationTokenSource                     cts             = new();
+    private             Thread?                                     shardThread;
+    private             bool                                        isDisposed;
+    private  readonly   Action                                      exitHandler;
+    internal readonly   TuiSessionShared                            tuiShared;              // shared among all TuiSession's
+    internal readonly   GuiSessionShared                            guiShared;              // shared among all GuiSession's
+    internal readonly   CpuBackend                                  cpuBackend;             // shared among all sessions
 
     private const int MaxSyncQueueCapacity = 32;
 #endregion
