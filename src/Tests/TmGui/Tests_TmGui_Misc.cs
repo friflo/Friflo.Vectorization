@@ -20,6 +20,10 @@ public static class Tests_SmGui_Misc
     {
         var assembly =  typeof(SmDraw).Assembly;
         
+        var LoopEvent = assembly.GetType("Friflo.SmGui.Session.LoopEvent")!;
+        Assert.AreEqual( 16, Unsafe.SizeOf<Payload>());
+        Assert.AreEqual( 32, Marshal.SizeOf(LoopEvent));
+        
         Assert.AreEqual( 12, Unsafe.SizeOf<Dim>());
         
         Assert.AreEqual( 32, Unsafe.SizeOf<SmTexture>());

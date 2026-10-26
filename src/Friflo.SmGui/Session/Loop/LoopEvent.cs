@@ -9,7 +9,7 @@ using System.Buffers;
 namespace Friflo.SmGui.Session;
 
 
-public enum LoopEventType : byte
+public enum LoopEventType
 {
     // --- client events
     TerminalConnected,
@@ -26,8 +26,8 @@ public enum LoopEventType : byte
 
 public readonly struct Payload
 {
-    private readonly     byte[] buffer;
-    private readonly     int    length;
+    private readonly     byte[] buffer;     // 8 bytes
+    private readonly     int    length;     // 4 bytes
     
     public ReadOnlySpan<byte>   Span                    => new(buffer, 0,     length);
     public Memory<byte>         GetMemory(int start)    => new(buffer, start, length - start);
@@ -46,7 +46,7 @@ public readonly struct Payload
 
 internal readonly struct LoopEvent
 {
-    internal required   SmClient?       Client  { get; init; }
-    internal required   LoopEventType   Type    { get; init; }
-    internal required   Payload         Payload { get; init; }
+    internal required   SmClient?       Client  { get; init; }  //  8 bytes
+    internal required   LoopEventType   Type    { get; init; }  //  4 bytes
+    internal required   Payload         Payload { get; init; }  // 16 bytes
 }
