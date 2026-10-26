@@ -2,6 +2,7 @@
 // See LICENSE file in the project root for full license information.
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using Friflo.SmGui.Headless;
@@ -14,11 +15,12 @@ namespace Friflo.SmGui.Session;
 
 public readonly struct AssetResources
 {
-    private  readonly   CpuBackend                          cpuBackend;
-    private  readonly   Dictionary<object, int>             texture2Id      = new();
-    private  readonly   Dictionary<string, ImageResource>   stringToImage   = new();
-    internal readonly   List<ImageResource?>                images          = [null];
+    private  readonly   CpuBackend                                  cpuBackend;
+    private  readonly   Dictionary<object, int>                     texture2Id      = new();
+    private  readonly   ConcurrentDictionary<string, ImageResource> stringToImage   = new();
+    internal readonly   List<ImageResource?>                        images          = [null];
     
+    /// <summary> Thread-safe access to access get the <see cref="ImageResource"/>. </summary>
     public bool TryGetImageResource(string fileName, [MaybeNullWhen(false)] out ImageResource imageResource) {
         return stringToImage.TryGetValue(fileName, out imageResource);
     }
@@ -37,7 +39,7 @@ public readonly struct AssetResources
         }
         var image = new ImageResource(sessionGuid) { textureId = textureId, asset = asset, texture = texture, assets = cpuBackend.Assets };
         images.Add(image);
-        stringToImage.Add(name, image);
+        stringToImage.TryAdd(name, image);
         return textureId;
     }
     
@@ -64,7 +66,7 @@ public readonly struct AssetResources
             var image = images[n];
             if (image != null && image.sessionGuid.guid == sessionGuid.guid) {
                 images[n] = null;
-                stringToImage.Remove(image.asset.name);
+                stringToImage.TryRemove(image.asset.name, out _);
                 texture2Id.Remove(image.texture.native!);
             }
         }
