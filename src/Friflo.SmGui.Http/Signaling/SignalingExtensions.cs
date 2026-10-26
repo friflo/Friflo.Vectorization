@@ -6,6 +6,7 @@ using System.Linq;
 using System.Net.WebSockets;
 using System.Threading;
 using System.Threading.Tasks;
+using Friflo.SmGui.Session;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 
@@ -73,7 +74,7 @@ internal sealed class SignalSocketHandler
             }
             return;
         }
-        if (path.StartsWithSegments("/textures", out var remainingPath) && remainingPath.HasValue)
+        if (path.StartsWithSegments(AssetResources.AssetsPath, out var remainingPath) && remainingPath.HasValue)
         {
             var response = context.Response;
 

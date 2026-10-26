@@ -113,9 +113,9 @@ public class HttpGuiHandler
             }
             return;
         }
-        if (path.StartsWithSegments("/textures", out var remainingPath) && remainingPath.HasValue)
+        if (path.HasValue && path.StartsWithSegments(AssetResources.AssetsPath))
         {
-            var fileName = remainingPath.Value.TrimStart('/');
+            var fileName = path.Value.Substring(AssetResources.AssetsPath.Length + "/".Length);
             
             var response = context.Response;
             if (loop.resources.TryGetImageResource(fileName, out var image))

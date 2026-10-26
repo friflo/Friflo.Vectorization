@@ -20,6 +20,8 @@ public readonly struct AssetResources
     private  readonly   ConcurrentDictionary<string, ImageResource> stringToImage   = new();
     internal readonly   List<ImageResource?>                        images          = [null];
     
+    public const string AssetsPath = "/assets";  
+    
     /// <summary> Thread-safe access to access get the <see cref="ImageResource"/>. </summary>
     public bool TryGetImageResource(string fileName, [MaybeNullWhen(false)] out ImageResource imageResource) {
         return stringToImage.TryGetValue(fileName, out imageResource);

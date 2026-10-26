@@ -598,7 +598,7 @@ const assetHeaders = !app ? undefined : {
     }
 }
 
-// Ensure texture is tracked and trigger async fetch from /textures/{name} if missing
+// Ensure texture is tracked and trigger async fetch from /assets/{name} if missing
 function ensureTextureLoaded(textureId, name) {
     if (textures.has(textureId)) return;
 
@@ -612,7 +612,7 @@ function ensureTextureLoaded(textureId, name) {
     textures.set(textureId, textureEntry);
 
     // Fetch image asynchronously from endpoint
-    fetch(`/textures/${name}`, assetHeaders)
+    fetch(`/assets/${name}`, assetHeaders)
         .then(response => {
             if (!response.ok) throw new Error(`HTTP ${response.status}`);
             return response.blob();

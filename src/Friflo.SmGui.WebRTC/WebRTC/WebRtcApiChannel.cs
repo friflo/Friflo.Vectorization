@@ -46,11 +46,11 @@ internal sealed class WebRtcApiChannel
         var uri = new Uri(apiRequest.url);
 
         var path = uri.PathAndQuery;
-        if (!path.StartsWith("/textures/", StringComparison.Ordinal)) {
+        if (!path.StartsWith(AssetResources.AssetsPath, StringComparison.Ordinal)) {
             SendResponse(apiRequest.requestId, 404, null, []);
             return;
         }
-        var assetName = path.Substring("/textures/".Length);
+        var assetName = path.Substring(AssetResources.AssetsPath.Length + "/".Length);
         
         if (!loop.resources.TryGetImageResource(assetName, out var image)) {
             SendResponse(apiRequest.requestId, 404, null, []);
