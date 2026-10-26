@@ -70,7 +70,7 @@ public sealed partial class SmSessionLoop : IDisposable
     private  readonly   Channel<ClientEvent>?                       eventChannel;       // used by: async loop
     private  readonly   Dictionary<SessionId, SmSession>            sessions            = new();// Raw non-thread-safe state (accessed exclusively by _shardThread)
     private  readonly   ConcurrentDictionary<SessionId, SmSession>  concurrentSessions  = new();// Raw non-thread-safe state (accessed exclusively by _shardThread)
-    private  readonly   List<SmSession>                             sessionBuffer       = [];
+    private  readonly   int                                         sessionThreadId;
     private  readonly   CreateGuiView                               createGuiView;      // IBatchRenderer factory
     private  readonly   CancellationTokenSource                     cts                 = new();
     private             Thread?                                     shardThread;
@@ -106,6 +106,7 @@ public sealed partial class SmSessionLoop : IDisposable
         exitHandler         = ExitHandler;
         tuiShared           = new TuiSessionShared();
         guiShared           = new GuiSessionShared();
+        sessionThreadId     = Environment.CurrentManagedThreadId;
         PosixSignalUtils.AddExitHandler(exitHandler);
     }
     
@@ -283,17 +284,22 @@ public sealed partial class SmSessionLoop : IDisposable
     /// </remarks>
     public void SetAppDirty()
     {
-        var buffer = sessionBuffer;
-        buffer.Clear();
-        buffer.AddRange(concurrentSessions.Values);
-        
-        foreach (var session in buffer) {
+        if (sessionThreadId == Environment.CurrentManagedThreadId)
+        {
+            foreach (var session in sessions.Values) {
+                if (session.SetDirty()) {
+                    continue;
+                }
+                TryEnqueueEvent(session.client, ClientEventType.FrameTick, default);
+            }
+            return;
+        }
+        foreach (var session in concurrentSessions.Values) {
             if (session.SetDirty()) {
                 continue;
             }
             TryEnqueueEvent(session.client, ClientEventType.FrameTick, default);
         }
-        buffer.Clear();
     }
     
     /// <summary>

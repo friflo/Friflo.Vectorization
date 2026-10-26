@@ -83,7 +83,7 @@ public sealed class SmSignaling
         var curCount = app.sessionCount;
         app.sessionCount = message.sessions.Value;
         if  (curCount != app.sessionCount) {
-            SetDirty();    
+            SetDirty();
         }
     }
     
