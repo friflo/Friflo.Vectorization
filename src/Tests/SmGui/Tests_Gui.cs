@@ -14,10 +14,10 @@ using StbImageWriteSharp;
 // ReSharper disable once InconsistentNaming
 namespace Tests.SmGui;
 
-public static class Tests_SmGui
+public static class Tests_Gui
 {
     [Test]
-    public static void Tests_SmGui_GuiStyle()
+    public static void Tests_Gui_GuiStyle()
     {
         var style = new GuiStyle();
         var repeat = 10; // 1_000_000_000   3.95 sec
@@ -48,7 +48,7 @@ public static class Tests_SmGui
     }
     
     [Test]
-    public static void Tests_SmGui_StringBuilderExtensions()
+    public static void Tests_Gui_StringBuilderExtensions()
     {
         {
             var sb = new StringBuilder();
@@ -64,19 +64,19 @@ public static class Tests_SmGui
     
     [Test]
     [Platform(Exclude = "MacOsX", Reason = "Hangs occasionally on macOS (Metal issue)")]
-    public static void Tests_SmGui_DrawGui()
+    public static void Tests_Gui_DrawGui()
     {
         // TODO  hangs occasionally in macOS. Debugging it when in fitting Mood
 
         using var instance    = WgpuInstance.CreateInstance();
         
-        SmGui_DrawGui_Offscreen(instance);
+        Gui_DrawGui_Offscreen(instance);
     
         var handles = instance.GenerateHandles();
         Assert.IsTrue(handles.IsActiveZero());
     }
     
-    private static void SmGui_DrawGui_Offscreen(WgpuInstance instance)
+    private static void Gui_DrawGui_Offscreen(WgpuInstance instance)
     {
         using var adapter     = instance.RequestAdapter(default); // specific backend: new GpuRequestAdapterOptions { backendType = BackendType.D3D12 }
         using var device      = adapter.CreateDevice("test");

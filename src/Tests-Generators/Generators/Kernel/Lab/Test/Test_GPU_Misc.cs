@@ -90,7 +90,7 @@ MaxComputeInvocationsPerWorkgroup:  {adapterLimits.MaxComputeInvocationsPerWorkg
     }
     
     /// These size checks requires net9.0 or higher.
-    /// Other checks at: <see cref="Tests_SmGui_Misc.Tests_SmGui_SizeOf"/>
+    /// Other checks at: <see cref="Tests_Gui_Misc.Tests_SmGui_SizeOf"/>
     [Test]
     public void Test_SmGui_SizeOf()
     {

@@ -9,10 +9,10 @@ using Tests.Utils;
 // ReSharper disable once InconsistentNaming
 namespace Tests.SmGui;
 
-public class Tests_SmGui_window2
+public class Tests_Gui_window2
 {
     [Test]
-    public void Tests_SmDraw_window2_headless()
+    public void Tests_Gui_window2_headless()
     {
         var         backend = new CpuBackend("CPU", new TuiAssets());
         var         batch   = backend.CreateGuiBatch();

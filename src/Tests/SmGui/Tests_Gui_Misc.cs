@@ -13,10 +13,10 @@ using NUnit.Framework;
 // ReSharper disable once InconsistentNaming
 namespace Tests.SmGui;
 
-public static class Tests_SmGui_Misc
+public static class Tests_Gui_Misc
 {
     [Test]
-    public static void Tests_SmGui_SizeOf()
+    public static void Tests_Gui_SizeOf()
     {
         var assembly =  typeof(SmDraw).Assembly;
         

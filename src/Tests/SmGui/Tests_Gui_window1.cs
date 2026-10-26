@@ -15,7 +15,7 @@ using Tests.Utils;
 // ReSharper disable once InconsistentNaming
 namespace Tests.SmGui;
 
-public class Tests_SmGui_window1
+public class Tests_Gui_window1
 {
     private bool    mouseCircle;
     private bool    monocraft;
@@ -29,7 +29,7 @@ public class Tests_SmGui_window1
     
     /// Result in FrameBuffer.RuneCells - Note: not supported anymore
     [Test]
-    public void Tests_SmGui_window1_TUI_char()
+    public void Tests_Gui_window1_TUI_char()
     {
         var backend     = new CpuBackend("Test", new TuiAssets());
         var frameBuffer = new FrameBuffer();
@@ -64,7 +64,7 @@ public class Tests_SmGui_window1
 
     /// Result in <see cref="FrameBuffer.ColorCells"/>
     [Test]
-    public void Tests_SmGui_window1_TUI_color()
+    public void Tests_Gui_window1_TUI_color()
     {
         var backend     = new CpuBackend("Test", new TuiAssets());
         var frameBuffer = new FrameBuffer();

@@ -11,10 +11,10 @@ using NUnit.Framework;
 namespace Tests.SmGui;
 
 // ReSharper disable InconsistentNaming
-public static class Tests_SmGui_Utils
+public static class Tests_Gui_Utils
 {
     [Test]
-    public static void Tests_SmGui_Utils_XxHash3()
+    public static void Tests_Gui_Utils_XxHash3()
     {
         var array = CreateByteArray(1000);
         var hash = HashUtils.XxHash3(array);
@@ -37,7 +37,7 @@ public static class Tests_SmGui_Utils
     }
     
     [Test]
-    public static void Tests_SmGui_Utils_XxHash3_perf()
+    public static void Tests_Gui_Utils_XxHash3_perf()
     {
         var array = CreateByteArray(3200);
         
@@ -51,7 +51,7 @@ public static class Tests_SmGui_Utils
     }
     
     [Test]
-    public static void Tests_SmGui_Utils_System_IO_Hashing_XxHash3_perf()
+    public static void Tests_Gui_Utils_System_IO_Hashing_XxHash3_perf()
     {
         var array = CreateByteArray(3200);
        
@@ -65,7 +65,7 @@ public static class Tests_SmGui_Utils
     }
     
     [Test]
-    public static void Tests_SmGui_Utils_System_HashCode_perf()
+    public static void Tests_Gui_Utils_System_HashCode_perf()
     {
         var array = CreateByteArray(3200);
        
@@ -80,7 +80,7 @@ public static class Tests_SmGui_Utils
     }
     
     [Test]
-    public static void Tests_SmGui_Utils_HashFNV_1a_perf()
+    public static void Tests_Gui_Utils_HashFNV_1a_perf()
     {
         var array = CreateByteArray(3200);
        
@@ -114,7 +114,7 @@ public static class Tests_SmGui_Utils
     }
     
     [Test]
-    public static void Tests_SmGui_Utils_HashFNV_1a()
+    public static void Tests_Gui_Utils_HashFNV_1a()
     {
         var array = CreateByteArray(10);
 
