@@ -106,8 +106,8 @@ public class TestGuiView : IGuiView
         gui.Label(sb.Span(), Color32.Gray);
         
         sb.Clear().Append($"frame time: ");
-        if (gui.Batch.Timer.Enabled) sb.Append($"{frameTime,5:F1} ms  "); else sb.Append($" ---  ");
-        sb.Append($"alloc: {memDiff}").GetChunks().GetEnumerator();
+        if (gui.Batch.Timer.Enabled) sb.Append($"{frameTime,5:F1} ms"); else sb.Append($" ---");
+        sb.Append($"  alloc: {memDiff,3}");
         gui.Label(sb.Span(), Color32.Teal);
         
         using (gui.BeginHorizontal()) {
