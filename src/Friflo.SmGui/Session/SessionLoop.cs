@@ -270,7 +270,7 @@ public sealed partial class SmSessionLoop : IDisposable
         session.viewSession?.Reset();
         session.viewSession = null;
         
-        SessionsChanged?.Invoke(new SessionsChangedArgs(session.client.sessionId, SessionsChangedType.Removed));
+        SessionsChanged?.Invoke(new SessionsChangedArgs(sessionId, SessionsChangedType.Removed));
     }
 
     /// <summary>
