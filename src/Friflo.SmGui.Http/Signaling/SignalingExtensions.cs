@@ -74,13 +74,6 @@ internal sealed class SignalSocketHandler
             }
             return;
         }
-        if (path.StartsWithSegments(AssetResources.AssetsPath, out var remainingPath) && remainingPath.HasValue)
-        {
-            var response = context.Response;
-
-            response.StatusCode = StatusCodes.Status404NotFound;
-            return;
-        }
         await next();
     }
     
