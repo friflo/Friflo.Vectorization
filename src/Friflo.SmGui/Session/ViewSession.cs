@@ -79,6 +79,8 @@ public interface IGuiView
 public delegate IGuiView CreateGuiView(ViewSession session);
 
 
+
+
 /// <summary>
 /// Represents an individual client connection managed by a <see cref="SmSessionLoop"/>, 
 /// providing access to client-specific state, backend services, and actions.
@@ -91,27 +93,29 @@ public delegate IGuiView CreateGuiView(ViewSession session);
 public sealed class ViewSession
 {
     /// <summary> The internal session id (<c>int</c>) for this session. </summary>
-    public readonly SessionId      SessionId;
+    public readonly SessionId       SessionId;
     
-    public readonly string[]       args;
+    public readonly string[]        args;
 
     /// <summary> The UI execution mode for this session. </summary>
-    public readonly UiType         UiType;
+    public readonly UiType          UiType;
 
-    public              SmGuiBackend Backend => backend ?? throw SessionTerminatedException();
+    public          SmGuiBackend    Backend => backend ?? throw SessionTerminatedException();
 
     /// <summary> The app id passed to <see cref="SmSessionLoop.appId"/>. </summary>
-    public              string?     AppId   => loop.appId;
+    public          string?         AppId   => loop.appId;
 
     /// <summary> Provides access to client actions not related to GUI or rendering. </summary>
-    public              ClientAction Action  => Backend.host.clientAction;
+    public          ClientAction    Action  => Backend.host.clientAction;
 
     /// <summary> Enables triggering <see cref="IGuiView.RenderView"/> at configured time intervals. </summary>
-    public              LoopTimer   Timer   => loopTimer ?? throw SessionTerminatedException();
+    public          LoopTimer       Timer   => loopTimer ?? throw SessionTerminatedException();
 
 #region private fields
     private             SmGuiBackend?   backend;
     private             LoopTimer?      loopTimer;
+    // Note! session reference MUST stay private. Otherwise, user may store a reference which prevents GC collecting the session.
+    private             SmSession?      session;
     private  readonly   SmSessionLoop   loop;
 #endregion
     
@@ -124,11 +128,11 @@ public sealed class ViewSession
 
     internal ViewSession(SmSessionLoop loop, SmSession session, string[] args, SmClient client, SmGuiBackend backend, LoopTimer timer)
     {
-        // NOTE! Must not store a reference to a heavy session instance. User may store a reference which prevents GC collecting the session.
         this.loop       = loop;
         this.args       = args;
         this.backend    = backend;
         loopTimer       = timer;
+        this.session    = session;
         SessionId       = session.keys.id;
         UiType          = client.UiType;
     }
@@ -137,6 +141,7 @@ public sealed class ViewSession
     {
         backend     = null;
         loopTimer   = null;
+        session     = null;
     }
     
     /// <summary>
@@ -160,7 +165,9 @@ public sealed class ViewSession
     /// </remarks>
     public void SetDirty()
     {
-        loop.SetSessionDirty(SessionId);
+        if (session != null) {
+            loop.SetSessionDirty(session);
+        }
     }
 }
 

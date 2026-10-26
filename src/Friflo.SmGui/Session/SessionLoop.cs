@@ -313,5 +313,13 @@ public sealed partial class SmSessionLoop : IDisposable
         }
         TryEnqueueEvent(session.client, ClientEventType.FrameTick, default);
     }
+    
+    internal void SetSessionDirty(SmSession session)
+    {
+        if (session.SetDirty()) {
+            return;
+        }
+        TryEnqueueEvent(session.client, ClientEventType.FrameTick, default);
+    }
 }
 
