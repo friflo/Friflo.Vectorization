@@ -33,12 +33,13 @@ internal abstract class SmSession
         this.keys   = keys;
     }
     
+    /// Returns true if the session is already dirty
     internal bool SetDirty()
     {
         if (isDirty) {
             return true;
         }
-        isDirty = false;
+        isDirty = true;
         return false;
     }
 }
