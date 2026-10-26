@@ -32,8 +32,8 @@ internal sealed class GuiSessionShared
 
 internal sealed partial class GuiSession : SmSession
 {
-    private  readonly   WsBackend           wsBackend;          // instance: creates / owns
-    private  readonly   WsBatch             wsBatch;            // instance: creates / owns
+    private  readonly   GuiBackend          guiBackend;         // instance: creates / owns
+    private  readonly   GuiBatch            guiBatch;           // instance: creates / owns
     private  readonly   GuiSessionShared    shared;             // instance: shared
     
     private  readonly   HashSet<int>        clientTextures      = [];
@@ -49,30 +49,30 @@ internal sealed partial class GuiSession : SmSession
         : base(client, keys)
     {
         shared              = loop.guiShared;
-        wsBackend           = new WsBackend(loop.cpuBackend, loop.guiShared, keys);
-        wsBatch             = wsBackend.CreateBatch(client.sessionId, timer, client.UiType);
-        wsBackend.SetClientActions(new GuiClientAction(client));
-        wsBatch.session     = this;
+        guiBackend          = new GuiBackend(loop.cpuBackend, loop.guiShared, keys);
+        guiBatch            = guiBackend.CreateBatch(client.sessionId, timer, client.UiType);
+        guiBackend.SetClientActions(new GuiClientAction(client));
+        guiBatch.session    = this;
         
         debugClientQuads = null!;
         DebugInit();
     }
     
-    protected internal override SmGuiBackend    Backend => wsBackend;
-    protected internal override SmBatch         Batch   => wsBatch;
+    protected internal override SmGuiBackend    Backend => guiBackend;
+    protected internal override SmBatch         Batch   => guiBatch;
 
 
     internal override SmSendMessage IterateUI(in AssetResources resources)
     {
         isDirty = false;
 
-        wsBackend.NewFrame();
-        guiView!.RenderView(wsBatch, canvasWidth, canvasHeight);
+        guiBackend.NewFrame();
+        guiView!.RenderView(guiBatch, canvasWidth, canvasHeight);
         
-        wsBatch.DrawCommandList();
+        guiBatch.DrawCommandList();
 
         var usedTextures    = clientTextures;
-        var drawCommands    = wsBatch.DrawList;
+        var drawCommands    = guiBatch.DrawList;
         var newTextures     = shared.newTextures;
         newTextures.Clear();
 
@@ -95,7 +95,7 @@ internal sealed partial class GuiSession : SmSession
                 textureId   = textureId
             };
         }
-        var vertices = wsBatch.Vertices;
+        var vertices = guiBatch.Vertices;
         // case sendDiffs == false: -1     case sendDiffs == true: vertex count of full frame
         var diffVertexCount =  -1;
         
@@ -147,7 +147,7 @@ internal sealed partial class GuiSession : SmSession
         int hashStart = bytesWritten;
         
         // 4. Write current mouse cursor shape (int)
-        MemoryMarshal.Write(span[bytesWritten..], wsBackend.input.CurrentCursor);
+        MemoryMarshal.Write(span[bytesWritten..], guiBackend.input.CurrentCursor);
         bytesWritten += sizeof(int);
         
         // 5. Write used textures

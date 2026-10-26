@@ -6,6 +6,7 @@ using System.Globalization;
 using System.Numerics;
 using System.Text;
 
+// ReSharper disable InlineTemporaryVariable
 // ReSharper disable CheckNamespace
 namespace Friflo.SmGui.Session;
 
@@ -58,23 +59,24 @@ internal sealed partial class GuiSession
         }
 
         // Dispatch aggregated MouseMove event
+        var backend = guiBackend;
         if (isMouseMoveEvent) {
-            wsBackend.AddEvent(new SmEvent(SmEventType.MouseMotion, pendingMousePos));
+            backend.AddEvent(new SmEvent(SmEventType.MouseMotion, pendingMousePos));
         }
         if (isMouseDownEvent) {
-            wsBackend.AddEvent(new SmEvent(SmEventType.MouseButtonDown, pendingMousePos));
+            backend.AddEvent(new SmEvent(SmEventType.MouseButtonDown, pendingMousePos));
         }
         if (isMouseUpEvent) {
-            wsBackend.AddEvent(new SmEvent(SmEventType.MouseButtonUp, pendingMousePos));
+            backend.AddEvent(new SmEvent(SmEventType.MouseButtonUp, pendingMousePos));
         }
         if (isKeyDownEvent) {
-            wsBackend.AddEvent(new SmEvent(SmEventType.KeyDown, new KeyEvent { code =  keyCode, isDown = true }));
+            backend.AddEvent(new SmEvent(SmEventType.KeyDown, new KeyEvent { code =  keyCode, isDown = true }));
         }
         if (isKeyUpEvent) {
-            wsBackend.AddEvent(new SmEvent(SmEventType.KeyDown, new KeyEvent { code =  keyCode, isDown = false }));
+            backend.AddEvent(new SmEvent(SmEventType.KeyDown, new KeyEvent { code =  keyCode, isDown = false }));
         }
         if (isWheelEvent) {
-            wsBackend.AddEvent(new SmEvent(SmEventType.MouseWheel) { wheel = wheel });
+            backend.AddEvent(new SmEvent(SmEventType.MouseWheel) { wheel = wheel });
         }
     }
 
@@ -135,7 +137,7 @@ internal sealed partial class GuiSession
             "ArrowDown"     => KeyCode.Down,
             "ArrowLeft"     => KeyCode.Left,
             "ArrowRight"    => KeyCode.Right,
-            _               => (KeyCode)0
+            _               => 0
         };
     }
     

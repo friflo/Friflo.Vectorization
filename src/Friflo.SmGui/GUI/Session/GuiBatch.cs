@@ -3,16 +3,12 @@
 
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable CheckNamespace
-
-using System;
-using System.Text;
-
 namespace Friflo.SmGui.Session;
 
 
-internal class WsBatch : SmBatch
+internal class GuiBatch : SmBatch
 {
-    internal WsBatch(SessionId sessionId, SmGuiBackend backend, int maxVertices, LoopTimer timer)
+    internal GuiBatch(SessionId sessionId, SmGuiBackend backend, int maxVertices, LoopTimer timer)
         : base(sessionId, backend, maxVertices, timer)
     {
     }

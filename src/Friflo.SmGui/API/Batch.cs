@@ -239,7 +239,7 @@ public abstract class SmBatch : IDisposable
     
     public SmDraw BeginTextureDraw(SmTexture texture, Color32 color)
     {
-        if (this is WsBatch) {
+        if (this is GuiBatch) {
             var draw = new SmDraw(this);
             var cursor = guiState.window.Cursor;
             var translate = Matrix4x4.CreateTranslation(new Vector3(cursor.X, cursor.Y, 0));
@@ -260,7 +260,7 @@ public abstract class SmBatch : IDisposable
     
     public void EndTextureDraw()
     {
-        if (this is WsBatch) {
+        if (this is GuiBatch) {
             var draw = new SmDraw(this);
             draw.PopTransform();
         }

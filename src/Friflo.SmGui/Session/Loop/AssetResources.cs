@@ -34,8 +34,8 @@ public readonly struct AssetResources
         var asset       = cpuBackend.GetTextureImage(texture);
         var name        = asset.name;
         var sessionGuid = default(SessionGuid);
-        if (name.StartsWith(WsBackend.Sid)) {
-            var len     = WsBackend.Sid.Length;
+        if (name.StartsWith(GuiBackend.Sid)) {
+            var len     = GuiBackend.Sid.Length;
             var end     = name.IndexOf('/', len);
             sessionGuid = SessionGuid.FromSpan(name.AsSpan(len, end - len));
         }

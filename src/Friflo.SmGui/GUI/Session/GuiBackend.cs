@@ -9,7 +9,7 @@ using Friflo.SmGui.Headless;
 // ReSharper disable CheckNamespace
 namespace Friflo.SmGui.Session;
 
-internal class WsBackend : SmGuiBackend
+internal class GuiBackend : SmGuiBackend
 {
     private  readonly   SessionKeys         keys;
     private  readonly   CpuBackend          cpuBackend;
@@ -18,7 +18,7 @@ internal class WsBackend : SmGuiBackend
 
     public   override   string          ToString() => $"session: {keys.id}";
 
-    internal WsBackend(CpuBackend cpuBackend, GuiSessionShared guiShared, SessionKeys keys) : base(cpuBackend.Assets)
+    internal GuiBackend(CpuBackend cpuBackend, GuiSessionShared guiShared, SessionKeys keys) : base(cpuBackend.Assets)
     {
         this.keys           = keys;
         this.cpuBackend     = cpuBackend;
@@ -61,9 +61,9 @@ internal class WsBackend : SmGuiBackend
         return cpuBackend.GetTextureImage(texture);
     }
     
-    internal WsBatch CreateBatch(SessionId sessionId, LoopTimer timer, UiType uiType)  // WS_TAG
+    internal GuiBatch CreateBatch(SessionId sessionId, LoopTimer timer, UiType uiType)  // WS_TAG
     {
-        var batch = new WsBatch(sessionId, this, 60000, timer) { UiType = uiType };
+        var batch = new GuiBatch(sessionId, this, 60000, timer) { UiType = uiType };
         InitBatch(batch);
         return batch;
     }
