@@ -65,19 +65,20 @@ public sealed partial class SmSessionLoop : IDisposable
 
 #region private fields
     private  readonly   bool                                        isAsync;
-    private  readonly   ConcurrentQueue<ClientEvent>                eventQueue;             // used by: sync loop
-    private  readonly   AutoResetEvent                              eventReady;             // used by: sync loop
-    private  readonly   Channel<ClientEvent>?                       eventChannel;           // used by: async loop
-    private  readonly   ConcurrentDictionary<SessionId, SmSession>  sessions        = new();// Raw non-thread-safe state (accessed exclusively by _shardThread)
-    private  readonly   List<SmSession>                             sessionBuffer   = [];
-    private  readonly   CreateGuiView                               createGuiView;          // IBatchRenderer factory
-    private  readonly   CancellationTokenSource                     cts             = new();
+    private  readonly   ConcurrentQueue<ClientEvent>                eventQueue;         // used by: sync loop
+    private  readonly   AutoResetEvent                              eventReady;         // used by: sync loop
+    private  readonly   Channel<ClientEvent>?                       eventChannel;       // used by: async loop
+    private  readonly   Dictionary<SessionId, SmSession>            sessions            = new();// Raw non-thread-safe state (accessed exclusively by _shardThread)
+    private  readonly   ConcurrentDictionary<SessionId, SmSession>  concurrentSessions  = new();// Raw non-thread-safe state (accessed exclusively by _shardThread)
+    private  readonly   List<SmSession>                             sessionBuffer       = [];
+    private  readonly   CreateGuiView                               createGuiView;      // IBatchRenderer factory
+    private  readonly   CancellationTokenSource                     cts                 = new();
     private             Thread?                                     shardThread;
     private             bool                                        isDisposed;
     private  readonly   Action                                      exitHandler;
-    internal readonly   TuiSessionShared                            tuiShared;              // shared among all TuiSession's
-    internal readonly   GuiSessionShared                            guiShared;              // shared among all GuiSession's
-    internal readonly   CpuBackend                                  cpuBackend;             // shared among all sessions
+    internal readonly   TuiSessionShared                            tuiShared;          // shared among all TuiSession's
+    internal readonly   GuiSessionShared                            guiShared;          // shared among all GuiSession's
+    internal readonly   CpuBackend                                  cpuBackend;         // shared among all sessions
 
     private const int MaxSyncQueueCapacity = 32;
 #endregion
@@ -220,7 +221,8 @@ public sealed partial class SmSessionLoop : IDisposable
         session.viewSession = viewSession;
         
         session.guiView = guiView;
-        sessions[client.sessionId] = session;
+        AddSession(client.sessionId, session);
+        
         var msgStart    = firstLine == -1 ? 0 : firstLine + 1;
         firstPayload    = payload.GetMemory(msgStart);
         
@@ -241,16 +243,28 @@ public sealed partial class SmSessionLoop : IDisposable
         session.viewSession = viewSession;
         
         session.guiView = guiView;
-        sessions[client.sessionId] = session;
+        AddSession(client.sessionId, session);
+        
         firstPayload    = default;
         
         SessionsChanged?.Invoke(new SessionsChangedArgs(client.sessionId, SessionsChangedType.Added));
         return session;
     }
 
-    
-    private void DisposeSession(SmSession session)
+    /// Is called only from session loop thread. Synchronized Add/Remove is not necessary for set dirty.
+    private void AddSession(SessionId sessionId, SmSession session)
     {
+        sessions          [sessionId] = session;
+        concurrentSessions[sessionId] = session;
+    }
+    
+    /// Is called only from session loop thread. Synchronized Add/Remove is not necessary for set dirty.
+    private void RemoveSession(SessionId sessionId)
+    {
+        concurrentSessions.TryRemove(sessionId, out _);
+        if (!sessions.Remove(sessionId, out var session)) {
+            return;
+        }
         var batch = session.Batch;
         batch.Reset();
         resources.RemoveSessionResources(session.keys.guid);
@@ -271,7 +285,7 @@ public sealed partial class SmSessionLoop : IDisposable
     {
         var buffer = sessionBuffer;
         buffer.Clear();
-        buffer.AddRange(sessions.Values);
+        buffer.AddRange(concurrentSessions.Values);
         
         foreach (var session in buffer) {
             if (session.SetDirty()) {
@@ -291,7 +305,7 @@ public sealed partial class SmSessionLoop : IDisposable
     /// </remarks>
     public void SetSessionDirty(SessionId sessionId)
     {
-        if (!sessions.TryGetValue(sessionId, out var session)) {
+        if (!concurrentSessions.TryGetValue(sessionId, out var session)) {
             return;
         }
         if (session.SetDirty()) {

@@ -103,9 +103,7 @@ public partial class SmSessionLoop
                 }
                 case ClientEventType.TerminalDisconnected:
                 case ClientEventType.WebsocketDisconnected:
-                    if (sessions.TryRemove(sessionId, out session)) {
-                        DisposeSession(session);
-                    }
+                    RemoveSession(sessionId);
                     break;
 
                 case ClientEventType.TerminalInput:

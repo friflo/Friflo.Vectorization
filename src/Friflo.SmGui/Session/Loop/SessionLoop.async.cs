@@ -83,13 +83,11 @@ public partial class SmSessionLoop
                     break;
                 }
                 case ClientEventType.TerminalDisconnected:
-                    if (sessions.TryRemove(sessionId, out SmSession? session)) {
-                        DisposeSession(session);
-                    }
+                    RemoveSession(sessionId);
                     break;
 
                 case ClientEventType.TerminalInput:
-                    if (sessions.TryGetValue(sessionId, out session))
+                    if (sessions.TryGetValue(sessionId, out var session))
                     {
                         var payload = evt.Payload.Span;
                         session.ProcessInput(payload);
