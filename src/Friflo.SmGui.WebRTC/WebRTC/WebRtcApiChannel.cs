@@ -52,7 +52,7 @@ internal sealed class WebRtcApiChannel
         }
         var assetName = path.Substring("/textures/".Length);
         
-        if (!loop.resources.stringToImage.TryGetValue(assetName, out var image)) {
+        if (!loop.resources.TryGetImageResource(assetName, out var image)) {
             SendResponse(apiRequest.requestId, 404, null, []);
             return;
         }

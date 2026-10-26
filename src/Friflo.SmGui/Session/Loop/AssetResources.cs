@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using Friflo.SmGui.Headless;
 
 
@@ -15,8 +16,12 @@ public readonly struct AssetResources
 {
     private  readonly   CpuBackend                          cpuBackend;
     private  readonly   Dictionary<object, int>             texture2Id      = new();
-    public   readonly   Dictionary<string, ImageResource>   stringToImage   = new();
-    public   readonly   List<ImageResource?>                images          = [null];
+    private  readonly   Dictionary<string, ImageResource>   stringToImage   = new();
+    internal readonly   List<ImageResource?>                images          = [null];
+    
+    public bool TryGetImageResource(string fileName, [MaybeNullWhen(false)] out ImageResource imageResource) {
+        return stringToImage.TryGetValue(fileName, out imageResource);
+    }
     
     private int AddTexture(SmTexture texture)
     {

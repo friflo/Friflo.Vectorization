@@ -118,7 +118,7 @@ public class HttpGuiHandler
             var fileName = remainingPath.Value.TrimStart('/');
             
             var response = context.Response;
-            if (loop.resources.stringToImage.TryGetValue(fileName, out var image))
+            if (loop.resources.TryGetImageResource(fileName, out var image))
             {
                 if (context.Request.Headers.IfNoneMatch == image.Etag) {
                     response.StatusCode = StatusCodes.Status304NotModified;
