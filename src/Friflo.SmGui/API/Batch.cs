@@ -87,6 +87,7 @@ public abstract class SmBatch : IDisposable
     private   readonly  StringBuilder       stringBuilder       = new(512,512); // => first chunk: 512 chars
     internal  readonly  GuiState            guiState            = new();
     internal            SmSession?          session;
+    private   readonly  int                 uiThreadId;
     
     internal  readonly  LoopTimer           loopTimer;
 
@@ -145,6 +146,7 @@ public abstract class SmBatch : IDisposable
         formatProvider  = CultureInfo.InvariantCulture;
         host            = backend.host;
         input           = backend.input;
+        uiThreadId      = Environment.CurrentManagedThreadId;
         loopTimer       = timer ?? new LoopTimer(60, true); // create Noop timer for all non session related batches
         if (this is TuiBatch typeTuiBatch) {
             tui = typeTuiBatch;
@@ -270,8 +272,16 @@ public abstract class SmBatch : IDisposable
         return new Gui(draw, this);
     }
     
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    private InvalidOperationException InvalidThreadException()
+    {
+        var msg = $"Expect call from thread the batch was created. expect: {uiThreadId}  was; {Environment.CurrentManagedThreadId}";
+        return new InvalidOperationException(msg);
+    }
+    
     public SmDraw BeginDraw(int width, int height)
     {
+        if (uiThreadId != Environment.CurrentManagedThreadId) throw InvalidThreadException();
         // reset batcher state
         /* if (defaultFontTexture.IsDisposed) {    // TODO IM_TEX
             SetFontDefault();

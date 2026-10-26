@@ -70,7 +70,7 @@ public sealed partial class SmSessionLoop : IDisposable
     private  readonly   Channel<ClientEvent>?                       eventChannel;       // used by: async loop
     private  readonly   Dictionary<SessionId, SmSession>            sessions            = new();// non-thread-safe state (accessed exclusively by _shardThread)
     private  readonly   ConcurrentDictionary<SessionId, SmSession>  concurrentSessions  = new();// thread-safe - used only for SetSessionDirty(SessionId) 
-    private  readonly   int                                         sessionThreadId;
+    internal readonly   int                                         sessionThreadId;
     private  readonly   CreateGuiView                               createGuiView;      // IBatchRenderer factory
     private  readonly   CancellationTokenSource                     cts                 = new();
     private             Thread?                                     shardThread;
