@@ -9,7 +9,7 @@ using System.Buffers;
 namespace Friflo.SmGui.Session;
 
 
-public enum ClientEventType : byte  //  todo  rename -> LoopEventType
+public enum LoopEventType : byte
 {
     // --- client events
     TerminalConnected,
@@ -44,9 +44,9 @@ public readonly struct Payload
     }
 }
 
-internal readonly struct ClientEvent  //  todo  rename -> LoopEvent
+internal readonly struct LoopEvent
 {
     internal required   SmClient?       Client  { get; init; }
-    internal required   ClientEventType Type    { get; init; }
+    internal required   LoopEventType   Type    { get; init; }
     internal required   Payload         Payload { get; init; }
 }

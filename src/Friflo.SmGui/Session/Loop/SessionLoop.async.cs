@@ -52,7 +52,7 @@ public partial class SmSessionLoop
 
         while (await reader.WaitToReadAsync(cancellationToken))
         {
-            if (!reader.TryRead(out ClientEvent evt)) {
+            if (!reader.TryRead(out LoopEvent evt)) {
                 continue;
             }
             // accumulate queued inputs per client - late-rendering
@@ -66,14 +66,14 @@ public partial class SmSessionLoop
     }
     
     // process client event
-    private async ValueTask ProcessClientEventAsync(SmClient client, ClientEventType type, Payload payload)
+    private async ValueTask ProcessClientEventAsync(SmClient client, LoopEventType type, Payload payload)
     {
         var isQueueEmpty    = client.DecrementPendingEvents();
         var sessionId       = client.sessionId;
         try {
             switch (type)
             {
-                case ClientEventType.TerminalConnected: {
+                case LoopEventType.TerminalConnected: {
                     var newSession      = CreateTuiSession(client, payload, false, out var initPayload);
                     var initialMessage  = newSession.StartSession();
                     
@@ -87,11 +87,11 @@ public partial class SmSessionLoop
                     // newSession.tuiBatch.loopTimer!.InitTimer(CancellationToken.None);
                     break;
                 }
-                case ClientEventType.TerminalDisconnected:
+                case LoopEventType.TerminalDisconnected:
                     RemoveSession(sessionId);
                     break;
 
-                case ClientEventType.TerminalInput:
+                case LoopEventType.TerminalInput:
                     if (sessions.TryGetValue(sessionId, out var session))
                     {
                         var payloadSpan = payload.Span;
@@ -102,7 +102,7 @@ public partial class SmSessionLoop
                         }
                     }
                     break;
-                case ClientEventType.FrameTick:
+                case LoopEventType.FrameTick:
                     if (sessions.TryGetValue(sessionId, out session) && isQueueEmpty)
                     {
                         var sendBuffer = session.IterateUI(resources);
@@ -118,11 +118,11 @@ public partial class SmSessionLoop
     }
     
     // process event
-    private void ProcessEventAsync(ClientEventType type, Payload payload)
+    private void ProcessEventAsync(LoopEventType type, Payload payload)
     {
         try {
             switch (type) {
-                case ClientEventType.SetAppDirty:
+                case LoopEventType.SetAppDirty:
                     SetAppDirtySync();
                     break;
             }

@@ -65,9 +65,9 @@ public sealed partial class SmSessionLoop : IDisposable
 
 #region private fields
     private  readonly   bool                                        isAsync;
-    private  readonly   ConcurrentQueue<ClientEvent>                eventQueue;         // used by: sync loop
+    private  readonly   ConcurrentQueue<LoopEvent>                  eventQueue;         // used by: sync loop
     private  readonly   AutoResetEvent                              eventReady;         // used by: sync loop
-    private  readonly   Channel<ClientEvent>?                       eventChannel;       // used by: async loop
+    private  readonly   Channel<LoopEvent>?                         eventChannel;       // used by: async loop
     private  readonly   Dictionary<SessionId, SmSession>            sessions            = new();// non-thread-safe state (accessed exclusively by _shardThread)
     private  readonly   ConcurrentDictionary<SessionId, SmSession>  concurrentSessions  = new();// thread-safe - used only for SetSessionDirty(SessionId) 
     internal readonly   int                                         sessionThreadId;
@@ -96,11 +96,11 @@ public sealed partial class SmSessionLoop : IDisposable
                 SingleWriter = false,
                 FullMode     = BoundedChannelFullMode.DropWrite // TryWrite fails fast when full
             };
-            eventChannel    = Channel.CreateBounded<ClientEvent>(options);
+            eventChannel    = Channel.CreateBounded<LoopEvent>(options);
             eventQueue      = null!;
             eventReady      = null!;
         } else {
-            eventQueue      = new ConcurrentQueue<ClientEvent>();
+            eventQueue      = new ConcurrentQueue<LoopEvent>();
             eventReady      = new AutoResetEvent(false);
         }
         exitHandler         = ExitHandler;
@@ -110,9 +110,9 @@ public sealed partial class SmSessionLoop : IDisposable
         PosixSignalUtils.AddExitHandler(exitHandler);
     }
     
-    public async ValueTask EnqueueEventAsync(SmClient client, ClientEventType type, Payload payload)
+    public async ValueTask EnqueueEventAsync(SmClient client, LoopEventType type, Payload payload)
     {
-        var evt = new ClientEvent { Client = client, Type = type, Payload = payload };
+        var evt = new LoopEvent { Client = client, Type = type, Payload = payload };
         client.IncrementPendingEvents();
         
         if (isAsync) {
@@ -129,11 +129,11 @@ public sealed partial class SmSessionLoop : IDisposable
     /// If the queue is saturated, the event is dropped and its payload is returned to the pool.
     /// </summary>
     /// <returns>True if the event was queued; false if it was dropped due to backpressure.</returns>
-    internal bool TryEnqueueEvent(SmClient? client, ClientEventType type, Payload payload)
+    internal bool TryEnqueueEvent(SmClient? client, LoopEventType type, Payload payload)
     {
         ObjectDisposedException.ThrowIf(isDisposed, this);
 
-        var evt = new ClientEvent { Client = client, Type = type, Payload = payload };
+        var evt = new LoopEvent { Client = client, Type = type, Payload = payload };
 
         if (isAsync)
         {
@@ -286,7 +286,7 @@ public sealed partial class SmSessionLoop : IDisposable
             SetAppDirtySync();
             return;
         }
-        TryEnqueueEvent(null, ClientEventType.SetAppDirty, default);
+        TryEnqueueEvent(null, LoopEventType.SetAppDirty, default);
     }
     
     private void SetAppDirtySync()
@@ -295,7 +295,7 @@ public sealed partial class SmSessionLoop : IDisposable
             if (session.SetDirty()) {
                 continue;
             }
-            TryEnqueueEvent(session.client, ClientEventType.FrameTick, default);
+            TryEnqueueEvent(session.client, LoopEventType.FrameTick, default);
         }
     }
     
@@ -314,7 +314,7 @@ public sealed partial class SmSessionLoop : IDisposable
         if (session.SetDirty()) {
             return;
         }
-        TryEnqueueEvent(session.client, ClientEventType.FrameTick, default);
+        TryEnqueueEvent(session.client, LoopEventType.FrameTick, default);
     }
     
     internal void SetSessionDirty(SmSession session)
@@ -322,7 +322,7 @@ public sealed partial class SmSessionLoop : IDisposable
         if (session.SetDirty()) {
             return;
         }
-        TryEnqueueEvent(session.client, ClientEventType.FrameTick, default);
+        TryEnqueueEvent(session.client, LoopEventType.FrameTick, default);
     }
 }
 

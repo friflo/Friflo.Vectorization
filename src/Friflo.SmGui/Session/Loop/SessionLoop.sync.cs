@@ -52,7 +52,7 @@ public partial class SmSessionLoop
             // Wakes up immediately when an event arrives or cancellation is requested. ZERO allocations
             WaitHandle.WaitAny(handles);
 
-            while (eventQueue.TryDequeue(out ClientEvent evt)) {
+            while (eventQueue.TryDequeue(out LoopEvent evt)) {
                 // accumulate queued inputs per client - late-rendering
                 var client = evt.Client;
                 if (client != null) {
@@ -65,19 +65,19 @@ public partial class SmSessionLoop
     }
     
     // process client event
-    private void ProcessClientEventSync(SmClient client, ClientEventType type, Payload payload)
+    private void ProcessClientEventSync(SmClient client, LoopEventType type, Payload payload)
     {
         var isQueueEmpty    = client.DecrementPendingEvents();
         var sessionId       = client.sessionId;
         try {
             switch (type)
             {
-                case ClientEventType.WebsocketConnected: {
+                case LoopEventType.WebsocketConnected: {
                     CreateGuiSession(client, true, out var _);
                     // newSession.wsBatch.loopTimer!.InitTimer(CancellationToken.None);
                     break;
                 }
-                case ClientEventType.WebsocketInput:
+                case LoopEventType.WebsocketInput:
                     if (sessions.TryGetValue(sessionId, out SmSession? session))
                     {
                         var payloadSpan = payload.Span;
@@ -91,7 +91,7 @@ public partial class SmSessionLoop
                     }
                     break;
     
-                case ClientEventType.TerminalConnected: {
+                case LoopEventType.TerminalConnected: {
                     var newSession      = CreateTuiSession(client, payload, true, out var initPayload);
                     var initialMessage  = newSession.StartSession();
                     
@@ -105,12 +105,12 @@ public partial class SmSessionLoop
                     // newSession.tuiBatch.loopTimer!.InitTimer(CancellationToken.None);
                     break;
                 }
-                case ClientEventType.TerminalDisconnected:
-                case ClientEventType.WebsocketDisconnected:
+                case LoopEventType.TerminalDisconnected:
+                case LoopEventType.WebsocketDisconnected:
                     RemoveSession(sessionId);
                     break;
 
-                case ClientEventType.TerminalInput:
+                case LoopEventType.TerminalInput:
                     if (sessions.TryGetValue(sessionId, out session))
                     {
                         var payloadSpan = payload.Span;
@@ -121,7 +121,7 @@ public partial class SmSessionLoop
                         }
                     }
                     break;
-                case ClientEventType.FrameTick:
+                case LoopEventType.FrameTick:
                     if (sessions.TryGetValue(sessionId, out session) && isQueueEmpty)
                     {
                         var sendBuffer = session.IterateUI(resources);
@@ -137,11 +137,11 @@ public partial class SmSessionLoop
     }
     
     // process event
-    private void ProcessEventSync(ClientEventType type, Payload payload)
+    private void ProcessEventSync(LoopEventType type, Payload payload)
     {
         try {
             switch (type) {
-                case ClientEventType.SetAppDirty:
+                case LoopEventType.SetAppDirty:
                     SetAppDirtySync();
                     break;
             }
@@ -160,7 +160,7 @@ public partial class SmSessionLoop
     {
         ObjectDisposedException.ThrowIf(isDisposed, this);
         var eventCount = eventQueue.Count;
-        while (eventQueue.TryDequeue(out ClientEvent evt))
+        while (eventQueue.TryDequeue(out LoopEvent evt))
         {
             // accumulate queued inputs per client - late-rendering
             var client = evt.Client;
