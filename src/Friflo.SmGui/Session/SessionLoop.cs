@@ -129,7 +129,7 @@ public sealed partial class SmSessionLoop : IDisposable
     /// If the queue is saturated, the event is dropped and its payload is returned to the pool.
     /// </summary>
     /// <returns>True if the event was queued; false if it was dropped due to backpressure.</returns>
-    internal bool TryEnqueueEvent(SmClient client, ClientEventType type, Payload payload)
+    internal bool TryEnqueueEvent(SmClient? client, ClientEventType type, Payload payload)
     {
         ObjectDisposedException.ThrowIf(isDisposed, this);
 
@@ -137,12 +137,12 @@ public sealed partial class SmSessionLoop : IDisposable
 
         if (isAsync)
         {
-            client.IncrementPendingEvents();
+            client?.IncrementPendingEvents();
             // Non-blocking try-write to the channel
             if (eventChannel!.Writer.TryWrite(evt)) {
                 return true;
             }
-            client.DecrementPendingEvents(); // decrement - TryWrite() failed
+            client?.DecrementPendingEvents(); // decrement - TryWrite() failed
             // Backpressure triggered: drop event and release memory back to pool
             payload.Return();
             return false;
@@ -154,7 +154,7 @@ public sealed partial class SmSessionLoop : IDisposable
             payload.Return();
             return false;
         }
-        client.IncrementPendingEvents();
+        client?.IncrementPendingEvents();
         eventQueue.Enqueue(evt);
         eventReady.Set(); // Wake up worker thread
         return true;
@@ -207,11 +207,9 @@ public sealed partial class SmSessionLoop : IDisposable
         return commandLine.Split(' ', StringSplitOptions.RemoveEmptyEntries);
     }
     
-    private TuiSession CreateTuiSession(ClientEvent evt, bool isSync, out Memory<byte> firstPayload)
+    private TuiSession CreateTuiSession(SmClient client, Payload payload, bool isSync, out Memory<byte> firstPayload)
     {
-        var payload         = evt.Payload;
         var firstLine       = payload.Span.IndexOf((byte)'\n');
-        var client          = evt.Client;
         var args            = firstLine == -1 ? [] : GetArgs(payload.Span.Slice(0, firstLine));
 
         var loopTimer       = new LoopTimer(this, client, 60, isSync);
@@ -252,14 +250,14 @@ public sealed partial class SmSessionLoop : IDisposable
         return session;
     }
 
-    /// Is called only from session loop thread. Synchronized Add/Remove is not necessary for set dirty.
+    /// Is called only from session loop thread. Synchronizing Add/Remove is not necessary for set dirty.
     private void AddSession(SessionId sessionId, SmSession session)
     {
         sessions          [sessionId] = session;
         concurrentSessions[sessionId] = session;
     }
     
-    /// Is called only from session loop thread. Synchronized Add/Remove is not necessary for set dirty.
+    /// Is called only from session loop thread. Synchronizing Add/Remove is not necessary for set dirty.
     private void RemoveSession(SessionId sessionId)
     {
         concurrentSessions.TryRemove(sessionId, out _);
@@ -284,17 +282,16 @@ public sealed partial class SmSessionLoop : IDisposable
     /// </remarks>
     public void SetAppDirty()
     {
-        if (sessionThreadId == Environment.CurrentManagedThreadId)
-        {
-            foreach (var session in sessions.Values) {
-                if (session.SetDirty()) {
-                    continue;
-                }
-                TryEnqueueEvent(session.client, ClientEventType.FrameTick, default);
-            }
+        if (sessionThreadId == Environment.CurrentManagedThreadId) {
+            SetAppDirtySync();
             return;
         }
-        foreach (var session in concurrentSessions.Values) {
+        TryEnqueueEvent(null, ClientEventType.SetAppDirty, default);
+    }
+    
+    private void SetAppDirtySync()
+    {
+        foreach (var session in sessions.Values) {
             if (session.SetDirty()) {
                 continue;
             }

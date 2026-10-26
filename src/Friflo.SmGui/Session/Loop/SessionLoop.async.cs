@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 
+// ReSharper disable SwitchStatementMissingSomeEnumCasesNoDefault
 // ReSharper disable SuggestVarOrType_SimpleTypes
 // ReSharper disable CheckNamespace
 namespace Friflo.SmGui.Session;
@@ -55,26 +56,30 @@ public partial class SmSessionLoop
                 continue;
             }
             // accumulate queued inputs per client - late-rendering
-            var isQueueEmpty = evt.Client.DecrementPendingEvents();
-            await ProcessEventAsync(evt, isQueueEmpty);
+            var client = evt.Client;
+            if (client != null) {
+                await ProcessClientEventAsync(client, evt.Type, evt.Payload);
+                continue;
+            }
+            ProcessEventAsync(evt.Type, evt.Payload);
         }
     }
     
-    // process event
-    private async ValueTask ProcessEventAsync(ClientEvent evt, bool isQueueEmpty)
+    // process client event
+    private async ValueTask ProcessClientEventAsync(SmClient client, ClientEventType type, Payload payload)
     {
-        var client      = evt.Client;
-        var sessionId   = client.sessionId;
+        var isQueueEmpty    = client.DecrementPendingEvents();
+        var sessionId       = client.sessionId;
         try {
-            switch (evt.Type)
+            switch (type)
             {
                 case ClientEventType.TerminalConnected: {
-                    var newSession      = CreateTuiSession(evt, false, out var payload);
+                    var newSession      = CreateTuiSession(client, payload, false, out var initPayload);
                     var initialMessage  = newSession.StartSession();
                     
                     await client.SendAsync(new SmSendMessage(initialMessage), CancellationToken.None);
                     
-                    newSession.ProcessInput(payload.Span);
+                    newSession.ProcessInput(initPayload.Span);
                     var sendBuffer = newSession.IterateUI(resources);
                     
                     await client.SendAsync(sendBuffer, CancellationToken.None);
@@ -89,8 +94,8 @@ public partial class SmSessionLoop
                 case ClientEventType.TerminalInput:
                     if (sessions.TryGetValue(sessionId, out var session))
                     {
-                        var payload = evt.Payload.Span;
-                        session.ProcessInput(payload);
+                        var payloadSpan = payload.Span;
+                        session.ProcessInput(payloadSpan);
                         if (isQueueEmpty) {
                             var sendBuffer  = session.IterateUI(resources);
                             await client.SendAsync(sendBuffer, CancellationToken.None);
@@ -108,7 +113,23 @@ public partial class SmSessionLoop
         } catch (Exception e) {
             Debug.Fail(e.ToString());
         } finally {
-            evt.Payload.Return();
+            payload.Return();
+        }
+    }
+    
+    // process event
+    private void ProcessEventAsync(ClientEventType type, Payload payload)
+    {
+        try {
+            switch (type) {
+                case ClientEventType.SetAppDirty:
+                    SetAppDirtySync();
+                    break;
+            }
+        } catch (Exception e) {
+            Debug.Fail(e.ToString());
+        } finally {
+            payload.Return();
         }
     }
 }

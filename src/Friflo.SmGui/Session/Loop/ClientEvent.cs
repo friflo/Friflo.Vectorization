@@ -9,8 +9,9 @@ using System.Buffers;
 namespace Friflo.SmGui.Session;
 
 
-public enum ClientEventType : byte
+public enum ClientEventType : byte  //  todo  rename -> LoopEventType
 {
+    // --- client events
     TerminalConnected,
     TerminalDisconnected,
     TerminalInput,
@@ -18,6 +19,9 @@ public enum ClientEventType : byte
     WebsocketConnected,
     WebsocketDisconnected,
     WebsocketInput,
+    
+    // --- non client events
+    SetAppDirty
 }
 
 public readonly struct Payload
@@ -40,9 +44,9 @@ public readonly struct Payload
     }
 }
 
-internal readonly struct ClientEvent
+internal readonly struct ClientEvent  //  todo  rename -> LoopEvent
 {
-    internal required   SmClient        Client  { get; init; }
+    internal required   SmClient?       Client  { get; init; }
     internal required   ClientEventType Type    { get; init; }
     internal required   Payload         Payload { get; init; }
 }
