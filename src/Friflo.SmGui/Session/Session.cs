@@ -26,7 +26,7 @@ internal abstract class SmSession
     internal           virtual  void            SendReplayCommands() { }
     
     internal           abstract void            ProcessInput(ReadOnlySpan<byte> input);
-    internal           abstract SmSendMessage   IterateUI(in AssetResources resources);
+    internal           abstract SmSendMessage   ProcessUI(in AssetResources resources);
     
     internal SmSession(SmClient client, SessionKeys keys) {
         this.client = client;

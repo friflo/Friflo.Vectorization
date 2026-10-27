@@ -44,5 +44,5 @@ builder.ConfigureWebHostDefaults(webBuilder =>
 
 _ = HttpUtils.Start(builder.Build());
     
-loop.RunSync(); // Blocks Main-Thread
+loop.Run(); // Blocks Main-Thread
 

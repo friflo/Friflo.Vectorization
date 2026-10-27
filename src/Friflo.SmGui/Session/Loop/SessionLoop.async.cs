@@ -86,14 +86,14 @@ public partial class SmSessionLoop
                     var payloadSpan = evt.Payload.Span;
                     session.ProcessInput(payloadSpan);
                     if (isQueueEmpty) {
-                        var sendBuffer  = session.IterateUI(resources);
+                        var sendBuffer  = session.ProcessUI(resources);
                         await client.SendAsync(sendBuffer, CancellationToken.None);
                     }
                     break;
                 case LoopEventType.FrameTick:
                     if (isQueueEmpty)
                     {
-                        var sendBuffer = session.IterateUI(resources);
+                        var sendBuffer = session.ProcessUI(resources);
                         await client.SendAsync(sendBuffer, CancellationToken.None);
                     }
                     break;
@@ -118,7 +118,7 @@ public partial class SmSessionLoop
                     await client.SendAsync(new SmSendMessage(initialMessage), CancellationToken.None);
                     
                     newSession.ProcessInput(initPayload.Span);
-                    var sendBuffer = newSession.IterateUI(resources);
+                    var sendBuffer = newSession.ProcessUI(resources);
                     
                     await client.SendAsync(sendBuffer, CancellationToken.None);
                     break;

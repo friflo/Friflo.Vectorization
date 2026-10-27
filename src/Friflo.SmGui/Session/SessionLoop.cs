@@ -50,7 +50,7 @@ public delegate void SessionsChanged(SessionsChangedArgs args);
 /// The <see cref="CreateGuiView"/> delegate passed to the <see cref="SmSessionLoop"/> constructor must return an instance implementing <see cref="IGuiView"/>.<br/>
 /// If a client has pending input or a dirty session, a new frame is rendered via <see cref="IGuiView.RenderView"/> and transmitted to the client.<br/>
 /// <br/>
-/// Use <see cref="RunSync"/> to let the loop run automatically (ideal for console and terminal applications).<br/>
+/// Use <see cref="Run"/> to let the loop run automatically (ideal for console and terminal applications).<br/>
 /// Alternatively, call <see cref="IterateSessions"/> periodically if your application manages its own custom event loop, such as a game loop.
 /// </remarks>
 public sealed partial class SmSessionLoop : IDisposable

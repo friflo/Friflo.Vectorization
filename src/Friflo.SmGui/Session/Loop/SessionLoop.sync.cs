@@ -14,23 +14,16 @@ namespace Friflo.SmGui.Session;
 public partial class SmSessionLoop
 {
     // start
-    public void RunSync()
+    public void Run()
     {
         ObjectDisposedException.ThrowIf(isDisposed, this);
         // if (shardThread != null) {
         //     throw new InvalidOperationException("session loop is already running.");
         // }
         
-        // Block main caller thread directly or start dedicated loop thread
-        RunSyncThreadLoop();
-    }
-
-
-    // run loop
-    private void RunSyncThreadLoop()
-    {
         try {
-            RunEventLoopSync(cts.Token);
+            // Block main caller thread directly or start dedicated loop thread
+            RunEventLoop(cts.Token);
         }
         catch (OperationCanceledException)
         {
@@ -43,7 +36,7 @@ public partial class SmSessionLoop
     }
 
     // run event loop
-    private void RunEventLoopSync(CancellationToken cancellationToken)
+    private void RunEventLoop(CancellationToken cancellationToken)
     {
         WaitHandle[] handles = [eventReady, cancellationToken.WaitHandle];
 
@@ -55,16 +48,16 @@ public partial class SmSessionLoop
 
             while (eventQueue.TryDequeue(out LoopEvent evt)) {
                 if (evt.sessionId.id != 0) {
-                    ProcessSessionEventSync(evt);
+                    ProcessSessionEvent(evt);
                 } else {
-                    ProcessEventSync (evt);
+                    ProcessEvent (evt);
                 }
             }
         }
     }
     
     // process client event
-    private void ProcessSessionEventSync (in LoopEvent evt)
+    private void ProcessSessionEvent (in LoopEvent evt)
     {
         if (!sessions.TryGetValue(evt.sessionId, out var session)) {
             evt.Payload.Return();
@@ -80,7 +73,7 @@ public partial class SmSessionLoop
                 case LoopEventType.WebsocketInput:
                     session.ProcessInput(evt.Payload.Span);
                     if (isQueueEmpty) {
-                        var sendBuffer = session.IterateUI(resources);
+                        var sendBuffer = session.ProcessUI(resources);
                         if (!sendBuffer.IsEmpty) {
                             client.Send(sendBuffer);  // MUST not block. No backpressure
                         }
@@ -96,14 +89,14 @@ public partial class SmSessionLoop
                     var payloadSpan = evt.Payload.Span;
                     session.ProcessInput(payloadSpan);
                     if (isQueueEmpty) {
-                        var sendBuffer  = session.IterateUI(resources);
+                        var sendBuffer  = session.ProcessUI(resources);
                         client.Send(sendBuffer);  // MUST not block. No backpressure
                     }
                     break;
                 case LoopEventType.FrameTick:
                     if (isQueueEmpty)
                     {
-                        var sendBuffer = session.IterateUI(resources);
+                        var sendBuffer = session.ProcessUI(resources);
                         client.Send(sendBuffer);  // MUST not block. No backpressure
                     }
                     break;
@@ -119,7 +112,7 @@ public partial class SmSessionLoop
     }
     
     // process event
-    private void ProcessEventSync (in LoopEvent evt)
+    private void ProcessEvent (in LoopEvent evt)
     {
         try {
             switch (evt.type) {
@@ -136,7 +129,7 @@ public partial class SmSessionLoop
                     client.Send(new SmSendMessage(initialMessage));  // MUST not block. No backpressure
                     
                     newSession.ProcessInput(initPayload.Span);
-                    var sendBuffer = newSession.IterateUI(resources);
+                    var sendBuffer = newSession.ProcessUI(resources);
                     
                     client.Send(sendBuffer);  // MUST not block. No backpressure
                     break;
@@ -163,9 +156,9 @@ public partial class SmSessionLoop
         while (eventQueue.TryDequeue(out LoopEvent evt))
         {
             if (evt.sessionId.id != 0) {
-                ProcessSessionEventSync(evt);
+                ProcessSessionEvent(evt);
             } else {
-                ProcessEventSync(evt);
+                ProcessEvent(evt);
             }
             if (--eventCount == 0) {
                 break;

@@ -61,7 +61,7 @@ _ = signalListener.RunAsync();
 // Run TCP accept loop in background and lock Main-Thread for engine execution
 _ = Task.Run(() => RunTcpServerAsync(loop, port: 9000));
 
-loop.RunSync(); // Blocks Main-Thread directly
+loop.Run(); // Blocks Main-Thread directly
 
 
 static async Task RunTcpServerAsync(SmSessionLoop loop, int port)

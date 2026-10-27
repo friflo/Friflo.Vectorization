@@ -62,7 +62,7 @@ internal sealed partial class GuiSession : SmSession
     protected internal override SmBatch         Batch   => guiBatch;
 
 
-    internal override SmSendMessage IterateUI(in AssetResources resources)
+    internal override SmSendMessage ProcessUI(in AssetResources resources)
     {
         isDirty = false;
 

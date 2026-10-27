@@ -120,7 +120,7 @@ internal sealed partial class TuiSession : SmSession
         AppendSpan("\x1b[18t"u8);       // Request current terminal size from terminal via stdout - answer handled by HandleInBandResize()
     }
     
-    internal override SmSendMessage IterateUI(in AssetResources resources)
+    internal override SmSendMessage ProcessUI(in AssetResources resources)
     {
         isDirty = false;
 
