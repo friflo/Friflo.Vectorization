@@ -17,30 +17,10 @@ public partial class SmSessionLoop
     public void Run()
     {
         ObjectDisposedException.ThrowIf(isDisposed, this);
-        // if (shardThread != null) {
-        //     throw new InvalidOperationException("session loop is already running.");
-        // }
-        
-        try {
-            // Block main caller thread directly or start dedicated loop thread
-            RunEventLoop(cts.Token);
-        }
-        catch (OperationCanceledException)
-        {
-            // Expected behavior if canceled
-        }
-        catch (Exception ex)
-        {
-            Debug.Fail($"Critical in SmSessionLoop: {ex}");
-        }
-    }
 
-    // run event loop
-    private void RunEventLoop(CancellationToken cancellationToken)
-    {
-        WaitHandle[] handles = [eventReady, cancellationToken.WaitHandle];
+        WaitHandle[] handles = [eventReady, cts.Token.WaitHandle];
 
-        while (!cancellationToken.IsCancellationRequested)
+        while (!cts.Token.IsCancellationRequested)
         {
             // Blocks thread cleanly with 0% CPU usage when empty
             // Wakes up immediately when an event arrives or cancellation is requested. ZERO allocations
