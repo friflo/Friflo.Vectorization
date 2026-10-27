@@ -58,7 +58,7 @@ var builder = HttpUtils.CreateHostBuilder(new IPEndPoint(IPAddress.IPv6Any, 8080
 _ = HttpUtils.Start(builder.Build());
 
 var signalListener =  new SmSignalingListener(loop);
-await signalListener.ConnectAsync(new Uri("wss://localhost:8081/signaling"), "test-app", "auto");
+signalListener.ConnectAsync(new Uri("wss://localhost:8081/signaling"), "test-app", "auto").Wait(); // stay on main thread
 _ = signalListener.RunAsync();
 
 if (runAsync) {
