@@ -139,7 +139,7 @@ public sealed class SmSignaling
                     var msg = new SignalMessage("ConnectResponse", message.app, peer.connection, result);
                     var errorResponse = JsonSerializer.SerializeToUtf8Bytes(msg);
                     await peer.SendAsync(errorResponse);
-                    Console.WriteLine($"Connect app: '{message.app}'  {result}");
+                    Console.WriteLine($"Connecting app: '{message.app}'  {result}");
                 }
                 break;
             case "close":
