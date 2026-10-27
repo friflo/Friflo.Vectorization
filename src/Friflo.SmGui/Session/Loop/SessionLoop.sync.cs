@@ -81,7 +81,7 @@ public partial class SmSessionLoop
                     if (isQueueEmpty) {
                         var sendBuffer = session.IterateUI(resources);
                         if (!sendBuffer.IsEmpty) {
-                            client.Send(sendBuffer);
+                            client.Send(sendBuffer);  // MUST not block. No backpressure
                         }
                     }
                     break;
@@ -96,14 +96,14 @@ public partial class SmSessionLoop
                     session.ProcessInput(payloadSpan);
                     if (isQueueEmpty) {
                         var sendBuffer  = session.IterateUI(resources);
-                        client.Send(sendBuffer);
+                        client.Send(sendBuffer);  // MUST not block. No backpressure
                     }
                     break;
                 case LoopEventType.FrameTick:
                     if (isQueueEmpty)
                     {
                         var sendBuffer = session.IterateUI(resources);
-                        client.Send(sendBuffer);
+                        client.Send(sendBuffer);  // MUST not block. No backpressure
                     }
                     break;
             }
@@ -129,12 +129,12 @@ public partial class SmSessionLoop
                     var newSession      = CreateTuiSession(client, evt.Payload, true, out var initPayload);
                     var initialMessage  = newSession.StartSession();
                     
-                    client.Send(new SmSendMessage(initialMessage));
+                    client.Send(new SmSendMessage(initialMessage));  // MUST not block. No backpressure
                     
                     newSession.ProcessInput(initPayload.Span);
                     var sendBuffer = newSession.IterateUI(resources);
                     
-                    client.Send(sendBuffer);
+                    client.Send(sendBuffer);  // MUST not block. No backpressure
                     break;
                 }
                 case LoopEventType.SetAppDirty:
