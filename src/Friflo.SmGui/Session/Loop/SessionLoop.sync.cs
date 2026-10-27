@@ -67,6 +67,7 @@ public partial class SmSessionLoop
     private void ProcessSessionEventSync (in LoopEvent evt)
     {
         if (!sessions.TryGetValue(evt.sessionId, out var session)) {
+            evt.Payload.Return();
             return;
         }
         var client          = session.client;
