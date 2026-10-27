@@ -111,7 +111,7 @@ public sealed partial class SmSessionLoop : IDisposable
     }
     
     
-    
+    /*
     // --- enqueue async
     public ValueTask EnqueueEventAsync(LoopEventType type, object? state, Payload payload, int data = 0)
     {
@@ -135,12 +135,12 @@ public sealed partial class SmSessionLoop : IDisposable
         }
         eventQueue.Enqueue(evt);
         eventReady.Set(); // wake up Thread
-    }
+    } */
     
     
     
     // --- enqueue sync
-    internal bool TryEnqueueEvent(LoopEventType type, object? state, Payload payload, int data = 0)
+    public bool TryEnqueueEvent(LoopEventType type, object? state, Payload payload, int data = 0)
     {
         return TryEnqueueEventSync(null, default, type, state, payload, data);
     }
@@ -150,7 +150,7 @@ public sealed partial class SmSessionLoop : IDisposable
     /// If the queue is saturated, the event is dropped and its payload is returned to the pool.
     /// </summary>
     /// <returns>True if the event was queued; false if it was dropped due to backpressure.</returns>
-    internal bool TryEnqueueClientEvent(SmClient client, LoopEventType type, Payload payload)
+    public bool TryEnqueueClientEvent(SmClient client, LoopEventType type, Payload payload)
     {
         return TryEnqueueEventSync(client, client.sessionId, type, null, payload, 0);
     }

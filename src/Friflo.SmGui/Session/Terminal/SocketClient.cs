@@ -67,7 +67,7 @@ public class SocketClient : SmClient
             }
 
             // Notify loop about new client connection, passing initial payload (if any)
-            await loop.EnqueueEventAsync(LoopEventType.TerminalConnected, client, initialPayload);
+            loop.TryEnqueueEvent(LoopEventType.TerminalConnected, client, initialPayload);
 
             while (!cancellationToken.IsCancellationRequested)
             {
@@ -78,13 +78,13 @@ public class SocketClient : SmClient
                 var payload = new Payload(buffer, bytesRead);
 
                 // Forward raw input directly to the shard event loop
-                await loop.EnqueueClientEventAsync(client, LoopEventType.TerminalInput, payload);
+                loop.TryEnqueueClientEvent(client, LoopEventType.TerminalInput, payload);
             }
         }
         finally
         {
             // ArrayPool<byte>.Shared.Return(buffer);
-            await loop.EnqueueClientEventAsync(client, LoopEventType.TerminalDisconnected, default);
+            loop.TryEnqueueClientEvent(client, LoopEventType.TerminalDisconnected, default);
         }
     }
 }

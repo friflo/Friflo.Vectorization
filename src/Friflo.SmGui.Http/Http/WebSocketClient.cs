@@ -116,7 +116,7 @@ internal class WebSocketClient : SmClient
                 if (result.MessageType == WebSocketMessageType.Text || result.MessageType == WebSocketMessageType.Binary)
                 {
                     var payload = new Payload(buffer, result.Count);
-                    await loop.EnqueueClientEventAsync(client, LoopEventType.WebsocketInput, payload);
+                    loop.TryEnqueueClientEvent(client, LoopEventType.WebsocketInput, payload);
                 }
                 else
                 {
@@ -157,7 +157,7 @@ internal class WebSocketClient : SmClient
 
     internal static async Task HandleClientSessionAsync(WebSocketClient client, SmSessionLoop loop, CancellationToken cancellationToken)
     {
-        await loop.EnqueueEventAsync(LoopEventType.WebsocketConnected, client, default);
+        loop.TryEnqueueEvent(LoopEventType.WebsocketConnected, client, default);
 
         // Run independent receive and send loops concurrently
         Task receiveLoop = ReceiveLoopAsync(client, loop, cancellationToken);
@@ -176,7 +176,7 @@ internal class WebSocketClient : SmClient
         {
             // Guaranteed to run even if the browser tab was force-closed
             client.Dispose();
-            await loop.EnqueueClientEventAsync(client, LoopEventType.WebsocketDisconnected, default);
+            loop.TryEnqueueClientEvent(client, LoopEventType.WebsocketDisconnected, default);
         }
     }
 }
