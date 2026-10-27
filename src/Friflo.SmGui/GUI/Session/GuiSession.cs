@@ -69,6 +69,11 @@ internal sealed partial class GuiSession : SmSession
         guiBackend.NewFrame();
         guiView!.RenderView(guiBatch, canvasWidth, canvasHeight);
         
+        return BuildMessage(resources);
+    }
+    
+    private SmSendMessage BuildMessage(in AssetResources resources)
+    {
         guiBatch.DrawCommandList();
 
         var usedTextures    = clientTextures;
