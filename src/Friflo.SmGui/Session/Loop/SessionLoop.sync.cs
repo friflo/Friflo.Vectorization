@@ -106,6 +106,9 @@ public partial class SmSessionLoop
                         client.Send(sendBuffer);  // MUST not block. No backpressure
                     }
                     break;
+                case LoopEventType.PostMessage:
+                    session.guiView!.OnMessage(evt.state, evt.Payload, evt.data);
+                    break;
             }
         } catch (Exception e) {
             Debug.Fail(e.ToString());

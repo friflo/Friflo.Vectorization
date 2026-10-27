@@ -68,6 +68,11 @@ public interface IGuiView
     /// Renders the GUI into the specified <paramref name="batch"/> for the given viewport dimensions.
     /// </summary>
     void RenderView(SmBatch batch, int targetWidth, int targetHeight);
+    
+    /// <summary>
+    /// Called when a message is received for this view, dispatched from <see cref="ViewSession.PostMessage"/>.
+    /// </summary>
+    void OnMessage(object? state, Payload payload, int data) { }
 }
 
 
@@ -142,6 +147,17 @@ public sealed class ViewSession
         backend     = null;
         loopTimer   = null;
         session     = null;
+    }
+    
+    /// <summary>
+    /// Posts a message to the session's event loop, which will be handled by <see cref="IGuiView.OnMessage"/>.
+    /// </summary>
+    public void PostMessage(object? state, Payload payload, int data)
+    {
+        var local = session;
+        if (local != null) {
+            loop.TryEnqueueEventSync(local.client, SessionId, LoopEventType.PostMessage, state, payload, data);
+        }
     }
     
     /// <summary>

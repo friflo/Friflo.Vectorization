@@ -19,6 +19,7 @@ public enum LoopEventType
     FrameTick,
     WebsocketDisconnected,
     WebsocketInput,
+    PostMessage,
     
     // --- non client events
     TerminalConnected,
@@ -31,8 +32,8 @@ public readonly struct Payload
     internal readonly   byte[]  buffer;     // 8 bytes
     internal readonly   int     length;     // 4 bytes
     
-    public ReadOnlySpan<byte>   Span                    => new(buffer, 0,     length);
-    public Memory<byte>         GetMemory(int start)    => new(buffer, start, length - start);
+    public   ReadOnlySpan<byte> Span                    => new(buffer, 0,     length);
+    internal Memory<byte>       GetMemory(int start)    => new(buffer, start, length - start);
 
     public Payload(byte[] buffer, int length) {
         this.buffer = buffer;

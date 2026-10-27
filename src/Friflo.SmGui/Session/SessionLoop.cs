@@ -161,7 +161,7 @@ public sealed partial class SmSessionLoop : IDisposable
         return TryEnqueueEventSync(client, client.sessionId, type, null, payload, 0);
     }
     
-    private bool TryEnqueueEventSync(SmClient? client, SessionId sessionId, LoopEventType type, object? state, Payload payload, int data)
+    internal bool TryEnqueueEventSync(SmClient? client, SessionId sessionId, LoopEventType type, object? state, Payload payload, int data)
     {
         ObjectDisposedException.ThrowIf(isDisposed, this);
 
