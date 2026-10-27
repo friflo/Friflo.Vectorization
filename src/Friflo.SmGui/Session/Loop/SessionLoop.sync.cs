@@ -38,7 +38,7 @@ public partial class SmSessionLoop
         }
         catch (Exception ex)
         {
-            Debug.Fail($"Critical failure in ShardLoopThread: {ex}");
+            Debug.Fail($"Critical in SmSessionLoop: {ex}");
         }
     }
 
