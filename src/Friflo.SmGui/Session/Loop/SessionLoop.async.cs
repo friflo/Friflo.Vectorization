@@ -6,8 +6,8 @@ using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 
-// ReSharper disable SwitchStatementMissingSomeEnumCasesNoDefault
 // ReSharper disable SuggestVarOrType_SimpleTypes
+// ReSharper disable SwitchStatementMissingSomeEnumCasesNoDefault
 // ReSharper disable CheckNamespace
 namespace Friflo.SmGui.Session;
 
@@ -55,55 +55,41 @@ public partial class SmSessionLoop
             if (!reader.TryRead(out LoopEvent evt)) {
                 continue;
             }
-            // accumulate queued inputs per client - late-rendering
-            var client = evt.Client;
-            if (client != null) {
-                await ProcessClientEventAsync(client, evt.Type, evt.Payload);
-                continue;
+            if (evt.sessionId.id != 0) {
+                await ProcessSessionEventAsync(evt);
+            } else {
+                await ProcessEventAsync (evt);
             }
-            ProcessEventAsync(evt.Type, evt.Payload);
         }
     }
     
     // process client event
-    private async ValueTask ProcessClientEventAsync(SmClient client, LoopEventType type, Payload payload)
+    private async ValueTask ProcessSessionEventAsync (LoopEvent evt)
     {
+        if (!sessions.TryGetValue(evt.sessionId, out var session)) {
+            return;
+        }
+        var client          = session.client;
+        // accumulate queued inputs per client - late-rendering
         var isQueueEmpty    = client.DecrementPendingEvents();
-        var sessionId       = client.sessionId;
-        try {
-            switch (type)
-            {
-                case LoopEventType.TerminalConnected: {
-                    var newSession      = CreateTuiSession(client, payload, false, out var initPayload);
-                    var initialMessage  = newSession.StartSession();
-                    
-                    await client.SendAsync(new SmSendMessage(initialMessage), CancellationToken.None);
-                    
-                    newSession.ProcessInput(initPayload.Span);
-                    var sendBuffer = newSession.IterateUI(resources);
-                    
-                    await client.SendAsync(sendBuffer, CancellationToken.None);
-                    
-                    // newSession.tuiBatch.loopTimer!.InitTimer(CancellationToken.None);
-                    break;
-                }
-                case LoopEventType.TerminalDisconnected:
-                    RemoveSession(sessionId);
-                    break;
 
+        try {
+            switch (evt.type)
+            {
+                case LoopEventType.TerminalDisconnected:
+                    RemoveSession(evt.sessionId);
+                    break;
+                
                 case LoopEventType.TerminalInput:
-                    if (sessions.TryGetValue(sessionId, out var session))
-                    {
-                        var payloadSpan = payload.Span;
-                        session.ProcessInput(payloadSpan);
-                        if (isQueueEmpty) {
-                            var sendBuffer  = session.IterateUI(resources);
-                            await client.SendAsync(sendBuffer, CancellationToken.None);
-                        }
+                    var payloadSpan = evt.Payload.Span;
+                    session.ProcessInput(payloadSpan);
+                    if (isQueueEmpty) {
+                        var sendBuffer  = session.IterateUI(resources);
+                        await client.SendAsync(sendBuffer, CancellationToken.None);
                     }
                     break;
                 case LoopEventType.FrameTick:
-                    if (sessions.TryGetValue(sessionId, out session) && isQueueEmpty)
+                    if (isQueueEmpty)
                     {
                         var sendBuffer = session.IterateUI(resources);
                         await client.SendAsync(sendBuffer, CancellationToken.None);
@@ -113,15 +99,28 @@ public partial class SmSessionLoop
         } catch (Exception e) {
             Debug.Fail(e.ToString());
         } finally {
-            payload.Return();
+            evt.Payload.Return();
         }
     }
     
     // process event
-    private void ProcessEventAsync(LoopEventType type, Payload payload)
+    private async ValueTask ProcessEventAsync (LoopEvent evt)
     {
         try {
-            switch (type) {
+            switch (evt.type) {
+                case LoopEventType.TerminalConnected: {
+                    var client          = (SmClient)evt.state!;
+                    var newSession      = CreateTuiSession(client, evt.Payload, false, out var initPayload);
+                    var initialMessage  = newSession.StartSession();
+                    
+                    await client.SendAsync(new SmSendMessage(initialMessage), CancellationToken.None);
+                    
+                    newSession.ProcessInput(initPayload.Span);
+                    var sendBuffer = newSession.IterateUI(resources);
+                    
+                    await client.SendAsync(sendBuffer, CancellationToken.None);
+                    break;
+                }
                 case LoopEventType.SetAppDirty:
                     SetAppDirtySync();
                     break;
@@ -129,7 +128,7 @@ public partial class SmSessionLoop
         } catch (Exception e) {
             Debug.Fail(e.ToString());
         } finally {
-            payload.Return();
+            evt.Payload.Return();
         }
     }
 }

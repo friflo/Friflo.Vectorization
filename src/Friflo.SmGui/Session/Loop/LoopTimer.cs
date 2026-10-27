@@ -164,7 +164,7 @@ public sealed class LoopTimer : IDisposable
     
     private void EnqueueFrameTick()
     {
-        loop!.TryEnqueueEvent(client!, LoopEventType.FrameTick, default);
+        loop!.TryEnqueueClientEvent(client!, LoopEventType.FrameTick, default);
     }
 
     private void StartFrameTickerSync()

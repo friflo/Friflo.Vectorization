@@ -87,7 +87,7 @@ public sealed class ConsoleClient : SmClient
             var length = client.AppendConsoleSize(buffer, 0);
             var payload = new Payload(buffer, length);
             
-            await loop.EnqueueEventAsync(client, LoopEventType.TerminalConnected, payload);
+            await loop.EnqueueEventAsync(LoopEventType.TerminalConnected, client, payload);
 
             while (!cancellationToken.IsCancellationRequested)
             {
@@ -100,12 +100,12 @@ public sealed class ConsoleClient : SmClient
 
                 payload = new Payload(buffer, bytesRead);
 
-                await loop.EnqueueEventAsync(client, LoopEventType.TerminalInput, payload);
+                await loop.EnqueueClientEventAsync(client, LoopEventType.TerminalInput, payload);
             }
         }
         finally
         {
-            await loop.EnqueueEventAsync(client, LoopEventType.TerminalDisconnected, default);
+            await loop.EnqueueClientEventAsync(client, LoopEventType.TerminalDisconnected, default);
         }
     }
 }

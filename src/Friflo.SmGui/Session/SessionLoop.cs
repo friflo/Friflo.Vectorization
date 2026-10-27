@@ -110,11 +110,24 @@ public sealed partial class SmSessionLoop : IDisposable
         PosixSignalUtils.AddExitHandler(exitHandler);
     }
     
-    public async ValueTask EnqueueEventAsync(SmClient client, LoopEventType type, Payload payload)
+    
+    
+    // --- enqueue async
+    public ValueTask EnqueueEventAsync(LoopEventType type, object? state, Payload payload, int data = 0)
     {
-        var evt = new LoopEvent { Client = client, Type = type, Payload = payload };
+        return EnqueueAsync(default, type, state, payload, data);
+    }
+    
+    public ValueTask EnqueueClientEventAsync(SmClient client, LoopEventType type, Payload payload)
+    {
         client.IncrementPendingEvents();
-        
+        return EnqueueAsync(client.sessionId, type, null, payload, 0);
+    }
+    
+    private async ValueTask EnqueueAsync(SessionId sessionId, LoopEventType type, object? state, Payload payload, int data)
+    {
+        var evt = new LoopEvent(sessionId, type, state, payload, data);
+
         if (isAsync) {
             ObjectDisposedException.ThrowIf(isDisposed, this);
             await eventChannel!.Writer.WriteAsync(evt);
@@ -123,17 +136,30 @@ public sealed partial class SmSessionLoop : IDisposable
         eventQueue.Enqueue(evt);
         eventReady.Set(); // wake up Thread
     }
-
+    
+    
+    
+    // --- enqueue sync
+    internal bool TryEnqueueEvent(LoopEventType type, object? state, Payload payload, int data = 0)
+    {
+        return TryEnqueueEventSync(null, default, type, state, payload, data);
+    }
+    
     /// <summary>
     /// Tries to enqueue an event without blocking. 
     /// If the queue is saturated, the event is dropped and its payload is returned to the pool.
     /// </summary>
     /// <returns>True if the event was queued; false if it was dropped due to backpressure.</returns>
-    internal bool TryEnqueueEvent(SmClient? client, LoopEventType type, Payload payload)
+    internal bool TryEnqueueClientEvent(SmClient client, LoopEventType type, Payload payload)
+    {
+        return TryEnqueueEventSync(client, client.sessionId, type, null, payload, 0);
+    }
+    
+    private bool TryEnqueueEventSync(SmClient? client, SessionId sessionId, LoopEventType type, object? state, Payload payload, int data)
     {
         ObjectDisposedException.ThrowIf(isDisposed, this);
 
-        var evt = new LoopEvent { Client = client, Type = type, Payload = payload };
+        var evt = new LoopEvent(sessionId, type, state, payload, data);
 
         if (isAsync)
         {
@@ -160,6 +186,9 @@ public sealed partial class SmSessionLoop : IDisposable
         return true;
     }
     
+    
+    
+    // --- lifecycle
     private void ExitHandler()
     {
         PosixSignalUtils.RemoveExitHandler(exitHandler);
@@ -286,7 +315,7 @@ public sealed partial class SmSessionLoop : IDisposable
             SetAppDirtySync();
             return;
         }
-        TryEnqueueEvent(null, LoopEventType.SetAppDirty, default);
+        TryEnqueueEvent(LoopEventType.SetAppDirty, null, default);
     }
     
     private void SetAppDirtySync()
@@ -295,7 +324,7 @@ public sealed partial class SmSessionLoop : IDisposable
             if (session.SetDirty()) {
                 continue;
             }
-            TryEnqueueEvent(session.client, LoopEventType.FrameTick, default);
+            TryEnqueueClientEvent(session.client, LoopEventType.FrameTick, default);
         }
     }
     
@@ -314,7 +343,7 @@ public sealed partial class SmSessionLoop : IDisposable
         if (session.SetDirty()) {
             return;
         }
-        TryEnqueueEvent(session.client, LoopEventType.FrameTick, default);
+        TryEnqueueClientEvent(session.client, LoopEventType.FrameTick, default);
     }
     
     internal void SetSessionDirty(SmSession session)
@@ -322,7 +351,7 @@ public sealed partial class SmSessionLoop : IDisposable
         if (session.SetDirty()) {
             return;
         }
-        TryEnqueueEvent(session.client, LoopEventType.FrameTick, default);
+        TryEnqueueClientEvent(session.client, LoopEventType.FrameTick, default);
     }
 }
 

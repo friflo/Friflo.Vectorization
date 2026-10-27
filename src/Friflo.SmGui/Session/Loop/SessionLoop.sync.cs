@@ -5,6 +5,7 @@ using System;
 using System.Diagnostics;
 using System.Threading;
 
+// ReSharper disable SuggestVarOrType_SimpleTypes
 // ReSharper disable SwitchStatementMissingSomeEnumCasesNoDefault
 // ReSharper disable CheckNamespace
 namespace Friflo.SmGui.Session;
@@ -53,76 +54,53 @@ public partial class SmSessionLoop
             WaitHandle.WaitAny(handles);
 
             while (eventQueue.TryDequeue(out LoopEvent evt)) {
-                // accumulate queued inputs per client - late-rendering
-                var client = evt.Client;
-                if (client != null) {
-                    ProcessClientEventSync(client, evt.Type, evt.Payload);
-                    continue;
+                if (evt.sessionId.id != 0) {
+                    ProcessSessionEventSync(evt);
+                } else {
+                    ProcessEventSync (evt);
                 }
-                ProcessEventSync(evt.Type, evt.Payload);
             }
         }
     }
     
     // process client event
-    private void ProcessClientEventSync(SmClient client, LoopEventType type, Payload payload)
+    private void ProcessSessionEventSync (in LoopEvent evt)
     {
+        if (!sessions.TryGetValue(evt.sessionId, out var session)) {
+            return;
+        }
+        var client          = session.client;
+        // accumulate queued inputs per client - late-rendering
         var isQueueEmpty    = client.DecrementPendingEvents();
-        var sessionId       = client.sessionId;
+        
         try {
-            switch (type)
+            switch (evt.type)
             {
-                case LoopEventType.WebsocketConnected: {
-                    CreateGuiSession(client, true, out var _);
-                    // newSession.wsBatch.loopTimer!.InitTimer(CancellationToken.None);
-                    break;
-                }
                 case LoopEventType.WebsocketInput:
-                    if (sessions.TryGetValue(sessionId, out SmSession? session))
-                    {
-                        var payloadSpan = payload.Span;
-                        session.ProcessInput(payloadSpan);
-                        if (isQueueEmpty) {
-                            var sendBuffer = session.IterateUI(resources);
-                            if (!sendBuffer.IsEmpty) {
-                                client.Send(sendBuffer);
-                            }
-                        }
-                    }
-                    break;
-    
-                case LoopEventType.TerminalConnected: {
-                    var newSession      = CreateTuiSession(client, payload, true, out var initPayload);
-                    var initialMessage  = newSession.StartSession();
-                    
-                    client.Send(new SmSendMessage(initialMessage));
-                    
-                    newSession.ProcessInput(initPayload.Span);
-                    var sendBuffer = newSession.IterateUI(resources);
-                    
-                    client.Send(sendBuffer);
-                    
-                    // newSession.tuiBatch.loopTimer!.InitTimer(CancellationToken.None);
-                    break;
-                }
-                case LoopEventType.TerminalDisconnected:
-                case LoopEventType.WebsocketDisconnected:
-                    RemoveSession(sessionId);
-                    break;
-
-                case LoopEventType.TerminalInput:
-                    if (sessions.TryGetValue(sessionId, out session))
-                    {
-                        var payloadSpan = payload.Span;
-                        session.ProcessInput(payloadSpan);
-                        if (isQueueEmpty) {
-                            var sendBuffer  = session.IterateUI(resources);
+                    session.ProcessInput(evt.Payload.Span);
+                    if (isQueueEmpty) {
+                        var sendBuffer = session.IterateUI(resources);
+                        if (!sendBuffer.IsEmpty) {
                             client.Send(sendBuffer);
                         }
                     }
                     break;
+    
+                case LoopEventType.TerminalDisconnected:
+                case LoopEventType.WebsocketDisconnected:
+                    RemoveSession(evt.sessionId);
+                    break;
+
+                case LoopEventType.TerminalInput:
+                    var payloadSpan = evt.Payload.Span;
+                    session.ProcessInput(payloadSpan);
+                    if (isQueueEmpty) {
+                        var sendBuffer  = session.IterateUI(resources);
+                        client.Send(sendBuffer);
+                    }
+                    break;
                 case LoopEventType.FrameTick:
-                    if (sessions.TryGetValue(sessionId, out session) && isQueueEmpty)
+                    if (isQueueEmpty)
                     {
                         var sendBuffer = session.IterateUI(resources);
                         client.Send(sendBuffer);
@@ -132,15 +110,33 @@ public partial class SmSessionLoop
         } catch (Exception e) {
             Debug.Fail(e.ToString());
         } finally {
-            payload.Return();
+            evt.Payload.Return();
         }
     }
     
     // process event
-    private void ProcessEventSync(LoopEventType type, Payload payload)
+    private void ProcessEventSync (in LoopEvent evt)
     {
         try {
-            switch (type) {
+            switch (evt.type) {
+                case LoopEventType.WebsocketConnected: {
+                    var client = (SmClient)evt.state!;
+                    CreateGuiSession(client, true, out var _);
+                    break;
+                }
+                case LoopEventType.TerminalConnected: {
+                    var client          = (SmClient)evt.state!;
+                    var newSession      = CreateTuiSession(client, evt.Payload, true, out var initPayload);
+                    var initialMessage  = newSession.StartSession();
+                    
+                    client.Send(new SmSendMessage(initialMessage));
+                    
+                    newSession.ProcessInput(initPayload.Span);
+                    var sendBuffer = newSession.IterateUI(resources);
+                    
+                    client.Send(sendBuffer);
+                    break;
+                }
                 case LoopEventType.SetAppDirty:
                     SetAppDirtySync();
                     break;
@@ -148,7 +144,7 @@ public partial class SmSessionLoop
         } catch (Exception e) {
             Debug.Fail(e.ToString());
         } finally {
-            payload.Return();
+            evt.Payload.Return();
         }
     }
     
@@ -162,16 +158,14 @@ public partial class SmSessionLoop
         var eventCount = eventQueue.Count;
         while (eventQueue.TryDequeue(out LoopEvent evt))
         {
-            // accumulate queued inputs per client - late-rendering
-            var client = evt.Client;
-            if (client != null) {
-                ProcessClientEventSync(client, evt.Type, evt.Payload);
-                if (--eventCount == 0) {
-                    break;
-                }
-                continue;
+            if (evt.sessionId.id != 0) {
+                ProcessSessionEventSync(evt);
+            } else {
+                ProcessEventSync(evt);
             }
-            ProcessEventSync(evt.Type, evt.Payload);
+            if (--eventCount == 0) {
+                break;
+            }
         }
     }
 }

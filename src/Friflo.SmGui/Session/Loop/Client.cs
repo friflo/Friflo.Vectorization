@@ -66,7 +66,7 @@ public abstract class SmClient
     private             SendQueueState  queueState;
     public   readonly   SessionId       sessionId;
 
-    public   override   string          ToString() => $"session {sessionId}";
+    public   override   string          ToString() => $"session: {sessionId}";
 
     private static int _sessionSeq;
     

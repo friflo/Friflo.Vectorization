@@ -58,7 +58,7 @@ public class StreamClient : SmClient
     {
         try
         {
-            await loop.EnqueueEventAsync(client, LoopEventType.TerminalConnected, default);
+            await loop.EnqueueEventAsync(LoopEventType.TerminalConnected, client, default);
 
             while (!cancellationToken.IsCancellationRequested)
             {
@@ -68,12 +68,12 @@ public class StreamClient : SmClient
 
                 var payload = new Payload(buffer, bytesRead);
 
-                await loop.EnqueueEventAsync(client, LoopEventType.TerminalInput, payload);
+                await loop.EnqueueClientEventAsync(client, LoopEventType.TerminalInput, payload);
             }
         }
         finally
         {
-            await loop.EnqueueEventAsync(client, LoopEventType.TerminalDisconnected, default);
+            await loop.EnqueueClientEventAsync(client, LoopEventType.TerminalDisconnected, default);
         }
     }
 }

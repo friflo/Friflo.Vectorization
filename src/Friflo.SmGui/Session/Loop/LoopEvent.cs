@@ -3,7 +3,9 @@
 
 using System;
 using System.Buffers;
+using System.Runtime.CompilerServices;
 
+// ReSharper disable ConvertToAutoProperty
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable once CheckNamespace
 namespace Friflo.SmGui.Session;
@@ -11,23 +13,23 @@ namespace Friflo.SmGui.Session;
 
 public enum LoopEventType
 {
-    // --- client events
-    TerminalConnected,
+    // --- session events
     TerminalDisconnected,
     TerminalInput,
     FrameTick,
-    WebsocketConnected,
     WebsocketDisconnected,
     WebsocketInput,
     
     // --- non client events
+    TerminalConnected,
+    WebsocketConnected,
     SetAppDirty
 }
 
 public readonly struct Payload
 {
-    private readonly     byte[] buffer;     // 8 bytes
-    private readonly     int    length;     // 4 bytes
+    internal readonly   byte[]  buffer;     // 8 bytes
+    internal readonly   int     length;     // 4 bytes
     
     public ReadOnlySpan<byte>   Span                    => new(buffer, 0,     length);
     public Memory<byte>         GetMemory(int start)    => new(buffer, start, length - start);
@@ -46,7 +48,25 @@ public readonly struct Payload
 
 internal readonly struct LoopEvent
 {
-    internal required   SmClient?       Client  { get; init; }  //  8 bytes
-    internal required   LoopEventType   Type    { get; init; }  //  4 bytes
-    internal required   Payload         Payload { get; init; }  // 16 bytes
+    internal readonly   SessionId       sessionId;  //  4 bytes
+    internal readonly   LoopEventType   type;       //  4 bytes
+    internal readonly   object?         state;      //  8 bytes
+    private  readonly   byte[]          buffer;     //  8 bytes
+    private  readonly   int             length;     //  4 bytes
+    internal readonly   int             data;       //  4 bytes
+
+    internal            Payload         Payload     => new(buffer, length);
+
+    public override     string          ToString()  => sessionId.id == 0 ? type.ToString() : $"{type}  session: {sessionId}";
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal LoopEvent(SessionId sessionId, LoopEventType type, object? state, Payload payload, int data)
+    {
+        this.sessionId  = sessionId;
+        this.type       = type;
+        this.state      = state;
+        buffer          = payload.buffer;
+        length          = payload.length;
+        this.data       = data;
+    }
 }
