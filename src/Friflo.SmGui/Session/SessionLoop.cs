@@ -78,7 +78,7 @@ public sealed partial class SmSessionLoop : IDisposable
     internal readonly   GuiSessionShared                            guiShared;          // shared among all GuiSession's
     internal readonly   CpuBackend                                  cpuBackend;         // shared among all sessions
 
-    private const int MaxSyncQueueCapacity = 32;
+    private const int MaxSyncQueueCapacity = 16384; // 16384 events == 512 KB memory
 #endregion
     
     public SmSessionLoop(CpuBackend cpuBackend, CreateGuiView createGuiView)
