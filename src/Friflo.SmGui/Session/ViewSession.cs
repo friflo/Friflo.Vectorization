@@ -151,8 +151,9 @@ public sealed class ViewSession
     }
     
     /// <summary>
-    /// Posts a message to the session's event loop, which will be handled by <see cref="IGuiView.OnMessage"/>.<br/>
-    /// The method is thread-safe and can be called from any thread.
+    /// Posts a message via the event loop of <see cref="SmSessionLoop"/> to the <see cref="IGuiView"/> associated with this session.<br/>
+    /// The message is dispatched to <see cref="IGuiView.OnMessage"/> on the session loop thread (typically the main thread).<br/>
+    /// This method is thread-safe and can be called from any thread.
     /// </summary>
     public void PostMessage(object? state, Payload payload, int data)
     {
