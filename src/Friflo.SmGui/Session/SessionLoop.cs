@@ -69,7 +69,7 @@ public sealed partial class SmSessionLoop : IDisposable
     private  readonly   Dictionary<SessionId, SmSession>            sessions            = new();// non-thread-safe state
     private  readonly   ConcurrentDictionary<SessionId, SmSession>  concurrentSessions  = new();// thread-safe - used only for SetSessionDirty(SessionId) 
     internal readonly   int                                         sessionThreadId;
-    private  readonly   CreateGuiView                               createGuiView;      // IBatchRenderer factory
+    private  readonly   CreateGuiView                               createGuiView;      // IGuiView factory
     private  readonly   CancellationTokenSource                     cts                 = new();
 //  private             Thread?                                     shardThread;
     private             bool                                        isDisposed;
