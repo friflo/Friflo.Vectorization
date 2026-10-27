@@ -2,6 +2,7 @@
 // See LICENSE file in the project root for full license information.
 
 using System;
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using Friflo.SmGui.Session;
 
@@ -70,9 +71,13 @@ public interface IGuiView
     void RenderView(SmBatch batch, int targetWidth, int targetHeight);
     
     /// <summary>
-    /// Called when a message is received for this view, dispatched from <see cref="ViewSession.PostMessage"/>.<br/>
+    /// Is called (push model) when a message is received for this view, dispatched from <see cref="ViewSession.PostMessage"/>.<br/>
     /// This message handler is always executed on the session loop thread. Typically, the main thread.
     /// </summary>
+    /// <remarks>
+    /// Can be used to enqueue messages into a local <see cref="Queue{T}"/> for processing inside <see cref="RenderView"/> (pull model).<br/>
+    /// Because this method executes on the single-threaded session loop, local queue operations are thread-safe and lock-free.
+    /// </remarks>
     void OnMessage(object? state, Payload payload, int data) { }
 }
 
