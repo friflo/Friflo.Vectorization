@@ -47,12 +47,8 @@ Console.WriteLine("App");
 var cpuBackend  = new CpuBackend("App", new DefaultGuiAssets());
 var appState    = new AppState(cpuBackend);
 
-// Flag toggles execution mode:
-// true  => UI Loop runs in dedicated background Thread, Main-Thread runs TCP server.
-// false => TCP server runs on ThreadPool, Main-Thread is blocked by UI Loop.
-bool runAsync = false;
 
-var loop = new SmSessionLoop(runAsync, cpuBackend, client => new TestGuiView(appState, client));
+var loop = new SmSessionLoop(cpuBackend, client => new TestGuiView(appState, client));
 
 var builder = HttpUtils.CreateHostBuilder(new IPEndPoint(IPAddress.IPv6Any, 8080), loop);
 _ = HttpUtils.Start(builder.Build());
@@ -61,16 +57,11 @@ var signalListener =  new SmSignalingListener(loop);
 signalListener.ConnectAsync(new Uri("wss://localhost:8081/signaling"), "test-app", "auto").Wait(); // stay on main thread
 _ = signalListener.RunAsync();
 
-if (runAsync) {
-    loop.RunAsync(); // Spawns dedicated "ShardLoopThread"
-    await RunTcpServerAsync(loop, port: 9000);
-}
-else {
-    // Run TCP accept loop in background and lock Main-Thread for engine execution
-    _ = Task.Run(() => RunTcpServerAsync(loop, port: 9000));
-    
-    loop.RunSync(); // Blocks Main-Thread directly
-}
+
+// Run TCP accept loop in background and lock Main-Thread for engine execution
+_ = Task.Run(() => RunTcpServerAsync(loop, port: 9000));
+
+loop.RunSync(); // Blocks Main-Thread directly
 
 
 static async Task RunTcpServerAsync(SmSessionLoop loop, int port)

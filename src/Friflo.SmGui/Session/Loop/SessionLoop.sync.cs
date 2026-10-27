@@ -17,9 +17,9 @@ public partial class SmSessionLoop
     public void RunSync()
     {
         ObjectDisposedException.ThrowIf(isDisposed, this);
-        if (shardThread != null) {
-            throw new InvalidOperationException("session loop is already running.");
-        }
+        // if (shardThread != null) {
+        //     throw new InvalidOperationException("session loop is already running.");
+        // }
         
         // Block main caller thread directly or start dedicated loop thread
         RunSyncThreadLoop();

@@ -15,7 +15,7 @@ Console.WriteLine("Signaling Server for WebRTC");
 var cpuBackend  = new CpuBackend("Signaling Server", new DefaultGuiAssets());
 var signaling   = new SmSignaling();
 
-var loop = new SmSessionLoop(false, cpuBackend, client => new SignalingView(signaling, client));
+var loop = new SmSessionLoop(cpuBackend, client => new SignalingView(signaling, client));
 signaling.StateChanged = loop.SetAppDirty;
 
 var builder = Host.CreateDefaultBuilder();

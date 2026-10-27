@@ -6,8 +6,6 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading;
-using System.Threading.Channels;
-using System.Threading.Tasks;
 using Friflo.SmGui.Headless;
 using Friflo.SmGui.TUI;
 using Friflo.SmGui.TUI.Session;
@@ -52,7 +50,7 @@ public delegate void SessionsChanged(SessionsChangedArgs args);
 /// The <see cref="CreateGuiView"/> delegate passed to the <see cref="SmSessionLoop"/> constructor must return an instance implementing <see cref="IGuiView"/>.<br/>
 /// If a client has pending input or a dirty session, a new frame is rendered via <see cref="IGuiView.RenderView"/> and transmitted to the client.<br/>
 /// <br/>
-/// Use <see cref="RunSync"/> or <see cref="RunAsync"/> to let the loop run automatically (ideal for console and terminal applications).<br/>
+/// Use <see cref="RunSync"/> to let the loop run automatically (ideal for console and terminal applications).<br/>
 /// Alternatively, call <see cref="IterateSessions"/> periodically if your application manages its own custom event loop, such as a game loop.
 /// </remarks>
 public sealed partial class SmSessionLoop : IDisposable
@@ -64,16 +62,16 @@ public sealed partial class SmSessionLoop : IDisposable
     public   event      SessionsChanged?    SessionsChanged;
 
 #region private fields
-    private  readonly   bool                                        isAsync;
+//  private  readonly   bool                                        isAsync;
     private  readonly   ConcurrentQueue<LoopEvent>                  eventQueue;         // used by: sync loop
     private  readonly   AutoResetEvent                              eventReady;         // used by: sync loop
-    private  readonly   Channel<LoopEvent>?                         eventChannel;       // used by: async loop
-    private  readonly   Dictionary<SessionId, SmSession>            sessions            = new();// non-thread-safe state (accessed exclusively by _shardThread)
+//  private  readonly   Channel<LoopEvent>?                         eventChannel;       // used by: async loop
+    private  readonly   Dictionary<SessionId, SmSession>            sessions            = new();// non-thread-safe state
     private  readonly   ConcurrentDictionary<SessionId, SmSession>  concurrentSessions  = new();// thread-safe - used only for SetSessionDirty(SessionId) 
     internal readonly   int                                         sessionThreadId;
     private  readonly   CreateGuiView                               createGuiView;      // IBatchRenderer factory
     private  readonly   CancellationTokenSource                     cts                 = new();
-    private             Thread?                                     shardThread;
+//  private             Thread?                                     shardThread;
     private             bool                                        isDisposed;
     private  readonly   Action                                      exitHandler;
     internal readonly   TuiSessionShared                            tuiShared;          // shared among all TuiSession's
@@ -83,26 +81,26 @@ public sealed partial class SmSessionLoop : IDisposable
     private const int MaxSyncQueueCapacity = 32;
 #endregion
     
-    public SmSessionLoop(bool isAsync, CpuBackend cpuBackend, CreateGuiView createGuiView)
+    public SmSessionLoop(CpuBackend cpuBackend, CreateGuiView createGuiView)
     {
-        this.isAsync        = isAsync;
+        // this.isAsync        = isAsync;
         this.createGuiView  = createGuiView;
         this.cpuBackend     = cpuBackend;  // TAG_CPU
         resources           = new AssetResources(cpuBackend);
-        if (isAsync) {
+        /* if (isAsync) {
             // Bounded channel to enforce non-blocking backpressure via TryWrite
             var options = new BoundedChannelOptions(MaxSyncQueueCapacity) {
                 SingleReader = true,
                 SingleWriter = false,
                 FullMode     = BoundedChannelFullMode.DropWrite // TryWrite fails fast when full
             };
-            eventChannel    = Channel.CreateBounded<LoopEvent>(options);
+            // eventChannel = Channel.CreateBounded<LoopEvent>(options);
             eventQueue      = null!;
-            eventReady      = null!;
-        } else {
-            eventQueue      = new ConcurrentQueue<LoopEvent>();
-            eventReady      = new AutoResetEvent(false);
-        }
+            eventReady      = null!;        
+        } else { */        
+        eventQueue      = new ConcurrentQueue<LoopEvent>();
+        eventReady      = new AutoResetEvent(false);
+        
         exitHandler         = ExitHandler;
         tuiShared           = new TuiSessionShared();
         guiShared           = new GuiSessionShared();
@@ -161,7 +159,7 @@ public sealed partial class SmSessionLoop : IDisposable
 
         var evt = new LoopEvent(sessionId, type, state, payload, data);
 
-        if (isAsync)
+        /* if (isAsync)
         {
             client?.IncrementPendingEvents();
             // Non-blocking try-write to the channel
@@ -172,7 +170,7 @@ public sealed partial class SmSessionLoop : IDisposable
             // Backpressure triggered: drop event and release memory back to pool
             payload.Return();
             return false;
-        }
+        } */
 
         // Synchronous path backpressure check
         if (eventQueue.Count >= MaxSyncQueueCapacity) {
@@ -216,11 +214,11 @@ public sealed partial class SmSessionLoop : IDisposable
         }
 
         // signal all loops to stop
-        eventChannel?.Writer.TryComplete();
+        // eventChannel?.Writer.TryComplete();
         cts.Cancel();
         
         // wait until ShardLoopThread thread has finished
-        shardThread?.Join(timeout: TimeSpan.FromMilliseconds(500));
+        // shardThread?.Join(timeout: TimeSpan.FromMilliseconds(500));
 
         cts.Dispose();
     }
