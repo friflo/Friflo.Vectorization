@@ -70,7 +70,8 @@ public interface IGuiView
     void RenderView(SmBatch batch, int targetWidth, int targetHeight);
     
     /// <summary>
-    /// Called when a message is received for this view, dispatched from <see cref="ViewSession.PostMessage"/>.
+    /// Called when a message is received for this view, dispatched from <see cref="ViewSession.PostMessage"/>.<br/>
+    /// This message handler is always executed on the session loop thread. Typically, the main thread.
     /// </summary>
     void OnMessage(object? state, Payload payload, int data) { }
 }
@@ -150,7 +151,8 @@ public sealed class ViewSession
     }
     
     /// <summary>
-    /// Posts a message to the session's event loop, which will be handled by <see cref="IGuiView.OnMessage"/>.
+    /// Posts a message to the session's event loop, which will be handled by <see cref="IGuiView.OnMessage"/>.<br/>
+    /// The method is thread-safe and can be called from any thread.
     /// </summary>
     public void PostMessage(object? state, Payload payload, int data)
     {
