@@ -138,14 +138,22 @@ public sealed partial class SmSessionLoop : IDisposable
     
     
     // --- enqueue sync
+    
+    /// <summary>
+    /// Tries to enqueue an event without blocking.<br/>
+    /// If the queue is saturated, the event is dropped and its payload is returned to the pool.<br/>
+    /// The method is thread-safe and can be called from any thread.
+    /// </summary>
+    /// <returns>True if the event was queued; false if it was dropped due to backpressure.</returns>
     public bool TryEnqueueEvent(LoopEventType type, object? state, Payload payload, int data = 0)
     {
         return TryEnqueueEventSync(null, default, type, state, payload, data);
     }
-    
+
     /// <summary>
-    /// Tries to enqueue an event without blocking. 
-    /// If the queue is saturated, the event is dropped and its payload is returned to the pool.
+    /// Tries to enqueue an event for a specific client without blocking.<br/>
+    /// If the queue is saturated, the event is dropped and its payload is returned to the pool.<br/>
+    /// The method is thread-safe and can be called from any thread.
     /// </summary>
     /// <returns>True if the event was queued; false if it was dropped due to backpressure.</returns>
     public bool TryEnqueueClientEvent(SmClient client, LoopEventType type, Payload payload)
