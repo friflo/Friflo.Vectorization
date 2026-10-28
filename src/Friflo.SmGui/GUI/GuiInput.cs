@@ -94,6 +94,7 @@ public sealed class GuiInput
     internal            bool                    setNextFocus;
 #endregion
     
+    internal GuiInput() { } 
 
     internal void SetCursor(MouseCursor cursor) {
         CurrentCursor = cursor;
