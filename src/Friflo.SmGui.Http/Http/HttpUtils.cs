@@ -46,6 +46,14 @@ public static class HttpUtils
         }
     }
     
+    /// <summary>
+    /// Creates and configures a legacy <see cref="IHostBuilder"/> for hosting WebGUI sessions.
+    /// </summary>
+    /// <remarks>
+    /// Legacy approach using the Generic Host pattern. Consider using <see cref="CreateWebApplication"/> instead
+    /// for a more direct, unnested setup.
+    /// </remarks>
+    [Obsolete("Use CreateWebApplication for a modern WebApplicationBuilder workflow.")]
     public static IHostBuilder CreateHostBuilder(EndPoint endPoint, SmSessionLoop loop, string? webRoot = null)
     {
         var builder = Host.CreateDefaultBuilder();
@@ -74,6 +82,13 @@ public static class HttpUtils
     }
     
     
+    /// <summary>
+    /// Creates and configures a lightweight <see cref="WebApplication"/> for hosting WebGUI sessions.
+    /// </summary>
+    /// <remarks>
+    /// Recommended modern approach using <see cref="WebApplicationBuilder"/>. Disables verbose framework logging
+    /// and disables Nagle's algorithm (<c>NoDelay = true</c>) for minimal WebSocket latency.
+    /// </remarks>
     public static WebApplication CreateWebApplication(EndPoint endPoint, string[]? args = null)
     {
         var builder = WebApplication.CreateBuilder(args ?? []);
