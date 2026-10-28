@@ -59,7 +59,7 @@ _ = app.StartAsync();
 // Acquire stdin/stdout for Console session
 loop.UseConsoleTuiSession();
 
-// TCP server for Terminal Emulator sessions.  source: TerminalExtensions.cs
+// TCP server for Terminal Emulator sessions.  source: TerminalUtils.cs
 loop.UseTerminalTuiSessions(new IPEndPoint(IPAddress.IPv6Any, 9000));
 
 loop.Run(); // Blocks Main-Thread directly

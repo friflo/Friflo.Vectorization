@@ -3,7 +3,7 @@ using System.Net.Sockets;
 using Friflo.SmGui.Session;
 
 // ReSharper disable CheckNamespace
-internal static class TerminalExtensions
+internal static class TerminalUtils
 {
     internal static SmSessionLoop UseTerminalTuiSessions(this SmSessionLoop loop, IPEndPoint endPoint)
     {
