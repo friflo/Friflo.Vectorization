@@ -93,35 +93,36 @@ internal class WebSocketClient : SmClient
     }
 
     // Dedicated loop for receiving incoming messages from client
-    private static async Task ReceiveLoopAsync(WebSocketClient client, SmSessionLoop loop, CancellationToken cancellationToken)
+    private async Task ReceiveLoopAsync(SmSessionLoop loop, CancellationToken cancellationToken)
     {
         byte[] buffer = ArrayPool<byte>.Shared.Rent(256);
         try
         {
-            while (client.webSocket != null && client.webSocket.State == WebSocketState.Open && !cancellationToken.IsCancellationRequested)
+            var ws =  webSocket;
+            while (ws != null && ws.State == WebSocketState.Open && !cancellationToken.IsCancellationRequested)
             {
                 WebSocketReceiveResult result;
                 try
                 {
-                    result = await client.webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), cancellationToken);
+                    result = await ws.ReceiveAsync(new ArraySegment<byte>(buffer), cancellationToken);
                 }
                 catch (Exception)
                 {
                     ArrayPool<byte>.Shared.Return(buffer);
                     break;
                 }
-
-                if (result.MessageType == WebSocketMessageType.Close)
+                ws = webSocket;
+                if (ws != null && result.MessageType == WebSocketMessageType.Close)
                 {
                     ArrayPool<byte>.Shared.Return(buffer);
-                    await client.webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Closing", cancellationToken);
+                    await ws.CloseAsync(WebSocketCloseStatus.NormalClosure, "Closing", cancellationToken);
                     break;
                 }
 
                 if (result.MessageType == WebSocketMessageType.Text || result.MessageType == WebSocketMessageType.Binary)
                 {
                     var payload = new Payload(buffer, result.Count);
-                    loop.TryEnqueueClientEvent(client, LoopEventType.WebsocketInput, payload);
+                    loop.TryEnqueueClientEvent(this, LoopEventType.WebsocketInput, payload);
                 }
                 else
                 {
@@ -130,6 +131,8 @@ internal class WebSocketClient : SmClient
 
                 // Rent a new buffer for next incoming message
                 buffer = ArrayPool<byte>.Shared.Rent(256);
+                
+                ws = webSocket;
             }
         }
         finally
@@ -139,19 +142,20 @@ internal class WebSocketClient : SmClient
     }
 
     // Dedicated loop for sending outgoing frames/buffers to client
-    private static async Task SendLoopAsync(WebSocketClient client, CancellationToken cancellationToken)
+    private async Task SendLoopAsync(CancellationToken cancellationToken)
     {
         try
         {
-            while (client.webSocket != null && client.webSocket.State == WebSocketState.Open && !cancellationToken.IsCancellationRequested)
+            var ws = webSocket;
+            while (ws != null && ws.State == WebSocketState.Open && !cancellationToken.IsCancellationRequested)
             {
-                var doubleBuffer = client.doubleBuffer;
                 if (doubleBuffer != null && doubleBuffer.HasPendingFrame) {
-                    await client.FlushPendingBufferAsync(cancellationToken);
+                    await FlushPendingBufferAsync(cancellationToken);
                 }
 
                 // Await signal from sendChannel asynchronously with 0% CPU usage and zero allocations
-                await client.sendChannel.Reader.ReadAsync(cancellationToken);
+                await sendChannel.Reader.ReadAsync(cancellationToken);
+                ws =  webSocket;
             }
         }
         catch (Exception)
@@ -165,8 +169,8 @@ internal class WebSocketClient : SmClient
         loop.TryEnqueueEvent(LoopEventType.WebsocketConnected, client, default);
 
         // Run independent receive and send loops concurrently
-        Task receiveLoop = ReceiveLoopAsync(client, loop, cancellationToken);
-        Task sendLoop    = SendLoopAsync   (client, cancellationToken);
+        Task receiveLoop = client.ReceiveLoopAsync(loop, cancellationToken);
+        Task sendLoop    = client.SendLoopAsync   (cancellationToken);
 
         try
         {
