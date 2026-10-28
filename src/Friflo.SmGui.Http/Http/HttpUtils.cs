@@ -18,8 +18,40 @@ namespace Friflo.SmGui.Http;
 public static class HttpUtils
 {
     /// <summary>
+    /// Creates and configures a lightweight <see cref="WebApplication"/> for hosting WebGUI sessions.
+    /// </summary>
+    /// <remarks>
+    /// Recommended modern approach using <see cref="WebApplicationBuilder"/>. Disables verbose framework logging
+    /// and disables Nagle's algorithm (<c>NoDelay = true</c>) for minimal WebSocket latency.
+    /// </remarks>
+    public static WebApplication CreateWebApplication(EndPoint endPoint, string[]? args = null)
+    {
+        var builder = WebApplication.CreateBuilder(args ?? []);
+        
+        // Disable verbose framework logging
+        builder.Logging.ClearProviders();
+        
+        builder.WebHost.UseSockets(socketOptions => {
+            // Deactivate Nagle-algorithm for low websocket latency
+            socketOptions.NoDelay = true;
+        });
+        
+        builder.WebHost.ConfigureKestrel(options => {
+            options.Listen(endPoint, listenOptions => {
+                listenOptions.UseHttps(); // Uses automatic dotnet dev-certs
+            });
+        });
+        return builder.Build();
+    }
+    
+#region legacy setup
+    /// <summary>
     /// Starts the Kestrel server asynchronously on a dedicated background task.
     /// </summary>
+    /// <remarks>
+    /// Legacy: Is used for legacy <see cref="CreateHostBuilder"/> setup.
+    /// </remarks>
+    [Obsolete("Use CreateWebApplication for a modern WebApplicationBuilder workflow.")]
     public static Task Start(IHost host)
     {
         // Dedicated background thread execution equivalent to TaskCreationOptions.LongRunning
@@ -80,32 +112,5 @@ public static class HttpUtils
 
         return builder;
     }
-    
-    
-    /// <summary>
-    /// Creates and configures a lightweight <see cref="WebApplication"/> for hosting WebGUI sessions.
-    /// </summary>
-    /// <remarks>
-    /// Recommended modern approach using <see cref="WebApplicationBuilder"/>. Disables verbose framework logging
-    /// and disables Nagle's algorithm (<c>NoDelay = true</c>) for minimal WebSocket latency.
-    /// </remarks>
-    public static WebApplication CreateWebApplication(EndPoint endPoint, string[]? args = null)
-    {
-        var builder = WebApplication.CreateBuilder(args ?? []);
-        
-        // Disable verbose framework logging
-        builder.Logging.ClearProviders();
-        
-        builder.WebHost.UseSockets(socketOptions => {
-            // Deactivate Nagle-algorithm for low websocket latency
-            socketOptions.NoDelay = true;
-        });
-        
-        builder.WebHost.ConfigureKestrel(options => {
-            options.Listen(endPoint, listenOptions => {
-                listenOptions.UseHttps(); // Uses automatic dotnet dev-certs
-            });
-        });
-        return builder.Build();
-    }
+#endregion
 }
