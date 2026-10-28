@@ -36,7 +36,7 @@ builder.ConfigureWebHostDefaults(webBuilder =>
     });
 
     webBuilder.Configure(app => {
-        app.UseSessionLoop(loop);
+        app.UseWebGuiSessions(loop);
         app.UseSignaling(signaling);
     });
 });
