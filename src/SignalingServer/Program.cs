@@ -11,7 +11,7 @@ Console.WriteLine("Signaling Server for WebRTC");
 var cpuBackend  = new CpuBackend("Signaling Server", new DefaultGuiAssets());
 var signaling   = new SmSignaling();
 
-var loop = new SmSessionLoop(cpuBackend, client => new SignalingView(signaling, client));
+var loop = new SmSessionLoop(cpuBackend, session => new SignalingView(signaling, session));
 signaling.StateChanged = loop.SetAppDirty;
 
 // HTTP server for Browser sessions.  nuget: Friflo.SmGui.Http

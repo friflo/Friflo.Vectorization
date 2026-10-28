@@ -46,7 +46,7 @@ Console.WriteLine("App");
 var cpuBackend  = new CpuBackend("App", new DefaultGuiAssets());
 var appState    = new AppState(cpuBackend);
 
-var loop = new SmSessionLoop(cpuBackend, client => new TestGuiView(appState, client));
+var loop = new SmSessionLoop(cpuBackend, session => new TestGuiView(appState, session));
 
 // Connect to Signaling Server for WebRTC Browser sessions.  nuget: Friflo.SmGui.WebRTC
 loop.UseWebRtcGuiSessions(new Uri("wss://localhost:8081/signaling"), "test-app", "auto");
