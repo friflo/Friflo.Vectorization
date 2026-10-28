@@ -59,7 +59,7 @@ public static class SmGuiHttpExtensions
     }
 }
 
-public class HttpGuiHandler
+public sealed class HttpGuiHandler
 {
     private readonly SmSessionLoop loop;
 

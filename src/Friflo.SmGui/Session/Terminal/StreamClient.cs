@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 namespace Friflo.SmGui.Session;
 
 
-public class StreamClient : SmClient
+public sealed class StreamClient : SmClient
 {
     private Stream inputStream;
     private Stream outputStream;

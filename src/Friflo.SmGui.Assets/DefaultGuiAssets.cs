@@ -18,7 +18,7 @@ using StbTrueTypeSharp;
 namespace Friflo.SmGui;
 
 
-public class DefaultGuiAssets : IGuiAssets
+public sealed class DefaultGuiAssets : IGuiAssets
 {
     public SmFont CreateDefaultFont(SmGuiBackend backend)
     {

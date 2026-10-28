@@ -50,7 +50,7 @@ internal struct WsSendBuffer
 }
 
 
-public class WsDoubleBuffer : IDisposable
+public sealed class WsDoubleBuffer : IDisposable
 {
     private             SmClient        client;
     private readonly    object          bufferLock = new();

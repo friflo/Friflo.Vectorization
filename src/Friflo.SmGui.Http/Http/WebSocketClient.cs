@@ -19,7 +19,7 @@ using Friflo.SmGui.Session;
 namespace Friflo.SmGui.Http;
 
 
-internal class WebSocketClient : SmClient
+internal sealed class WebSocketClient : SmClient
 {
     private             WebSocket?      webSocket;
     private             WsDoubleBuffer? doubleBuffer;

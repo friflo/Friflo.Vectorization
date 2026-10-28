@@ -6,7 +6,7 @@
 namespace Friflo.SmGui.Session;
 
 
-internal class GuiBatch : SmBatch
+internal sealed class GuiBatch : SmBatch
 {
     internal GuiBatch(SessionId sessionId, SmGuiBackend backend, int maxVertices, LoopTimer timer)
         : base(sessionId, backend, maxVertices, timer)

@@ -15,7 +15,7 @@ using System.Threading.Tasks;
 namespace Friflo.SmGui.Session;
 
 
-public class SocketClient : SmClient
+public sealed class SocketClient : SmClient
 {
     private  Socket? socket;
     

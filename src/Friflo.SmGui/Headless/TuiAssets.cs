@@ -14,7 +14,7 @@ using System.Numerics;
 namespace Friflo.SmGui.Headless;
 
 
-public class TuiAssets : IGuiAssets
+public sealed class TuiAssets : IGuiAssets
 {
     public SmFont CreateDefaultFont(SmGuiBackend backend)
     {
