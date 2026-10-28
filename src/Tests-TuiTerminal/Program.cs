@@ -13,8 +13,8 @@ using TuiTerminal;
 // Windows / macOS / Linux          dotnet ./Tests-TuiTerminal.dll
 
 
-//    Browser           - remote, multi user (url)        via: KestrelHttpServer
-//    --------------------------------------------------------------------------
+//    Browser           - remote, multi user (url)        via: HTTP & WebRTC
+//    ----------------------------------------------------------------------
 // Chrome, Firefox, Edge, Safari    https://localhost:8080/
 
 
