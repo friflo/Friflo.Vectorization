@@ -52,9 +52,8 @@ public class SocketClient : SmClient
     
     
     // I/O Loop: Reads raw socket bytes and pushes them into the session loop queue
-    public static async ValueTask HandleClientSessionAsync(SocketClient client, SmSessionLoop loop, CancellationToken cancellationToken)
+    public async ValueTask HandleTerminalIOAsync(SmSessionLoop loop, CancellationToken cancellationToken = default)
     {
-        var socket = client.socket;
         try
         {
             Payload initialPayload = default;
@@ -67,7 +66,7 @@ public class SocketClient : SmClient
             }
 
             // Notify loop about new client connection, passing initial payload (if any)
-            loop.TryEnqueueEvent(LoopEventType.TerminalConnected, client, initialPayload);
+            loop.TryEnqueueEvent(LoopEventType.TerminalConnected, this, initialPayload);
 
             while (!cancellationToken.IsCancellationRequested)
             {
@@ -78,13 +77,13 @@ public class SocketClient : SmClient
                 var payload = new Payload(buffer, bytesRead);
 
                 // Forward raw input directly to the shard event loop
-                loop.TryEnqueueClientEvent(client, LoopEventType.TerminalInput, payload);
+                loop.TryEnqueueClientEvent(this, LoopEventType.TerminalInput, payload);
             }
         }
         finally
         {
             // ArrayPool<byte>.Shared.Return(buffer);
-            loop.TryEnqueueClientEvent(client, LoopEventType.TerminalDisconnected, default);
+            loop.TryEnqueueClientEvent(this, LoopEventType.TerminalDisconnected, default);
         }
     }
 }

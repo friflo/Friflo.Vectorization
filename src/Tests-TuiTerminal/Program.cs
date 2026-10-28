@@ -59,8 +59,8 @@ var builder = HttpUtils.CreateHostBuilder(new IPEndPoint(IPAddress.IPv6Any, 8080
 _ = HttpUtils.Start(builder.Build());
 
 // Acquire stdin/stdout for Console session
-var localClient = new ConsoleClient();
-_ = ConsoleClient.HandleClientSessionAsync(localClient, loop, CancellationToken.None);
+var consoleClient = new ConsoleClient();
+_ = consoleClient.HandleConsoleIOAsync(loop);
 
 // TCP listener for Terminal Emulator sessions
 _ = Task.Run(() => RunTcpServerAsync(loop, port: 9000));
@@ -78,6 +78,6 @@ static async Task RunTcpServerAsync(SmSessionLoop loop, int port)
     while (true) {
         var clientSocket = await serverSocket.AcceptAsync();
         var client = new SocketClient(clientSocket);
-        _ = SocketClient.HandleClientSessionAsync(client, loop, CancellationToken.None);
+        _ = client.HandleTerminalIOAsync(loop);
     }
 }

@@ -79,20 +79,20 @@ public sealed class ConsoleClient : SmClient
     }
 
     // I/O Loop: Reads raw stream bytes and pushes them into the session loop queue
-    public static async ValueTask HandleClientSessionAsync(ConsoleClient client, SmSessionLoop loop, CancellationToken cancellationToken)
+    public async ValueTask HandleConsoleIOAsync(SmSessionLoop loop, CancellationToken cancellationToken = default)
     {
         try
         {
             byte[] buffer = ArrayPool<byte>.Shared.Rent(256);
-            var length = client.AppendConsoleSize(buffer, 0);
+            var length = AppendConsoleSize(buffer, 0);
             var payload = new Payload(buffer, length);
             
-            loop.TryEnqueueEvent(LoopEventType.TerminalConnected, client, payload);
+            loop.TryEnqueueEvent(LoopEventType.TerminalConnected, this, payload);
 
             while (!cancellationToken.IsCancellationRequested)
             {
                 buffer = ArrayPool<byte>.Shared.Rent(256);
-                int bytesRead = await client.inputStream.ReadAsync(buffer.AsMemory(), cancellationToken);
+                int bytesRead = await this.inputStream.ReadAsync(buffer.AsMemory(), cancellationToken);
                 if (bytesRead == 0) break;
                 
                 // no need to poll console size on Windows. Size changes are triggered by WINDOW_BUFFER_SIZE_EVENT
@@ -100,12 +100,12 @@ public sealed class ConsoleClient : SmClient
 
                 payload = new Payload(buffer, bytesRead);
 
-                loop.TryEnqueueClientEvent(client, LoopEventType.TerminalInput, payload);
+                loop.TryEnqueueClientEvent(this, LoopEventType.TerminalInput, payload);
             }
         }
         finally
         {
-            loop.TryEnqueueClientEvent(client, LoopEventType.TerminalDisconnected, default);
+            loop.TryEnqueueClientEvent(this, LoopEventType.TerminalDisconnected, default);
         }
     }
 }
