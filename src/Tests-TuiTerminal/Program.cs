@@ -52,9 +52,9 @@ var loop = new SmSessionLoop(cpuBackend, client => new TestGuiView(appState, cli
 loop.UseWebRtcWebGuiSessions(new Uri("wss://localhost:8081/signaling"), "test-app", "auto");
 
 // HTTP server for Browser sessions
-var builder = HttpUtils.CreateHostBuilder(new IPEndPoint(IPAddress.IPv6Any, 8080), loop);
-_ = HttpUtils.Start(builder.Build());
-// loop.UseHttpServerWebGui(...);   todo
+var app = HttpUtils.CreateWebApplication(new IPEndPoint(IPAddress.IPv6Any, 8080));
+app.UseSessionLoop(loop);
+_ = app.StartAsync();
 
 // Acquire stdin/stdout for Console session
 loop.UseConsoleTuiSession();

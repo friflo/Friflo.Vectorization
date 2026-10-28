@@ -10,6 +10,7 @@ using System.Threading.Channels;
 using System.Threading.Tasks;
 using Friflo.SmGui.Session;
 
+// ReSharper disable MergeIntoNegatedPattern
 // ReSharper disable SuggestVarOrType_SimpleTypes
 // ReSharper disable MergeIntoPattern
 // ReSharper disable SuggestVarOrType_BuiltInTypes
@@ -20,7 +21,7 @@ namespace Friflo.SmGui.Http;
 
 internal class WebSocketClient : SmClient
 {
-    private             WebSocket       webSocket;
+    private             WebSocket?      webSocket;
     private             WsDoubleBuffer? doubleBuffer;
     private readonly    Channel<bool>   sendChannel = Channel.CreateBounded<bool>(new BoundedChannelOptions(1) {
         FullMode = BoundedChannelFullMode.DropOldest
@@ -36,17 +37,18 @@ internal class WebSocketClient : SmClient
     {
         sendChannel.Writer.TryComplete();
         doubleBuffer?.Dispose();
-        doubleBuffer = null!;
-        webSocket    = null!;
+        doubleBuffer = null;
+        webSocket    = null;
     }
     
     public override UiType UiType => UiType.WebGui;
 
     protected override async ValueTask<int> SendAsync(SmSendMessage message, CancellationToken cancellationToken)
     {
-        if (webSocket.State == WebSocketState.Open)
+        var ws = webSocket;
+        if (ws != null && ws.State == WebSocketState.Open)
         {
-            await webSocket.SendAsync(message.buffer, WebSocketMessageType.Binary, true, cancellationToken);
+            await ws.SendAsync(message.buffer, WebSocketMessageType.Binary, true, cancellationToken);
             return message.Length;
         }
         return 0;
@@ -54,7 +56,8 @@ internal class WebSocketClient : SmClient
     
     protected override int Send(SmSendMessage message)
     {
-        if (webSocket.State != WebSocketState.Open) {
+        var ws = webSocket;
+        if (ws == null || ws.State != WebSocketState.Open) {
             return 0;
         }
         doubleBuffer?.AppendMessage(message);
@@ -67,11 +70,12 @@ internal class WebSocketClient : SmClient
 
     protected override void SendCommand(SmSendCommand command)
     {
-        if (webSocket.State != WebSocketState.Open) {
+        var ws = webSocket;
+        if (ws == null || ws.State != WebSocketState.Open) {
             return;
         }
         var buffer = Encoding.UTF8.GetBytes(command.payload);
-        _ = webSocket.SendAsync(buffer, WebSocketMessageType.Text, true, CancellationToken.None);
+        _ = ws.SendAsync(buffer, WebSocketMessageType.Text, true, CancellationToken.None);
     }
     protected override void RestoreTerminal() { } // only applicable for terminal emulators
 
@@ -80,9 +84,10 @@ internal class WebSocketClient : SmClient
         var buffer = doubleBuffer!;
         buffer.Swap();
 
+        var ws = webSocket;
         // Send backBuffer asynchronously - OnFrame thread is completely free to write to frontBuffer now
-        if (buffer.PendingLength > 0 && webSocket.State == WebSocketState.Open) {
-            await webSocket.SendAsync(buffer.Memory, WebSocketMessageType.Binary, true, ct);
+        if (buffer.PendingLength > 0 && ws != null && ws.State == WebSocketState.Open) {
+            await ws.SendAsync(buffer.Memory, WebSocketMessageType.Binary, true, ct);
             buffer.Clear();
         }
     }
@@ -93,7 +98,7 @@ internal class WebSocketClient : SmClient
         byte[] buffer = ArrayPool<byte>.Shared.Rent(256);
         try
         {
-            while (client.webSocket.State == WebSocketState.Open && !cancellationToken.IsCancellationRequested)
+            while (client.webSocket != null && client.webSocket.State == WebSocketState.Open && !cancellationToken.IsCancellationRequested)
             {
                 WebSocketReceiveResult result;
                 try
@@ -138,7 +143,7 @@ internal class WebSocketClient : SmClient
     {
         try
         {
-            while (client.webSocket.State == WebSocketState.Open && !cancellationToken.IsCancellationRequested)
+            while (client.webSocket != null && client.webSocket.State == WebSocketState.Open && !cancellationToken.IsCancellationRequested)
             {
                 var doubleBuffer = client.doubleBuffer;
                 if (doubleBuffer != null && doubleBuffer.HasPendingFrame) {

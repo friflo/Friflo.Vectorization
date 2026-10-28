@@ -6,6 +6,7 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using Friflo.SmGui.Session;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -49,13 +50,13 @@ public static class HttpUtils
     {
         var builder = Host.CreateDefaultBuilder();
 
-        // Disable verbose framework logging for high performance
+        // Disable verbose framework logging
         builder.ConfigureLogging(logging => logging.ClearProviders());
 
         builder.ConfigureWebHostDefaults(webBuilder =>
         {
             webBuilder.UseSockets(socketOptions => {
-                // deactivate Nagle-algorithm for minimal websocket latency
+                // deactivate Nagle-algorithm for low websocket latency
                 socketOptions.NoDelay = true;
             });
             webBuilder.UseKestrel(options => {
@@ -70,5 +71,26 @@ public static class HttpUtils
         });
 
         return builder;
+    }
+    
+    
+    public static WebApplication CreateWebApplication(EndPoint endPoint, string[]? args = null)
+    {
+        var builder = WebApplication.CreateBuilder(args ?? []);
+        
+        // Disable verbose framework logging
+        builder.Logging.ClearProviders();
+        
+        builder.WebHost.UseSockets(socketOptions => {
+            // Deactivate Nagle-algorithm for low websocket latency
+            socketOptions.NoDelay = true;
+        });
+        
+        builder.WebHost.ConfigureKestrel(options => {
+            options.Listen(endPoint, listenOptions => {
+                listenOptions.UseHttps(); // Uses automatic dotnet dev-certs
+            });
+        });
+        return builder.Build();
     }
 }
