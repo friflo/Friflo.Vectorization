@@ -7,7 +7,7 @@ using Friflo.SmGui.WebRTC;
 using TuiTerminal;
 
 
-//    Console           - local, single user (console)    via: ConsoleClient
+//    Console           - local, single user (console)    via: Console
 //    ----------------------------------------------------------------------
 // Windows / macOS / Linux          dotnet ./Tests-TuiTerminal.dll
 
@@ -17,7 +17,7 @@ using TuiTerminal;
 // Chrome, Firefox, Edge, Safari    https://localhost:8080/
 
 
-//    Terminal Emulator - remote, multi user (host:port)  via: SocketClient
+//    Terminal Emulator - remote, multi user (host:port)  via: TCP
 //    ---------------------------------------------------------------------
 //
 // Windows plink(PuTTY)     plink -raw -t -P 9000 127.0.0.1       with args: echo --view logs --theme dark | plink -raw -t -P 9000 127.0.0.1
