@@ -14,7 +14,10 @@ internal static class TerminalExtensions
     
     private static async Task RunTcpServerAsync(SmSessionLoop loop, IPEndPoint endPoint)
     {
-        using var serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+        using var serverSocket = new Socket(endPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+        if (endPoint.AddressFamily == AddressFamily.InterNetworkV6) {
+            serverSocket.DualMode = true;   // accept IPv4 and IPv6 on the same socket. Set before Bind()
+        }
         serverSocket.Bind(endPoint);
         serverSocket.Listen();
 

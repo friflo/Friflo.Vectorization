@@ -60,6 +60,6 @@ _ = app.StartAsync();
 loop.UseConsoleTuiSession();
 
 // TCP server for Terminal Emulator sessions.  source: TerminalExtensions.cs
-loop.UseTerminalTuiSessions(new IPEndPoint(IPAddress.Any, 9000));
+loop.UseTerminalTuiSessions(new IPEndPoint(IPAddress.IPv6Any, 9000));
 
 loop.Run(); // Blocks Main-Thread directly
