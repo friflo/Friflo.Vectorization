@@ -18,11 +18,13 @@ namespace Friflo.SmGui.WebRTC;
 
 public static class SmSignalingExtensions
 {
-    public static void UseWebRtcWebGuiSessions(this SmSessionLoop loop, Uri uri, string app, string? instance = null, CancellationToken cancellationToken = default)
+    public static SmSessionLoop UseWebRtcWebGuiSessions(this SmSessionLoop loop, Uri uri, string app, string? instance = null, CancellationToken cancellationToken = default)
     {
         var signalListener =  new SmSignalingListener(loop);
         signalListener.ConnectAsync(new Uri("wss://localhost:8081/signaling"), "test-app", "auto", cancellationToken).Wait(); // stay on main thread
         _ = signalListener.RunAsync();
+        
+        return loop;
     }
 }
 

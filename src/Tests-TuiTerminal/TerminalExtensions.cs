@@ -5,8 +5,11 @@ using Friflo.SmGui.Session;
 // ReSharper disable CheckNamespace
 internal static class TerminalExtensions
 {
-    internal static void UseTerminalTuiSessions(this SmSessionLoop loop) {
+    internal static SmSessionLoop UseTerminalTuiSessions(this SmSessionLoop loop)
+    {
         _ = Task.Run(() => RunTcpServerAsync(loop));
+        
+        return loop;
     }
     
     private static async Task RunTcpServerAsync(SmSessionLoop loop)

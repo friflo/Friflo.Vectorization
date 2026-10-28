@@ -15,10 +15,12 @@ namespace Friflo.SmGui.Session;
 
 public static class SmConsoleExtensions
 {
-    public static void UseConsoleTuiSession(this SmSessionLoop loop, CancellationToken cancellationToken = default)
+    public static SmSessionLoop UseConsoleTuiSession(this SmSessionLoop loop, CancellationToken cancellationToken = default)
     {
         var consoleClient = new ConsoleClient();
         _ = consoleClient.HandleConsoleIOAsync(loop, cancellationToken);
+        
+        return loop;
     }
 }
 
