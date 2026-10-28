@@ -239,6 +239,12 @@ internal sealed class SdlClientAction : ClientAction
     {
         SDL.SetWindowTitle(window, value.ToString());
     }
+    
+    public override void CloseWindow()
+    {
+        var ev = new SDL.Event { Type = (uint)SDL.EventType.Quit };
+        SDL.PushEvent(ref ev);
+    }
 } 
 
 #region Friflo.SmGui

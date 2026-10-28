@@ -306,6 +306,10 @@ export function invokeAction(data) {
             document.title = args[1];
             // setWindowTitle(args[1]);
             break;
+        case "close-window":
+            // Will error if the window was not opened by a script. E.g. by user click on a link. 
+            window.close();
+            break;
         case "set-clear-color":
             clearLight = parseColor(args[1]);
             clearDark  = parseColor(args[2]);

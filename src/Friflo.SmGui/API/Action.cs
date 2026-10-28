@@ -46,6 +46,8 @@ public abstract class ClientAction
     
     public virtual void SetWindowTitle(ReadOnlySpan<char> title) { }
     
+    public virtual void CloseWindow() { }
+    
     public virtual void CopyToClipboard(ReadOnlySpan<char> text)
     {
         ClipboardUtils.CopyToClipboard(text);
@@ -59,9 +61,10 @@ internal sealed class NoopClientAction : ClientAction
     private         NoopClientAction() { }
     
     public override bool    OpenUrl(ReadOnlySpan<char> url, ReadOnlySpan<char> target = default) => false;
-    public override void    SetClearColor(Color32 light, Color32 dark) { }
-    public override void    SetDisplayMode(SmDisplayMode mode)         { }
-    public override void    SetWindowTitle(ReadOnlySpan<char> title)   { }
-    public override void    CopyToClipboard(ReadOnlySpan<char> text)   { }
+    public override void    SetClearColor(Color32 light, Color32 dark)  { }
+    public override void    SetDisplayMode(SmDisplayMode mode)          { }
+    public override void    SetWindowTitle(ReadOnlySpan<char> title)    { }
+    public override void    CloseWindow()                               { }
+    public override void    CopyToClipboard(ReadOnlySpan<char> text)    { }
 }
 

@@ -87,13 +87,19 @@ internal sealed class GuiClientAction : ClientAction
         client.SendCommand(command);
     }
     
-    public override  void SetWindowTitle(ReadOnlySpan<char> title)
+    public override void SetWindowTitle(ReadOnlySpan<char> title)
     {
         var sb = StringBuilder();
         sb.Append("set-title");
         sb.Append('|');
         sb.Append(title);
         var msg = new SmSendCommand(sb.ToString());
+        client.SendCommand(msg);
+    }
+    
+    public override void CloseWindow()
+    {
+        var msg = new SmSendCommand("close-window");
         client.SendCommand(msg);
     }
     

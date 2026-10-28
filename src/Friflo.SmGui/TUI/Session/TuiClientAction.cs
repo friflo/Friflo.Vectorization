@@ -39,4 +39,9 @@ internal sealed class TuiClientAction : ClientAction
         var msg = new SmSendMessage(bytes);
         client.Send(msg);
     }
+    
+    public override void CloseWindow()
+    {
+        client.Dispose();
+    }
 }

@@ -7,6 +7,7 @@ using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 
+// ReSharper disable InconsistentNaming
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable ConvertToPrimaryConstructor
@@ -16,7 +17,7 @@ namespace Friflo.SmGui.Session;
 
 public class SocketClient : SmClient
 {
-    private  Socket socket;
+    private  Socket? socket;
     
     public SocketClient(Socket socket)
     {
@@ -24,23 +25,37 @@ public class SocketClient : SmClient
     }
     
     public override void Dispose() {
-        socket = null!;
+        var sock = socket;
+        if (sock == null) return;
+        socket = null;
+        try {
+            // Send clear shutdown signal (TCP FIN)
+            sock.Shutdown(SocketShutdown.Both);
+        } catch (SocketException) {
+            // Catch error if connection was already closed by client
+        } finally {
+            sock.Close();
+        }
     }
     
     public override UiType UiType => UiType.TerminalTui;
     
     protected internal override async ValueTask<int> SendAsync(SmSendMessage message, CancellationToken cancellationToken)
     {
-        return await socket.SendAsync(message.buffer, SocketFlags.None, cancellationToken);
+        var sock = socket;
+        if (sock == null) return 0;
+        return await sock.SendAsync(message.buffer, SocketFlags.None, cancellationToken);
     }
     
     protected internal override int Send(SmSendMessage message)
     {
+        var sock = socket;
+        if (sock == null) return 0;
         // Check if the OS send buffer can accept data immediately (0 microseconds wait time)
-        if (!socket.Poll(0, SelectMode.SelectWrite)) {
+        if (!sock.Poll(0, SelectMode.SelectWrite)) {
             return 0;                                       // OS buffer is full -> drop frame instantly to prevent blocking the single thread loop
         }
-        return socket.Send(message.buffer.Span, SocketFlags.None);  // Buffer has space -> transmit frame synchronously without blocking
+        return sock.Send(message.buffer.Span, SocketFlags.None);  // Buffer has space -> transmit frame synchronously without blocking
     }
     
     protected internal override void SendCommand(SmSendCommand command) { }
@@ -54,12 +69,14 @@ public class SocketClient : SmClient
     // I/O Loop: Reads raw socket bytes and pushes them into the session loop queue
     public async ValueTask HandleTerminalIOAsync(SmSessionLoop loop, CancellationToken cancellationToken = default)
     {
+        var sock = socket;
+        if (sock == null) return;
         try
         {
             Payload initialPayload = default;
-            if (socket.Available > 0) {
+            if (sock.Available > 0) {
                 byte[] buffer = ArrayPool<byte>.Shared.Rent(256);
-                int initialBytes = await socket.ReceiveAsync(buffer.AsMemory(), SocketFlags.None, cancellationToken);
+                int initialBytes = await sock.ReceiveAsync(buffer.AsMemory(), SocketFlags.None, cancellationToken);
                 if (initialBytes > 0) {
                     initialPayload = new Payload(buffer, initialBytes);
                 }
@@ -71,7 +88,7 @@ public class SocketClient : SmClient
             while (!cancellationToken.IsCancellationRequested)
             {
                 byte[] buffer = ArrayPool<byte>.Shared.Rent(256);
-                int bytesRead = await socket.ReceiveAsync(buffer.AsMemory(), SocketFlags.None, cancellationToken);
+                int bytesRead = await sock.ReceiveAsync(buffer.AsMemory(), SocketFlags.None, cancellationToken);
                 if (bytesRead == 0) break;
 
                 var payload = new Payload(buffer, bytesRead);

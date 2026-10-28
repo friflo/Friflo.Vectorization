@@ -162,6 +162,9 @@ public class SmGuiRenderer : IRenderer, IGuiView
         if (gui.Button("Web client")) {
             gui.Action.OpenUrl($"https://localhost:{port}", "remote-gui");
         }
+        if (gui.UiType != UiType.WebGui) {
+            if (gui.Button("close session")) gui.Action.CloseWindow();
+        }
         if (gui.Button("copy to clipboard")) {
             gui.Action.CopyToClipboard("some clipboard text");
         }

@@ -91,6 +91,9 @@ public class TestGuiView : IGuiView
             session.SetAppDirty();
             gui.Action.SetDisplayMode(fullScreen ? SmDisplayMode.Fullscreen : SmDisplayMode.Windowed);
         }
+        if (gui.UiType != UiType.WebGui) {
+            if (gui.Button("close session")) session.Action.CloseWindow();
+        }
         gui.Spacer();
         using (gui.BeginHorizontal()) {
             using (gui.PushStyle(greenButtonStyle)) {
