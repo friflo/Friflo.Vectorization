@@ -15,6 +15,14 @@ using Microsoft.Extensions.Logging;
 namespace Friflo.SmGui.Http;
 
 
+/// <summary>
+/// Convenience helpers for hosting SmGui WebGUI sessions in a <b>standalone</b> app.
+/// </summary>
+/// <remarks>
+/// Creates a self-contained Kestrel host, e.g. for demos, tools and console apps.<br/>
+/// Not required when integrating SmGui into an existing ASP.NET Core app (including IIS):<br/>
+/// Call <see cref="SmGuiHttpExtensions.UseWebSocketGuiSessions"/> on your existing <see cref="WebApplication"/> instead.
+/// </remarks>
 public static class HttpUtils
 {
     /// <summary>
