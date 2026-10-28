@@ -13,6 +13,14 @@ using System.Threading.Tasks;
 // ReSharper disable once CheckNamespace
 namespace Friflo.SmGui.Session;
 
+public static class SmConsoleExtensions
+{
+    public static void UseConsoleTuiSession(this SmSessionLoop loop, CancellationToken cancellationToken = default)
+    {
+        var consoleClient = new ConsoleClient();
+        _ = consoleClient.HandleConsoleIOAsync(loop, cancellationToken);
+    }
+}
 
 public sealed class ConsoleClient : SmClient
 {

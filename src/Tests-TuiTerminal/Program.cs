@@ -50,34 +50,38 @@ var appState    = new AppState(cpuBackend);
 var loop = new SmSessionLoop(cpuBackend, client => new TestGuiView(appState, client));
 
 // Connect to Signaling Server for WebRTC Browser sessions
-var signalListener =  new SmSignalingListener(loop);
-signalListener.ConnectAsync(new Uri("wss://localhost:8081/signaling"), "test-app", "auto").Wait(); // stay on main thread
-_ = signalListener.RunAsync();
+loop.UseWebRtcWebGuiSessions(new Uri("wss://localhost:8081/signaling"), "test-app", "auto");
 
 // HTTP server for Browser sessions
 var builder = HttpUtils.CreateHostBuilder(new IPEndPoint(IPAddress.IPv6Any, 8080), loop);
 _ = HttpUtils.Start(builder.Build());
+// loop.UseHttpServerWebGui(...);   todo
 
 // Acquire stdin/stdout for Console session
-var consoleClient = new ConsoleClient();
-_ = consoleClient.HandleConsoleIOAsync(loop);
+loop.UseConsoleTuiSession();
 
-// TCP listener for Terminal Emulator sessions
-_ = Task.Run(() => RunTcpServerAsync(loop, port: 9000));
+// TCP server for Terminal Emulator sessions
+loop.UseTerminalTuiSessions();
 
 loop.Run(); // Blocks Main-Thread directly
 
 
-static async Task RunTcpServerAsync(SmSessionLoop loop, int port)
+internal static class TerminalExtensions
 {
-    using var serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-    serverSocket.Bind(new IPEndPoint(IPAddress.Any, port));
-    serverSocket.Listen();
-    Console.WriteLine($"[+] TCP Listener for Terminal session active on port {port}...");
+    internal static void UseTerminalTuiSessions(this SmSessionLoop loop) {
+        _ = Task.Run(() => RunTcpServerAsync(loop));
+    }
+    
+    private static async Task RunTcpServerAsync(SmSessionLoop loop)
+    {
+        using var serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+        serverSocket.Bind(new IPEndPoint(IPAddress.Any, 9000));
+        serverSocket.Listen();
 
-    while (true) {
-        var clientSocket = await serverSocket.AcceptAsync();
-        var client = new SocketClient(clientSocket);
-        _ = client.HandleTerminalIOAsync(loop);
+        while (true) {
+            var clientSocket = await serverSocket.AcceptAsync();
+            var client = new SocketClient(clientSocket);
+            _ = client.HandleTerminalIOAsync(loop);
+        }
     }
 }
