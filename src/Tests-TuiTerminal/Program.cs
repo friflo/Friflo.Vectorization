@@ -47,18 +47,22 @@ Console.WriteLine("App");
 var cpuBackend  = new CpuBackend("App", new DefaultGuiAssets());
 var appState    = new AppState(cpuBackend);
 
-
 var loop = new SmSessionLoop(cpuBackend, client => new TestGuiView(appState, client));
 
-var builder = HttpUtils.CreateHostBuilder(new IPEndPoint(IPAddress.IPv6Any, 8080), loop);
-_ = HttpUtils.Start(builder.Build());
-
+// Connect to Signaling Server for WebRTC Browser sessions
 var signalListener =  new SmSignalingListener(loop);
 signalListener.ConnectAsync(new Uri("wss://localhost:8081/signaling"), "test-app", "auto").Wait(); // stay on main thread
 _ = signalListener.RunAsync();
 
+// HTTP server for Browser sessions
+var builder = HttpUtils.CreateHostBuilder(new IPEndPoint(IPAddress.IPv6Any, 8080), loop);
+_ = HttpUtils.Start(builder.Build());
 
-// Run TCP accept loop in background and lock Main-Thread for engine execution
+// Acquire stdin/stdout for Console session
+var localClient = new ConsoleClient();
+_ = ConsoleClient.HandleClientSessionAsync(localClient, loop, CancellationToken.None);
+
+// TCP listener for Terminal Emulator sessions
 _ = Task.Run(() => RunTcpServerAsync(loop, port: 9000));
 
 loop.Run(); // Blocks Main-Thread directly
@@ -66,10 +70,6 @@ loop.Run(); // Blocks Main-Thread directly
 
 static async Task RunTcpServerAsync(SmSessionLoop loop, int port)
 {
-    // Start local console I/O session
-    var localClient = new ConsoleClient();
-    _ = ConsoleClient.HandleClientSessionAsync(localClient, loop, CancellationToken.None);
-
     using var serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
     serverSocket.Bind(new IPEndPoint(IPAddress.Any, port));
     serverSocket.Listen();
