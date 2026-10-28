@@ -73,13 +73,10 @@ static async Task RunTcpServerAsync(SmSessionLoop loop, int port)
     using var serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
     serverSocket.Bind(new IPEndPoint(IPAddress.Any, port));
     serverSocket.Listen();
+    Console.WriteLine($"[+] TCP Listener for Terminal session active on port {port}...");
 
-    Console.WriteLine($"[+] TCP Listener active on port {port}...");
-
-    while (true)
-    {
-        Socket clientSocket = await serverSocket.AcceptAsync();
-        
+    while (true) {
+        var clientSocket = await serverSocket.AcceptAsync();
         var client = new SocketClient(clientSocket);
         _ = SocketClient.HandleClientSessionAsync(client, loop, CancellationToken.None);
     }
