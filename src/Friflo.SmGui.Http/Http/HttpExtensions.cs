@@ -22,7 +22,7 @@ public static class SmGuiHttpExtensions
     private static readonly string  WebRoot = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "wwwroot");
 
     
-    public static void UseWebGuiSessions(this IApplicationBuilder app, SmSessionLoop loop, string? webRoot = null)
+    public static void UseWebSocketGuiSessions(this IApplicationBuilder app, SmSessionLoop loop, string? webRoot = null)
     {
         webRoot ??= WebRoot;
         

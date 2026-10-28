@@ -49,11 +49,11 @@ var appState    = new AppState(cpuBackend);
 var loop = new SmSessionLoop(cpuBackend, client => new TestGuiView(appState, client));
 
 // Connect to Signaling Server for WebRTC Browser sessions
-loop.UseWebRtcWebGuiSessions(new Uri("wss://localhost:8081/signaling"), "test-app", "auto");
+loop.UseWebRtcGuiSessions(new Uri("wss://localhost:8081/signaling"), "test-app", "auto");
 
 // HTTP server for Browser sessions
 var app = HttpUtils.CreateWebApplication(new IPEndPoint(IPAddress.IPv6Any, 8080));
-app.UseWebGuiSessions(loop);
+app.UseWebSocketGuiSessions(loop);
 _ = app.StartAsync();
 
 // Acquire stdin/stdout for Console session

@@ -74,7 +74,7 @@ public static class HttpUtils
             });
 
             webBuilder.Configure(app => {
-                app.UseWebGuiSessions(loop, webRoot);
+                app.UseWebSocketGuiSessions(loop, webRoot);
             });
         });
 
