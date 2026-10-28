@@ -26,8 +26,8 @@ public static class SmConsoleExtensions
 
 public sealed class ConsoleClient : SmClient
 {
-    private     Stream  inputStream;
-    private     Stream  outputStream;
+    private     Stream? inputStream;
+    private     Stream? outputStream;
     private     int     consoleWidth  = -1;
     private     int     consoleHeight = -1;
     
@@ -45,23 +45,33 @@ public sealed class ConsoleClient : SmClient
     
     public override void Dispose()
     {
-        inputStream     = null!;
-        outputStream    = null!;
+        inputStream?.Dispose();
+        outputStream?.Dispose();
+        inputStream     = null;
+        outputStream    = null;
     }
     
     public override UiType UiType => UiType.ConsoleTui;
     
     protected internal override async ValueTask<int> SendAsync(SmSendMessage message, CancellationToken cancellationToken)
     {
-        await outputStream.WriteAsync(message.buffer, cancellationToken);
-        await outputStream.FlushAsync(cancellationToken);
+        var output = outputStream;
+        if (output == null) {
+            return 0;
+        }
+        await output.WriteAsync(message.buffer, cancellationToken);
+        await output.FlushAsync(cancellationToken);
         return message.Length;
     }
     
     protected internal override int Send(SmSendMessage message)
     {
-        outputStream.Write(message.buffer.Span);
-        outputStream.Flush();
+        var output = outputStream;
+        if (output == null) {
+            return 0;
+        }
+        output.Write(message.buffer.Span);
+        output.Flush();
         return message.Length;
     }
     
@@ -99,10 +109,11 @@ public sealed class ConsoleClient : SmClient
             
             loop.TryEnqueueEvent(LoopEventType.TerminalConnected, this, payload);
 
-            while (!cancellationToken.IsCancellationRequested)
+            var input = inputStream;
+            while (input != null && !cancellationToken.IsCancellationRequested)
             {
                 buffer = ArrayPool<byte>.Shared.Rent(256);
-                int bytesRead = await this.inputStream.ReadAsync(buffer.AsMemory(), cancellationToken);
+                int bytesRead = await input.ReadAsync(buffer.AsMemory(), cancellationToken);
                 if (bytesRead == 0) break;
                 
                 // no need to poll console size on Windows. Size changes are triggered by WINDOW_BUFFER_SIZE_EVENT
@@ -111,6 +122,7 @@ public sealed class ConsoleClient : SmClient
                 payload = new Payload(buffer, bytesRead);
 
                 loop.TryEnqueueClientEvent(this, LoopEventType.TerminalInput, payload);
+                input = inputStream;
             }
         }
         finally
