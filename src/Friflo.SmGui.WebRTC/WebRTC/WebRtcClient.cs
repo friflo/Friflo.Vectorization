@@ -50,7 +50,7 @@ internal sealed class WebRtcClient : SmClient
     
     internal void EnqueueConnected()
     {
-        EventQueue?.TryEnqueueEvent(LoopEventType.WebsocketConnected, this, default);
+        TryEnqueueEvent(LoopEventType.WebsocketConnected, this, default);
     }
     
     public override UiType UiType => UiType.WebRtcGui;
@@ -141,7 +141,7 @@ internal sealed class WebRtcClient : SmClient
     
     private void OnClose()
     {
-        EventQueue?.TryEnqueueClientEvent(this, LoopEventType.WebsocketDisconnected, default);
+        TryEnqueueClientEvent(LoopEventType.WebsocketDisconnected, default);
         // Console.WriteLine($"RTCDataChannel closed");
     }
     
@@ -154,6 +154,6 @@ internal sealed class WebRtcClient : SmClient
         Array.Copy(data, 0, buffer, 0, data.Length);
         var payload = new Payload(buffer, data.Length);
         
-        EventQueue?.TryEnqueueClientEvent(this, LoopEventType.WebsocketInput, payload);
+        TryEnqueueClientEvent(LoopEventType.WebsocketInput, payload);
     }
 }

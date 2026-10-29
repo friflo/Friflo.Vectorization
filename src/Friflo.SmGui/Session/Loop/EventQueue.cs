@@ -13,10 +13,10 @@ namespace Friflo.SmGui.Session;
 /// The event queue owned by the <see cref="SmSessionLoop"/>.
 /// </summary>
 /// <remarks>
-/// Intentionally hidden from direct user code - accessible only via <see cref="SmClient.EventQueue"/>.<br/>
+/// Intentionally hidden from direct user code - accessible only via <see cref="SmClient.eventQueue"/>.<br/>
 /// Enqueuing additional or invalid events would break the state / invariant.  
 /// </remarks>
-public sealed class SmEventQueue
+internal sealed class SmEventQueue
 {
     private  readonly   ConcurrentQueue<LoopEvent>  queue;
     private  readonly   AutoResetEvent              eventReady;
@@ -28,28 +28,6 @@ public sealed class SmEventQueue
     {
         this.queue      = queue;
         this.eventReady = eventReady;
-    }
-    
-    /// <summary>
-    /// Tries to enqueue an event without blocking.<br/>
-    /// If the queue is saturated, the event is dropped and its payload is returned to the pool.<br/>
-    /// The method is thread-safe and can be called from any thread.
-    /// </summary>
-    /// <returns>True if the event was queued; false if it was dropped due to backpressure.</returns>
-    public bool TryEnqueueEvent(LoopEventType type, object? state, Payload payload, int data = 0)
-    {
-        return TryEnqueueEventSync(null, default, type, state, payload, data);
-    }
-
-    /// <summary>
-    /// Tries to enqueue an event for a specific client without blocking.<br/>
-    /// If the queue is saturated, the event is dropped and its payload is returned to the pool.<br/>
-    /// The method is thread-safe and can be called from any thread.
-    /// </summary>
-    /// <returns>True if the event was queued; false if it was dropped due to backpressure.</returns>
-    public bool TryEnqueueClientEvent(SmClient client, LoopEventType type, Payload payload)
-    {
-        return TryEnqueueEventSync(client, client.sessionId, type, null, payload, 0);
     }
     
     internal bool TryEnqueueEventSync(SmClient? client, SessionId sessionId, LoopEventType type, object? state, Payload payload, int data)

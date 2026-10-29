@@ -236,7 +236,7 @@ public sealed partial class SmSessionLoop : IDisposable
             SetAppDirtySync();
             return;
         }
-        eventQueue.TryEnqueueEvent(LoopEventType.SetAppDirty, null, default);
+        eventQueue.TryEnqueueEventSync(null, default, LoopEventType.SetAppDirty, null, default, 0);
     }
     
     private void SetAppDirtySync()
@@ -245,7 +245,7 @@ public sealed partial class SmSessionLoop : IDisposable
             if (session.SetDirty()) {
                 continue;
             }
-            eventQueue.TryEnqueueClientEvent(session.client, LoopEventType.FrameTick, default);
+            session.client.TryEnqueueClientEvent(LoopEventType.FrameTick, default);
         }
     }
     
@@ -264,7 +264,7 @@ public sealed partial class SmSessionLoop : IDisposable
         if (session.SetDirty()) {
             return;
         }
-        eventQueue.TryEnqueueClientEvent(session.client, LoopEventType.FrameTick, default);
+        session.client.TryEnqueueClientEvent(LoopEventType.FrameTick, default);
     }
     
     internal void SetSessionDirty(SmSession session)
@@ -272,7 +272,7 @@ public sealed partial class SmSessionLoop : IDisposable
         if (session.SetDirty()) {
             return;
         }
-        eventQueue.TryEnqueueClientEvent(session.client, LoopEventType.FrameTick, default);
+        session.client.TryEnqueueClientEvent(LoopEventType.FrameTick, default);
     }
 }
 

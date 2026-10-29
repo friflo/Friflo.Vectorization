@@ -107,7 +107,7 @@ public sealed class ConsoleClient : SmClient
             var length = AppendConsoleSize(buffer, 0);
             var payload = new Payload(buffer, length);
             
-            EventQueue?.TryEnqueueEvent(LoopEventType.TerminalConnected, this, payload);
+            TryEnqueueEvent(LoopEventType.TerminalConnected, this, payload);
 
             var input = inputStream;
             while (input != null && !cancellationToken.IsCancellationRequested)
@@ -121,13 +121,13 @@ public sealed class ConsoleClient : SmClient
 
                 payload = new Payload(buffer, bytesRead);
 
-                EventQueue?.TryEnqueueClientEvent(this, LoopEventType.TerminalInput, payload);
+                TryEnqueueClientEvent(LoopEventType.TerminalInput, payload);
                 input = inputStream;
             }
         }
         finally
         {
-            EventQueue?.TryEnqueueClientEvent(this, LoopEventType.TerminalDisconnected, default);
+            TryEnqueueClientEvent(LoopEventType.TerminalDisconnected, default);
         }
     }
 }

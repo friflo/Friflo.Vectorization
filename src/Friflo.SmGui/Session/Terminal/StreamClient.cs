@@ -56,10 +56,9 @@ public sealed class StreamClient : SmClient
     // I/O Loop: Reads raw stream bytes and pushes them into the session loop queue
     public static async ValueTask HandleClientSessionAsync(StreamClient client, CancellationToken cancellationToken)
     {
-        var eventQueue = client.EventQueue;
         try
         {
-            eventQueue?.TryEnqueueEvent(LoopEventType.TerminalConnected, client, default);
+            client.TryEnqueueEvent(LoopEventType.TerminalConnected, client, default);
 
             while (!cancellationToken.IsCancellationRequested)
             {
@@ -69,12 +68,12 @@ public sealed class StreamClient : SmClient
 
                 var payload = new Payload(buffer, bytesRead);
 
-                eventQueue?.TryEnqueueClientEvent(client, LoopEventType.TerminalInput, payload);
+                client.TryEnqueueClientEvent(LoopEventType.TerminalInput, payload);
             }
         }
         finally
         {
-            eventQueue?.TryEnqueueClientEvent(client, LoopEventType.TerminalDisconnected, default);
+            client.TryEnqueueClientEvent(LoopEventType.TerminalDisconnected, default);
         }
     }
 }

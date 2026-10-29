@@ -160,12 +160,13 @@ public sealed class ViewSession
     /// The message is dispatched to <see cref="IGuiView.OnMessage"/> on the session loop thread (typically the main thread).<br/>
     /// This method is thread-safe and can be called from any thread.
     /// </summary>
-    public void PostMessage(object? state, Payload payload, int data)
+    public bool PostMessage(object? state, Payload payload, int data)
     {
         var local = session;
         if (local != null) {
-            loop.eventQueue.TryEnqueueEventSync(local.client, SessionId, LoopEventType.PostMessage, state, payload, data);
+            return loop.eventQueue.TryEnqueueEventSync(local.client, SessionId, LoopEventType.PostMessage, state, payload, data);
         }
+        return false;
     }
     
     /// <summary>
