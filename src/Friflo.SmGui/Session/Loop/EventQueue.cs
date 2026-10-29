@@ -30,7 +30,7 @@ internal sealed class SmEventQueue
         this.eventReady = eventReady;
     }
     
-    internal bool TryEnqueueEventSync(SmClient? client, SessionId sessionId, LoopEventType type, object? state, Payload payload, int data)
+    internal bool TryEnqueueEvent(SmClient? client, SessionId sessionId, LoopEventType type, object? state, Payload payload, int data)
     {
         ObjectDisposedException.ThrowIf(isDisposed, this);
 

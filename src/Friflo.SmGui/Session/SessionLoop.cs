@@ -236,7 +236,7 @@ public sealed partial class SmSessionLoop : IDisposable
             SetAppDirtySync();
             return;
         }
-        eventQueue.TryEnqueueEventSync(null, default, LoopEventType.SetAppDirty, null, default, 0);
+        eventQueue.TryEnqueueEvent(null, default, LoopEventType.SetAppDirty, null, default, 0);
     }
     
     private void SetAppDirtySync()

@@ -85,7 +85,7 @@ public abstract class SmClient
     /// <returns>True if the event was queued; false if it was dropped due to backpressure.</returns>
     protected bool TryEnqueueEvent(LoopEventType type, object? state, Payload payload)
     {
-        return eventQueue?.TryEnqueueEventSync(null, default, type, state, payload, 0) ?? false;
+        return eventQueue?.TryEnqueueEvent(null, default, type, state, payload, 0) ?? false;
     }
 
     /// <summary>
@@ -96,7 +96,7 @@ public abstract class SmClient
     /// <returns>True if the event was queued; false if it was dropped due to backpressure.</returns>
     public bool TryEnqueueClientEvent(LoopEventType type, Payload payload)
     {
-        return eventQueue?.TryEnqueueEventSync(this, sessionId, type, null, payload, 0) ?? false;
+        return eventQueue?.TryEnqueueEvent(this, sessionId, type, null, payload, 0) ?? false;
     }
     
     public void QueueDataAppended(int queueSize)
