@@ -7,18 +7,18 @@ using Friflo.SmGui.WebRTC;
 using TuiTerminal;
 
 /*
-    Console           - local, single user (console)    via: Console
-    ----------------------------------------------------------------------
+    Console           - local,  one session (console)       via: Console
+    --------------------------------------------------------------------
 Windows / macOS / Linux          dotnet ./Tests-TuiTerminal.dll
 
 
-    Browser           - remote, multi user (url)        via: HTTP & WebRTC
-    ----------------------------------------------------------------------
+    Browser           - remote, multi session (url)         via: HTTP & WebRTC
+    --------------------------------------------------------------------------
 Chrome, Firefox, Edge, Safari    https://localhost:8080/
 
 
-    Terminal Emulator - remote, multi user (host:port)  via: TCP
-    ---------------------------------------------------------------------
+    Terminal Emulator - remote, multi session (host:port)   via: TCP
+    ----------------------------------------------------------------
 Windows plink(PuTTY)    plink -raw -t -P 9000 127.0.0.1       with args: echo --view logs --theme dark | plink -raw -t -P 9000 127.0.0.1
 Windows WSL             stty raw -echo; nc $(ip route show default | awk '{print $3}') 9000; stty sane
 macOS / Linux           stty raw -echo; nc localhost 9000; stty sane
