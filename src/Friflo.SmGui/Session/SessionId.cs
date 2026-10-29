@@ -89,6 +89,8 @@ internal readonly struct SessionKeys
     internal readonly   SessionId   id;
     internal readonly   SessionGuid guid;
 
+    public   override   string      ToString() => $"session: {id.id}";
+
     public SessionKeys(SessionId id, SessionGuid guid)
     {
         this.id     = id;
