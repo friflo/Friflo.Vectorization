@@ -83,9 +83,9 @@ public abstract class SmClient
     /// The method is thread-safe and can be called from any thread.
     /// </summary>
     /// <returns>True if the event was queued; false if it was dropped due to backpressure.</returns>
-    protected bool TryEnqueueEvent(LoopEventType type, object? state, Payload payload, int data = 0)
+    protected bool TryEnqueueEvent(LoopEventType type, object? state, Payload payload)
     {
-        return eventQueue?.TryEnqueueEventSync(null, default, type, state, payload, data) ?? false;
+        return eventQueue?.TryEnqueueEventSync(null, default, type, state, payload, 0) ?? false;
     }
 
     /// <summary>
