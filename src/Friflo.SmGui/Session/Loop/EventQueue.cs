@@ -34,8 +34,6 @@ internal sealed class SmEventQueue
     {
         ObjectDisposedException.ThrowIf(isDisposed, this);
 
-        var evt = new LoopEvent(sessionId, type, state, payload, data);
-
         // Synchronous path backpressure check
         if (queue.Count >= MaxSyncQueueCapacity) {
             // Queue capacity reached: drop event and release memory back to pool
@@ -43,7 +41,8 @@ internal sealed class SmEventQueue
             return false;
         }
         client?.IncrementPendingEvents();
-        queue.Enqueue(evt);
+        
+        queue.Enqueue(new LoopEvent(sessionId, type, state, payload, data));
         eventReady.Set(); // Wake up worker thread
         return true;
     }
