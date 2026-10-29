@@ -23,36 +23,6 @@ public sealed class SmEventQueue
         this.eventReady = eventReady;
     }
     
-    /*
-    // --- enqueue async
-    public ValueTask EnqueueEventAsync(LoopEventType type, object? state, Payload payload, int data = 0)
-    {
-        return EnqueueAsync(default, type, state, payload, data);
-    }
-    
-    public ValueTask EnqueueClientEventAsync(SmClient client, LoopEventType type, Payload payload)
-    {
-        client.IncrementPendingEvents();
-        return EnqueueAsync(client.sessionId, type, null, payload, 0);
-    }
-    
-    private async ValueTask EnqueueAsync(SessionId sessionId, LoopEventType type, object? state, Payload payload, int data)
-    {
-        var evt = new LoopEvent(sessionId, type, state, payload, data);
-
-        if (isAsync) {
-            ObjectDisposedException.ThrowIf(isDisposed, this);
-            await eventChannel!.Writer.WriteAsync(evt);
-            return;
-        }
-        eventQueue.Enqueue(evt);
-        eventReady.Set(); // wake up Thread
-    } */
-    
-    
-    
-    // --- enqueue sync
-    
     /// <summary>
     /// Tries to enqueue an event without blocking.<br/>
     /// If the queue is saturated, the event is dropped and its payload is returned to the pool.<br/>
@@ -80,19 +50,6 @@ public sealed class SmEventQueue
         ObjectDisposedException.ThrowIf(isDisposed, this);
 
         var evt = new LoopEvent(sessionId, type, state, payload, data);
-
-        /* if (isAsync)
-        {
-            client?.IncrementPendingEvents();
-            // Non-blocking try-write to the channel
-            if (eventChannel!.Writer.TryWrite(evt)) {
-                return true;
-            }
-            client?.DecrementPendingEvents(); // decrement - TryWrite() failed
-            // Backpressure triggered: drop event and release memory back to pool
-            payload.Return();
-            return false;
-        } */
 
         // Synchronous path backpressure check
         if (queue.Count >= MaxSyncQueueCapacity) {
