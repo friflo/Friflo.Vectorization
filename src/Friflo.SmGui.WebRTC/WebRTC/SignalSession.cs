@@ -43,7 +43,7 @@ internal sealed class SignalSession
     {
         // Console.WriteLine("P2P Data Channel opened on App side!");
         if (dataChannel.label == "tm-gui-channel") {
-            var client = new WebRtcClient(listener.loop, dataChannel);
+            var client = new WebRtcClient(dataChannel, listener.loop);
             
             client.EnqueueConnected();
             listener.RemoveSession(connection, webSocket);

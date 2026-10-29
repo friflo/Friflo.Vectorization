@@ -26,7 +26,7 @@ internal sealed class WebRtcClient : SmClient
     private readonly    MemoryStream    outputStream        = new();
     private readonly    DeflateStream   statefulCompressor;
 
-    internal WebRtcClient(SmSessionLoop loop, RTCDataChannel dataChannel)
+    internal WebRtcClient(RTCDataChannel dataChannel, SmSessionLoop loop)
     : base(loop)
     {
         statefulCompressor  = new DeflateStream(outputStream, CompressionLevel.Fastest, leaveOpen: true);
