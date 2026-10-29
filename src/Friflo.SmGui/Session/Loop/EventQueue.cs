@@ -9,6 +9,13 @@ using System.Threading;
 namespace Friflo.SmGui.Session;
 
 
+/// <summary>
+/// The event queue owned by the <see cref="SmSessionLoop"/>.
+/// </summary>
+/// <remarks>
+/// Intentionally hidden from direct user code — accessible only via <see cref="SmClient.EventQueue"/>.<br/>
+/// Enqueuing additional or invalid events would break the state / invariant.  
+/// </remarks>
 public sealed class SmEventQueue
 {
     private  readonly   ConcurrentQueue<LoopEvent>  queue;
