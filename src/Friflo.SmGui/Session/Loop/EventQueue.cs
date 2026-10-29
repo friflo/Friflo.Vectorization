@@ -13,7 +13,7 @@ namespace Friflo.SmGui.Session;
 /// The event queue owned by the <see cref="SmSessionLoop"/>.
 /// </summary>
 /// <remarks>
-/// Intentionally hidden from direct user code — accessible only via <see cref="SmClient.EventQueue"/>.<br/>
+/// Intentionally hidden from direct user code - accessible only via <see cref="SmClient.EventQueue"/>.<br/>
 /// Enqueuing additional or invalid events would break the state / invariant.  
 /// </remarks>
 public sealed class SmEventQueue
