@@ -9,7 +9,7 @@ using System.Threading;
 namespace Friflo.SmGui.Session;
 
 
-public class SmEventQueue
+public sealed class SmEventQueue
 {
     private  readonly   ConcurrentQueue<LoopEvent>  queue;
     private  readonly   AutoResetEvent              eventReady;
