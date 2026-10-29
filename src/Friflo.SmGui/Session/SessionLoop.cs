@@ -63,7 +63,8 @@ public sealed partial class SmSessionLoop : IDisposable
 
 #region private fields
 //  private  readonly   bool                                        isAsync;
-    private  readonly   ConcurrentQueue<LoopEvent>                  eventQueue;         // used by: sync loop
+    internal readonly   SmEventQueue                                eventQueue;
+    private  readonly   ConcurrentQueue<LoopEvent>                  queue;              // used by: sync loop
     private  readonly   AutoResetEvent                              eventReady;         // used by: sync loop
 //  private  readonly   Channel<LoopEvent>?                         eventChannel;       // used by: async loop
     private  readonly   Dictionary<SessionId, SmSession>            sessions            = new();// non-thread-safe state
@@ -77,8 +78,6 @@ public sealed partial class SmSessionLoop : IDisposable
     internal readonly   TuiSessionShared                            tuiShared;          // shared among all TuiSession's
     internal readonly   GuiSessionShared                            guiShared;          // shared among all GuiSession's
     internal readonly   CpuBackend                                  cpuBackend;         // shared among all sessions
-
-    private const int MaxSyncQueueCapacity = 16384; // 16384 events == 512 KB memory
 #endregion
     
     public SmSessionLoop(CpuBackend cpuBackend, CreateGuiView createGuiView)
@@ -98,8 +97,9 @@ public sealed partial class SmSessionLoop : IDisposable
             eventQueue      = null!;
             eventReady      = null!;        
         } else { */        
-        eventQueue      = new ConcurrentQueue<LoopEvent>();
-        eventReady      = new AutoResetEvent(false);
+        queue               = new ConcurrentQueue<LoopEvent>();
+        eventReady          = new AutoResetEvent(false);
+        eventQueue          = new SmEventQueue(queue, eventReady);
         
         exitHandler         = ExitHandler;
         tuiShared           = new TuiSessionShared();
@@ -108,93 +108,6 @@ public sealed partial class SmSessionLoop : IDisposable
         PosixSignalUtils.AddExitHandler(exitHandler);
     }
     
-    
-    /*
-    // --- enqueue async
-    public ValueTask EnqueueEventAsync(LoopEventType type, object? state, Payload payload, int data = 0)
-    {
-        return EnqueueAsync(default, type, state, payload, data);
-    }
-    
-    public ValueTask EnqueueClientEventAsync(SmClient client, LoopEventType type, Payload payload)
-    {
-        client.IncrementPendingEvents();
-        return EnqueueAsync(client.sessionId, type, null, payload, 0);
-    }
-    
-    private async ValueTask EnqueueAsync(SessionId sessionId, LoopEventType type, object? state, Payload payload, int data)
-    {
-        var evt = new LoopEvent(sessionId, type, state, payload, data);
-
-        if (isAsync) {
-            ObjectDisposedException.ThrowIf(isDisposed, this);
-            await eventChannel!.Writer.WriteAsync(evt);
-            return;
-        }
-        eventQueue.Enqueue(evt);
-        eventReady.Set(); // wake up Thread
-    } */
-    
-    
-    
-    // --- enqueue sync
-    
-    /// <summary>
-    /// Tries to enqueue an event without blocking.<br/>
-    /// If the queue is saturated, the event is dropped and its payload is returned to the pool.<br/>
-    /// The method is thread-safe and can be called from any thread.
-    /// </summary>
-    /// <returns>True if the event was queued; false if it was dropped due to backpressure.</returns>
-    public bool TryEnqueueEvent(LoopEventType type, object? state, Payload payload, int data = 0)
-    {
-        return TryEnqueueEventSync(null, default, type, state, payload, data);
-    }
-
-    /// <summary>
-    /// Tries to enqueue an event for a specific client without blocking.<br/>
-    /// If the queue is saturated, the event is dropped and its payload is returned to the pool.<br/>
-    /// The method is thread-safe and can be called from any thread.
-    /// </summary>
-    /// <returns>True if the event was queued; false if it was dropped due to backpressure.</returns>
-    public bool TryEnqueueClientEvent(SmClient client, LoopEventType type, Payload payload)
-    {
-        return TryEnqueueEventSync(client, client.sessionId, type, null, payload, 0);
-    }
-    
-    internal bool TryEnqueueEventSync(SmClient? client, SessionId sessionId, LoopEventType type, object? state, Payload payload, int data)
-    {
-        ObjectDisposedException.ThrowIf(isDisposed, this);
-
-        var evt = new LoopEvent(sessionId, type, state, payload, data);
-
-        /* if (isAsync)
-        {
-            client?.IncrementPendingEvents();
-            // Non-blocking try-write to the channel
-            if (eventChannel!.Writer.TryWrite(evt)) {
-                return true;
-            }
-            client?.DecrementPendingEvents(); // decrement - TryWrite() failed
-            // Backpressure triggered: drop event and release memory back to pool
-            payload.Return();
-            return false;
-        } */
-
-        // Synchronous path backpressure check
-        if (eventQueue.Count >= MaxSyncQueueCapacity) {
-            // Queue capacity reached: drop event and release memory back to pool
-            payload.Return();
-            return false;
-        }
-        client?.IncrementPendingEvents();
-        eventQueue.Enqueue(evt);
-        eventReady.Set(); // Wake up worker thread
-        return true;
-    }
-    
-    
-    
-    // --- lifecycle
     private void ExitHandler()
     {
         PosixSignalUtils.RemoveExitHandler(exitHandler);
@@ -215,6 +128,7 @@ public sealed partial class SmSessionLoop : IDisposable
         if (isDisposed) {
             return;
         }
+        eventQueue.isDisposed = true;
         isDisposed = true;
         
         foreach (var session in sessions.Values) {
@@ -299,6 +213,7 @@ public sealed partial class SmSessionLoop : IDisposable
         if (!sessions.Remove(sessionId, out var session)) {
             return;
         }
+        session.client.eventQueue = null;
         var batch = session.Batch;
         batch.Reset();
         resources.RemoveSessionResources(session.keys.guid);
@@ -321,7 +236,7 @@ public sealed partial class SmSessionLoop : IDisposable
             SetAppDirtySync();
             return;
         }
-        TryEnqueueEvent(LoopEventType.SetAppDirty, null, default);
+        eventQueue.TryEnqueueEvent(LoopEventType.SetAppDirty, null, default);
     }
     
     private void SetAppDirtySync()
@@ -330,7 +245,7 @@ public sealed partial class SmSessionLoop : IDisposable
             if (session.SetDirty()) {
                 continue;
             }
-            TryEnqueueClientEvent(session.client, LoopEventType.FrameTick, default);
+            eventQueue.TryEnqueueClientEvent(session.client, LoopEventType.FrameTick, default);
         }
     }
     
@@ -349,7 +264,7 @@ public sealed partial class SmSessionLoop : IDisposable
         if (session.SetDirty()) {
             return;
         }
-        TryEnqueueClientEvent(session.client, LoopEventType.FrameTick, default);
+        eventQueue.TryEnqueueClientEvent(session.client, LoopEventType.FrameTick, default);
     }
     
     internal void SetSessionDirty(SmSession session)
@@ -357,7 +272,7 @@ public sealed partial class SmSessionLoop : IDisposable
         if (session.SetDirty()) {
             return;
         }
-        TryEnqueueClientEvent(session.client, LoopEventType.FrameTick, default);
+        eventQueue.TryEnqueueClientEvent(session.client, LoopEventType.FrameTick, default);
     }
 }
 

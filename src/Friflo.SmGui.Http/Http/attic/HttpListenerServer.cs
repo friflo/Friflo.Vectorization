@@ -104,8 +104,8 @@ public sealed class HttpListenerServer
                         try
                         {
                             var wsContext = await context.AcceptWebSocketAsync(subProtocol: null);
-                            var client = new WebSocketClient(wsContext.WebSocket);
-                            await WebSocketClient.HandleClientSessionAsync(client, loop, cancellationToken);
+                            var client = new WebSocketClient(wsContext.WebSocket, loop);
+                            await WebSocketClient.HandleClientSessionAsync(client, cancellationToken);
                         }
                         catch (Exception ex)
                         {

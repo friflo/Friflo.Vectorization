@@ -14,7 +14,7 @@ namespace Friflo.SmGui.Session;
 
 public sealed class LoopTimer : IDisposable
 {
-    private             SmSessionLoop?    loop;
+    private             SmEventQueue?     eventQueue;
     private             SmClient?         client;
     private             Timer?            syncTimer;
     private             PeriodicTimer?    asyncTimer;
@@ -34,7 +34,7 @@ public sealed class LoopTimer : IDisposable
 
     internal LoopTimer(SmSessionLoop loop, SmClient client, int tickRate, bool isSync)
     {
-        this.loop     = loop;
+        eventQueue    = loop.eventQueue;
         this.client   = client;
         this.tickRate = tickRate;
         this.isSync   = isSync;
@@ -47,7 +47,7 @@ public sealed class LoopTimer : IDisposable
         asyncTimer?.Dispose();
         syncTimer   = null;
         asyncTimer  = null;
-        loop        = null;
+        eventQueue  = null;
         client      = null;
     }
     
@@ -164,7 +164,7 @@ public sealed class LoopTimer : IDisposable
     
     private void EnqueueFrameTick()
     {
-        loop!.TryEnqueueClientEvent(client!, LoopEventType.FrameTick, default);
+        eventQueue?.TryEnqueueClientEvent(client!, LoopEventType.FrameTick, default);
     }
 
     private void StartFrameTickerSync()

@@ -26,7 +26,7 @@ public partial class SmSessionLoop
             // Wakes up immediately when an event arrives or cancellation is requested. ZERO allocations
             WaitHandle.WaitAny(handles);
 
-            while (eventQueue.TryDequeue(out LoopEvent evt)) {
+            while (queue.TryDequeue(out LoopEvent evt)) {
                 if (evt.sessionId.id != 0) {
                     ProcessSessionEvent(evt);
                 } else {
@@ -132,8 +132,8 @@ public partial class SmSessionLoop
     public void IterateSessions()
     {
         ObjectDisposedException.ThrowIf(isDisposed, this);
-        var eventCount = eventQueue.Count;
-        while (eventQueue.TryDequeue(out LoopEvent evt))
+        var eventCount = queue.Count;
+        while (queue.TryDequeue(out LoopEvent evt))
         {
             if (evt.sessionId.id != 0) {
                 ProcessSessionEvent(evt);

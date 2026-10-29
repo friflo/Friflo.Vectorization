@@ -23,8 +23,8 @@ internal static class TerminalUtils
 
         while (true) {
             var clientSocket = await serverSocket.AcceptAsync();
-            var client = new SocketClient(clientSocket);
-            _ = client.HandleTerminalIOAsync(loop);
+            var client = new SocketClient(clientSocket, loop);
+            _ = client.HandleTerminalIOAsync();
         }
     }
 }

@@ -64,15 +64,18 @@ internal struct SendQueueState
 public abstract class SmClient
 {
     private             SendQueueState  queueState;
-    public   readonly   SessionId       sessionId;
+    public    readonly  SessionId       sessionId;
+    internal            SmEventQueue?   eventQueue;
+    protected           SmEventQueue?   EventQueue => eventQueue;
 
     public   override   string          ToString() => $"session: {sessionId}";
 
     private static int _sessionSeq;
     
-    protected SmClient() {
-        var id = Interlocked.Increment(ref _sessionSeq);
-        this.sessionId = new SessionId(id);
+    protected SmClient(SmSessionLoop loop) {
+        eventQueue      = loop.eventQueue;
+        var id          = Interlocked.Increment(ref _sessionSeq);
+        this.sessionId  = new SessionId(id);
     }
     
     public void QueueDataAppended(int queueSize)

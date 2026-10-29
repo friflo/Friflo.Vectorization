@@ -45,7 +45,7 @@ internal sealed class SignalSession
         if (dataChannel.label == "tm-gui-channel") {
             var client = new WebRtcClient(listener.loop, dataChannel);
             
-            listener.loop.TryEnqueueEvent(LoopEventType.WebsocketConnected, client, default);
+            client.EnqueueConnected();
             listener.RemoveSession(connection, webSocket);
             return;
         }

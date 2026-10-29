@@ -17,8 +17,8 @@ public static class SmConsoleExtensions
 {
     public static SmSessionLoop UseConsoleTuiSession(this SmSessionLoop loop, CancellationToken cancellationToken = default)
     {
-        var consoleClient = new ConsoleClient();
-        _ = consoleClient.HandleConsoleIOAsync(loop, cancellationToken);
+        var consoleClient = new ConsoleClient(loop);
+        _ = consoleClient.HandleConsoleIOAsync(cancellationToken);
         
         return loop;
     }
@@ -31,7 +31,7 @@ public sealed class ConsoleClient : SmClient
     private     int     consoleWidth  = -1;
     private     int     consoleHeight = -1;
     
-    public ConsoleClient()
+    public ConsoleClient(SmSessionLoop loop) : base(loop)
     {
         Console.OutputEncoding = System.Text.Encoding.UTF8;
         outputStream = Console.OpenStandardOutput();
@@ -99,7 +99,7 @@ public sealed class ConsoleClient : SmClient
     }
 
     // I/O Loop: Reads raw stream bytes and pushes them into the session loop queue
-    public async ValueTask HandleConsoleIOAsync(SmSessionLoop loop, CancellationToken cancellationToken = default)
+    public async ValueTask HandleConsoleIOAsync(CancellationToken cancellationToken = default)
     {
         try
         {
@@ -107,7 +107,7 @@ public sealed class ConsoleClient : SmClient
             var length = AppendConsoleSize(buffer, 0);
             var payload = new Payload(buffer, length);
             
-            loop.TryEnqueueEvent(LoopEventType.TerminalConnected, this, payload);
+            EventQueue?.TryEnqueueEvent(LoopEventType.TerminalConnected, this, payload);
 
             var input = inputStream;
             while (input != null && !cancellationToken.IsCancellationRequested)
@@ -121,13 +121,13 @@ public sealed class ConsoleClient : SmClient
 
                 payload = new Payload(buffer, bytesRead);
 
-                loop.TryEnqueueClientEvent(this, LoopEventType.TerminalInput, payload);
+                EventQueue?.TryEnqueueClientEvent(this, LoopEventType.TerminalInput, payload);
                 input = inputStream;
             }
         }
         finally
         {
-            loop.TryEnqueueClientEvent(this, LoopEventType.TerminalDisconnected, default);
+            EventQueue?.TryEnqueueClientEvent(this, LoopEventType.TerminalDisconnected, default);
         }
     }
 }

@@ -27,7 +27,8 @@ internal sealed class WebSocketClient : SmClient
         FullMode = BoundedChannelFullMode.DropOldest
     });
 
-    internal WebSocketClient(WebSocket webSocket)
+    internal WebSocketClient(WebSocket webSocket, SmSessionLoop loop)
+        : base(loop)
     {
         doubleBuffer    = new WsDoubleBuffer(this);
         this.webSocket  = webSocket;
@@ -93,7 +94,7 @@ internal sealed class WebSocketClient : SmClient
     }
 
     // Dedicated loop for receiving incoming messages from client
-    private async Task ReceiveLoopAsync(SmSessionLoop loop, CancellationToken cancellationToken)
+    private async Task ReceiveLoopAsync(CancellationToken cancellationToken)
     {
         byte[] buffer = ArrayPool<byte>.Shared.Rent(256);
         try
@@ -122,7 +123,7 @@ internal sealed class WebSocketClient : SmClient
                 if (result.MessageType == WebSocketMessageType.Text || result.MessageType == WebSocketMessageType.Binary)
                 {
                     var payload = new Payload(buffer, result.Count);
-                    loop.TryEnqueueClientEvent(this, LoopEventType.WebsocketInput, payload);
+                    EventQueue?.TryEnqueueClientEvent(this, LoopEventType.WebsocketInput, payload);
                 }
                 else
                 {
@@ -164,12 +165,12 @@ internal sealed class WebSocketClient : SmClient
         }
     }
 
-    internal static async Task HandleClientSessionAsync(WebSocketClient client, SmSessionLoop loop, CancellationToken cancellationToken)
+    internal static async Task HandleClientSessionAsync(WebSocketClient client, CancellationToken cancellationToken)
     {
-        loop.TryEnqueueEvent(LoopEventType.WebsocketConnected, client, default);
+        client.EventQueue?.TryEnqueueEvent(LoopEventType.WebsocketConnected, client, default);
 
         // Run independent receive and send loops concurrently
-        Task receiveLoop = client.ReceiveLoopAsync(loop, cancellationToken);
+        Task receiveLoop = client.ReceiveLoopAsync(cancellationToken);
         Task sendLoop    = client.SendLoopAsync   (cancellationToken);
 
         try
@@ -185,7 +186,7 @@ internal sealed class WebSocketClient : SmClient
         {
             // Guaranteed to run even if the browser tab was force-closed
             client.Dispose();
-            loop.TryEnqueueClientEvent(client, LoopEventType.WebsocketDisconnected, default);
+            client.EventQueue?.TryEnqueueClientEvent(client, LoopEventType.WebsocketDisconnected, default);
         }
     }
 }

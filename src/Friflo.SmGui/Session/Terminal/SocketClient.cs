@@ -19,7 +19,7 @@ public sealed class SocketClient : SmClient
 {
     private  Socket? socket;
     
-    public SocketClient(Socket socket)
+    public SocketClient(Socket socket, SmSessionLoop loop) : base(loop)
     {
         this.socket = socket;
     }
@@ -67,7 +67,7 @@ public sealed class SocketClient : SmClient
     
     
     // I/O Loop: Reads raw socket bytes and pushes them into the session loop queue
-    public async ValueTask HandleTerminalIOAsync(SmSessionLoop loop, CancellationToken cancellationToken = default)
+    public async ValueTask HandleTerminalIOAsync(CancellationToken cancellationToken = default)
     {
         var sock = socket;
         if (sock == null) return;
@@ -83,7 +83,7 @@ public sealed class SocketClient : SmClient
             }
 
             // Notify loop about new client connection, passing initial payload (if any)
-            loop.TryEnqueueEvent(LoopEventType.TerminalConnected, this, initialPayload);
+            EventQueue?.TryEnqueueEvent(LoopEventType.TerminalConnected, this, initialPayload);
 
             while (!cancellationToken.IsCancellationRequested)
             {
@@ -94,13 +94,13 @@ public sealed class SocketClient : SmClient
                 var payload = new Payload(buffer, bytesRead);
 
                 // Forward raw input directly to the shard event loop
-                loop.TryEnqueueClientEvent(this, LoopEventType.TerminalInput, payload);
+                EventQueue?.TryEnqueueClientEvent(this, LoopEventType.TerminalInput, payload);
             }
         }
         finally
         {
             // ArrayPool<byte>.Shared.Return(buffer);
-            loop.TryEnqueueClientEvent(this, LoopEventType.TerminalDisconnected, default);
+            EventQueue?.TryEnqueueClientEvent(this, LoopEventType.TerminalDisconnected, default);
         }
     }
 }

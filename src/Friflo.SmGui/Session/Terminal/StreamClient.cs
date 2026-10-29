@@ -19,7 +19,7 @@ public sealed class StreamClient : SmClient
     private Stream inputStream;
     private Stream outputStream;
 
-    public StreamClient(Stream inputStream, Stream outputStream)
+    public StreamClient(Stream inputStream, Stream outputStream, SmSessionLoop loop) : base(loop)
     {
         this.inputStream = inputStream;
         this.outputStream = outputStream;
@@ -54,11 +54,12 @@ public sealed class StreamClient : SmClient
     }
 
     // I/O Loop: Reads raw stream bytes and pushes them into the session loop queue
-    public static async ValueTask HandleClientSessionAsync(StreamClient client, SmSessionLoop loop, CancellationToken cancellationToken)
+    public static async ValueTask HandleClientSessionAsync(StreamClient client, CancellationToken cancellationToken)
     {
+        var eventQueue = client.EventQueue;
         try
         {
-            loop.TryEnqueueEvent(LoopEventType.TerminalConnected, client, default);
+            eventQueue?.TryEnqueueEvent(LoopEventType.TerminalConnected, client, default);
 
             while (!cancellationToken.IsCancellationRequested)
             {
@@ -68,12 +69,12 @@ public sealed class StreamClient : SmClient
 
                 var payload = new Payload(buffer, bytesRead);
 
-                loop.TryEnqueueClientEvent(client, LoopEventType.TerminalInput, payload);
+                eventQueue?.TryEnqueueClientEvent(client, LoopEventType.TerminalInput, payload);
             }
         }
         finally
         {
-            loop.TryEnqueueClientEvent(client, LoopEventType.TerminalDisconnected, default);
+            eventQueue?.TryEnqueueClientEvent(client, LoopEventType.TerminalDisconnected, default);
         }
     }
 }

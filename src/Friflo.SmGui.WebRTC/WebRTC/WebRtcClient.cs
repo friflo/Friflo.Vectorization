@@ -21,19 +21,18 @@ namespace Friflo.SmGui.WebRTC;
 internal sealed class WebRtcClient : SmClient
 {
     private             RTCDataChannel  dataChannel;
-    private             SmSessionLoop   loop;
     private             WsDoubleBuffer? doubleBuffer;
     
     private readonly    MemoryStream    outputStream        = new();
     private readonly    DeflateStream   statefulCompressor;
 
     internal WebRtcClient(SmSessionLoop loop, RTCDataChannel dataChannel)
+    : base(loop)
     {
         statefulCompressor  = new DeflateStream(outputStream, CompressionLevel.Fastest, leaveOpen: true);
         doubleBuffer        = new WsDoubleBuffer(this);
         // compressor = new DeflaterOutputStream(outputStream, deflater) { IsStreamOwner = false };
         
-        this.loop           = loop;
         this.dataChannel    = dataChannel;
         dataChannel.ordered = true;
         // dataChannel.maxPacketLifeTime = 1;
@@ -45,9 +44,13 @@ internal sealed class WebRtcClient : SmClient
     public override void Dispose()
     {
         doubleBuffer?.Dispose();
-        loop            = null!;
         doubleBuffer    = null!;
         dataChannel     = null!;
+    }
+    
+    internal void EnqueueConnected()
+    {
+        EventQueue?.TryEnqueueEvent(LoopEventType.WebsocketConnected, this, default);
     }
     
     public override UiType UiType => UiType.WebRtcGui;
@@ -138,7 +141,7 @@ internal sealed class WebRtcClient : SmClient
     
     private void OnClose()
     {
-        loop.TryEnqueueClientEvent(this, LoopEventType.WebsocketDisconnected, default);
+        EventQueue?.TryEnqueueClientEvent(this, LoopEventType.WebsocketDisconnected, default);
         // Console.WriteLine($"RTCDataChannel closed");
     }
     
@@ -151,6 +154,6 @@ internal sealed class WebRtcClient : SmClient
         Array.Copy(data, 0, buffer, 0, data.Length);
         var payload = new Payload(buffer, data.Length);
         
-        loop.TryEnqueueClientEvent(this, LoopEventType.WebsocketInput, payload);
+        EventQueue?.TryEnqueueClientEvent(this, LoopEventType.WebsocketInput, payload);
     }
 }

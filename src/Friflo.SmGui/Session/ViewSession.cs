@@ -164,7 +164,7 @@ public sealed class ViewSession
     {
         var local = session;
         if (local != null) {
-            loop.TryEnqueueEventSync(local.client, SessionId, LoopEventType.PostMessage, state, payload, data);
+            loop.eventQueue.TryEnqueueEventSync(local.client, SessionId, LoopEventType.PostMessage, state, payload, data);
         }
     }
     
