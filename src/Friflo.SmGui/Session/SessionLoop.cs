@@ -240,7 +240,7 @@ public sealed partial class SmSessionLoop : IDisposable
             if (session.SetDirty()) {
                 continue;
             }
-            session.client.TryEnqueueClientEvent(LoopEventType.FrameTick, default);
+            session.client.TryEnqueueSessionEvent(LoopEventType.FrameTick, default);
         }
     }
     
@@ -259,7 +259,7 @@ public sealed partial class SmSessionLoop : IDisposable
         if (session.SetDirty()) {
             return;
         }
-        session.client.TryEnqueueClientEvent(LoopEventType.FrameTick, default);
+        session.client.TryEnqueueSessionEvent(LoopEventType.FrameTick, default);
     }
     
     internal void SetSessionDirty(SmSession session)
@@ -267,7 +267,7 @@ public sealed partial class SmSessionLoop : IDisposable
         if (session.SetDirty()) {
             return;
         }
-        session.client.TryEnqueueClientEvent(LoopEventType.FrameTick, default);
+        session.client.TryEnqueueSessionEvent(LoopEventType.FrameTick, default);
     }
 }
 

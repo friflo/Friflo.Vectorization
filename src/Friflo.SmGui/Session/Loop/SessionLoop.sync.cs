@@ -30,13 +30,13 @@ public partial class SmSessionLoop
                 if (evt.sessionId.id != 0) {
                     ProcessSessionEvent(evt);
                 } else {
-                    ProcessEvent (evt);
+                    ProcessAppEvent (evt);
                 }
             }
         }
     }
     
-    // process client event
+    // process session event
     private void ProcessSessionEvent (in LoopEvent evt)
     {
         if (!sessions.TryGetValue(evt.sessionId, out var session)) {
@@ -91,8 +91,8 @@ public partial class SmSessionLoop
         }
     }
     
-    // process event
-    private void ProcessEvent (in LoopEvent evt)
+    // process app event
+    private void ProcessAppEvent (in LoopEvent evt)
     {
         try {
             switch (evt.type) {
@@ -138,7 +138,7 @@ public partial class SmSessionLoop
             if (evt.sessionId.id != 0) {
                 ProcessSessionEvent(evt);
             } else {
-                ProcessEvent(evt);
+                ProcessAppEvent(evt);
             }
             if (--eventCount == 0) {
                 break;

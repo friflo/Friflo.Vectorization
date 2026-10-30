@@ -58,7 +58,7 @@ public sealed class StreamClient : SmClient
     {
         try
         {
-            client.TryEnqueueEvent(LoopEventType.TerminalConnected, client, default);
+            client.TryEnqueueAppEvent(LoopEventType.TerminalConnected, client, default);
 
             while (!cancellationToken.IsCancellationRequested)
             {
@@ -68,12 +68,12 @@ public sealed class StreamClient : SmClient
 
                 var payload = new Payload(buffer, bytesRead);
 
-                client.TryEnqueueClientEvent(LoopEventType.TerminalInput, payload);
+                client.TryEnqueueSessionEvent(LoopEventType.TerminalInput, payload);
             }
         }
         finally
         {
-            client.TryEnqueueClientEvent(LoopEventType.TerminalDisconnected, default);
+            client.TryEnqueueSessionEvent(LoopEventType.TerminalDisconnected, default);
         }
     }
 }

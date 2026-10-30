@@ -21,7 +21,7 @@ public enum LoopEventType
     WebsocketInput,
     PostMessage,
     
-    // --- non client events
+    // --- app events
     TerminalConnected,
     WebsocketConnected,
     SetAppDirty

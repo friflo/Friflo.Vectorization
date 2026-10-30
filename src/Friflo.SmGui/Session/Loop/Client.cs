@@ -79,23 +79,23 @@ public abstract class SmClient
     }
     
     /// <summary>
-    /// Tries to enqueue an event without blocking.<br/>
+    /// Tries to enqueue an app event without blocking.<br/>
     /// If the queue is saturated, the event is dropped and its payload is returned to the pool.<br/>
     /// The method is thread-safe and can be called from any thread.
     /// </summary>
     /// <returns>True if the event was queued; false if it was dropped due to backpressure.</returns>
-    public bool TryEnqueueEvent(LoopEventType type, object? state, Payload payload)
+    public bool TryEnqueueAppEvent(LoopEventType type, object? state, Payload payload)
     {
         return eventQueue?.TryEnqueueEvent(null, default, type, state, payload, 0) ?? false;
     }
 
     /// <summary>
-    /// Tries to enqueue an event for a specific client without blocking.<br/>
+    /// Tries to enqueue an event for a specific session without blocking.<br/>
     /// If the queue is saturated, the event is dropped and its payload is returned to the pool.<br/>
     /// The method is thread-safe and can be called from any thread.
     /// </summary>
     /// <returns>True if the event was queued; false if it was dropped due to backpressure.</returns>
-    public bool TryEnqueueClientEvent(LoopEventType type, Payload payload)
+    public bool TryEnqueueSessionEvent(LoopEventType type, Payload payload)
     {
         return eventQueue?.TryEnqueueEvent(this, sessionId, type, null, payload, 0) ?? false;
     }
