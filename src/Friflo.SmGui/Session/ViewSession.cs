@@ -130,7 +130,7 @@ public sealed class ViewSession
     private  readonly   SmSessionLoop   loop;
 #endregion
     
-    
+#region internal method
     [MethodImpl(MethodImplOptions.NoInlining)]
     private InvalidOperationException SessionTerminatedException()
     {
@@ -154,6 +154,7 @@ public sealed class ViewSession
         loopTimer   = null;
         session     = null;
     }
+#endregion
     
     /// <summary>
     /// Posts a message via the event loop of <see cref="SmSessionLoop"/> to the <see cref="IGuiView"/> associated with this session.<br/>
