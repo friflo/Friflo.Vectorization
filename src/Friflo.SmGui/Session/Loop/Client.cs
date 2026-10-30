@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Hide = System.Diagnostics.DebuggerHiddenAttribute;
 
+// ReSharper disable MemberCanBeProtected.Global
 // ReSharper disable ConvertIfStatementToReturnStatement
 // ReSharper disable UnusedMember.Global
 // ReSharper disable ArrangeThisQualifier
@@ -83,7 +84,7 @@ public abstract class SmClient
     /// The method is thread-safe and can be called from any thread.
     /// </summary>
     /// <returns>True if the event was queued; false if it was dropped due to backpressure.</returns>
-    protected bool TryEnqueueEvent(LoopEventType type, object? state, Payload payload)
+    public bool TryEnqueueEvent(LoopEventType type, object? state, Payload payload)
     {
         return eventQueue?.TryEnqueueEvent(null, default, type, state, payload, 0) ?? false;
     }
