@@ -22,7 +22,7 @@ internal sealed class SmEventQueue
     private  readonly   AutoResetEvent              eventReady;
     internal            bool                        isDisposed;
     
-    private  const      int                         MaxSyncQueueCapacity = 16384; // 16384 events == 512 KB memory
+    private  const      int                         MaxQueueCapacity = 16384; // 16384 events == 512 KB memory
 
     internal SmEventQueue(ConcurrentQueue<LoopEvent>  queue, AutoResetEvent eventReady)
     {
@@ -35,7 +35,7 @@ internal sealed class SmEventQueue
         ObjectDisposedException.ThrowIf(isDisposed, this);
 
         // Synchronous path backpressure check
-        if (queue.Count >= MaxSyncQueueCapacity) {
+        if (queue.Count >= MaxQueueCapacity) {
             // Queue capacity reached: drop event and release memory back to pool
             payload.Return();
             return false;
