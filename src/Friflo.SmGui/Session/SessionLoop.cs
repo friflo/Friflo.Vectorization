@@ -66,13 +66,12 @@ public sealed partial class SmSessionLoop : IDisposable
     internal readonly   SmEventQueue                                eventQueue;
     private  readonly   ConcurrentQueue<LoopEvent>                  queue;              // used by: sync loop
     private  readonly   AutoResetEvent                              eventReady;         // used by: sync loop
-//  private  readonly   Channel<LoopEvent>?                         eventChannel;       // used by: async loop
-    private  readonly   Dictionary<SessionId, SmSession>            sessions            = new();// non-thread-safe state
-    private  readonly   ConcurrentDictionary<SessionId, SmSession>  concurrentSessions  = new();// thread-safe - used only for SetSessionDirty(SessionId) 
+//  private  readonly   Channel<LoopEvent>?                         eventChannel;       // was used by: async loop
+    private  readonly   Dictionary<SessionId, SmSession>            sessions            = new(); // non-thread-safe state
+    private  readonly   ConcurrentDictionary<SessionId, SmSession>  concurrentSessions  = new(); // thread-safe - used only for SetSessionDirty(SessionId) 
     internal readonly   int                                         sessionThreadId;
     private  readonly   CreateGuiView                               createGuiView;      // IGuiView factory
     private  readonly   CancellationTokenSource                     cts                 = new();
-//  private             Thread?                                     shardThread;
     private             bool                                        isDisposed;
     private  readonly   Action                                      exitHandler;
     internal readonly   TuiSessionShared                            tuiShared;          // shared among all TuiSession's
@@ -138,10 +137,6 @@ public sealed partial class SmSessionLoop : IDisposable
         // signal all loops to stop
         // eventChannel?.Writer.TryComplete();
         cts.Cancel();
-        
-        // wait until ShardLoopThread thread has finished
-        // shardThread?.Join(timeout: TimeSpan.FromMilliseconds(500));
-
         cts.Dispose();
     }
     
