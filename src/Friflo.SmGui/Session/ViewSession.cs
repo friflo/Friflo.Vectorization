@@ -130,7 +130,7 @@ public sealed class ViewSession
     private  readonly   SmSessionLoop   loop;
 #endregion
     
-#region internal method
+#region internal methods
     [MethodImpl(MethodImplOptions.NoInlining)]
     private InvalidOperationException SessionTerminatedException()
     {
