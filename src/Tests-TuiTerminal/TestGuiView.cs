@@ -2,7 +2,6 @@
 using System.Numerics;
 using System.Runtime.InteropServices;
 using Friflo.SmGui;
-using Friflo.SmGui.Headless;
 using Friflo.SmGui.TUI;
 using TuiTerminal.Draw;
 
@@ -38,10 +37,10 @@ public class TestGuiView : IGuiView
         using var stream    = typeof(TestGuiView).Assembly.GetManifestResourceStream("TuiTerminal.Assets.sixel_test.png")!;
         var backend         = session.Backend;
         myTexture           = backend.LoadTexture(stream, "sixel_test.png");
-        var tui             = backend as CpuBackend;
-        canvasTexture       = tui?.CreateTexture("canvas", CanvasWidth, CanvasHeight, new byte[CanvasWidth * CanvasHeight * 4]) ?? default;
+        var uiType          = session.UiType;
+        canvasTexture       = uiType.IsTui() ? backend.CreateTexture("canvas", CanvasWidth, CanvasHeight, new byte[CanvasWidth * CanvasHeight * 4]) : default;
         session.Timer.TickRate   = 60;
-        session.Timer.Enabled    = session.UiType.IsGui();
+        session.Timer.Enabled    = uiType.IsGui();
         session.Action.SetWindowTitle(session.AppId ?? "App");
         session.Action.SetClearColor(0x999c9eff, 0x404142ff);
     }
