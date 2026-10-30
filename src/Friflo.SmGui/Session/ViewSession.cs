@@ -192,7 +192,10 @@ public sealed class ViewSession
     public void SetDirty()
     {
         if (session != null) {
-            loop.SetSessionDirty(session);
+            if (session.SetDirty()) {
+                return;
+            }
+            session.client.TryEnqueueSessionEvent(LoopEventType.FrameTick, default);
         }
     }
 }

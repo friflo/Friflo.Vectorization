@@ -107,21 +107,6 @@ public sealed partial class SmSessionLoop : IDisposable
         PosixSignalUtils.AddExitHandler(exitHandler);
     }
     
-    private void ExitHandler()
-    {
-        PosixSignalUtils.RemoveExitHandler(exitHandler);
-        
-        foreach (var session in sessions.Values) {
-            try {
-                session.client.RestoreTerminal();
-            }
-            // ReSharper disable once EmptyGeneralCatchClause
-            catch {
-                // nothing useful can be done here
-            }
-        }
-    }
-    
     public void Dispose()
     {
         if (isDisposed) {
@@ -138,6 +123,22 @@ public sealed partial class SmSessionLoop : IDisposable
         // eventChannel?.Writer.TryComplete();
         cts.Cancel();
         cts.Dispose();
+    }
+    
+#region internal methods    
+    private void ExitHandler()
+    {
+        PosixSignalUtils.RemoveExitHandler(exitHandler);
+        
+        foreach (var session in sessions.Values) {
+            try {
+                session.client.RestoreTerminal();
+            }
+            // ReSharper disable once EmptyGeneralCatchClause
+            catch {
+                // nothing useful can be done here
+            }
+        }
     }
     
     private static string[] GetArgs(ReadOnlySpan<byte> payload)
@@ -217,6 +218,17 @@ public sealed partial class SmSessionLoop : IDisposable
         
         SessionsChanged?.Invoke(new SessionsChangedArgs(sessionId, SessionsChangedType.Removed));
     }
+    
+    private void SetAppDirtySync()
+    {
+        foreach (var session in sessions.Values) {
+            if (session.SetDirty()) {
+                continue;
+            }
+            session.client.TryEnqueueSessionEvent(LoopEventType.FrameTick, default);
+        }
+    }
+#endregion
 
     /// <summary>
     /// Enqueues a redraw (<see cref="IGuiView.RenderView"/>) for all clients of the app.
@@ -234,16 +246,6 @@ public sealed partial class SmSessionLoop : IDisposable
         eventQueue.TryEnqueueEvent(null, default, LoopEventType.SetAppDirty, null, default, 0);
     }
     
-    private void SetAppDirtySync()
-    {
-        foreach (var session in sessions.Values) {
-            if (session.SetDirty()) {
-                continue;
-            }
-            session.client.TryEnqueueSessionEvent(LoopEventType.FrameTick, default);
-        }
-    }
-    
     /// <summary>
     /// Enqueues a redraw (<see cref="IGuiView.RenderView"/>) for all clients of a specific session.
     /// </summary>
@@ -256,14 +258,6 @@ public sealed partial class SmSessionLoop : IDisposable
         if (!concurrentSessions.TryGetValue(sessionId, out var session)) {
             return;
         }
-        if (session.SetDirty()) {
-            return;
-        }
-        session.client.TryEnqueueSessionEvent(LoopEventType.FrameTick, default);
-    }
-    
-    internal void SetSessionDirty(SmSession session)
-    {
         if (session.SetDirty()) {
             return;
         }
