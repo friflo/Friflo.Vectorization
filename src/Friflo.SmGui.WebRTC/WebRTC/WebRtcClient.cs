@@ -61,30 +61,30 @@ internal sealed class WebRtcClient : SmClient
         return ValueTask.FromException<int>(exception);
     }
     
-    // private static readonly byte[] SyncFlushTail = [0x00, 0x00, 0xFF, 0xFF];
-    private readonly byte[] lengthBuffer = new byte[sizeof(int)]; 
-
-    private byte[] CompressMessage(ReadOnlyMemory<byte> rawData, out int length)
+    private static byte[] CompressMessage(DeflateStream compressor, ReadOnlyMemory<byte> rawData, out int length)
     {
-        MemoryMarshal.Write(lengthBuffer, rawData.Length);
-        outputStream.Position = 0;
-        outputStream.SetLength(0);
-        outputStream.Write(lengthBuffer);
+        var memoryStream = (MemoryStream)compressor.BaseStream;
+        memoryStream.Position = 0;
+        memoryStream.SetLength(0);
+
+        Span<byte> lengthSpan = stackalloc byte[sizeof(int)];
+        MemoryMarshal.Write(lengthSpan, rawData.Length);
+        memoryStream.Write(lengthSpan);
         
-        statefulCompressor.Write(rawData.Span);
-        statefulCompressor.Flush();
+        compressor.Write(rawData.Span);
+        compressor.Flush();
         
         // outputStream.Write(SyncFlushTail);
         
-        length = (int)outputStream.Length;
+        length = (int)memoryStream.Length;
         
-        if (outputStream.TryGetBuffer(out var buffer)) {
+        if (memoryStream.TryGetBuffer(out var buffer)) {
             var array = buffer.Array; 
             if (array != null) {
                 return array;
             }
         }
-        return outputStream.ToArray();
+        return memoryStream.ToArray();
     }
     
     // private byte[] sendBuffer = [];
@@ -99,7 +99,7 @@ internal sealed class WebRtcClient : SmClient
             return 0;
         }
         // var sendBuffer = CompressMessageSharpZipLib(message.buffer, out int length);
-        var sendBuffer = CompressMessage(message.buffer, out int length);
+        var sendBuffer = CompressMessage(statefulCompressor, message.buffer, out int length);
         
         /* var length = message.Length;
         if (sendBuffer.Length < length) {
