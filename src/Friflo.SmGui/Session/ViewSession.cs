@@ -54,7 +54,7 @@ public static class UiTypeExtensions
         public bool IsGui()     => type is UiType.NativeGui  or UiType.WebGui or UiType.WebRtcGui;
         public bool IsTui()     => type is UiType.ConsoleTui or UiType.TerminalTui;
         public bool IsLocal()   => type is UiType.NativeGui  or UiType.ConsoleTui;
-        public bool IsRemote()  => type is UiType.WebGui or UiType.WebRtcGui or UiType.TerminalTui;
+        public bool IsWeb()     => type is UiType.WebGui     or UiType.WebRtcGui;
     }
 }
 

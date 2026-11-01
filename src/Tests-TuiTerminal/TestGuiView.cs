@@ -41,7 +41,7 @@ public class TestGuiView : IGuiView
         canvasTexture       = uiType.IsTui() ? backend.CreateTexture("canvas", CanvasWidth, CanvasHeight, new byte[CanvasWidth * CanvasHeight * 4]) : default;
         session.Timer.TickRate   = 60;
         session.Timer.Enabled    = uiType.IsGui();
-        session.Action.SetWindowTitle(session.AppId ?? "App");
+        session.Action.SetWindowTitle(uiType == UiType.WebRtcGui ? $"{session.AppId} 🔀" : session.AppId ?? "App");
         session.Action.SetClearColor(0x999c9eff, 0x404142ff);
     }
     
@@ -82,31 +82,27 @@ public class TestGuiView : IGuiView
     
     private void Window1(Gui gui)
     {
-        gui.Button("hello TUI 💻 🙂", Dim.Fill_X(0, Fit.Content), color: textColors);
-        if (gui.Button("WebRTC client")) {
-            gui.Action.OpenUrl($"https://localhost:8081/?app={session.AppId}", session.AppId);
-        }
-        if (gui.Checkbox("fullScreen", ref fullScreen)) {
-            session.SetAppDirty();
-            gui.Action.SetDisplayMode(fullScreen ? SmDisplayMode.Fullscreen : SmDisplayMode.Windowed);
-        }
-        if (gui.UiType != UiType.WebGui) {
-            if (gui.Button("close session")) session.Action.CloseWindow();
-        }
-        gui.Spacer();
         using (gui.BeginHorizontal()) {
-            using (gui.PushStyle(greenButtonStyle)) {
-                if (gui.Button("green"))                            Debug.WriteLine("Clicked: hello");
+            if (gui.Button("Web")) {
+                gui.Action.OpenUrl($"https://localhost:8080", "web");
             }
+            if (gui.Button("WebRTC")) {
+                gui.Action.OpenUrl($"https://localhost:8081/?app={session.AppId}", "webrtc");
+            }
+            if (gui.Checkbox("fullScreen", ref fullScreen)) {
+                session.SetAppDirty();
+                gui.Action.SetDisplayMode(fullScreen ? SmDisplayMode.Fullscreen : SmDisplayMode.Windowed);
+            }
+            if (!gui.UiType.IsWeb()) {
+                if (gui.Button("close session")) session.Action.CloseWindow();
+            }
+        }
+        using (gui.BeginHorizontal()) {
             if (gui.Button("GC.Collect()"))  GC.Collect();
         }
-        gui.Checkbox("mouse circle", ref mouseCircle);
-
         gui.Spacer();
 
-        var sb = gui.widget.StringBuilder().Append($"{RuntimeInformation.OSArchitecture} - {RuntimeInformation.OSDescription}");
-        gui.Label(sb.Span(), Color32.Gray);
-        
+        var sb = gui.widget.StringBuilder();
         sb.Clear().Append($"frame time: ");
         if (gui.Batch.Timer.Enabled) sb.Append($"{frameTime,5:F1} ms"); else sb.Append($" ---");
         sb.Append($"  alloc: {memDiff,3}");
@@ -145,16 +141,9 @@ public class TestGuiView : IGuiView
         if (gui.Slider("Speed", ref appState.speed, 0f, 1f, 300)) session.SetAppDirty();
         gui.Spacer();
         
-        gui.BeginHorizontal();
-            gui.SetNextDefaultFocus();
-            gui.Button("First");
-            gui.Spacer(10);
-            gui.Button("Second");
-            gui.Spacer(10);
-            gui.Button("Red", style: redButtonStyle);
-        gui.EndHorizontal();
-        
-        gui.Checkbox("terminal pixels", ref appState.useTerminalPixels);
+        if (session.UiType.IsTui()) {
+            gui.Checkbox("terminal pixels", ref appState.useTerminalPixels);
+        }
         diagram.Update(time);
         var canvasSize = new Vector2(CanvasWidth, CanvasHeight);
 
@@ -185,6 +174,24 @@ public class TestGuiView : IGuiView
         }
         
         gui.Spacer();
+        sb.Append($"{RuntimeInformation.OSArchitecture} - {RuntimeInformation.OSDescription}");
+        gui.Label(sb.Span(), Color32.Gray);
+        gui.Button("hello TUI 💻 🙂", Dim.Fill_X(0, Fit.Content), color: textColors);
+
+        if (session.UiType.IsGui()) {
+            gui.Checkbox("mouse circle", ref mouseCircle);
+        }
+        gui.BeginHorizontal();
+            gui.SetNextDefaultFocus();
+            gui.Button("First");
+            gui.Spacer(10);
+            gui.Button("Second");
+            gui.Spacer(10);
+            gui.Button("Red", style: redButtonStyle);
+            using (gui.PushStyle(greenButtonStyle)) {
+                if (gui.Button("green"))                            Debug.WriteLine("Clicked: hello");
+            }
+        gui.EndHorizontal();
         
         using (gui.BeginHorizontalAligned(47, HorizontalAlignment.Right)) {
             gui.Button("Right");
