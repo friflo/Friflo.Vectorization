@@ -48,7 +48,9 @@
   </ItemGroup>
     
   <ItemGroup>
-    <PackageReference Include="SIPSorcery" Version="10.0.17" />
+    <PackageReference Include="Friflo.SIPSorcery"               Version="10.0.18-pre.patch-1" />
+    <PackageReference Include="SIPSorceryMedia.Abstractions"    Version="10.0.18-pre" />
+      
     <!-- Use latest dependencies used by SIPSorcery to avoid vulnerabilities -->
     <PackageReference Include="System.Net.Http" Version="4.3.4" />
     <PackageReference Include="System.Text.RegularExpressions" Version="4.3.1" />
@@ -65,6 +67,7 @@
   <PropertyGroup>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <NoWarn>1591;CS1573</NoWarn>
+    <NoWarn>$(NoWarn);NU1605</NoWarn> <!-- force use of original nuget package: SIPSorceryMedia.Abstractions -->
     <PackageLicenseExpression>AGPL-3.0-only</PackageLicenseExpression>
   </PropertyGroup>
   <!-- packaging: end -->
