@@ -7,6 +7,7 @@ using SmGui.SignalingServer;
 
 
 Console.WriteLine("Signaling Server for WebRTC");
+Console.WriteLine($"https://localhost:8081/");
 
 var cpuBackend  = new CpuBackend("Signaling Server", new DefaultGuiAssets());
 var signaling   = new SmSignaling();
