@@ -23,10 +23,10 @@ public class SignalingView : IGuiView
     public void RenderView(SmBatch batch, int targetWidth, int targetHeight)
     {
         var gui = batch.BeginGui(targetWidth, targetHeight);
-        using (gui.BeginWindow("WebRTC apps", new Vector2(50, 50), new Vector2(600, 700), traits: 0, TuiBorder.Rounded)) { // (500, 450) (1000, 850)
+        using (gui.BeginWindow("WebRTC apps", new Vector2(50, 50),  new Vector2(600, 400), traits: 0, TuiBorder.Rounded)) { // (500, 450) (1000, 850)
             Apps(gui);
         }
-        using (gui.BeginWindow("Web clients", new Vector2(700, 50), new Vector2(600, 700), traits: 0, TuiBorder.Rounded)) { // (500, 450) (1000, 850)
+        using (gui.BeginWindow("Web clients", new Vector2(700, 50), new Vector2(600, 400), traits: 0, TuiBorder.Rounded)) { // (500, 450) (1000, 850)
             Clients(gui);
         }
     }
