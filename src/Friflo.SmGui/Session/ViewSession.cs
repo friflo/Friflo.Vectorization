@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using Friflo.SmGui.Session;
+using Hide = System.Diagnostics.DebuggerHiddenAttribute;
 
 // ReSharper disable InconsistentNaming
 // ReSharper disable ConvertToAutoProperty
@@ -111,16 +112,16 @@ public sealed class ViewSession
     /// <summary> The UI execution mode for this session. </summary>
     public readonly UiType          UiType;
 
-    public          SmGuiBackend    Backend => backend ?? throw SessionTerminatedException();
+    public          SmGuiBackend    Backend { [Hide] get => backend ?? throw SessionTerminatedException(); }
 
     /// <summary> The app id passed to <see cref="SmSessionLoop.appId"/>. </summary>
-    public          string?         AppId   => loop.appId;
+    public          string?         AppId   { [Hide] get => loop.appId; }
 
     /// <summary> Provides access to client actions not related to GUI or rendering. </summary>
-    public          ClientAction    Action  => Backend.host.clientAction;
+    public          ClientAction    Action  { [Hide] get => Backend.host.clientAction; }
 
     /// <summary> Enables triggering <see cref="IGuiView.RenderView"/> at configured time intervals. </summary>
-    public          LoopTimer       Timer   => loopTimer ?? throw SessionTerminatedException();
+    public          LoopTimer       Timer   { [Hide] get =>loopTimer ?? throw SessionTerminatedException(); }
 
 #region private fields
     private             SmGuiBackend?   backend;
