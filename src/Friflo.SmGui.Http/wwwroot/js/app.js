@@ -115,7 +115,7 @@ async function initWebGPU() {
     // 5. Fetch WGSL shader file from wwwroot
     let shaderCode = "";
     try {
-        const response = await fetch("draw2d.wgsl");
+        const response = await fetch("shaders/draw2d.wgsl");
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
