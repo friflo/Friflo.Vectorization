@@ -121,7 +121,7 @@ public sealed class ViewSession
     public          ClientAction    Action  { [Hide] get => Backend.host.clientAction; }
 
     /// <summary> Enables triggering <see cref="IGuiView.RenderView"/> at configured time intervals. </summary>
-    public          LoopTimer       Timer   { [Hide] get =>loopTimer ?? throw SessionTerminatedException(); }
+    public          LoopTimer       Timer   { [Hide] get => loopTimer ?? throw SessionTerminatedException(); }
 
 #region private fields
     private             SmGuiBackend?   backend;
