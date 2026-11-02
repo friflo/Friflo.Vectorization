@@ -5,6 +5,7 @@ using System;
 using System.Buffers;
 using System.Runtime.CompilerServices;
 
+// ReSharper disable UnusedMember.Global
 // ReSharper disable ConvertToAutoProperty
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable once CheckNamespace
@@ -13,6 +14,8 @@ namespace Friflo.SmGui.Session;
 
 public enum LoopEventType
 {
+    None,
+    
     // --- session events
     TerminalDisconnected,
     TerminalInput,
