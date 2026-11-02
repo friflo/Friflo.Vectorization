@@ -105,7 +105,7 @@
         const urlParams = new URLSearchParams(window.location.search);
         const app = urlParams.get('app');
         if (app) {
-            document.title = app;
+            document.title = `${app} 🔀`;
             const infoOverlay = document.getElementById("info-overlay");
             infoOverlay.innerHTML = `${app}\nconnecting ...<div class="loader"></div>`;
         }
