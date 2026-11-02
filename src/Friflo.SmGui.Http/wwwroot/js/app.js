@@ -655,7 +655,7 @@ async function start() {
     // Register service worker for HTTP-to-WebRTC bridging
     if (app && 'serviceWorker' in navigator) {
         try {
-            await navigator.serviceWorker.register('/sw.js');
+            await navigator.serviceWorker.register('/js/sw.js');
             
             // If the page is not yet controlled, reload once so the service worker takes over immediately
             if (!navigator.serviceWorker.controller) {
