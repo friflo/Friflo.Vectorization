@@ -3,7 +3,7 @@
 
 ## Description
 
-The goal of Friflo.SmGui.WebRTC is to act as drop-in replacement for an ASP HTTP server.  
+The goal of Friflo.SmGui.WebRTC is to act as drop-in replacement for an ASP.NET HTTP server.  
 In this case GUI vector data is now streamed via WebRTC data channels instead via an HTTP WebSocket.
 
 The key difference of a WebRTC setup:  
