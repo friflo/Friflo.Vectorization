@@ -174,7 +174,7 @@ public class TestGuiView : IGuiView
         }
         
         gui.Spacer();
-        sb.Append($"{RuntimeInformation.OSArchitecture} - {RuntimeInformation.OSDescription}");
+        sb.Clear().Append($"{RuntimeInformation.OSArchitecture} - {RuntimeInformation.OSDescription}");
         gui.Label(sb.Span(), Color32.Gray);
         gui.Button("hello TUI 💻 🙂", Dim.Fill_X(0, Fit.Content), color: textColors);
 
