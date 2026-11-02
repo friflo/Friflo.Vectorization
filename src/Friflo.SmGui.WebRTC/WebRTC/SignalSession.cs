@@ -50,7 +50,7 @@ internal sealed class SignalSession
             return;
         }
         if (dataChannel.label == "api-channel") {
-            _ = new WebRtcApiChannel(listener.loop, dataChannel);
+            _ = new WebRtcChannel(listener.loop, dataChannel);
         }
     }
 }

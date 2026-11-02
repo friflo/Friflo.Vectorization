@@ -14,12 +14,12 @@ using SIPSorcery.Net;
 namespace Friflo.SmGui.WebRTC;
 
 
-internal sealed class WebRtcApiChannel
+internal sealed class WebRtcChannel
 {
     private readonly    RTCDataChannel  dataChannel;
     private readonly    SmSessionLoop   loop;
 
-    internal WebRtcApiChannel(SmSessionLoop loop, RTCDataChannel dataChannel)
+    internal WebRtcChannel(SmSessionLoop loop, RTCDataChannel dataChannel)
     {
         this.loop           = loop;
         this.dataChannel    = dataChannel;
