@@ -4,7 +4,6 @@
 using System.Net.WebSockets;
 using System.Text.Json;
 using System.Threading;
-using Friflo.SmGui.Session;
 using SIPSorcery.Net;
 
 // ReSharper disable CheckNamespace
