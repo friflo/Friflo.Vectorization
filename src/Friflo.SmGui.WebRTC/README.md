@@ -17,4 +17,4 @@ Operating a server on a smartphone or data center node may be completely forbidd
 Friflo.SmGui.WebRTC is a pure client architecture. It utilizes **WebRTC** and
 [ClientWebSocket](https://learn.microsoft.com/en-us/dotnet/api/system.net.websockets.clientwebsocket)'s.  
 In a native .NET application [SIPSorcery](https://github.com/sipsorcery-org/sipsorcery) is used for WebRTC.  
-In a WASM application WebRTC is already available as browser API and is used directly. In this case SIPSorcery is not a dependency anymore.
+In a WASM application WebRTC is already available as browser API and used directly. In this case SIPSorcery is not a dependency anymore.
