@@ -1,6 +1,7 @@
 // Copyright (c) Ullrich Praetz - https://github.com/friflo. All rights reserved.
 // See LICENSE file in the project root for full license information.
 
+using System;
 using System.Threading.Tasks;
 using SIPSorcery.Net;
 
@@ -8,23 +9,33 @@ using SIPSorcery.Net;
 namespace Friflo.SmGui.WebRTC;
 
 
-internal sealed class SipRtcPeerConnection : PeerConnection
+internal sealed class SipRtcPeerConnection : PeerConnection, IDisposable
 {
-    private  readonly   RTCPeerConnection   native;
+    private  readonly   RTCPeerConnection       native;
+    private  readonly   Action<RTCDataChannel>  dataChannelHandler;
+    private  readonly   Action<RTCIceCandidate> iceCandidateHandler;
     
-    public   override   string?             ToString() => native.ToString();
+    public   override   string?                 ToString() => native.ToString();
     
     internal SipRtcPeerConnection() {
         native = new RTCPeerConnection();
-        native.ondatachannel += sipChannel => {
+        dataChannelHandler = sipChannel => {
             var channel = new SipRtcDataChannel(sipChannel);
             RaiseDataChannel(channel);
         };
-        
-        native.onicecandidate += sipCandidate => {
+        iceCandidateHandler = sipCandidate => {
             var candidate = new IceCandidate { native = sipCandidate };
             RaiseIceCandidate(candidate);
         };
+        native.ondatachannel  += dataChannelHandler;
+        native.onicecandidate += iceCandidateHandler;
+    }
+    
+    public void Dispose()
+    {
+        native.ondatachannel  -= dataChannelHandler;
+        native.onicecandidate -= iceCandidateHandler;
+        native.Dispose();
     }
     
     internal override SessionDescriptionInit createAnswer()

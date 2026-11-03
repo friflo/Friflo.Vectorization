@@ -1,15 +1,18 @@
 // Copyright (c) Ullrich Praetz - https://github.com/friflo. All rights reserved.
 // See LICENSE file in the project root for full license information.
 
+using System;
 using SIPSorcery.Net;
 
 // ReSharper disable CheckNamespace
 namespace Friflo.SmGui.WebRTC;
 
 
-internal sealed class SipRtcDataChannel : DataChannel
+internal sealed class SipRtcDataChannel : DataChannel, IDisposable
 {
-    private readonly RTCDataChannel native;
+    private readonly    RTCDataChannel                  native;
+    private readonly    OnDataChannelMessageDelegate    dataChannelMessageHandler;
+    private readonly    Action                          closeHandler;
         
     internal override   DataChannelState    readyState => (DataChannelState)native.readyState;
     internal override   bool                ordered    { get => native.ordered; set => native.ordered = value; }
@@ -19,11 +22,19 @@ internal sealed class SipRtcDataChannel : DataChannel
 
     internal SipRtcDataChannel(RTCDataChannel native) {
         this.native = native;
-        native.onmessage += (dc, protocol, data) => {
+        dataChannelMessageHandler = (_, protocol, data) => {
             RaiseMessage((DataChannelPayloadProtocols)protocol, data);
         };
+        closeHandler = RaiseClose;
 
-        native.onclose += RaiseClose;
+        native.onmessage    += dataChannelMessageHandler;
+        native.onclose      += closeHandler;
+    }
+    
+    public void Dispose()
+    {
+        native.onmessage    -= dataChannelMessageHandler;
+        native.onclose      -= closeHandler;
     }
     
     internal override void send(string message)
