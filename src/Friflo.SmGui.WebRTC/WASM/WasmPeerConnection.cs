@@ -33,22 +33,22 @@ internal sealed partial class WasmPeerConnection : PeerConnection, IDisposable
         jsModule.InvokeVoidAsync("registerPeerConnectionCallbacks", native, dotNetRef).AsTask().GetAwaiter().GetResult();
     }
 
-    [JSImport("createPeerConnection", "socket.js")]
+    [JSImport("createPeerConnection", Wasm.JsModule)]
     private static partial JSObject CreatePeerConnection();
 
-    [JSImport("createAnswer", "socket.js")]
+    [JSImport("createAnswer", Wasm.JsModule)]
     private static partial Task<JSObject> CreateAnswerAsync(JSObject pc);
 
-    [JSImport("getSdp", "socket.js")]
+    [JSImport("getSdp", Wasm.JsModule)]
     private static partial string GetSdp(JSObject pc, JSObject description);
 
-    [JSImport("setLocalDescription", "socket.js")]
+    [JSImport("setLocalDescription", Wasm.JsModule)]
     private static partial Task SetLocalDescriptionAsync(JSObject pc, JSObject description);
 
-    [JSImport("setRemoteDescription", "socket.js")]
+    [JSImport("setRemoteDescription", Wasm.JsModule)]
     private static partial Task SetRemoteDescriptionAsync(JSObject pc, JSObject description);
 
-    [JSImport("addIceCandidate", "socket.js")]
+    [JSImport("addIceCandidate", Wasm.JsModule)]
     private static partial Task AddIceCandidateAsync(JSObject pc, JSObject candidate);
 
     [JSInvokable]

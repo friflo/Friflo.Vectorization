@@ -46,25 +46,25 @@ internal sealed partial class WasmDataChannel : DataChannel, IDisposable
         jsModule.InvokeVoidAsync("registerDataChannelCallbacks", native, dotNetRef).AsTask().GetAwaiter().GetResult();
     }
 
-    [JSImport("getState", "socket.js")]
+    [JSImport("getState", Wasm.JsModule)]
     private static partial string GetState(JSObject channel);
 
-    [JSImport("getOrdered", "socket.js")]
+    [JSImport("getOrdered", Wasm.JsModule)]
     private static partial bool GetOrdered(JSObject channel);
 
-    [JSImport("setOrdered", "socket.js")]
+    [JSImport("setOrdered", Wasm.JsModule)]
     private static partial void SetOrdered(JSObject channel, bool value);
 
-    [JSImport("getLabel", "socket.js")]
+    [JSImport("getLabel", Wasm.JsModule)]
     private static partial string GetLabel(JSObject channel);
 
-    [JSImport("setLabel", "socket.js")]
+    [JSImport("setLabel", Wasm.JsModule)]
     private static partial void SetLabel(JSObject channel, string value);
 
-    [JSImport("sendString", "socket.js")]
+    [JSImport("sendString", Wasm.JsModule)]
     private static partial void SendString(JSObject channel, string message);
 
-    [JSImport("sendBinary", "socket.js")]
+    [JSImport("sendBinary", Wasm.JsModule)]
     private static partial void SendBinary(JSObject channel, byte[] data, int offset, int length);
 
     

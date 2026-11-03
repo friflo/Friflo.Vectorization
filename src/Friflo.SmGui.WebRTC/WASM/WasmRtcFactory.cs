@@ -11,6 +11,10 @@ using Microsoft.JSInterop;
 namespace Friflo.SmGui.WebRTC;
 
 
+internal static class Wasm {
+    internal const string JsModule = "webrtc-interop.js";
+}
+
 [SupportedOSPlatform("browser")]
 internal sealed partial class WasmRtcFactory : RtcFactory, IDisposable
 {
@@ -52,12 +56,12 @@ internal sealed partial class WasmRtcFactory : RtcFactory, IDisposable
         return new IceCandidateInit { native = jsInit };
     }
 
-    [JSImport("createSessionDescription", "socket.js")]
+    [JSImport("createSessionDescription", Wasm.JsModule)]
     private static partial JSObject CreateSessionDescription(string type, string? sdp);
 
-    [JSImport("candidateToJson", "socket.js")]
+    [JSImport("candidateToJson", Wasm.JsModule)]
     private static partial string CandidateToString(JSObject candidate);
 
-    [JSImport("parseJsonToObj", "socket.js")]
+    [JSImport("parseJsonToObj", Wasm.JsModule)]
     private static partial JSObject ParseJsonToObj(string json);
 }
