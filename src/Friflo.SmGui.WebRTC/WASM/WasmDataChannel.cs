@@ -12,15 +12,9 @@ internal sealed class WasmDataChannel : DataChannel, IDisposable
 {
     private readonly    IJSObjectReference                      native;
     private readonly    DotNetObjectReference<WasmDataChannel>  dotNetRef;
+    private             DataChannelState                        cachedState;
         
-    internal override DataChannelState readyState 
-    {
-        get 
-        {
-            var stateStr = native.InvokeAsync<string>("getState").GetAwaiter().GetResult();
-            return Enum.TryParse<DataChannelState>(stateStr, true, out var state) ? state : DataChannelState.closed;
-        }
-    }
+    internal override   DataChannelState                        readyState => cachedState;
     
     internal override bool ordered 
     {
@@ -39,12 +33,25 @@ internal sealed class WasmDataChannel : DataChannel, IDisposable
     internal WasmDataChannel(IJSObjectReference native, IJSObjectReference jsModule) 
     {
         this.native = native;
-        dotNetRef = DotNetObjectReference.Create(this);
+        dotNetRef   = DotNetObjectReference.Create(this);
         
-        // Register event listeners on the native JS side using the shared module
+        // Fetch the initial state once during construction to handle pre-opened channels correctly
+        var stateStr = native.InvokeAsync<string>("getState").GetAwaiter().GetResult();
+        cachedState = Enum.TryParse<DataChannelState>(stateStr, true, out var state) ? state : DataChannelState.connecting;
+        
+        // Register event listeners on the native JS side
         jsModule.InvokeVoidAsync("registerDataChannelCallbacks", native, dotNetRef).AsTask().GetAwaiter().GetResult();
     }
     
+    [JSInvokable]
+    public void HandleStateChange(string stateStr)
+    {
+        // Update cached state dynamically on lifecycle events
+        if (Enum.TryParse<DataChannelState>(stateStr, true, out var state)) {
+            cachedState = state;
+        }
+    }
+
     [JSInvokable]
     public void HandleMessage(int protocol, byte[] data)
     {
@@ -54,6 +61,7 @@ internal sealed class WasmDataChannel : DataChannel, IDisposable
     [JSInvokable]
     public void HandleClose()
     {
+        cachedState = DataChannelState.closed;
         RaiseClose();
     }
     
