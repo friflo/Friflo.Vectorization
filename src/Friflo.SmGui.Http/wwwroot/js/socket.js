@@ -492,3 +492,25 @@ navigator.serviceWorker.addEventListener('message', async (event) => {
         apiChannel.send(JSON.stringify({ requestId, url, method }));
     }
 });
+
+
+export function registerPeerConnectionCallbacks(pc, dotNetRef) {
+    pc.ondatachannel = event => {
+        dotNetRef.invokeMethodAsync('HandleDataChannel', event.channel);
+    };
+    pc.onicecandidate = event => {
+        if (event.candidate) {
+            dotNetRef.invokeMethodAsync('HandleIceCandidate', event.candidate);
+        }
+    };
+}
+
+export function registerDataChannelCallbacks(channel, dotNetRef) {
+    channel.onmessage = event => {
+        // Handle incoming data channel messages
+        dotNetRef.invokeMethodAsync('HandleMessage', 0, event.data);
+    };
+    channel.onclose = () => {
+        dotNetRef.invokeMethodAsync('HandleClose');
+    };
+}
