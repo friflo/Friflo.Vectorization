@@ -3,12 +3,14 @@
 
 using System;
 using System.Runtime.InteropServices.JavaScript;
+using System.Runtime.Versioning;
 using Microsoft.JSInterop;
 
 // ReSharper disable CheckNamespace
 namespace Friflo.SmGui.WebRTC;
 
 
+[SupportedOSPlatform("browser")]
 internal sealed partial class WasmDataChannel : DataChannel, IDisposable
 {
     private readonly    JSObject                                    native;

@@ -3,6 +3,7 @@
 
 using System;
 using System.Runtime.InteropServices.JavaScript;
+using System.Runtime.Versioning;
 using System.Threading.Tasks;
 using Microsoft.JSInterop;
 
@@ -11,6 +12,7 @@ using Microsoft.JSInterop;
 namespace Friflo.SmGui.WebRTC;
 
 
+[SupportedOSPlatform("browser")]
 internal sealed partial class WasmPeerConnection : PeerConnection, IDisposable
 {
     private readonly    JSObject                                    native;

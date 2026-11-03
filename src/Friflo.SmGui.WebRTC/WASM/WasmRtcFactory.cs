@@ -2,6 +2,7 @@
 // See LICENSE file in the project root for full license information.
 
 using System;
+using System.Runtime.Versioning;
 using System.Text.Json;
 using Microsoft.JSInterop;
 
@@ -10,6 +11,7 @@ using Microsoft.JSInterop;
 namespace Friflo.SmGui.WebRTC;
 
 
+[SupportedOSPlatform("browser")]
 internal sealed class WasmRtcFactory : RtcFactory, IDisposable
 {
     private readonly    IJSRuntime          jsRuntime;
