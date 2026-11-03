@@ -494,8 +494,9 @@ navigator.serviceWorker.addEventListener('message', async (event) => {
 });
 
 
+// ------------------------------------------- C# Interop -------------------------------------------
 // socket.js
-// --- PeerConnection Interop ---
+// --- WasmPeerConnection Interop ---
 
 export function createPeerConnection() {
     return new RTCPeerConnection();
@@ -533,7 +534,7 @@ export function registerPeerConnectionCallbacks(pc, dotNetRef) {
 }
 
 
-// --- DataChannel Interop ---
+// --- WasmDataChannel Interop ---
 export function getState(channel) {
     return channel.readyState;
 }
@@ -578,3 +579,15 @@ export function registerDataChannelCallbacks(channel, dotNetRef) {
     };
 }
 
+// --- WasmRtcFactory Interop ---
+export function createSessionDescription(type, sdp) {
+    return { type: type, sdp: sdp };
+}
+
+export function candidateToJson(candidate) {
+    return JSON.stringify(candidate);
+}
+
+export function parseJsonToObj(json) {
+    return JSON.parse(json);
+}

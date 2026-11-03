@@ -21,7 +21,7 @@ internal sealed partial class WasmPeerConnection : PeerConnection, IDisposable
     
     public override     string?                                     ToString() => native.ToString();
     
-    internal WasmPeerConnection(IJSRuntime jsRuntime, IJSObjectReference jsModule) 
+    internal WasmPeerConnection(IJSObjectReference jsModule) 
     {
         this.jsModule   = jsModule;
         dotNetRef       = DotNetObjectReference.Create(this);
