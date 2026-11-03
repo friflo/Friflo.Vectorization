@@ -19,7 +19,7 @@ internal sealed partial class WasmRtcFactory : RtcFactory, IDisposable
     internal WasmRtcFactory(IJSRuntime jsRuntime)
     {
         // Load the JS interop module once at the factory level (needed for DotNetObjectReference callbacks)
-        jsModule = jsRuntime.InvokeAsync<IJSObjectReference>("import", "./webrtcInterop.js").GetAwaiter().GetResult();
+        jsModule = jsRuntime.InvokeAsync<IJSObjectReference>("import", "./socket.js").GetAwaiter().GetResult();
     }
     
     public void Dispose()
