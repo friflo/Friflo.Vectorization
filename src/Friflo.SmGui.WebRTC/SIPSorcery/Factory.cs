@@ -15,6 +15,15 @@ internal sealed class SipFactory : WebRtcFactory
         return new SipRtcPeerConnection();
     }
     
+    internal override WebRtcSessionDescriptionInit CreateSessionDescriptionInit(string? sdp, WebRtcSdpType type)
+    {
+        var native = new RTCSessionDescriptionInit {
+            sdp  = sdp,
+            type = (RTCSdpType)type
+        };
+        return new WebRtcSessionDescriptionInit { native = native, sdp = sdp };
+    }
+    
     internal override string CandidateToJson(WebRtcIceCandidate candidate)
     {
         var iceCandidate = (RTCIceCandidate)candidate.native;

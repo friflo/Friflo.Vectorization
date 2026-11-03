@@ -12,7 +12,9 @@ namespace Friflo.SmGui.WebRTC;
 
 internal sealed class SipRtcPeerConnection : WebRtcPeerConnection
 {
-    private readonly RTCPeerConnection native;
+    private  readonly   RTCPeerConnection   native;
+    
+    public   override   string?             ToString() => native.ToString();
     
     internal SipRtcPeerConnection() {
         native = new RTCPeerConnection();
@@ -60,11 +62,7 @@ internal sealed class SipRtcPeerConnection : WebRtcPeerConnection
     internal override WebRtcSessionDescriptionInit createAnswer()
     {
         var sipInit = native.createAnswer();
-        return new WebRtcSessionDescriptionInit {
-            native  = sipInit,
-            type    = (WebRtcSdpType)sipInit.type,
-            sdp     = sipInit.sdp
-        };
+        return new WebRtcSessionDescriptionInit { native = sipInit, sdp = sipInit.sdp };
     }
     
     internal override Task setLocalDescription(WebRtcSessionDescriptionInit init)

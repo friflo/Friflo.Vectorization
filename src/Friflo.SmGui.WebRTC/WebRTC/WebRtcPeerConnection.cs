@@ -19,18 +19,21 @@ internal enum WebRtcSdpType
     rollback,
 }
 
-/// <see cref="SIPSorcery.Net.RTCSessionDescriptionInit"/>
 internal struct WebRtcSessionDescriptionInit
 {
-    internal    object          native;
-    internal    WebRtcSdpType   type;
-    internal    string          sdp;
+    /// <see cref="SIPSorcery.Net.RTCSessionDescriptionInit"/>
+    internal    object  native;
+    internal    string? sdp;
+    
+    public override string? ToString() => native?.ToString();
 }
 
 internal struct WebRtcIceCandidateInit
 {
     /// <see cref="SIPSorcery.Net.RTCIceCandidateInit"/>
     internal    object? native;
+    
+    public override string? ToString() => native?.ToString();
 }
 
 
@@ -38,6 +41,8 @@ internal struct WebRtcIceCandidate
 {
     /// <see cref="SIPSorcery.Net.RTCIceCandidate"/>
     internal    object  native;
+
+    public override string? ToString() => native.ToString();
 }
 
 

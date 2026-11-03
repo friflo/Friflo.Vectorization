@@ -4,7 +4,6 @@
 using System.Net.WebSockets;
 using System.Text.Json;
 using System.Threading;
-using SIPSorcery.Net;
 
 // ReSharper disable CheckNamespace
 namespace Friflo.SmGui.WebRTC;
@@ -12,25 +11,25 @@ namespace Friflo.SmGui.WebRTC;
 
 internal sealed class SignalSession
 {
-    private  readonly   SmSignalingClient   client;
-    private  readonly   WebSocket           webSocket;
-    private  readonly   string              connection;
-    internal readonly   RTCPeerConnection   peerConnection;
+    private  readonly   SmSignalingClient       client;
+    private  readonly   WebSocket               webSocket;
+    private  readonly   string                  connection;
+    internal readonly   WebRtcPeerConnection    peerConnection;    
 
     internal SignalSession(SmSignalingClient client, WebSocket webSocket, string connection)
     {
         this.client     = client;
         this.webSocket  = webSocket;
         this.connection = connection;
-        peerConnection  = new RTCPeerConnection(null);
+        peerConnection  = WebRtcFactory.Instance.CreatePeerConnection();
         peerConnection.onicecandidate   += OnIceCandidate;
         peerConnection.ondatachannel    += OnDataChannel;
     }
     
     // Returns void to match the event delegate signature and fix CS0407
-    private void OnIceCandidate(RTCIceCandidate candidate)
+    private void OnIceCandidate(WebRtcIceCandidate candidate)
     {
-        var candidateJson = JsonSerializer.Serialize(candidate);
+        var candidateJson    = WebRtcFactory.Instance.CandidateToJson(candidate);
         var msg              = new SignalMessage("candidate", null, connection, candidateJson);
         var candidatePayload = JsonSerializer.SerializeToUtf8Bytes(msg);
         if (webSocket.State == WebSocketState.Open) {
@@ -38,7 +37,7 @@ internal sealed class SignalSession
         }
     }
     
-    private void OnDataChannel(RTCDataChannel dataChannel)
+    private void OnDataChannel(WebRtcDataChannel dataChannel)
     {
         // Console.WriteLine("P2P Data Channel opened on App side!");
         if (dataChannel.label == "tm-gui-channel") {

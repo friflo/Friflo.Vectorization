@@ -7,7 +7,7 @@ using System.Net.WebSockets;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using SIPSorcery.Net;
+
 
 // ReSharper disable SuggestVarOrType_SimpleTypes
 // ReSharper disable RedundantLambdaParameterType
@@ -67,14 +67,14 @@ public sealed partial class SmSignalingClient
                 var pc = session.peerConnection;
 
                 // Set remote description using RTCSessionDescriptionInit
-                var remoteDesc = new RTCSessionDescriptionInit {
-                    sdp = message.sdpOrCandidate,
-                    type = RTCSdpType.offer
-                };
-                SetDescriptionResultEnum _ = pc.setRemoteDescription(remoteDesc);
+                var remoteDesc = WebRtcFactory.Instance.CreateSessionDescriptionInit(
+                    sdp:    message.sdpOrCandidate,
+                    type:   WebRtcSdpType.offer
+                );
+                _ = pc.setRemoteDescription(remoteDesc);
 
                 // Create and set local answer
-                var answer = pc.createAnswer(null);
+                var answer = pc.createAnswer(); // createAnswer(null)
                 await pc.setLocalDescription(answer);
 
                 var msg = new SignalMessage("answer", null, message.connection, answer.sdp, loop.SessionCount);
@@ -87,10 +87,10 @@ public sealed partial class SmSignalingClient
             case "answer":
             {
                 if (sessions.TryGetValue(message.connection, out var session) && message.sdpOrCandidate != null) {
-                    var remoteDesc = new RTCSessionDescriptionInit {
-                        sdp = message.sdpOrCandidate,
-                        type = RTCSdpType.answer
-                    };
+                    var remoteDesc = WebRtcFactory.Instance.CreateSessionDescriptionInit(
+                        sdp:    message.sdpOrCandidate,
+                        type:   WebRtcSdpType.answer
+                    );
                     session.peerConnection.setRemoteDescription(remoteDesc);
                 }
                 break;
@@ -99,8 +99,8 @@ public sealed partial class SmSignalingClient
             {
                 if (sessions.TryGetValue(message.connection, out var session) && !string.IsNullOrEmpty(message.sdpOrCandidate)) {
                     // Deserialize ICE candidate using System.Text.Json
-                    var candidateInit = JsonSerializer.Deserialize<RTCIceCandidateInit>(message.sdpOrCandidate);
-                    if (candidateInit != null) {
+                    var candidateInit = WebRtcFactory.Instance.JsonToCandidate(message.sdpOrCandidate);
+                    if (candidateInit.native != null) {
                         session.peerConnection.addIceCandidate(candidateInit);
                     }
                 }

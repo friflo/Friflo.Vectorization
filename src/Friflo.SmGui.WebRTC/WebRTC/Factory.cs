@@ -7,8 +7,11 @@ namespace Friflo.SmGui.WebRTC;
 
 internal abstract class WebRtcFactory
 {
-    internal abstract   WebRtcPeerConnection    CreatePeerConnection();
+    internal static readonly WebRtcFactory Instance = new SipFactory();
+
+    internal abstract   WebRtcPeerConnection            CreatePeerConnection();
+    internal abstract   WebRtcSessionDescriptionInit    CreateSessionDescriptionInit(string? sdp, WebRtcSdpType type);
     
-    internal abstract   string                  CandidateToJson(WebRtcIceCandidate candidate);
-    internal abstract   WebRtcIceCandidateInit  JsonToCandidate(string json);
+    internal abstract   string                          CandidateToJson(WebRtcIceCandidate candidate);
+    internal abstract   WebRtcIceCandidateInit          JsonToCandidate(string json);
 }

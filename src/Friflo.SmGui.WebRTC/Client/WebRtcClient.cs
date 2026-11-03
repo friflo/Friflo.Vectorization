@@ -9,7 +9,6 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Friflo.SmGui.Session;
-using SIPSorcery.Net;
 
 // ReSharper disable MergeIntoPattern
 // ReSharper disable SuggestVarOrType_BuiltInTypes
@@ -20,13 +19,13 @@ namespace Friflo.SmGui.WebRTC;
 
 internal sealed class WebRtcClient : SmClient
 {
-    private             RTCDataChannel  dataChannel;
-    private             WsDoubleBuffer? doubleBuffer;
+    private             WebRtcDataChannel   dataChannel;
+    private             WsDoubleBuffer?     doubleBuffer;
     
-    private readonly    MemoryStream    outputStream        = new();
-    private readonly    DeflateStream   statefulCompressor;
+    private readonly    MemoryStream        outputStream        = new();
+    private readonly    DeflateStream       statefulCompressor;
 
-    internal WebRtcClient(RTCDataChannel dataChannel, SmSessionLoop loop)
+    internal WebRtcClient(WebRtcDataChannel dataChannel, SmSessionLoop loop)
     : base(loop)
     {
         statefulCompressor  = new DeflateStream(outputStream, CompressionLevel.Fastest, leaveOpen: true);
@@ -95,7 +94,7 @@ internal sealed class WebRtcClient : SmClient
         if (message.IsEmpty) {
             return 0;
         }
-        if (doubleBuffer == null || dataChannel.readyState != RTCDataChannelState.open) {
+        if (doubleBuffer == null || dataChannel.readyState != WebRtcDataChannelState.open) {
             return 0;
         }
         // var sendBuffer = CompressMessageSharpZipLib(message.buffer, out int length);
@@ -119,7 +118,7 @@ internal sealed class WebRtcClient : SmClient
     }
 
     protected override void SendCommand(SmSendCommand command) {
-        if (dataChannel.readyState != RTCDataChannelState.open) {
+        if (dataChannel.readyState != WebRtcDataChannelState.open) {
             return;
         }
         dataChannel.send(command.payload);
@@ -132,7 +131,7 @@ internal sealed class WebRtcClient : SmClient
         var buffer = doubleBuffer!;
         buffer.Swap();
 
-        if (buffer.PendingLength > 0 && dataChannel.readyState == RTCDataChannelState.open) {
+        if (buffer.PendingLength > 0 && dataChannel.readyState == WebRtcDataChannelState.open) {
             dataChannel.send(buffer.Data, 0, buffer.PendingLength);
 
             buffer.Clear();
@@ -145,7 +144,7 @@ internal sealed class WebRtcClient : SmClient
         // Console.WriteLine($"RTCDataChannel closed");
     }
     
-    private void OnMessage (RTCDataChannel dc, DataChannelPayloadProtocols protocol, byte[] data)
+    private void OnMessage (WebRtcDataChannel dc, WebRtcDataChannelPayloadProtocols protocol, byte[] data)
     {
         // var debugMsg = System.Text.Encoding.UTF8.GetString(data);
         // Console.WriteLine($"Received from client: {debugMsg}");

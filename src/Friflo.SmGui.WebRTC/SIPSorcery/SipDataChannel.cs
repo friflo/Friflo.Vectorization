@@ -16,7 +16,9 @@ internal sealed class SipRtcDataChannel : WebRtcDataChannel
     internal override   WebRtcDataChannelState  readyState => (WebRtcDataChannelState)native.readyState;
     internal override   bool                    ordered    { get => native.ordered; set => native.ordered = value; }
     internal override   string                  label      { get => native.label;   set => native.label = value; }
-    
+
+    public   override   string?                 ToString() => native.ToString();
+
     internal SipRtcDataChannel(RTCDataChannel native) {
         this.native = native;
     }

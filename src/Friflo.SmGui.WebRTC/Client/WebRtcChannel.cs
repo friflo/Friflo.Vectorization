@@ -4,7 +4,6 @@
 using System;
 using System.Text.Json;
 using Friflo.SmGui.Session;
-using SIPSorcery.Net;
 
 // ReSharper disable InconsistentNaming
 // ReSharper disable MergeIntoPattern
@@ -16,10 +15,10 @@ namespace Friflo.SmGui.WebRTC;
 
 internal sealed class WebRtcChannel
 {
-    private readonly    RTCDataChannel  dataChannel;
-    private readonly    SmSessionLoop   loop;
+    private readonly    WebRtcDataChannel   dataChannel;
+    private readonly    SmSessionLoop       loop;
 
-    internal WebRtcChannel(SmSessionLoop loop, RTCDataChannel dataChannel)
+    internal WebRtcChannel(SmSessionLoop loop, WebRtcDataChannel dataChannel)
     {
         this.loop           = loop;
         this.dataChannel    = dataChannel;
@@ -35,7 +34,7 @@ internal sealed class WebRtcChannel
         // Console.WriteLine($"RTCDataChannel closed");
     }
     
-    private void OnMessage (RTCDataChannel dc, DataChannelPayloadProtocols protocol, byte[] data)
+    private void OnMessage (WebRtcDataChannel dc, WebRtcDataChannelPayloadProtocols protocol, byte[] data)
     {
         // var request = System.Text.Encoding.UTF8.GetString(data);
         // Console.WriteLine($"Received from client: {debugMsg}");
@@ -72,7 +71,7 @@ internal sealed class WebRtcChannel
         header.CopyTo(payload.AsSpan(4));
         body.CopyTo(payload.AsSpan(4 + header.Length));
         
-        dataChannel.send(payload);
+        dataChannel.send(payload, 0, payload.Length);
     }
 }
 
