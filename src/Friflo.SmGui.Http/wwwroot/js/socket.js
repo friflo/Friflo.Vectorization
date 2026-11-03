@@ -499,7 +499,9 @@ navigator.serviceWorker.addEventListener('message', async (event) => {
 // --- WasmPeerConnection Interop ---
 
 export function createPeerConnection() {
-    return new RTCPeerConnection();
+    return new RTCPeerConnection({
+        iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]
+    });
 }
 
 export async function createAnswer(pc) {
