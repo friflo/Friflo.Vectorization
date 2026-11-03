@@ -13,7 +13,7 @@ namespace Friflo.SmGui.WebRTC;
 [SupportedOSPlatform("browser")]
 internal sealed partial class WasmDataChannel : DataChannel, IDisposable
 {
-    private readonly    JSObject                                    native;
+    private readonly    JSObject                                native;
     private readonly    DotNetObjectReference<WasmDataChannel>  dotNetRef;
     private             DataChannelState                        cachedState;
         
