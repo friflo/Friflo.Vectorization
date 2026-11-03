@@ -8,7 +8,7 @@ using SIPSorcery.Net;
 namespace Friflo.SmGui.WebRTC;
 
 
-internal sealed class SipRtcDataChannel : DataChannel, IDisposable
+internal sealed class SipDataChannel : DataChannel, IDisposable
 {
     private readonly    RTCDataChannel                  native;
     private readonly    OnDataChannelMessageDelegate    dataChannelMessageHandler;
@@ -20,7 +20,7 @@ internal sealed class SipRtcDataChannel : DataChannel, IDisposable
 
     public   override   string?             ToString() => native.ToString();
 
-    internal SipRtcDataChannel(RTCDataChannel native) {
+    internal SipDataChannel(RTCDataChannel native) {
         this.native = native;
         dataChannelMessageHandler = (_, protocol, data) => {
             RaiseMessage((DataChannelPayloadProtocols)protocol, data);

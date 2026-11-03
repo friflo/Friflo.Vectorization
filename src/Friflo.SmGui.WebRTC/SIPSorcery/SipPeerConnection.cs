@@ -9,7 +9,7 @@ using SIPSorcery.Net;
 namespace Friflo.SmGui.WebRTC;
 
 
-internal sealed class SipRtcPeerConnection : PeerConnection, IDisposable
+internal sealed class SipPeerConnection : PeerConnection, IDisposable
 {
     private  readonly   RTCPeerConnection       native;
     private  readonly   Action<RTCDataChannel>  dataChannelHandler;
@@ -17,10 +17,10 @@ internal sealed class SipRtcPeerConnection : PeerConnection, IDisposable
     
     public   override   string?                 ToString() => native.ToString();
     
-    internal SipRtcPeerConnection() {
+    internal SipPeerConnection() {
         native = new RTCPeerConnection();
         dataChannelHandler = sipChannel => {
-            var channel = new SipRtcDataChannel(sipChannel);
+            var channel = new SipDataChannel(sipChannel);
             RaiseDataChannel(channel);
         };
         iceCandidateHandler = sipCandidate => {

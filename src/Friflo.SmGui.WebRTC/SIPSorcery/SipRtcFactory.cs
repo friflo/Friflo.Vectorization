@@ -12,7 +12,7 @@ internal sealed class SipRtcFactory : RtcFactory
 {
     internal override PeerConnection CreatePeerConnection()
     {
-        return new SipRtcPeerConnection();
+        return new SipPeerConnection();
     }
     
     internal override SessionDescriptionInit CreateSessionDescriptionInit(string? sdp, SdpType type)
