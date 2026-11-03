@@ -47,12 +47,14 @@ internal struct IceCandidate
 /// <see cref="SIPSorcery.Net.RTCPeerConnection"/>
 internal abstract class PeerConnection
 {
+    internal event  Action<DataChannel>?    ondatachannel;
+    internal event  Action<IceCandidate>?   onicecandidate;
+
+    protected void RaiseDataChannel(DataChannel channel)        => ondatachannel?.Invoke(channel);
+    protected void RaiseIceCandidate(IceCandidate candidate)    => onicecandidate?.Invoke(candidate);
+    
     internal abstract   SessionDescriptionInit  createAnswer();
     internal abstract   Task                    setLocalDescription(SessionDescriptionInit init);
     internal abstract   int                     setRemoteDescription(SessionDescriptionInit init);
     internal abstract   void                    addIceCandidate(IceCandidateInit init);
-    
-    
-    internal abstract event Action<DataChannel>  ondatachannel;
-    internal abstract event Action<IceCandidate> onicecandidate;
 }

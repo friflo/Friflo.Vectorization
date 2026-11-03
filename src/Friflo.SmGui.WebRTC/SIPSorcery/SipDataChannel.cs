@@ -1,8 +1,6 @@
 // Copyright (c) Ullrich Praetz - https://github.com/friflo. All rights reserved.
 // See LICENSE file in the project root for full license information.
 
-using System;
-using System.Collections.Generic;
 using SIPSorcery.Net;
 
 // ReSharper disable CheckNamespace
@@ -21,31 +19,11 @@ internal sealed class SipRtcDataChannel : DataChannel
 
     internal SipRtcDataChannel(RTCDataChannel native) {
         this.native = native;
-    }
-    
-    
-    private readonly Dictionary<OnDataChannelMessage, OnDataChannelMessageDelegate> onMessageHandler = new();
-    
-    internal override event OnDataChannelMessage onmessage
-    {
-        add {
-            var handler = new OnDataChannelMessageDelegate((dc, protocol, data) => {
-                value.Invoke(this, (DataChannelPayloadProtocols)protocol, data);
-            });
-            onMessageHandler.Add(value, handler);
-            native.onmessage += handler;
-        }
-        remove {
-            var handler = onMessageHandler[value];
-            onMessageHandler.Remove(value);
-            native.onmessage -= handler;
-        }
-    }
-    
-    internal override event Action onclose
-    {
-        add    => native.onclose += value;
-        remove => native.onclose -= value;
+        native.onmessage += (dc, protocol, data) => {
+            RaiseMessage((DataChannelPayloadProtocols)protocol, data);
+        };
+
+        native.onclose += RaiseClose;
     }
     
     internal override void send(string message)

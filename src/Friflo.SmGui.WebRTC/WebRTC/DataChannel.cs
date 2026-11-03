@@ -46,12 +46,15 @@ internal delegate void OnDataChannelMessage(DataChannel dc, DataChannelPayloadPr
 /// <see cref="SIPSorcery.Net.RTCDataChannel"/>
 internal abstract class DataChannel
 {
-    internal abstract DataChannelState  readyState { get; }
-    internal abstract bool              ordered    { get; set; }
-    internal abstract string            label      { get; set; }
-    
-    internal abstract event OnDataChannelMessage    onmessage;
-    internal abstract event Action                  onclose;
+    internal event      OnDataChannelMessage?   onmessage;
+    internal event      Action?                 onclose;
+
+    internal abstract   DataChannelState        readyState { get; }
+    internal abstract   bool                    ordered    { get; set; }
+    internal abstract   string                  label      { get; set; }
+
+    protected void RaiseMessage(DataChannelPayloadProtocols protocol, byte[] data)  => onmessage?.Invoke(this, protocol, data);
+    protected void RaiseClose()                                                     => onclose?.Invoke();
 
     
     internal abstract void send(string message);
