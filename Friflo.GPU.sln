@@ -32,6 +32,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SignalingServer", "src\Sign
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Friflo.SmGui.WebRTC", "src\Friflo.SmGui.WebRTC\Friflo.SmGui.WebRTC.csproj", "{B7CC6832-B934-4296-8404-50984A67C078}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test-Wasm", "src\Test-Wasm\Test-Wasm.csproj", "{02B12839-1AB5-4F1F-93D4-7EAE31AC1B49}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -102,5 +104,9 @@ Global
 		{B7CC6832-B934-4296-8404-50984A67C078}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B7CC6832-B934-4296-8404-50984A67C078}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B7CC6832-B934-4296-8404-50984A67C078}.Release|Any CPU.Build.0 = Release|Any CPU
+		{02B12839-1AB5-4F1F-93D4-7EAE31AC1B49}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{02B12839-1AB5-4F1F-93D4-7EAE31AC1B49}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{02B12839-1AB5-4F1F-93D4-7EAE31AC1B49}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{02B12839-1AB5-4F1F-93D4-7EAE31AC1B49}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

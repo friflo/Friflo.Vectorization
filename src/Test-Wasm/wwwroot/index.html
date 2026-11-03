@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="utf-8" />
+    <title>Pure .NET WASM</title>
+</head>
+<body>
+    <h1>Minimal .NET in Browser</h1>
+    <p id="output">Warte auf .NET...</p>
+
+    <script type="module">
+        import { dotnet } from './_framework/dotnet.js';
+
+        // Start .NET WebAssembly Runtime
+        const { getAssemblyExports, setModuleImports } = await dotnet
+            .withDiagnosticTracing(false)
+            .create();
+
+        // Access exported C#-methods
+        const exports = await getAssemblyExports("Test-Wasm.dll");
+        const result = exports.Program.ProcessData("Hallo from Browser!");
+        
+        document.getElementById("output").innerText = result;
+        console.log(result);
+    </script>
+</body>
+</html>
