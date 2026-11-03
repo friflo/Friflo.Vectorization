@@ -80,6 +80,8 @@ internal sealed partial class WasmDataChannel : DataChannel, IDisposable
     [JSInvokable]
     public void HandleMessage(int protocol, byte[] data)
     {
+        // TODO: Optimize incoming data marshalling to avoid heap allocations per message 
+        // (e.g., by utilizing shared memory buffers or zero-copy memory views if available).
         RaiseMessage((DataChannelPayloadProtocols)protocol, data);
     }
 
