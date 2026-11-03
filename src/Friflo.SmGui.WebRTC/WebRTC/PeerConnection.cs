@@ -1,13 +1,11 @@
 // Copyright (c) Ullrich Praetz - https://github.com/friflo. All rights reserved.
 // See LICENSE file in the project root for full license information.
 
-
-// ReSharper disable CheckNamespace
-
 using System;
 using System.Threading.Tasks;
 
 // ReSharper disable InconsistentNaming
+// ReSharper disable CheckNamespace
 namespace Friflo.SmGui.WebRTC;
 
 /// <see cref="SIPSorcery.Net.RTCSdpType"/>
