@@ -12,6 +12,12 @@ partial class Program
         // runs in Browser-Tab
         Console.WriteLine(".NET WebAssembly Core Runtime initialized.");
     }
+    
+    [JSExport]
+    public static void Initialize()
+    {
+        Console.WriteLine(".NET WebAssembly Core Runtime initialized.");
+    }
 
     [JSExport]
     public static string ProcessData(string input)

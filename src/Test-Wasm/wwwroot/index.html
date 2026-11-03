@@ -18,6 +18,8 @@
 
         // Access exported C#-methods
         const exports = await getAssemblyExports("Test-Wasm.dll");
+        
+        exports.Program.Initialize();
         const result = exports.Program.ProcessData("Hallo from Browser!");
         
         document.getElementById("output").innerText = result;

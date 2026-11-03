@@ -8,6 +8,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Friflo.SmGui.Assets\Friflo.SmGui.Assets.csproj" />
+    <ProjectReference Include="..\Friflo.SmGui.WebRTC\Friflo.SmGui.WebRTC.csproj" />
     <!-- only base-runtime, no UI-framework -->
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="10.0.14" />
   </ItemGroup>
