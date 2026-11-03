@@ -37,7 +37,9 @@ jobs:
 
     - name: Restore dependencies
       working-directory: ./
-      run: dotnet restore -r linux-x64
+      # Restore without global runtime identifier (-r) to allow mixed target architectures 
+      # (e.g. browser-wasm for Wasm projects and linux-x64 for backend tests) to resolve correctly.
+      run: dotnet restore
 
     - name: Build
       working-directory: ./
