@@ -15,10 +15,10 @@ namespace Friflo.SmGui.WebRTC;
 
 internal sealed class WebRtcChannel
 {
-    private readonly    WebRtcDataChannel   dataChannel;
-    private readonly    SmSessionLoop       loop;
+    private readonly    DataChannel     dataChannel;
+    private readonly    SmSessionLoop   loop;
 
-    internal WebRtcChannel(SmSessionLoop loop, WebRtcDataChannel dataChannel)
+    internal WebRtcChannel(SmSessionLoop loop, DataChannel dataChannel)
     {
         this.loop           = loop;
         this.dataChannel    = dataChannel;
@@ -34,7 +34,7 @@ internal sealed class WebRtcChannel
         // Console.WriteLine($"RTCDataChannel closed");
     }
     
-    private void OnMessage (WebRtcDataChannel dc, WebRtcDataChannelPayloadProtocols protocol, byte[] data)
+    private void OnMessage (DataChannel dc, DataChannelPayloadProtocols protocol, byte[] data)
     {
         // var request = System.Text.Encoding.UTF8.GetString(data);
         // Console.WriteLine($"Received from client: {debugMsg}");

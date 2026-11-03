@@ -67,9 +67,9 @@ public sealed partial class SmSignalingClient
                 var pc = session.peerConnection;
 
                 // Set remote description using RTCSessionDescriptionInit
-                var remoteDesc = WebRtcFactory.Instance.CreateSessionDescriptionInit(
+                var remoteDesc = RtcFactory.Instance.CreateSessionDescriptionInit(
                     sdp:    message.sdpOrCandidate,
-                    type:   WebRtcSdpType.offer
+                    type:   SdpType.offer
                 );
                 _ = pc.setRemoteDescription(remoteDesc);
 
@@ -87,9 +87,9 @@ public sealed partial class SmSignalingClient
             case "answer":
             {
                 if (sessions.TryGetValue(message.connection, out var session) && message.sdpOrCandidate != null) {
-                    var remoteDesc = WebRtcFactory.Instance.CreateSessionDescriptionInit(
+                    var remoteDesc = RtcFactory.Instance.CreateSessionDescriptionInit(
                         sdp:    message.sdpOrCandidate,
-                        type:   WebRtcSdpType.answer
+                        type:   SdpType.answer
                     );
                     session.peerConnection.setRemoteDescription(remoteDesc);
                 }
@@ -99,7 +99,7 @@ public sealed partial class SmSignalingClient
             {
                 if (sessions.TryGetValue(message.connection, out var session) && !string.IsNullOrEmpty(message.sdpOrCandidate)) {
                     // Deserialize ICE candidate using System.Text.Json
-                    var candidateInit = WebRtcFactory.Instance.JsonToCandidate(message.sdpOrCandidate);
+                    var candidateInit = RtcFactory.Instance.JsonToCandidate(message.sdpOrCandidate);
                     if (candidateInit.native != null) {
                         session.peerConnection.addIceCandidate(candidateInit);
                     }

@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 namespace Friflo.SmGui.WebRTC;
 
 /// <see cref="SIPSorcery.Net.RTCSdpType"/>
-internal enum WebRtcSdpType
+internal enum SdpType
 {
     answer,
     offer,
@@ -19,7 +19,7 @@ internal enum WebRtcSdpType
     rollback,
 }
 
-internal struct WebRtcSessionDescriptionInit
+internal struct SessionDescriptionInit
 {
     /// <see cref="SIPSorcery.Net.RTCSessionDescriptionInit"/>
     internal    object  native;
@@ -28,7 +28,7 @@ internal struct WebRtcSessionDescriptionInit
     public override string? ToString() => native?.ToString();
 }
 
-internal struct WebRtcIceCandidateInit
+internal struct IceCandidateInit
 {
     /// <see cref="SIPSorcery.Net.RTCIceCandidateInit"/>
     internal    object? native;
@@ -37,7 +37,7 @@ internal struct WebRtcIceCandidateInit
 }
 
 
-internal struct WebRtcIceCandidate
+internal struct IceCandidate
 {
     /// <see cref="SIPSorcery.Net.RTCIceCandidate"/>
     internal    object  native;
@@ -47,14 +47,14 @@ internal struct WebRtcIceCandidate
 
 
 /// <see cref="SIPSorcery.Net.RTCPeerConnection"/>
-internal abstract class WebRtcPeerConnection
+internal abstract class PeerConnection
 {
-    internal abstract   WebRtcSessionDescriptionInit    createAnswer();
-    internal abstract   Task                            setLocalDescription(WebRtcSessionDescriptionInit init);
-    internal abstract   int                             setRemoteDescription(WebRtcSessionDescriptionInit init);
-    internal abstract   void                            addIceCandidate(WebRtcIceCandidateInit init);
+    internal abstract   SessionDescriptionInit  createAnswer();
+    internal abstract   Task                    setLocalDescription(SessionDescriptionInit init);
+    internal abstract   int                     setRemoteDescription(SessionDescriptionInit init);
+    internal abstract   void                    addIceCandidate(IceCandidateInit init);
     
     
-    internal abstract event Action<WebRtcDataChannel>  ondatachannel;
-    internal abstract event Action<WebRtcIceCandidate> onicecandidate;
+    internal abstract event Action<DataChannel>  ondatachannel;
+    internal abstract event Action<IceCandidate> onicecandidate;
 }

@@ -9,28 +9,28 @@ using SIPSorcery.Net;
 namespace Friflo.SmGui.WebRTC;
 
 
-internal sealed class SipRtcDataChannel : WebRtcDataChannel
+internal sealed class SipRtcDataChannel : DataChannel
 {
     private readonly RTCDataChannel native;
         
-    internal override   WebRtcDataChannelState  readyState => (WebRtcDataChannelState)native.readyState;
-    internal override   bool                    ordered    { get => native.ordered; set => native.ordered = value; }
-    internal override   string                  label      { get => native.label;   set => native.label = value; }
+    internal override   DataChannelState    readyState => (DataChannelState)native.readyState;
+    internal override   bool                ordered    { get => native.ordered; set => native.ordered = value; }
+    internal override   string              label      { get => native.label;   set => native.label = value; }
 
-    public   override   string?                 ToString() => native.ToString();
+    public   override   string?             ToString() => native.ToString();
 
     internal SipRtcDataChannel(RTCDataChannel native) {
         this.native = native;
     }
     
     
-    private readonly Dictionary<WebRtcOnDataChannelMessage, OnDataChannelMessageDelegate> onDataChannelHandler = new();
+    private readonly Dictionary<OnDataChannelMessage, OnDataChannelMessageDelegate> onDataChannelHandler = new();
     
-    internal override event WebRtcOnDataChannelMessage onmessage
+    internal override event OnDataChannelMessage onmessage
     {
         add {
             var handler = new OnDataChannelMessageDelegate((dc, protocol, data) => {
-                value.Invoke(this, (WebRtcDataChannelPayloadProtocols)protocol, data);
+                value.Invoke(this, (DataChannelPayloadProtocols)protocol, data);
             });
             onDataChannelHandler.Add(value, handler);
             native.onmessage += handler;

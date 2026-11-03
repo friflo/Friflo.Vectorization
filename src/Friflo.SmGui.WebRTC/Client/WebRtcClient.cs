@@ -19,13 +19,13 @@ namespace Friflo.SmGui.WebRTC;
 
 internal sealed class WebRtcClient : SmClient
 {
-    private             WebRtcDataChannel   dataChannel;
+    private             DataChannel         dataChannel;
     private             WsDoubleBuffer?     doubleBuffer;
     
     private readonly    MemoryStream        outputStream        = new();
     private readonly    DeflateStream       statefulCompressor;
 
-    internal WebRtcClient(WebRtcDataChannel dataChannel, SmSessionLoop loop)
+    internal WebRtcClient(DataChannel dataChannel, SmSessionLoop loop)
     : base(loop)
     {
         statefulCompressor  = new DeflateStream(outputStream, CompressionLevel.Fastest, leaveOpen: true);
@@ -94,7 +94,7 @@ internal sealed class WebRtcClient : SmClient
         if (message.IsEmpty) {
             return 0;
         }
-        if (doubleBuffer == null || dataChannel.readyState != WebRtcDataChannelState.open) {
+        if (doubleBuffer == null || dataChannel.readyState != DataChannelState.open) {
             return 0;
         }
         // var sendBuffer = CompressMessageSharpZipLib(message.buffer, out int length);
@@ -118,7 +118,7 @@ internal sealed class WebRtcClient : SmClient
     }
 
     protected override void SendCommand(SmSendCommand command) {
-        if (dataChannel.readyState != WebRtcDataChannelState.open) {
+        if (dataChannel.readyState != DataChannelState.open) {
             return;
         }
         dataChannel.send(command.payload);
@@ -131,7 +131,7 @@ internal sealed class WebRtcClient : SmClient
         var buffer = doubleBuffer!;
         buffer.Swap();
 
-        if (buffer.PendingLength > 0 && dataChannel.readyState == WebRtcDataChannelState.open) {
+        if (buffer.PendingLength > 0 && dataChannel.readyState == DataChannelState.open) {
             dataChannel.send(buffer.Data, 0, buffer.PendingLength);
 
             buffer.Clear();
@@ -144,7 +144,7 @@ internal sealed class WebRtcClient : SmClient
         // Console.WriteLine($"RTCDataChannel closed");
     }
     
-    private void OnMessage (WebRtcDataChannel dc, WebRtcDataChannelPayloadProtocols protocol, byte[] data)
+    private void OnMessage (DataChannel dc, DataChannelPayloadProtocols protocol, byte[] data)
     {
         // var debugMsg = System.Text.Encoding.UTF8.GetString(data);
         // Console.WriteLine($"Received from client: {debugMsg}");

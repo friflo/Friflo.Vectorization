@@ -9,7 +9,7 @@ namespace Friflo.SmGui.WebRTC;
 
 
 /// <see cref="SIPSorcery.Net.RTCDataChannelState"/>
-internal enum WebRtcDataChannelState
+internal enum DataChannelState
 {
     /// <summary>
     /// The user agent is attempting to establish the underlying data transport.
@@ -26,7 +26,7 @@ internal enum WebRtcDataChannelState
 }
 
 /// <see cref="SIPSorcery.Net.DataChannelPayloadProtocols"/>
-internal enum WebRtcDataChannelPayloadProtocols
+internal enum DataChannelPayloadProtocols
 {
     WebRTC_DCEP             = 50, // 0x00000032
     WebRTC_String           = 51, // 0x00000033
@@ -39,19 +39,19 @@ internal enum WebRtcDataChannelPayloadProtocols
 
 
 /// <see cref="SIPSorcery.Net.OnDataChannelMessageDelegate"/>
-internal delegate void WebRtcOnDataChannelMessage(WebRtcDataChannel dc, WebRtcDataChannelPayloadProtocols protocol, byte[] data);
+internal delegate void OnDataChannelMessage(DataChannel dc, DataChannelPayloadProtocols protocol, byte[] data);
 
 
 
 /// <see cref="SIPSorcery.Net.RTCDataChannel"/>
-internal abstract class WebRtcDataChannel
+internal abstract class DataChannel
 {
-    internal abstract WebRtcDataChannelState    readyState { get; }
-    internal abstract bool                      ordered    { get; set; }
-    internal abstract string                    label      { get; set; }
+    internal abstract DataChannelState  readyState { get; }
+    internal abstract bool              ordered    { get; set; }
+    internal abstract string            label      { get; set; }
     
-    internal abstract event WebRtcOnDataChannelMessage  onmessage;
-    internal abstract event Action                      onclose;
+    internal abstract event OnDataChannelMessage    onmessage;
+    internal abstract event Action                  onclose;
 
     
     internal abstract void send(string message);

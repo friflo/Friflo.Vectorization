@@ -10,7 +10,7 @@ using SIPSorcery.Net;
 namespace Friflo.SmGui.WebRTC;
 
 
-internal sealed class SipRtcPeerConnection : WebRtcPeerConnection
+internal sealed class SipRtcPeerConnection : PeerConnection
 {
     private  readonly   RTCPeerConnection   native;
     
@@ -20,9 +20,9 @@ internal sealed class SipRtcPeerConnection : WebRtcPeerConnection
         native = new RTCPeerConnection();
     }
     
-    private readonly Dictionary<Action<WebRtcDataChannel>, Action<RTCDataChannel>> onDataChannelHandler = new();
+    private readonly Dictionary<Action<DataChannel>, Action<RTCDataChannel>> onDataChannelHandler = new();
     
-    internal override event Action<WebRtcDataChannel> ondatachannel
+    internal override event Action<DataChannel> ondatachannel
     {
         add {
             var handler = new Action<RTCDataChannel>(sipChannel => {
@@ -40,13 +40,13 @@ internal sealed class SipRtcPeerConnection : WebRtcPeerConnection
     }
     
     
-    private readonly Dictionary<Action<WebRtcIceCandidate>, Action<RTCIceCandidate>> onIceCandidateHandler = new();
+    private readonly Dictionary<Action<IceCandidate>, Action<RTCIceCandidate>> onIceCandidateHandler = new();
     
-    internal override event Action<WebRtcIceCandidate> onicecandidate
+    internal override event Action<IceCandidate> onicecandidate
     {
         add {
             var handler = new Action<RTCIceCandidate>(sipCandidate => {
-                var candidate = new WebRtcIceCandidate { native = sipCandidate };
+                var candidate = new IceCandidate { native = sipCandidate };
                 value.Invoke(candidate);
             });
             onIceCandidateHandler.Add(value, handler);
@@ -59,25 +59,25 @@ internal sealed class SipRtcPeerConnection : WebRtcPeerConnection
         }
     }
     
-    internal override WebRtcSessionDescriptionInit createAnswer()
+    internal override SessionDescriptionInit createAnswer()
     {
         var sipInit = native.createAnswer();
-        return new WebRtcSessionDescriptionInit { native = sipInit, sdp = sipInit.sdp };
+        return new SessionDescriptionInit { native = sipInit, sdp = sipInit.sdp };
     }
     
-    internal override Task setLocalDescription(WebRtcSessionDescriptionInit init)
+    internal override Task setLocalDescription(SessionDescriptionInit init)
     {
         var sipInit = (RTCSessionDescriptionInit)init.native;
         return native.setLocalDescription(sipInit);
     }
         
-    internal override int setRemoteDescription(WebRtcSessionDescriptionInit init)
+    internal override int setRemoteDescription(SessionDescriptionInit init)
     {
         var sipInit = (RTCSessionDescriptionInit)init.native;
         return (int)native.setRemoteDescription(sipInit);
     }
     
-    internal override void addIceCandidate(WebRtcIceCandidateInit init)
+    internal override void addIceCandidate(IceCandidateInit init)
     {
         var sipInit = (RTCIceCandidateInit?)init.native;
         native.addIceCandidate(sipInit);

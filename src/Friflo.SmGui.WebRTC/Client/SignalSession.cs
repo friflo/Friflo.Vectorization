@@ -11,25 +11,25 @@ namespace Friflo.SmGui.WebRTC;
 
 internal sealed class SignalSession
 {
-    private  readonly   SmSignalingClient       client;
-    private  readonly   WebSocket               webSocket;
-    private  readonly   string                  connection;
-    internal readonly   WebRtcPeerConnection    peerConnection;    
+    private  readonly   SmSignalingClient   client;
+    private  readonly   WebSocket           webSocket;
+    private  readonly   string              connection;
+    internal readonly   PeerConnection      peerConnection;    
 
     internal SignalSession(SmSignalingClient client, WebSocket webSocket, string connection)
     {
         this.client     = client;
         this.webSocket  = webSocket;
         this.connection = connection;
-        peerConnection  = WebRtcFactory.Instance.CreatePeerConnection();
+        peerConnection  = RtcFactory.Instance.CreatePeerConnection();
         peerConnection.onicecandidate   += OnIceCandidate;
         peerConnection.ondatachannel    += OnDataChannel;
     }
     
     // Returns void to match the event delegate signature and fix CS0407
-    private void OnIceCandidate(WebRtcIceCandidate candidate)
+    private void OnIceCandidate(IceCandidate candidate)
     {
-        var candidateJson    = WebRtcFactory.Instance.CandidateToJson(candidate);
+        var candidateJson    = RtcFactory.Instance.CandidateToJson(candidate);
         var msg              = new SignalMessage("candidate", null, connection, candidateJson);
         var candidatePayload = JsonSerializer.SerializeToUtf8Bytes(msg);
         if (webSocket.State == WebSocketState.Open) {
@@ -37,7 +37,7 @@ internal sealed class SignalSession
         }
     }
     
-    private void OnDataChannel(WebRtcDataChannel dataChannel)
+    private void OnDataChannel(DataChannel dataChannel)
     {
         // Console.WriteLine("P2P Data Channel opened on App side!");
         if (dataChannel.label == "tm-gui-channel") {
