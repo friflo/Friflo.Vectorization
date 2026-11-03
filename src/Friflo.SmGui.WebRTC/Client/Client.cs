@@ -20,21 +20,21 @@ public static class SmSignalingExtensions
 {
     public static SmSessionLoop UseWebRtcGuiSessions(this SmSessionLoop loop, Uri uri, string app, string? instance = null, CancellationToken cancellationToken = default)
     {
-        var signalListener =  new SmSignalingListener(loop);
-        signalListener.ConnectAsync(new Uri("wss://localhost:8081/signaling"), "test-app", "auto", cancellationToken).Wait(); // stay on main thread
-        _ = signalListener.RunAsync();
+        var signalingClient =  new SmSignalingClient(loop);
+        signalingClient.ConnectAsync(new Uri("wss://localhost:8081/signaling"), "test-app", "auto", cancellationToken).Wait(); // stay on main thread
+        _ = signalingClient.RunAsync();
         
         return loop;
     }
 }
 
 
-public sealed partial class SmSignalingListener
+public sealed partial class SmSignalingClient
 {
     internal readonly   SmSessionLoop       loop;
     private             ClientWebSocket?    clientWebSocket;
         
-    public SmSignalingListener(SmSessionLoop loop)
+    public SmSignalingClient(SmSessionLoop loop)
     {
         this.loop = loop;
         loop.SessionsChanged += SessionsChanged;

@@ -35,7 +35,7 @@ internal record struct SignalMessage(string type, string? app, string connection
 
 
 
-public sealed partial class SmSignalingListener
+public sealed partial class SmSignalingClient
 {
     // Maps each WebSocket session to its respective peer session wrapper
     private readonly ConcurrentDictionary<string, SignalSession> sessions = new();
