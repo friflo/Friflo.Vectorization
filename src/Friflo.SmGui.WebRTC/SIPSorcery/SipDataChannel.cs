@@ -24,7 +24,7 @@ internal sealed class SipRtcDataChannel : DataChannel
     }
     
     
-    private readonly Dictionary<OnDataChannelMessage, OnDataChannelMessageDelegate> onDataChannelHandler = new();
+    private readonly Dictionary<OnDataChannelMessage, OnDataChannelMessageDelegate> onMessageHandler = new();
     
     internal override event OnDataChannelMessage onmessage
     {
@@ -32,12 +32,12 @@ internal sealed class SipRtcDataChannel : DataChannel
             var handler = new OnDataChannelMessageDelegate((dc, protocol, data) => {
                 value.Invoke(this, (DataChannelPayloadProtocols)protocol, data);
             });
-            onDataChannelHandler.Add(value, handler);
+            onMessageHandler.Add(value, handler);
             native.onmessage += handler;
         }
         remove {
-            var handler = onDataChannelHandler[value];
-            onDataChannelHandler.Remove(value);
+            var handler = onMessageHandler[value];
+            onMessageHandler.Remove(value);
             native.onmessage -= handler;
         }
     }
