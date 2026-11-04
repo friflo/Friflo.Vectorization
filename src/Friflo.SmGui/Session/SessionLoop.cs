@@ -104,7 +104,9 @@ public sealed partial class SmSessionLoop : IDisposable
         tuiShared           = new TuiSessionShared();
         guiShared           = new GuiSessionShared();
         sessionThreadId     = Environment.CurrentManagedThreadId;
-        PosixSignalUtils.AddExitHandler(exitHandler);
+        if (!OperatingSystem.IsBrowser()) {
+            PosixSignalUtils.AddExitHandler(exitHandler);
+        }
     }
     
     public void Dispose()

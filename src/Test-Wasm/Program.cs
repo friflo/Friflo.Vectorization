@@ -25,7 +25,7 @@ partial class Program
     private static async Task Start()
     {
         var cpuBackend  = new CpuBackend("App", new DefaultGuiAssets());
-        return;
+
         // Create one session loop per App
         loop = new SmSessionLoop(cpuBackend, session => new TestGuiView(session)) {
             UseSecureSessionGuids = false
