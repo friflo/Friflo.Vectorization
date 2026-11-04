@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices.JavaScript;
 using System.Runtime.Versioning;
-using System.Threading;
+
 
 // ReSharper disable CheckNamespace
 namespace Friflo.SmGui.WebRTC;
@@ -39,7 +39,7 @@ internal sealed partial class WasmDataChannel : DataChannel, IDisposable
 
     internal WasmDataChannel(JSObject native) 
     {
-        id = Interlocked.Increment(ref _nextId);
+        id = ++_nextId;
         Instances[id] = this;
 
         this.native = native;

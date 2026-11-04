@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices.JavaScript;
 using System.Runtime.Versioning;
-using System.Threading;
 using System.Threading.Tasks;
 
 // ReSharper disable CheckNamespace
@@ -25,8 +24,7 @@ internal sealed partial class WasmPeerConnection : PeerConnection, IDisposable
     
     internal WasmPeerConnection()
     {
-        // Increment the static counter correctly to assign a unique ID
-        id = Interlocked.Increment(ref _nextId);
+        id = ++_nextId;
         Instances[id] = this;
 
         native = CreatePeerConnection();
