@@ -53,8 +53,8 @@ internal abstract class PeerConnection
     protected void RaiseDataChannel(DataChannel channel)        => ondatachannel?.Invoke(channel);
     protected void RaiseIceCandidate(IceCandidate candidate)    => onicecandidate?.Invoke(candidate);
     
-    internal abstract   SessionDescriptionInit  createAnswer();
-    internal abstract   Task                    setLocalDescription(SessionDescriptionInit init);
-    internal abstract   int                     setRemoteDescription(SessionDescriptionInit init);
-    internal abstract   void                    addIceCandidate(IceCandidateInit init);
+    internal abstract   Task<SessionDescriptionInit>    createAnswer();
+    internal abstract   Task                            setLocalDescription(SessionDescriptionInit init);
+    internal abstract   Task<int>                       setRemoteDescription(SessionDescriptionInit init);
+    internal abstract   Task                            addIceCandidate(IceCandidateInit init);
 }

@@ -71,10 +71,10 @@ public sealed partial class SmSignalingClient
                     sdp:    message.sdpOrCandidate,
                     type:   SdpType.offer
                 );
-                _ = pc.setRemoteDescription(remoteDesc);
+                await pc.setRemoteDescription(remoteDesc);
 
                 // Create and set local answer
-                var answer = pc.createAnswer(); // createAnswer(null)
+                var answer = await pc.createAnswer(); // createAnswer(null)
                 await pc.setLocalDescription(answer);
 
                 var msg = new SignalMessage("answer", null, message.connection, answer.sdp, loop.SessionCount);
@@ -91,7 +91,7 @@ public sealed partial class SmSignalingClient
                         sdp:    message.sdpOrCandidate,
                         type:   SdpType.answer
                     );
-                    session.peerConnection.setRemoteDescription(remoteDesc);
+                    await session.peerConnection.setRemoteDescription(remoteDesc);
                 }
                 break;
             }
@@ -101,7 +101,7 @@ public sealed partial class SmSignalingClient
                     // Deserialize ICE candidate using System.Text.Json
                     var candidateInit = RtcFactory.Instance.JsonToCandidate(message.sdpOrCandidate);
                     if (candidateInit.native != null) {
-                        session.peerConnection.addIceCandidate(candidateInit);
+                        await session.peerConnection.addIceCandidate(candidateInit);
                     }
                 }
                 break;

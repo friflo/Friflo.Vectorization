@@ -38,10 +38,11 @@ internal sealed class SipPeerConnection : PeerConnection, IDisposable
         native.Dispose();
     }
     
-    internal override SessionDescriptionInit createAnswer()
+    internal override Task<SessionDescriptionInit> createAnswer()
     {
         var sipInit = native.createAnswer();
-        return new SessionDescriptionInit { native = sipInit, sdp = sipInit.sdp };
+        var result = new SessionDescriptionInit { native = sipInit, sdp = sipInit.sdp };
+        return Task.FromResult(result);
     }
     
     internal override Task setLocalDescription(SessionDescriptionInit init)
@@ -50,15 +51,17 @@ internal sealed class SipPeerConnection : PeerConnection, IDisposable
         return native.setLocalDescription(sipInit);
     }
         
-    internal override int setRemoteDescription(SessionDescriptionInit init)
+    internal override Task<int> setRemoteDescription(SessionDescriptionInit init)
     {
         var sipInit = (RTCSessionDescriptionInit)init.native;
-        return (int)native.setRemoteDescription(sipInit);
+        var result = (int)native.setRemoteDescription(sipInit);
+        return Task.FromResult(result);
     }
     
-    internal override void addIceCandidate(IceCandidateInit init)
+    internal override Task addIceCandidate(IceCandidateInit init)
     {
         var sipInit = (RTCIceCandidateInit?)init.native;
         native.addIceCandidate(sipInit);
+        return Task.CompletedTask;
     }
 }

@@ -82,9 +82,9 @@ internal sealed partial class WasmPeerConnection : PeerConnection, IDisposable
         native.Dispose();
     }
     
-    internal override SessionDescriptionInit createAnswer()
+    internal override async Task<SessionDescriptionInit> createAnswer()
     {
-        var jsInit = CreateAnswerAsync(native).GetAwaiter().GetResult();
+        var jsInit = await CreateAnswerAsync(native);
         var sdp = GetSdp(native, jsInit);
         return new SessionDescriptionInit { native = jsInit, sdp = sdp };
     }
@@ -95,16 +95,16 @@ internal sealed partial class WasmPeerConnection : PeerConnection, IDisposable
         return SetLocalDescriptionAsync(native, jsInit);
     }
         
-    internal override int setRemoteDescription(SessionDescriptionInit init)
+    internal override async Task<int> setRemoteDescription(SessionDescriptionInit init)
     {
         var jsInit = (JSObject)init.native;
-        SetRemoteDescriptionAsync(native, jsInit).GetAwaiter().GetResult();
+        await SetRemoteDescriptionAsync(native, jsInit);
         return 0;
     }
     
-    internal override void addIceCandidate(IceCandidateInit init)
+    internal override async Task addIceCandidate(IceCandidateInit init)
     {
         var candidateInit = (JSObject)init.native!;
-        AddIceCandidateAsync(native, candidateInit).GetAwaiter().GetResult();
+        await AddIceCandidateAsync(native, candidateInit);
     }
 }

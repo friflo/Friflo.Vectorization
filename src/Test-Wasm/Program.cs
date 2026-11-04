@@ -32,6 +32,32 @@ partial class Program
         };
         var signalingClient = new SmSignalingClient(loop);
         await signalingClient.ConnectAsync(new Uri("wss://localhost:8081/signaling"), "test-app", "auto", CancellationToken.None);
+        _ = signalingClient.RunAsync();
+        
+        
+        // Start the infinite loop asynchronously without blocking the browser thread
+        _ = RunLoopAsync(loop);
+    }
+    
+    private static async Task RunLoopAsync(SmSessionLoop sessionLoop)
+    {
+        var interval = TimeSpan.FromMilliseconds(16);
+
+        try
+        {
+            while (true)
+            {
+                // Perform one iteration of the session loop
+                sessionLoop.IterateSessions();
+
+                // Wait non-blockingly for the next tick, allowing the browser to render and process events
+                await Task.Delay(interval);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error in session loop: {ex.Message}");
+        }
     }
     
     [JSExport]
