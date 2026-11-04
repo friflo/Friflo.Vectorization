@@ -23,12 +23,12 @@ internal sealed partial class WasmDataChannel : DataChannel, IDisposable
         
     internal override   DataChannelState    readyState => cachedState;
     
-    internal override bool ordered 
+    internal override bool ordered
     {
         get => GetOrdered(native);
-        set => SetOrdered(native, value);
+        set { }
     }
-    
+
     internal override string label 
     {
         get => GetLabel(native);
@@ -57,9 +57,6 @@ internal sealed partial class WasmDataChannel : DataChannel, IDisposable
 
     [JSImport("getOrdered", Wasm.JsModule)]
     private static partial bool GetOrdered(JSObject channel);
-
-    [JSImport("setOrdered", Wasm.JsModule)]
-    private static partial void SetOrdered(JSObject channel, bool value);
 
     [JSImport("getLabel", Wasm.JsModule)]
     private static partial string GetLabel(JSObject channel);

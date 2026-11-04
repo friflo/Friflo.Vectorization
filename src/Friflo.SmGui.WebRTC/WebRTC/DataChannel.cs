@@ -50,7 +50,7 @@ internal abstract class DataChannel
     internal event      Action?                 onclose;
 
     internal abstract   DataChannelState        readyState { get; }
-    internal abstract   bool                    ordered    { get; set; }
+    internal abstract   bool                    ordered    { get; set; } // todo   remove setter. only channel creator can set ordered
     internal abstract   string                  label      { get; set; }
 
     protected void RaiseMessage(DataChannelPayloadProtocols protocol, byte[] data)  => onmessage?.Invoke(this, protocol, data);

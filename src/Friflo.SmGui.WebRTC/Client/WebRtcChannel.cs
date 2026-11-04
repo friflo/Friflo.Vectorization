@@ -22,7 +22,7 @@ internal sealed class WebRtcChannel
     {
         this.loop           = loop;
         this.dataChannel    = dataChannel;
-        dataChannel.ordered = true;
+        dataChannel.ordered = true;  // todo   check/remove. only channel creator can set ordered 
         // dataChannel.maxPacketLifeTime = 1;
         // dataChannel.maxRetransmits = 0;
         dataChannel.onmessage   += OnMessage;

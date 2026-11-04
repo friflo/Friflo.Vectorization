@@ -1,13 +1,18 @@
 // webrtc-interop.js
 // noinspection JSUnusedGlobalSymbols
 
-let dotnetExports = null;
+let WasmPeerConnection = null; // Type: Friflo.SmGui.WebRTC.WasmPeerConnection
+let WasmDataChannel    = null; // Type: Friflo.SmGui.WebRTC.WasmDataChannel
 
 // Called from index.html right after .NET runtime creation
 export async function initializeInterop(getAssemblyExports) {
     try {
-        dotnetExports = await getAssemblyExports("Friflo.SmGui.WebRTC.dll");
-        await dotnetExports.Friflo.SmGui.WebRTC.WasmRtcFactory.InitializeAsync();
+        const dotnetExports = await getAssemblyExports("Friflo.SmGui.WebRTC.dll");
+        const WebRTC = dotnetExports.Friflo.SmGui.WebRTC;
+        WasmPeerConnection = WebRTC.WasmPeerConnection;
+        WasmDataChannel    = WebRTC.WasmDataChannel;
+        
+        await WebRTC.WasmRtcFactory.InitializeAsync();
         console.log(".NET initialization completed successfully in JS!");
     } catch (err) {
         console.error("Failed to initialize .NET WebAssembly:", err);
@@ -45,12 +50,12 @@ export async function addIceCandidate(pc, candidate) {
 export function registerPeerConnectionCallbacks(instanceId, pc) {
     pc.ondatachannel = (event) => {
         // Access the exported C# class and call the [JSExport] method
-        dotnetExports.Friflo.SmGui.WebRTC.WasmPeerConnection.HandleDataChannelCallback(instanceId, event.channel);
+        WasmPeerConnection.HandleDataChannelCallback(instanceId, event.channel);
     };
     
     pc.onicecandidate = (event) => {
         if (event.candidate) {
-            dotnetExports.Friflo.SmGui.WebRTC.WasmPeerConnection.HandleIceCandidateCallback(instanceId, event.candidate);
+            WasmPeerConnection.HandleIceCandidateCallback(instanceId, event.candidate);
         }
     };
 }
@@ -63,10 +68,6 @@ export function getState(channel) {
 
 export function getOrdered(channel) {
     return channel.ordered;
-}
-
-export function setOrdered(channel, value) {
-    channel.ordered = value;
 }
 
 export function getLabel(channel) {
@@ -88,10 +89,10 @@ export function sendBinary(channel, data, offset, length) {
 
 export function registerDataChannelCallbacks(instanceId, channel) {
     channel.onopen = () => {
-        dotnetExports.Friflo.SmGui.WebRTC.WasmDataChannel.HandleStateChangeCallback(instanceId, channel.readyState);
+        WasmDataChannel.HandleStateChangeCallback(instanceId, channel.readyState);
     };
     channel.onclose = () => {
-        dotnetExports.Friflo.SmGui.WebRTC.WasmDataChannel.HandleCloseCallback(instanceId);
+        WasmDataChannel.HandleCloseCallback(instanceId);
     };
     channel.onmessage = (event) => {
         const data = event.data;
@@ -102,7 +103,7 @@ export function registerDataChannelCallbacks(instanceId, channel) {
             // map it appropriately (assuming protocol 0 or similar for text, adjust as needed)
             const encoder = new TextEncoder();
             const byteArray = encoder.encode(data);
-            dotnetExports.Friflo.SmGui.WebRTC.WasmDataChannel.HandleMessageCallback(instanceId, /* protocol for text */ 0, byteArray);
+            WasmDataChannel.HandleMessageCallback(instanceId, /* protocol for text */ 0, byteArray);
         } else {
             // Binary data (ArrayBuffer) -> convert to Uint8Array so .NET marshals it as byte[]
             const buffer = data instanceof ArrayBuffer ? data : data.arrayBuffer();
@@ -111,11 +112,11 @@ export function registerDataChannelCallbacks(instanceId, channel) {
             if (buffer instanceof Promise) {
                 buffer.then(ab => {
                     const byteArray = new Uint8Array(ab);
-                    dotnetExports.Friflo.SmGui.WebRTC.WasmDataChannel.HandleMessageCallback(instanceId, /* binary protocol enum value */ 1, byteArray);
+                    WasmDataChannel.HandleMessageCallback(instanceId, /* binary protocol enum value */ 1, byteArray);
                 });
             } else {
                 const byteArray = new Uint8Array(buffer);
-                dotnetExports.Friflo.SmGui.WebRTC.WasmDataChannel.HandleMessageCallback(instanceId, /* binary protocol enum value */ 1, byteArray);
+                WasmDataChannel.HandleMessageCallback(instanceId, /* binary protocol enum value */ 1, byteArray);
             }
         }
     };
