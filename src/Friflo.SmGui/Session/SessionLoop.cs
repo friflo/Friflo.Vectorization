@@ -62,13 +62,13 @@ public sealed partial class SmSessionLoop : IDisposable
     public   event      SessionsChanged?    SessionsChanged;
 
 #region private fields
-//  private  readonly   bool                                        isAsync;
+    // --- queue
     internal readonly   SmEventQueue                                eventQueue;
     internal readonly   ConcurrentQueue<LoopEvent>                  queue               = new();
     internal readonly   AutoResetEvent                              eventReady          = new(false);
     internal readonly   Queue<LoopEvent>                            wasmQueue           = new();
     internal readonly   AsyncSignal                                 wasmEventReady      = new();
-//  private  readonly   Channel<LoopEvent>?                         eventChannel;       // was used by: async loop
+    //
     private  readonly   Dictionary<SessionId, SmSession>            sessions            = new(); // non-thread-safe state
     private  readonly   ConcurrentDictionary<SessionId, SmSession>  concurrentSessions  = new(); // thread-safe - used only for SetSessionDirty(SessionId) 
     internal readonly   int                                         sessionThreadId;
@@ -83,21 +83,10 @@ public sealed partial class SmSessionLoop : IDisposable
     
     public SmSessionLoop(CpuBackend cpuBackend, CreateGuiView createGuiView)
     {
-        // this.isAsync        = isAsync;
         this.createGuiView  = createGuiView;
         this.cpuBackend     = cpuBackend;  // TAG_CPU
         resources           = new AssetResources(cpuBackend);
-        /* if (isAsync) {
-            // Bounded channel to enforce non-blocking backpressure via TryWrite
-            var options = new BoundedChannelOptions(MaxSyncQueueCapacity) {
-                SingleReader = true,
-                SingleWriter = false,
-                FullMode     = BoundedChannelFullMode.DropWrite // TryWrite fails fast when full
-            };
-            // eventChannel = Channel.CreateBounded<LoopEvent>(options);
-            eventQueue      = null!;
-            eventReady      = null!;        
-        } else { */        
+        
         eventQueue          = new SmEventQueue(this);
         
         exitHandler         = ExitHandler;
