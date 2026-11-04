@@ -4,6 +4,7 @@
 using System;
 using System.Diagnostics;
 using System.Threading;
+using System.Threading.Tasks;
 
 // ReSharper disable InlineTemporaryVariable
 // ReSharper disable SuggestVarOrType_SimpleTypes
@@ -146,6 +147,32 @@ public partial class SmSessionLoop
             if (--eventCount == 0) {
                 break;
             }
+        }
+    }
+    
+    /// <summary>
+    /// Processes all currently pending events in the queue synchronously.<br/>
+    /// Render all sessions with pending events and send rendered draw lists to session clients via stream / socket.
+    /// </summary>
+    public async Task IterateSessionsAsync()
+    {
+        ObjectDisposedException.ThrowIf(isDisposed, this);
+        var localQueue = wasmQueue;
+
+        while (!isDisposed)
+        {
+            while (localQueue.Count > 0)
+            {
+                var evt = localQueue.Dequeue();
+                
+                if (evt.sessionId.id != 0) {
+                    ProcessSessionEvent(evt);
+                } else {
+                    ProcessAppEvent(evt);
+                }
+            }
+
+            await wasmEventReady.WaitAsync();
         }
     }
 }

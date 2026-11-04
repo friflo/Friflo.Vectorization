@@ -11,11 +11,9 @@ using TuiTerminal;
 //   dotnet dev-certs https --trust
 
 [SupportedOSPlatform("browser")]
-partial class Program
+static partial class Program
 {
-    private static SmSessionLoop loop;
-    
-    static void Main(string[] args)
+    static void Main(string[] _)
     {
         // runs in Browser-Tab
         Console.WriteLine(".NET WebAssembly Core Runtime initialized.");
@@ -27,7 +25,7 @@ partial class Program
         var cpuBackend  = new CpuBackend("App", new DefaultGuiAssets());
 
         // Create one session loop per App
-        loop = new SmSessionLoop(cpuBackend, session => new TestGuiView(session)) {
+        var loop = new SmSessionLoop(cpuBackend, session => new TestGuiView(session)) {
             UseSecureSessionGuids = false
         };
         var signalingClient = new SmSignalingClient(loop);
@@ -36,22 +34,20 @@ partial class Program
         
         
         // Start the infinite loop asynchronously without blocking the browser thread
-        _ = RunLoopAsync(loop);
+        await RunLoopAsync(loop);
     }
     
     private static async Task RunLoopAsync(SmSessionLoop sessionLoop)
     {
-        var interval = TimeSpan.FromMilliseconds(16);
+        int count = 0;
 
         try
         {
             while (true)
             {
+                Console.WriteLine($"IterateSessions {count++}");
                 // Perform one iteration of the session loop
-                sessionLoop.IterateSessions();
-
-                // Wait non-blockingly for the next tick, allowing the browser to render and process events
-                await Task.Delay(interval);
+                await sessionLoop.IterateSessionsAsync();
             }
         }
         catch (Exception ex)

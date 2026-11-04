@@ -66,6 +66,8 @@ public sealed partial class SmSessionLoop : IDisposable
     internal readonly   SmEventQueue                                eventQueue;
     internal readonly   ConcurrentQueue<LoopEvent>                  queue               = new();
     internal readonly   AutoResetEvent                              eventReady          = new(false);
+    internal readonly   Queue<LoopEvent>                            wasmQueue           = new();
+    internal readonly   AsyncSignal                                 wasmEventReady      = new();
 //  private  readonly   Channel<LoopEvent>?                         eventChannel;       // was used by: async loop
     private  readonly   Dictionary<SessionId, SmSession>            sessions            = new(); // non-thread-safe state
     private  readonly   ConcurrentDictionary<SessionId, SmSession>  concurrentSessions  = new(); // thread-safe - used only for SetSessionDirty(SessionId) 

@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using System.Diagnostics;
+using System.Numerics;
 using Friflo.SmGui;
 
 
@@ -11,18 +12,17 @@ namespace TuiTerminal;
 public class TestGuiView : IGuiView
 {
     private readonly    ViewSession     session;
-
-    
-    
-    private const int CanvasWidth   = 800;
-    private const int CanvasHeight  = 500;
+    private             long            frameStart = Stopwatch.GetTimestamp();
+    private             double          frameTime;
+    private             long            memStart;
+    private             long            memDiff;
     
     public TestGuiView(ViewSession session)
     {
         this.session        = session;
         var uiType          = session.UiType;
         session.Timer.TickRate   = 60;
-        session.Timer.Enabled    = uiType.IsGui();
+        // session.Timer.Enabled    = uiType.IsGui();
         session.Action.SetWindowTitle(uiType == UiType.WebRtcGui ? $"{session.AppId} 🔀" : session.AppId ?? "App");
         session.Action.SetClearColor(0x999c9eff, 0x404142ff);
     }
@@ -30,6 +30,14 @@ public class TestGuiView : IGuiView
     
     public void RenderView(SmBatch batch, int targetWidth, int targetHeight)
     {
+        var timestamp   = Stopwatch.GetTimestamp();
+        frameTime       = Stopwatch.GetElapsedTime(frameStart, timestamp).TotalMilliseconds;
+        frameStart      = timestamp;
+        
+        var mem     = GC.GetAllocatedBytesForCurrentThread();
+        memDiff     = mem - memStart;
+        memStart    = mem;
+        
         var gui = batch.BeginGui(targetWidth, targetHeight);
         using (gui.BeginWindow("Window 1", new Vector2(0, 0), new Vector2(1230, 1680), traits: 0)) { // (500, 450) (1000, 850)
             Window1(gui);
@@ -52,5 +60,16 @@ public class TestGuiView : IGuiView
         using (gui.BeginHorizontal()) {
             if (gui.Button("GC.Collect()"))  GC.Collect();
         }
+        var animate = gui.Timer.Enabled;
+        if (gui.Checkbox("animate", ref animate)) {
+            gui.Timer.Enabled = animate;
+            session.SetAppDirty();
+        }
+        
+        var sb = gui.widget.StringBuilder();
+        sb.Clear().Append($"frame time: ");
+        if (gui.Batch.Timer.Enabled) sb.Append($"{frameTime,5:F1} ms"); else sb.Append($" ---");
+        sb.Append($"  alloc: {memDiff,3}");
+        gui.Label(sb.Span(), Color32.Teal);
     }
 }
