@@ -132,8 +132,9 @@ public partial class SmSessionLoop
     public void IterateSessions()
     {
         ObjectDisposedException.ThrowIf(isDisposed, this);
-        var eventCount = queue.Count;
-        while (queue.TryDequeue(out LoopEvent evt))
+        var local       = queue;
+        var eventCount  = local.Count;
+        while (local.TryDequeue(out LoopEvent evt))
         {
             if (evt.sessionId.id != 0) {
                 ProcessSessionEvent(evt);

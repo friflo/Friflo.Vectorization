@@ -24,10 +24,10 @@ internal sealed class SmEventQueue
     
     private  const      int                         MaxQueueCapacity = 16384; // 16384 events == 512 KB memory
 
-    internal SmEventQueue(ConcurrentQueue<LoopEvent>  queue, AutoResetEvent eventReady)
+    internal SmEventQueue(SmSessionLoop loop)
     {
-        this.queue      = queue;
-        this.eventReady = eventReady;
+        queue      = loop.queue;
+        eventReady = loop.eventReady;
     }
     
     internal bool TryEnqueueEvent(SmClient? client, SessionId sessionId, LoopEventType type, object? state, Payload payload, int data)
