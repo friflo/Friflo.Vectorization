@@ -2,9 +2,10 @@
 // See LICENSE file in the project root for full license information.
 
 using System;
+using System.Collections.Generic;
 using System.Runtime.InteropServices.JavaScript;
 using System.Runtime.Versioning;
-using Microsoft.JSInterop;
+using System.Threading;
 
 // ReSharper disable CheckNamespace
 namespace Friflo.SmGui.WebRTC;
@@ -13,11 +14,14 @@ namespace Friflo.SmGui.WebRTC;
 [SupportedOSPlatform("browser")]
 internal sealed partial class WasmDataChannel : DataChannel, IDisposable
 {
-    private readonly    JSObject                                native;
-    private readonly    DotNetObjectReference<WasmDataChannel>  dotNetRef;
-    private             DataChannelState                        cachedState;
+    private static readonly Dictionary<int, WasmDataChannel>    Instances = new();
+    private static          int                                 _nextId;
+
+    private readonly    int                 id;
+    private readonly    JSObject            native;
+    private             DataChannelState    cachedState;
         
-    internal override   DataChannelState                        readyState => cachedState;
+    internal override   DataChannelState    readyState => cachedState;
     
     internal override bool ordered 
     {
@@ -33,17 +37,19 @@ internal sealed partial class WasmDataChannel : DataChannel, IDisposable
 
     public override string? ToString() => native.ToString();
 
-    internal WasmDataChannel(JSObject native, IJSObjectReference jsModule) 
+    internal WasmDataChannel(JSObject native) 
     {
+        id = Interlocked.Increment(ref _nextId);
+        Instances[id] = this;
+
         this.native = native;
-        dotNetRef   = DotNetObjectReference.Create(this);
         
         // Fetch the initial state once during construction to handle pre-opened channels correctly
         var stateStr = GetState(native);
         cachedState = Enum.TryParse<DataChannelState>(stateStr, true, out var state) ? state : DataChannelState.connecting;
         
-        // Register event listeners on the native JS side
-        jsModule.InvokeVoidAsync("registerDataChannelCallbacks", native, dotNetRef).AsTask().GetAwaiter().GetResult();
+        // Register event listeners on the native JS side passing the instance ID
+        RegisterDataChannelCallbacks(id, native);
     }
 
     [JSImport("getState", Wasm.JsModule)]
@@ -61,40 +67,51 @@ internal sealed partial class WasmDataChannel : DataChannel, IDisposable
     [JSImport("setLabel", Wasm.JsModule)]
     private static partial void SetLabel(JSObject channel, string value);
 
+    [JSImport("registerDataChannelCallbacks", Wasm.JsModule)]
+    private static partial void RegisterDataChannelCallbacks(int instanceId, JSObject channel);
+
     [JSImport("sendString", Wasm.JsModule)]
     private static partial void SendString(JSObject channel, string message);
 
     [JSImport("sendBinary", Wasm.JsModule)]
     private static partial void SendBinary(JSObject channel, byte[] data, int offset, int length);
 
-    
-    [JSInvokable]
-    public void HandleStateChange(string stateStr)
+    [JSExport]
+    private static void HandleStateChangeCallback(int instanceId, string stateStr)
     {
-        // Update cached state dynamically on lifecycle events
-        if (Enum.TryParse<DataChannelState>(stateStr, true, out var state)) {
-            cachedState = state;
+        if (Instances.TryGetValue(instanceId, out var channel))
+        {
+            // Update cached state dynamically on lifecycle events
+            if (Enum.TryParse<DataChannelState>(stateStr, true, out var state)) {
+                channel.cachedState = state;
+            }
         }
     }
 
-    [JSInvokable]
-    public void HandleMessage(int protocol, byte[] data)
+    [JSExport]
+    private static void HandleMessageCallback(int instanceId, int protocol, byte[] data)
     {
-        // TODO: Optimize incoming data marshalling to avoid heap allocations per message 
-        // (e.g., by utilizing shared memory buffers or zero-copy memory views if available).
-        RaiseMessage((DataChannelPayloadProtocols)protocol, data);
+        if (Instances.TryGetValue(instanceId, out var channel))
+        {
+            // TODO: Optimize incoming data marshalling to avoid heap allocations per message 
+            // (e.g., by utilizing shared memory buffers or zero-copy memory views if available).
+            channel.RaiseMessage((DataChannelPayloadProtocols)protocol, data);
+        }
     }
 
-    [JSInvokable]
-    public void HandleClose()
+    [JSExport]
+    private static void HandleCloseCallback(int instanceId)
     {
-        cachedState = DataChannelState.closed;
-        RaiseClose();
+        if (Instances.TryGetValue(instanceId, out var channel))
+        {
+            channel.cachedState = DataChannelState.closed;
+            channel.RaiseClose();
+        }
     }
     
     public void Dispose()
     {
-        dotNetRef.Dispose();
+        Instances.Remove(id);
         native.Dispose();
     }
     

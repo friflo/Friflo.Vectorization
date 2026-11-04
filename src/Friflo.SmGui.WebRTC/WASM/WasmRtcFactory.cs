@@ -4,9 +4,9 @@
 using System;
 using System.Runtime.InteropServices.JavaScript;
 using System.Runtime.Versioning;
-using Microsoft.JSInterop;
+using System.Threading.Tasks;
 
-
+// ReSharper disable EmptyConstructor
 // ReSharper disable CheckNamespace
 namespace Friflo.SmGui.WebRTC;
 
@@ -18,23 +18,27 @@ internal static class Wasm {
 [SupportedOSPlatform("browser")]
 internal sealed partial class WasmRtcFactory : RtcFactory, IDisposable
 {
-    private readonly    IJSObjectReference  jsModule;
+    private static bool _isInitialized;
 
-    internal WasmRtcFactory(IJSRuntime jsRuntime)
+    internal WasmRtcFactory() { }
+    
+    [JSExport]
+    private static async Task InitializeAsync()
     {
-        // Load the JS interop module once at the factory level (needed for DotNetObjectReference callbacks)
-        jsModule = jsRuntime.InvokeAsync<IJSObjectReference>("import", "./socket.js").GetAwaiter().GetResult();
+        if (_isInitialized) return;
+
+        await JSHost.ImportAsync("webrtc-interop.js", "../webrtc-interop.js");
+        
+        _isInitialized = true;
     }
     
     public void Dispose()
     {
-        jsModule.DisposeAsync().AsTask().GetAwaiter().GetResult();
     }
 
     internal override PeerConnection CreatePeerConnection()
     {
-        // Pass the shared JS module to the peer connection
-        return new WasmPeerConnection(jsModule);
+        return new WasmPeerConnection();
     }
     
     internal override SessionDescriptionInit CreateSessionDescriptionInit(string? sdp, SdpType type)

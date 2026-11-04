@@ -6,25 +6,31 @@
 </head>
 <body>
     <h1>Minimal .NET in Browser</h1>
-    <p id="output">Warte auf .NET...</p>
+    <p id="output">Wait for .NET...</p>
 
     <script type="module">
         import { dotnet } from './_framework/dotnet.js';
-
+        import { initializeInterop } from './webrtc-interop.js';
+    
         // Start .NET WebAssembly Runtime
         const { getAssemblyExports, setModuleImports } = await dotnet
             .withDiagnosticTracing(false)
             .create();
+        
+        initializeInterop(getAssemblyExports);    
 
         // Access exported C#-methods
-        const exports = await getAssemblyExports("Test-Wasm.dll");
+        const assemblyName = "Test-Wasm.dll";
+        const exports = await getAssemblyExports(assemblyName);
         
-        exports.Program.Initialize();
-        const result = exports.Program.ProcessData("Hallo from Browser!");
+        const result = exports.Program.ProcessData("Hello from Browser!");
         
         document.getElementById("output").innerText = result;
         console.log(result);
-    </script>
-    <link rel="modulepreload" href="webrtc-interop.js">
-</body>
+        
+        await exports.Program.Start();
+        
+        </script>
+        <link rel="modulepreload" href="webrtc-interop.js">
+    </body>
 </html>

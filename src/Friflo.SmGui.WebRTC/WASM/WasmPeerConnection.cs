@@ -2,11 +2,11 @@
 // See LICENSE file in the project root for full license information.
 
 using System;
+using System.Collections.Generic;
 using System.Runtime.InteropServices.JavaScript;
 using System.Runtime.Versioning;
+using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.JSInterop;
-
 
 // ReSharper disable CheckNamespace
 namespace Friflo.SmGui.WebRTC;
@@ -15,26 +15,51 @@ namespace Friflo.SmGui.WebRTC;
 [SupportedOSPlatform("browser")]
 internal sealed partial class WasmPeerConnection : PeerConnection, IDisposable
 {
-    private readonly    JSObject                                    native;
-    private readonly    IJSObjectReference                          jsModule;
-    private readonly    DotNetObjectReference<WasmPeerConnection>   dotNetRef;
+    private static readonly Dictionary<int, WasmPeerConnection> Instances = new();
+    private static          int                                 _nextId;
+
+    private readonly    int         id;
+    private readonly    JSObject    native;
     
-    public override     string?                                     ToString() => native.ToString();
+    public override string? ToString() => native.ToString();
     
-    internal WasmPeerConnection(IJSObjectReference jsModule) 
+    internal WasmPeerConnection()
     {
-        this.jsModule   = jsModule;
-        dotNetRef       = DotNetObjectReference.Create(this);
+        // Increment the static counter correctly to assign a unique ID
+        id = Interlocked.Increment(ref _nextId);
+        Instances[id] = this;
+
+        native = CreatePeerConnection();
         
-        // Instantiate native browser RTCPeerConnection directly inside the constructor
-        native          = CreatePeerConnection();
-        
-        // Register event listeners on the native JS side using the shared module
-        jsModule.InvokeVoidAsync("registerPeerConnectionCallbacks", native, dotNetRef).AsTask().GetAwaiter().GetResult();
+        // Pass the instance ID to JavaScript so it can route callbacks back via [JSExport]
+        RegisterPeerConnectionCallbacks(id, native);
     }
 
     [JSImport("createPeerConnection", Wasm.JsModule)]
     private static partial JSObject CreatePeerConnection();
+
+    [JSImport("registerPeerConnectionCallbacks", Wasm.JsModule)]
+    private static partial void RegisterPeerConnectionCallbacks(int instanceId, JSObject pc);
+
+    [JSExport]
+    private static void HandleDataChannelCallback(int instanceId, JSObject jsChannel)
+    {
+        if (Instances.TryGetValue(instanceId, out var connection))
+        {
+            var channel = new WasmDataChannel(jsChannel);
+            connection.RaiseDataChannel(channel);
+        }
+    }
+
+    [JSExport]
+    private static void HandleIceCandidateCallback(int instanceId, JSObject jsCandidate)
+    {
+        if (Instances.TryGetValue(instanceId, out var connection))
+        {
+            var candidate = new IceCandidate { native = jsCandidate };
+            connection.RaiseIceCandidate(candidate);
+        }
+    }
 
     [JSImport("createAnswer", Wasm.JsModule)]
     private static partial Task<JSObject> CreateAnswerAsync(JSObject pc);
@@ -50,25 +75,10 @@ internal sealed partial class WasmPeerConnection : PeerConnection, IDisposable
 
     [JSImport("addIceCandidate", Wasm.JsModule)]
     private static partial Task AddIceCandidateAsync(JSObject pc, JSObject candidate);
-
-    [JSInvokable]
-    public void HandleDataChannel(JSObject jsChannel) 
-    {
-        // Pass the shared module down to the data channel
-        var channel = new WasmDataChannel(jsChannel, jsModule);
-        RaiseDataChannel(channel);
-    }
-
-    [JSInvokable]
-    public void HandleIceCandidate(object jsCandidate) 
-    {
-        var candidate = new IceCandidate { native = jsCandidate };
-        RaiseIceCandidate(candidate);
-    }
     
     public void Dispose()
     {
-        dotNetRef.Dispose();
+        Instances.Remove(id);
         native.Dispose();
     }
     

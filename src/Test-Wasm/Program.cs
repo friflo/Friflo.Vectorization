@@ -1,5 +1,11 @@
 using System.Runtime.InteropServices.JavaScript;
 using System.Runtime.Versioning;
+using Friflo.SmGui;
+using Friflo.SmGui.Headless;
+using Friflo.SmGui.Session;
+using Friflo.SmGui.WebRTC;
+using TuiTerminal;
+
 
 // requires one-time activation of developer certificate:
 //   dotnet dev-certs https --trust
@@ -7,6 +13,8 @@ using System.Runtime.Versioning;
 [SupportedOSPlatform("browser")]
 partial class Program
 {
+    private static SmSessionLoop loop;
+    
     static void Main(string[] args)
     {
         // runs in Browser-Tab
@@ -14,13 +22,20 @@ partial class Program
     }
     
     [JSExport]
-    public static void Initialize()
+    private static async Task Start()
     {
-        Console.WriteLine(".NET WebAssembly Core Runtime initialized.");
+        var cpuBackend  = new CpuBackend("App", new DefaultGuiAssets());
+        return;
+        // Create one session loop per App
+        loop = new SmSessionLoop(cpuBackend, session => new TestGuiView(session)) {
+            UseSecureSessionGuids = false
+        };
+        var signalingClient = new SmSignalingClient(loop);
+        await signalingClient.ConnectAsync(new Uri("wss://localhost:8081/signaling"), "test-app", "auto", CancellationToken.None);
     }
-
+    
     [JSExport]
-    public static string ProcessData(string input)
+    private static string ProcessData(string input)
     {
         return $"C# processed: {input}";
     }

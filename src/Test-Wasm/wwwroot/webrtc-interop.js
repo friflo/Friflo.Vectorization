@@ -1,5 +1,19 @@
-// ------------------------------------------- C# Interop -------------------------------------------
-// socket.js
+// webrtc-interop.js
+// noinspection JSUnusedGlobalSymbols
+
+let dotnetExports = null;
+
+// Called from index.html right after .NET runtime creation
+export async function initializeInterop(getAssemblyExports) {
+    try {
+        dotnetExports = await getAssemblyExports("Friflo.SmGui.WebRTC.dll");
+        await dotnetExports.Friflo.SmGui.WebRTC.WasmRtcFactory.InitializeAsync();
+        console.log(".NET initialization completed successfully in JS!");
+    } catch (err) {
+        console.error("Failed to initialize .NET WebAssembly:", err);
+    }    
+}
+
 // --- WasmPeerConnection Interop ---
 
 export function createPeerConnection() {
@@ -28,13 +42,15 @@ export async function addIceCandidate(pc, candidate) {
     await pc.addIceCandidate(candidate);
 }
 
-export function registerPeerConnectionCallbacks(pc, dotNetRef) {
-    pc.ondatachannel = event => {
-        dotNetRef.invokeMethodAsync('HandleDataChannel', event.channel);
+export function registerPeerConnectionCallbacks(instanceId, pc) {
+    pc.ondatachannel = (event) => {
+        // Access the exported C# class and call the [JSExport] method
+        dotnetExports.Friflo.SmGui.WebRTC.WasmPeerConnection.HandleDataChannelCallback(instanceId, event.channel);
     };
-    pc.onicecandidate = event => {
+    
+    pc.onicecandidate = (event) => {
         if (event.candidate) {
-            dotNetRef.invokeMethodAsync('HandleIceCandidate', event.candidate);
+            dotnetExports.Friflo.SmGui.WebRTC.WasmPeerConnection.HandleIceCandidateCallback(instanceId, event.candidate);
         }
     };
 }
@@ -70,18 +86,38 @@ export function sendBinary(channel, data, offset, length) {
     channel.send(view);
 }
 
-export function registerDataChannelCallbacks(channel, dotNetRef) {
+export function registerDataChannelCallbacks(instanceId, channel) {
     channel.onopen = () => {
-        dotNetRef.invokeMethodAsync('HandleStateChange', 'open');
-    };
-    channel.onclosing = () => {
-        dotNetRef.invokeMethodAsync('HandleStateChange', 'closing');
+        dotnetExports.Friflo.SmGui.WebRTC.WasmDataChannel.HandleStateChangeCallback(instanceId, channel.readyState);
     };
     channel.onclose = () => {
-        dotNetRef.invokeMethodAsync('HandleClose');
+        dotnetExports.Friflo.SmGui.WebRTC.WasmDataChannel.HandleCloseCallback(instanceId);
     };
-    channel.onmessage = event => {
-        dotNetRef.invokeMethodAsync('HandleMessage', 0, event.data);
+    channel.onmessage = (event) => {
+        const data = event.data;
+        
+        // Check if data is binary (ArrayBuffer or Blob) or a string
+        if (typeof data === 'string') {
+            // If your protocol supports string messages or text payload, 
+            // map it appropriately (assuming protocol 0 or similar for text, adjust as needed)
+            const encoder = new TextEncoder();
+            const byteArray = encoder.encode(data);
+            dotnetExports.Friflo.SmGui.WebRTC.WasmDataChannel.HandleMessageCallback(instanceId, /* protocol for text */ 0, byteArray);
+        } else {
+            // Binary data (ArrayBuffer) -> convert to Uint8Array so .NET marshals it as byte[]
+            const buffer = data instanceof ArrayBuffer ? data : data.arrayBuffer();
+            
+            // If arrayBuffer() is a Promise (in case of Blob), handle it asynchronously:
+            if (buffer instanceof Promise) {
+                buffer.then(ab => {
+                    const byteArray = new Uint8Array(ab);
+                    dotnetExports.Friflo.SmGui.WebRTC.WasmDataChannel.HandleMessageCallback(instanceId, /* binary protocol enum value */ 1, byteArray);
+                });
+            } else {
+                const byteArray = new Uint8Array(buffer);
+                dotnetExports.Friflo.SmGui.WebRTC.WasmDataChannel.HandleMessageCallback(instanceId, /* binary protocol enum value */ 1, byteArray);
+            }
+        }
     };
 }
 
