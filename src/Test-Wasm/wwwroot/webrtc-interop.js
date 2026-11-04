@@ -1,8 +1,9 @@
 // webrtc-interop.js
 // noinspection JSUnusedGlobalSymbols
 
-let WasmPeerConnection = null; // Type: Friflo.SmGui.WebRTC.WasmPeerConnection
-let WasmDataChannel    = null; // Type: Friflo.SmGui.WebRTC.WasmDataChannel
+let WasmPeerConnection  = null; // Type: Friflo.SmGui.WebRTC.WasmPeerConnection
+let WasmDataChannel     = null; // Type: Friflo.SmGui.WebRTC.WasmDataChannel
+let Module              = null;
 
 // Called from index.html right after .NET runtime creation
 export async function initializeInterop(getAssemblyExports) {
@@ -11,6 +12,9 @@ export async function initializeInterop(getAssemblyExports) {
         const WebRTC = dotnetExports.Friflo.SmGui.WebRTC;
         WasmPeerConnection = WebRTC.WasmPeerConnection;
         WasmDataChannel    = WebRTC.WasmDataChannel;
+        
+        const runtime = globalThis.getDotnetRuntime(0);
+        Module = runtime.Module;
         
         await WebRTC.WasmRtcFactory.InitializeAsync();
         console.log(".NET initialization completed successfully in JS!");
@@ -82,6 +86,11 @@ export function sendString(channel, message) {
     channel.send(message);
 }
 
+/* export function sendBinary(channel, ptr, offset, length) {
+    const memoryBuffer = Module.HEAPU8.buffer;
+    const view = new Uint8Array(memoryBuffer, ptr + offset, length);
+    channel.send(view);
+} */
 export function sendBinary(channel, data, offset, length) {
     const view = data.subarray(offset, offset + length);
     channel.send(view);

@@ -71,6 +71,7 @@ internal sealed partial class WasmDataChannel : DataChannel, IDisposable
     private static partial void SendString(JSObject channel, string message);
 
     [JSImport("sendBinary", Wasm.JsModule)]
+//  private static partial void SendBinary(JSObject channel, IntPtr ptr,  int offset, int length); // does not provide an advantage in context of allocation.
     private static partial void SendBinary(JSObject channel, byte[] data, int offset, int length);
 
     [JSExport]
@@ -117,8 +118,11 @@ internal sealed partial class WasmDataChannel : DataChannel, IDisposable
         SendString(native, message);
     }
     
-    internal override void send(byte[] data, int offset, int length)
+    internal override unsafe void send(byte[] data, int offset, int length)
     {
+        /* fixed(byte* ptr = data) {
+            SendBinary(native, (nint)ptr, offset, length);
+        } */
         SendBinary(native, data, offset, length);
     }
 }
