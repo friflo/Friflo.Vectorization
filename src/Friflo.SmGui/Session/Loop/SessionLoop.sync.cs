@@ -5,6 +5,7 @@ using System;
 using System.Diagnostics;
 using System.Threading;
 
+// ReSharper disable InlineTemporaryVariable
 // ReSharper disable SuggestVarOrType_SimpleTypes
 // ReSharper disable SwitchStatementMissingSomeEnumCasesNoDefault
 // ReSharper disable CheckNamespace
@@ -132,9 +133,10 @@ public partial class SmSessionLoop
     public void IterateSessions()
     {
         ObjectDisposedException.ThrowIf(isDisposed, this);
-        var local       = queue;
-        var eventCount  = local.Count;
-        while (local.TryDequeue(out LoopEvent evt))
+        var localQueue  = queue;
+        var eventCount  = localQueue.Count;
+        
+        while (localQueue.TryDequeue(out LoopEvent evt))
         {
             if (evt.sessionId.id != 0) {
                 ProcessSessionEvent(evt);

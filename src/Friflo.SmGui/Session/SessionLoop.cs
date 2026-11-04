@@ -64,8 +64,8 @@ public sealed partial class SmSessionLoop : IDisposable
 #region private fields
 //  private  readonly   bool                                        isAsync;
     internal readonly   SmEventQueue                                eventQueue;
-    internal readonly   ConcurrentQueue<LoopEvent>                  queue;              // used by: sync loop
-    internal readonly   AutoResetEvent                              eventReady;         // used by: sync loop
+    internal readonly   ConcurrentQueue<LoopEvent>                  queue               = new();
+    internal readonly   AutoResetEvent                              eventReady          = new(false);
 //  private  readonly   Channel<LoopEvent>?                         eventChannel;       // was used by: async loop
     private  readonly   Dictionary<SessionId, SmSession>            sessions            = new(); // non-thread-safe state
     private  readonly   ConcurrentDictionary<SessionId, SmSession>  concurrentSessions  = new(); // thread-safe - used only for SetSessionDirty(SessionId) 
@@ -96,8 +96,6 @@ public sealed partial class SmSessionLoop : IDisposable
             eventQueue      = null!;
             eventReady      = null!;        
         } else { */        
-        queue               = new ConcurrentQueue<LoopEvent>();
-        eventReady          = new AutoResetEvent(false);
         eventQueue          = new SmEventQueue(this);
         
         exitHandler         = ExitHandler;
