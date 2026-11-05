@@ -62,7 +62,7 @@ internal sealed class WebRtcChannel
     private void SendResponse(string requestId, int status, string? contentType, byte[] body)
     {
         var response = new ApiResponse { requestId = requestId, status = status, contentType = contentType };
-        var header = JsonSerializer.SerializeToUtf8Bytes(response);
+        var header = JsonSerializer.SerializeToUtf8Bytes(response, ApiJsonSerializer.Default.ApiResponse);
         
         var payload = new byte[4 + header.Length + body.Length];
         
@@ -82,7 +82,7 @@ internal record struct ApiRequest(string requestId, string url)
     internal static bool TryParse(ReadOnlySpan<byte> buffer, out ApiRequest message)
     {
         try {
-            message = JsonSerializer.Deserialize<ApiRequest>(buffer);
+            message = JsonSerializer.Deserialize(buffer, ApiJsonSerializer.Default.ApiRequest);
             return true;
         }
         catch (JsonException) {

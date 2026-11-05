@@ -3,7 +3,6 @@
 
 using System;
 using System.IO;
-using System.Net;
 using System.Net.WebSockets;
 using System.Text.Json;
 using System.Threading;
@@ -43,7 +42,7 @@ public sealed partial class SmSignalingClient
     private void SessionsChanged(SessionsChangedArgs args)
     {
         var msg     = new SignalMessage{ type = "stats", app = loop.appId, sessions = loop.SessionCount };
-        var payload = JsonSerializer.SerializeToUtf8Bytes(msg);
+        var payload = JsonSerializer.SerializeToUtf8Bytes(msg, ApiJsonSerializer.Default.SignalMessage);
         _ =  clientWebSocket?.SendAsync(payload, WebSocketMessageType.Text, true, CancellationToken.None);
     }
         
@@ -53,8 +52,8 @@ public sealed partial class SmSignalingClient
 
         // Connect to the specified signaling server URL
         await clientWebSocket.ConnectAsync(uri, cancellationToken);
-        
-        byte[] payload = JsonSerializer.SerializeToUtf8Bytes(new SignalMessage{ type = "register", app = app, sdpOrCandidate = instance, sessions = loop.SessionCount });
+        var msg = new SignalMessage{ type = "register", app = app, sdpOrCandidate = instance, sessions = loop.SessionCount };
+        byte[] payload = JsonSerializer.SerializeToUtf8Bytes(msg, ApiJsonSerializer.Default.SignalMessage);
 
         await clientWebSocket.SendAsync(payload, WebSocketMessageType.Text, true, cancellationToken);
         

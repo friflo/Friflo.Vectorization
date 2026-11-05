@@ -23,7 +23,7 @@ internal record struct SignalMessage(string type, string? app, string connection
     internal static bool TryParse(ReadOnlySpan<byte> buffer, out SignalMessage message)
     {
         try {
-            message = JsonSerializer.Deserialize<SignalMessage>(buffer);
+            message = JsonSerializer.Deserialize(buffer, ApiJsonSerializer.Default.SignalMessage);
             return true;
         }
         catch (JsonException) {
@@ -46,7 +46,7 @@ public sealed partial class SmSignalingClient
             return;
         }
         var msg     = new SignalMessage("close", null, connection, null, loop.SessionCount);
-        var payload = JsonSerializer.SerializeToUtf8Bytes(msg);
+        var payload = JsonSerializer.SerializeToUtf8Bytes(msg, ApiJsonSerializer.Default.SignalMessage);
         if (webSocket.State == WebSocketState.Open) {
             _ = webSocket.SendAsync(payload, WebSocketMessageType.Text, true, CancellationToken.None);
         }
@@ -78,7 +78,7 @@ public sealed partial class SmSignalingClient
                 await pc.setLocalDescription(answer);
 
                 var msg = new SignalMessage("answer", null, message.connection, answer.sdp, loop.SessionCount);
-                var answerPayload = JsonSerializer.SerializeToUtf8Bytes(msg);
+                var answerPayload = JsonSerializer.SerializeToUtf8Bytes(msg, ApiJsonSerializer.Default.SignalMessage);
                 if (webSocket.State == WebSocketState.Open) {
                     await webSocket.SendAsync(answerPayload, WebSocketMessageType.Text, true, CancellationToken.None);
                 }
