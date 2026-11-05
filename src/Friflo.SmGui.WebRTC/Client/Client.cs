@@ -61,14 +61,14 @@ public sealed partial class SmSignalingClient
         var result = await ReadChunksAsync(clientWebSocket, cancellationToken);
         
         if (result.MessageType != WebSocketMessageType.Text) {
-            throw new ProtocolViolationException($"expect Text message. was {result.MessageType}");
+            throw new InvalidOperationException($"expect Text message. was {result.MessageType}");
         }
         var messageBuffer = memoryStream.GetBuffer().AsMemory(0, (int)memoryStream.Length);
         if (!SignalMessage.TryParse(messageBuffer.Span, out var message)) {
-            throw new ProtocolViolationException($"invalid message response");
+            throw new InvalidOperationException($"invalid message response");
         }
         if (message.sdpOrCandidate != "registered") {
-            throw new ProtocolViolationException($"register failed: {message.sdpOrCandidate}");
+            throw new InvalidOperationException($"register failed: {message.sdpOrCandidate}");
         }
         loop.appId = message.app;
     }
