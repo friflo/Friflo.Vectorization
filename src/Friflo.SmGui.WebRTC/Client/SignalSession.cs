@@ -31,7 +31,7 @@ internal sealed class SignalSession
     {
         var candidateJson    = RtcFactory.Instance.CandidateToJson(candidate);
         var msg              = new SignalMessage("candidate", null, connection, candidateJson);
-        var candidatePayload = JsonSerializer.SerializeToUtf8Bytes(msg, ApiJsonSerializer.Default.SignalMessage);
+        var candidatePayload = JsonSerializer.SerializeToUtf8Bytes(msg, ApiJson.Default.SignalMessage);
         if (webSocket.State == WebSocketState.Open) {
             _ = webSocket.SendAsync(candidatePayload, WebSocketMessageType.Text, true, CancellationToken.None);
         }

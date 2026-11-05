@@ -9,10 +9,8 @@
     <AssemblyName>Friflo.SmGui.Http</AssemblyName>
     <LangVersion>14.0</LangVersion>
     
-    <!--
-    <IsTrimmable>true</IsTrimmable>
     <IsAotCompatible>true</IsAotCompatible>
-    -->
+    <IsTrimmable>true</IsTrimmable>
 
     <!-- packaging -->
     <PackageVersion>0.0.0</PackageVersion>

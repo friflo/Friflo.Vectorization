@@ -29,13 +29,13 @@ internal sealed class SipRtcFactory : RtcFactory
     internal override string CandidateToJson(IceCandidate candidate)
     {
         var iceCandidate = (RTCIceCandidate)candidate.native;
-        var json = JsonSerializer.Serialize(iceCandidate, SipJsonSerializer.Default.RTCIceCandidate);
+        var json = JsonSerializer.Serialize(iceCandidate, SipJson.Default.RTCIceCandidate);
         return json;
     }
 
     internal override IceCandidateInit JsonToCandidate(string json)
     {
-        var candidateInit = JsonSerializer.Deserialize(json, SipJsonSerializer.Default.RTCIceCandidateInit);
+        var candidateInit = JsonSerializer.Deserialize(json, SipJson.Default.RTCIceCandidateInit);
         return new IceCandidateInit { native = candidateInit };
     }
 }

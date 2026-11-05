@@ -20,7 +20,7 @@ internal record struct SignalMessage(string type, string? app, string? connectio
     internal static bool TryParse(ReadOnlySpan<byte> buffer, out SignalMessage message)
     {
         try {
-            message = JsonSerializer.Deserialize<SignalMessage>(buffer);
+            message = JsonSerializer.Deserialize<SignalMessage>(buffer, SignalingJson.Default.SignalMessage);
             return true;
         }
         catch (JsonException) {
@@ -111,7 +111,7 @@ public sealed class SmSignaling
                     SetDirty();
                     
                     var msg = new SignalMessage("RegisterResponse", appId, peer.connection, "registered");
-                    var errorResponse = JsonSerializer.SerializeToUtf8Bytes(msg);
+                    var errorResponse = JsonSerializer.SerializeToUtf8Bytes(msg, SignalingJson.Default.SignalMessage);
                     await peer.SendAsync(errorResponse);
                 }
                 break;
@@ -137,7 +137,7 @@ public sealed class SmSignaling
                         result = "not-found";
                     }
                     var msg = new SignalMessage("ConnectResponse", message.app, peer.connection, result);
-                    var errorResponse = JsonSerializer.SerializeToUtf8Bytes(msg);
+                    var errorResponse = JsonSerializer.SerializeToUtf8Bytes(msg, SignalingJson.Default.SignalMessage);
                     await peer.SendAsync(errorResponse);
                     Console.WriteLine($"Connecting app: '{message.app}'  {result}");
                 }
@@ -163,7 +163,7 @@ public sealed class SmSignaling
                 if (sender.connectApp != null && sender != sender.connectApp.peer)
                 {
                     var routeMessage    = message with { connection =  sender.connection };
-                    var routeBuffer     = JsonSerializer.SerializeToUtf8Bytes(routeMessage);
+                    var routeBuffer     = JsonSerializer.SerializeToUtf8Bytes(routeMessage, SignalingJson.Default.SignalMessage);
                     await sender.connectApp.peer.SendAsync(routeBuffer);
                 }
                 // Case 2: Sender is an App forwarding an answer or candidate back to the Client

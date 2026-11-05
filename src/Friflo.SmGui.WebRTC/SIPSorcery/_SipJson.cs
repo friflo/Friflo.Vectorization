@@ -9,10 +9,8 @@ using SIPSorcery.Net;
 // ReSharper disable CheckNamespace
 namespace Friflo.SmGui.WebRTC;
 
-
-
 [JsonSerializable(typeof(RTCIceCandidateInit))]
 [JsonSerializable(typeof(RTCIceCandidate))]
-internal sealed partial class SipJsonSerializer : JsonSerializerContext { }
+internal sealed partial class SipJson : JsonSerializerContext { }
 
 #endif
