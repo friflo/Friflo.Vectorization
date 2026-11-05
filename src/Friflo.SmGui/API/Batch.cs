@@ -63,6 +63,7 @@ public abstract class SmBatch : IDisposable
     public          LoopTimer                   Timer       => loopTimer;
     public          UiType                      UiType      { get; init; }
     public readonly SessionId                   SessionId;
+    public          long                        DebugMem;
     //     readonly SmGuiBackend                backend;    - intentionally no back reference to its backend. Prevents calling NewFrame() within a Gui scope.
     
     public override string                      ToString()  => UiType.ToString();

@@ -16,13 +16,14 @@ public class TestGuiView : IGuiView
     private             double          frameTime;
     private             long            memStart;
     private             long            memDiff;
+    private             long            renderMem;
     
     public TestGuiView(ViewSession session)
     {
         this.session        = session;
         var uiType          = session.UiType;
         session.Timer.TickRate   = 60;
-        // session.Timer.Enabled    = uiType.IsGui();
+        session.Timer.Enabled    = uiType.IsGui();
         session.Action.SetWindowTitle(uiType == UiType.WebRtcGui ? $"{session.AppId} 🔀" : session.AppId ?? "App");
         session.Action.SetClearColor(0x999c9eff, 0x404142ff);
     }
@@ -42,6 +43,7 @@ public class TestGuiView : IGuiView
         using (gui.BeginWindow("Window 1", new Vector2(0, 0), new Vector2(1230, 1680), traits: 0)) { // (500, 450) (1000, 850)
             Window1(gui);
         }
+        renderMem   = gui.widget.DebugMem - mem;
     }
     
     private void Window1(Gui gui)
@@ -67,9 +69,18 @@ public class TestGuiView : IGuiView
         }
         
         var sb = gui.widget.StringBuilder();
-        sb.Clear().Append($"frame time: ");
-        if (gui.Batch.Timer.Enabled) sb.Append($"{frameTime,5:F1} ms"); else sb.Append($" ---");
-        sb.Append($"  alloc: {memDiff,3}");
+        sb.Append("frame time: ");
+        var provider = gui.widget.FormatProvider;
+        if (gui.Batch.Timer.Enabled) {
+            sb.AppendDouble(frameTime, "F1", provider);
+            sb.Append(" ms");
+        } else {
+            sb.Append(" ---");
+        }
+        sb.Append(" alloc: ");
+        sb.AppendDouble(memDiff, "F0", provider);
+        sb.Append(' ');
+        sb.AppendDouble(renderMem, "F0", provider);
         gui.Label(sb.Span(), Color32.Teal);
     }
 }

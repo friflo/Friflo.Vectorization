@@ -35,7 +35,7 @@ public class SignalingView : IGuiView
     {
         apps.Clear();
         apps.AddRange(signaling.guiApps.Values);
-        apps.Sort((app1, app2) => app1.registered.CompareTo(app2.registered));
+        apps.Sort((app1, app2) => -app1.registered.CompareTo(app2.registered));
         gui.Label("registered apps");
         gui.Spacer();
         

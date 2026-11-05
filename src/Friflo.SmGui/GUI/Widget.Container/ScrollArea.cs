@@ -19,6 +19,7 @@ public readonly ref partial struct GuiWidget
 	    window.PushScrollAreaInfo(childId, startCursor, outerSize);
 
 	    ref var scrollState = ref window.GetOrCreateScrollState(childId);
+        DebugMem  = GC.GetAllocatedBytesForCurrentThread();
 
 	    // Process mouse wheel input
 	    if (window.IsHoverAt(startCursor, outerSize, draw)) {

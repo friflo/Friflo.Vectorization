@@ -31,6 +31,7 @@ public readonly ref partial struct GuiWidget
     public              IFormatProvider FormatProvider  { [Hide] get => draw.batch.formatProvider; }
     public              bool            IsSet           { [Hide] get => currentStyle != null;      }
     public              GuiRecorder?    Recorder        { [Hide] get => draw.batch.recorder;       }
+    public ref          long            DebugMem        { [Hide] get => ref draw.batch.DebugMem;   }
 
     
     /// <summary> Clears and returns a cached <see cref="System.Text.StringBuilder"/> to prevent allocations. </summary>
