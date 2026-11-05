@@ -1,6 +1,8 @@
 // Copyright (c) Ullrich Praetz - https://github.com/friflo. All rights reserved.
 // See LICENSE file in the project root for full license information.
 
+#if !RTC_BROWSER
+
 using System.Text.Json;
 using SIPSorcery.Net;
 
@@ -37,3 +39,5 @@ internal sealed class SipRtcFactory : RtcFactory
         return new IceCandidateInit { native = candidateInit };
     }
 }
+
+#endif

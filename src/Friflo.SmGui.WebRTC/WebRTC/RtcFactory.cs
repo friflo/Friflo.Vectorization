@@ -1,8 +1,6 @@
 // Copyright (c) Ullrich Praetz - https://github.com/friflo. All rights reserved.
 // See LICENSE file in the project root for full license information.
 
-using System;
-
 // ReSharper disable CheckNamespace
 namespace Friflo.SmGui.WebRTC;
 
@@ -13,11 +11,11 @@ internal abstract class RtcFactory
     
     private static RtcFactory CreateFactory()
     {
-        // if (RuntimeInformation.ProcessArchitecture == Architecture.Wasm)
-        if (OperatingSystem.IsBrowser()) {
-            return new WasmRtcFactory();
-        }
+#if RTC_BROWSER
+        return new WasmRtcFactory();
+#else        
         return new SipRtcFactory();
+#endif
     }
 
     internal abstract   PeerConnection          CreatePeerConnection();

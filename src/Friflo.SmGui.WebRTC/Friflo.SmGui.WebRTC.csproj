@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>library</OutputType>
-    <TargetFramework>net8</TargetFramework>
+    <TargetFrameworks>net8.0;net8.0-browser</TargetFrameworks>
     <ImplicitUsings>disable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <RootNamespace>Friflo.SmGui.WebRTC</RootNamespace>
@@ -47,12 +47,17 @@
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1"    PrivateAssets="All" />
   </ItemGroup>
     
-  <ItemGroup>
+    
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net8.0-browser'">
+    <DefineConstants>$(DefineConstants);RTC_BROWSER</DefineConstants>
+  </PropertyGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'net8.0-browser'">
     <PackageReference Include="Microsoft.JSInterop"             Version="8.0.33" />
-     
+  </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'net8.0'">
     <PackageReference Include="Friflo.SIPSorcery"               Version="10.0.18-pre.patch-1" />
     <PackageReference Include="SIPSorceryMedia.Abstractions"    Version="10.0.18-pre" />
-      
+        
     <!-- Use latest dependencies used by SIPSorcery to avoid vulnerabilities -->
     <PackageReference Include="System.Net.Http" Version="4.3.4" />
     <PackageReference Include="System.Text.RegularExpressions" Version="4.3.1" />

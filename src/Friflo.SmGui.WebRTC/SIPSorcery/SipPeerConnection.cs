@@ -1,6 +1,8 @@
 // Copyright (c) Ullrich Praetz - https://github.com/friflo. All rights reserved.
 // See LICENSE file in the project root for full license information.
 
+#if !RTC_BROWSER
+
 using System;
 using System.Threading.Tasks;
 using SIPSorcery.Net;
@@ -65,3 +67,5 @@ internal sealed class SipPeerConnection : PeerConnection, IDisposable
         return Task.CompletedTask;
     }
 }
+
+#endif

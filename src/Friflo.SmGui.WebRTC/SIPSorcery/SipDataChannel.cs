@@ -1,6 +1,8 @@
 // Copyright (c) Ullrich Praetz - https://github.com/friflo. All rights reserved.
 // See LICENSE file in the project root for full license information.
 
+#if !RTC_BROWSER
+
 using System;
 using SIPSorcery.Net;
 
@@ -47,3 +49,5 @@ internal sealed class SipDataChannel : DataChannel, IDisposable
         native.send(data, offset, length);
     }
 }
+
+#endif
