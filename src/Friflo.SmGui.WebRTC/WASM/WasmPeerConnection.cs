@@ -1,6 +1,8 @@
 // Copyright (c) Ullrich Praetz - https://github.com/friflo. All rights reserved.
 // See LICENSE file in the project root for full license information.
 
+#if RTC_BROWSER
+
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices.JavaScript;
@@ -106,3 +108,5 @@ internal sealed partial class WasmPeerConnection : PeerConnection, IDisposable
         await AddIceCandidateAsync(native, candidateInit);
     }
 }
+
+#endif
