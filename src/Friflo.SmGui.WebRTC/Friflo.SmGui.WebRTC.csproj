@@ -64,6 +64,11 @@
   </ItemGroup>
     
   <ItemGroup>
+    <!-- Copy webrtc-interop.js to target project folder /wwwroot -->
+    <None Include="build\Friflo.SmGui.WebRTC.targets" Pack="true" PackagePath="build\Friflo.SmGui.WebRTC.targets" />
+  </ItemGroup>
+    
+  <ItemGroup>
     <ProjectReference Include="..\Friflo.SmGui\Friflo.SmGui.csproj" />
   </ItemGroup>
 
@@ -75,6 +80,7 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <NoWarn>1591;CS1573</NoWarn>
     <NoWarn>$(NoWarn);NU1605</NoWarn> <!-- force use of original nuget package: SIPSorceryMedia.Abstractions -->
+    <NoWarn>$(NoWarn);CS1574</NoWarn> <!-- XML comment has cref attribute 'RTCDataChannelState' that could not be resolved -->
     <PackageLicenseExpression>AGPL-3.0-only</PackageLicenseExpression>
   </PropertyGroup>
   <!-- packaging: end -->

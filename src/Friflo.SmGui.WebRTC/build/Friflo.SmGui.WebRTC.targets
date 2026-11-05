@@ -1,0 +1,9 @@
+<Project>
+<Target Name="CopyWebRtcInterop" AfterTargets="Build" Condition="$(TargetFramework.Contains('browser'))">
+    <Message Text="Copy webrtc-interop.js to wwwroot/" Importance="High" />
+    
+    <Copy SourceFiles="$(MSBuildThisFileDirectory)..\wwwroot\webrtc-interop.js" 
+          DestinationFolder="$(MSBuildProjectDirectory)\wwwroot\" 
+          SkipUnchangedFiles="true" />
+  </Target>
+</Project>

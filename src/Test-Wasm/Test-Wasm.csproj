@@ -13,6 +13,9 @@
     <!-- only base-runtime, no UI-framework -->
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="10.0.14" />
   </ItemGroup>
+   
+  <!-- Import is required when using Friflo.SmGui.WebRTC.csproj as ProjectReference -->
+  <Import Project="..\Friflo.SmGui.WebRTC\build\Friflo.SmGui.WebRTC.targets" />
     
   <ItemGroup>
     <None Include="wwwroot\**\*">
