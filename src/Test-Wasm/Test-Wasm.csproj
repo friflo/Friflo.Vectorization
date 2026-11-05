@@ -30,6 +30,14 @@
     <RunAOTCompilation>true</RunAOTCompilation>
     <PublishTrimmed>true</PublishTrimmed>
     <WasmEnableSIMD>true</WasmEnableSIMD>
+      
+    <!-- Additional High-Performance-Optimizations -->
+    <OptimizationPreference>Speed</OptimizationPreference>
+    <InvariantGlobalization>true</InvariantGlobalization>
+    <WasmStripNativeDebugSymbols>true</WasmStripNativeDebugSymbols>
+    <EventSourceSupport>false</EventSourceSupport>
+    <HttpActivityTracingSupport>false</HttpActivityTracingSupport>
+    <DebuggerSupport>false</DebuggerSupport>
   </PropertyGroup>
 
 </Project>
