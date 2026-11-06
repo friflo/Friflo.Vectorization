@@ -1,6 +1,10 @@
 # friflo SmGui WebRTC
 
 
+## Goal
+Programs need a UI. A UI turns a simple goal into a complex problem. SmGui removes that problem.  
+Friflo.SmGui.WebRTC takes it one step further: the UI can be shared with any browser via a single link, without hosting the app anywhere.
+
 ## Description
 
 The goal of Friflo.SmGui.WebRTC is to act as a **real** serverless alternative to an ASP.NET HTTP server.  
