@@ -6,20 +6,20 @@ let WasmDataChannel     = null; // Type: Friflo.SmGui.WebRTC.WasmDataChannel
 let Module              = null;
 
 // Called from index.html right after .NET runtime creation
-export async function initializeInterop(getAssemblyExports) {
+export async function initializeSmGuiWebRTC(dotnetRuntime) {
     try {
-        const dotnetExports = await getAssemblyExports("Friflo.SmGui.WebRTC.dll");
+        const dotnetExports = await dotnetRuntime.getAssemblyExports("Friflo.SmGui.WebRTC.dll");
         const WebRTC = dotnetExports.Friflo.SmGui.WebRTC;
         WasmPeerConnection = WebRTC.WasmPeerConnection;
         WasmDataChannel    = WebRTC.WasmDataChannel;
         
-        const runtime = globalThis.getDotnetRuntime(0);
-        Module = runtime.Module;
+        Module = dotnetRuntime.Module;
         
         await WebRTC.WasmRtcFactory.InitializeAsync();
-        console.log(".NET initialization completed successfully in JS!");
+        
+        console.log(".NET SmGui WebRTC initialization completed successfully in JS!");
     } catch (err) {
-        console.error("Failed to initialize .NET WebAssembly:", err);
+        console.error("Failed to initialize .NET SmGui WebRTC:", err);
     }    
 }
 

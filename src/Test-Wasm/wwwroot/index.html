@@ -9,19 +9,19 @@
     <p id="output">Wait for .NET...</p>
 
     <script type="module">
-        import { dotnet } from './_framework/dotnet.js';
-        import { initializeInterop } from './webrtc-interop.js';
+        import { dotnet }                   from './_framework/dotnet.js';
+        import { initializeSmGuiWebRTC }    from './webrtc-interop.js';
     
-        // Start .NET WebAssembly Runtime
-        const { getAssemblyExports, setModuleImports } = await dotnet
-            .withDiagnosticTracing(false)
-            .create();
-        
-        initializeInterop(getAssemblyExports);    
+        // Initialize .NET WebAssembly Runtime
+        const runtime = await dotnet
+                .withDiagnosticTracing(false)
+                .create();
 
-        // Access exported C#-methods
+        await initializeSmGuiWebRTC(runtime);
+
+        // Example: access exported C#-methods
         const assemblyName = "Test-Wasm.dll";
-        const exports = await getAssemblyExports(assemblyName);
+        const exports = await runtime.getAssemblyExports(assemblyName);
         
         const result = exports.Program.ProcessData("Hello from Browser!");
         
