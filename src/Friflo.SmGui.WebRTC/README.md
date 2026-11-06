@@ -15,7 +15,7 @@ so many browser clients can use the same application at the same time, independe
 
 The key difference of a **WebRTC** setup:  
 An app built with this setup **does not act as a server**.  
-A server requires hosting and configuration: endpoint, IP, port, firewall, router, ... .  
+A server requires hosting and configuration: endpoint, IP, port, firewall, router, reverse proxy, certificate, deployment, ... .  
 Hosting a server usually means paying for infrastructure.  
 Operating a server on a smartphone or data center node may be forbidden or hard to realize.
 
