@@ -16,7 +16,7 @@ Operating a server on a smartphone or data center node may be forbidden or hard 
 
 Friflo.SmGui.WebRTC is a pure client architecture:  
 The app opens only outgoing connections (a WebSocket for signaling, WebRTC for GUI clients).  
-Unlike most "serverless" offerings, the app itself never listens on a port.  
+Unlike most "serverless" offerings, the app itself requires no hosting and never listens on a port.  
 It utilizes **WebRTC** and [ClientWebSocket](https://learn.microsoft.com/en-us/dotnet/api/system.net.websockets.clientwebsocket).  
 In a native .NET application [SIPSorcery](https://github.com/sipsorcery-org/sipsorcery) provides WebRTC.  
 In a browser the built-in WebRTC API is used directly, so SIPSorcery is not a dependency.
