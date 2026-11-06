@@ -8,7 +8,9 @@ Friflo.SmGui.WebRTC takes it one step further: the UI can be shared with any bro
 ## Description
 
 The goal of Friflo.SmGui.WebRTC is to act as a **real** serverless alternative to an ASP.NET HTTP server.  
-GUI vector data is streamed via WebRTC data channels instead of an HTTP WebSocket.
+GUI vector data is streamed via WebRTC data channels instead of an HTTP WebSocket.  
+SmGui & WebRTC supports multiple concurrent sessions. Each session maintains its own state and individual UI,
+allowing multiple browser clients to interact with the same application independently.
 
 The key difference of a **WebRTC** setup:  
 An app built with this setup **does not act as a server**.  
