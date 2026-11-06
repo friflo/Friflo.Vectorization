@@ -3,34 +3,36 @@
 <head>
     <meta charset="utf-8" />
     <title>Test-Wasm</title>
+    <style>
+        body { font-family: Arial, Helvetica, "Liberation Sans", sans-serif; }
+        a    { text-decoration: none; }
+    </style>
 </head>
 <body>
     <h1>Test-Wasm IL/AOT</h1>
-    <p id="output">Wait for .NET...</p>
+    <p id="state">.NET starting ...</p>    
+    <a id="webrtc-client" target="_blank">WebRTC client</a>
 
     <script type="module">
         import { dotnet }                   from './_framework/dotnet.js';
         import { initializeSmGuiWebRTC }    from './webrtc-interop.js';
     
-        // Initialize .NET WebAssembly Runtime
+        // Create .NET WebAssembly Runtime
         const runtime = await dotnet
                 .withDiagnosticTracing(false)
                 .create();
 
         await initializeSmGuiWebRTC(runtime);
         
-        // Example: access exported C#-methods
+        // Start WASM app
         const assemblyName = "Test-Wasm.dll";
         const exports = await runtime.getAssemblyExports(assemblyName);
         
-        const result = exports.Program.ProcessData("Hello from Browser!");
+        const appInstance = await exports.Program.Start();
+        document.getElementById("webrtc-client").href   = `https://localhost:8081/?app=${appInstance}`;
+        document.getElementById("state").innerText      = "app started";
         
-        document.getElementById("output").innerText = result;
-        console.log(result);
-        
-        await exports.Program.Start();
-        
-        </script>
-        <link rel="modulepreload" href="webrtc-interop.js">
-    </body>
+    </script>
+    <link rel="modulepreload" href="webrtc-interop.js">
+</body>
 </html>

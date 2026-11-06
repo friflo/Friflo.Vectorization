@@ -20,7 +20,7 @@ static partial class Program
     }
     
     [JSExport]
-    private static async Task Start()
+    private static async Task<string> Start()
     {
         var cpuBackend  = new CpuBackend("App", new DefaultGuiAssets());
 
@@ -31,7 +31,9 @@ static partial class Program
         await loop.UseWebRtcGuiSessionsAsync(new Uri("wss://localhost:8081/signaling"), "test-app", "auto");
         
         // Start the infinite loop asynchronously without blocking the browser thread
-        await RunLoopAsync(loop);
+        _ = RunLoopAsync(loop);
+        
+        return loop.appId!;
     }
     
     private static async Task RunLoopAsync(SmSessionLoop sessionLoop)
@@ -51,11 +53,5 @@ static partial class Program
         {
             Console.WriteLine($"Error in session loop: {ex.Message}");
         }
-    }
-    
-    [JSExport]
-    private static string ProcessData(string input)
-    {
-        return $"C# processed: {input}";
     }
 }
