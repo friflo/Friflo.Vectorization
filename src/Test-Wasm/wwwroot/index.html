@@ -5,7 +5,7 @@
     <title>Test-Wasm</title>
 </head>
 <body>
-    <h1>Test-Wasm JIT/AOT</h1>
+    <h1>Test-Wasm IL/AOT</h1>
     <p id="output">Wait for .NET...</p>
 
     <script type="module">
@@ -18,7 +18,7 @@
                 .create();
 
         await initializeSmGuiWebRTC(runtime);
-
+        
         // Example: access exported C#-methods
         const assemblyName = "Test-Wasm.dll";
         const exports = await runtime.getAssemblyExports(assemblyName);

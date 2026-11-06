@@ -17,9 +17,9 @@ export async function initializeSmGuiWebRTC(dotnetRuntime) {
         
         await WebRTC.WasmRtcFactory.InitializeAsync();
         
-        console.log(".NET SmGui WebRTC initialization completed successfully in JS!");
+        console.log("SmGui WebRTC initialization successful.");
     } catch (err) {
-        console.error("Failed to initialize .NET SmGui WebRTC:", err);
+        console.error("SmGui WebRTC initialization failed. Error:", err);
     }    
 }
 
