@@ -21,6 +21,8 @@ public static class SmSignalingExtensions
     {
         public SmSessionLoop UseWebRtcGuiSessions(Uri uri, string app, string? instance = null, CancellationToken cancellationToken = default)
         {
+            if (OperatingSystem.IsBrowser()) throw new PlatformNotSupportedException($"Browser requires: {nameof(UseWebRtcGuiSessionsAsync)}");
+            
             var signalingClient =  new SmSignalingClient(loop);
             signalingClient.ConnectAsync(uri, app, instance, cancellationToken).GetAwaiter().GetResult(); // stay on main thread
             _ = signalingClient.RunAsync();
