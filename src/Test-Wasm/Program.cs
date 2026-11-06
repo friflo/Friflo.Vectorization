@@ -28,10 +28,7 @@ static partial class Program
         var loop = new SmSessionLoop(cpuBackend, session => new TestGuiView(session)) {
             UseSecureSessionGuids = false
         };
-        var signalingClient = new SmSignalingClient(loop);
-        await signalingClient.ConnectAsync(new Uri("wss://localhost:8081/signaling"), "test-app", "auto", CancellationToken.None);
-        _ = signalingClient.RunAsync();
-        
+        await loop.UseWebRtcGuiSessionsAsync(new Uri("wss://localhost:8081/signaling"), "test-app", "auto");
         
         // Start the infinite loop asynchronously without blocking the browser thread
         await RunLoopAsync(loop);
