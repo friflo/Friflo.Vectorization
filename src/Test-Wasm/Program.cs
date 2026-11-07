@@ -4,6 +4,7 @@ using Friflo.SmGui;
 using Friflo.SmGui.Headless;
 using Friflo.SmGui.Session;
 using Friflo.SmGui.WebRTC;
+using Microsoft.JSInterop;
 using TuiTerminal;
 
 
@@ -11,16 +12,18 @@ using TuiTerminal;
 //   dotnet dev-certs https --trust
 
 [SupportedOSPlatform("browser")]
-static partial class Program
+internal static class Program
 {
-    static void Main(string[] _)
+    // called from JS via:  await runtime.runMain();
+    private static async Task Main(string[] _)
     {
-        // runs in Browser-Tab
-        Console.WriteLine(".NET WebAssembly Core Runtime initialized.");
+        var appInstance = await StartApp();
+        
+        JSHost.GlobalThis.SetProperty("onAppStarted", appInstance);
     }
     
-    [JSExport]
-    private static async Task<string> Start()
+    [JSInvokable]
+    private static async Task<string> StartApp()
     {
         var cpuBackend  = new CpuBackend("App", new DefaultGuiAssets());
 

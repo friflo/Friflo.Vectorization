@@ -16,20 +16,20 @@
     <script type="module">
         import { dotnet }                   from './_framework/dotnet.js';
         import { initializeSmGuiWebRTC }    from './webrtc-interop.js';
-    
+        
         // Create .NET WebAssembly Runtime
         const runtime = await dotnet.create();
 
         await initializeSmGuiWebRTC(runtime);
         
-        // Start WASM app
-        const assemblyName = "Test-Wasm.dll";
-        const exports = await runtime.getAssemblyExports(assemblyName);
+        // --- Run C# WASM App
+        function onAppStarted(appId) {
+          document.getElementById("webrtc-client").href = `https://localhost:8081/?app=${appId}`;
+          document.getElementById("state").innerText    = "app started";
+        }
+        Object.defineProperty(globalThis, "onAppStarted", { set: onAppStarted, configurable: true });
         
-        const appInstance = await exports.Program.Start();
-        document.getElementById("webrtc-client").href   = `https://localhost:8081/?app=${appInstance}`;
-        document.getElementById("state").innerText      = "app started";
-        
+        await runtime.runMain();
     </script>
     <link rel="modulepreload" href="webrtc-interop.js">
 </body>
