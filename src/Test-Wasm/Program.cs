@@ -20,6 +20,12 @@ internal static class Program
         var appInstance = await StartApp();
         
         JSHost.GlobalThis.SetProperty("onAppStarted", appInstance);
+        
+        var timer = WasmTimer.CreateTimer();
+        timer.OnTick += static () => {
+            Console.WriteLine("OnTick");
+        };
+        timer.Start();
     }
     
     [JSInvokable]

@@ -21,6 +21,8 @@ internal static class Wasm {
 internal sealed partial class WasmRtcFactory : RtcFactory, IDisposable
 {
     private static bool _isInitialized;
+    
+    internal static bool IsInitialized => _isInitialized;
 
     internal WasmRtcFactory() { }
     
@@ -37,12 +39,14 @@ internal sealed partial class WasmRtcFactory : RtcFactory, IDisposable
     public void Dispose()
     {
     }
+    
+    internal const string NotInitializedMsg =
+        "SmGui WebRTC WASM not initialized. Initialize in JS with:  await initializeSmGuiWebRTC(runtime); // see: webrtc-interop.js";
 
     internal override PeerConnection CreatePeerConnection()
     {
         if (!_isInitialized) {
-            var msg = "SmGui WebRTC WASM not initialized. Initialize in JS with:  await initializeSmGuiWebRTC(runtime); // see: webrtc-interop.js";
-            throw new InvalidOperationException(msg);
+            throw new InvalidOperationException(NotInitializedMsg);
         }
         return new WasmPeerConnection();
     }

@@ -180,3 +180,16 @@ internal static class NativeTimer
     [DllImport("winmm.dll")]
     internal static extern uint timeBeginPeriod(uint uPeriod);
 }
+
+public abstract class SmTimer
+{
+    public  event   Action? OnTick;
+    
+    public void Start() => StartTimer();
+    public void Stop()  => StopTimer();
+    
+    protected abstract void StartTimer();
+    protected abstract void StopTimer();
+    
+    protected void RaiseTick()  => OnTick?.Invoke();
+}

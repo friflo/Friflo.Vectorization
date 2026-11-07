@@ -4,6 +4,7 @@
 let WasmPeerConnection  = null; // Type: Friflo.SmGui.WebRTC.WasmPeerConnection
 let WasmDataChannel     = null; // Type: Friflo.SmGui.WebRTC.WasmDataChannel
 let Module              = null;
+let WasmTimer           = null; // Type: Friflo.SmGui.WebRTC.WasmTimer
 
 /**
  * Initializes SmGui WebRTC WASM for the passed .NET runtime.
@@ -30,6 +31,7 @@ export async function initializeSmGuiWebRTC(dotnetRuntime) {
         WasmPeerConnection      = exports.Friflo.SmGui.WebRTC.WasmPeerConnection;
         WasmDataChannel         = exports.Friflo.SmGui.WebRTC.WasmDataChannel;
         const WasmRtcFactory    = exports.Friflo.SmGui.WebRTC.WasmRtcFactory;
+        WasmTimer               = exports.Friflo.SmGui.WebRTC.WasmTimer;
         
         Module = dotnetRuntime.Module;
         
@@ -161,3 +163,27 @@ export function candidateToJson(candidate) {
 export function parseJsonToObj(json) {
     return JSON.parse(json);
 }
+
+
+// --- WasmTimer Interop ---
+export function createTimer(instanceId)
+{
+    const worker = new Worker('timer.js');
+    worker.onmessage = function (e) {
+      if (e.data === 'tick') {
+        WasmTimer.HandleTimerCallback(instanceId);
+      }
+    };
+    return worker;
+}
+
+export function startTimer(timer)
+{
+    timer.postMessage("startTimer");
+}
+
+export function stopTimer(timer)
+{
+    timer.postMessage("stopTimer");
+}
+
