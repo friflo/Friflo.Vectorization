@@ -60,9 +60,7 @@ public sealed partial class SmSessionLoop : IDisposable
     public              bool                UseSecureSessionGuids   { get; init; }
     public              int                 SessionCount            => sessions.Count;
     public   event      SessionsChanged?    SessionsChanged;
-    
-    /// <summary> Gets or sets the execution frequency of the timer in Hertz (ticks per second). </summary>
-    public              int                 TickRate                { get => appTimer.TickRate; set => appTimer.TickRate = value; }
+    public              AppTimer            AppTimer                => appTimer;
 
 #region private fields
     // --- queue

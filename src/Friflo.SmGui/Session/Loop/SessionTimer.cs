@@ -29,7 +29,7 @@ public sealed class SessionTimer
     
     /// <summary> Gets or sets a value indicating whether the session's loop ticker is active. </summary>
     /// <remarks>
-    /// When set to <c>true</c>, continuous frame updates are triggered at the configured <see cref="SmSessionLoop.TickRate"/>.
+    /// When set to <c>true</c>, continuous frame updates are triggered at the configured <see cref="AppTimer.TickRate"/> at <see cref="SmSessionLoop.AppTimer"/>.<br/>
     /// Disabling this stops timer-driven ticks without preventing manual or event-driven redraws.
     /// </remarks>
     public bool Enabled
@@ -45,7 +45,8 @@ public sealed class SessionTimer
     }
 }
 
-internal sealed class AppTimer : IDisposable
+
+public sealed class AppTimer : IDisposable
 {
     private  readonly   List<SessionId>     tickedSessions = [];
     private  readonly   SmEventQueue        eventQueue;
@@ -69,6 +70,22 @@ internal sealed class AppTimer : IDisposable
         syncTimer   = null;
     }
     
+    /// <summary> Gets or sets the execution frequency of the timer in Hertz (ticks per second). </summary>
+    public int TickRate
+    {
+        get => tickRate;
+        set {
+            if (value == tickRate) { 
+                return;
+            }
+            tickRate = value;
+
+            if (isRunning) {
+                syncTimer?.Change(0, Period);
+            }
+        }
+    }
+    
     internal void AddRemoveSession(SessionId sessionId, bool add)
     {
         var sessions    = tickedSessions;
@@ -88,20 +105,7 @@ internal sealed class AppTimer : IDisposable
         }
     }
 
-    internal int TickRate
-    {
-        get => tickRate;
-        set {
-            if (value == tickRate) { 
-                return;
-            }
-            tickRate = value;
 
-            if (isRunning) {
-                syncTimer?.Change(0, Period);
-            }
-        }
-    }
 
     private void Stop()
     {
