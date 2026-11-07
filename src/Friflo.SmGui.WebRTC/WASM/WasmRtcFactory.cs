@@ -40,6 +40,10 @@ internal sealed partial class WasmRtcFactory : RtcFactory, IDisposable
 
     internal override PeerConnection CreatePeerConnection()
     {
+        if (!_isInitialized) {
+            var msg = "SmGui WebRTC WASM not initialized. Requires initialization at JS with:  await initializeSmGuiWebRTC(runtime);";
+            throw new InvalidOperationException(msg);
+        }
         return new WasmPeerConnection();
     }
     
