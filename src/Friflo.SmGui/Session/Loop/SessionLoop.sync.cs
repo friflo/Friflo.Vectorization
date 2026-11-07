@@ -105,7 +105,7 @@ public partial class SmSessionLoop
                 }
                 case LoopEventType.TerminalConnected: {
                     var client          = (SmClient)evt.state!;
-                    var newSession      = CreateTuiSession(client, evt.Payload, true, out var initPayload);
+                    var newSession      = CreateTuiSession(client, evt.Payload, out var initPayload);
                     var initialMessage  = newSession.StartSession();
                     
                     client.Send(new SmSendMessage(initialMessage));  // MUST not block. No backpressure

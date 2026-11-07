@@ -4,7 +4,6 @@
 using System;
 using System.Runtime.InteropServices;
 using System.Threading;
-using System.Threading.Tasks;
 
 // ReSharper disable RedundantLambdaParameterType
 // ReSharper disable UseNullPropagation
@@ -14,30 +13,25 @@ namespace Friflo.SmGui.Session;
 
 public sealed class LoopTimer : IDisposable
 {
-    private             SmEventQueue?     eventQueue;
     private             SmClient?         client;
     private             Timer?            syncTimer;
     private             PeriodicTimer?    asyncTimer;
     private             CancellationToken cancellationToken;
-    private  readonly   bool              isSync;
     private             int               Period => 1000 / tickRate; // ms
     private             int               tickRate;                  // Hz
     private             bool              isInitialized;
     private  volatile   bool              isRunning;
     
     /// Creates a Noop LoopTimer
-    internal LoopTimer(int tickRate, bool isSync)
+    internal LoopTimer(int tickRate)
     {
         this.tickRate = tickRate;
-        this.isSync   = isSync;
     }
 
-    internal LoopTimer(SmSessionLoop loop, SmClient client, int tickRate, bool isSync)
+    internal LoopTimer(SmClient client, int tickRate)
     {
-        eventQueue    = loop.eventQueue;
         this.client   = client;
         this.tickRate = tickRate;
-        this.isSync   = isSync;
     }
 
     public void Dispose()
@@ -47,7 +41,6 @@ public sealed class LoopTimer : IDisposable
         asyncTimer?.Dispose();
         syncTimer   = null;
         asyncTimer  = null;
-        eventQueue  = null;
         client      = null;
     }
     
@@ -81,12 +74,8 @@ public sealed class LoopTimer : IDisposable
             }
             tickRate = value;
 
-            if (isSync) {
-                if (isRunning) {
-                    syncTimer?.Change(0, Period);
-                }
-            } else if (asyncTimer != null) {
-                asyncTimer.Period = TimeSpan.FromMilliseconds(Period);
+            if (isRunning) {
+                syncTimer?.Change(0, Period);
             }
         }
     }
@@ -98,15 +87,8 @@ public sealed class LoopTimer : IDisposable
         }
         isRunning = false;
 
-        if (isSync) {
-            // Disables future ticks for the OS/ThreadPool timer
-            syncTimer?.Change(Timeout.Infinite, Timeout.Infinite);
-        } else {
-            // Disposing the PeriodicTimer causes WaitForNextTickAsync to return false
-            // and terminates the async loop cleanly without unnecessary CPU wakeups.
-            asyncTimer?.Dispose();
-            asyncTimer = null;
-        }
+        // Disables future ticks for the OS/ThreadPool timer
+        syncTimer?.Change(Timeout.Infinite, Timeout.Infinite);
     }
 
     private void Start()
@@ -117,12 +99,8 @@ public sealed class LoopTimer : IDisposable
         InitTimer(cancellationToken);
         isRunning = true;
 
-        if (isSync) {
-            // Reschedules the timer to tick immediately and then resume with framePeriod
-            syncTimer?.Change(0, Period);
-        } else {
-            _ = StartFrameTickerAsync(cancellationToken);
-        }
+        // Reschedules the timer to tick immediately and then resume with framePeriod
+        syncTimer?.Change(0, Period);
     }
 
     private void InitTimer(CancellationToken ct)
@@ -134,41 +112,6 @@ public sealed class LoopTimer : IDisposable
         cancellationToken   = ct;
         isRunning           = true;
 
-        if (isSync) {
-            StartFrameTickerSync();
-        } else {
-            // Fire-and-forget background task for the async loop
-            _ = StartFrameTickerAsync(ct);
-        }
-    }
-
-    private async Task StartFrameTickerAsync(CancellationToken ct)
-    {
-        asyncTimer = new PeriodicTimer(TimeSpan.FromMilliseconds(Period));
-        try
-        {
-            while (await asyncTimer.WaitForNextTickAsync(ct))
-            {
-                EnqueueFrameTick();
-            }
-        }
-        catch (OperationCanceledException)
-        {
-            // Expected behavior on shutdown
-        }
-        catch (ObjectDisposedException)
-        {
-            // Expected when Stop() disposes the asyncTimer
-        }
-    }
-    
-    private void EnqueueFrameTick()
-    {
-        client?.TryEnqueueSessionEvent(LoopEventType.FrameTick, default);
-    }
-
-    private void StartFrameTickerSync()
-    {
         syncTimer = new Timer(OnSyncTimer, this, dueTime: 0, period: Period);
     }
 
@@ -177,7 +120,7 @@ public sealed class LoopTimer : IDisposable
         var timer = (LoopTimer)s!;
         if (timer.cancellationToken.IsCancellationRequested || !timer.isRunning) return;
 
-        timer.EnqueueFrameTick();
+        timer.client?.TryEnqueueSessionEvent(LoopEventType.FrameTick, default);
     }
     
     static LoopTimer()

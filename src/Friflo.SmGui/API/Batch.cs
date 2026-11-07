@@ -148,7 +148,7 @@ public abstract class SmBatch : IDisposable
         host            = backend.host;
         input           = backend.input;
         uiThreadId      = Environment.CurrentManagedThreadId;
-        loopTimer       = timer ?? new LoopTimer(60, true); // create Noop timer for all non session related batches
+        loopTimer       = timer ?? new LoopTimer(60); // create Noop timer for all non session related batches
         if (this is TuiBatch typeTuiBatch) {
             tui = typeTuiBatch;
         }

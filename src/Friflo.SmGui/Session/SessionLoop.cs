@@ -143,12 +143,12 @@ public sealed partial class SmSessionLoop : IDisposable
         return commandLine.Split(' ', StringSplitOptions.RemoveEmptyEntries);
     }
     
-    private TuiSession CreateTuiSession(SmClient client, Payload payload, bool isSync, out Memory<byte> firstPayload)
+    private TuiSession CreateTuiSession(SmClient client, Payload payload, out Memory<byte> firstPayload)
     {
         var firstLine       = payload.Span.IndexOf((byte)'\n');
         var args            = firstLine == -1 ? [] : GetArgs(payload.Span.Slice(0, firstLine));
 
-        var loopTimer       = new LoopTimer(this, client, 60, isSync);
+        var loopTimer       = new LoopTimer(client, 60);
         var keys            = new SessionKeys(client.sessionId, default);
         var session         = new TuiSession(client, keys, this, loopTimer, TuiColorMode.RGB24);
         var viewSession     = new ViewSession(this, session, args, client, session.Backend, loopTimer);
@@ -168,7 +168,7 @@ public sealed partial class SmSessionLoop : IDisposable
     // protected virtual SmSession CreateGuiSession(SmClient client, bool isSync, out Memory<byte> firstPayload) => throw new NotImplementedException();
     private GuiSession CreateGuiSession(SmClient client, bool isSync, out Memory<byte> firstPayload)
     {
-        var loopTimer       = new LoopTimer(this, client, 60, isSync);
+        var loopTimer       = new LoopTimer(client, 60);
         var sessionId       = client.sessionId;
         var sessionGuid     = UseSecureSessionGuids ? new SessionGuid(Guid.NewGuid()) : new SessionGuid(sessionId.id);
         var keys            = new SessionKeys(sessionId, sessionGuid);
