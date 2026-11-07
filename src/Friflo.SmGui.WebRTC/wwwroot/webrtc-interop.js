@@ -8,14 +8,15 @@ let Module              = null;
 // Called from index.html right after .NET runtime creation
 export async function initializeSmGuiWebRTC(dotnetRuntime) {
     try {
-        const dotnetExports = await dotnetRuntime.getAssemblyExports("Friflo.SmGui.WebRTC.dll");
-        const WebRTC = dotnetExports.Friflo.SmGui.WebRTC;
-        WasmPeerConnection = WebRTC.WasmPeerConnection;
-        WasmDataChannel    = WebRTC.WasmDataChannel;
+        const exports = await dotnetRuntime.getAssemblyExports("Friflo.SmGui.WebRTC.dll");
+        
+        WasmPeerConnection      = exports.Friflo.SmGui.WebRTC.WasmPeerConnection;
+        WasmDataChannel         = exports.Friflo.SmGui.WebRTC.WasmDataChannel;
+        const WasmRtcFactory    = exports.Friflo.SmGui.WebRTC.WasmRtcFactory;
         
         Module = dotnetRuntime.Module;
         
-        await WebRTC.WasmRtcFactory.InitializeAsync();
+        await WasmRtcFactory.InitializeAsync();
         
         console.log("SmGui WebRTC initialization successful.");
     } catch (err) {
