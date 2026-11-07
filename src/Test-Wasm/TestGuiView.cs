@@ -22,7 +22,6 @@ public class TestGuiView : IGuiView
     {
         this.session        = session;
         var uiType          = session.UiType;
-        session.Timer.TickRate   = 60;
         session.Timer.Enabled    = uiType.IsGui();
         session.Action.SetWindowTitle(uiType == UiType.WebRtcGui ? $"{session.AppId} 🔀" : session.AppId ?? "App");
         session.Action.SetClearColor(0x999c9eff, 0x404142ff);

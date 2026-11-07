@@ -133,7 +133,6 @@ public abstract class SmBatch : IDisposable
     internal void Reset() {
         // Goal: Clear references of heavy instances. User may store a SmBatch reference which prevents GC collecting them.
         session = null;
-        sessionTimer.Dispose();
     }
     
     protected SmBatch(SessionId sessionId, SmGuiBackend backend, SessionTimer? timer) : this(sessionId, backend, 4, timer)
@@ -148,7 +147,7 @@ public abstract class SmBatch : IDisposable
         host            = backend.host;
         input           = backend.input;
         uiThreadId      = Environment.CurrentManagedThreadId;
-        sessionTimer    = timer ?? new SessionTimer(60); // create Noop timer for all non session related batches
+        sessionTimer    = timer ?? new SessionTimer(); // create Noop timer for all non session related batches
         if (this is TuiBatch typeTuiBatch) {
             tui = typeTuiBatch;
         }

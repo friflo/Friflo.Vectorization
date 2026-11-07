@@ -39,7 +39,6 @@ public class TestGuiView : IGuiView
         myTexture           = backend.LoadTexture(stream, "sixel_test.png");
         var uiType          = session.UiType;
         canvasTexture       = uiType.IsTui() ? backend.CreateTexture("canvas", CanvasWidth, CanvasHeight, new byte[CanvasWidth * CanvasHeight * 4]) : default;
-        session.Timer.TickRate   = 60;
         session.Timer.Enabled    = uiType.IsGui();
         session.Action.SetWindowTitle(uiType == UiType.WebRtcGui ? $"{session.AppId} 🔀" : session.AppId ?? "App");
         session.Action.SetClearColor(0x999c9eff, 0x404142ff);

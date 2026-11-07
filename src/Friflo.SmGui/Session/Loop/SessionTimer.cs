@@ -2,35 +2,64 @@
 // See LICENSE file in the project root for full license information.
 
 using System;
+using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Threading;
 
+// ReSharper disable InlineTemporaryVariable
+// ReSharper disable ReplaceWithFieldKeyword
 // ReSharper disable RedundantLambdaParameterType
 // ReSharper disable UseNullPropagation
 // ReSharper disable CheckNamespace
 namespace Friflo.SmGui.Session;
 
-
-public sealed class SessionTimer : IDisposable
+public sealed class SessionTimer
 {
-    private             SmClient?         client;
-    private             Timer?            syncTimer;
-    private             CancellationToken cancellationToken;
-    private             int               Period => 1000 / tickRate; // ms
-    private             int               tickRate;                  // Hz
-    private             bool              isInitialized;
-    private  volatile   bool              isRunning;
+    private readonly    SessionId   sessionId;
+    private readonly    AppTimer?   appTimer;
+    private             bool        enabled;
     
-    /// Creates a Noop SessionTimer
-    internal SessionTimer(int tickRate)
-    {
-        this.tickRate = tickRate;
-    }
+    internal SessionTimer() { }
 
-    internal SessionTimer(SmClient client, int tickRate)
+    internal SessionTimer(AppTimer appTimer, SessionId sessionId)
     {
-        this.client   = client;
-        this.tickRate = tickRate;
+        this.sessionId  = sessionId;
+        this.appTimer   = appTimer;
+    }
+    
+    /// <summary> Gets or sets a value indicating whether the session's loop ticker is active. </summary>
+    /// <remarks>
+    /// When set to <c>true</c>, continuous frame updates are triggered at the configured <see cref="SmSessionLoop.TickRate"/>.
+    /// Disabling this stops timer-driven ticks without preventing manual or event-driven redraws.
+    /// </remarks>
+    public bool Enabled
+    {
+        get => enabled;
+        set {
+            if (value == enabled) { 
+                return;
+            }
+            enabled = value;
+            appTimer?.AddRemoveSession(sessionId, value);
+        }
+    }
+}
+
+internal sealed class AppTimer : IDisposable
+{
+    private  readonly   List<SessionId>     tickedSessions = [];
+    private  readonly   SmEventQueue        eventQueue;
+    private             Timer?              syncTimer;
+    private             CancellationToken   cancellationToken;
+    private             int                 Period => 1000 / tickRate; // ms
+    private             int                 tickRate;                  // Hz
+    private             bool                isInitialized;
+    private  volatile   bool                isRunning;
+    
+    internal AppTimer(SmEventQueue eventQueue, int tickRate)
+    {
+        this.eventQueue = eventQueue;
+        this.tickRate   = tickRate;
     }
 
     public void Dispose()
@@ -38,36 +67,32 @@ public sealed class SessionTimer : IDisposable
         isRunning = false;
         syncTimer?.Dispose();
         syncTimer   = null;
-
-        client      = null;
     }
     
-    /// <summary> Gets or sets a value indicating whether the session's loop ticker is active. </summary>
-    /// <remarks>
-    /// When set to <c>true</c>, continuous frame updates are triggered at the configured <see cref="TickRate"/>.
-    /// Disabling this stops timer-driven ticks without preventing manual or event-driven redraws.
-    /// </remarks>
-    public bool Enabled
+    internal void AddRemoveSession(SessionId sessionId, bool add)
     {
-        get => isRunning;
-        set {
-            if (value == isRunning || client == null) { 
-                return;
-            }
-            if (value) {
+        var sessions    = tickedSessions;
+        var index       = sessions.IndexOf(sessionId);
+        if (add) {
+            if (index != -1) return;
+            sessions.Add(sessionId);
+            if (sessions.Count == 1) {
                 Start();
-            } else {
-                Stop();
             }
+            return;
+        }
+        if (index == -1) return;
+        sessions.RemoveAt(index);
+        if (sessions.Count == 0) {
+            Stop();
         }
     }
-    
-    /// <summary> Gets or sets the execution frequency of the timer in Hertz (ticks per second). </summary>
-    public int TickRate
+
+    internal int TickRate
     {
         get => tickRate;
         set {
-            if (value == tickRate || client == null) { 
+            if (value == tickRate) { 
                 return;
             }
             tickRate = value;
@@ -115,13 +140,29 @@ public sealed class SessionTimer : IDisposable
 
     private static void OnSyncTimer(object? s)
     {
-        var timer = (SessionTimer)s!;
+        var timer = (AppTimer)s!;
         if (timer.cancellationToken.IsCancellationRequested || !timer.isRunning) return;
 
-        timer.client?.TryEnqueueSessionEvent(LoopEventType.FrameTick, default);
+        timer.eventQueue.TryEnqueueEvent(null, default, LoopEventType.AppTick, null, default, 0);
     }
     
-    static SessionTimer()
+    internal void TickSessions(SmSessionLoop loop)
+    {
+        var queue       = eventQueue;
+        var sessions    = tickedSessions;
+        var count       = sessions.Count;
+        for (var n = 0; n < count; n++)
+        {
+            var sessionId   = sessions[n];
+            var session     = loop.GetSession(sessionId);
+            if (session == null) {
+                continue;
+            }
+            queue.TryEnqueueEvent(session.client, sessionId, LoopEventType.FrameTick, null, default, 0);
+        }
+    }
+    
+    static AppTimer()
     {
         if (OperatingSystem.IsWindows()) {
             NativeTimer.timeBeginPeriod(1);

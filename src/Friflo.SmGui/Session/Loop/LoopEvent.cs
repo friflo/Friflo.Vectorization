@@ -27,7 +27,8 @@ public enum LoopEventType
     // --- app events
     TerminalConnected,
     WebsocketConnected,
-    SetAppDirty
+    SetAppDirty,
+    AppTick,
 }
 
 public readonly struct Payload

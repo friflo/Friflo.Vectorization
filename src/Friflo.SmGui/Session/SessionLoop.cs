@@ -60,6 +60,9 @@ public sealed partial class SmSessionLoop : IDisposable
     public              bool                UseSecureSessionGuids   { get; init; }
     public              int                 SessionCount            => sessions.Count;
     public   event      SessionsChanged?    SessionsChanged;
+    
+    /// <summary> Gets or sets the execution frequency of the timer in Hertz (ticks per second). </summary>
+    public              int                 TickRate                { get => appTimer.TickRate; set => appTimer.TickRate = value; }
 
 #region private fields
     // --- queue
@@ -79,6 +82,7 @@ public sealed partial class SmSessionLoop : IDisposable
     internal readonly   TuiSessionShared                            tuiShared;          // shared among all TuiSession's
     internal readonly   GuiSessionShared                            guiShared;          // shared among all GuiSession's
     internal readonly   CpuBackend                                  cpuBackend;         // shared among all sessions
+    internal readonly   AppTimer                                    appTimer;           // shared among all sessions
 #endregion
     
     public SmSessionLoop(CpuBackend cpuBackend, CreateGuiView createGuiView)
@@ -96,6 +100,7 @@ public sealed partial class SmSessionLoop : IDisposable
         if (!OperatingSystem.IsBrowser()) {
             PosixSignalUtils.AddExitHandler(exitHandler);
         }
+        appTimer            = new AppTimer(eventQueue, 60);
     }
     
     public void Dispose()
@@ -103,6 +108,7 @@ public sealed partial class SmSessionLoop : IDisposable
         if (isDisposed) {
             return;
         }
+        appTimer.Dispose();
         eventQueue.isDisposed = true;
         isDisposed = true;
         
@@ -116,7 +122,13 @@ public sealed partial class SmSessionLoop : IDisposable
         cts.Dispose();
     }
     
-#region internal methods    
+#region internal methods
+    internal SmSession? GetSession(SessionId sessionId)
+    {
+        sessions.TryGetValue(sessionId, out var session);
+        return session;
+    }
+    
     private void ExitHandler()
     {
         PosixSignalUtils.RemoveExitHandler(exitHandler);
@@ -148,7 +160,7 @@ public sealed partial class SmSessionLoop : IDisposable
         var firstLine       = payload.Span.IndexOf((byte)'\n');
         var args            = firstLine == -1 ? [] : GetArgs(payload.Span.Slice(0, firstLine));
 
-        var sessionTimer    = new SessionTimer(client, 60);
+        var sessionTimer    = new SessionTimer(appTimer, client.sessionId);
         var keys            = new SessionKeys(client.sessionId, default);
         var session         = new TuiSession(client, keys, this, sessionTimer, TuiColorMode.RGB24);
         var viewSession     = new ViewSession(this, session, args, client, session.Backend, sessionTimer);
@@ -168,8 +180,8 @@ public sealed partial class SmSessionLoop : IDisposable
     // protected virtual SmSession CreateGuiSession(SmClient client, bool isSync, out Memory<byte> firstPayload) => throw new NotImplementedException();
     private GuiSession CreateGuiSession(SmClient client, bool isSync, out Memory<byte> firstPayload)
     {
-        var sessionTimer    = new SessionTimer(client, 60);
         var sessionId       = client.sessionId;
+        var sessionTimer    = new SessionTimer(appTimer, sessionId);
         var sessionGuid     = UseSecureSessionGuids ? new SessionGuid(Guid.NewGuid()) : new SessionGuid(sessionId.id);
         var keys            = new SessionKeys(sessionId, sessionGuid);
         var session         = new GuiSession(client, keys, this, sessionTimer);
@@ -196,6 +208,7 @@ public sealed partial class SmSessionLoop : IDisposable
     /// Is called only from session loop thread. Synchronizing Add/Remove is not necessary for set dirty.
     private void RemoveSession(SessionId sessionId)
     {
+        appTimer.AddRemoveSession(sessionId, false);
         concurrentSessions.TryRemove(sessionId, out _);
         if (!sessions.Remove(sessionId, out var session)) {
             return;

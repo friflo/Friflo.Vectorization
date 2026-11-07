@@ -119,6 +119,9 @@ public partial class SmSessionLoop
                 case LoopEventType.SetAppDirty:
                     SetAppDirtySync();
                     break;
+                case LoopEventType.AppTick:
+                    appTimer.TickSessions(this);
+                    break;
             }
         } catch (Exception e) {
             Debug.Fail(e.ToString());
