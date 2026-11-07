@@ -18,9 +18,7 @@
         import { initializeSmGuiWebRTC }    from './webrtc-interop.js';
     
         // Create .NET WebAssembly Runtime
-        const runtime = await dotnet
-                .withDiagnosticTracing(false)
-                .create();
+        const runtime = await dotnet.create();
 
         await initializeSmGuiWebRTC(runtime);
         
