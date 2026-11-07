@@ -3,8 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
-using System.Threading;
 
 // ReSharper disable InlineTemporaryVariable
 // ReSharper disable ReplaceWithFieldKeyword
@@ -50,8 +48,7 @@ public sealed class AppTimer : IDisposable
 {
     private  readonly   List<SessionId>     tickedSessions = [];
     private  readonly   SmEventQueue        eventQueue;
-    private             Timer?              syncTimer;
-    private             CancellationToken   cancellationToken;
+    private             SmTimer?            syncTimer;
     private             int                 Period => 1000 / tickRate; // ms
     private             int                 tickRate;                  // Hz
     private             bool                isInitialized;
@@ -66,6 +63,7 @@ public sealed class AppTimer : IDisposable
     public void Dispose()
     {
         isRunning = false;
+        syncTimer?.OnTick -= OnSyncTimer;
         syncTimer?.Dispose();
         syncTimer   = null;
     }
@@ -81,7 +79,7 @@ public sealed class AppTimer : IDisposable
             tickRate = value;
 
             if (isRunning) {
-                syncTimer?.Change(0, Period);
+                syncTimer?.SetPeriod(Period);
             }
         }
     }
@@ -105,17 +103,14 @@ public sealed class AppTimer : IDisposable
         }
     }
 
-
-
     private void Stop()
     {
         if (!isRunning) {
             return;
         }
         isRunning = false;
-
-        // Disables future ticks for the OS/ThreadPool timer
-        syncTimer?.Change(Timeout.Infinite, Timeout.Infinite);
+        
+        syncTimer?.Stop();
     }
 
     private void Start()
@@ -123,31 +118,30 @@ public sealed class AppTimer : IDisposable
         if (isRunning) {
             return;
         }
-        InitTimer(cancellationToken);
+        InitTimer();
         isRunning = true;
 
-        // Reschedules the timer to tick immediately and then resume with framePeriod
-        syncTimer?.Change(0, Period);
+        syncTimer?.Start();
     }
 
-    private void InitTimer(CancellationToken ct)
+    private void InitTimer()
     {
         if (isInitialized) {
             return;
         }
-        isInitialized       = true;
-        cancellationToken   = ct;
-        isRunning           = true;
+        isInitialized   = true;
+        isRunning       = true;
 
-        syncTimer = new Timer(OnSyncTimer, this, dueTime: 0, period: Period);
+        syncTimer = new SyncTimer(Period);
+        syncTimer.OnTick += OnSyncTimer;
     }
 
-    private static void OnSyncTimer(object? s)
+    private void OnSyncTimer()
     {
-        var timer = (AppTimer)s!;
-        if (timer.cancellationToken.IsCancellationRequested || !timer.isRunning) return;
-
-        timer.eventQueue.TryEnqueueEvent(null, default, LoopEventType.AppTick, null, default, 0);
+        if (!isRunning) {
+            return;
+        }
+        eventQueue.TryEnqueueEvent(null, default, LoopEventType.AppTick, null, default, 0);
     }
     
     internal void TickSessions(SmSessionLoop loop)
@@ -165,31 +159,4 @@ public sealed class AppTimer : IDisposable
             queue.TryEnqueueEvent(session.client, sessionId, LoopEventType.FrameTick, null, default, 0);
         }
     }
-    
-    static AppTimer()
-    {
-        if (OperatingSystem.IsWindows()) {
-            NativeTimer.timeBeginPeriod(1);
-        }
-    }
-}
-
-
-internal static class NativeTimer
-{
-    [DllImport("winmm.dll")]
-    internal static extern uint timeBeginPeriod(uint uPeriod);
-}
-
-public abstract class SmTimer
-{
-    public  event   Action? OnTick;
-    
-    public void Start() => StartTimer();
-    public void Stop()  => StopTimer();
-    
-    protected abstract void StartTimer();
-    protected abstract void StopTimer();
-    
-    protected void RaiseTick()  => OnTick?.Invoke();
 }

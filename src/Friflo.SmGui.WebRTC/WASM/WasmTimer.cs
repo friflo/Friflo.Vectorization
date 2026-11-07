@@ -30,8 +30,8 @@ public sealed partial class WasmTimer : SmTimer, IDisposable
 
         native = CreateTimer(id);
     }
-    
-    public void Dispose()
+
+    public override void Dispose()
     {
         Instances.Remove(id);
         native.Dispose();
@@ -53,6 +53,10 @@ public sealed partial class WasmTimer : SmTimer, IDisposable
     protected override void StopTimer()
     {
         StopTimer(native);
+    }
+    
+    protected override void SetTimerPeriod(int period)
+    {
     }
     
     [JSImport("createTimer", Wasm.JsModule)]
