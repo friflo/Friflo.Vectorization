@@ -45,7 +45,7 @@ internal sealed partial class GuiSession : SmSession
     private             bool                sendDiffs           = true;
 
     
-    internal GuiSession(SmClient client, SessionKeys keys, SmSessionLoop loop, LoopTimer timer)
+    internal GuiSession(SmClient client, SessionKeys keys, SmSessionLoop loop, SessionTimer timer)
         : base(client, keys)
     {
         shared              = loop.guiShared;

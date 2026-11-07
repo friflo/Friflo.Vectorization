@@ -11,7 +11,7 @@ using System.Threading;
 namespace Friflo.SmGui.Session;
 
 
-public sealed class LoopTimer : IDisposable
+public sealed class SessionTimer : IDisposable
 {
     private             SmClient?         client;
     private             Timer?            syncTimer;
@@ -21,13 +21,13 @@ public sealed class LoopTimer : IDisposable
     private             bool              isInitialized;
     private  volatile   bool              isRunning;
     
-    /// Creates a Noop LoopTimer
-    internal LoopTimer(int tickRate)
+    /// Creates a Noop SessionTimer
+    internal SessionTimer(int tickRate)
     {
         this.tickRate = tickRate;
     }
 
-    internal LoopTimer(SmClient client, int tickRate)
+    internal SessionTimer(SmClient client, int tickRate)
     {
         this.client   = client;
         this.tickRate = tickRate;
@@ -115,13 +115,13 @@ public sealed class LoopTimer : IDisposable
 
     private static void OnSyncTimer(object? s)
     {
-        var timer = (LoopTimer)s!;
+        var timer = (SessionTimer)s!;
         if (timer.cancellationToken.IsCancellationRequested || !timer.isRunning) return;
 
         timer.client?.TryEnqueueSessionEvent(LoopEventType.FrameTick, default);
     }
     
-    static LoopTimer()
+    static SessionTimer()
     {
         if (OperatingSystem.IsWindows()) {
             NativeTimer.timeBeginPeriod(1);

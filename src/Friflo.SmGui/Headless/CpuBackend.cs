@@ -37,13 +37,13 @@ public sealed class CpuBackend : SmGuiBackend
         base.Dispose();
     }
     
-    public CpuGuiBatch CreateGuiBatch(SessionId sessionId = default, int maxVertices = 60_000, LoopTimer? timer = null, UiType uiType = UiType.None) {
+    public CpuGuiBatch CreateGuiBatch(SessionId sessionId = default, int maxVertices = 60_000, SessionTimer? timer = null, UiType uiType = UiType.None) {
         var batch = new CpuGuiBatch(sessionId, this, maxVertices, timer) { UiType = uiType };
         InitBatch(batch);
         return batch;
     }
     
-    public TuiBatch CreateTuiBatch(TuiColorMode colorMode, SessionId sessionId = default, LoopTimer? timer = null, UiType uiType = UiType.None)
+    public TuiBatch CreateTuiBatch(TuiColorMode colorMode, SessionId sessionId = default, SessionTimer? timer = null, UiType uiType = UiType.None)
     {
         var batch = new TuiBatch(sessionId, this, colorMode, timer) { UiType = uiType };
         InitBatch(batch);

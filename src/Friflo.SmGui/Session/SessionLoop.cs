@@ -148,10 +148,10 @@ public sealed partial class SmSessionLoop : IDisposable
         var firstLine       = payload.Span.IndexOf((byte)'\n');
         var args            = firstLine == -1 ? [] : GetArgs(payload.Span.Slice(0, firstLine));
 
-        var loopTimer       = new LoopTimer(client, 60);
+        var sessionTimer    = new SessionTimer(client, 60);
         var keys            = new SessionKeys(client.sessionId, default);
-        var session         = new TuiSession(client, keys, this, loopTimer, TuiColorMode.RGB24);
-        var viewSession     = new ViewSession(this, session, args, client, session.Backend, loopTimer);
+        var session         = new TuiSession(client, keys, this, sessionTimer, TuiColorMode.RGB24);
+        var viewSession     = new ViewSession(this, session, args, client, session.Backend, sessionTimer);
         var guiView         = createGuiView(viewSession);
         session.viewSession = viewSession;
         
@@ -168,12 +168,12 @@ public sealed partial class SmSessionLoop : IDisposable
     // protected virtual SmSession CreateGuiSession(SmClient client, bool isSync, out Memory<byte> firstPayload) => throw new NotImplementedException();
     private GuiSession CreateGuiSession(SmClient client, bool isSync, out Memory<byte> firstPayload)
     {
-        var loopTimer       = new LoopTimer(client, 60);
+        var sessionTimer    = new SessionTimer(client, 60);
         var sessionId       = client.sessionId;
         var sessionGuid     = UseSecureSessionGuids ? new SessionGuid(Guid.NewGuid()) : new SessionGuid(sessionId.id);
         var keys            = new SessionKeys(sessionId, sessionGuid);
-        var session         = new GuiSession(client, keys, this, loopTimer);
-        var viewSession     = new ViewSession(this, session, [], client, session.Backend, loopTimer);
+        var session         = new GuiSession(client, keys, this, sessionTimer);
+        var viewSession     = new ViewSession(this, session, [], client, session.Backend, sessionTimer);
         var guiView         = createGuiView(viewSession);
         session.viewSession = viewSession;
         

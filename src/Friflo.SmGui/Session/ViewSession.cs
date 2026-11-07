@@ -121,11 +121,11 @@ public sealed class ViewSession
     public          ClientAction    Action  { [Hide] get => Backend.host.clientAction; }
 
     /// <summary> Enables triggering <see cref="IGuiView.RenderView"/> at configured time intervals. </summary>
-    public          LoopTimer       Timer   { [Hide] get => loopTimer ?? throw SessionTerminatedException(); }
+    public          SessionTimer    Timer   { [Hide] get => sessionTimer ?? throw SessionTerminatedException(); }
 
 #region private fields
     private             SmGuiBackend?   backend;
-    private             LoopTimer?      loopTimer;
+    private             SessionTimer?   sessionTimer;
     // Note! session reference MUST stay private. Otherwise, user may store a reference which prevents GC collecting the session.
     private             SmSession?      session;
     private  readonly   SmSessionLoop   loop;
@@ -138,12 +138,12 @@ public sealed class ViewSession
         return new InvalidOperationException($"Session has already been terminated. sessionId: {SessionId}");
     }
 
-    internal ViewSession(SmSessionLoop loop, SmSession session, string[] args, SmClient client, SmGuiBackend backend, LoopTimer timer)
+    internal ViewSession(SmSessionLoop loop, SmSession session, string[] args, SmClient client, SmGuiBackend backend, SessionTimer timer)
     {
         this.loop       = loop;
         this.args       = args;
         this.backend    = backend;
-        loopTimer       = timer;
+        sessionTimer       = timer;
         this.session    = session;
         SessionId       = session.keys.id;
         UiType          = client.UiType;
@@ -151,9 +151,9 @@ public sealed class ViewSession
     
     internal void Reset()
     {
-        backend     = null;
-        loopTimer   = null;
-        session     = null;
+        backend         = null;
+        sessionTimer    = null;
+        session         = null;
     }
 #endregion
     

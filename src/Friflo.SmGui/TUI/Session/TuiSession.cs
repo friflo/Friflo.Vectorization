@@ -42,7 +42,7 @@ internal sealed partial class TuiSession : SmSession
     private             ulong[]             lastLineHashes  = new ulong[10];
 
     
-    internal TuiSession(SmClient client, SessionKeys keys, SmSessionLoop loop, LoopTimer timer, TuiColorMode colorMode)
+    internal TuiSession(SmClient client, SessionKeys keys, SmSessionLoop loop, SessionTimer timer, TuiColorMode colorMode)
         : base(client, keys)
     {
         this.colorMode      = colorMode;

@@ -25,7 +25,7 @@ internal sealed class RasterBatch : SmBatch
 {
     internal readonly TuiSixel sixel;
     
-    internal RasterBatch(SessionId sessionId, SmGuiBackend backend, SmTexture texture, LoopTimer? timer)
+    internal RasterBatch(SessionId sessionId, SmGuiBackend backend, SmTexture texture, SessionTimer? timer)
         : base(sessionId, backend, timer)
     {
         var cpuTexture = (CpuTexture)texture.native!;

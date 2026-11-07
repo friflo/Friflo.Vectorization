@@ -60,7 +60,7 @@ public abstract class SmBatch : IDisposable
     public          ReadOnlySpan<DrawCommand>   DrawList    => new(drawList, 0, drawCommands.Count);
     public          Span<Vertex2D>              Vertices    => vertexBuffer.Span.Slice(0, vertexCount);
     public          ClientAction                Action      => host.clientAction;
-    public          LoopTimer                   Timer       => loopTimer;
+    public          SessionTimer                Timer       => sessionTimer;
     public          UiType                      UiType      { get; init; }
     public readonly SessionId                   SessionId;
     public          long                        DebugMem;
@@ -90,7 +90,7 @@ public abstract class SmBatch : IDisposable
     internal            SmSession?          session;
     private   readonly  int                 uiThreadId;
     
-    internal  readonly  LoopTimer           loopTimer;
+    internal  readonly  SessionTimer        sessionTimer;
 
     // --- replay
     internal            GuiRecorder?        recorder; // gui recording requires a session
@@ -133,22 +133,22 @@ public abstract class SmBatch : IDisposable
     internal void Reset() {
         // Goal: Clear references of heavy instances. User may store a SmBatch reference which prevents GC collecting them.
         session = null;
-        loopTimer.Dispose();
+        sessionTimer.Dispose();
     }
     
-    protected SmBatch(SessionId sessionId, SmGuiBackend backend, LoopTimer? timer) : this(sessionId, backend, 4, timer)
+    protected SmBatch(SessionId sessionId, SmGuiBackend backend, SessionTimer? timer) : this(sessionId, backend, 4, timer)
     {
         isRasterBatch = true;
     }
 
-    protected SmBatch(SessionId sessionId, SmGuiBackend backend, int maxVertices, LoopTimer? timer)
+    protected SmBatch(SessionId sessionId, SmGuiBackend backend, int maxVertices, SessionTimer? timer)
     {
         SessionId       = sessionId;
         formatProvider  = CultureInfo.InvariantCulture;
         host            = backend.host;
         input           = backend.input;
         uiThreadId      = Environment.CurrentManagedThreadId;
-        loopTimer       = timer ?? new LoopTimer(60); // create Noop timer for all non session related batches
+        sessionTimer    = timer ?? new SessionTimer(60); // create Noop timer for all non session related batches
         if (this is TuiBatch typeTuiBatch) {
             tui = typeTuiBatch;
         }
@@ -256,7 +256,7 @@ public abstract class SmBatch : IDisposable
     private RasterBatch CreateTextureBatch(SmTexture texture)
     {
         if (texture.IsNull) throw new ArgumentNullException(nameof(texture));
-        return new RasterBatch(SessionId, new CpuBackend("Raster", rasterAssets), texture, loopTimer);
+        return new RasterBatch(SessionId, new CpuBackend("Raster", rasterAssets), texture, sessionTimer);
     }
     
     public void EndTextureDraw()

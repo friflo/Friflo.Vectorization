@@ -61,7 +61,7 @@ internal class GuiBackend : SmGuiBackend
         return cpuBackend.GetTextureImage(texture);
     }
     
-    internal GuiBatch CreateBatch(SessionId sessionId, LoopTimer timer, UiType uiType)  // WS_TAG
+    internal GuiBatch CreateBatch(SessionId sessionId, SessionTimer timer, UiType uiType)  // WS_TAG
     {
         var batch = new GuiBatch(sessionId, this, 60000, timer) { UiType = uiType };
         InitBatch(batch);

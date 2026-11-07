@@ -33,7 +33,7 @@ public readonly ref struct Gui
     public              Vector2         TerminalPixelSize   { [Hide] get => widget.draw.batch.terminalPixelSize;    }
     public              SmBatch         Batch               { [Hide] get => widget.draw.batch;                      }
     public              ClientAction    Action              { [Hide] get => widget.draw.batch.Action;               }
-    public              LoopTimer       Timer               { [Hide] get => widget.draw.batch.loopTimer;            }
+    public              SessionTimer    Timer               { [Hide] get => widget.draw.batch.sessionTimer;         }
     public              UiType          UiType              { [Hide] get => widget.draw.batch.UiType;               }
     public              SessionId       SessionId           { [Hide] get => widget.draw.batch.SessionId;            }
     

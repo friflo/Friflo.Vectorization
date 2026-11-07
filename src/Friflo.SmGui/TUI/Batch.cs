@@ -45,7 +45,7 @@ public sealed partial class TuiBatch : SmBatch
 
     public   override   string                  ToString()  => batchName;
 
-    public TuiBatch(SessionId sessionId, CpuBackend backend, TuiColorMode colorMode, LoopTimer? timer)
+    public TuiBatch(SessionId sessionId, CpuBackend backend, TuiColorMode colorMode, SessionTimer? timer)
         : base(sessionId, backend, 0, timer)
     {
         batchName = backend.backendName;

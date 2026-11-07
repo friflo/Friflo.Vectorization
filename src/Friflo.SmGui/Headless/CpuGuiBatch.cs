@@ -10,7 +10,7 @@ namespace Friflo.SmGui.Headless;
 
 public sealed class CpuGuiBatch : SmBatch
 {
-    internal CpuGuiBatch(SessionId sessionId, CpuBackend backend, int maxVertices, LoopTimer? timer)
+    internal CpuGuiBatch(SessionId sessionId, CpuBackend backend, int maxVertices, SessionTimer? timer)
         : base(sessionId, backend, maxVertices, timer)
     {
     }
