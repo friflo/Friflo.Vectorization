@@ -15,7 +15,6 @@ public sealed class LoopTimer : IDisposable
 {
     private             SmClient?         client;
     private             Timer?            syncTimer;
-    private             PeriodicTimer?    asyncTimer;
     private             CancellationToken cancellationToken;
     private             int               Period => 1000 / tickRate; // ms
     private             int               tickRate;                  // Hz
@@ -38,9 +37,8 @@ public sealed class LoopTimer : IDisposable
     {
         isRunning = false;
         syncTimer?.Dispose();
-        asyncTimer?.Dispose();
         syncTimer   = null;
-        asyncTimer  = null;
+
         client      = null;
     }
     
