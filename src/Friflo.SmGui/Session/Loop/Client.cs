@@ -131,10 +131,11 @@ public abstract class SmClient
     /// Must be incremented when enqueueing an event to the <see cref="SmSessionLoop"/>.<br/>
     /// Must be decremented when dequeueing an event from the <see cref="SmSessionLoop"/>.<br/> 
     /// </summary>
-    private    int     pendingEvents;
+    private     int     pendingEvents;
     
-    internal void IncrementPendingEvents() => Interlocked.Increment(ref pendingEvents);
-    internal bool DecrementPendingEvents() => Interlocked.Decrement(ref pendingEvents) == 0;
+    internal    bool    IsQueueEmpty                => pendingEvents == 0;
+    internal    void    IncrementPendingEvents()    => Interlocked.Increment(ref pendingEvents);
+    internal    bool    DecrementPendingEvents()    => Interlocked.Decrement(ref pendingEvents) == 0;
 
 
     public             abstract     UiType          UiType { get; }

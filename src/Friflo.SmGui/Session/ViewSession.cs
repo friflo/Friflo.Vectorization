@@ -196,7 +196,7 @@ public sealed class ViewSession
             if (session.SetDirty()) {
                 return;
             }
-            session.client.TryEnqueueSessionEvent(LoopEventType.FrameTick, default);
+            session.client.TryEnqueueSessionEvent(LoopEventType.RenderView, default);
         }
     }
 }

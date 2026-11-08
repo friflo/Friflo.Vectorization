@@ -46,7 +46,7 @@ public sealed class SessionTimer
 
 public sealed class AppTimer : IDisposable
 {
-    private  readonly   List<SessionId>     tickedSessions = [];
+    internal readonly   List<SessionId>     tickedSessions = [];
     private  readonly   SmEventQueue        eventQueue;
     private             SmTimer?            syncTimer;
     private             int                 Period => 1000 / tickRate; // ms
@@ -142,21 +142,5 @@ public sealed class AppTimer : IDisposable
             return;
         }
         eventQueue.TryEnqueueEvent(null, default, LoopEventType.AppTick, null, default, 0);
-    }
-    
-    internal void TickSessions(SmSessionLoop loop)
-    {
-        var queue       = eventQueue;
-        var sessions    = tickedSessions;
-        var count       = sessions.Count;
-        for (var n = 0; n < count; n++)
-        {
-            var sessionId   = sessions[n];
-            var session     = loop.GetSession(sessionId);
-            if (session == null) {
-                continue;
-            }
-            queue.TryEnqueueEvent(session.client, sessionId, LoopEventType.FrameTick, null, default, 0);
-        }
     }
 }

@@ -121,12 +121,6 @@ public sealed partial class SmSessionLoop : IDisposable
     }
     
 #region internal methods
-    internal SmSession? GetSession(SessionId sessionId)
-    {
-        sessions.TryGetValue(sessionId, out var session);
-        return session;
-    }
-    
     private void ExitHandler()
     {
         PosixSignalUtils.RemoveExitHandler(exitHandler);
@@ -227,7 +221,7 @@ public sealed partial class SmSessionLoop : IDisposable
             if (session.SetDirty()) {
                 continue;
             }
-            session.client.TryEnqueueSessionEvent(LoopEventType.FrameTick, default);
+            session.client.TryEnqueueSessionEvent(LoopEventType.RenderView, default);
         }
     }
 #endregion
@@ -263,7 +257,7 @@ public sealed partial class SmSessionLoop : IDisposable
         if (session.SetDirty()) {
             return;
         }
-        session.client.TryEnqueueSessionEvent(LoopEventType.FrameTick, default);
+        session.client.TryEnqueueSessionEvent(LoopEventType.RenderView, default);
     }
 }
 

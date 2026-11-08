@@ -75,9 +75,8 @@ public partial class SmSessionLoop
                         client.Send(sendBuffer);  // MUST not block. No backpressure
                     }
                     break;
-                case LoopEventType.FrameTick:
-                    if (isQueueEmpty)
-                    {
+                case LoopEventType.RenderView:
+                    if (isQueueEmpty) {
                         var sendBuffer = session.ProcessUI(resources);
                         client.Send(sendBuffer);  // MUST not block. No backpressure
                     }
@@ -120,13 +119,31 @@ public partial class SmSessionLoop
                     SetAppDirtySync();
                     break;
                 case LoopEventType.AppTick:
-                    appTimer.TickSessions(this);
+                    TickSessions();
                     break;
             }
         } catch (Exception e) {
             Debug.Fail(e.ToString());
         } finally {
             evt.Payload.Return();
+        }
+    }
+    
+    private void TickSessions()
+    {
+        var tickedSessions = appTimer.tickedSessions;
+        var count = tickedSessions.Count;
+        for (var n = 0; n < count; n++)
+        {
+            var sessionId = tickedSessions[n];
+            if (!sessions.TryGetValue(sessionId, out var session)) {
+                continue;
+            }
+            if (!session.client.IsQueueEmpty) {
+                continue;
+            }
+            var sendBuffer = session.ProcessUI(resources);
+            session.client.Send(sendBuffer);  // MUST not block. No backpressure
         }
     }
     

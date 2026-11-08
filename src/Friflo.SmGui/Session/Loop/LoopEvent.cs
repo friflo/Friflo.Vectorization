@@ -19,7 +19,7 @@ public enum LoopEventType
     // --- session events
     TerminalDisconnected,
     TerminalInput,
-    FrameTick,
+    RenderView,
     WebsocketDisconnected,
     WebsocketInput,
     PostMessage,
