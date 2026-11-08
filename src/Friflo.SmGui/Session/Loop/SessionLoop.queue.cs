@@ -12,10 +12,9 @@ using System.Threading.Tasks;
 // ReSharper disable CheckNamespace
 namespace Friflo.SmGui.Session;
 
-//                                  --- sync session loop ---
+
 public partial class SmSessionLoop
 {
-    // start
     public void Run()
     {
         ObjectDisposedException.ThrowIf(isDisposed, this);
@@ -38,7 +37,6 @@ public partial class SmSessionLoop
         }
     }
     
-    // process session event
     private void ProcessSessionEvent (in LoopEvent evt)
     {
         if (!sessions.TryGetValue(evt.sessionId, out var session)) {
@@ -92,7 +90,6 @@ public partial class SmSessionLoop
         }
     }
     
-    // process app event
     private void ProcessAppEvent (in LoopEvent evt)
     {
         try {
@@ -142,8 +139,13 @@ public partial class SmSessionLoop
             if (!session.client.IsQueueEmpty) {
                 continue;
             }
-            var sendBuffer = session.ProcessUI(resources);
-            session.client.Send(sendBuffer);  // MUST not block. No backpressure
+            try {
+                var sendBuffer = session.ProcessUI(resources);
+                session.client.Send(sendBuffer);  // MUST not block. No backpressure
+            }
+            catch (Exception e) {
+                Debug.Fail(e.ToString());
+            }
         }
     }
     
