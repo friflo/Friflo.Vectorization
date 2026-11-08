@@ -126,8 +126,6 @@ public partial class SmSessionLoop
         }
     }
     
-    /// An alternative implementation can call <see cref="SmEventQueue.TryEnqueueEvent"/>
-    /// to split session rendering in small tasks. 
     private void TickSessions()
     {
         var tickedSessions = appTimer.tickedSessions;
@@ -138,16 +136,7 @@ public partial class SmSessionLoop
             if (!sessions.TryGetValue(sessionId, out var session)) {
                 continue;
             }
-            if (!session.client.IsQueueEmpty) {
-                continue;
-            }
-            try {
-                var sendBuffer = session.ProcessUI(resources);
-                session.client.Send(sendBuffer);  // MUST not block. No backpressure
-            }
-            catch (Exception e) {
-                Debug.Fail(e.ToString());
-            }
+            eventQueue.TryEnqueueEvent(session.client, sessionId, LoopEventType.RenderView, null, default, 0);
         }
     }
     

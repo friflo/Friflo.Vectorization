@@ -133,7 +133,6 @@ public abstract class SmClient
     /// </summary>
     private     int     pendingEvents;
     
-    internal    bool    IsQueueEmpty                => pendingEvents == 0;
     internal    void    IncrementPendingEvents()    => Interlocked.Increment(ref pendingEvents);
     internal    bool    DecrementPendingEvents()    => Interlocked.Decrement(ref pendingEvents) == 0;
 
