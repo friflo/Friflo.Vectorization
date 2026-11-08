@@ -126,6 +126,8 @@ public partial class SmSessionLoop
         }
     }
     
+    /// An alternative implementation can call <see cref="SmEventQueue.TryEnqueueEvent"/>
+    /// to split session rendering in small tasks. 
     private void TickSessions()
     {
         var tickedSessions = appTimer.tickedSessions;
