@@ -41,14 +41,16 @@ internal sealed partial class WasmPeerConnection : PeerConnection, IDisposable
     [JSImport("registerPeerConnectionCallbacks", Wasm.JsModule)]
     private static partial void RegisterPeerConnectionCallbacks(int instanceId, JSObject pc);
 
+    // --- callback handler - must return a Task ---
     [JSExport]
-    private static void HandleIceCandidateCallback(int instanceId, JSObject jsCandidate)
+    private static Task HandleIceCandidateCallback(int instanceId, JSObject jsCandidate)
     {
         if (Instances.TryGetValue(instanceId, out var connection))
         {
             var candidate = new IceCandidate { native = jsCandidate };
             connection.RaiseIceCandidate(candidate);
         }
+        return Task.CompletedTask;
     }
 
     [JSImport("createAnswer", Wasm.JsModule)]

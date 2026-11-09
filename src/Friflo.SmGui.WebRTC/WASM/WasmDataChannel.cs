@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices.JavaScript;
 using System.Runtime.Versioning;
+using System.Threading.Tasks;
 
 
 // ReSharper disable CheckNamespace
@@ -76,8 +77,9 @@ internal sealed partial class WasmDataChannel : DataChannel, IDisposable
 //  private static partial bool SendBinary(JSObject channel, IntPtr ptr,  int offset, int length); // does not provide an advantage in context of allocation.
     private static partial bool SendBinary(JSObject channel, byte[] data, int offset, int length);
 
+    // --- callback handler - must return a Task ---
     [JSExport]
-    private static void HandleStateChangeCallback(int instanceId, string stateStr)
+    private static Task HandleStateChangeCallback(int instanceId, string stateStr)
     {
         if (Instances.TryGetValue(instanceId, out var channel))
         {
@@ -89,10 +91,11 @@ internal sealed partial class WasmDataChannel : DataChannel, IDisposable
                 channel.RaiseOpen();
             }
         }
+        return Task.CompletedTask;
     }
 
     [JSExport]
-    private static void HandleMessageCallback(int instanceId, int protocol, byte[] data)
+    private static Task HandleMessageCallback(int instanceId, int protocol, byte[] data)
     {
         if (Instances.TryGetValue(instanceId, out var channel))
         {
@@ -100,16 +103,18 @@ internal sealed partial class WasmDataChannel : DataChannel, IDisposable
             // (e.g., by utilizing shared memory buffers or zero-copy memory views if available).
             channel.RaiseMessage((DataChannelPayloadProtocols)protocol, data);
         }
+        return Task.CompletedTask;
     }
 
     [JSExport]
-    private static void HandleCloseCallback(int instanceId)
+    private static Task HandleCloseCallback(int instanceId)
     {
         if (Instances.TryGetValue(instanceId, out var channel))
         {
             channel.cachedState = DataChannelState.closed;
             channel.RaiseClose();
         }
+        return Task.CompletedTask;
     }
     
     public void Dispose()
@@ -123,7 +128,7 @@ internal sealed partial class WasmDataChannel : DataChannel, IDisposable
         SendString(native, message);
     }
     
-    internal override unsafe void send(byte[] data, int offset, int length)
+    internal override void send(byte[] data, int offset, int length)
     {
         /* fixed(byte* ptr = data) {
             SendBinary(native, (nint)ptr, offset, length);

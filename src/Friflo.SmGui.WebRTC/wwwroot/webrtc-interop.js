@@ -78,7 +78,8 @@ export async function addIceCandidate(pc, candidate) {
 export function registerPeerConnectionCallbacks(instanceId, pc) {
     pc.onicecandidate = (event) => {
         if (event.candidate) {
-            WasmPeerConnection.HandleIceCandidateCallback(instanceId, event.candidate);
+            WasmPeerConnection.HandleIceCandidateCallback(instanceId, event.candidate)
+                .catch(err => console.error("HandleIceCandidateCallback failed", err));
         }
     };
 }
@@ -129,10 +130,12 @@ export function sendBinary(channel, data, offset, length) {
 
 export function registerDataChannelCallbacks(instanceId, channel) {
     channel.onopen = () => {
-        WasmDataChannel.HandleStateChangeCallback(instanceId, channel.readyState);
+        WasmDataChannel.HandleStateChangeCallback(instanceId, channel.readyState)
+            .catch(err => console.error("HandleStateChangeCallback failed", err));
     };
     channel.onclose = () => {
-        WasmDataChannel.HandleCloseCallback(instanceId);
+        WasmDataChannel.HandleCloseCallback(instanceId)
+            .catch(err => console.error("HandleCloseCallback failed", err));
     };
     channel.onmessage = (event) => {
         const data = event.data;
@@ -143,7 +146,8 @@ export function registerDataChannelCallbacks(instanceId, channel) {
             // map it appropriately (assuming protocol 0 or similar for text, adjust as needed)
             const encoder = new TextEncoder();
             const byteArray = encoder.encode(data);
-            WasmDataChannel.HandleMessageCallback(instanceId, /* protocol for text */ 0, byteArray);
+            WasmDataChannel.HandleMessageCallback(instanceId, /* protocol for text */ 0, byteArray)
+                .catch(err => console.error("HandleMessageCallback failed", err));
         } else {
             // Binary data (ArrayBuffer) -> convert to Uint8Array so .NET marshals it as byte[]
             const buffer = data instanceof ArrayBuffer ? data : data.arrayBuffer();
@@ -152,11 +156,13 @@ export function registerDataChannelCallbacks(instanceId, channel) {
             if (buffer instanceof Promise) {
                 buffer.then(ab => {
                     const byteArray = new Uint8Array(ab);
-                    WasmDataChannel.HandleMessageCallback(instanceId, /* binary protocol enum value */ 1, byteArray);
+                    WasmDataChannel.HandleMessageCallback(instanceId, /* binary protocol enum value */ 1, byteArray)
+                        .catch(err => console.error("HandleMessageCallback failed", err));
                 });
             } else {
                 const byteArray = new Uint8Array(buffer);
-                WasmDataChannel.HandleMessageCallback(instanceId, /* binary protocol enum value */ 1, byteArray);
+                WasmDataChannel.HandleMessageCallback(instanceId, /* binary protocol enum value */ 1, byteArray)
+                    .catch(err => console.error("HandleMessageCallback failed", err));
             }
         }
     };
