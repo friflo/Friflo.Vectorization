@@ -102,17 +102,29 @@ export function setLabel(channel, value) {
 }
 
 export function sendString(channel, message) {
-    channel.send(message);
+    if (channel.readyState === "open") {
+        channel.send(message);
+        return true;
+    }
+    return false;
 }
 
 /* export function sendBinary(channel, ptr, offset, length) {
-    const memoryBuffer = Module.HEAPU8.buffer;
-    const view = new Uint8Array(memoryBuffer, ptr + offset, length);
-    channel.send(view);
+    if (channel.readyState === "open") {
+        const memoryBuffer = Module.HEAPU8.buffer;
+        const view = new Uint8Array(memoryBuffer, ptr + offset, length);
+        channel.send(view);
+        return true;
+    }
+    return false;
 } */
 export function sendBinary(channel, data, offset, length) {
-    const view = data.subarray(offset, offset + length);
-    channel.send(view);
+    if (channel.readyState === "open") {
+        const view = data.subarray(offset, offset + length);
+        channel.send(view);
+        return true;
+    }
+    return false;
 }
 
 export function registerDataChannelCallbacks(instanceId, channel) {

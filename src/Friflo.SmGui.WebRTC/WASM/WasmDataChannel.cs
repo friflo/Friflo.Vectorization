@@ -70,11 +70,11 @@ internal sealed partial class WasmDataChannel : DataChannel, IDisposable
     private static partial void RegisterDataChannelCallbacks(int instanceId, JSObject channel);
 
     [JSImport("sendString", Wasm.JsModule)]
-    private static partial void SendString(JSObject channel, string message);
+    private static partial bool SendString(JSObject channel, string message);
 
     [JSImport("sendBinary", Wasm.JsModule)]
-//  private static partial void SendBinary(JSObject channel, IntPtr ptr,  int offset, int length); // does not provide an advantage in context of allocation.
-    private static partial void SendBinary(JSObject channel, byte[] data, int offset, int length);
+//  private static partial bool SendBinary(JSObject channel, IntPtr ptr,  int offset, int length); // does not provide an advantage in context of allocation.
+    private static partial bool SendBinary(JSObject channel, byte[] data, int offset, int length);
 
     [JSExport]
     private static void HandleStateChangeCallback(int instanceId, string stateStr)
