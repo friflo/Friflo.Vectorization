@@ -21,11 +21,11 @@ internal static class Program
         
         JSHost.GlobalThis.SetProperty("onAppStarted", appInstance);
         
-        var timer = WasmTimer.CreateTimer();
+        /* var timer = WasmTimer.CreateTimer();
         timer.OnTick += static () => {
             Console.WriteLine("OnTick");
         };
-        timer.Start();
+        timer.Start(); */
     }
     
     [JSInvokable]
