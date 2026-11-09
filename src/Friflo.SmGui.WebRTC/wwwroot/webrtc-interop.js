@@ -55,6 +55,10 @@ export async function createAnswer(pc) {
     return await pc.createAnswer();
 }
 
+export async function createDataChannel(pc, label, channelId) {
+    return await pc.createDataChannel(label, { ordered: true, negotiated: true, id: channelId });
+}
+
 export function getSdp(pc, description) {
     return description.sdp;
 }
@@ -72,11 +76,6 @@ export async function addIceCandidate(pc, candidate) {
 }
 
 export function registerPeerConnectionCallbacks(instanceId, pc) {
-    pc.ondatachannel = (event) => {
-        // Access the exported C# class and call the [JSExport] method
-        WasmPeerConnection.HandleDataChannelCallback(instanceId, event.channel);
-    };
-    
     pc.onicecandidate = (event) => {
         if (event.candidate) {
             WasmPeerConnection.HandleIceCandidateCallback(instanceId, event.candidate);

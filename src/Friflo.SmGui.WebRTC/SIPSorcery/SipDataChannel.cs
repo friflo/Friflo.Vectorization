@@ -14,6 +14,7 @@ internal sealed class SipDataChannel : DataChannel, IDisposable
 {
     private readonly    RTCDataChannel                  native;
     private readonly    OnDataChannelMessageDelegate    dataChannelMessageHandler;
+    private readonly    Action                          openHandler;
     private readonly    Action                          closeHandler;
         
     internal override   DataChannelState    readyState  => (DataChannelState)native.readyState;
@@ -27,8 +28,10 @@ internal sealed class SipDataChannel : DataChannel, IDisposable
         dataChannelMessageHandler = (_, protocol, data) => {
             RaiseMessage((DataChannelPayloadProtocols)protocol, data);
         };
+        openHandler  = RaiseOpen;
         closeHandler = RaiseClose;
 
+        native.onopen       += openHandler;
         native.onmessage    += dataChannelMessageHandler;
         native.onclose      += closeHandler;
     }

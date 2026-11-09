@@ -63,7 +63,21 @@ public sealed partial class SmSignalingClient
             case "offer":
             {
                 // Get or create peer session using a method group (no lambdas)
-                var session = sessions.GetOrAdd(message.connection, new SignalSession(this, webSocket, message.connection));
+                var connection      = RtcFactory.Instance.CreatePeerConnection();
+                var guiDataChannel  = await connection.createDataChannel("tm-gui-channel", 1);
+                var apiChannel      = await connection.createDataChannel("api-channel",    2);
+                
+                apiChannel.onopen += () => {
+                    _ = new WebRtcChannel(loop, apiChannel);
+                };
+                
+                var signalSession   = new SignalSession(this, connection, webSocket, message.connection);
+                guiDataChannel.onopen += () => {
+                    var webRtcClient = new WebRtcClient(guiDataChannel, loop);
+                    webRtcClient.EnqueueConnected();
+                    RemoveSession(signalSession.connection, webSocket);
+                };
+                var session = sessions.GetOrAdd(message.connection, signalSession);
                 var pc = session.peerConnection;
 
                 // Set remote description using RTCSessionDescriptionInit

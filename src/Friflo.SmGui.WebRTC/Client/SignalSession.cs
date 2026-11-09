@@ -13,17 +13,16 @@ internal sealed class SignalSession
 {
     private  readonly   SmSignalingClient   client;
     private  readonly   WebSocket           webSocket;
-    private  readonly   string              connection;
+    internal readonly   string              connection;
     internal readonly   PeerConnection      peerConnection;    
 
-    internal SignalSession(SmSignalingClient client, WebSocket webSocket, string connection)
+    internal SignalSession(SmSignalingClient client, PeerConnection conn, WebSocket webSocket, string connection)
     {
         this.client     = client;
         this.webSocket  = webSocket;
         this.connection = connection;
-        peerConnection  = RtcFactory.Instance.CreatePeerConnection();
+        peerConnection  = conn;
         peerConnection.onicecandidate   += OnIceCandidate;
-        peerConnection.ondatachannel    += OnDataChannel;
     }
     
     // Returns void to match the event delegate signature and fix CS0407

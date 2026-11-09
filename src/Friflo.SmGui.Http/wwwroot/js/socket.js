@@ -161,7 +161,7 @@ function runSignaling(app)
     const candidateQueue = [];
 
     // Optional: Create a data channel for peer-to-peer communication
-    const dataChannel = pc.createDataChannel("tm-gui-channel", { ordered: true });
+    const dataChannel = pc.createDataChannel("tm-gui-channel", { ordered: true, negotiated: true, id: 1 });
     
     pc.oniceconnectionstatechange = () => {
         const state = pc.iceConnectionState; 
@@ -321,7 +321,7 @@ function runSignaling(app)
         console.error("Signaling WebSocket error:", err);
     });
     
-    apiChannel = pc.createDataChannel("api-channel", { ordered: true });
+    apiChannel = pc.createDataChannel("api-channel", { ordered: true, negotiated: true, id: 2 });
     apiChannel.onmessage = async (e) => {
         if (e.data instanceof ArrayBuffer) {
             try {

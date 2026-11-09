@@ -85,6 +85,9 @@ internal sealed partial class WasmDataChannel : DataChannel, IDisposable
             if (Enum.TryParse<DataChannelState>(stateStr, true, out var state)) {
                 channel.cachedState = state;
             }
+            if (state == DataChannelState.open) {
+                channel.RaiseOpen();
+            }
         }
     }
 

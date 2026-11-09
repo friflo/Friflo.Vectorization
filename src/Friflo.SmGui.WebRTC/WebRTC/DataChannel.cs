@@ -48,6 +48,7 @@ internal abstract class DataChannel
 {
     internal event      OnDataChannelMessage?   onmessage;
     internal event      Action?                 onclose;
+    internal event      Action?                 onopen;
 
     internal abstract   DataChannelState        readyState { get; }
     internal abstract   bool                    ordered    { get; set; } // todo   remove setter. only channel creator can set ordered
@@ -55,6 +56,7 @@ internal abstract class DataChannel
 
     protected void RaiseMessage(DataChannelPayloadProtocols protocol, byte[] data)  => onmessage?.Invoke(this, protocol, data);
     protected void RaiseClose()                                                     => onclose?.Invoke();
+    protected void RaiseOpen()                                                      => onopen?.Invoke();
 
     
     internal abstract void send(string message);

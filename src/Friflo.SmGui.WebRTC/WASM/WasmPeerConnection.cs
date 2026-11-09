@@ -42,16 +42,6 @@ internal sealed partial class WasmPeerConnection : PeerConnection, IDisposable
     private static partial void RegisterPeerConnectionCallbacks(int instanceId, JSObject pc);
 
     [JSExport]
-    private static void HandleDataChannelCallback(int instanceId, JSObject jsChannel)
-    {
-        if (Instances.TryGetValue(instanceId, out var connection))
-        {
-            var channel = new WasmDataChannel(jsChannel);
-            connection.RaiseDataChannel(channel);
-        }
-    }
-
-    [JSExport]
     private static void HandleIceCandidateCallback(int instanceId, JSObject jsCandidate)
     {
         if (Instances.TryGetValue(instanceId, out var connection))
@@ -63,6 +53,9 @@ internal sealed partial class WasmPeerConnection : PeerConnection, IDisposable
 
     [JSImport("createAnswer", Wasm.JsModule)]
     private static partial Task<JSObject> CreateAnswerAsync(JSObject pc);
+    
+    [JSImport("createDataChannel", Wasm.JsModule)]
+    private static partial Task<JSObject> CreateDataChannel(JSObject pc, string label, int id);
 
     [JSImport("getSdp", Wasm.JsModule)]
     private static partial string GetSdp(JSObject pc, JSObject description);
@@ -87,6 +80,13 @@ internal sealed partial class WasmPeerConnection : PeerConnection, IDisposable
         var jsInit = await CreateAnswerAsync(native);
         var sdp = GetSdp(native, jsInit);
         return new SessionDescriptionInit { native = jsInit, sdp = sdp };
+    }
+    
+    internal override async Task<DataChannel> createDataChannel(string label, int channelId)
+    {
+        var jsDataChannel = await CreateDataChannel(native, label, channelId);
+        var dataChannel = new WasmDataChannel(jsDataChannel);
+        return dataChannel;
     }
     
     internal override Task setLocalDescription(SessionDescriptionInit init)
