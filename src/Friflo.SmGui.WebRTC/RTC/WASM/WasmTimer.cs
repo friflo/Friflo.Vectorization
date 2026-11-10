@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices.JavaScript;
 using System.Runtime.Versioning;
+using System.Threading.Tasks;
 using Friflo.SmGui.Session;
 
 // ReSharper disable EmptyConstructor
@@ -25,6 +26,7 @@ public sealed partial class WasmEventReady : SmEventReady
         if (_isSet) {
             return;
         }
+        _isSet = true;
         SetEventReady();
     }
     
@@ -32,10 +34,11 @@ public sealed partial class WasmEventReady : SmEventReady
     private static partial void SetEventReady();
     
     [JSExport]
-    private static void ProcessEvents()
+    private static Task ProcessEvents()
     {
-        SessionLoop?.IterateSessions();
         _isSet = false;
+        SessionLoop?.IterateSessions();
+        return Task.CompletedTask;
     }
 } 
 
