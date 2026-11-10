@@ -11,14 +11,12 @@ namespace Friflo.SmGui.WebRTC;
 
 internal sealed class SignalSession
 {
-    private  readonly   SmSignalingClient   client;
     private  readonly   WebSocket           webSocket;
     internal readonly   string              connection;
     internal readonly   PeerConnection      peerConnection;    
 
-    internal SignalSession(SmSignalingClient client, PeerConnection conn, WebSocket webSocket, string connection)
+    internal SignalSession(PeerConnection conn, WebSocket webSocket, string connection)
     {
-        this.client     = client;
         this.webSocket  = webSocket;
         this.connection = connection;
         peerConnection  = conn;
@@ -33,21 +31,6 @@ internal sealed class SignalSession
         var candidatePayload = JsonSerializer.SerializeToUtf8Bytes(msg, ApiJson.Default.SignalMessage);
         if (webSocket.State == WebSocketState.Open) {
             _ = webSocket.SendAsync(candidatePayload, WebSocketMessageType.Text, true, CancellationToken.None);
-        }
-    }
-    
-    private void OnDataChannel(DataChannel dataChannel)
-    {
-        // Console.WriteLine("P2P Data Channel opened on App side!");
-        if (dataChannel.label == "tm-gui-channel") {
-            var webRtcClient = new WebRtcClient(dataChannel, client.loop);
-            
-            webRtcClient.EnqueueConnected();
-            client.RemoveSession(connection, webSocket);
-            return;
-        }
-        if (dataChannel.label == "api-channel") {
-            _ = new WebRtcChannel(client.loop, dataChannel);
         }
     }
 }

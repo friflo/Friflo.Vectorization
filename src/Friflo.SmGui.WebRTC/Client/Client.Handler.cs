@@ -71,7 +71,7 @@ public sealed partial class SmSignalingClient
                     _ = new WebRtcChannel(loop, apiChannel);
                 };
                 
-                var signalSession   = new SignalSession(this, connection, webSocket, message.connection);
+                var signalSession   = new SignalSession(connection, webSocket, message.connection);
                 guiDataChannel.onopen += () => {
                     var webRtcClient = new WebRtcClient(guiDataChannel, loop);
                     webRtcClient.EnqueueConnected();
