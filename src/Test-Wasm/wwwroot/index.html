@@ -3,9 +3,25 @@
 <head>
     <meta charset="utf-8" />
     <title>Test-Wasm</title>
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+    <meta name="theme-color" content="#0d1117" media="(prefers-color-scheme: dark)">
     <style>
-        body { font-family: Arial, Helvetica, "Liberation Sans", sans-serif; }
-        a    { text-decoration: none; }
+        :root {
+            color-scheme: light dark;
+            --bg:   #ffffff;
+            --text: #1f2328;
+            --link: #0969da;
+        }
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg:   #0d1117;
+                --text: #e6edf3;
+                --link: #58a6ff;
+            }
+        }
+        body { font-family: Arial, Helvetica, "Liberation Sans", sans-serif;
+               background: var(--bg); color: var(--text); }
+        a    { text-decoration: none; color: var(--link); }
     </style>
     <link rel="manifest" href="manifest.webmanifest">
 </head>
