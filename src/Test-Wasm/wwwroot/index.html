@@ -7,6 +7,7 @@
         body { font-family: Arial, Helvetica, "Liberation Sans", sans-serif; }
         a    { text-decoration: none; }
     </style>
+    <link rel="manifest" href="manifest.webmanifest">
 </head>
 <body>
     <h1>Test-Wasm IL/AOT</h1>
@@ -14,6 +15,11 @@
     <a id="webrtc-client" target="_blank">WebRTC client</a>
 
     <script type="module">
+        // Register service worker (cache-first, enables offline start of the app files)
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('./service-worker.js').catch(console.error);
+        }
+
         import { dotnet }                   from './_framework/dotnet.js';
         import { initializeSmGuiWebRTC }    from './webrtc-interop.js';
         
