@@ -169,8 +169,7 @@ public sealed partial class SmSessionLoop : IDisposable
         return session;
     }
 
-    // protected virtual SmSession CreateGuiSession(SmClient client, bool isSync, out Memory<byte> firstPayload) => throw new NotImplementedException();
-    private GuiSession CreateGuiSession(SmClient client, bool isSync, out Memory<byte> firstPayload)
+    private GuiSession CreateGuiSession(SmClient client, out Memory<byte> firstPayload)
     {
         var sessionId       = client.sessionId;
         var sessionTimer    = new SessionTimer(appTimer, sessionId);

@@ -96,7 +96,7 @@ public partial class SmSessionLoop
             switch (evt.type) {
                 case LoopEventType.WebsocketConnected: {
                     var client = (SmClient)evt.state!;
-                    CreateGuiSession(client, true, out var _);
+                    CreateGuiSession(client, out var _);
                     break;
                 }
                 case LoopEventType.TerminalConnected: {
