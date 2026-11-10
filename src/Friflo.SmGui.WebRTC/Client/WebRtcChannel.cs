@@ -19,10 +19,10 @@ internal sealed class WebRtcChannel
     private readonly    DataChannel     dataChannel;
     private readonly    SmSessionLoop   loop;
 
-    internal WebRtcChannel(SmSessionLoop loop, DataChannel dataChannel)
+    internal WebRtcChannel(DataChannel dataChannel, SmSessionLoop loop)
     {
-        this.loop           = loop;
         this.dataChannel    = dataChannel;
+        this.loop           = loop;
         // dataChannel.maxPacketLifeTime = 1;
         // dataChannel.maxRetransmits = 0;
         dataChannel.onmessage   += OnMessage;

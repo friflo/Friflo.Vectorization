@@ -69,7 +69,7 @@ public sealed partial class SmSignalingClient
                 var apiChannel      = await connection.createDataChannel("api-channel",    2);
                 
                 apiChannel.onopen += () => {
-                    _ = new WebRtcChannel(loop, apiChannel);
+                    _ = new WebRtcChannel(apiChannel, loop);
                 };
                 
                 var signalSession   = new SignalSession(connection, webSocket, message.connection);
