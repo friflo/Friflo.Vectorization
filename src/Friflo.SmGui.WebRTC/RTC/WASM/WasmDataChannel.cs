@@ -33,15 +33,7 @@ internal sealed partial class WasmDataChannel : DataChannel, IDisposable
         set { }
     }
 
-    internal override string label 
-    {
-        get => GetLabel(native);
-        set => SetLabel(native, value);
-    }
-
-    public override string? ToString() => native.ToString();
-
-    internal WasmDataChannel(JSObject native) 
+    internal WasmDataChannel(string label, JSObject native) : base(label) 
     {
         id = Interlocked.Increment(ref _nextId);
         Instances[id] = this;
@@ -61,12 +53,6 @@ internal sealed partial class WasmDataChannel : DataChannel, IDisposable
 
     [JSImport("getOrdered", Wasm.JsModule)]
     private static partial bool GetOrdered(JSObject channel);
-
-    [JSImport("getLabel", Wasm.JsModule)]
-    private static partial string GetLabel(JSObject channel);
-
-    [JSImport("setLabel", Wasm.JsModule)]
-    private static partial void SetLabel(JSObject channel, string value);
 
     [JSImport("registerDataChannelCallbacks", Wasm.JsModule)]
     private static partial void RegisterDataChannelCallbacks(int instanceId, JSObject channel);

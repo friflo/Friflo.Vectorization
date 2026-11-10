@@ -88,7 +88,7 @@ internal sealed partial class WasmPeerConnection : PeerConnection, IDisposable
     internal override async Task<DataChannel> createDataChannel(string label, int channelId)
     {
         var jsDataChannel = await CreateDataChannel(native, label, channelId);
-        var dataChannel = new WasmDataChannel(jsDataChannel);
+        var dataChannel = new WasmDataChannel(label, jsDataChannel);
         return dataChannel;
     }
     

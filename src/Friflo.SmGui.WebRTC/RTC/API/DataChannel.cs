@@ -3,6 +3,7 @@
 
 using System;
 
+// ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable CheckNamespace
 // ReSharper disable InconsistentNaming
 namespace Friflo.SmGui.RTC;
@@ -46,13 +47,19 @@ internal delegate void OnDataChannelMessage(DataChannel dc, DataChannelPayloadPr
 /// <see cref="SIPSorcery.Net.RTCDataChannel"/>
 internal abstract class DataChannel
 {
+    private  readonly   string                  label;
     internal event      OnDataChannelMessage?   onmessage;
     internal event      Action?                 onclose;
     internal event      Action?                 onopen;
 
+    public   override   string                  ToString() => label;
+
+    protected DataChannel(string label) {
+        this.label = label;
+    }
+
     internal abstract   DataChannelState        readyState { get; }
     internal abstract   bool                    ordered    { get; set; } // todo   remove setter. only channel creator can set ordered
-    internal abstract   string                  label      { get; set; }
 
     protected void RaiseMessage(DataChannelPayloadProtocols protocol, byte[] data)  => onmessage?.Invoke(this, protocol, data);
     protected void RaiseClose()                                                     => onclose?.Invoke();

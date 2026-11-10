@@ -94,14 +94,6 @@ export function getOrdered(channel) {
     return channel.ordered;
 }
 
-export function getLabel(channel) {
-    return channel.label;
-}
-
-export function setLabel(channel, value) {
-    channel.label = value;
-}
-
 export function sendString(channel, message) {
     if (channel.readyState === "open") {
         channel.send(message);

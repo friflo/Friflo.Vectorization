@@ -43,7 +43,7 @@ internal sealed class SipPeerConnection : PeerConnection, IDisposable
     internal override async Task<DataChannel> createDataChannel(string label, int channelId)
     {
         var dataChannel = await native.createDataChannel(label, new RTCDataChannelInit { negotiated = true, id = (ushort)channelId });
-        return new SipDataChannel(dataChannel);
+        return new SipDataChannel(label, dataChannel);
     }
     
     internal override Task setLocalDescription(SessionDescriptionInit init)

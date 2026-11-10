@@ -19,11 +19,9 @@ internal sealed class SipDataChannel : DataChannel, IDisposable
         
     internal override   DataChannelState    readyState  => (DataChannelState)native.readyState;
     internal override   bool                ordered     { get => native.ordered; set => native.ordered = value; }
-    internal override   string              label       { get => native.label;   set => native.label = value; }
 
-    public   override   string?             ToString() => native.ToString();
-
-    internal SipDataChannel(RTCDataChannel native) {
+    internal SipDataChannel(string label, RTCDataChannel native) : base(label)
+    {
         this.native = native;
         dataChannelMessageHandler = (_, protocol, data) => {
             RaiseMessage((DataChannelPayloadProtocols)protocol, data);
