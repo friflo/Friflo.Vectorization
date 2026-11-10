@@ -37,8 +37,9 @@ public enum UiType
     /// <summary>Browser GUI (WebSocket) - WebGPU</summary>
     /// <remarks>Requires an SmGui http / WebSocket server streaming the GUI as delta vector data.</remarks>
     WebGui      =  2,
-    /// <summary>Browser GUI (WebRTC) - WebGPU</summary>
-    /// <remarks>Browser connects via a signaling server to another SmGui WebRTC peer which streams the GUI as vector data.</remarks>
+    /// <summary>Browser GUI (WebRTC) - WebGP. </summary>
+    /// <remarks>Browser connects via a signaling server to another SmGui WebRTC peer which streams the GUI as vector data.<br/>
+    /// Browser page title (<c>document.title</c>) typically marked with 🔀</remarks>
     WebRtcGui   =  3,
     
     /// <summary>Native Console TUI</summary>
