@@ -9,7 +9,7 @@ using System.Runtime.InteropServices.JavaScript;
 using System.Runtime.Versioning;
 using System.Threading.Tasks;
 
-
+// ReSharper disable UnusedMethodReturnValue.Local
 // ReSharper disable CheckNamespace
 namespace Friflo.SmGui.RTC.WASM;
 

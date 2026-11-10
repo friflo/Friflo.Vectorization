@@ -38,6 +38,7 @@ internal sealed class SipDataChannel : DataChannel, IDisposable
     
     public void Dispose()
     {
+        native.onopen       -= openHandler;
         native.onmessage    -= dataChannelMessageHandler;
         native.onclose      -= closeHandler;
     }
