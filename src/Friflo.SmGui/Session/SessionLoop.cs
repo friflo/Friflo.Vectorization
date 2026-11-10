@@ -61,14 +61,17 @@ public sealed partial class SmSessionLoop : IDisposable
     public              int                 SessionCount            => sessions.Count;
     public   event      SessionsChanged?    SessionsChanged;
     public              AppTimer            AppTimer                => appTimer;
+    
+    public              SmEventReady?       EventReady {
+                                                get => eventQueue.wasmEventReady;
+                                                init { eventQueue.wasmEventReady = value; SmEventReady.Loop = this; }
+                                            }
 
 #region private fields
     // --- queue
     internal readonly   SmEventQueue                                eventQueue;
     internal readonly   ConcurrentQueue<LoopEvent>                  queue               = new();
     internal readonly   AutoResetEvent                              eventReady          = new(false);
-    internal readonly   Queue<LoopEvent>                            wasmQueue           = new();
-    internal readonly   AsyncSignal                                 wasmEventReady      = new();
     //
     private  readonly   Dictionary<SessionId, SmSession>            sessions            = new(); // non-thread-safe state
     private  readonly   ConcurrentDictionary<SessionId, SmSession>  concurrentSessions  = new(); // thread-safe - used only for SetSessionDirty(SessionId) 

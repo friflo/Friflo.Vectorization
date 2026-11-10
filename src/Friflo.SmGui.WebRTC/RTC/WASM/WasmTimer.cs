@@ -15,6 +15,31 @@ namespace Friflo.SmGui.RTC.WASM;
 
 
 [SupportedOSPlatform("browser")]
+public sealed partial class WasmEventReady : SmEventReady
+{
+    private static volatile bool _isSet;
+    
+    public WasmEventReady() { }
+        
+    public override void Set() {
+        if (_isSet) {
+            return;
+        }
+        SetEventReady();
+    }
+    
+    [JSImport("setEventReady", Wasm.JsModule)]
+    private static partial void SetEventReady();
+    
+    [JSExport]
+    private static void ProcessEvents()
+    {
+        SessionLoop?.IterateSessions();
+        _isSet = false;
+    }
+} 
+
+[SupportedOSPlatform("browser")]
 public sealed partial class WasmTimer : SmTimer, IDisposable
 {
     private static readonly Dictionary<int, WasmTimer>  Instances = new();

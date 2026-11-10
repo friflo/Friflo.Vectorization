@@ -5,6 +5,7 @@ let WasmPeerConnection  = null;
 let WasmDataChannel     = null;
 let Module              = null;
 let WasmTimer           = null;
+let WasmEventReady      = null;
 
 /**
  * Initializes SmGui WebRTC WASM for the passed .NET runtime.
@@ -32,12 +33,19 @@ export async function initializeSmGuiWebRTC(dotnetRuntime) {
         WasmDataChannel         = exports.Friflo.SmGui.RTC.WASM.WasmDataChannel;
         const WasmRtcFactory    = exports.Friflo.SmGui.RTC.WASM.WasmRtcFactory;
         WasmTimer               = exports.Friflo.SmGui.RTC.WASM.WasmTimer;
+        WasmEventReady          = exports.Friflo.SmGui.RTC.WASM.WasmEventReady;
         
         Module = dotnetRuntime.Module;
         
         await WasmRtcFactory.InitializeAsync();
         
         console.log("SmGui WebRTC initialization successful.");
+        
+        onmessage = function (e) {
+            if (e.data === 'eventReady') {
+                WasmEventReady.ProcessEvents();
+            }
+        }
     } catch (err) {
         console.error("SmGui WebRTC initialization failed. Error:", err);
     }    
@@ -196,3 +204,8 @@ export function stopTimer(timer)
     timer.postMessage("stopTimer");
 }
 
+
+// --- WasmEventReady Interop ---
+export function setEventReady() {
+    postMessage('eventReady');
+}

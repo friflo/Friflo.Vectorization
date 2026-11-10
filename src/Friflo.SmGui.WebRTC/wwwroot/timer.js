@@ -1,6 +1,7 @@
 // timer.js
 // noinspection JSUnusedGlobalSymbols
 
+// --- WasmTimer Interop ---
 // Interval for 60 Hz (1000ms / 60 ≈ 16.66ms)
 const interval = 1000 / 60;
 let expected = 0;
