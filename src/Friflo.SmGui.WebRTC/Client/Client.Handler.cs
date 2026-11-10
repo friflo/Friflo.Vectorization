@@ -52,6 +52,44 @@ public sealed partial class SmSignalingClient
             _ = webSocket.SendAsync(payload, WebSocketMessageType.Text, true, CancellationToken.None);
         }
     }
+    
+    private async Task ProcessOffer(WebSocket webSocket, SignalMessage message)
+    {
+        // Get or create peer session using a method group (no lambdas)
+        var connection      = RtcFactory.Instance.CreatePeerConnection();
+        var guiDataChannel  = await connection.createDataChannel("tm-gui-channel", 1);
+        var apiChannel      = await connection.createDataChannel("api-channel",    2);
+        
+        apiChannel.onopen += () => {
+            _ = new WebRtcChannel(apiChannel, loop);
+        };
+        
+        var signalSession   = new SignalSession(connection, webSocket, message.connection);
+        guiDataChannel.onopen += () => {
+            var webRtcClient = new WebRtcClient(guiDataChannel, loop);
+            webRtcClient.EnqueueConnected();
+            RemoveSession(signalSession.connection, webSocket);
+        };
+        var session = sessions.GetOrAdd(message.connection, signalSession);
+        var pc = session.peerConnection;
+
+        // Set remote description using RTCSessionDescriptionInit
+        var remoteDesc = RtcFactory.Instance.CreateSessionDescriptionInit(
+            sdp:    message.sdpOrCandidate,
+            type:   SdpType.offer
+        );
+        await pc.setRemoteDescription(remoteDesc);
+
+        // Create and set local answer
+        var answer = await pc.createAnswer(); // createAnswer(null)
+        await pc.setLocalDescription(answer);
+
+        var msg = new SignalMessage("answer", null, message.connection, answer.sdp, loop.SessionCount);
+        var answerPayload = JsonSerializer.SerializeToUtf8Bytes(msg, ApiJson.Default.SignalMessage);
+        if (webSocket.State == WebSocketState.Open) {
+            await webSocket.SendAsync(answerPayload, WebSocketMessageType.Text, true, CancellationToken.None);
+        }
+    }
 
     private async Task ProcessSignalingMessage(WebSocket webSocket, ReadOnlyMemory<byte> messageBuffer)
     {
@@ -62,43 +100,8 @@ public sealed partial class SmSignalingClient
         switch (message.type)
         {
             case "offer":
-            {
-                // Get or create peer session using a method group (no lambdas)
-                var connection      = RtcFactory.Instance.CreatePeerConnection();
-                var guiDataChannel  = await connection.createDataChannel("tm-gui-channel", 1);
-                var apiChannel      = await connection.createDataChannel("api-channel",    2);
-                
-                apiChannel.onopen += () => {
-                    _ = new WebRtcChannel(apiChannel, loop);
-                };
-                
-                var signalSession   = new SignalSession(connection, webSocket, message.connection);
-                guiDataChannel.onopen += () => {
-                    var webRtcClient = new WebRtcClient(guiDataChannel, loop);
-                    webRtcClient.EnqueueConnected();
-                    RemoveSession(signalSession.connection, webSocket);
-                };
-                var session = sessions.GetOrAdd(message.connection, signalSession);
-                var pc = session.peerConnection;
-
-                // Set remote description using RTCSessionDescriptionInit
-                var remoteDesc = RtcFactory.Instance.CreateSessionDescriptionInit(
-                    sdp:    message.sdpOrCandidate,
-                    type:   SdpType.offer
-                );
-                await pc.setRemoteDescription(remoteDesc);
-
-                // Create and set local answer
-                var answer = await pc.createAnswer(); // createAnswer(null)
-                await pc.setLocalDescription(answer);
-
-                var msg = new SignalMessage("answer", null, message.connection, answer.sdp, loop.SessionCount);
-                var answerPayload = JsonSerializer.SerializeToUtf8Bytes(msg, ApiJson.Default.SignalMessage);
-                if (webSocket.State == WebSocketState.Open) {
-                    await webSocket.SendAsync(answerPayload, WebSocketMessageType.Text, true, CancellationToken.None);
-                }
+                await ProcessOffer(webSocket, message);
                 break;
-            }
             case "answer":
             {
                 if (sessions.TryGetValue(message.connection, out var session) && message.sdpOrCandidate != null) {
