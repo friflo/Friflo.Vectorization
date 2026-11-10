@@ -11,7 +11,8 @@ The goal of Friflo.SmGui.WebRTC is to act as a **real** serverless alternative t
 GUI vector data is streamed via WebRTC data channels instead of an HTTP WebSocket.  
 
 Friflo.SmGui.WebRTC supports multiple concurrent sessions.  
-Each session has its own state and its own UI, so many browser clients can use the same application at the same time, independently of each other.
+Each session has its own state and its own UI, so many browser clients can use the same application at the same time, independently of each other.  
+The page title (`document.title`) of WebRTC browser clients are typically marked with 🔀.
 
 The key difference of a **WebRTC** setup:  
 An app built with this setup **does not act as a server**.  
