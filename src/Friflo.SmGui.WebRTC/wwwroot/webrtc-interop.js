@@ -32,8 +32,9 @@ export async function initializeSmGuiWebRTC(dotnetRuntime) {
         WasmPeerConnection      = exports.Friflo.SmGui.RTC.WASM.WasmPeerConnection;
         WasmDataChannel         = exports.Friflo.SmGui.RTC.WASM.WasmDataChannel;
         const WasmRtcFactory    = exports.Friflo.SmGui.RTC.WASM.WasmRtcFactory;
-        WasmTimer               = exports.Friflo.SmGui.RTC.WASM.WasmTimer;
-        WasmEventReady          = exports.Friflo.SmGui.RTC.WASM.WasmEventReady;
+        //
+        WasmTimer               = exports.Friflo.SmGui.WebRTC.WasmTimer;
+        WasmEventReady          = exports.Friflo.SmGui.WebRTC.WasmEventReady;
         
         Module = dotnetRuntime.Module;
         

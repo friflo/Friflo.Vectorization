@@ -54,9 +54,9 @@ public sealed class AppTimer : IDisposable
     private             bool                isInitialized;
     private  volatile   bool                isRunning;
     
-    internal AppTimer(SmEventQueue eventQueue, int tickRate)
+    internal AppTimer(SmSessionLoop loop, int tickRate)
     {
-        this.eventQueue = eventQueue;
+        eventQueue      = loop.eventQueue;
         this.tickRate   = tickRate;
     }
 
@@ -132,7 +132,7 @@ public sealed class AppTimer : IDisposable
         isInitialized   = true;
         isRunning       = true;
 
-        syncTimer = new SyncTimer(Period);
+        syncTimer = eventQueue.runtime.CreateTimer();
         syncTimer.OnTick += OnSyncTimer;
     }
 

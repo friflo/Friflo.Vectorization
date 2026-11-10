@@ -7,40 +7,13 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices.JavaScript;
 using System.Runtime.Versioning;
-using System.Threading.Tasks;
+using Friflo.SmGui.RTC.WASM;
 using Friflo.SmGui.Session;
 
 // ReSharper disable EmptyConstructor
 // ReSharper disable CheckNamespace
-namespace Friflo.SmGui.RTC.WASM;
+namespace Friflo.SmGui.WebRTC;
 
-
-[SupportedOSPlatform("browser")]
-public sealed partial class WasmEventReady : SmEventReady
-{
-    private static volatile bool _isSet;
-    
-    public WasmEventReady() { }
-        
-    public override void Set() {
-        if (_isSet) {
-            return;
-        }
-        _isSet = true;
-        SetEventReady();
-    }
-    
-    [JSImport("setEventReady", Wasm.JsModule)]
-    private static partial void SetEventReady();
-    
-    [JSExport]
-    private static Task ProcessEvents()
-    {
-        _isSet = false;
-        SessionLoop?.IterateSessions();
-        return Task.CompletedTask;
-    }
-} 
 
 [SupportedOSPlatform("browser")]
 public sealed partial class WasmTimer : SmTimer, IDisposable
@@ -51,7 +24,7 @@ public sealed partial class WasmTimer : SmTimer, IDisposable
     private readonly    int         id;
     private readonly    JSObject    native;
     
-    private WasmTimer()
+    internal WasmTimer()
     {
         id = ++_nextId;
         Instances[id] = this;
@@ -63,14 +36,6 @@ public sealed partial class WasmTimer : SmTimer, IDisposable
     {
         Instances.Remove(id);
         native.Dispose();
-    }
-    
-    public static SmTimer CreateTimer()
-    {
-        if (!WasmRtcFactory.IsInitialized) {
-            throw new InvalidOperationException(WasmRtcFactory.NotInitializedMsg);
-        }
-        return new WasmTimer();
     }
     
     protected override void StartTimer()

@@ -66,6 +66,7 @@ public sealed partial class SmSessionLoop : IDisposable
                                                 get => eventQueue.wasmEventReady;
                                                 init { eventQueue.wasmEventReady = value; SmEventReady.Loop = this; }
                                             }
+    public              SmRuntime           Runtime { get => eventQueue.runtime; init => eventQueue.runtime = value; }
 
 #region private fields
     // --- queue
@@ -101,7 +102,7 @@ public sealed partial class SmSessionLoop : IDisposable
         if (!OperatingSystem.IsBrowser()) {
             PosixSignalUtils.AddExitHandler(exitHandler);
         }
-        appTimer            = new AppTimer(eventQueue, 60);
+        appTimer            = new AppTimer(this, 60);
     }
     
     public void Dispose()

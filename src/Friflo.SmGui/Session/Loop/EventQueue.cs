@@ -10,14 +10,6 @@ using System.Threading.Tasks;
 namespace Friflo.SmGui.Session;
 
 
-public abstract class SmEventReady
-{
-    protected static SmSessionLoop? SessionLoop => Loop;
-    internal  static SmSessionLoop? Loop;
-    
-    public abstract void Set();
-} 
-
 /// <summary>
 /// The event queue owned by the <see cref="SmSessionLoop"/>.
 /// </summary>
@@ -30,6 +22,7 @@ internal sealed class SmEventQueue
     private  readonly   ConcurrentQueue<LoopEvent>  queue;
     private  readonly   AutoResetEvent              eventReady;
     internal            SmEventReady?               wasmEventReady;
+    internal            SmRuntime                   runtime = new();
     internal            bool                        isDisposed;
     
     private  const      int                         MaxQueueCapacity = 16384; // 16384 events == 512 KB memory
