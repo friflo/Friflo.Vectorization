@@ -4,9 +4,10 @@
 // #if RTC_BROWSER
 
 using System;
-using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Runtime.InteropServices.JavaScript;
 using System.Runtime.Versioning;
+using System.Threading;
 using System.Threading.Tasks;
 
 // ReSharper disable UnusedMethodReturnValue.Local
@@ -17,8 +18,8 @@ namespace Friflo.SmGui.RTC.WASM;
 [SupportedOSPlatform("browser")]
 internal sealed partial class WasmDataChannel : DataChannel, IDisposable
 {
-    private static readonly Dictionary<int, WasmDataChannel>    Instances = new();
-    private static          int                                 _nextId;
+    private static readonly ConcurrentDictionary<int, WasmDataChannel>  Instances = new();
+    private static          int                                         _nextId;
 
     private readonly    int                 id;
     private readonly    JSObject            native;
@@ -42,7 +43,7 @@ internal sealed partial class WasmDataChannel : DataChannel, IDisposable
 
     internal WasmDataChannel(JSObject native) 
     {
-        id = ++_nextId;
+        id = Interlocked.Increment(ref _nextId);
         Instances[id] = this;
 
         this.native = native;
@@ -119,7 +120,7 @@ internal sealed partial class WasmDataChannel : DataChannel, IDisposable
     
     public void Dispose()
     {
-        Instances.Remove(id);
+        Instances.TryRemove(id, out _);
         native.Dispose();
     }
     
