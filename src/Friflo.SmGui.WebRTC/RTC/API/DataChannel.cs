@@ -5,7 +5,7 @@ using System;
 
 // ReSharper disable CheckNamespace
 // ReSharper disable InconsistentNaming
-namespace Friflo.SmGui.WebRTC;
+namespace Friflo.SmGui.RTC;
 
 
 /// <see cref="SIPSorcery.Net.RTCDataChannelState"/>

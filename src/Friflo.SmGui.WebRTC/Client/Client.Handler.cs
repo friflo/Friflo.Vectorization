@@ -7,6 +7,7 @@ using System.Net.WebSockets;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using Friflo.SmGui.RTC;
 
 
 // ReSharper disable SuggestVarOrType_SimpleTypes
@@ -40,7 +41,7 @@ public sealed partial class SmSignalingClient
     // Maps each WebSocket session to its respective peer session wrapper
     private readonly ConcurrentDictionary<string, SignalSession> sessions = new();
     
-    internal void RemoveSession(string connection, WebSocket webSocket)
+    private void RemoveSession(string connection, WebSocket webSocket)
     {
         if (!sessions.TryRemove(connection, out _)) {
             return;

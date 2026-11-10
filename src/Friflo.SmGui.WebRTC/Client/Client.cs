@@ -44,7 +44,7 @@ public static class SmSignalingExtensions
 
 public sealed partial class SmSignalingClient
 {
-    internal readonly   SmSessionLoop       loop;
+    private  readonly   SmSessionLoop       loop;
     private             ClientWebSocket?    clientWebSocket;
         
     public SmSignalingClient(SmSessionLoop loop)

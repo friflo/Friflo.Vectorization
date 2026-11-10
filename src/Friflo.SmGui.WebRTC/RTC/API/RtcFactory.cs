@@ -2,8 +2,9 @@
 // See LICENSE file in the project root for full license information.
 
 // ReSharper disable CheckNamespace
-namespace Friflo.SmGui.WebRTC;
+namespace Friflo.SmGui.RTC;
 
+#pragma warning disable CA1859  // Change return type of method 'CreateFactory' from 'RtcFactory' to '...' for improved performance
 
 internal abstract class RtcFactory
 {
@@ -12,9 +13,9 @@ internal abstract class RtcFactory
     private static RtcFactory CreateFactory()
     {
 #if RTC_BROWSER
-        return new WasmRtcFactory();
+        return new WASM.WasmRtcFactory();
 #else        
-        return new SipRtcFactory();
+        return new SIP.SipRtcFactory();
 #endif
     }
 

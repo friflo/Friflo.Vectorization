@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 // ReSharper disable EmptyConstructor
 // ReSharper disable CheckNamespace
-namespace Friflo.SmGui.WebRTC;
+namespace Friflo.SmGui.RTC.WASM;
 
 
 internal static class Wasm {

@@ -8,6 +8,7 @@ using System.IO.Compression;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
+using Friflo.SmGui.RTC;
 using Friflo.SmGui.Session;
 
 // ReSharper disable MergeIntoPattern

@@ -7,7 +7,7 @@ using System.Text.Json;
 using SIPSorcery.Net;
 
 // ReSharper disable CheckNamespace
-namespace Friflo.SmGui.WebRTC;
+namespace Friflo.SmGui.RTC.SIP;
 
 
 internal sealed class SipRtcFactory : RtcFactory

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 // ReSharper disable InconsistentNaming
 // ReSharper disable CheckNamespace
-namespace Friflo.SmGui.WebRTC;
+namespace Friflo.SmGui.RTC;
 
 /// <see cref="SIPSorcery.Net.RTCSdpType"/>
 internal enum SdpType

@@ -4,6 +4,7 @@
 using System.Net.WebSockets;
 using System.Text.Json;
 using System.Threading;
+using Friflo.SmGui.RTC;
 
 // ReSharper disable CheckNamespace
 namespace Friflo.SmGui.WebRTC;

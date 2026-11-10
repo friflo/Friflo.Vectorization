@@ -7,7 +7,7 @@ using System.Text.Json.Serialization;
 using SIPSorcery.Net;
 
 // ReSharper disable CheckNamespace
-namespace Friflo.SmGui.WebRTC;
+namespace Friflo.SmGui.RTC.SIP;
 
 [JsonSerializable(typeof(RTCIceCandidateInit))]
 [JsonSerializable(typeof(RTCIceCandidate))]

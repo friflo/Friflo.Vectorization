@@ -11,7 +11,7 @@ using Friflo.SmGui.Session;
 
 // ReSharper disable EmptyConstructor
 // ReSharper disable CheckNamespace
-namespace Friflo.SmGui.WebRTC;
+namespace Friflo.SmGui.RTC.WASM;
 
 
 [SupportedOSPlatform("browser")]

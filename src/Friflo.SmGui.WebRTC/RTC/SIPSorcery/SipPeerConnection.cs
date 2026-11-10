@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using SIPSorcery.Net;
 
 // ReSharper disable CheckNamespace
-namespace Friflo.SmGui.WebRTC;
+namespace Friflo.SmGui.RTC.SIP;
 
 
 internal sealed class SipPeerConnection : PeerConnection, IDisposable

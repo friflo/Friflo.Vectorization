@@ -7,7 +7,7 @@ using System;
 using SIPSorcery.Net;
 
 // ReSharper disable CheckNamespace
-namespace Friflo.SmGui.WebRTC;
+namespace Friflo.SmGui.RTC.SIP;
 
 
 internal sealed class SipDataChannel : DataChannel, IDisposable

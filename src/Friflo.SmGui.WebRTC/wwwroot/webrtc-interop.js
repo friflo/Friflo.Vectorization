@@ -1,10 +1,10 @@
 // webrtc-interop.js
 // noinspection JSUnusedGlobalSymbols
 
-let WasmPeerConnection  = null; // Type: Friflo.SmGui.WebRTC.WasmPeerConnection
-let WasmDataChannel     = null; // Type: Friflo.SmGui.WebRTC.WasmDataChannel
+let WasmPeerConnection  = null;
+let WasmDataChannel     = null;
 let Module              = null;
-let WasmTimer           = null; // Type: Friflo.SmGui.WebRTC.WasmTimer
+let WasmTimer           = null;
 
 /**
  * Initializes SmGui WebRTC WASM for the passed .NET runtime.
@@ -28,10 +28,10 @@ export async function initializeSmGuiWebRTC(dotnetRuntime) {
     try {
         const exports = await dotnetRuntime.getAssemblyExports("Friflo.SmGui.WebRTC.dll");
         
-        WasmPeerConnection      = exports.Friflo.SmGui.WebRTC.WasmPeerConnection;
-        WasmDataChannel         = exports.Friflo.SmGui.WebRTC.WasmDataChannel;
-        const WasmRtcFactory    = exports.Friflo.SmGui.WebRTC.WasmRtcFactory;
-        WasmTimer               = exports.Friflo.SmGui.WebRTC.WasmTimer;
+        WasmPeerConnection      = exports.Friflo.SmGui.RTC.WASM.WasmPeerConnection;
+        WasmDataChannel         = exports.Friflo.SmGui.RTC.WASM.WasmDataChannel;
+        const WasmRtcFactory    = exports.Friflo.SmGui.RTC.WASM.WasmRtcFactory;
+        WasmTimer               = exports.Friflo.SmGui.RTC.WASM.WasmTimer;
         
         Module = dotnetRuntime.Module;
         

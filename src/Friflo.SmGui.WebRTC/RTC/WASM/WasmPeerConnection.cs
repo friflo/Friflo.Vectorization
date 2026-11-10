@@ -10,7 +10,7 @@ using System.Runtime.Versioning;
 using System.Threading.Tasks;
 
 // ReSharper disable CheckNamespace
-namespace Friflo.SmGui.WebRTC;
+namespace Friflo.SmGui.RTC.WASM;
 
 
 [SupportedOSPlatform("browser")]
