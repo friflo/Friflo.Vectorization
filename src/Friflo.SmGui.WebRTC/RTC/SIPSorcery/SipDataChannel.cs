@@ -18,7 +18,7 @@ internal sealed class SipDataChannel : DataChannel, IDisposable
     private readonly    Action                          closeHandler;
         
     internal override   DataChannelState    readyState  => (DataChannelState)native.readyState;
-    internal override   bool                ordered     { get => native.ordered; set => native.ordered = value; }
+    internal override   bool                ordered     => native.ordered;
 
     internal SipDataChannel(string label, RTCDataChannel native) : base(label)
     {

@@ -42,7 +42,8 @@ internal sealed class SipPeerConnection : PeerConnection, IDisposable
     
     internal override async Task<DataChannel> createDataChannel(string label, int channelId)
     {
-        var dataChannel = await native.createDataChannel(label, new RTCDataChannelInit { negotiated = true, id = (ushort)channelId });
+        var init = new RTCDataChannelInit { negotiated = true, id = (ushort)channelId, ordered = true };
+        var dataChannel = await native.createDataChannel(label, init);
         return new SipDataChannel(label, dataChannel);
     }
     

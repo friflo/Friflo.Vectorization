@@ -34,7 +34,6 @@ internal sealed class WebRtcClient : SmClient
         // compressor = new DeflaterOutputStream(outputStream, deflater) { IsStreamOwner = false };
         
         this.dataChannel    = dataChannel;
-        dataChannel.ordered = true; // todo   check/remove. only channel creator can set ordered
         // dataChannel.maxPacketLifeTime = 1;
         // dataChannel.maxRetransmits = 0;
         dataChannel.onmessage   += OnMessage;

@@ -27,11 +27,7 @@ internal sealed partial class WasmDataChannel : DataChannel, IDisposable
         
     internal override   DataChannelState    readyState => cachedState;
     
-    internal override bool ordered
-    {
-        get => GetOrdered(native);
-        set { }
-    }
+    internal override   bool                ordered => GetOrdered(native);
 
     internal WasmDataChannel(string label, JSObject native) : base(label) 
     {
