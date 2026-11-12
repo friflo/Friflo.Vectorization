@@ -29,6 +29,7 @@ public enum LoopEventType
     WebsocketConnected,
     SetAppDirty,
     AppTick,
+    DispatchAsync
 }
 
 public readonly struct Payload

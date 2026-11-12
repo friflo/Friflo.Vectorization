@@ -8,6 +8,7 @@
         <Nullable>enable</Nullable>
         
         <IsAotCompatible>true</IsAotCompatible>
+        <EnableRequestDelegateGenerator>true</EnableRequestDelegateGenerator> <!-- Required when using app.MapGet() with AOT -->
         <IsTrimmable>true</IsTrimmable>
     </PropertyGroup>
 

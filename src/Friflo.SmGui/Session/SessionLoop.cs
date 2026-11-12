@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using Friflo.SmGui.Headless;
@@ -272,6 +273,30 @@ public sealed partial class SmSessionLoop : IDisposable
             return;
         }
         session.client.TryEnqueueSessionEvent(LoopEventType.RenderView, default);
+    }
+    
+    public LoopAwaiter DispatchAsync()
+    {
+        return new LoopAwaiter(this);
+    }
+}
+
+public readonly struct LoopAwaiter : ICriticalNotifyCompletion
+{
+    private readonly SmEventQueue eventQueue;
+
+    internal LoopAwaiter(SmSessionLoop loop) => eventQueue = loop.eventQueue;
+    
+    public bool         IsCompleted     => false; // loop.IsCurrentThread; as possible alternative
+    public LoopAwaiter  GetAwaiter()    => this;
+    public void         GetResult()     { }
+
+    public void OnCompleted(Action continuation) {
+        eventQueue.TryEnqueueEvent(null, default, LoopEventType.DispatchAsync, continuation, default, 0);
+    }
+
+    public void UnsafeOnCompleted(Action continuation) {
+        eventQueue.TryEnqueueEvent(null, default, LoopEventType.DispatchAsync, continuation, default, 0);
     }
 }
 

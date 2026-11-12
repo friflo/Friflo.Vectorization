@@ -4,6 +4,7 @@ using Friflo.SmGui.Headless;
 using Friflo.SmGui.Http;
 using Friflo.SmGui.Session;
 using Friflo.SmGui.WebRTC;
+using Microsoft.AspNetCore.Builder;
 using TuiTerminal;
 
 /*
@@ -58,6 +59,12 @@ loop.UseWebRtcGuiSessions(new Uri("wss://localhost:8081/signaling"), "test-app",
 // HTTP server for Browser sessions.  nuget: Friflo.SmGui.Http
 var app = HttpUtils.CreateWebApplication(new IPEndPoint(IPAddress.IPv6Any, 8080));
 app.UseWebSocketGuiSessions(loop);
+app.MapGet("/api/speed", async () => {
+    await loop.DispatchAsync();             // move execution to loop thread to avoid explicit locks and contention
+    var speed = appState.speed;             // capture state safely on loop thread
+    await Task.Run(() => Task.Delay(3000)); // avoid blocking loop thread: run heavy / IO operations on worker thread (example)
+    return speed;
+});
 _ = app.StartAsync();
 
 // Acquire stdin/stdout for Console session

@@ -118,6 +118,10 @@ public partial class SmSessionLoop
                 case LoopEventType.AppTick:
                     TickSessions();
                     break;
+                case LoopEventType.DispatchAsync:
+                    var continuation = (Action)evt.state!;
+                    continuation.Invoke();
+                    break;
             }
         } catch (Exception e) {
             Debug.Fail(e.ToString());
