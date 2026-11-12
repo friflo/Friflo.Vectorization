@@ -40,7 +40,7 @@ public readonly struct SessionsChangedArgs
 public sealed class LoopOptions
 {
     public required     CpuBackend      Backend                 { get; init; }
-    public required     CreateGuiView   ViewFactory             { get; init; }  // todo rename CreateGuiView -> ViewFactory
+    public required     ViewFactory     ViewFactory             { get; init; }
     public              bool            UseSecureSessionGuids   { get; init; }
     public              SmEventReady?   EventReady              { get; init; }
     public              SmRuntime?      Runtime                 { get; init; }
@@ -56,7 +56,7 @@ public delegate void SessionsChanged(SessionsChangedArgs args);
 /// <remarks>
 /// Handles all client sessions on the main thread, simplifying application development and enabling lock-free access to application and session state.<br/>
 /// <br/>
-/// The <see cref="CreateGuiView"/> delegate passed to the <see cref="SmSessionLoop"/> constructor must return an instance implementing <see cref="IGuiView"/>.<br/>
+/// The <see cref="ViewFactory"/> delegate passed to the <see cref="SmSessionLoop"/> constructor must return an instance implementing <see cref="IGuiView"/>.<br/>
 /// If a client has pending input or a dirty session, a new frame is rendered via <see cref="IGuiView.RenderView"/> and transmitted to the client.<br/>
 /// <br/>
 /// Use <see cref="Run"/> to let the loop run automatically (ideal for console and terminal applications).<br/>
@@ -80,7 +80,7 @@ public sealed partial class SmSessionLoop : IDisposable
     private  readonly   Dictionary<SessionId, SmSession>            sessions            = new(); // non-thread-safe state
     private  readonly   ConcurrentDictionary<SessionId, SmSession>  concurrentSessions  = new(); // thread-safe - used only for SetSessionDirty(SessionId) 
     internal readonly   int                                         sessionThreadId;
-    private  readonly   CreateGuiView                               createGuiView;      // IGuiView factory
+    private  readonly   ViewFactory                                 viewFactory;        // IGuiView factory
     private  readonly   CancellationTokenSource                     cts                 = new();
     private             bool                                        isDisposed;
     private  readonly   Action                                      exitHandler;
@@ -100,9 +100,9 @@ public sealed partial class SmSessionLoop : IDisposable
         return loop;
     }
 
-    internal SmSessionLoop(CpuBackend cpuBackend, CreateGuiView createGuiView)
+    internal SmSessionLoop(CpuBackend cpuBackend, ViewFactory viewFactory)
     {
-        this.createGuiView  = createGuiView;
+        this.viewFactory    = viewFactory;
         this.cpuBackend     = cpuBackend;  // TAG_CPU
         resources           = new AssetResources(cpuBackend);
         
@@ -173,7 +173,7 @@ public sealed partial class SmSessionLoop : IDisposable
         var keys            = new SessionKeys(client.sessionId, default);
         var session         = new TuiSession(client, keys, this, sessionTimer, TuiColorMode.RGB24);
         var viewSession     = new ViewSession(this, session, args, client, session.Backend, sessionTimer);
-        var guiView         = createGuiView(viewSession);
+        var guiView         = viewFactory(viewSession);
         session.viewSession = viewSession;
         
         session.guiView = guiView;
@@ -194,7 +194,7 @@ public sealed partial class SmSessionLoop : IDisposable
         var keys            = new SessionKeys(sessionId, sessionGuid);
         var session         = new GuiSession(client, keys, this, sessionTimer);
         var viewSession     = new ViewSession(this, session, [], client, session.Backend, sessionTimer);
-        var guiView         = createGuiView(viewSession);
+        var guiView         = viewFactory(viewSession);
         session.viewSession = viewSession;
         
         session.guiView = guiView;
