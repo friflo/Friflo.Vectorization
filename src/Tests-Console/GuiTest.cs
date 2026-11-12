@@ -87,7 +87,10 @@ public class SmGuiRenderer : IRenderer, IGuiView
     /// </summary>
     private static SmSessionLoop CreateSessionLoop(SmGuiBackend backend, SmGuiRenderer renderer)
     {
-        var loop = new SmSessionLoop(new CpuBackend("SmGui - Remote Test", backend), session => new SmGuiRenderer(renderer, session));
+        var loop = SmSessionLoop.Create(new LoopOptions {
+            Backend     = new CpuBackend("SmGui - Remote Test", backend),
+            ViewFactory = session => new SmGuiRenderer(renderer, session)
+        });
         // HTTP server for Browser sessions.  nuget: Friflo.SmGui.Http
         var app = HttpUtils.CreateWebApplication(new IPEndPoint(IPAddress.IPv6Any, port));
         app.UseWebSocketGuiSessions(loop);

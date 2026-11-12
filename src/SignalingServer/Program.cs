@@ -12,7 +12,10 @@ Console.WriteLine($"https://localhost:8081/");
 var cpuBackend  = new CpuBackend("Signaling Server", new DefaultGuiAssets());
 var signaling   = new SmSignaling();
 
-var loop = new SmSessionLoop(cpuBackend, session => new SignalingView(signaling, session));
+var loop = SmSessionLoop.Create(new LoopOptions {
+    Backend     = cpuBackend,
+    ViewFactory = session => new SignalingView(signaling, session)
+});
 signaling.StateChanged = loop.SetAppDirty;
 
 // HTTP server for Browser sessions.  nuget: Friflo.SmGui.Http

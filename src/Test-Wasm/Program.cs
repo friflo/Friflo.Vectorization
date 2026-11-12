@@ -19,11 +19,12 @@ internal static class Program
         var cpuBackend  = new CpuBackend("App", new DefaultGuiAssets());
 
         // Create one session loop per App
-        var loop = new SmSessionLoop(cpuBackend, session => new TestGuiView(session)) {
-            EventReady              = new WasmEventReady(),
-            Runtime                 = new WasmRuntime(),
-            UseSecureSessionGuids   = false
-        };
+        var loop = SmSessionLoop.Create(new LoopOptions {
+            Backend     = cpuBackend,
+            ViewFactory = session => new TestGuiView(session),
+            EventReady  = new WasmEventReady(),
+            Runtime     = new WasmRuntime()
+        });
         await loop.UseWebRtcGuiSessionsAsync(new Uri("wss://localhost:8081/signaling"), "test-app", "auto");
         
         JSHost.GlobalThis.SetProperty("onAppStarted", loop.appId);

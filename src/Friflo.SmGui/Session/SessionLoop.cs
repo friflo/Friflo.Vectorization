@@ -37,6 +37,15 @@ public readonly struct SessionsChangedArgs
     }
 }
 
+public sealed class LoopOptions
+{
+    public required     CpuBackend      Backend                 { get; init; }
+    public required     CreateGuiView   ViewFactory             { get; init; }  // todo rename CreateGuiView -> ViewFactory
+    public              bool            UseSecureSessionGuids   { get; init; }
+    public              SmEventReady?   EventReady              { get; init; }
+    public              SmRuntime?      Runtime                 { get; init; }
+}
+
 public delegate void SessionsChanged(SessionsChangedArgs args);
 
 /// <summary>
@@ -57,18 +66,12 @@ public sealed partial class SmSessionLoop : IDisposable
 {
     public   readonly   AssetResources      resources;
     public              string?             appId;
-    public              bool                UseSecureSessionGuids   { get; init; }
     public              int                 SessionCount            => sessions.Count;
     public   event      SessionsChanged?    SessionsChanged;
     public              AppTimer            AppTimer                => appTimer;
-    
-    public              SmEventReady?       EventReady {
-                                                get => eventQueue.wasmEventReady;
-                                                init { eventQueue.wasmEventReady = value; SmEventReady.Loop = this; }
-                                            }
-    public              SmRuntime           Runtime { get => eventQueue.runtime; init => eventQueue.runtime = value; }
 
 #region private fields
+    internal            bool                                        useSecureSessionGuids;
     // --- queue
     internal readonly   SmEventQueue                                eventQueue;
     internal readonly   ConcurrentQueue<LoopEvent>                  queue               = new();
@@ -87,7 +90,17 @@ public sealed partial class SmSessionLoop : IDisposable
     internal readonly   AppTimer                                    appTimer;           // shared among all sessions
 #endregion
     
-    public SmSessionLoop(CpuBackend cpuBackend, CreateGuiView createGuiView)
+    public static SmSessionLoop Create(LoopOptions options)
+    {
+        var loop = new SmSessionLoop(options.Backend, options.ViewFactory);
+        loop.useSecureSessionGuids      = options.UseSecureSessionGuids;
+        loop.eventQueue.wasmEventReady  = options.EventReady;
+        SmEventReady.Loop               = loop;
+        loop.eventQueue.runtime         = options.Runtime ?? new SmRuntime();
+        return loop;
+    }
+
+    internal SmSessionLoop(CpuBackend cpuBackend, CreateGuiView createGuiView)
     {
         this.createGuiView  = createGuiView;
         this.cpuBackend     = cpuBackend;  // TAG_CPU
@@ -177,7 +190,7 @@ public sealed partial class SmSessionLoop : IDisposable
     {
         var sessionId       = client.sessionId;
         var sessionTimer    = new SessionTimer(appTimer, sessionId);
-        var sessionGuid     = UseSecureSessionGuids ? new SessionGuid(Guid.NewGuid()) : new SessionGuid(sessionId.id);
+        var sessionGuid     = useSecureSessionGuids ? new SessionGuid(Guid.NewGuid()) : new SessionGuid(sessionId.id);
         var keys            = new SessionKeys(sessionId, sessionGuid);
         var session         = new GuiSession(client, keys, this, sessionTimer);
         var viewSession     = new ViewSession(this, session, [], client, session.Backend, sessionTimer);

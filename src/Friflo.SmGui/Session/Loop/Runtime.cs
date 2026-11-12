@@ -9,7 +9,7 @@ public class SmRuntime
 {
     public virtual SmTimer CreateTimer()
     {
-        return new SyncTimer(60);
+        return new SyncTimer(16);
     }
 }
 

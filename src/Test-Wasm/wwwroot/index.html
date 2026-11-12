@@ -23,7 +23,7 @@
                background: var(--bg); color: var(--text); }
         a    { text-decoration: none; color: var(--link); }
     </style>
-    <link rel="manifest" href="manifest.webmanifest">
+    <!-- <link rel="manifest" href="manifest.webmanifest"> --> <!-- uncomment to run as PWA -->
 </head>
 <body>
     <h1>Test-Wasm IL/AOT</h1>
@@ -31,8 +31,7 @@
     <a id="webrtc-client" target="_blank">WebRTC client</a>
 
     <script type="module">
-        // Register service worker (cache-first, enables offline start of the app files)
-        if ('serviceWorker' in navigator) {
+        if ('serviceWorker' in navigator && document.querySelector('link[rel="manifest"]')) {
             navigator.serviceWorker.register('./service-worker.js').catch(console.error);
         }
 
