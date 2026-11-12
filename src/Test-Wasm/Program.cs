@@ -22,7 +22,6 @@ internal static class Program
         var loop = SmSessionLoop.Create(new LoopOptions {
             Backend     = cpuBackend,
             ViewFactory = session => new TestGuiView(session),
-            EventReady  = new WasmEventReady(),
             Runtime     = new WasmRuntime()
         });
         await loop.UseWebRtcGuiSessionsAsync(new Uri("wss://localhost:8081/signaling"), "test-app", "auto");

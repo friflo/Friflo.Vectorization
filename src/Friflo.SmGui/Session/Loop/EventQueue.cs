@@ -21,7 +21,6 @@ internal sealed class SmEventQueue
 {
     private  readonly   ConcurrentQueue<LoopEvent>  queue;
     private  readonly   AutoResetEvent              eventReady;
-    internal            SmEventReady?               wasmEventReady;
     internal            SmRuntime                   runtime = new();
     internal            bool                        isDisposed;
     
@@ -52,7 +51,7 @@ internal sealed class SmEventQueue
         queue.Enqueue(ev);
         eventReady.Set(); // Wake up worker thread
 
-        wasmEventReady?.Set(); // Wake up main thread to run:  ProcessEvents() > IterateSessions()
+        runtime.NotifyEventReady(); // Wake up main thread to run:  ProcessEvents() > IterateSessions()
         return true;
     }
 }

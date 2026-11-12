@@ -42,7 +42,6 @@ public sealed class LoopOptions
     public required     CpuBackend      Backend                 { get; init; }
     public required     ViewFactory     ViewFactory             { get; init; }
     public              bool            UseSecureSessionGuids   { get; init; }
-    public              SmEventReady?   EventReady              { get; init; }
     public              SmRuntime?      Runtime                 { get; init; }
 }
 
@@ -94,8 +93,7 @@ public sealed partial class SmSessionLoop : IDisposable
     {
         var loop = new SmSessionLoop(options.Backend, options.ViewFactory);
         loop.useSecureSessionGuids      = options.UseSecureSessionGuids;
-        loop.eventQueue.wasmEventReady  = options.EventReady;
-        SmEventReady.Loop               = loop;
+        SmRuntime.Loop                  = loop;
         loop.eventQueue.runtime         = options.Runtime ?? new SmRuntime();
         return loop;
     }
