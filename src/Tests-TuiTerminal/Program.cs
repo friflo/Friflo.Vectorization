@@ -60,7 +60,7 @@ loop.UseWebRtcGuiSessions(new Uri("wss://localhost:8081/signaling"), "test-app",
 var app = HttpUtils.CreateWebApplication(new IPEndPoint(IPAddress.IPv6Any, 8080));
 app.UseWebSocketGuiSessions(loop);
 app.MapGet("/api/speed", async () => {
-    await loop.DispatchAsync();             // move execution to loop thread to avoid explicit locks and contention
+    await loop.DispatchAsync();             // continue execution on loop thread to avoid explicit locks and contention
     var speed = appState.speed;             // capture state safely on loop thread
     await Task.Run(() => Task.Delay(3000)); // avoid blocking loop thread: run heavy / IO operations on worker thread (example)
     return speed;
