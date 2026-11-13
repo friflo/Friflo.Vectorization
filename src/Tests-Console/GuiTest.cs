@@ -57,6 +57,8 @@ public class SmGuiRenderer : IRenderer, IGuiView
         }
     };
     
+    public SmGuiBackend? GuiBackend { get; }
+
     public void OnShutdown() {
         loop?.Dispose();
         monocraftFont.Dispose();
@@ -66,18 +68,19 @@ public class SmGuiRenderer : IRenderer, IGuiView
     
     public SmGuiRenderer(WgpuHost wgpuHost)
     {
-        var guiBackend      = wgpuHost.CreateGuiBackend();
-        gpuBatch            = guiBackend.CreateBatch(wgpuHost.SwapChainFormat);
+        var wgpuBackend     = new WgpuGuiBackend(wgpuHost.Device);
+        GuiBackend          = wgpuBackend;
+        gpuBatch            = wgpuBackend.CreateBatch(wgpuHost.SwapChainFormat);
         using var monoTtf   = typeof(SmGuiRenderer).Assembly.GetManifestResourceStream("Tests-Console.Assets.Monocraft.ttf")!;  
-        monocraftFont       = guiBackend.CreateTtfFont(monoTtf, 48, 256, 256, 32, 95, "Monocraft");
+        monocraftFont       = GuiBackend.CreateTtfFont(monoTtf, 48, 256, 256, 32, 95, "Monocraft");
         Debug.Assert(monocraftFont.maxY == 244);
         
         // create tile texture
         using var stream = typeof(SdlWindow).Assembly.GetManifestResourceStream("Tests-Console.Assets.img.world_tileset.png")!;
-        myTexture        = guiBackend.LoadTexture(stream, "world_tileset.png").AsGpuTexture(); 
+        myTexture        = GuiBackend.LoadTexture(stream, "world_tileset.png").AsGpuTexture(); 
         myTextureView    = myTexture.CreateView().AsSmTexture();
         
-        loop = CreateSessionLoop(guiBackend, this);
+        loop = CreateSessionLoop(GuiBackend, this);
     }
     
     /// <summary>

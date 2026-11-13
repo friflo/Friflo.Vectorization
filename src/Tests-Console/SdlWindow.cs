@@ -3,6 +3,7 @@ using System.Runtime.ExceptionServices;
 using System.Runtime.InteropServices;
 using Friflo.WGPU;
 using Friflo.SmGui;
+using Friflo.WGPU.SmGui;
 using SDL3;
 
 
@@ -18,9 +19,10 @@ namespace TestConsole;
 /// </remarks>
 public interface IRenderer
 {
-    public void OnWindowChanged(int width, int height) { }
-    public void OnFrame        (in RenderTarget target);
-    public void OnShutdown();
+    public void             OnWindowChanged(int width, int height) { }
+    public void             OnFrame        (in RenderTarget target);
+    public void             OnShutdown();
+    public SmGuiBackend?    GuiBackend => null;
 }
 
 public class SdlWindow(string title, int width, int height, Func<WgpuHost, IRenderer> createRenderer)
@@ -124,7 +126,7 @@ public class SdlWindow(string title, int width, int height, Func<WgpuHost, IRend
         var backend = wgpuHost.Adapter.GetAdapterInfo().BackendType;
         SDL.SetWindowTitle(window, $"{title} - {backend}");
         renderer    = createRenderer(wgpuHost);
-        guiBackend  = wgpuHost.GuiBackend;
+        guiBackend  = renderer.GuiBackend;
         guiBackend?.SetClientActions(new SdlClientAction(window));
         SetWindowSize();
         Sdl3Cursor.Init();

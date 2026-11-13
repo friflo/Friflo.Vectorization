@@ -29,7 +29,7 @@ public sealed unsafe class GpuTexture : IDisposable
     private             GpuTextureViewDescriptor[]  viewDescriptors = [];
     private             nint[]                      viewHandles     = [];
     private             int                         viewCount;
-    internal            byte[]                      guiPixels;     // used only by GuiSession's
+    public              byte[]                      guiPixels;     // used only by GuiSession's - GUI_TAG
     
     public              string                      Label       => desc.label;
     public ref readonly GpuTextureDescriptor        Descriptor  => ref desc;
@@ -222,7 +222,7 @@ public readonly unsafe struct GpuTextureView
         throw new ObjectDisposedException($"texture view of disposed GpuTexture '{texture.Label}'");
     }
     
-    internal GpuTextureView(GpuTexture texture, nint view)
+    public GpuTextureView(GpuTexture texture, nint view) // GUI_TAG
     {
         handle          = (TextureView*)view;
         this.texture    = texture;

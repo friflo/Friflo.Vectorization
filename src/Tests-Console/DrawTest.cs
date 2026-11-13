@@ -26,14 +26,17 @@ public class SmDrawRenderer : IRenderer
         batch.Dispose();
     }
     
+    public SmGuiBackend? GuiBackend { get; }
+
     public SmDrawRenderer(WgpuHost wgpuHost)
     {
-        var guiBackend = wgpuHost.CreateGuiBackend();
-        batch = guiBackend.CreateBatch(wgpuHost.SwapChainFormat);
+        var wgpuBackend = new WgpuGuiBackend(wgpuHost.Device);
+        GuiBackend = wgpuBackend;
+        batch = wgpuBackend.CreateBatch(wgpuHost.SwapChainFormat);
         
         // create tile texture
         using var stream = typeof(SdlWindow).Assembly.GetManifestResourceStream("Tests-Console.Assets.img.world_tileset.png")!;
-        myTexture        = guiBackend.LoadTexture(stream, "world_tileset.png").AsGpuTexture(); 
+        myTexture        = GuiBackend.LoadTexture(stream, "world_tileset.png").AsGpuTexture(); 
         myTextureView    = myTexture.CreateView().AsSmTexture();
     }
     

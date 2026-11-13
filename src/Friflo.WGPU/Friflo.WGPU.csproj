@@ -66,7 +66,6 @@
   
     <ItemGroup>
       <ProjectReference Include="..\Friflo.GPU\Friflo.GPU.csproj" />
-      <ProjectReference Include="..\Friflo.SmGui.Assets\Friflo.SmGui.Assets.csproj" />
     </ItemGroup>
 
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
@@ -80,10 +79,6 @@
   
   <ItemGroup>
     <None Remove="*.csproj.lscache" />
-  </ItemGroup>
-  
-  <ItemGroup>
-    <EmbeddedResource Include="shaders\imdraw\draw2d.wgsl" />
   </ItemGroup>
 
 </Project>
