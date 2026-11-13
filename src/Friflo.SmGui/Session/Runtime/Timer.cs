@@ -36,10 +36,10 @@ internal sealed class ThreadTimer : SmTimer
     internal ThreadTimer(int period)
     {
         this.period = period;
-        systemTimer = new Timer(OnSyncTimer, this, dueTime: Timeout.Infinite, period: Timeout.Infinite);
+        systemTimer = new Timer(OnTimerCallback, this, dueTime: Timeout.Infinite, period: Timeout.Infinite);
     }
     
-    private static void OnSyncTimer(object? s)
+    private static void OnTimerCallback(object? s)
     {
         var timer = (ThreadTimer)s!;
         if (timer.cancellationToken.IsCancellationRequested) {
