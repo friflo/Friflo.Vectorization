@@ -4,13 +4,13 @@
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using Friflo.GPU;
-using Friflo.SmGui;
+using Friflo.WGPU;
 using Shaders.Imdraw;
 
 
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable CheckNamespace
-namespace Friflo.WGPU.SmGui;
+namespace Friflo.SmGui.WGPU;
 
 public sealed partial class WgpuBatch : SmBatch
 {

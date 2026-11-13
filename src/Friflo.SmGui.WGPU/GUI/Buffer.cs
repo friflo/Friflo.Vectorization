@@ -4,11 +4,10 @@
 
 using System;
 using Friflo.GPU;
-using Friflo.SmGui;
 
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable CheckNamespace
-namespace Friflo.WGPU.SmGui;
+namespace Friflo.SmGui.WGPU;
 
 internal sealed class SmWgpuBuffer<T> : SmBuffer<T> where T : unmanaged
 {

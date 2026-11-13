@@ -3,8 +3,8 @@ using System.Globalization;
 using System.IO;
 using System.Text;
 using Friflo.SmGui;
+using Friflo.SmGui.WGPU;
 using Friflo.WGPU;
-using Friflo.WGPU.SmGui;
 using NUnit.Framework;
 using StbImageWriteSharp;
 

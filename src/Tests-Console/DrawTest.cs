@@ -1,8 +1,8 @@
 ﻿using System.Diagnostics;
 using System.Numerics;
 using Friflo.SmGui;
+using Friflo.SmGui.WGPU;
 using Friflo.WGPU;
-using Friflo.WGPU.SmGui;
 
 
 // ReSharper disable MemberCanBePrivate.Global

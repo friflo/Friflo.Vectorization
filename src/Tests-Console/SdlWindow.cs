@@ -3,7 +3,6 @@ using System.Runtime.ExceptionServices;
 using System.Runtime.InteropServices;
 using Friflo.WGPU;
 using Friflo.SmGui;
-using Friflo.WGPU.SmGui;
 using SDL3;
 
 

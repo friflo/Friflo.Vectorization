@@ -2,10 +2,10 @@
 // See LICENSE file in the project root for full license information.
 
 using System;
-using Friflo.SmGui;
+using Friflo.WGPU;
 
 // ReSharper disable CheckNamespace
-namespace Friflo.WGPU.SmGui;
+namespace Friflo.SmGui.WGPU;
 
 internal static class GuiEffect
 {

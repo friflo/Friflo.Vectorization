@@ -6,8 +6,8 @@ using Friflo.SmGui.Headless;
 using Friflo.SmGui.Http;
 using Friflo.SmGui.Recorder;
 using Friflo.SmGui.Session;
+using Friflo.SmGui.WGPU;
 using Friflo.WGPU;
-using Friflo.WGPU.SmGui;
 
 // ReSharper disable ArrangeObjectCreationWhenTypeNotEvident
 // ReSharper disable SuggestVarOrType_BuiltInTypes

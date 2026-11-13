@@ -4,14 +4,14 @@
 using System;
 using System.IO;
 using Friflo.GPU;
-using Friflo.SmGui;
+using Friflo.WGPU;
 
 
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable InconsistentNaming
 // ReSharper disable UnusedMember.Global
 // ReSharper disable once CheckNamespace
-namespace Friflo.WGPU.SmGui;
+namespace Friflo.SmGui.WGPU;
 
 public sealed class WgpuGuiBackend : SmGuiBackend
 {
