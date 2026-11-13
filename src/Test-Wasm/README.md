@@ -1,6 +1,13 @@
 # Test-Wasm
 
 
+### PWA Deployment
+To run the WASM app as PWA (Progressive Web App) add the `manifest.webmanifest` file at [wwwroot/index.html](wwwroot/index.html)
+
+```html
+<link rel="manifest" href="manifest.webmanifest"> <!-- uncomment to run as PWA -->
+```
+
 ### WASM-AOT Build
 
 ```shell
@@ -13,5 +20,5 @@ Host static WASM-AOT build locally
 dotnet serve -p 5010 -S -d bin/Release/net10.0-browser/publish/wwwroot/
 ```
 
-Open WASM app in browser:  
+Open WASM-AOT app in browser:  
 https://localhost:5010/
