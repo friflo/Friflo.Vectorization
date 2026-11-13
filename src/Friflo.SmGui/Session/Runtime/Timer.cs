@@ -29,14 +29,14 @@ public abstract class SmTimer : IDisposable
 internal sealed class ThreadTimer : SmTimer
 {
     /// Type: <see cref="System.Threading.Timer"/>
-    private readonly    Timer               syncTimer;
+    private readonly    Timer               systemTimer;
     private readonly    CancellationToken   cancellationToken = CancellationToken.None;
     private             int                 period;
     
     internal ThreadTimer(int period)
     {
         this.period = period;
-        syncTimer   = new Timer(OnSyncTimer, this, dueTime: Timeout.Infinite, period: Timeout.Infinite);
+        systemTimer = new Timer(OnSyncTimer, this, dueTime: Timeout.Infinite, period: Timeout.Infinite);
     }
     
     private static void OnSyncTimer(object? s)
@@ -51,23 +51,23 @@ internal sealed class ThreadTimer : SmTimer
     protected override void StartTimer()
     {
         // Reschedules the timer to tick immediately and then resume with framePeriod
-        syncTimer.Change(0, period);
+        systemTimer.Change(0, period);
     }
     
     protected override  void StopTimer()
     {
         // Disables future ticks for the OS/ThreadPool timer
-        syncTimer.Change(Timeout.Infinite, Timeout.Infinite);
+        systemTimer.Change(Timeout.Infinite, Timeout.Infinite);
     }
     
     protected override void SetTimerPeriod(int newPeriod) {
         period = newPeriod;
-        syncTimer.Change(0, newPeriod);
+        systemTimer.Change(0, newPeriod);
     }
     
     public override void Dispose()
     {
-        syncTimer.Dispose();
+        systemTimer.Dispose();
     }
         
     static ThreadTimer()

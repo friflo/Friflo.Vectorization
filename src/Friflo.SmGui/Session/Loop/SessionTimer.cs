@@ -48,7 +48,7 @@ public sealed class AppTimer : IDisposable
 {
     internal readonly   List<SessionId>     tickedSessions = [];
     private  readonly   SmEventQueue        eventQueue;
-    private             SmTimer?            syncTimer;
+    private             SmTimer?            timer;
     private             int                 Period => 1000 / tickRate; // ms
     private             int                 tickRate;                  // Hz
     private             bool                isInitialized;
@@ -63,9 +63,9 @@ public sealed class AppTimer : IDisposable
     public void Dispose()
     {
         isRunning = false;
-        syncTimer?.OnTick -= OnSyncTimer;
-        syncTimer?.Dispose();
-        syncTimer   = null;
+        timer?.OnTick -= OnTimer;
+        timer?.Dispose();
+        timer = null;
     }
     
     /// <summary> Gets or sets the execution frequency of the timer in Hertz (ticks per second). </summary>
@@ -79,7 +79,7 @@ public sealed class AppTimer : IDisposable
             tickRate = value;
 
             if (isRunning) {
-                syncTimer?.SetPeriod(Period);
+                timer?.SetPeriod(Period);
             }
         }
     }
@@ -110,7 +110,7 @@ public sealed class AppTimer : IDisposable
         }
         isRunning = false;
         
-        syncTimer?.Stop();
+        timer?.Stop();
     }
 
     private void Start()
@@ -121,7 +121,7 @@ public sealed class AppTimer : IDisposable
         InitTimer();
         isRunning = true;
 
-        syncTimer?.Start();
+        timer?.Start();
     }
 
     private void InitTimer()
@@ -132,11 +132,11 @@ public sealed class AppTimer : IDisposable
         isInitialized   = true;
         isRunning       = true;
 
-        syncTimer = eventQueue.runtime.CreateTimer();
-        syncTimer.OnTick += OnSyncTimer;
+        timer = eventQueue.runtime.CreateTimer();
+        timer.OnTick += OnTimer;
     }
 
-    private void OnSyncTimer()
+    private void OnTimer()
     {
         if (!isRunning) {
             return;
