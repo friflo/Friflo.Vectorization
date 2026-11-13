@@ -1,6 +1,6 @@
 
 
-C# SmSignalingListener                     C# SmSignaling                  Browser (JS Client)
+C# SmSignalingClient                       C# SmSignaling                  Browser (JS Client)
  1. WebSocket (permanent)  ----->            http server    <----------     1. WebSocket (on start)
  2. RTCDataChannel    <------------------------------------------------>    2. RTCDataChannel
          |                                         |                                 |
@@ -33,7 +33,7 @@ C# SmSignalingListener                     C# SmSignaling                  Brows
          |                                         |                                 |
          |    (Both sides gather and send candidates independently of each other)    |
          |                                         |                                 |
-         | [GuiHost finds local candidate]         | [Browser finds local candidate] |
+         | [C# App finds local candidate]          | [Browser finds local candidate] |
          | --- Send "candidate" --------------->   |                                 |
          |                                         | --- Forward "candidate" ------> |
          |                                         |                                 |
@@ -43,5 +43,5 @@ C# SmSignalingListener                     C# SmSignaling                  Brows
          | ========================================================================= |
          |                           11. P2P CONNECTION                              |
          |                      (DataChannel "tm-gui-channel")                       |
-         |          (Direct UDP/STUN Data Flow: Browser <-> C# GuiHost)              |
+         |          (Direct UDP/STUN Data Flow: Browser <-> C# App)                  |
          | ========================================================================= |
