@@ -26,14 +26,14 @@ public abstract class SmTimer : IDisposable
 }
 
 
-
-internal sealed class SyncTimer : SmTimer
+internal sealed class ThreadTimer : SmTimer
 {
+    /// Type: <see cref="System.Threading.Timer"/>
     private readonly    Timer               syncTimer;
     private readonly    CancellationToken   cancellationToken = CancellationToken.None;
     private             int                 period;
     
-    internal SyncTimer(int period)
+    internal ThreadTimer(int period)
     {
         this.period = period;
         syncTimer   = new Timer(OnSyncTimer, this, dueTime: Timeout.Infinite, period: Timeout.Infinite);
@@ -41,7 +41,7 @@ internal sealed class SyncTimer : SmTimer
     
     private static void OnSyncTimer(object? s)
     {
-        var timer = (SyncTimer)s!;
+        var timer = (ThreadTimer)s!;
         if (timer.cancellationToken.IsCancellationRequested) {
             return;
         }
@@ -70,7 +70,7 @@ internal sealed class SyncTimer : SmTimer
         syncTimer.Dispose();
     }
         
-    static SyncTimer()
+    static ThreadTimer()
     {
         if (OperatingSystem.IsWindows()) {
             NativeTimer.timeBeginPeriod(1);

@@ -12,7 +12,7 @@ public class SmRuntime
     
     public virtual SmTimer CreateTimer()
     {
-        return new SyncTimer(16);
+        return new ThreadTimer(16);
     }
     
     public virtual void NotifyEventReady() { }
