@@ -62,7 +62,7 @@ app.UseWebSocketGuiSessions(loop);
 app.MapGet("/api/speed", async () => {
     await loop.DispatchAsync();             // continue execution on loop thread to avoid explicit locks and contention
     var speed = appState.speed;             // capture state safely on loop thread
-    await Task.Run(() => Task.Delay(3000)); // avoid blocking loop thread: run heavy / IO operations on worker thread (example)
+    await Task.Run(() => Task.Delay(1000)); // avoid blocking loop thread: run heavy / IO operations on worker thread (example)
     return speed;
 });
 _ = app.StartAsync();
