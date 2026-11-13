@@ -275,12 +275,27 @@ public sealed partial class SmSessionLoop : IDisposable
         session.client.TryEnqueueSessionEvent(LoopEventType.RenderView, default);
     }
     
+    /// <summary>
+    /// Dispatches the current asynchronous continuation to be executed on the session loop thread.
+    /// </summary>
+    /// <remarks>
+    /// <para><b>Use Case:</b> Used within async endpoints or background handlers to safely access or mutate 
+    /// shared session state without relying on traditional locks (<c>lock</c> statements).</para>
+    /// <para><b>Intent:</b> Enforces <i>Thread Confinement</i> by ensuring that all state interactions happen 
+    /// sequentially on a single dedicated loop thread, completely eliminating lock contention, race conditions, 
+    /// and potential deadlocks under high concurrency.</para>
+    /// </remarks>
+    /// <returns>A lightweight <see cref="LoopAwaiter"/> that transitions the execution context to the loop.</returns>
     public LoopAwaiter DispatchAsync()
     {
         return new LoopAwaiter(this);
     }
 }
 
+/// <summary>
+/// Provides an awaiter that transitions the execution context to the single-threaded session loop,
+/// enforcing thread confinement without heap allocations.
+/// </summary>
 public readonly struct LoopAwaiter : ICriticalNotifyCompletion
 {
     private readonly SmEventQueue eventQueue;
