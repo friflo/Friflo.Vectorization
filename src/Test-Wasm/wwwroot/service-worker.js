@@ -3,7 +3,7 @@ const CACHE = 'test-wasm-v1';   // bump on every release
 
 // Precache a minimal set. Everything else (incl. _framework/*) is cached on first request.
 // Note: cache.addAll fails entirely if one file is missing (404), so list only existing files.
-const PRECACHE = ['./', './index.html', './webrtc-interop.js', './manifest.webmanifest', './favicon.ico'];
+const PRECACHE = ['./', './index.html', './timer.js', './webrtc-interop.js', './manifest.webmanifest', './favicon.ico'];
 
 self.addEventListener('install', (event) => {
     event.waitUntil(
