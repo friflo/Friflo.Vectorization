@@ -60,7 +60,7 @@
   
   
   <ItemGroup>
-    <ProjectReference Include="..\Friflo.SmGui.Assets\Friflo.SmGui.Assets.csproj" />
+    <ProjectReference Include="..\Friflo.SmGui\Friflo.SmGui.csproj" />
     <ProjectReference Include="..\Friflo.WGPU\Friflo.WGPU.csproj" />
   </ItemGroup>
 

@@ -68,7 +68,7 @@ public class SmGuiRenderer : IRenderer, IGuiView
     
     public SmGuiRenderer(WgpuHost wgpuHost)
     {
-        var wgpuBackend     = new WgpuGuiBackend(wgpuHost.Device);
+        var wgpuBackend     = new WgpuGuiBackend(wgpuHost.Device, new DefaultGuiAssets());
         GuiBackend          = wgpuBackend;
         gpuBatch            = wgpuBackend.CreateBatch(wgpuHost.SwapChainFormat);
         using var monoTtf   = typeof(SmGuiRenderer).Assembly.GetManifestResourceStream("Tests-Console.Assets.Monocraft.ttf")!;  

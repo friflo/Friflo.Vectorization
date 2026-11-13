@@ -103,7 +103,7 @@ public static class Tests_Gui
         };
 
         using var context   = device.BeginContext();
-        using var guiBackend= new WgpuGuiBackend(device);
+        using var guiBackend= new WgpuGuiBackend(device, new DefaultGuiAssets());
         using var batch     = guiBackend.CreateBatch(TextureFormat.RGBA8Unorm);
         using var target    = context.BeginRenderTarget(renderTargetView, "Texture-Encoder"u8);
         

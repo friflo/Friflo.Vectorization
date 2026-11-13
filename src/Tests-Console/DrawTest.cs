@@ -30,7 +30,7 @@ public class SmDrawRenderer : IRenderer
 
     public SmDrawRenderer(WgpuHost wgpuHost)
     {
-        var wgpuBackend = new WgpuGuiBackend(wgpuHost.Device);
+        var wgpuBackend = new WgpuGuiBackend(wgpuHost.Device, new DefaultGuiAssets());
         GuiBackend = wgpuBackend;
         batch = wgpuBackend.CreateBatch(wgpuHost.SwapChainFormat);
         

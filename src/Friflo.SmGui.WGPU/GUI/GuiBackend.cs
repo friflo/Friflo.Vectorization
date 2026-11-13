@@ -19,7 +19,7 @@ public sealed class WgpuGuiBackend : SmGuiBackend
     internal readonly   GpuSampler      samplerLinear;
     internal readonly   GpuSampler      samplerNearest;
     
-    public WgpuGuiBackend(GpuDevice device) : base(new DefaultGuiAssets()) {
+    public WgpuGuiBackend(GpuDevice device, IGuiAssets assets) : base(assets) {
         this.device = device;
         samplerLinear   = device.CreateSampler(new GpuSamplerDescriptor { label = "Linear Sampler",  magFilter = FilterMode.Linear,  minFilter = FilterMode.Linear  });
         samplerNearest  = device.CreateSampler(new GpuSamplerDescriptor { label = "Nearest Sampler", magFilter = FilterMode.Nearest, minFilter = FilterMode.Nearest });
