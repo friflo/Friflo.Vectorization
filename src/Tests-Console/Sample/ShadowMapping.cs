@@ -3,7 +3,6 @@ using System.Numerics;
 using System.Runtime.CompilerServices;
 using Friflo.GPU;
 using Friflo.WGPU;
-using TestConsole;
 
 // ReSharper disable ConvertToPrimaryConstructor
 namespace Shaders.ShadowMapping;

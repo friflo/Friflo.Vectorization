@@ -2,7 +2,6 @@
 using System.Numerics;
 using Friflo.GPU;
 using Friflo.WGPU;
-using TestConsole;
 
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable InconsistentNaming

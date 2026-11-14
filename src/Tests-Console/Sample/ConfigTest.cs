@@ -1,5 +1,4 @@
 ﻿using Friflo.WGPU;
-using TestConsole;
 
 // ReSharper disable ConvertToPrimaryConstructor
 namespace Shaders.RenderTest;

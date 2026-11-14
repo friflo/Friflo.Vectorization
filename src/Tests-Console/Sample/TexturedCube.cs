@@ -3,7 +3,6 @@ using System.Numerics;
 using Friflo.GPU;
 using Friflo.WGPU;
 using StbImageSharp;
-using TestConsole;
 
 // ReSharper disable ConvertToPrimaryConstructor
 namespace Shaders.TexturedCube;
