@@ -13,8 +13,7 @@ namespace TestConsole;
 public class SmDrawRenderer : IRenderer
 {
     private readonly    WgpuBatch               batch;
-    private readonly    GpuTexture              myTexture;
-    private readonly    SmTexture               myTextureView;
+    private readonly    DrawAppResources        resources;
     private readonly    GpuRenderPassDescriptor renderPassDescriptor    = new () { colorAttachments = [ default ] };
     private readonly    Stopwatch               stopwatch               = Stopwatch.StartNew();
     private             float                   lastTime;
@@ -22,7 +21,7 @@ public class SmDrawRenderer : IRenderer
     private readonly    PerfLog                 perfLog                 = new();
     
     public void OnShutdown() {
-        myTexture.Dispose();
+        resources.Dispose();
         batch.Dispose();
     }
     
@@ -31,13 +30,9 @@ public class SmDrawRenderer : IRenderer
     public SmDrawRenderer(WgpuHost wgpuHost)
     {
         var wgpuBackend = new WgpuGuiBackend(wgpuHost.Device, new DefaultGuiAssets());
-        GuiBackend = wgpuBackend;
-        batch = wgpuBackend.CreateBatch(wgpuHost.SwapChainFormat);
-        
-        // create tile texture
-        using var stream = typeof(AppWindow).Assembly.GetManifestResourceStream("Tests-Console.Assets.img.world_tileset.png")!;
-        myTexture        = GuiBackend.LoadTexture(stream, "world_tileset.png").AsGpuTexture(); 
-        myTextureView    = myTexture.CreateView().AsSmTexture();
+        GuiBackend  = wgpuBackend;
+        batch       = wgpuBackend.CreateBatch(wgpuHost.SwapChainFormat);
+        resources   = new DrawAppResources(GuiBackend);
     }
     
     public void OnWindowChanged(int width, int height)
@@ -84,14 +79,15 @@ public class SmDrawRenderer : IRenderer
     public void DrawSprites(SmDraw draw, float deltaTime)
     {
         // --- sprites
-        draw.DrawSprite(myTextureView, new Vector2( 50, 150), new Vector2(256, 256));
-        draw.DrawSprite(myTextureView, new Vector2(200, 150), new Vector2(256, 256), new Vector2(1f, 0f), new Vector2(0f, 1f)); // flipped sprite
+        var myTexture = resources.myTexture;
+        draw.DrawSprite(myTexture, new Vector2( 50, 150), new Vector2(256, 256));
+        draw.DrawSprite(myTexture, new Vector2(200, 150), new Vector2(256, 256), new Vector2(1f, 0f), new Vector2(0f, 1f)); // flipped sprite
         
         rotation += deltaTime;
         draw.DrawSpriteRotated(// center
-            texture: myTextureView, position: new Vector2(100, 550), size: new Vector2(128, 128), rotation: rotation, pivot: new Vector2(0.5f, 0.5f));
+            texture: myTexture, position: new Vector2(100, 550), size: new Vector2(128, 128), rotation: rotation, pivot: new Vector2(0.5f, 0.5f));
         draw.DrawSpriteRegionRotated(// bottom center
-            texture: myTextureView,
+            texture: myTexture,
             position: new Vector2(275, 475),    // tile in sheet
             size: new Vector2(32, 32),
             rotation: rotation, pivot: new Vector2(0.5f, 1.0f), sourceRectPos: new Vector2(6 * 64, 2 * 64), sourceRectSize: new Vector2(64, 64), textureSize: new Vector2(1024, 1024));
@@ -99,10 +95,10 @@ public class SmDrawRenderer : IRenderer
         var srcPos  = new Vector2(3 * 64, 3 * 64);  // tile pos in Sheet (6,2)        
         var srcSize = new Vector2(64, 64);          // 64x64 Tile
         var texSize = new Vector2(1024, 1024);      // texture-size
-        draw.DrawSpriteRegion(myTextureView, new Vector2(350, 450), new Vector2(64, 64), srcPos, srcSize, texSize);
+        draw.DrawSpriteRegion(myTexture, new Vector2(350, 450), new Vector2(64, 64), srcPos, srcSize, texSize);
         
         var borders = new Vector4(8, 8, 8, 8);
-        draw.Draw9SliceTiled(texture: myTextureView, 
+        draw.Draw9SliceTiled(texture: myTexture,
             position: new Vector2(250, 550), 
             size: new Vector2(200, 100), 
             sourceRectPos: srcPos, 

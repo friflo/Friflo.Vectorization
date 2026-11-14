@@ -14,7 +14,7 @@ namespace TestConsole;
 /// <summary>
 /// Contains resources shared by all <see cref="GuiView"/>'s.
 /// </summary>
-public class GuiAppResources : IDisposable
+public sealed class GuiAppResources : IDisposable
 {
     internal readonly   SmTexture   myTexture;
     internal readonly   SmFont      monocraftFont;
@@ -40,7 +40,7 @@ public class GuiAppResources : IDisposable
 }
 
 
-public class GuiView : IGuiView
+public sealed class GuiView : IGuiView
 {
     private readonly    GuiAppResources resources;
     private             bool            mouseCircle;
