@@ -41,7 +41,7 @@ internal sealed class Sdl3ClientAction : ClientAction
 } 
 
 // -------- SDL3 input handling: keyboard, mouse & gamepad - required when using:  Friflo.SmGui --------
-internal class Sdl3Input : IDisposable
+internal class Sdl3GuiInput : IDisposable
 {
     private nint gamepad;
 

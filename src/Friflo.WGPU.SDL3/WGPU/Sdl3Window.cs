@@ -23,19 +23,19 @@ public struct InitOptions {
 
 public class Sdl3Window
 {
-    public              nint                    Window      => window;
-    public              WgpuHost?               WgpuHost    => wgpuHost;
-    public              IRenderer?              Renderer    => renderer;
-    public              SmGuiBackend?           GuiBackend  => guiBackend;
-    public              InitOptions             initOptions;
+    public      nint                    Window      => window;
+    public      WgpuHost?               WgpuHost    => wgpuHost;
+    public      IRenderer?              Renderer    => renderer;
+    public      SmGuiBackend?           GuiBackend  => guiBackend;
+    public      InitOptions             initOptions;
    
 #region private fields
-    private             nint                    window;
-    private             WgpuHost?               wgpuHost;
-    private             IRenderer?              renderer;
-    private             SmGuiBackend?           guiBackend;
-    private             ExceptionDispatchInfo?  callbackException;
-    private readonly    Sdl3Input               sdlInput = new();
+    private     nint                    window;
+    private     WgpuHost?               wgpuHost;
+    private     IRenderer?              renderer;
+    private     ExceptionDispatchInfo?  callbackException;
+    private     SmGuiBackend?           guiBackend;
+    private     Sdl3GuiInput?           sdlGuiInput; // only required for guiBackend
 #endregion
     
     protected int EnterAppMain(InitOptions opt)
@@ -143,7 +143,10 @@ public class Sdl3Window
         wgpuHost    = new WgpuHost(osHandle, osInstance, driver);
         renderer    = initOptions.createRenderer(wgpuHost);
         guiBackend  = renderer.GuiBackend;
-        guiBackend?.SetClientActions(new Sdl3ClientAction(window));
+        if (guiBackend != null) {
+            guiBackend.SetClientActions(new Sdl3ClientAction(window));
+            sdlGuiInput = new Sdl3GuiInput();
+        }
         SetWindowSize();
         Sdl3Cursor.Init();
     }
@@ -207,7 +210,7 @@ public class Sdl3Window
                 break;
         }
         if (guiBackend != null && wgpuHost != null) {
-            sdlInput.HandleGuiInput(guiBackend, ev, wgpuHost.DpiScale);
+            sdlGuiInput!.HandleGuiInput(guiBackend, ev, wgpuHost.DpiScale);
         }
         return SDL.AppResult.Continue;
     }
@@ -217,7 +220,8 @@ public class Sdl3Window
         guiBackend?.Dispose();
         guiBackend = null;
         
-        sdlInput.Dispose();
+        sdlGuiInput?.Dispose();
+        sdlGuiInput = null;
         Sdl3Cursor.Shutdown();
         
         renderer?.OnShutdown();
