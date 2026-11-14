@@ -1,119 +1,90 @@
 ﻿using System.Diagnostics;
 using System.Net;
-using System.Numerics;
 using Friflo.SmGui;
 using Friflo.SmGui.Headless;
 using Friflo.SmGui.Http;
-using Friflo.SmGui.Recorder;
 using Friflo.SmGui.Session;
 using Friflo.SmGui.WGPU;
 using Friflo.WGPU;
 
-// ReSharper disable ArrangeObjectCreationWhenTypeNotEvident
-// ReSharper disable SuggestVarOrType_BuiltInTypes
-// ReSharper disable UnusedVariable
-// ReSharper disable MemberCanBePrivate.Global
-// ReSharper disable InconsistentNaming
-// ReSharper disable ConvertToPrimaryConstructor
 namespace TestConsole;
 
-public class SmGuiRenderer : IRenderer, IGuiView
+/// <summary>
+/// Contains resources shared by all <see cref="GuiView"/>'s.
+/// </summary>
+public class AppResources : IDisposable
+{
+    private  readonly    GpuTexture              gpuTexture;
+    internal readonly    SmTexture               myTexture;
+    internal readonly    SmFont                  monocraftFont;
+    
+    public AppResources (SmGuiBackend backend)
+    {
+        using var monoTtf   = typeof(SmGuiRenderer).Assembly.GetManifestResourceStream("Tests-Console.Assets.Monocraft.ttf")!;  
+        monocraftFont       = backend.CreateTtfFont(monoTtf, 48, 256, 256, 32, 95, "Monocraft");
+        Debug.Assert(monocraftFont.maxY == 244);
+
+        // create tile texture
+        using var stream = typeof(AppWindow).Assembly.GetManifestResourceStream("Tests-Console.Assets.img.world_tileset.png")!;
+        gpuTexture          = backend.LoadTexture(stream, "world_tileset.png").AsGpuTexture(); 
+        myTexture           = gpuTexture.CreateView().AsSmTexture();
+    }
+    
+    public void Dispose()
+    {
+        monocraftFont.Dispose();
+        gpuTexture.Dispose();
+    }
+}
+
+
+public class SmGuiRenderer : IRenderer
 {
     private readonly    WgpuBatch               gpuBatch;
-    private readonly    GpuTexture              myTexture;
-    private readonly    SmTexture               myTextureView;
     private readonly    GpuRenderPassDescriptor renderPassDescriptor    = new () { colorAttachments = [ default ] };
     private readonly    PerfLog                 perfLog                 = new();
-    private             bool                    mouseCircle;
-    private             bool                    monocraft;
-    private readonly    SmFont                  monocraftFont;
-    private             bool                    fullScreen;
-    private             int                     helloCounter;
-    private             float                   volume = 0.8f;
-    private             float                   update;
-    private readonly    List<string>            scrollAreaButtons = [];
-    private readonly    Color32[]               textColors = [0x0000FFFF, 0xFF0000FF, 0x009900FF, 0xFF00FFFF, 0xCC6600FF, 0x000000ff];
-    private readonly    SmSessionLoop?          loop;
-    
-    private readonly GuiStyle redButtonStyle = new() {
-        colors = new GuiColors {
-            ButtonColor = 0xaa4444ff,
-            ButtonBorder= 0, 
-            ButtonHover = 0xcc6666ff,
-            ButtonDown  = 0x882222ff,
-            ButtonText  = 0xffffffff,
-            FocusColor  = 0xaa4444ff,
-        }
-    };
-    
-    private readonly GuiStyle greenButtonStyle = new() {
-        colors = new GuiColors {
-            ButtonColor = 0x229922ff,
-            ButtonBorder= 0,
-            ButtonHover = 0x44bb44ff,
-            ButtonDown  = 0x007700ff,
-            ButtonText  = 0xffffffff,
-            FocusColor  = 0x229922ff,
-        }
-    };
+    private readonly    AppResources            resources;
+    private readonly    GuiView                 nativeView;
+    private readonly    SmSessionLoop           loop;
     
     public SmGuiBackend? GuiBackend { get; }
 
-    public void OnShutdown() {
-        loop?.Dispose();
-        monocraftFont.Dispose();
-        myTexture.Dispose();
+    public void OnShutdown()
+    {
+        loop.Dispose();
+        resources.Dispose();
         gpuBatch.Dispose();
     }
     
     public SmGuiRenderer(WgpuHost wgpuHost)
     {
-        var wgpuBackend     = new WgpuGuiBackend(wgpuHost.Device, new DefaultGuiAssets());
-        GuiBackend          = wgpuBackend;
-        gpuBatch            = wgpuBackend.CreateBatch(wgpuHost.SwapChainFormat);
-        using var monoTtf   = typeof(SmGuiRenderer).Assembly.GetManifestResourceStream("Tests-Console.Assets.Monocraft.ttf")!;  
-        monocraftFont       = GuiBackend.CreateTtfFont(monoTtf, 48, 256, 256, 32, 95, "Monocraft");
-        Debug.Assert(monocraftFont.maxY == 244);
-        
-        // create tile texture
-        using var stream = typeof(AppWindow).Assembly.GetManifestResourceStream("Tests-Console.Assets.img.world_tileset.png")!;
-        myTexture        = GuiBackend.LoadTexture(stream, "world_tileset.png").AsGpuTexture(); 
-        myTextureView    = myTexture.CreateView().AsSmTexture();
-        
-        loop = CreateSessionLoop(GuiBackend, this);
+        var wgpuBackend = new WgpuGuiBackend(wgpuHost.Device, new DefaultGuiAssets());
+        GuiBackend      = wgpuBackend;
+        gpuBatch        = wgpuBackend.CreateBatch(wgpuHost.SwapChainFormat);
+        resources       = new AppResources(GuiBackend);
+        nativeView      = new GuiView(resources);
+        loop            = CreateSessionLoop(GuiBackend, resources);
     }
     
     /// <summary>
     /// Starts an HTTP server and creates a session loop that handles all web client sessions on the main thread.<br/>
     /// By calling <see cref="SmSessionLoop.IterateSessions"/> periodically, queued user input (mouse and keyboard) is processed. 
-    /// Every client with pending input or a dirty session renders a new frame via <see cref="RenderView"/>, which is then sent to the client. 
+    /// Every client with pending input or a dirty session renders a new frame via <see cref="GuiView.RenderView"/>, which is then sent to the client. 
     /// </summary>
-    private static SmSessionLoop CreateSessionLoop(SmGuiBackend backend, SmGuiRenderer renderer)
+    private static SmSessionLoop CreateSessionLoop(SmGuiBackend backend, AppResources resources)
     {
         var loop = SmSessionLoop.Create(new LoopOptions {
             Backend     = new CpuBackend("SmGui - Remote Test", backend),
-            ViewFactory = session => new SmGuiRenderer(renderer, session)
+            ViewFactory = session => new GuiView(resources, session)
         });
         // HTTP server for Browser sessions.  nuget: Friflo.SmGui.Http
-        var app = HttpUtils.CreateWebApplication(new IPEndPoint(IPAddress.IPv6Any, port));
+        var app = HttpUtils.CreateWebApplication(new IPEndPoint(IPAddress.IPv6Any, Port));
         app.UseWebSocketGuiSessions(loop);
         _ = app.StartAsync();
         return loop;
     }
     
-    private const int port = 8080;
-    
-    public SmGuiRenderer(SmGuiRenderer renderer, ViewSession session)
-    {
-        gpuBatch            = renderer.gpuBatch;
-        monocraftFont       = renderer.monocraftFont;
-        
-        myTexture           = renderer.myTexture;
-        myTextureView       = renderer.myTextureView;
-        
-        session.Action.SetWindowTitle("Web client");
-        session.Action.SetClearColor(0x999c9eff, 0x404142ff); // same color as clearValue
-    }
+    internal const int Port = 8080;
     
     public void OnWindowChanged(int width, int height)
     {
@@ -130,216 +101,10 @@ public class SmGuiRenderer : IRenderer, IGuiView
         
         perfLog.Trace(10000);
         
-        loop?.IterateSessions();
+        loop.IterateSessions();
         
-        RenderOverlay(gpuBatch, target.Width, target.Height);
+        nativeView.RenderView(gpuBatch, target.Width, target.Height);
 
         gpuBatch.DrawCommandList(target, renderPassDescriptor);
-    }
-    
-    public void RenderView(SmBatch batch, int width, int height)
-    {
-        RenderOverlay(batch, width, height);
-    }
-    
-    private void RenderOverlay(SmBatch batch, int width, int height)
-    {
-        var gui = batch.BeginGui(width, height);
-        
-        using (gui.BeginWindow("Window 1", new(100, 20), new(400, 950))) {
-            if (loop != null) {
-                gui.Slider("update", ref update, 0f, 100f, 300);
-            }
-            Window1(gui); 
-        }
-        using (var isOpen = gui.BeginWindow("Window 2", new(550, 20), new(500, 900))) {
-            Window2(gui);
-        }
-        if (mouseCircle) {
-            using (gui.Draw.PushZIndex(10)) {
-                gui.Draw.StrokeCircle(gui.Input.MousePos, radius: 40f, 4, color: 0xFF0000FF, segments: 32);
-            }
-        }
-    }
-    
-    private void Window1(Gui gui)
-    {
-        gui.Button("hello GUI", Dim.Fill_X(0, Fit.Content), color: textColors);
-        if (gui.Button("Web client")) {
-            gui.Action.OpenUrl($"https://localhost:{port}", "remote-gui");
-        }
-        if (gui.UiType != UiType.WebGui) {
-            if (gui.Button("close session")) gui.Action.CloseWindow();
-        }
-        if (gui.Button("copy to clipboard")) {
-            gui.Action.CopyToClipboard("some clipboard text");
-        }
-        gui.Spacer();
-        using (gui.PushStyle(greenButtonStyle)) {
-            if (gui.Button("hello"))                            gui.Action.SetWindowTitle($"hello {++helloCounter}");
-        }
-        if (gui.MyButton("MyButton", id: 0x7777ffff))           Console.WriteLine("Clicked: MyButton");
-
-        gui.Spacer();
-        gui.Checkbox("mouse circle", ref mouseCircle);
-        if(gui.Checkbox("Monocraft", ref monocraft)) {
-            if (monocraft) {
-                gpuBatch.SetFont(monocraftFont);
-            } else {
-                gpuBatch.SetFontDefault();
-            }
-        }
-        gui.Spacer();
-        if (gui.Slider("Volume", ref volume, 0f, 1f, 300)) Console.WriteLine($"Volume: changed");
-        gui.Spacer();
-        
-        gui.BeginHorizontal();
-            gui.SetNextDefaultFocus();
-            if (gui.Button("First"))                            Console.WriteLine("Clicked: First");
-            if (gui.Button("Second"))                           Console.WriteLine("Clicked: Second");
-            if (gui.Button("Red", style: redButtonStyle))       Console.WriteLine("Clicked: Red");
-        gui.EndHorizontal();
-        
-        gui.Label("after horizontal", Color32.Teal);
-        using (var space = gui.BeginSpace(new(128, 64), "sprite")) {
-            if (space.IsFired) Console.WriteLine("Clicked: Sprite");
-            var srcPos  = new Vector2(3 * 64, 0 * 64);  // tile pos in Sheet (3, 0)        
-            var tint = gui.Colors.ButtonState(space.WidgetState);
-            gui.Draw.DrawSpriteRegion(myTextureView, space.Pos, space.Size, srcPos, space.Size, new(1024, 1024), tint);
-        }
-        gui.Spacer();
-        if (gui.Checkbox("fullScreen", ref fullScreen)) {
-            gui.Action.SetDisplayMode(fullScreen ? SmDisplayMode.Fullscreen : SmDisplayMode.Windowed);
-        }
-        
-        gui.Spacer();
-        
-        using (gui.BeginHorizontalAligned(47, HorizontalAlignment.Right)) {
-            gui.Button("Right");
-            gui.Button(" A´");
-            gui.Button(" B´");
-            gui.Button(" C´ ");
-        }
-        using (gui.BeginHorizontalAligned(11, HorizontalAlignment.Center)) {
-            gui.Button("Center");
-            gui.Button(" 1 ");
-            gui.Button(" 2 ");
-            gui.Button(" 3 ");
-        }
-        using (gui.BeginHorizontal()) {
-            gui.Button("usual");
-            gui.Button("horizontal");
-            gui.Button(" A ");
-            gui.Button(" B ");
-            gui.Button(" C ");
-        }
-    }
-    
-    private void Window2(Gui gui)
-    {
-        gui.Label("fixed child");
-        using (gui.BeginChild(1, Dim.Fill_X(0, 90))) {
-            gui.Button("Button 1 clipped", Dim.Fill_X(0, Fit.Content));
-            gui.Button("Button 2 clipped");
-        }
-        gui.Spacer();
-        gui.Label("auto-fit child");
-        using (gui.BeginChild(2, Dim.Fill())) {
-            gui.Button("Button 1 unclipped",  Dim.Fill_X(0, Fit.Content));
-            gui.Button("Button 2 unclipped");
-        }
-        gui.Spacer();
-        using (gui.BeginHorizontal()) {
-            gui.Label("scroll area");
-            if (gui.Button("Add 100.000")) {
-                var buttons = scrollAreaButtons; 
-                for (int n = 0; n < 100_000; n++) {
-                    buttons.Add($"Added {buttons.Count}");
-                }
-            }
-            if (gui.Button("Clear")) {
-                scrollAreaButtons.Clear();
-            }
-        }
-        var scrollArea = gui.BeginScrollArea(3, Dim.Fill(0, 60));
-            gui.Button("Button 1 - more to to enable horizontal scrolling");
-            gui.Button("Button 2 -  Dim.Fill_X(0, Fit.Content)",  Dim.Fill_X(0, Fit.Content));
-            
-            var area2  = gui.BeginScrollArea(4, Dim.Fill_X(0, 200));
-                gui.Button("Sub 1");
-                gui.Button("Sub 2 - Dim.Fill_X(0, Fit.Content)",   Dim.Fill_X(0, Fit.Content));
-                gui.Button("Sub 3 - Dim.Fill_X(20, Fit.Content)",  Dim.Fill_X(20, Fit.Content));
-                gui.Button("Sub 4");
-                gui.Button("Sub 5");
-                gui.Button("Sub 6");
-                gui.Button("Sub last");
-            gui.EndScrollArea(area2);
-            
-            gui.Button("Button 3");
-            gui.Button("Button 4");
-            gui.BeginHorizontal();
-                gui.Button("Hori A");
-                gui.Button("Hori B");
-                gui.Button("Hori C");
-                gui.Button("Hori D");
-                gui.Button("Hori E");
-                gui.Button("Hori F");
-            gui.EndHorizontal();
-            gui.Button("Button 5");
-            gui.Button("Button 6");
-            gui.Button("Button 7");
-            gui.Button("Button 8");
-            using (gui.BeginHorizontalAligned(123, HorizontalAlignment.Right)) {
-                gui.Button("Right");
-            }
-            using (gui.BeginHorizontalAligned(456, HorizontalAlignment.Center)) {
-                gui.Button("Center");
-            }
-            gui.Button("Button last");
-            foreach (var button in scrollAreaButtons) {
-                gui.Button(button);
-            }
-        
-        gui.EndScrollArea(scrollArea);
-        gui.Button("after scroll area");
-    }
-}
-
-
-public static class GuiExtensions
-{
-    public static bool MyButton(this in Gui gui, ReadOnlySpan<char> name, Dim size = default, GuiStyle? style = null, WidgetID id = default, in TextColor color = default)
-    {
-        var widget  = gui.widget;
-        ButtonReplay.Record(widget.Recorder, name, size, style, id, color);
-        
-        var draw    = gui.Draw;
-        var window  = widget.Window;
-        using var _ = widget.UseStyle(style);
-        
-        int parentHash  = window.GetCurrentScopeHash();
-        int widgetId    = id.Resolve(name, parentHash);
-        
-        var textSize    = draw.MeasureText(name);
-        var finalSize   = textSize + widget.Sizes.FramePadding.Size;
-        var pos         = window.Cursor;
-        var isHover     = window.IsHoverAtCapture(pos, finalSize, draw);
-        var isFocused   = widget.RegisterFocusable(widgetId, pos, finalSize);
-        var widgetState = widget.GetWidgetState(isHover, widgetId);
-
-        var tui = draw.Tui;
-        if (tui != null) {
-            tui.DrawButton(name, pos, finalSize, widget.Colors.ButtonText, widget.Colors.ButtonState(widgetState), isFocused);
-        } else {
-            draw.FillRectRounded  (pos, finalSize, widget.Sizes.CornerRadius, widget.Colors.ButtonState(widgetState), GuiSizes.CornerSegments); // background
-            draw.StrokeRectRounded(pos, finalSize, widget.Sizes.CornerRadius, 2, widget.Colors.ButtonBorder, GuiSizes.CornerSegments);
-            draw.DrawTextInRect(name, pos + widget.Sizes.FramePadding.Min, textSize, TextAlignment.Center, VerticalAlignment.Middle, widget.Colors.ButtonText);
-        }
-        if (isFocused) {
-            widget.DrawFocus(pos, finalSize);
-            widget.EnsureVisibleInScrollArea(pos, finalSize);
-        }
-        widget.MoveCursor(finalSize);
-        return widget.IsFired(widgetState, isFocused);
     }
 }
