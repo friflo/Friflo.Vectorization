@@ -13,8 +13,8 @@ namespace Friflo.WGPU;
 /// </remarks>
 public interface IRenderer
 {
-    public void             OnWindowChanged(int width, int height) { }
+    public void             OnWindowChanged(int width, int height);
     public void             OnFrame        (in RenderTarget target);
     public void             OnShutdown();
-    public SmGuiBackend?    GuiBackend => null;
+    public SmGuiBackend?    GuiBackend      => null;
 }
