@@ -47,25 +47,25 @@ public class Sdl3Window
 
     private SDL.AppResult AppInit(ref IntPtr appState, int argc, string[]? argv)
     {
-        try { return InitSdl3(); }
+        try { return OnInit(); }
         catch (Exception exception)   { return Capture(exception); }
     }
     
     private void AppQuit(IntPtr appState, SDL.AppResult result)
     {
-        try { Shutdown(); }
+        try { OnQuit(); }
         catch (Exception exception)   { Capture(exception); }
     }
     
     private SDL.AppResult AppIterate(IntPtr appState)
     {
-        try { return IterateSdl3(); }
+        try { return OnIterate(); }
         catch (Exception exception)   { return Capture(exception); }
     }
     
     private SDL.AppResult AppEvent(IntPtr appState, ref SDL.Event ev)
     {
-        try { return AppEvent(ev); }
+        try { return OnEvent(ev); }
         catch (Exception exception)   { return Capture(exception); }
     }
     
@@ -86,7 +86,7 @@ public class Sdl3Window
     }
     
     /// <summary> Init SDL3 and create window </summary>
-    protected virtual SDL.AppResult InitSdl3()
+    protected virtual SDL.AppResult OnInit()
     {
         CreateWindow();
 
@@ -166,7 +166,7 @@ public class Sdl3Window
     }
     
     
-    protected virtual SDL.AppResult IterateSdl3()
+    protected virtual SDL.AppResult OnIterate()
     {
         if (wgpuHost == null) return SDL.AppResult.Continue;
         
@@ -186,7 +186,7 @@ public class Sdl3Window
         return SDL.AppResult.Continue;
     }
     
-    protected virtual SDL.AppResult AppEvent(in SDL.Event ev)
+    protected virtual SDL.AppResult OnEvent(in SDL.Event ev)
     {
         var type = (SDL.EventType)ev.Type;
         switch (type)
@@ -208,7 +208,7 @@ public class Sdl3Window
         return SDL.AppResult.Continue;
     }
     
-    protected virtual void Shutdown()
+    protected virtual void OnQuit()
     {
         guiBackend?.Dispose();
         sdlInput.Dispose();
