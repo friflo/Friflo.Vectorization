@@ -5,7 +5,10 @@ using Friflo.WGPU;
 using Friflo.SmGui;
 using SDL3;
 
-
+// ReSharper disable ConvertToAutoPropertyWithPrivateSetter
+// ReSharper disable UnusedMember.Global
+// ReSharper disable UnusedMember.Local
+// ReSharper disable VirtualMemberNeverOverridden.Global
 // ReSharper disable MemberCanBePrivate.Global
 namespace TestConsole;
 
@@ -24,23 +27,34 @@ public interface IRenderer
     public SmGuiBackend?    GuiBackend => null;
 }
 
-public class SdlWindow(string title, int width, int height, Func<WgpuHost, IRenderer> createRenderer)
+public struct InitOptions {
+    public string                    title;
+    public int                       width;
+    public int                       height;
+    public Func<WgpuHost, IRenderer> createRenderer;
+}
+
+public class Sdl3Window
 {
-    private             nint                   window;
-    private             WgpuHost?              wgpuHost;
-    private             IRenderer?             renderer;
-    private             ExceptionDispatchInfo? callbackException;
+    public              nint                    Window      => window;
+    public              WgpuHost?               WgpuHost    => wgpuHost;
+    public              IRenderer?              Renderer    => renderer;
+    public              SmGuiBackend?           GuiBackend  => guiBackend;
     
-    // --- fields for SDL3 input handling
-    private readonly    Sdl3Input               sdlInput = new();
+    public              InitOptions             initOptions;
+    private             nint                    window;
+    private             WgpuHost?               wgpuHost;
+    private             IRenderer?              renderer;
     private             SmGuiBackend?           guiBackend;
+    private             ExceptionDispatchInfo?  callbackException;
+    private readonly    Sdl3Input               sdlInput = new();
     
-    public static int Run(string title, int width, int height, Func<WgpuHost, IRenderer> createRenderer)
+    protected int EnterAppMain(InitOptions opt)
     {
-        var sdl = new SdlWindow(title + " - friflo GPU", width, height, createRenderer);
+        initOptions = opt;
         SDL.SetMainReady();
-        var result = SDL.EnterAppMainCallbacks(0, null, sdl.AppInit, sdl.AppIterate, sdl.AppEvent, sdl.AppQuit);
-        sdl.callbackException?.Throw();
+        var result = SDL.EnterAppMainCallbacks(0, null, AppInit, AppIterate, AppEvent, AppQuit);
+        callbackException?.Throw();
         return result;
     }
 
@@ -74,24 +88,26 @@ public class SdlWindow(string title, int width, int height, Func<WgpuHost, IRend
         return SDL.AppResult.Failure;
     }
     
-    /// <summary> Init SDL3 and create window </summary>
-    public SDL.AppResult InitSdl3()
+    protected virtual void CreateWindow()
     {
-        // --- setup SDL window ---
-        if (!SDL.Init(SDL.InitFlags.Video | SDL.InitFlags.Gamepad)) throw new Exception($"SDL3 initialization failed: {SDL.GetError()}");
-        
         var windowFlags = SDL.WindowFlags.Hidden | SDL.WindowFlags.Resizable;
         if (OperatingSystem.IsMacOS()) {
             windowFlags |= SDL.WindowFlags.Metal | SDL.WindowFlags.HighPixelDensity;
         }
-        window = SDL.CreateWindow(title, width, height, windowFlags);
-        if (window == IntPtr.Zero)          throw new Exception($"Failed to create window: {SDL.GetError()}");
+        window = SDL.CreateWindow(initOptions.title, initOptions.width, initOptions.height, windowFlags);
+        if (window == IntPtr.Zero) throw new Exception($"Failed to create window: {SDL.GetError()}");
+    }
+    
+    /// <summary> Init SDL3 and create window </summary>
+    protected virtual SDL.AppResult InitSdl3()
+    {
+        CreateWindow();
 
         SetWindowIconFromResource();
         nint osHandle;
         nint osInstance;
         var props   = SDL.GetWindowProperties(window);
-        string driver  = "";
+        string driver;
         if (OperatingSystem.IsWindows()) {
             driver      = "Windows";
             osHandle    = SDL.GetPointerProperty(props, SDL.Props.WindowWin32HWNDPointer,       IntPtr.Zero);
@@ -123,10 +139,10 @@ public class SdlWindow(string title, int width, int height, Func<WgpuHost, IRend
         // --- setup wgpu resources --- 
         wgpuHost    = new WgpuHost(osHandle, osInstance, driver);
         var backend = wgpuHost.Adapter.GetAdapterInfo().BackendType;
-        SDL.SetWindowTitle(window, $"{title} - {backend}");
-        renderer    = createRenderer(wgpuHost);
+        SDL.SetWindowTitle(window, $"{initOptions.title} - {backend}");
+        renderer    = initOptions.createRenderer(wgpuHost);
         guiBackend  = renderer.GuiBackend;
-        guiBackend?.SetClientActions(new SdlClientAction(window));
+        guiBackend?.SetClientActions(new Sdl3ClientAction(window));
         SetWindowSize();
         Sdl3Cursor.Init();
         return SDL.AppResult.Continue;
@@ -137,7 +153,7 @@ public class SdlWindow(string title, int width, int height, Func<WgpuHost, IRend
         var theme = SDL.GetSystemTheme();
         var image = theme == SDL.SystemTheme.Dark ? "Tests-Console.Assets.wgpu-transparent-dark-128x128.bmp" : 
                                                     "Tests-Console.Assets.wgpu-transparent-light-128x128.bmp";
-        using var stream = typeof(SdlWindow).Assembly.GetManifestResourceStream(image);
+        using var stream = typeof(Sdl3Window).Assembly.GetManifestResourceStream(image);
         if (stream == null) {
             return;
         }
@@ -159,7 +175,7 @@ public class SdlWindow(string title, int width, int height, Func<WgpuHost, IRend
     }
     
     
-    private SDL.AppResult IterateSdl3()
+    protected virtual SDL.AppResult IterateSdl3()
     {
         if (wgpuHost == null) return SDL.AppResult.Continue;
         
@@ -179,7 +195,7 @@ public class SdlWindow(string title, int width, int height, Func<WgpuHost, IRend
         return SDL.AppResult.Continue;
     }
     
-    private SDL.AppResult AppEvent(in SDL.Event ev)
+    protected virtual SDL.AppResult AppEvent(in SDL.Event ev)
     {
         var type = (SDL.EventType)ev.Type;
         switch (type)
@@ -201,7 +217,7 @@ public class SdlWindow(string title, int width, int height, Func<WgpuHost, IRend
         return SDL.AppResult.Continue;
     }
     
-    private void Shutdown()
+    protected virtual void Shutdown()
     {
         guiBackend?.Dispose();
         sdlInput.Dispose();
@@ -215,12 +231,13 @@ public class SdlWindow(string title, int width, int height, Func<WgpuHost, IRend
     }
 }
 
+#region Friflo.SmGui
 
-internal sealed class SdlClientAction : ClientAction
+internal sealed class Sdl3ClientAction : ClientAction
 {
     private readonly nint window;
     
-    internal SdlClientAction (nint window) {
+    internal Sdl3ClientAction (nint window) {
         this.window = window;
     }
         
@@ -247,8 +264,6 @@ internal sealed class SdlClientAction : ClientAction
         SDL.PushEvent(ref ev);
     }
 } 
-
-#region Friflo.SmGui
 
 // -------- SDL3 input handling: keyboard, mouse & gamepad - required when using:  Friflo.SmGui --------
 internal class Sdl3Input : IDisposable

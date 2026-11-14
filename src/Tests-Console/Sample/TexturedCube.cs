@@ -30,7 +30,7 @@ public partial class Renderer : IRenderer
         var device  = wgpuHost.Device;
         
         // JS example:  https://github.com/webgpu/webgpu-samples/blob/main/sample/texturedCube/main.ts#L112
-        using var stream = typeof(SdlWindow).Assembly.GetManifestResourceStream( "Tests-Console.Assets.img.Di-3d.png");
+        using var stream = typeof(AppWindow).Assembly.GetManifestResourceStream( "Tests-Console.Assets.img.Di-3d.png");
         var image   = ImageResult.FromStream(stream, ColorComponents.RedGreenBlueAlpha);
         cubeTexture = device.CreateTexture(new GpuTextureDescriptor { label = "Di-3d.png", 
             size    = [image.Width, image.Height],

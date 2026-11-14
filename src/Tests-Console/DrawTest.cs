@@ -35,7 +35,7 @@ public class SmDrawRenderer : IRenderer
         batch = wgpuBackend.CreateBatch(wgpuHost.SwapChainFormat);
         
         // create tile texture
-        using var stream = typeof(SdlWindow).Assembly.GetManifestResourceStream("Tests-Console.Assets.img.world_tileset.png")!;
+        using var stream = typeof(AppWindow).Assembly.GetManifestResourceStream("Tests-Console.Assets.img.world_tileset.png")!;
         myTexture        = GuiBackend.LoadTexture(stream, "world_tileset.png").AsGpuTexture(); 
         myTextureView    = myTexture.CreateView().AsSmTexture();
     }
