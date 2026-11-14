@@ -89,10 +89,10 @@ public class Sdl3Window
     protected virtual SDL.AppResult InitSdl3()
     {
         CreateWindow();
-        
-        SDL.ShowWindow(window);
 
         OnSystemThemeChanged();
+
+        SDL.ShowWindow(window);
         
         CreateWgpuHost();
         

@@ -17,7 +17,7 @@ public sealed class AppWindow : Sdl3Window
         var theme = SDL.GetSystemTheme();
         var image = theme == SDL.SystemTheme.Dark ? "Tests-Console.Assets.wgpu-transparent-dark-128x128.bmp" : 
                                                     "Tests-Console.Assets.wgpu-transparent-light-128x128.bmp";
-        using var stream = typeof(Sdl3Window).Assembly.GetManifestResourceStream(image);
+        using var stream = typeof(AppWindow).Assembly.GetManifestResourceStream(image);
         if (stream != null) {
             SetWindowIcon(stream);
         }
