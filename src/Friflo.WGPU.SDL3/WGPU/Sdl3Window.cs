@@ -211,13 +211,20 @@ public class Sdl3Window
     protected virtual void OnQuit()
     {
         guiBackend?.Dispose();
+        guiBackend = null;
+        
         sdlInput.Dispose();
         Sdl3Cursor.Shutdown();
+        
         renderer?.OnShutdown();
         renderer = null;
+        
         wgpuHost?.Shutdown();
         wgpuHost = null;
+        
         SDL.DestroyWindow(window);
+        window = IntPtr.Zero;
+        
         SDL.Quit();
     }
 }
