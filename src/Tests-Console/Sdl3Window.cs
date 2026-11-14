@@ -5,6 +5,7 @@ using Friflo.WGPU;
 using Friflo.SmGui;
 using SDL3;
 
+// ReSharper disable MemberCanBeProtected.Global
 // ReSharper disable ConvertToAutoPropertyWithPrivateSetter
 // ReSharper disable UnusedMember.Global
 // ReSharper disable UnusedMember.Local
@@ -105,7 +106,7 @@ public class Sdl3Window
         
         SDL.ShowWindow(window);
 
-        SetWindowIconFromResource();
+        OnSystemThemeChanged();
         
         CreateWgpuHost();
         
@@ -157,15 +158,10 @@ public class Sdl3Window
         Sdl3Cursor.Init();
     }
     
-    public void SetWindowIconFromResource()
+    protected virtual void OnSystemThemeChanged() { }
+    
+    public void SetWindowIcon(Stream stream)
     {
-        var theme = SDL.GetSystemTheme();
-        var image = theme == SDL.SystemTheme.Dark ? "Tests-Console.Assets.wgpu-transparent-dark-128x128.bmp" : 
-                                                    "Tests-Console.Assets.wgpu-transparent-light-128x128.bmp";
-        using var stream = typeof(Sdl3Window).Assembly.GetManifestResourceStream(image);
-        if (stream == null) {
-            return;
-        }
         var io = SDL.IOFromStream(stream);
         var surface = SDL.LoadBMPIO(io.Handle, false);
         if (surface != IntPtr.Zero) {
@@ -217,7 +213,7 @@ public class Sdl3Window
                 SetWindowSize();
                 break;
             case SDL.EventType.SystemThemeChanged:
-                SetWindowIconFromResource();
+                OnSystemThemeChanged();
                 break;
         }
         if (guiBackend != null && wgpuHost != null) {

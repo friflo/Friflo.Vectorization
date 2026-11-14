@@ -12,4 +12,15 @@ public sealed class AppWindow : Sdl3Window
         var opt = new InitOptions{ title = title, width = width, height = height, createRenderer = createRenderer };
         return app.EnterAppMain(opt);
     }
+    
+    protected override void OnSystemThemeChanged()
+    {
+        var theme = SDL.GetSystemTheme();
+        var image = theme == SDL.SystemTheme.Dark ? "Tests-Console.Assets.wgpu-transparent-dark-128x128.bmp" : 
+                                                    "Tests-Console.Assets.wgpu-transparent-light-128x128.bmp";
+        using var stream = typeof(Sdl3Window).Assembly.GetManifestResourceStream(image);
+        if (stream != null) {
+            SetWindowIcon(stream);
+        }
+    }
 }
