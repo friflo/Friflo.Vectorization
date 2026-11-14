@@ -14,7 +14,7 @@ public class SmDrawRenderer : IRenderer
     private readonly    DrawAppResources        resources;
     private readonly    GpuRenderPassDescriptor renderPassDescriptor    = new () { colorAttachments = [ default ] };
     private readonly    PerfLog                 perfLog                 = new();
-    private readonly    DrawView                nativeView;
+    private readonly    IGuiView                nativeView;
     
     public void OnShutdown() {
         resources.Dispose();

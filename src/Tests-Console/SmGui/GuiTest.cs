@@ -13,7 +13,7 @@ public class SmGuiRenderer : IRenderer
     private readonly    GpuRenderPassDescriptor renderPassDescriptor    = new () { colorAttachments = [ default ] };
     private readonly    PerfLog                 perfLog                 = new();
     private readonly    GuiAppResources         resources;
-    private readonly    GuiView                 nativeView;
+    private readonly    IGuiView                nativeView;
     private readonly    SmSessionLoop           loop;
     
     public SmGuiBackend? GuiBackend { get; }
