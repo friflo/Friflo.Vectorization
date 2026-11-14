@@ -1,4 +1,6 @@
-﻿using System.Diagnostics;
+﻿// --- GuiTest.cs
+
+using System.Diagnostics;
 using System.Net;
 using Friflo.SmGui;
 using Friflo.SmGui.Headless;

@@ -1,3 +1,5 @@
+// --- GuiView.cs
+
 using System.Numerics;
 using Friflo.SmGui;
 
