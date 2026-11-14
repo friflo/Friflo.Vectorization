@@ -27,14 +27,16 @@ public class Sdl3Window
     public              WgpuHost?               WgpuHost    => wgpuHost;
     public              IRenderer?              Renderer    => renderer;
     public              SmGuiBackend?           GuiBackend  => guiBackend;
-    
     public              InitOptions             initOptions;
+   
+#region private fields
     private             nint                    window;
     private             WgpuHost?               wgpuHost;
     private             IRenderer?              renderer;
     private             SmGuiBackend?           guiBackend;
     private             ExceptionDispatchInfo?  callbackException;
     private readonly    Sdl3Input               sdlInput = new();
+#endregion
     
     protected int EnterAppMain(InitOptions opt)
     {
@@ -44,7 +46,8 @@ public class Sdl3Window
         callbackException?.Throw();
         return result;
     }
-
+    
+#region SDL3 lifecycle callbacks
     private SDL.AppResult AppInit(ref IntPtr appState, int argc, string[]? argv)
     {
         try { return OnInit(); }
@@ -74,6 +77,7 @@ public class Sdl3Window
         callbackException ??= ExceptionDispatchInfo.Capture(exception);
         return SDL.AppResult.Failure;
     }
+#endregion
     
     protected virtual void CreateWindow()
     {
