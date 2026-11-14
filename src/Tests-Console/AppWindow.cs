@@ -1,7 +1,6 @@
-
 using Friflo.WGPU;
+using Friflo.WGPU.SDL3;
 using SDL3;
-using TestConsole;
 
 public sealed class AppWindow : Sdl3Window
 {
