@@ -16,9 +16,9 @@ namespace TestConsole;
 /// </summary>
 public class AppResources : IDisposable
 {
-    private  readonly    GpuTexture              gpuTexture;
-    internal readonly    SmTexture               myTexture;
-    internal readonly    SmFont                  monocraftFont;
+    private  readonly   GpuTexture  gpuTexture;
+    internal readonly   SmTexture   myTexture;
+    internal readonly   SmFont      monocraftFont;
     
     public AppResources (SmGuiBackend backend)
     {
