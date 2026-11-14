@@ -1,4 +1,5 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
 using Friflo.SmGui;
@@ -15,6 +16,14 @@ namespace Tests.SmGui;
 
 public static class Tests_Gui_Misc
 {
+    private static int SizeOf(Type type)
+    {
+        int size = (int)typeof(Unsafe).GetMethod(nameof(Unsafe.SizeOf))!
+            .MakeGenericMethod(type)
+            .Invoke(null, null)!;
+        return size;
+    }
+    
     [Test]
     public static void Tests_Gui_SizeOf()
     {
@@ -22,7 +31,7 @@ public static class Tests_Gui_Misc
         
         var LoopEvent = assembly.GetType("Friflo.SmGui.Session.LoopEvent")!;
         Assert.AreEqual( 16, Unsafe.SizeOf<Payload>());
-        Assert.AreEqual( 32, Marshal.SizeOf(LoopEvent));
+        Assert.AreEqual( 32, SizeOf(LoopEvent));
         
         Assert.AreEqual( 12, Unsafe.SizeOf<Dim>());
         
