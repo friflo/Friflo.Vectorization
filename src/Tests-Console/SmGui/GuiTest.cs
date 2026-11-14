@@ -31,7 +31,7 @@ public class SmGuiRenderer : IRenderer
         GuiBackend      = wgpuBackend;
         gpuBatch        = wgpuBackend.CreateBatch(wgpuHost.SwapChainFormat);
         resources       = new AppResources(GuiBackend);
-        nativeView      = new GuiView(resources);
+        nativeView      = new GuiView(resources, null);
         loop            = GuiView.CreateSessionLoop(GuiBackend, resources);
     }
     

@@ -52,17 +52,12 @@ public class GuiView : IGuiView
     private readonly    Color32[]       textColors = [0x0000FFFF, 0xFF0000FF, 0x009900FF, 0xFF00FFFF, 0xCC6600FF, 0x000000ff];
     
     
-    internal GuiView(AppResources resources)
-    {
-        this.resources  = resources;
-    }
-    
-    private GuiView(AppResources resources, ViewSession session)
+    internal GuiView(AppResources resources, ViewSession? session)
     {
         this.resources  = resources;
         
-        session.Action.SetWindowTitle("Web client");
-        session.Action.SetClearColor(0x999c9eff, 0x404142ff); // same color as clearValue
+        session?.Action.SetWindowTitle("Web client");
+        session?.Action.SetClearColor(0x999c9eff, 0x404142ff); // same color as clearValue
     }
     
     private readonly GuiStyle redButtonStyle = new() {
