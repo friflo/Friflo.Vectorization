@@ -12,7 +12,7 @@ public class SmGuiRenderer : IRenderer
     private readonly    WgpuBatch               gpuBatch;
     private readonly    GpuRenderPassDescriptor renderPassDescriptor    = new () { colorAttachments = [ default ] };
     private readonly    PerfLog                 perfLog                 = new();
-    private readonly    AppResources            resources;
+    private readonly    GuiAppResources         resources;
     private readonly    GuiView                 nativeView;
     private readonly    SmSessionLoop           loop;
     
@@ -30,7 +30,7 @@ public class SmGuiRenderer : IRenderer
         var wgpuBackend = new WgpuGuiBackend(wgpuHost.Device, new DefaultGuiAssets());
         GuiBackend      = wgpuBackend;
         gpuBatch        = wgpuBackend.CreateBatch(wgpuHost.SwapChainFormat);
-        resources       = new AppResources(GuiBackend);
+        resources       = new GuiAppResources(GuiBackend);
         nativeView      = new GuiView(resources, null);
         loop            = GuiView.CreateSessionLoop(GuiBackend, resources);
     }

@@ -14,12 +14,12 @@ namespace TestConsole;
 /// <summary>
 /// Contains resources shared by all <see cref="GuiView"/>'s.
 /// </summary>
-public class AppResources : IDisposable
+public class GuiAppResources : IDisposable
 {
     internal readonly   SmTexture   myTexture;
     internal readonly   SmFont      monocraftFont;
     
-    public AppResources (SmGuiBackend backend)
+    public GuiAppResources (SmGuiBackend backend)
     {
         var assembly = typeof(AppWindow).Assembly;
         
@@ -42,7 +42,7 @@ public class AppResources : IDisposable
 
 public class GuiView : IGuiView
 {
-    private readonly    AppResources    resources;
+    private readonly    GuiAppResources resources;
     private             bool            mouseCircle;
     private             bool            monocraft;
     private             bool            fullScreen;
@@ -52,7 +52,7 @@ public class GuiView : IGuiView
     private readonly    Color32[]       textColors = [0x0000FFFF, 0xFF0000FF, 0x009900FF, 0xFF00FFFF, 0xCC6600FF, 0x000000ff];
     
     
-    internal GuiView(AppResources resources, ViewSession? session)
+    internal GuiView(GuiAppResources resources, ViewSession? session)
     {
         this.resources  = resources;
         
@@ -246,7 +246,7 @@ public class GuiView : IGuiView
     /// By calling <see cref="SmSessionLoop.IterateSessions"/> periodically, queued user input (mouse and keyboard) is processed. 
     /// Every client with pending input or a dirty session renders a new frame via <see cref="GuiView.RenderView"/>, which is then sent to the client. 
     /// </summary>
-    internal static SmSessionLoop CreateSessionLoop(SmGuiBackend backend, AppResources resources)
+    internal static SmSessionLoop CreateSessionLoop(SmGuiBackend backend, GuiAppResources resources)
     {
         var loop = SmSessionLoop.Create(new LoopOptions {
             Backend     = new CpuBackend("SmGui - Remote Test", backend),
