@@ -3,7 +3,7 @@ using Friflo.SmGui.Recorder;
 
 namespace TestConsole;
 
-public static class GuiExtensions
+public static class CustomWidgets
 {
     /// <summary>
     /// Example of a custom widget implementation
