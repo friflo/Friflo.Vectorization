@@ -153,7 +153,16 @@ public class Sdl3Window
         Sdl3Cursor.Init();
     }
     
-    protected virtual void OnSystemThemeChanged() { }
+    protected virtual void OnSystemThemeChanged()
+    {
+        var theme = SDL.GetSystemTheme();
+        var image = theme == SDL.SystemTheme.Dark ? "Friflo.WGPU.SDL3.Assets.wgpu-transparent-dark-128x128.bmp" : 
+                                                    "Friflo.WGPU.SDL3.Assets.wgpu-transparent-light-128x128.bmp";
+        using var stream = typeof(Sdl3Window).Assembly.GetManifestResourceStream(image);
+        if (stream != null) {
+            SetWindowIcon(stream);
+        }
+    }
     
     public void SetWindowIcon(Stream stream)
     {

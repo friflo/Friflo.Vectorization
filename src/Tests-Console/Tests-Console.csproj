@@ -45,12 +45,6 @@
     </ItemGroup>
     
     <ItemGroup>
-      <EmbeddedResource Include="Assets/wgpu-transparent-light-128x128.bmp" />
-      <EmbeddedResource Include="Assets/wgpu-transparent-dark-128x128.bmp" />
-    </ItemGroup>
-    
-    
-    <ItemGroup>
       <!-- 1. Ensures Transpiler is build first -->
       <ProjectReference Include="../Friflo.WGSL.Transpiler/Friflo.WGSL.Transpiler.csproj" ReferenceOutputAssembly="false" />
     </ItemGroup>

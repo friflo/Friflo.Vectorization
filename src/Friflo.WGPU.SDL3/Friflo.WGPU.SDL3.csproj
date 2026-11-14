@@ -67,6 +67,11 @@
       
     <ProjectReference Include="..\Friflo.SmGui.WGPU\Friflo.SmGui.WGPU.csproj" />
   </ItemGroup>
+    
+  <ItemGroup>
+    <EmbeddedResource Include="Assets\wgpu-transparent-dark-128x128.bmp" />
+    <EmbeddedResource Include="Assets\wgpu-transparent-light-128x128.bmp" />
+  </ItemGroup>
 
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
