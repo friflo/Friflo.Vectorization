@@ -14,18 +14,18 @@ namespace Friflo.SmGui;
 /// A struct containing a reference or an opaque handle to a backend-specific texture.<br/>
 /// In case of the WGPU backend, both are used to reuse a texture view once created.
 /// </summary>
-public readonly struct SmTexture : IEquatable<SmTexture>
+public readonly struct SmTexture : IEquatable<SmTexture>, IDisposable
 {
-    public readonly object? native;         // 8 byte
-    public readonly nint    handle;         // 8 byte
-    public readonly Vector2 whiteUv;        // 8 byte
-    public readonly bool    hasWhitePixel;  // 1 byte
+    public readonly IDisposable native;         // 8 byte
+    public readonly nint        handle;         // 8 byte
+    public readonly Vector2     whiteUv;        // 8 byte
+    public readonly bool        hasWhitePixel;  // 1 byte
     
-    public          bool    IsNull      => native == null;
+    public          bool        IsNull      => native == null;
 
-    public override string  ToString()  => native != null ? $"{native.GetType().Name} - {native}" : "null";
+    public override string      ToString()  => native != null ? $"{native.GetType().Name} - {native}" : "null";
 
-    public SmTexture(object native, nint handle, Vector2 whiteUv)
+    public SmTexture(IDisposable native, nint handle, Vector2 whiteUv)
     {
         this.native     = native;
         this.handle     = handle;
@@ -41,10 +41,15 @@ public readonly struct SmTexture : IEquatable<SmTexture>
         hasWhitePixel   = true;
     }
     
-    public SmTexture(object native, nint handle)
+    public SmTexture(IDisposable native, nint handle)
     {
         this.native     = native;
         this.handle     = handle;
+    }
+
+    public void Dispose()
+    {
+        native.Dispose();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

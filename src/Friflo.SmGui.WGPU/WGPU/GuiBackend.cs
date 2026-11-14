@@ -47,8 +47,8 @@ public sealed class WgpuGuiBackend : SmGuiBackend
         });
         texture.Write(rgbaPixels, bytesPerRow: width * 4, rowsPerImage: height);
 
-        var view = texture.CreateView();
-        return new SmTexture(texture, view.Handle);
+        var textureView = texture.CreateView(); // Note: textures created via SmGui use always the default GpuTextureView
+        return textureView.AsSmTexture();
     }
 
     protected override SmBuffer<Vertex2D> CreateVertexBuffer(int vertexCount)
@@ -76,7 +76,9 @@ public sealed class WgpuGuiBackend : SmGuiBackend
             usage  = (TextureUsage)usage
         });
         texture.Write(image.data, bytesPerRow: image.width * 4, rowsPerImage: image.height);
-        return new SmTexture(texture, 0);
+        
+        var textureView = texture.CreateView(); // Note: textures created via SmGui use always the default GpuTextureView
+        return textureView.AsSmTexture();
     }
     
     public override SmImageAsset GetTextureImage(SmTexture texture)

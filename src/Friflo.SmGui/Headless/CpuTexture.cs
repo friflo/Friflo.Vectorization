@@ -2,6 +2,7 @@
 // See LICENSE file in the project root for full license information.
 
 
+using System;
 using Friflo.SmGui.TUI;
 
 // ReSharper disable NotAccessedField.Global
@@ -10,7 +11,7 @@ using Friflo.SmGui.TUI;
 // ReSharper disable CheckNamespace
 namespace Friflo.SmGui.Headless;
 
-internal sealed class CpuTexture
+internal sealed class CpuTexture : IDisposable
 {
     internal readonly   string      name;
     internal readonly   int         width;
@@ -28,4 +29,6 @@ internal sealed class CpuTexture
         this.rgbaPixels = rgbaPixels;
         sixel           = new TuiSixel(width, height, this.rgbaPixels);
     }
+
+    public void Dispose() { }
 }

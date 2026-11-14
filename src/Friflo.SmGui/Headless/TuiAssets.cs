@@ -72,7 +72,7 @@ public sealed class TuiAssets : IGuiAssets
     }
 }
 
-internal sealed class TuiTexture
+internal sealed class TuiTexture : IDisposable
 {
     internal readonly   string  name;
     internal readonly   int     width;
@@ -86,4 +86,6 @@ internal sealed class TuiTexture
         this.width      = width;
         this.height     = height;
     }
+
+    public void Dispose() { }
 }
