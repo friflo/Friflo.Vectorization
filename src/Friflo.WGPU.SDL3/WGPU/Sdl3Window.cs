@@ -139,15 +139,17 @@ public class Sdl3Window
             throw new NotImplementedException($"no code to setup SDL3 for OS: {RuntimeInformation.OSDescription}");
         }
         
-        // --- setup wgpu resources --- 
+        // --- setup wgpu resources 
         wgpuHost    = new WgpuHost(osHandle, osInstance, driver);
         renderer    = initOptions.createRenderer(wgpuHost);
+        SetWindowSize();
+
+        // --- setup SmGui (optional)
         guiBackend  = renderer.GuiBackend;
         if (guiBackend != null) {
             guiBackend.SetClientActions(new Sdl3ClientAction(window));
             sdlGuiInput = new Sdl3GuiInput();
         }
-        SetWindowSize();
         Sdl3Cursor.Init();
     }
     
