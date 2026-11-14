@@ -19,17 +19,11 @@
       <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
     </PropertyGroup>
 
-    <ItemGroup>
-      <PackageReference Include="SDL3-CS"           Version="3.4.18" />
-      <PackageReference Include="SDL3-CS.Windows"   Version="3.4.18" />
-      <PackageReference Include="SDL3-CS.MacOS"     Version="3.4.18" />
-      <PackageReference Include="SDL3-CS.Linux"     Version="3.4.18" />
-        
+    <ItemGroup>        
       <ProjectReference Include="..\Vectorization.Attributes\Friflo.Vectorization.Attributes.csproj" />
       <ProjectReference Include="..\Friflo.Generators\Friflo.Generators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
       <ProjectReference Include="..\Friflo.Generators.CodeFixes\Friflo.Generators.CodeFixes.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
-      <ProjectReference Include="..\Friflo.WGPU\Friflo.WGPU.csproj" />
-      <ProjectReference Include="..\Friflo.SmGui.WGPU\Friflo.SmGui.WGPU.csproj" />
+      <ProjectReference Include="..\Friflo.WGPU.SDL3\Friflo.WGPU.SDL3.csproj" />
       <ProjectReference Include="..\Friflo.SmGui.Assets\Friflo.SmGui.Assets.csproj" />
       <ProjectReference Include="..\Friflo.SmGui.Http\Friflo.SmGui.Http.csproj" />
     </ItemGroup>

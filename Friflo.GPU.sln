@@ -36,6 +36,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test-Wasm", "src\Test-Wasm\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Friflo.SmGui.WGPU", "src\Friflo.SmGui.WGPU\Friflo.SmGui.WGPU.csproj", "{0007A077-BD00-4528-B96E-C7B2F27DD1FF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Friflo.WGPU.SDL3", "src\Friflo.WGPU.SDL3\Friflo.WGPU.SDL3.csproj", "{750F7420-805A-4026-91A4-1B93A9181CDE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -114,5 +116,9 @@ Global
 		{0007A077-BD00-4528-B96E-C7B2F27DD1FF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0007A077-BD00-4528-B96E-C7B2F27DD1FF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0007A077-BD00-4528-B96E-C7B2F27DD1FF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{750F7420-805A-4026-91A4-1B93A9181CDE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{750F7420-805A-4026-91A4-1B93A9181CDE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{750F7420-805A-4026-91A4-1B93A9181CDE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{750F7420-805A-4026-91A4-1B93A9181CDE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
