@@ -22,12 +22,12 @@ public class AppResources : IDisposable
     
     public AppResources (SmGuiBackend backend)
     {
-        using var monoTtf   = typeof(SmGuiRenderer).Assembly.GetManifestResourceStream("Tests-Console.Assets.Monocraft.ttf")!;  
+        using var monoTtf   = typeof(AppWindow).Assembly.GetManifestResourceStream("Tests-Console.Assets.Monocraft.ttf")!;  
         monocraftFont       = backend.CreateTtfFont(monoTtf, 48, 256, 256, 32, 95, "Monocraft");
         Debug.Assert(monocraftFont.maxY == 244);
 
         // create tile texture
-        using var stream = typeof(AppWindow).Assembly.GetManifestResourceStream("Tests-Console.Assets.img.world_tileset.png")!;
+        using var stream    = typeof(AppWindow).Assembly.GetManifestResourceStream("Tests-Console.Assets.img.world_tileset.png")!;
         gpuTexture          = backend.LoadTexture(stream, "world_tileset.png").AsGpuTexture(); 
         myTexture           = gpuTexture.CreateView().AsSmTexture();
     }
