@@ -102,8 +102,21 @@ public class Sdl3Window
     protected virtual SDL.AppResult InitSdl3()
     {
         CreateWindow();
+        
+        SDL.ShowWindow(window);
 
         SetWindowIconFromResource();
+        
+        CreateWgpuHost();
+        
+        var backend = wgpuHost?.Adapter.GetAdapterInfo().BackendType;
+        SDL.SetWindowTitle(window, $"{initOptions.title} - {backend}");
+        
+        return SDL.AppResult.Continue;
+    }
+    
+    protected void CreateWgpuHost()
+    {
         nint osHandle;
         nint osInstance;
         var props   = SDL.GetWindowProperties(window);
@@ -134,18 +147,14 @@ public class Sdl3Window
         } else {
             throw new NotImplementedException($"no code to setup SDL3 for OS: {RuntimeInformation.OSDescription}");
         }
-        SDL.ShowWindow(window);
         
         // --- setup wgpu resources --- 
         wgpuHost    = new WgpuHost(osHandle, osInstance, driver);
-        var backend = wgpuHost.Adapter.GetAdapterInfo().BackendType;
-        SDL.SetWindowTitle(window, $"{initOptions.title} - {backend}");
         renderer    = initOptions.createRenderer(wgpuHost);
         guiBackend  = renderer.GuiBackend;
         guiBackend?.SetClientActions(new Sdl3ClientAction(window));
         SetWindowSize();
         Sdl3Cursor.Init();
-        return SDL.AppResult.Continue;
     }
     
     public void SetWindowIconFromResource()
