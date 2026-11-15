@@ -11,7 +11,7 @@ namespace SmGui.SignalingServer;
 public class SignalingView : IGuiView
 {
     private readonly    SmSignaling         signaling;
-    private readonly    List<SmGuiApp>      apps    = [];
+    private readonly    List<SmSignalApp>   apps    = [];
     private readonly    List<SmSignalPeer>  clients = [];
     
     public SignalingView(SmSignaling signaling, ViewSession session)
@@ -34,7 +34,7 @@ public class SignalingView : IGuiView
     private void Apps(Gui gui)
     {
         apps.Clear();
-        apps.AddRange(signaling.guiApps.Values);
+        apps.AddRange(signaling.apps.Values);
         apps.Sort((app1, app2) => -app1.registered.CompareTo(app2.registered));
         gui.Label("registered apps");
         gui.Spacer();

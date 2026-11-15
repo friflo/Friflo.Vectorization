@@ -115,7 +115,7 @@ internal sealed class SignalSocketHandler
             // Ensure socket resources are cleaned up when the loop exits
             if (peer.webSocket.State is WebSocketState.Open or WebSocketState.Aborted)
             {
-                var app = signaling.guiApps.Values.FirstOrDefault(app => app.peer == peer);
+                var app = signaling.apps.Values.FirstOrDefault(app => app.peer == peer);
                 if (app != null) {
                     app.online = false;
                     signaling.SetDirty();

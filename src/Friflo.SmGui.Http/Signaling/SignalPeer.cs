@@ -12,11 +12,11 @@ namespace Friflo.SmGui.Http;
 
 public sealed class SmSignalPeer
 {
-    public              SmGuiApp?   connectApp;     // an app a client wants to connect
-    public              SmGuiApp?   app;            // the app that clients can connect
-    public   readonly   DateTime    registered;
-    public   readonly   string      connection;
-    internal readonly   WebSocket   webSocket;
+    public              SmSignalApp?    connectApp;     // an app a client wants to connect
+    public              SmSignalApp?    app;            // the app that clients can connect
+    public   readonly   DateTime        registered;
+    public   readonly   string          connection;
+    internal readonly   WebSocket       webSocket;
     
     public   override   string      ToString() => $"{(connectApp == null ? "App" : "Client")}  conn: {connection}";
     

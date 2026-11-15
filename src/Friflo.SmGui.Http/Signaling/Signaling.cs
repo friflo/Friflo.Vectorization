@@ -20,7 +20,7 @@ internal record struct SignalMessage(string type, string? app, string? connectio
     internal static bool TryParse(ReadOnlySpan<byte> buffer, out SignalMessage message)
     {
         try {
-            message = JsonSerializer.Deserialize<SignalMessage>(buffer, SignalingJson.Default.SignalMessage);
+            message = JsonSerializer.Deserialize(buffer, SignalingJson.Default.SignalMessage);
             return true;
         }
         catch (JsonException) {
@@ -30,7 +30,7 @@ internal record struct SignalMessage(string type, string? app, string? connectio
     }
 }
 
-public sealed class SmGuiApp
+public sealed class SmSignalApp
 {
     public   readonly   string          name;
     public   readonly   string          url;
@@ -44,7 +44,7 @@ public sealed class SmGuiApp
 
     public   override   string          ToString() => name;
 
-    internal SmGuiApp(SmSignalPeer peer, string name, string url) {
+    internal SmSignalApp(SmSignalPeer peer, string name, string url) {
         this.name   = name;
         this.peer   = peer;
         this.url    = url;
@@ -57,7 +57,7 @@ public sealed class SmGuiApp
 /// <summary> Single <see cref="SmSignaling"/> instance is shared by all sessions. </summary>
 public sealed class SmSignaling
 {
-    public   readonly   ConcurrentDictionary<string, SmGuiApp>      guiApps = [];
+    public   readonly   ConcurrentDictionary<string, SmSignalApp>   apps    = [];
     public   readonly   ConcurrentDictionary<string, SmSignalPeer>  clients = [];
     private             int                                         instanceSeq;
     /// <summary>
@@ -105,8 +105,8 @@ public sealed class SmSignaling
                     }
                     var appId = instance == null ? app : $"{app}.{instance}";
                     Console.WriteLine($"Register app: '{appId}'");
-                    var guiApp = peer.app = new SmGuiApp(peer, appId, $"?app={appId}");
-                    guiApps[appId] = guiApp;
+                    var signalApp = peer.app = new SmSignalApp(peer, appId, $"?app={appId}");
+                    apps[appId] = signalApp;
                     SetAppSessionCount(peer, message);
                     SetDirty();
                     
@@ -123,7 +123,7 @@ public sealed class SmSignaling
             case "connect":
                 if (!string.IsNullOrEmpty(message.app)) {
                     string result;
-                    if (guiApps.TryGetValue(message.app, out var guiApp))
+                    if (apps.TryGetValue(message.app, out var guiApp))
                     {
                         peer.connectApp = guiApp;
                         if (guiApp.online) {

@@ -19,7 +19,7 @@ public sealed class AppWindow : Sdl3Window
     {
         if (!SDL.Init(SDL.InitFlags.Video | SDL.InitFlags.Gamepad)) throw new Exception($"SDL3 initialization failed: {SDL.GetError()}");
         var app = new AppWindow();
-        CreateRenderer createRenderer = host => new GuiRenderer(host);
+        CreateRenderer createRenderer = wgpuHost => new GuiRenderer(wgpuHost);
         var opt = new InitOptions{ title = title, width = width, height = height, createRenderer = createRenderer, createGuiApp = createGuiApp };
         return app.EnterAppMain(opt);
     }
