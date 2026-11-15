@@ -8,7 +8,7 @@ namespace GuiDemo;
 /// Default WGPU renderer for <see cref="SmGuiApp"/> instances.
 /// You can copy and paste this class to customize the rendering pipeline or clear behavior.
 /// </summary>
-public sealed class GuiRenderer : IRenderer
+public sealed class GuiAppRenderer : IRenderer
 {
     public              SmGuiBackend?           GuiBackend { get; }
     private             SmGuiApp?               app;
@@ -24,7 +24,7 @@ public sealed class GuiRenderer : IRenderer
         batch.Dispose();
     }
     
-    public GuiRenderer(WgpuHost wgpuHost)
+    public GuiAppRenderer(WgpuHost wgpuHost)
     {
         var wgpuBackend = new WgpuGuiBackend(wgpuHost.Device, new DefaultGuiAssets());
         GuiBackend      = wgpuBackend;
