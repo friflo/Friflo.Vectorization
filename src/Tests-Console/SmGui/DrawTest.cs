@@ -2,27 +2,25 @@
 using Friflo.SmGui.WGPU;
 using Friflo.WGPU;
 
-// ReSharper disable MemberCanBePrivate.Global
-// ReSharper disable InconsistentNaming
 // ReSharper disable ConvertToPrimaryConstructor
 namespace TestConsole;
 
 
 public class SmDrawRenderer : IRenderer
 {
+    public              SmGuiBackend?           GuiBackend { get; }
+    
     private readonly    WgpuBatch               batch;
     private readonly    DrawAppResources        resources;
     private readonly    GpuRenderPassDescriptor renderPassDescriptor    = new () { colorAttachments = [ default ] };
     private readonly    PerfLog                 perfLog                 = new();
-    private readonly    IGuiView                nativeView;
-    
+    private readonly    DrawView                nativeView;
+
     public void OnShutdown() {
         resources.Dispose();
         batch.Dispose();
     }
     
-    public SmGuiBackend? GuiBackend { get; }
-
     public SmDrawRenderer(WgpuHost wgpuHost)
     {
         var wgpuBackend = new WgpuGuiBackend(wgpuHost.Device, new DefaultGuiAssets());

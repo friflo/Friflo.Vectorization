@@ -7,29 +7,30 @@ using Friflo.WGPU;
 
 namespace TestConsole;
 
+
 public class SmGuiRenderer : IRenderer
 {
-    private readonly    WgpuBatch               gpuBatch;
+    public              SmGuiBackend?           GuiBackend { get; }
+    
+    private readonly    WgpuBatch               batch;
+    private readonly    GuiAppResources         resources;
     private readonly    GpuRenderPassDescriptor renderPassDescriptor    = new () { colorAttachments = [ default ] };
     private readonly    PerfLog                 perfLog                 = new();
-    private readonly    GuiAppResources         resources;
-    private readonly    IGuiView                nativeView;
+    private readonly    GuiView                 nativeView;
     private readonly    SmSessionLoop           loop;
-    
-    public SmGuiBackend? GuiBackend { get; }
 
     public void OnShutdown()
     {
         loop.Dispose();
         resources.Dispose();
-        gpuBatch.Dispose();
+        batch.Dispose();
     }
     
     public SmGuiRenderer(WgpuHost wgpuHost)
     {
         var wgpuBackend = new WgpuGuiBackend(wgpuHost.Device, new DefaultGuiAssets());
         GuiBackend      = wgpuBackend;
-        gpuBatch        = wgpuBackend.CreateBatch(wgpuHost.SwapChainFormat);
+        batch           = wgpuBackend.CreateBatch(wgpuHost.SwapChainFormat);
         resources       = new GuiAppResources(GuiBackend);
         nativeView      = new GuiView(resources, null);
         loop            = GuiView.CreateSessionLoop(GuiBackend, resources);
@@ -46,14 +47,12 @@ public class SmGuiRenderer : IRenderer
     
     public void OnFrame(in RenderTarget target)
     {
-        _ = gpuBatch.Timer.Enabled;    // not relevant - only smoke test to ensure Timer instance != null
-        
         perfLog.Trace(10000);
         
         loop.IterateSessions();
         
-        nativeView.RenderView(gpuBatch, target.Width, target.Height);
+        nativeView.RenderView(batch, target.Width, target.Height);
 
-        gpuBatch.DrawCommandList(target, renderPassDescriptor);
+        batch.DrawCommandList(target, renderPassDescriptor);
     }
 }
