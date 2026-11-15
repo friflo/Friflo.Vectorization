@@ -8,7 +8,7 @@ using Friflo.SmGui.Session;
 namespace GuiDemo;
 
 
-public sealed class DemoGuiApp : GuiApp
+public sealed class DemoGuiApp : SmGuiApp
 {
     private readonly    GuiAppResources resources;
     private readonly    GuiView         nativeView;

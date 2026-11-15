@@ -5,13 +5,13 @@ using Friflo.WGPU;
 namespace GuiDemo;
 
 /// <summary>
-/// Default WGPU renderer for <see cref="GuiApp"/> instances.
+/// Default WGPU renderer for <see cref="SmGuiApp"/> instances.
 /// You can copy and paste this class to customize the rendering pipeline or clear behavior.
 /// </summary>
 public sealed class GuiRenderer : IRenderer
 {
     public              SmGuiBackend?           GuiBackend { get; }
-    private             GuiApp?                 app;
+    private             SmGuiApp?               app;
     
     private readonly    WgpuBatch               batch;
     private readonly    GpuRenderPassDescriptor renderPassDescriptor    = new () { colorAttachments = [ default ] };
