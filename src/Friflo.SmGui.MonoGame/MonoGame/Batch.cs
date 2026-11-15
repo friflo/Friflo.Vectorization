@@ -75,6 +75,8 @@ public sealed class MonoGameBatch : SmBatch
         graphicsDevice.RasterizerState      = rasterizerState;
         graphicsDevice.DepthStencilState    = DepthStencilState.DepthRead;
         
+        // graphicsDevice.Viewport = new Viewport(0, 0, graphicsDevice.PresentationParameters.BackBufferWidth, graphicsDevice.PresentationParameters.BackBufferHeight);
+        
         var scissor = new RectVector2(Vector2.Zero, viewport);
 
         var vertexBuffer    = ((MonoGameVertexBuffer)gpuVertexBuffer).vertexBuffer;
@@ -82,6 +84,9 @@ public sealed class MonoGameBatch : SmBatch
 
         graphicsDevice.SetVertexBuffer(vertexBuffer);
         graphicsDevice.Indices = indices;
+        
+        gpuVertexBuffer.Write(0, Vertices.Length);
+        // gpuIndexBuffer. Write(0, indices.IndexCount);
         
         foreach (var cmd in DrawList)
         {
@@ -92,8 +97,8 @@ public sealed class MonoGameBatch : SmBatch
             var texture2D   = (Texture2D)cmd.texture.native!;
             var vertexView  = cmd.vertexView;
             var indexView   = cmd.indexView;
-            // var sampler  = cmd.samplerFilter == SamplerFilter.Linear ? samplerLinear : samplerNearest;
-            // var config   = renderConfigs[(int)cmd.blendState];
+            // var sampler  = cmd.samplerFilter == SamplerFilter.Linear ? samplerLinear : samplerNearest;   // todo  implement cmd.samplerFilter
+            // var config   = renderConfigs[(int)cmd.blendState];                                           // todo  implement cmd.blendState
             
             effect                    ??= new BasicEffect(graphicsDevice);
             effect.World                = Matrix.Identity;
@@ -103,14 +108,17 @@ public sealed class MonoGameBatch : SmBatch
             effect.Texture              = texture2D;
             effect.VertexColorEnabled   = true;
             
-            /* 
-            graphicsDevice.DrawIndexedPrimitives(
-                primitiveType:  PrimitiveType.TriangleList,
-                baseVertex:     vertexView.offset,
-                minVertexIndex: 0,
-                numVertices:    vertexView.length,
-                startIndex:     (int)drawCmd.IdxOffset + idxOffset,
-                primitiveCount: (int)drawCmd.ElemCount / 3); */
+            foreach (var pass in effect.CurrentTechnique.Passes)
+            {
+                pass.Apply();
+                graphicsDevice.DrawIndexedPrimitives(
+                    primitiveType:  PrimitiveType.TriangleList,
+                    baseVertex:     vertexView.offset,
+                    minVertexIndex: 0,
+                    numVertices:    vertexView.length,
+                    startIndex:     indexView.offset,
+                    primitiveCount: indexView.length);
+            }
         }
         
         graphicsDevice.Viewport         = lastViewport;
