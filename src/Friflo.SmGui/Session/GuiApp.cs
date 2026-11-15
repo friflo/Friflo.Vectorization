@@ -12,3 +12,5 @@ public abstract class GuiApp : IDisposable
     public abstract void RenderApp(SmBatch batch,  int width, int height);
     public abstract void Dispose();
 }
+
+public delegate GuiApp CreateGuiApp(SmGuiBackend backend);

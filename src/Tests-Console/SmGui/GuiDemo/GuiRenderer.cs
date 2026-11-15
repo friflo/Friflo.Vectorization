@@ -8,12 +8,12 @@ namespace GuiDemo;
 public sealed class GuiRenderer : IRenderer
 {
     public              SmGuiBackend?           GuiBackend { get; }
+    private readonly    GuiApp                  app;
     
     private readonly    WgpuBatch               batch;
     private readonly    GpuRenderPassDescriptor renderPassDescriptor    = new () { colorAttachments = [ default ] };
     private readonly    PerfLog                 perfLog                 = new();
     
-    private readonly    GuiApp                  app;
 
     public void OnShutdown()
     {
@@ -21,7 +21,7 @@ public sealed class GuiRenderer : IRenderer
         batch.Dispose();
     }
     
-    public GuiRenderer(WgpuHost wgpuHost, Func<SmGuiBackend, GuiApp> createApp)
+    public GuiRenderer(WgpuHost wgpuHost, CreateGuiApp createApp)
     {
         var wgpuBackend = new WgpuGuiBackend(wgpuHost.Device, new DefaultGuiAssets());
         GuiBackend      = wgpuBackend;
