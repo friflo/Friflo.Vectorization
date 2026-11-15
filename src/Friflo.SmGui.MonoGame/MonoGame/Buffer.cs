@@ -13,7 +13,7 @@ namespace Friflo.SmGui.MonoGame;
 internal sealed class MonoGameVertexBuffer : SmBuffer<Vertex2D>
 {
     internal readonly VertexBuffer      vertexBuffer;
-    internal readonly Vertex2D[]        vertexData;
+    private  readonly Vertex2D[]        vertexData;
     
     public   override Memory<Vertex2D>  Memory => vertexData;
     
@@ -47,8 +47,8 @@ internal sealed class MonoGameVertexBuffer : SmBuffer<Vertex2D>
 
 internal sealed class MonoGameIndexBuffer : SmBuffer<uint>
 {
-    internal readonly IndexBuffer       indexBuffer;
-    internal readonly uint[]            indexData;
+    internal readonly IndexBuffer   indexBuffer;
+    private  readonly uint[]        indexData;
     
     public   override Memory<uint>  Memory => indexData;
     

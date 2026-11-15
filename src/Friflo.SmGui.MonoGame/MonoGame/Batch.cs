@@ -116,10 +116,17 @@ public sealed class MonoGameBatch : SmBatch
                 graphicsDevice.DrawIndexedPrimitives(
                     primitiveType:  PrimitiveType.TriangleList,
                     baseVertex:     vertexView.offset,
+                    startIndex:     indexView.offset,
+                    primitiveCount: indexView.length);
+                
+                /* [Obsolete("Use DrawIndexedPrimitives(PrimitiveType primitiveType, int baseVertex, int startIndex, int primitiveCount) instead. In future versions this method can be removed.")]
+                graphicsDevice.DrawIndexedPrimitives( 
+                    primitiveType:  PrimitiveType.TriangleList,
+                    baseVertex:     vertexView.offset,
                     minVertexIndex: 0,
                     numVertices:    vertexView.length,
                     startIndex:     indexView.offset,
-                    primitiveCount: indexView.length);
+                    primitiveCount: indexView.length); */
             }
         }
         

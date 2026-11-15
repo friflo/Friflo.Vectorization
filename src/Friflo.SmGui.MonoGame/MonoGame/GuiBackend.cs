@@ -66,7 +66,7 @@ public sealed class MonoGameGuiBackend : SmGuiBackend
     public override SmImageAsset GetTextureImage(SmTexture texture)
     {
         var texture2D = (Texture2D)texture.native!;
-        var pixels = new  byte[texture2D.Width * texture2D.Height * 4];
+        var pixels = new  byte[texture2D.Width * texture2D.Height * 4]; // todo  avoid allocation
         texture2D.GetData(pixels);
         return new SmImageAsset { width = texture2D.Width, height = texture2D.Height, data = pixels, name = "Texture2D" };
     }
