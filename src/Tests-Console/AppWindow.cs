@@ -5,8 +5,12 @@ using GuiDemo;
 using SDL3;
 using SmGui.MonoGame;
 
+
 // ReSharper disable ConvertToLocalFunction
-public sealed class AppWindow : Sdl3Window
+public sealed class AppWindow : Sdl3Window { }
+
+
+public static class AppRunner
 {
     public static int Run(string title, int width, int height, CreateRenderer createRenderer, CreateGuiApp? createGuiApp = null)
     {

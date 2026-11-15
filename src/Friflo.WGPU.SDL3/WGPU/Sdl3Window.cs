@@ -39,7 +39,7 @@ public class Sdl3Window
     private     Sdl3GuiInput?           sdlGuiInput; // only required for guiBackend
 #endregion
     
-    protected int EnterAppMain(InitOptions opt)
+    public int EnterAppMain(InitOptions opt)
     {
         initOptions = opt;
         SDL.SetMainReady();

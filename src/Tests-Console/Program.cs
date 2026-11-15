@@ -9,18 +9,18 @@ using Friflo.WGPU;
 
 Console.OutputEncoding = System.Text.Encoding.UTF8; // support UTF-8 chars like 🙂
 
-// AppWindow.RunMonoGame("SmGui", 1280, 1200, backend => new GuiDemo.DemoGuiApp(backend));
+// AppRunner.RunMonoGame("SmGui", 1280, 1200, backend => new GuiDemo.DemoGuiApp(backend));
 
-AppWindow.RunGuiApp("SmGui",   1280, 1200, backend => new GuiDemo.DemoGuiApp(backend));
-AppWindow.RunGuiApp("SmDraw",  1280,  720, backend => new DrawDemo.DemoDrawApp(backend));
+AppRunner.RunGuiApp("SmGui",   1280, 1200, backend => new GuiDemo.DemoGuiApp(backend));
+AppRunner.RunGuiApp("SmDraw",  1280,  720, backend => new DrawDemo.DemoDrawApp(backend));
 
-AppWindow.Run("Particles",      1280, 720, wgpu => new Shaders.Particles.Renderer(wgpu));
-AppWindow.Run("RenderTest",     1280, 720, wgpu => new Shaders.RenderTest.Renderer(wgpu));
-AppWindow.Run("ShadowMapping",  1280, 720, wgpu => new Shaders.ShadowMapping.Renderer(wgpu));
-AppWindow.Run("InstancedCube",  1280, 720, wgpu => new Shaders.InstancedCube.Renderer(wgpu));
-AppWindow.Run("TwoCubes",       1280, 720, wgpu => new Shaders.TwoCubes.Renderer(wgpu));
-AppWindow.Run("TexturedCube",   1280, 720, wgpu => new Shaders.TexturedCube.Renderer(wgpu));
-return AppWindow.Run("ConfigTest",     1280, 720, wgpu => new Shaders.RenderTest.ConfigTest(wgpu));
+AppRunner.Run("Particles",      1280, 720, wgpu => new Shaders.Particles.Renderer(wgpu));
+AppRunner.Run("RenderTest",     1280, 720, wgpu => new Shaders.RenderTest.Renderer(wgpu));
+AppRunner.Run("ShadowMapping",  1280, 720, wgpu => new Shaders.ShadowMapping.Renderer(wgpu));
+AppRunner.Run("InstancedCube",  1280, 720, wgpu => new Shaders.InstancedCube.Renderer(wgpu));
+AppRunner.Run("TwoCubes",       1280, 720, wgpu => new Shaders.TwoCubes.Renderer(wgpu));
+AppRunner.Run("TexturedCube",   1280, 720, wgpu => new Shaders.TexturedCube.Renderer(wgpu));
+return AppRunner.Run("ConfigTest",     1280, 720, wgpu => new Shaders.RenderTest.ConfigTest(wgpu));
 
 
 // using var instance    = CpuInstance.CreateInstance();
