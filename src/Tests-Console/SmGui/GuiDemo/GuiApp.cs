@@ -16,9 +16,9 @@ public class GuiApp : IGuiApp
     
     internal GuiApp(SmGuiBackend backend)
     {
-        resources       = new GuiAppResources(backend);
-        nativeView      = new GuiView(resources, null);
-        loop            = CreateSessionLoop(backend, resources);
+        resources   = new GuiAppResources(backend);
+        nativeView  = new GuiView(resources, null);
+        loop        = CreateSessionLoop(backend, resources);
     }
 
     public void Dispose()
