@@ -6,6 +6,7 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <ApplicationIcon>Assets/friflo.ico</ApplicationIcon>
+        <ApplicationManifest>app.manifest</ApplicationManifest>
         
         <IsAotCompatible>true</IsAotCompatible>
         <IsTrimmable>true</IsTrimmable>
