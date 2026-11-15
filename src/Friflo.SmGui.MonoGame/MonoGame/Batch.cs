@@ -75,7 +75,8 @@ public sealed class MonoGameBatch : SmBatch
         graphicsDevice.RasterizerState      = rasterizerState;
         graphicsDevice.DepthStencilState    = DepthStencilState.DepthRead;
         
-        // graphicsDevice.Viewport = new Viewport(0, 0, graphicsDevice.PresentationParameters.BackBufferWidth, graphicsDevice.PresentationParameters.BackBufferHeight);
+        var parameters          = graphicsDevice.PresentationParameters;
+        graphicsDevice.Viewport = new Viewport(0, 0, parameters.BackBufferWidth, parameters.BackBufferHeight);
         
         var scissor = new RectVector2(Vector2.Zero, viewport);
 
@@ -91,8 +92,9 @@ public sealed class MonoGameBatch : SmBatch
         foreach (var cmd in DrawList)
         {
             if (!cmd.scissor.Equals(scissor)) {
-                scissor = cmd.scissor;
-                graphicsDevice.ScissorRectangle = new Rectangle((int)scissor.pos.X, (int)scissor.pos.Y, (int)scissor.size.X, (int)scissor.size.Y);    
+                var pos  = cmd.scissor.pos;
+                var size = cmd.scissor.size;
+                graphicsDevice.ScissorRectangle = new Rectangle((int)pos.X, (int)pos.Y, (int)size.X, (int)size.Y);
             }
             var texture2D   = (Texture2D)cmd.texture.native!;
             var vertexView  = cmd.vertexView;

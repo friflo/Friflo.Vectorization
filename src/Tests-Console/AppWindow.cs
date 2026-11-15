@@ -31,6 +31,7 @@ public sealed class AppWindow : Sdl3Window
         
         app.Run();
         
+        app.Dispose();
         return 0;
     }
 }

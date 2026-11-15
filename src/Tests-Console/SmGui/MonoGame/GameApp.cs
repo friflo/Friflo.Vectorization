@@ -1,7 +1,6 @@
 using Friflo.SmGui;
 using Friflo.SmGui.MonoGame;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 
 // ReSharper disable PrivateFieldCanBeConvertedToLocalVariable
 namespace SmGui.MonoGame;
@@ -9,7 +8,7 @@ namespace SmGui.MonoGame;
 public class GameApp : Game
 {
     private readonly    GraphicsDeviceManager   graphics;
-//  private             SpriteBatch             spriteBatch;
+    // private          SpriteBatch             spriteBatch;
     
     private             MonoGameGuiBackend?     guiBackend;
     private             MonoGameBatch?          batch;
@@ -24,9 +23,11 @@ public class GameApp : Game
         Content.RootDirectory = "Content";
         IsMouseVisible = true;
         
-        graphics.SynchronizeWithVerticalRetrace = false;
         graphics.PreferredBackBufferWidth  = width;
         graphics.PreferredBackBufferHeight = height;
+        
+        graphics.SynchronizeWithVerticalRetrace = false;    // disable VSync
+        IsFixedTimeStep = false;                            // disable VSync
         
         Window.AllowUserResizing    = true;
         Window.Title                = title;
@@ -56,12 +57,16 @@ public class GameApp : Game
 
     protected override void Draw(GameTime gameTime)
     {
-        GraphicsDevice.Clear(Color.CornflowerBlue);
+        var device = GraphicsDevice;
+        device.Clear(Color.CornflowerBlue);
         
-        var displayMode = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode;
-        app?.RenderApp(batch!, displayMode.Width, displayMode.Height);
+        var parameters  = device.PresentationParameters;
+        var width       = parameters.BackBufferWidth;
+        var height      = parameters.BackBufferHeight;
+            
+        app?.RenderApp(batch!, width, height);
 
-        batch?.DrawCommandList(GraphicsDevice);
+        batch?.DrawCommandList(device);
 
         base.Draw(gameTime);
     }
