@@ -144,7 +144,7 @@ public class Sdl3Window
         wgpuHost    = new WgpuHost(osHandle, osInstance, driver);
         renderer    = initOptions.createRenderer(wgpuHost);
         if (initOptions.createGuiApp != null) {
-            renderer.CreateGui(initOptions.createGuiApp);
+            renderer.CreateGuiApp(initOptions.createGuiApp);
         }
         SetWindowSize();
 

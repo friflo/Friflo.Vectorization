@@ -31,7 +31,7 @@ public sealed class GuiRenderer : IRenderer
         batch           = wgpuBackend.CreateBatch(wgpuHost.SwapChainFormat);
     }
     
-    public void CreateGui (CreateGuiApp createGui) {
+    public void CreateGuiApp(CreateGuiApp createGui) {
         app = createGui(GuiBackend!);
     }
     
