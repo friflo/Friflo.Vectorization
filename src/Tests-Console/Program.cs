@@ -11,7 +11,7 @@ using TestConsole;
 Console.OutputEncoding = System.Text.Encoding.UTF8; // support UTF-8 chars like 🙂
 
 
-AppWindow.Run("SmGui",         1280, 1200, wgpu => new SmGuiRenderer(wgpu));
+AppWindow.Run("SmGui",         1280, 1200, wgpu => new GuiDemo.GuiRenderer(wgpu));
 AppWindow.Run("SmDraw",        1280,  720, wgpu => new SmDrawRenderer(wgpu));
 
 AppWindow.Run("Particles",      1280, 720, wgpu => new Shaders.Particles.Renderer(wgpu));

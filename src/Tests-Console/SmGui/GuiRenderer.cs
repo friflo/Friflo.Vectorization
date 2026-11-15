@@ -1,14 +1,13 @@
 ﻿// --- GuiTest.cs
 
 using Friflo.SmGui;
-using Friflo.SmGui.Session;
 using Friflo.SmGui.WGPU;
 using Friflo.WGPU;
 
-namespace TestConsole;
+namespace GuiDemo;
 
 
-public class SmGuiRenderer : IRenderer
+public class GuiRenderer : IRenderer
 {
     public              SmGuiBackend?           GuiBackend { get; }
     
@@ -16,25 +15,21 @@ public class SmGuiRenderer : IRenderer
     private readonly    GpuRenderPassDescriptor renderPassDescriptor    = new () { colorAttachments = [ default ] };
     private readonly    PerfLog                 perfLog                 = new();
     
-    private readonly    GuiAppResources         resources;
-    private readonly    GuiView                 nativeView;
-    private readonly    SmSessionLoop           loop;
+    private readonly    IGuiApp                 app;
 
     public void OnShutdown()
     {
-        loop.Dispose();
-        resources.Dispose();
+        app.Dispose();
         batch.Dispose();
     }
     
-    public SmGuiRenderer(WgpuHost wgpuHost)
+    public GuiRenderer(WgpuHost wgpuHost)
     {
         var wgpuBackend = new WgpuGuiBackend(wgpuHost.Device, new DefaultGuiAssets());
         GuiBackend      = wgpuBackend;
         batch           = wgpuBackend.CreateBatch(wgpuHost.SwapChainFormat);
-        resources       = new GuiAppResources(GuiBackend);
-        nativeView      = new GuiView(resources, null);
-        loop            = GuiView.CreateSessionLoop(GuiBackend, resources);
+        
+        app = new GuiApp(GuiBackend);
     }
     
     public void OnWindowChanged(int width, int height)
@@ -50,9 +45,7 @@ public class SmGuiRenderer : IRenderer
     {
         perfLog.Trace(10000);
         
-        loop.IterateSessions();
-        
-        nativeView.RenderView(batch, target.Width, target.Height);
+        app.OnFrame(batch, target.Width, target.Height);
 
         batch.DrawCommandList(target, renderPassDescriptor);
     }
