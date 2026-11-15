@@ -23,6 +23,8 @@
       <ProjectReference Include="..\Vectorization.Attributes\Friflo.Vectorization.Attributes.csproj" />
       <ProjectReference Include="..\Friflo.Generators\Friflo.Generators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
       <ProjectReference Include="..\Friflo.Generators.CodeFixes\Friflo.Generators.CodeFixes.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+      
+      <ProjectReference Include="..\Friflo.SmGui.MonoGame\Friflo.SmGui.MonoGame.csproj" />        
       <ProjectReference Include="..\Friflo.WGPU.SDL3\Friflo.WGPU.SDL3.csproj" />
       <ProjectReference Include="..\Friflo.SmGui.Assets\Friflo.SmGui.Assets.csproj" />
       <ProjectReference Include="..\Friflo.SmGui.Http\Friflo.SmGui.Http.csproj" />

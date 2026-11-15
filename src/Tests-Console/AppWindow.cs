@@ -3,6 +3,7 @@ using Friflo.WGPU;
 using Friflo.WGPU.SDL3;
 using GuiDemo;
 using SDL3;
+using SmGui.MonoGame;
 
 // ReSharper disable ConvertToLocalFunction
 public sealed class AppWindow : Sdl3Window
@@ -22,5 +23,14 @@ public sealed class AppWindow : Sdl3Window
         CreateRenderer createRenderer = wgpuHost => new GuiAppRenderer(wgpuHost);
         var opt = new InitOptions{ title = title, width = width, height = height, createRenderer = createRenderer, createGuiApp = createGuiApp };
         return window.EnterAppMain(opt);
+    }
+    
+    public static int RunMonoGame(string title, int width, int height, CreateGuiApp createGuiApp)
+    {
+        var app = new GameApp(title, width, height, createGuiApp);
+        
+        app.Run();
+        
+        return 0;
     }
 }
