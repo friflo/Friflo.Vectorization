@@ -15,7 +15,7 @@ public sealed class AppWindow : Sdl3Window
         return window.EnterAppMain(opt);
     }
     
-    public static int RunGuiApp(string title, int width, int height, CreateGuiApp? createGuiApp = null)
+    public static int RunGuiApp(string title, int width, int height, CreateGuiApp createGuiApp)
     {
         if (!SDL.Init(SDL.InitFlags.Video | SDL.InitFlags.Gamepad)) throw new Exception($"SDL3 initialization failed: {SDL.GetError()}");
         var window = new AppWindow();
