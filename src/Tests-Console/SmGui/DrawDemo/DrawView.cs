@@ -2,7 +2,7 @@ using System.Diagnostics;
 using System.Numerics;
 using Friflo.SmGui;
 
-namespace TestConsole;
+namespace DrawDemo;
 
 
 public sealed class DrawAppResources : IDisposable

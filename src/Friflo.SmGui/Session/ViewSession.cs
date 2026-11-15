@@ -91,6 +91,10 @@ public interface IGuiView
 /// <returns>An instance implementing <see cref="IGuiView"/> for the session.</returns>
 public delegate IGuiView ViewFactory(ViewSession session);
 
+public interface IGuiApp : IDisposable
+{
+    public void OnFrame(SmBatch batch,  int width, int height);
+}
 
 /// <summary>
 /// Represents an individual client connection managed by a <see cref="SmSessionLoop"/>, 

@@ -1,13 +1,11 @@
-﻿// --- GuiTest.cs
-
-using Friflo.SmGui;
+﻿using Friflo.SmGui;
 using Friflo.SmGui.WGPU;
 using Friflo.WGPU;
 
-namespace GuiDemo;
+namespace DrawDemo;
 
 
-public class GuiRenderer : IRenderer
+public class DrawRenderer : IRenderer
 {
     public              SmGuiBackend?           GuiBackend { get; }
     
@@ -23,13 +21,13 @@ public class GuiRenderer : IRenderer
         batch.Dispose();
     }
     
-    public GuiRenderer(WgpuHost wgpuHost)
+    public DrawRenderer(WgpuHost wgpuHost, Func<SmGuiBackend, IGuiApp> createApp)
     {
         var wgpuBackend = new WgpuGuiBackend(wgpuHost.Device, new DefaultGuiAssets());
-        GuiBackend      = wgpuBackend;
-        batch           = wgpuBackend.CreateBatch(wgpuHost.SwapChainFormat);
+        GuiBackend  = wgpuBackend;
+        batch       = wgpuBackend.CreateBatch(wgpuHost.SwapChainFormat);
         
-        app = new GuiApp(GuiBackend);
+        app = createApp(GuiBackend);
     }
     
     public void OnWindowChanged(int width, int height)
@@ -37,16 +35,16 @@ public class GuiRenderer : IRenderer
         renderPassDescriptor.colorAttachments[0] = new GpuRenderPassColorAttachment {
             loadOp      = LoadOp.Clear,
             storeOp     = StoreOp.Store,
-            clearValue  = new GpuColor(0.6f, 0.61f, 0.62f, 1f)
+            clearValue  = new GpuColor(0.1, 0.1, 0.1, 1)
         };
     }
     
     public void OnFrame(in RenderTarget target)
     {
-        perfLog.Trace(10000);
+        perfLog.Trace(5000);
         
         app.OnFrame(batch, target.Width, target.Height);
-
+        
         batch.DrawCommandList(target, renderPassDescriptor);
     }
 }

@@ -5,13 +5,8 @@ using Friflo.SmGui.Headless;
 using Friflo.SmGui.Http;
 using Friflo.SmGui.Session;
 
-
 namespace GuiDemo;
 
-public interface IGuiApp : IDisposable
-{
-    public void OnFrame(SmBatch batch,  int width, int height);
-}
 
 public class GuiApp : IGuiApp
 {

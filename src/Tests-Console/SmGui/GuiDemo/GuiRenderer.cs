@@ -2,11 +2,10 @@
 using Friflo.SmGui.WGPU;
 using Friflo.WGPU;
 
-// ReSharper disable ConvertToPrimaryConstructor
-namespace TestConsole;
+namespace GuiDemo;
 
 
-public class SmDrawRenderer : IRenderer
+public class GuiRenderer : IRenderer
 {
     public              SmGuiBackend?           GuiBackend { get; }
     
@@ -14,21 +13,21 @@ public class SmDrawRenderer : IRenderer
     private readonly    GpuRenderPassDescriptor renderPassDescriptor    = new () { colorAttachments = [ default ] };
     private readonly    PerfLog                 perfLog                 = new();
     
-    private readonly    DrawAppResources        resources;
-    private readonly    DrawView                nativeView;
+    private readonly    IGuiApp                 app;
 
-    public void OnShutdown() {
-        resources.Dispose();
+    public void OnShutdown()
+    {
+        app.Dispose();
         batch.Dispose();
     }
     
-    public SmDrawRenderer(WgpuHost wgpuHost)
+    public GuiRenderer(WgpuHost wgpuHost, Func<SmGuiBackend, IGuiApp> createApp)
     {
         var wgpuBackend = new WgpuGuiBackend(wgpuHost.Device, new DefaultGuiAssets());
-        GuiBackend  = wgpuBackend;
-        batch       = wgpuBackend.CreateBatch(wgpuHost.SwapChainFormat);
-        resources   = new DrawAppResources(GuiBackend);
-        nativeView  = new DrawView(resources);
+        GuiBackend      = wgpuBackend;
+        batch           = wgpuBackend.CreateBatch(wgpuHost.SwapChainFormat);
+        
+        app = createApp(GuiBackend);
     }
     
     public void OnWindowChanged(int width, int height)
@@ -36,16 +35,16 @@ public class SmDrawRenderer : IRenderer
         renderPassDescriptor.colorAttachments[0] = new GpuRenderPassColorAttachment {
             loadOp      = LoadOp.Clear,
             storeOp     = StoreOp.Store,
-            clearValue  = new GpuColor(0.1, 0.1, 0.1, 1)
+            clearValue  = new GpuColor(0.6f, 0.61f, 0.62f, 1f)
         };
     }
     
     public void OnFrame(in RenderTarget target)
     {
-        perfLog.Trace(5000);
+        perfLog.Trace(10000);
         
-        nativeView.RenderView(batch, target.Width, target.Height);
-        
+        app.OnFrame(batch, target.Width, target.Height);
+
         batch.DrawCommandList(target, renderPassDescriptor);
     }
 }
