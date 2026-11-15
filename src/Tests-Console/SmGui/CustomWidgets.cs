@@ -1,7 +1,7 @@
 using Friflo.SmGui;
 using Friflo.SmGui.Recorder;
 
-namespace TestConsole;
+namespace DemoWidgets;
 
 public static class CustomWidgets
 {

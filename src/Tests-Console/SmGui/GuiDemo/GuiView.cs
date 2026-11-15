@@ -1,8 +1,8 @@
 // --- GuiView.cs
 
 using System.Numerics;
+using DemoWidgets;
 using Friflo.SmGui;
-using TestConsole;
 
 namespace GuiDemo;
 
