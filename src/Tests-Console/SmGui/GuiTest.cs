@@ -13,9 +13,10 @@ public class SmGuiRenderer : IRenderer
     public              SmGuiBackend?           GuiBackend { get; }
     
     private readonly    WgpuBatch               batch;
-    private readonly    GuiAppResources         resources;
     private readonly    GpuRenderPassDescriptor renderPassDescriptor    = new () { colorAttachments = [ default ] };
     private readonly    PerfLog                 perfLog                 = new();
+    
+    private readonly    GuiAppResources         resources;
     private readonly    GuiView                 nativeView;
     private readonly    SmSessionLoop           loop;
 
