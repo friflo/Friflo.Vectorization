@@ -3,7 +3,7 @@ using Friflo.SmGui;
 namespace DrawDemo;
 
 
-public class DemoDrawApp : GuiApp
+public sealed class DemoDrawApp : GuiApp
 {
     private readonly    DrawAppResources resources;
     private readonly    DrawView         nativeView;

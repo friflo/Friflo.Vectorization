@@ -5,7 +5,7 @@ using Friflo.WGPU;
 namespace DrawDemo;
 
 
-public class DrawRenderer : IRenderer
+public sealed class DrawRenderer : IRenderer
 {
     public              SmGuiBackend?           GuiBackend { get; }
     
