@@ -13,7 +13,7 @@ public class GuiRenderer : IRenderer
     private readonly    GpuRenderPassDescriptor renderPassDescriptor    = new () { colorAttachments = [ default ] };
     private readonly    PerfLog                 perfLog                 = new();
     
-    private readonly    IGuiApp                 app;
+    private readonly    GuiApp                  app;
 
     public void OnShutdown()
     {
@@ -21,7 +21,7 @@ public class GuiRenderer : IRenderer
         batch.Dispose();
     }
     
-    public GuiRenderer(WgpuHost wgpuHost, Func<SmGuiBackend, IGuiApp> createApp)
+    public GuiRenderer(WgpuHost wgpuHost, Func<SmGuiBackend, GuiApp> createApp)
     {
         var wgpuBackend = new WgpuGuiBackend(wgpuHost.Device, new DefaultGuiAssets());
         GuiBackend      = wgpuBackend;
@@ -43,7 +43,7 @@ public class GuiRenderer : IRenderer
     {
         perfLog.Trace(10000);
         
-        app.OnFrame(batch, target.Width, target.Height);
+        app.RenderApp(batch, target.Width, target.Height);
 
         batch.DrawCommandList(target, renderPassDescriptor);
     }

@@ -8,26 +8,26 @@ using Friflo.SmGui.Session;
 namespace GuiDemo;
 
 
-public class GuiApp : IGuiApp
+public class DemoGuiApp : GuiApp
 {
     private readonly    GuiAppResources resources;
     private readonly    GuiView         nativeView;
     private readonly    SmSessionLoop   loop;
     
-    internal GuiApp(SmGuiBackend backend)
+    internal DemoGuiApp(SmGuiBackend backend)
     {
         resources   = new GuiAppResources(backend);
         nativeView  = new GuiView(resources, null);
         loop        = CreateSessionLoop(backend, resources);
     }
 
-    public void Dispose()
+    public override void Dispose()
     {
         loop.Dispose();
         resources.Dispose();
     }
     
-    public void OnFrame(SmBatch batch,  int width, int height)
+    public override void RenderApp(SmBatch batch,  int width, int height)
     {
         loop.IterateSessions();
         

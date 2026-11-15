@@ -3,23 +3,23 @@ using Friflo.SmGui;
 namespace DrawDemo;
 
 
-public class DrawApp : IGuiApp
+public class DemoDrawApp : GuiApp
 {
     private readonly    DrawAppResources resources;
     private readonly    DrawView         nativeView;
     
-    internal DrawApp(SmGuiBackend backend)
+    internal DemoDrawApp(SmGuiBackend backend)
     {
         resources   = new DrawAppResources(backend);
         nativeView  = new DrawView(resources);
     }
 
-    public void Dispose()
+    public override void Dispose()
     {
         resources.Dispose();
     }
     
-    public void OnFrame(SmBatch batch,  int width, int height)
+    public override void RenderApp(SmBatch batch,  int width, int height)
     {
         nativeView.RenderView(batch, width, height);
     }

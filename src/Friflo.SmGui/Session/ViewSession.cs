@@ -91,9 +91,10 @@ public interface IGuiView
 /// <returns>An instance implementing <see cref="IGuiView"/> for the session.</returns>
 public delegate IGuiView ViewFactory(ViewSession session);
 
-public interface IGuiApp : IDisposable
+public abstract class GuiApp : IDisposable
 {
-    public void OnFrame(SmBatch batch,  int width, int height);
+    public abstract void RenderApp(SmBatch batch,  int width, int height);
+    public abstract void Dispose();
 }
 
 /// <summary>
