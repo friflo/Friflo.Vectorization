@@ -10,6 +10,7 @@ public sealed class DemoDrawApp : GuiApp
     
     internal DemoDrawApp(SmGuiBackend backend)
     {
+        clearValue  = 0x1A1A1AFF;
         resources   = new DrawAppResources(backend);
         nativeView  = new DrawView(resources);
     }

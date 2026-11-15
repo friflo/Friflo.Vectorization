@@ -4,11 +4,14 @@ using Friflo.WGPU;
 
 namespace GuiDemo;
 
-
+/// <summary>
+/// Default WGPU renderer for <see cref="GuiApp"/> instances.
+/// You can copy and paste this class to customize the rendering pipeline or clear behavior.
+/// </summary>
 public sealed class GuiRenderer : IRenderer
 {
     public              SmGuiBackend?           GuiBackend { get; }
-    private readonly    GuiApp                  app;
+    private             GuiApp?                 app;
     
     private readonly    WgpuBatch               batch;
     private readonly    GpuRenderPassDescriptor renderPassDescriptor    = new () { colorAttachments = [ default ] };
@@ -17,25 +20,28 @@ public sealed class GuiRenderer : IRenderer
 
     public void OnShutdown()
     {
-        app.Dispose();
+        app?.Dispose();
         batch.Dispose();
     }
     
-    public GuiRenderer(WgpuHost wgpuHost, CreateGuiApp createApp)
+    public GuiRenderer(WgpuHost wgpuHost)
     {
         var wgpuBackend = new WgpuGuiBackend(wgpuHost.Device, new DefaultGuiAssets());
         GuiBackend      = wgpuBackend;
         batch           = wgpuBackend.CreateBatch(wgpuHost.SwapChainFormat);
-        
-        app = createApp(GuiBackend);
+    }
+    
+    public void CreateGui (CreateGuiApp createGui) {
+        app = createGui(GuiBackend!);
     }
     
     public void OnWindowChanged(int width, int height)
     {
+        var c = app!.clearValue;
         renderPassDescriptor.colorAttachments[0] = new GpuRenderPassColorAttachment {
             loadOp      = LoadOp.Clear,
             storeOp     = StoreOp.Store,
-            clearValue  = new GpuColor(0.6f, 0.61f, 0.62f, 1f)
+            clearValue  = new GpuColor(c.R / 255f, c.G / 255f, c.B / 255f, c.A / 255f)
         };
     }
     
@@ -43,7 +49,7 @@ public sealed class GuiRenderer : IRenderer
     {
         perfLog.Trace(10000);
         
-        app.RenderApp(batch, target.Width, target.Height);
+        app?.RenderApp(batch, target.Width, target.Height);
 
         batch.DrawCommandList(target, renderPassDescriptor);
     }

@@ -15,10 +15,11 @@ using SDL3;
 namespace Friflo.WGPU.SDL3;
 
 public struct InitOptions {
-    public string                    title;
-    public int                       width;
-    public int                       height;
-    public Func<WgpuHost, IRenderer> createRenderer;
+    public  string          title;
+    public  int             width;
+    public  int             height;
+    public  CreateRenderer  createRenderer;
+    public  CreateGuiApp?   createGuiApp;
 }
 
 public class Sdl3Window
@@ -142,6 +143,9 @@ public class Sdl3Window
         // --- setup wgpu resources 
         wgpuHost    = new WgpuHost(osHandle, osInstance, driver);
         renderer    = initOptions.createRenderer(wgpuHost);
+        if (initOptions.createGuiApp != null) {
+            renderer.CreateGui(initOptions.createGuiApp);
+        }
         SetWindowSize();
 
         // --- setup SmGui (optional)
