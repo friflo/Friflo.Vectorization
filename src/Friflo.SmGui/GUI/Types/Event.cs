@@ -196,5 +196,5 @@ public enum MouseCursor
     ResizeNW,   // Diagonal   TopLeft
     ResizeSE,   // Diagonal   BottomRight
     ResizeNE,   // Diagonal   TopRight
-    ResizeSW    // Diagonal   TopRight
+    ResizeSW    // Diagonal   BottomLeft
 }
