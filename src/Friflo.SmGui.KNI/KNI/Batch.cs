@@ -1,6 +1,8 @@
 ﻿// Copyright (c) Ullrich Praetz - https://github.com/friflo. All rights reserved.
 // See LICENSE file in the project root for full license information.
 
+using System.Numerics;
+using System.Runtime.CompilerServices;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Vector2 = System.Numerics.Vector2;
@@ -76,10 +78,13 @@ public sealed class KniBatch : SmBatch
             // var sampler  = cmd.samplerFilter == SamplerFilter.Linear ? samplerLinear : samplerNearest;   // todo  implement cmd.samplerFilter
             // var config   = renderConfigs[(int)cmd.blendState];                                           // todo  implement cmd.blendState
             
+            var projection = cmd.projection;
+            ref var kniProjection = ref Unsafe.As<Matrix4x4, Matrix>(ref projection);
+            
             var effect = basicEffect  ??= new BasicEffect(graphicsDevice);
             effect.World                = Matrix.Identity;
             effect.View                 = Matrix.Identity;
-            effect.Projection           = cmd.projection;
+            effect.Projection           = kniProjection;
             effect.TextureEnabled       = true;
             effect.Texture              = texture2D;
             effect.VertexColorEnabled   = true;
