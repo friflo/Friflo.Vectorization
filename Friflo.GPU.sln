@@ -36,7 +36,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test-Wasm", "src\Test-Wasm\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Friflo.SmGui.WGPU", "src\Friflo.SmGui.WGPU\Friflo.SmGui.WGPU.csproj", "{0007A077-BD00-4528-B96E-C7B2F27DD1FF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Friflo.WGPU.SDL3", "src\Friflo.WGPU.SDL3\Friflo.WGPU.SDL3.csproj", "{750F7420-805A-4026-91A4-1B93A9181CDE}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Friflo.SmGui.WGPU.SDL3", "src\Friflo.SmGui.WGPU.SDL3\Friflo.SmGui.WGPU.SDL3.csproj", "{750F7420-805A-4026-91A4-1B93A9181CDE}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Friflo.SmGui.MonoGame", "src\Friflo.SmGui.MonoGame\Friflo.SmGui.MonoGame.csproj", "{28120261-A018-4B99-8078-F12E5C685EB1}"
 EndProject
