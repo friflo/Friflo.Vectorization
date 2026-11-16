@@ -3,6 +3,7 @@
 
 using System;
 using Microsoft.Xna.Framework.Input;
+using Xna = Microsoft.Xna.Framework.Input;
 
 // ReSharper disable SuggestVarOrType_SimpleTypes
 // ReSharper disable CheckNamespace
@@ -75,16 +76,16 @@ public static class MonoGameInput
         _mouseCursor = cursor;
             
         var monoCursor = cursor switch  {
-            MouseCursor.Arrow       => Microsoft.Xna.Framework.Input.MouseCursor.Arrow,
-            MouseCursor.ResizeN     => Microsoft.Xna.Framework.Input.MouseCursor.SizeNS,
-            MouseCursor.ResizeS     => Microsoft.Xna.Framework.Input.MouseCursor.SizeNS,
-            MouseCursor.ResizeE     => Microsoft.Xna.Framework.Input.MouseCursor.SizeWE,
-            MouseCursor.ResizeW     => Microsoft.Xna.Framework.Input.MouseCursor.SizeWE,
-            MouseCursor.ResizeNW    => Microsoft.Xna.Framework.Input.MouseCursor.SizeNWSE,
-            MouseCursor.ResizeSE    => Microsoft.Xna.Framework.Input.MouseCursor.SizeNWSE,
-            MouseCursor.ResizeNE    => Microsoft.Xna.Framework.Input.MouseCursor.SizeNESW,
-            MouseCursor.ResizeSW    => Microsoft.Xna.Framework.Input.MouseCursor.SizeNESW,
-            _                       => Microsoft.Xna.Framework.Input.MouseCursor.Arrow
+            MouseCursor.Arrow       => Xna.MouseCursor.Arrow,
+            MouseCursor.ResizeN     => Xna.MouseCursor.SizeNS,
+            MouseCursor.ResizeS     => Xna.MouseCursor.SizeNS,
+            MouseCursor.ResizeE     => Xna.MouseCursor.SizeWE,
+            MouseCursor.ResizeW     => Xna.MouseCursor.SizeWE,
+            MouseCursor.ResizeNW    => Xna.MouseCursor.SizeNWSE,
+            MouseCursor.ResizeSE    => Xna.MouseCursor.SizeNWSE,
+            MouseCursor.ResizeNE    => Xna.MouseCursor.SizeNESW,
+            MouseCursor.ResizeSW    => Xna.MouseCursor.SizeNESW,
+            _                       => Xna.MouseCursor.Arrow
         };
         Mouse.SetCursor(monoCursor);
     }
