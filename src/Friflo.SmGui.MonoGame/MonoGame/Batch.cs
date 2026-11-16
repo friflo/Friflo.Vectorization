@@ -23,34 +23,9 @@ public sealed class MonoGameBatch : SmBatch
 
     protected override void InitBatch() { }
 
-    /*
-    // TextureFormat.BGRA8Unorm / RGBA8Unorm
-    /// <summary> Create multiple configs. A single would be sufficient, if not supporting <see cref="GpuBlendState"/>. </summary>
+    /* Omitted WGPU implementation. May not be required.   
     private static RenderConfig[] CreateRenderConfigs(TextureFormat targetFormat)
-    {
-        var configs = new RenderConfig[6];
-        var desc = new GpuRenderPipelineDescriptor();
-        desc.VertexState.buffers = [
-            new GpuVertexBufferLayout {     // [VertexBuffer(0)]   (slot: 0)
-                arrayStride = Unsafe.SizeOf<Vertex2D>(),
-                attributes = [
-                    new GpuVertexAttribute { shaderLocation = 0, offset =  0, format = VertexFormat.Float32x2 },    // Vertex2D.position 
-                    new GpuVertexAttribute { shaderLocation = 1, offset =  8, format = VertexFormat.Float32x2 },    // Vertex2D.uv
-                    new GpuVertexAttribute { shaderLocation = 2, offset = 16, format = VertexFormat.Unorm8x4  }     // Vertex2D.color
-                ]
-        }];
-        desc.PrimitiveState = new GpuPrimitiveState {
-            topology    = PrimitiveTopology.TriangleList,
-            cullMode    = CullMode.None
-        };
-        for (int index = 0; index < configs.Length; index++) {
-            var blendIndex  = (BlendState)index;
-            var blend       = GuiEffect.CreateBlendState(blendIndex);
-            desc.FragmentState = new GpuFragmentState{ targets = [ new GpuColorTargetState { format = targetFormat, blend  = blend }]};
-            configs[index] = desc.CreateConfig($"Batch2D: {blendIndex}"); // does not create any wgpu handle
-        }
-        return configs;
-    } */
+    { } */
     
     private BasicEffect basicEffect;
     
