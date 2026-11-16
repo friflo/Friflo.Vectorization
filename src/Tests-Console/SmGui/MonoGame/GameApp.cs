@@ -47,14 +47,6 @@ public class GameApp : Game
         // spriteBatch = new SpriteBatch(GraphicsDevice);
     }
 
-    protected override void Update(GameTime gameTime)
-    {
-        // Optional: Input-Poll für das Backend
-        // guiBackend.PollInput();
-
-        base.Update(gameTime);
-    }
-
     protected override void Draw(GameTime gameTime)
     {
         var device = GraphicsDevice;
