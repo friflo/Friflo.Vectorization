@@ -63,7 +63,7 @@ public sealed class MonoGameBatch : SmBatch
         SlopeScaleDepthBias     = 0
     };
     
-    public void DrawCommandList(GraphicsDevice graphicsDevice)
+    public void DrawCommandList(GraphicsDevice graphicsDevice, int x, int y, int width, int height)
     {
         EndBatch();
         
@@ -75,8 +75,7 @@ public sealed class MonoGameBatch : SmBatch
         graphicsDevice.RasterizerState      = rasterizerState;
         graphicsDevice.DepthStencilState    = DepthStencilState.DepthRead;
         
-        var parameters          = graphicsDevice.PresentationParameters;
-        graphicsDevice.Viewport = new Viewport(0, 0, parameters.BackBufferWidth, parameters.BackBufferHeight);
+        graphicsDevice.Viewport             = new Viewport(x, y, width, height);
         
         var scissor = new RectVector2(Vector2.Zero, viewport);
 

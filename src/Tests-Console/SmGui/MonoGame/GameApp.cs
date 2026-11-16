@@ -63,7 +63,7 @@ public class GameApp : Game
         var parameters  = device.PresentationParameters;
         app?.RenderApp(batch!, parameters.BackBufferWidth, parameters.BackBufferHeight);
 
-        batch?.DrawCommandList(device);
+        batch?.DrawCommandList(device, 0, 0, parameters.BackBufferWidth, parameters.BackBufferHeight);
 
         base.Draw(gameTime);
     }
