@@ -58,9 +58,8 @@ public sealed class DemoGuiApp : SmGuiApp
     internal const int Port = 8080;
 } 
 
-/// <summary>
-/// Contains resources shared by all <see cref="GuiView"/>'s.
-/// </summary>
+/// <summary> Contains resources shared by all <see cref="GuiView"/> instances. </summary>
+/// <remarks> Organizing resources in a separate class is optional but brings clarity to resource management.</remarks>
 public sealed class GuiAppResources : IDisposable
 {
     internal readonly   SmTexture   myTexture;

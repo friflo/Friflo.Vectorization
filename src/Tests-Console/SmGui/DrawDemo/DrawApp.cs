@@ -27,9 +27,8 @@ public sealed class DemoDrawApp : SmGuiApp
 }
 
 
-/// <summary>
-/// Contains resources shared by all <see cref="DrawView"/>'s.
-/// </summary>
+/// <summary> Contains resources shared by all <see cref="DrawView"/> instances. </summary>
+/// <remarks> Organizing resources in a separate class is optional but brings clarity to resource management.</remarks>
 public sealed class DrawAppResources : IDisposable
 {
     internal readonly SmTexture myTexture;
