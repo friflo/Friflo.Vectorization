@@ -6,6 +6,11 @@
     <RootNamespace>TestGodot</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <!-- Enables use of Kestrel without additional NuGet-Packages -->
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\Friflo.SmGui.Godot\Friflo.SmGui.Godot.csproj" />
+    <ProjectReference Include="..\Tests-Console\Tests-Console.csproj" />
   </ItemGroup>
 </Project>
