@@ -75,8 +75,8 @@ public abstract class SmGuiBackend : IDisposable
 
     public void AddEvent(in SmEvent ev) => input.AddEvent(ev);
     
-    public void AddMousePositionState(float x, float y) => input.AddMousePositionState(x, y);
-    public void AddMouseButtonState  (bool down)        => input.AddMouseButtonState(down);
+    public void AddMousePositionState(float x, float y)                 => input.AddMousePositionState(x, y);
+    public void AddMouseButtonState  (SmMouseButton button, bool down)  => input.AddMouseButtonState(button, down);
     
     public virtual void Dispose()
     {

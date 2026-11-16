@@ -11,7 +11,7 @@ using System.Numerics;
 namespace Friflo.SmGui;
 
 
-public enum SmEventType
+public enum SmEventType : byte
 {
     MouseMotion,
     MouseButtonUp,
@@ -23,23 +23,39 @@ public enum SmEventType
     GamepadButtonDown,
 }
 
+public enum SmMouseButton : byte
+{
+    Left    = 1,
+    Middle  = 2,
+    Right   = 3,
+    X1      = 4,
+    X2      = 5
+}
+
 public readonly struct SmEvent
 {
     public readonly SmEventType     type;
-    public          Vector2         mouse      { get; init; }
-    public          Vector2         wheel      { get; init; }
-    public          KeyEvent        key        { get; init; }
-    public          GamepadEvent    gamepad    { get; init; }
+    public          SmMouseButton   mouseButton { get; init; }
+    public          Vector2         mouse       { get; init; }
+    public          Vector2         wheel       { get; init; }
+    public          KeyEvent        key         { get; init; }
+    public          GamepadEvent    gamepad     { get; init; }
 
     public override string ToString() => type.ToString();
     
     public SmEvent(SmEventType type) {
-        this.type       = type;
+        this.type = type;
+    }
+    
+    public SmEvent(SmEventType type, Vector2 mouse) {
+        this.type   = type;
+        this.mouse  = mouse;
     }
 
-    public SmEvent(SmEventType type, Vector2 mouse) {
-        this.type    = type;
-        this.mouse   = mouse;
+    public SmEvent(SmEventType type, SmMouseButton button, Vector2 mouse) {
+        this.type   = type;
+        mouseButton = button;
+        this.mouse  = mouse;
     }
     
     public SmEvent(SmEventType type, SmGamepadButton button, bool isDown) {
@@ -123,7 +139,7 @@ public struct KeyEvent
 
 
 /// <summary> Same enums as <c>SDL3.SDL.GamepadButton</c> </summary>
-public enum SmGamepadButton
+public enum SmGamepadButton : sbyte
 {
     Invalid = -1,
     South,          // Bottom face button (e.g. Xbox A button)

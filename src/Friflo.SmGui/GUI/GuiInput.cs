@@ -101,12 +101,14 @@ public sealed class GuiInput
     }
     
     internal void AddMousePositionState(float x, float y) {
-        
+        mousePos = new Vector2(x, y);
     }
     
-    internal void AddMouseButtonState(bool down)
+    internal void AddMouseButtonState(SmMouseButton button, bool down)
     {
-        
+        if (button == SmMouseButton.Left) {
+            isMouseDown = down;
+        }
     }
 
     

@@ -60,6 +60,9 @@ public class GameApp : Game
         var device = GraphicsDevice;
         device.Clear(Color.CornflowerBlue);
         
+        MonoGameInput.UpdateInput(guiBackend);
+        guiBackend?.NewFrame();
+        
         var width   = device.PresentationParameters.BackBufferWidth;
         var height  = device.PresentationParameters.BackBufferHeight;
         app?.RenderApp(batch!, width, height);

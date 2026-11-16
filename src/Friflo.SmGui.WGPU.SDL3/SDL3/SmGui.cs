@@ -57,11 +57,11 @@ internal class Sdl3GuiInput : IDisposable
                 break;
             case SDL.EventType.MouseButtonUp:
                 var buttonUpPos = new Vector2(dpiScale.X * ev.Button.X, dpiScale.Y * ev.Button.Y);
-                backend.AddEvent(new SmEvent(SmEventType.MouseButtonUp, buttonUpPos));
+                backend.AddEvent(new SmEvent(SmEventType.MouseButtonUp, (SmMouseButton)ev.Button.Button, buttonUpPos));
                 break;
             case SDL.EventType.MouseButtonDown:
                 var buttonDownPos = new Vector2(dpiScale.X * ev.Button.X, dpiScale.Y * ev.Button.Y);
-                backend.AddEvent(new SmEvent(SmEventType.MouseButtonDown, buttonDownPos));
+                backend.AddEvent(new SmEvent(SmEventType.MouseButtonDown, (SmMouseButton)ev.Button.Button, buttonDownPos));
                 break;
             case SDL.EventType.MouseWheel:
                 backend.AddEvent(new SmEvent(SmEventType.MouseWheel) { wheel = new Vector2(ev.Wheel.X, ev.Wheel.Y) });
