@@ -10,12 +10,11 @@ namespace SmGui.MonoGame;
 /// </summary>
 public class GameApp : Game
 {
-    // private          SpriteBatch             spriteBatch; // not required for SmGui
-    
-    private             MonoGameGuiBackend?     guiBackend;
-    private             MonoGameBatch?          batch;
-    private             SmGuiApp?               app;
-    private readonly    CreateGuiApp            createGuiApp;
+    // private          SpriteBatch         spriteBatch; // not required for SmGui
+    private             MonoGameGuiBackend? guiBackend;
+    private             MonoGameBatch?      batch;
+    private             SmGuiApp?           app;
+    private readonly    CreateGuiApp        createGuiApp;
 
     public GameApp(string title, int width, int height, CreateGuiApp createGuiApp)
     {
@@ -73,10 +72,8 @@ public class GameApp : Game
     {
         app?.Dispose();
         app = null;
-        
         batch?.Dispose();
         batch = null;
-        
         guiBackend?.Dispose();
         guiBackend = null;
         
