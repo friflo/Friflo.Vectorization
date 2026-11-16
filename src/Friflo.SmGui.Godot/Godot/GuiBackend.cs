@@ -1,9 +1,10 @@
-﻿// Copyright (c) Ullrich Praetz - https://github.com/friflo. All rights reserved.
+// Copyright (c) Ullrich Praetz - https://github.com/friflo. All rights reserved.
 // See LICENSE file in the project root for full license information.
 
+// file: GuiBackend.cs
 using System;
 using System.IO;
-using Microsoft.Xna.Framework.Graphics;
+using Godot;
 
 
 // ReSharper disable ConvertToPrimaryConstructor
@@ -12,12 +13,10 @@ namespace Friflo.SmGui.Godot;
 
 public sealed class GodotGuiBackend : SmGuiBackend
 {
-    private  readonly   GraphicsDevice  device;
     // internal readonly   GpuSampler      samplerLinear;
     // internal readonly   GpuSampler      samplerNearest;
     
-    public GodotGuiBackend(GraphicsDevice device, IGuiAssets assets) : base(assets) {
-        this.device = device;
+    public GodotGuiBackend(IGuiAssets assets) : base(assets) {
         // samplerLinear   = device.CreateSampler(new GpuSamplerDescriptor { label = "Linear Sampler",  magFilter = FilterMode.Linear,  minFilter = FilterMode.Linear  });
         // samplerNearest  = device.CreateSampler(new GpuSamplerDescriptor { label = "Nearest Sampler", magFilter = FilterMode.Nearest, minFilter = FilterMode.Nearest });
     }
@@ -30,29 +29,34 @@ public sealed class GodotGuiBackend : SmGuiBackend
     
     public override SmTexture CreateTexture(string name, int width, int height, ReadOnlySpan<byte> rgbaPixels)
     {
-        var texture2D = new Texture2D(device, width, height, false, SurfaceFormat.Color);
-        var pixels = rgbaPixels.ToArray(); 
-        texture2D.SetData(pixels);
+        var pixels      = rgbaPixels.ToArray();
+        var image       = Image.CreateFromData(width, height, false, Image.Format.Rgba8, pixels);
+        var texture2D   = ImageTexture.CreateFromImage(image);
+        image.SetName(name);
+        texture2D.SetName(name);
+
         return texture2D.AsSmTexture();
     }
 
+    // Godot canvas items read vertices and indices from CPU memory when adding the triangle array.
+    // So there is no GPU buffer to create.
     protected override SmBuffer<Vertex2D> CreateVertexBuffer(int vertexCount)
     {
-        var vertexBuffer = new VertexBuffer(device, GodotVertexBuffer.VertexDeclaration, vertexCount, BufferUsage.None);
-        return new GodotVertexBuffer(vertexBuffer);
+        return new GodotVertexBuffer(vertexCount);
     }
 
     protected override SmBuffer<uint> CreateIndexBuffer(int indexCount)
     {
-        var indices = new IndexBuffer(device, IndexElementSize.ThirtyTwoBits, indexCount, BufferUsage.None);
-        return new GodotIndexBuffer(indices);
+        return new GodotIndexBuffer(indexCount);
     }
     
     public override SmTexture LoadTexture(Stream stream, string label = null, SmTextureUsage usage = SmTextureUsage.TextureBinding | SmTextureUsage.CopyDst)
     {
-        var image = assets.LoadImage(stream, SmColorComponents.RedGreenBlueAlpha);
-        var texture2D = new Texture2D(device, image.width, image.height, false, SurfaceFormat.Color);
-        texture2D.SetData(image.data);
+        var asset       = assets.LoadImage(stream, SmColorComponents.RedGreenBlueAlpha);
+        var image       = Image.CreateFromData(asset.width, asset.height, false, Image.Format.Rgba8, asset.data);
+        var texture2D   = ImageTexture.CreateFromImage(image);
+        image.SetName(label);
+        texture2D.SetName(label);
 
         return texture2D.AsSmTexture();
     }
@@ -60,8 +64,11 @@ public sealed class GodotGuiBackend : SmGuiBackend
     public override SmImageAsset GetTextureImage(SmTexture texture)
     {
         var texture2D = (Texture2D)texture.native!;
-        var pixels = new  byte[texture2D.Width * texture2D.Height * 4]; // todo  avoid allocation
-        texture2D.GetData(pixels);
-        return new SmImageAsset { width = texture2D.Width, height = texture2D.Height, data = pixels, name = "Texture2D" };
+        var image = texture2D.GetImage(); // returns a copy       // todo  avoid allocation
+        if (image.GetFormat() != Image.Format.Rgba8) {
+            image.Convert(Image.Format.Rgba8);
+        }
+        var pixels = image.GetData();
+        return new SmImageAsset { width = image.GetWidth(), height = image.GetHeight(), data = pixels, name = image.GetName() };
     }
 }
