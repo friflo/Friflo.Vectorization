@@ -112,11 +112,7 @@ public sealed class MonoGameBatch : SmBatch
             foreach (var pass in effect.CurrentTechnique.Passes)
             {
                 pass.Apply();
-                graphicsDevice.DrawIndexedPrimitives(
-                    primitiveType:  PrimitiveType.TriangleList,
-                    baseVertex:     vertexView.offset,
-                    startIndex:     indexView.offset,
-                    primitiveCount: indexView.length / 3);
+                graphicsDevice.DrawIndexedPrimitives(PrimitiveType.TriangleList, vertexView.offset, indexView.offset, indexView.length / 3);
                 
                 /* [Obsolete("Use DrawIndexedPrimitives(PrimitiveType primitiveType, int baseVertex, int startIndex, int primitiveCount) instead. In future versions this method can be removed.")]
                 graphicsDevice.DrawIndexedPrimitives( 
