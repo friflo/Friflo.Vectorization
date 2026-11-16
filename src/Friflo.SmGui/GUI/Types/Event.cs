@@ -4,7 +4,7 @@
 using System;
 using System.Numerics;
 
-
+// ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable InconsistentNaming
 // ReSharper disable UnusedMember.Global
 // ReSharper disable once CheckNamespace
@@ -23,13 +23,13 @@ public enum SmEventType
     GamepadButtonDown,
 }
 
-public struct SmEvent
+public readonly struct SmEvent
 {
-    public  SmEventType     type;
-    public  Vector2         mouse;
-    public  Vector2         wheel;
-    public  KeyEvent        key;
-    public  GamepadEvent    gamepad;
+    public readonly SmEventType     type;
+    public          Vector2         mouse      { get; init; }
+    public          Vector2         wheel      { get; init; }
+    public          KeyEvent        key        { get; init; }
+    public          GamepadEvent    gamepad    { get; init; }
 
     public override string ToString() => type.ToString();
     
@@ -43,9 +43,8 @@ public struct SmEvent
     }
     
     public SmEvent(SmEventType type, SmGamepadButton button, bool isDown) {
-        this.type       = type;
-        gamepad.button  = button;
-        gamepad.isDown  = isDown;
+        this.type   = type;
+        gamepad     = new GamepadEvent(button, isDown);
     }
     
     public SmEvent(SmEventType type, KeyEvent keyEvent) {
@@ -157,12 +156,17 @@ public enum SmGamepadButton
     Count
 }
 
-public struct GamepadEvent
+public readonly struct GamepadEvent
 {
-    public  SmGamepadButton button;
-    public  bool            isDown;
+    public readonly SmGamepadButton button;
+    public readonly bool            isDown;
 
     public override string ToString() => button.ToString();
+    
+    public GamepadEvent(SmGamepadButton button, bool isDown) {
+        this.button = button;
+        this.isDown = isDown;
+    }
 }
 
 public enum MouseCursor

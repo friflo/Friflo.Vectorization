@@ -100,6 +100,16 @@ public sealed class GuiInput
         CurrentCursor = cursor;
     }
     
+    internal void AddMousePositionState(float x, float y) {
+        
+    }
+    
+    internal void AddMouseButtonState(bool down)
+    {
+        
+    }
+
+    
     internal void AddEvent(in SmEvent ev)
     {
         switch (ev.type)
