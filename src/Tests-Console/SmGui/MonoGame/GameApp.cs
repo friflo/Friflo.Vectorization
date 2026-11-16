@@ -5,8 +5,8 @@ using Microsoft.Xna.Framework;
 namespace SmGui.MonoGame;
 
 /// <summary>
-/// Minimal <see cref="Game"/> implementation to create a <a href="https://docs.monogame.net/api/Microsoft.Xna.Framework.Game.html">MonoGame Game window</a>.<br/>
-/// You can copy and paste this class for customization or using MonoGame specific API's.
+/// Minimal <see cref="Game"/> implementation to create a <see href="https://docs.monogame.net/api/Microsoft.Xna.Framework.Game.html">MonoGame Game window</see>.<br/>
+/// You can copy this class for customization or for using MonoGame-specific APIs.
 /// </summary>
 public class GameApp : Game
 {
