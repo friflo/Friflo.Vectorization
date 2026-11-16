@@ -62,6 +62,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Friflo.SmGui\Friflo.SmGui.csproj" />
     <PackageReference Include="GodotSharp" Version="4.7.2" />
+    <PackageReference Include="MonoGame.Framework.DesktopGL" Version="3.8.6.1" /> <!-- TODO: REMOVE -->
   </ItemGroup>
 
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
