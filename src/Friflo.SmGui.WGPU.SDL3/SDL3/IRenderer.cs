@@ -13,10 +13,13 @@ namespace Friflo.WGPU;
 /// </remarks>
 public interface IRenderer
 {
-    public void             CreateGuiApp   (CreateGuiApp createGui) { }
+    // --- WGPU lifecycle
     public void             OnWindowChanged(int width, int height);
     public void             OnFrame        (in RenderTarget target);
     public void             OnShutdown();
+    
+    // --- SmGui setup
+    public void             CreateGuiApp   (CreateGuiApp createGui) { }
     public SmGuiBackend?    GuiBackend      => null;
 }
 
