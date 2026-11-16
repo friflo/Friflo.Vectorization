@@ -60,10 +60,10 @@ public class GameApp : Game
         var device = GraphicsDevice;
         device.Clear(Color.CornflowerBlue);
         
-        var parameters  = device.PresentationParameters;
-        app?.RenderApp(batch!, parameters.BackBufferWidth, parameters.BackBufferHeight);
-
-        batch?.DrawCommandList(device, 0, 0, parameters.BackBufferWidth, parameters.BackBufferHeight);
+        var width   = device.PresentationParameters.BackBufferWidth;
+        var height  = device.PresentationParameters.BackBufferHeight;
+        app?.RenderApp(batch!, width, height);
+        batch?.DrawCommandList(device, 0, 0, height, height);
 
         base.Draw(gameTime);
     }
