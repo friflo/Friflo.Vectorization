@@ -60,11 +60,10 @@ public class GameApp : Game
         var device = GraphicsDevice;
         device.Clear(Color.CornflowerBlue);
         
-        MonoGameInput.UpdateInput(guiBackend);
-        guiBackend?.NewFrame();
-        
         var width   = device.PresentationParameters.BackBufferWidth;
         var height  = device.PresentationParameters.BackBufferHeight;
+        MonoGameInput.UpdateInput(guiBackend);
+        guiBackend?.NewFrame();
         app?.RenderApp(batch!, width, height);
         batch?.DrawCommandList(device, 0, 0, width, height);
         MonoGameInput.SetMouseCursor(guiBackend);
