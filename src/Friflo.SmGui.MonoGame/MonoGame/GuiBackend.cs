@@ -33,6 +33,7 @@ public sealed class MonoGameGuiBackend : SmGuiBackend
         var texture2D = new Texture2D(device, width, height, false, SurfaceFormat.Color);
         var pixels = rgbaPixels.ToArray(); 
         texture2D.SetData(pixels);
+        texture2D.Name = name;
         return texture2D.AsSmTexture();
     }
 
@@ -53,7 +54,7 @@ public sealed class MonoGameGuiBackend : SmGuiBackend
         var image = assets.LoadImage(stream, SmColorComponents.RedGreenBlueAlpha);
         var texture2D = new Texture2D(device, image.width, image.height, false, SurfaceFormat.Color);
         texture2D.SetData(image.data);
-
+        texture2D.Name = label;
         return texture2D.AsSmTexture();
     }
     
@@ -62,6 +63,6 @@ public sealed class MonoGameGuiBackend : SmGuiBackend
         var texture2D = (Texture2D)texture.native!;
         var pixels = new  byte[texture2D.Width * texture2D.Height * 4]; // todo  avoid allocation
         texture2D.GetData(pixels);
-        return new SmImageAsset { width = texture2D.Width, height = texture2D.Height, data = pixels, name = "Texture2D" };
+        return new SmImageAsset { width = texture2D.Width, height = texture2D.Height, data = pixels, name = texture2D.Name };
     }
 }
