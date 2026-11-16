@@ -40,6 +40,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Friflo.SmGui.WGPU.SDL3", "s
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Friflo.SmGui.MonoGame", "src\Friflo.SmGui.MonoGame\Friflo.SmGui.MonoGame.csproj", "{28120261-A018-4B99-8078-F12E5C685EB1}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Friflo.SmGui.Godot", "src\Friflo.SmGui.Godot\Friflo.SmGui.Godot.csproj", "{0B0BD393-BD61-45EB-A3CE-D70448A67A7A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -126,5 +128,9 @@ Global
 		{28120261-A018-4B99-8078-F12E5C685EB1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{28120261-A018-4B99-8078-F12E5C685EB1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{28120261-A018-4B99-8078-F12E5C685EB1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0B0BD393-BD61-45EB-A3CE-D70448A67A7A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0B0BD393-BD61-45EB-A3CE-D70448A67A7A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0B0BD393-BD61-45EB-A3CE-D70448A67A7A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0B0BD393-BD61-45EB-A3CE-D70448A67A7A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
