@@ -116,7 +116,7 @@ public sealed class MonoGameBatch : SmBatch
                     primitiveType:  PrimitiveType.TriangleList,
                     baseVertex:     vertexView.offset,
                     startIndex:     indexView.offset,
-                    primitiveCount: indexView.length);
+                    primitiveCount: indexView.length / 3);
                 
                 /* [Obsolete("Use DrawIndexedPrimitives(PrimitiveType primitiveType, int baseVertex, int startIndex, int primitiveCount) instead. In future versions this method can be removed.")]
                 graphicsDevice.DrawIndexedPrimitives( 
@@ -125,7 +125,7 @@ public sealed class MonoGameBatch : SmBatch
                     minVertexIndex: 0,
                     numVertices:    vertexView.length,
                     startIndex:     indexView.offset,
-                    primitiveCount: indexView.length); */
+                    primitiveCount: indexView.length / 3); */
             }
         }
         

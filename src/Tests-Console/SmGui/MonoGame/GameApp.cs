@@ -63,7 +63,7 @@ public class GameApp : Game
         var width   = device.PresentationParameters.BackBufferWidth;
         var height  = device.PresentationParameters.BackBufferHeight;
         app?.RenderApp(batch!, width, height);
-        batch?.DrawCommandList(device, 0, 0, height, height);
+        batch?.DrawCommandList(device, 0, 0, width, height);
 
         base.Draw(gameTime);
     }
