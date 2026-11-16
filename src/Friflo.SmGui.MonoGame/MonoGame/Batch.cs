@@ -52,9 +52,9 @@ public sealed class MonoGameBatch : SmBatch
         return configs;
     } */
     
-    private             BasicEffect     effect;
+    private BasicEffect basicEffect;
     
-    private readonly    RasterizerState rasterizerState = new() {
+    private readonly RasterizerState rasterizerState = new() {
         CullMode                = CullMode.None,
         DepthBias               = 0,
         FillMode                = FillMode.Solid,
@@ -101,7 +101,7 @@ public sealed class MonoGameBatch : SmBatch
             // var sampler  = cmd.samplerFilter == SamplerFilter.Linear ? samplerLinear : samplerNearest;   // todo  implement cmd.samplerFilter
             // var config   = renderConfigs[(int)cmd.blendState];                                           // todo  implement cmd.blendState
             
-            effect                    ??= new BasicEffect(graphicsDevice);
+            var effect = basicEffect  ??= new BasicEffect(graphicsDevice);
             effect.World                = Matrix.Identity;
             effect.View                 = Matrix.Identity;
             effect.Projection           = cmd.projection;
