@@ -2,13 +2,15 @@ using Friflo.SmGui;
 using Friflo.SmGui.MonoGame;
 using Microsoft.Xna.Framework;
 
-// ReSharper disable PrivateFieldCanBeConvertedToLocalVariable
 namespace SmGui.MonoGame;
 
+/// <summary>
+/// Minimal <see cref="Game"/> implementation to create a <a href="https://docs.monogame.net/api/Microsoft.Xna.Framework.Game.html">MonoGame Game window</a>.<br/>
+/// You can copy and paste this class for customization or using MonoGame specific API's.
+/// </summary>
 public class GameApp : Game
 {
-    private readonly    GraphicsDeviceManager   graphics;
-    // private          SpriteBatch             spriteBatch;
+    // private          SpriteBatch             spriteBatch; // not required for SmGui
     
     private             MonoGameGuiBackend?     guiBackend;
     private             MonoGameBatch?          batch;
@@ -19,8 +21,7 @@ public class GameApp : Game
     {
         this.createGuiApp = createGuiApp;
         
-        graphics = new GraphicsDeviceManager(this);
-        Content.RootDirectory = "Content";
+        var graphics = new GraphicsDeviceManager(this);
         IsMouseVisible = true;
         
         graphics.PreferredBackBufferWidth  = width;
@@ -61,10 +62,7 @@ public class GameApp : Game
         device.Clear(Color.CornflowerBlue);
         
         var parameters  = device.PresentationParameters;
-        var width       = parameters.BackBufferWidth;
-        var height      = parameters.BackBufferHeight;
-            
-        app?.RenderApp(batch!, width, height);
+        app?.RenderApp(batch!, parameters.BackBufferWidth, parameters.BackBufferHeight);
 
         batch?.DrawCommandList(device);
 

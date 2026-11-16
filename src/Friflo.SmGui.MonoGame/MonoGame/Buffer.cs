@@ -32,14 +32,11 @@ internal sealed class MonoGameVertexBuffer : SmBuffer<Vertex2D>
 
     internal static readonly VertexDeclaration VertexDeclaration = new(
         Unsafe.SizeOf<Vertex2D>(),
-
-        // Position
+        // Vertex2D.position
         new VertexElement(0, VertexElementFormat.Vector2, VertexElementUsage.Position, 0),
-
-        // UV
+        // Vertex2D.uv
         new VertexElement(8, VertexElementFormat.Vector2, VertexElementUsage.TextureCoordinate, 0),
-
-        // Color
+        // Vertex2D.color (Rgba8Pack)
         new VertexElement(16, VertexElementFormat.Color, VertexElementUsage.Color, 0)
     );
 }

@@ -7,8 +7,6 @@ using Microsoft.Xna.Framework.Graphics;
 
 
 // ReSharper disable ConvertToPrimaryConstructor
-// ReSharper disable InconsistentNaming
-// ReSharper disable UnusedMember.Global
 // ReSharper disable once CheckNamespace
 namespace Friflo.SmGui.MonoGame;
 
@@ -22,10 +20,6 @@ public sealed class MonoGameGuiBackend : SmGuiBackend
         this.device = device;
         // samplerLinear   = device.CreateSampler(new GpuSamplerDescriptor { label = "Linear Sampler",  magFilter = FilterMode.Linear,  minFilter = FilterMode.Linear  });
         // samplerNearest  = device.CreateSampler(new GpuSamplerDescriptor { label = "Nearest Sampler", magFilter = FilterMode.Nearest, minFilter = FilterMode.Nearest });
-    }
-    
-    public override void Dispose() {
-        base.Dispose();
     }
     
     public MonoGameBatch CreateBatch(int maxVertices = 60_000) {
