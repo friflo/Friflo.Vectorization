@@ -18,7 +18,7 @@ public abstract class SmGuiApp : IDisposable
 {
     public Color32  clearValue = 0x999C9EFF;
     
-    public abstract void RenderApp(SmBatch batch,  int width, int height);
+    public abstract void RenderApp(SmBatch batch, int width, int height);
     public abstract void Dispose();
 }
 
