@@ -13,26 +13,28 @@ public sealed class DemoGuiApp : SmGuiApp
 {
     private readonly    GuiAppResources resources;
     private readonly    GuiView         nativeView;
-    private readonly    SmSessionLoop   loop;
+    private readonly    SmSessionLoop?  loop;
     private             WebApplication? webApp;
     
-    internal DemoGuiApp(SmGuiBackend backend)
+    public DemoGuiApp(SmGuiBackend backend, bool addSessionLoop)
     {
         resources   = new GuiAppResources(backend);
         nativeView  = new GuiView(resources, null);
-        loop        = CreateSessionLoop(backend);
+        if (addSessionLoop) {
+            loop = CreateSessionLoop(backend);
+        }
     }
 
     public override void Dispose()
     {
         webApp?.StopAsync();
-        loop.Dispose();
+        loop?.Dispose();
         resources.Dispose();
     }
     
     public override void RenderApp(SmBatch batch,  int width, int height)
     {
-        loop.IterateSessions();
+        loop?.IterateSessions();
         
         nativeView.RenderView(batch, width, height);
     }

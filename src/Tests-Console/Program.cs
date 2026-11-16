@@ -9,10 +9,10 @@ using Friflo.WGPU;
 
 Console.OutputEncoding = System.Text.Encoding.UTF8; // support UTF-8 chars like 🙂
 
-// AppRunner.RunMonoGame("SmGui", 1280, 1200, backend => new GuiDemo.DemoGuiApp(backend));
+// AppRunner.RunMonoGame("SmGui", 1280, 1200, backend => new GuiDemo.DemoGuiApp(backend, true));
 // AppRunner.RunMonoGame("SmDraw",1280,  720, backend => new DrawDemo.DemoDrawApp(backend));
 
-AppRunner.RunGuiApp("SmGui",   1280, 1200, backend => new GuiDemo.DemoGuiApp(backend));
+AppRunner.RunGuiApp("SmGui",   1280, 1200, backend => new GuiDemo.DemoGuiApp(backend, true));
 AppRunner.RunGuiApp("SmDraw",  1280,  720, backend => new DrawDemo.DemoDrawApp(backend));
 
 AppRunner.Run("Particles",      1280, 720, wgpu => new Shaders.Particles.Renderer(wgpu));
