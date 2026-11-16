@@ -30,7 +30,7 @@ public sealed class GodotBatch : SmBatch
     private readonly List<Rid>  commandItems = [];
     private          Rid        parentItem;
     
-    /// <c>canvasItem</c> is the parent canvas item the GUI is drawn into. E.g. <see cref="Node2D.GetCanvasItem"/>
+    /// <c>canvasItem</c> is the parent canvas item the GUI is drawn into. E.g. <see cref="CanvasItem.GetCanvasItem"/>
     public void DrawCommandList(Rid canvasItem, int x, int y, int width, int height)
     {
         EndBatch();

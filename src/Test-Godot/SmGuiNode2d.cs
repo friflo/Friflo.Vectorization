@@ -25,11 +25,10 @@ public partial class SmGuiNode2d : Node2D
         var width  = (int)viewportSize.X;
         var height = (int)viewportSize.Y;
         
-        // Render the application frame
         app?.RenderApp(batch!, width, height);              
         
-        // Pass GetCanvasItem() as the target canvas item for Godot's RenderingServer
-        batch?.DrawCommandList(GetCanvasItem(), 0, 0, width, height);
+        var canvasTarget = GetCanvasItem();
+        batch?.DrawCommandList(canvasTarget, 0, 0, width, height);
 	}
     
     public override void _ExitTree()
