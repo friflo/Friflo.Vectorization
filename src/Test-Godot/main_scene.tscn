@@ -1,6 +1,10 @@
 [gd_scene format=3 uid="uid://n6j7bppxcp7t"]
 
 [ext_resource type="Script" uid="uid://v4efhaipxg4s" path="res://MainScene.cs" id="1_0f027"]
+[ext_resource type="Script" uid="uid://boeoinop8x67h" path="res://SmGuiNode2d.cs" id="2_2c62f"]
 
 [node name="Node2D" type="Node2D" unique_id=1320227552]
 script = ExtResource("1_0f027")
+
+[node name="SmGuiNode2D" type="Node2D" parent="." unique_id=171996504]
+script = ExtResource("2_2c62f")
