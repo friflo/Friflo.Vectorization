@@ -4,6 +4,7 @@ using Friflo.SmGui;
 using Friflo.SmGui.Headless;
 using Friflo.SmGui.Http;
 using Friflo.SmGui.Session;
+using Microsoft.AspNetCore.Builder;
 
 namespace GuiDemo;
 
@@ -13,16 +14,18 @@ public sealed class DemoGuiApp : SmGuiApp
     private readonly    GuiAppResources resources;
     private readonly    GuiView         nativeView;
     private readonly    SmSessionLoop   loop;
+    private             WebApplication? webApp;
     
     internal DemoGuiApp(SmGuiBackend backend)
     {
         resources   = new GuiAppResources(backend);
         nativeView  = new GuiView(resources, null);
-        loop        = CreateSessionLoop(backend, resources);
+        loop        = CreateSessionLoop(backend);
     }
 
     public override void Dispose()
     {
+        webApp?.StopAsync();
         loop.Dispose();
         resources.Dispose();
     }
@@ -39,17 +42,17 @@ public sealed class DemoGuiApp : SmGuiApp
     /// By calling <see cref="SmSessionLoop.IterateSessions"/> periodically, queued user input (mouse and keyboard) is processed. 
     /// Every client with pending input or a dirty session renders a new frame via <see cref="GuiView.RenderView"/>, which is then sent to the client. 
     /// </summary>
-    private static SmSessionLoop CreateSessionLoop(SmGuiBackend backend, GuiAppResources resources)
+    private SmSessionLoop CreateSessionLoop(SmGuiBackend backend)
     {
-        var loop = SmSessionLoop.Create(new LoopOptions {
+        var sessionLoop = SmSessionLoop.Create(new LoopOptions {
             Backend     = new CpuBackend("SmGui - Remote Test", backend),
             ViewFactory = session => new GuiView(resources, session)
         });
         // HTTP server for Browser sessions.  nuget: Friflo.SmGui.Http
-        var app = HttpUtils.CreateWebApplication(new IPEndPoint(IPAddress.IPv6Any, Port));
-        app.UseWebSocketGuiSessions(loop);
-        _ = app.StartAsync();
-        return loop;
+        webApp = HttpUtils.CreateWebApplication(new IPEndPoint(IPAddress.IPv6Any, Port));
+        webApp.UseWebSocketGuiSessions(sessionLoop);
+        _ = webApp.StartAsync();
+        return sessionLoop;
     }
     
     internal const int Port = 8080;
