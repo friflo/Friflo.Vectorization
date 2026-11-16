@@ -5,4 +5,7 @@
     <EnableDynamicLoading>true</EnableDynamicLoading>
     <RootNamespace>TestGodot</RootNamespace>
   </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Friflo.SmGui.Godot\Friflo.SmGui.Godot.csproj" />
+  </ItemGroup>
 </Project>
