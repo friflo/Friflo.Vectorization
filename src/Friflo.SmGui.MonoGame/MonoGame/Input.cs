@@ -21,4 +21,29 @@ public static class MonoGameInput
         
         // var keyboard = Keyboard.GetState();
     }
+    
+    private static MouseCursor _mouseCursor;
+    
+    public static void SetMouseCursor(SmGuiBackend backend)
+    {
+        var cursor = backend.input.CurrentCursor;
+        if (cursor == _mouseCursor) {
+            return;
+        }
+        _mouseCursor = cursor;
+            
+        var monoCursor = cursor switch  {
+            MouseCursor.Arrow       => Microsoft.Xna.Framework.Input.MouseCursor.Arrow,
+            MouseCursor.ResizeN     => Microsoft.Xna.Framework.Input.MouseCursor.SizeNS,
+            MouseCursor.ResizeS     => Microsoft.Xna.Framework.Input.MouseCursor.SizeNS,
+            MouseCursor.ResizeE     => Microsoft.Xna.Framework.Input.MouseCursor.SizeWE,
+            MouseCursor.ResizeW     => Microsoft.Xna.Framework.Input.MouseCursor.SizeWE,
+            MouseCursor.ResizeNW    => Microsoft.Xna.Framework.Input.MouseCursor.SizeNWSE,
+            MouseCursor.ResizeSE    => Microsoft.Xna.Framework.Input.MouseCursor.SizeNWSE,
+            MouseCursor.ResizeNE    => Microsoft.Xna.Framework.Input.MouseCursor.SizeNESW,
+            MouseCursor.ResizeSW    => Microsoft.Xna.Framework.Input.MouseCursor.SizeNESW,
+            _                       => Microsoft.Xna.Framework.Input.MouseCursor.Arrow
+        };
+        Mouse.SetCursor(monoCursor);
+    }
 }

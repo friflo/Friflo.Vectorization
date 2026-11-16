@@ -67,6 +67,7 @@ public class GameApp : Game
         var height  = device.PresentationParameters.BackBufferHeight;
         app?.RenderApp(batch!, width, height);
         batch?.DrawCommandList(device, 0, 0, width, height);
+        MonoGameInput.SetMouseCursor(guiBackend);
 
         base.Draw(gameTime);
     }
