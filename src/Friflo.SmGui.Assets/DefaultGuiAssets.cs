@@ -1,11 +1,11 @@
 ﻿// Copyright (c) Ullrich Praetz - https://github.com/friflo. All rights reserved.
 // See LICENSE file in the project root for full license information.
 
-
 using System;
 using System.Collections.Generic;
 using System.Text;
 using System.IO;
+using System.IO.Compression;
 using System.Numerics;
 using StbImageSharp;
 using StbImageWriteSharp;
@@ -22,13 +22,23 @@ public sealed class DefaultGuiAssets : IGuiAssets
 {
     public SmFont CreateDefaultFont(SmGuiBackend backend)
     {
+        var assembly            = typeof(DefaultGuiAssets).Assembly;
+        using var interTtf      = assembly.GetManifestResourceStream("Friflo.SmGui.Assets.fonts.Inter-Regular.ttf.gz")!;
+        using var gzipStream    = new GZipStream(interTtf, CompressionMode.Decompress);
+        var font = backend.CreateTtfFont(gzipStream, 48, 512, 512, 32, 224, "Inter-Regular");
+        return font;
+    }
+    
+    /*
+    private static SmFont CreateDefaultFont_BMF(SmGuiBackend backend)
+    {
         var assembly        = typeof(DefaultGuiAssets).Assembly;
         using var fontAtlas = assembly.GetManifestResourceStream("Friflo.SmGui.Assets.fonts.arial-48-latin_0.png");
         using var fntFile   = assembly.GetManifestResourceStream("Friflo.SmGui.Assets.fonts.arial-48-latin.fnt");
         using var reader    = new StreamReader(fntFile!, Encoding.UTF8);
         var fntContent      = reader.ReadToEnd();
         return backend.CreateBMFont(fntContent, fontAtlas!, "Default-Font");
-    }
+    } */
     
     public SmImageAsset LoadImage(Stream stream, SmColorComponents colorComponents)
     {

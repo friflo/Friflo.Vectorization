@@ -138,8 +138,8 @@ public class DrawView : IGuiView
         }
         
         var font = draw.Font;
-        Debug.Assert(font.name == "Default-Font");
-        Debug.Assert((int)font.lineHeight == 47);
-        Debug.Assert(font.glyphs.Count == 191);
+        Debug.Assert(font.name == "Inter-Regular");
+        Debug.Assert((int)font.lineHeight == 48);
+        Debug.Assert(font.glyphs.Count == 224);
     }
 }

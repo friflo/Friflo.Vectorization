@@ -60,7 +60,7 @@
   <!-- packaging: end -->
   
   <ItemGroup>
-      <EmbeddedResource Include="fonts/*.*" />
+      <EmbeddedResource Include="fonts/Inter-Regular.ttf.gz" />
   </ItemGroup>
 
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
