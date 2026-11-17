@@ -27,12 +27,12 @@ public sealed class GuiDemo : SmGuiApp
         // --- resources
         var assembly = typeof(GuiDemo).Assembly;
         
-        using var monoTtf   = assembly.GetManifestResourceStream("Tests-Console.Assets.Monocraft.ttf")!;  
+        using var monoTtf   = assembly.GetManifestResourceStream("Demos.Library.Assets.Monocraft.ttf")!;  
         monocraftFont       = backend.CreateTtfFont(monoTtf, 48, 256, 256, 32, 95, "Monocraft");
         Debug.Assert(monocraftFont.maxY == 244);
 
         // create tile texture
-        using var stream    = assembly.GetManifestResourceStream("Tests-Console.Assets.img.world_tileset.png")!;
+        using var stream    = assembly.GetManifestResourceStream("Demos.Library.Assets.world_tileset.png")!;
         myTexture           = backend.LoadTexture(stream, "world_tileset.png");
     }
 

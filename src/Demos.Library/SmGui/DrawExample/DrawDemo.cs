@@ -9,7 +9,7 @@ public sealed class DrawDemo : SmGuiApp
     // --- resources
     internal readonly   SmTexture       myTexture;
     
-    internal DrawDemo(SmGuiBackend backend)
+    public DrawDemo(SmGuiBackend backend)
     {
         clearValue  = 0x1A1A1AFF;
         nativeView  = new DrawDemoView(this);
@@ -17,7 +17,7 @@ public sealed class DrawDemo : SmGuiApp
         // --- resources
         var assembly = typeof(DrawDemo).Assembly;
         
-        using var stream = assembly.GetManifestResourceStream("Tests-Console.Assets.img.world_tileset.png")!;
+        using var stream = assembly.GetManifestResourceStream("Demos.Library.Assets.world_tileset.png")!;
         myTexture        = backend.LoadTexture(stream, "world_tileset.png");
     }
 

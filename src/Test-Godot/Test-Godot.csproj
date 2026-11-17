@@ -10,7 +10,8 @@
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Friflo.SmGui.Assets\Friflo.SmGui.Assets.csproj" />
     <ProjectReference Include="..\Friflo.SmGui.Godot\Friflo.SmGui.Godot.csproj" />
-    <ProjectReference Include="..\Tests-Console\Tests-Console.csproj" />
+    <ProjectReference Include="..\Demos.Library\Demos.Library.csproj" />
   </ItemGroup>
 </Project>

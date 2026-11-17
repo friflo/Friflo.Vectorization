@@ -23,6 +23,7 @@
     </PropertyGroup>
 
     <ItemGroup>        
+      <ProjectReference Include="..\Demos.Library\Demos.Library.csproj" />        
       <ProjectReference Include="..\Vectorization.Attributes\Friflo.Vectorization.Attributes.csproj" />
       <ProjectReference Include="..\Friflo.Generators\Friflo.Generators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
       <ProjectReference Include="..\Friflo.Generators.CodeFixes\Friflo.Generators.CodeFixes.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
@@ -48,7 +49,6 @@
     </PropertyGroup>
     
     <ItemGroup>
-      <EmbeddedResource Include="Assets/Monocraft.ttf" />  
       <EmbeddedResource Include="Assets/img/*.png" />
       <EmbeddedResource Include="Assets/**/*.bin" />
     </ItemGroup>
