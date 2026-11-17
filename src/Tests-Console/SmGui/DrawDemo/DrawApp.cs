@@ -35,7 +35,7 @@ public sealed class DrawAppResources : IDisposable
         
     public DrawAppResources (SmGuiBackend backend)
     {
-        var assembly = typeof(AppWindow).Assembly;
+        var assembly = typeof(DemoDrawApp).Assembly;
         
         // create tile texture
         using var stream = assembly.GetManifestResourceStream("Tests-Console.Assets.img.world_tileset.png")!;

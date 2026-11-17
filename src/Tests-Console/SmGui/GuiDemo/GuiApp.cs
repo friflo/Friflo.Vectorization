@@ -69,7 +69,7 @@ public sealed class GuiAppResources : IDisposable
     
     public GuiAppResources (SmGuiBackend backend)
     {
-        var assembly = typeof(AppWindow).Assembly;
+        var assembly = typeof(DemoGuiApp).Assembly;
         
         using var monoTtf   = assembly.GetManifestResourceStream("Tests-Console.Assets.Monocraft.ttf")!;  
         monocraftFont       = backend.CreateTtfFont(monoTtf, 48, 256, 256, 32, 95, "Monocraft");
