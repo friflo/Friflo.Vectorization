@@ -7,9 +7,9 @@ using Friflo.SmGui;
 namespace GuiDemo;
 
 
-public sealed class GuiView : IGuiView
+public sealed class GuiDemoView : IGuiView
 {
-    private readonly    DemoGuiApp      app;
+    private readonly    GuiDemo      app;
     private             bool            mouseCircle;
     private             bool            monocraft;
     private             bool            fullScreen;
@@ -19,7 +19,7 @@ public sealed class GuiView : IGuiView
     private readonly    Color32[]       textColors = [0x0000FFFF, 0xFF0000FF, 0x009900FF, 0xFF00FFFF, 0xCC6600FF, 0x000000ff];
     
     
-    internal GuiView(DemoGuiApp app, ViewSession? session)
+    internal GuiDemoView(GuiDemo app, ViewSession? session)
     {
         this.app  = app;
         
@@ -70,7 +70,7 @@ public sealed class GuiView : IGuiView
     {
         gui.Button("hello GUI", Dim.Fill_X(0, Fit.Content), color: textColors);
         if (gui.Button("Web client")) {
-            gui.Action.OpenUrl($"https://localhost:{DemoGuiApp.Port}", "remote-gui");
+            gui.Action.OpenUrl($"https://localhost:{GuiDemo.Port}", "remote-gui");
         }
         if (gui.UiType != UiType.WebGui) {
             if (gui.Button("close session")) gui.Action.CloseWindow();

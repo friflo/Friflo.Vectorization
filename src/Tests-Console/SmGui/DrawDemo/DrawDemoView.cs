@@ -5,14 +5,14 @@ using Friflo.SmGui;
 namespace DrawDemo;
 
 
-public class DrawView : IGuiView
+public class DrawDemoView : IGuiView
 {
-    private readonly    DemoDrawApp app;
+    private readonly    DrawDemo app;
     private             float       rotation;
     private readonly    Stopwatch   stopwatch = Stopwatch.StartNew();
     private             float       lastTime;
 
-    internal DrawView(DemoDrawApp app) {
+    internal DrawDemoView(DrawDemo app) {
         this.app = app;
     }
 
