@@ -119,16 +119,17 @@ internal sealed class Sdl3Cursor
         cursorNWSEResize    = SDL.CreateSystemCursor(SDL.SystemCursor.NWSEResize);
         cursorNESWResize    = SDL.CreateSystemCursor(SDL.SystemCursor.NESWResize);
         
-        cursorMap[(int)MouseCursor.Arrow]      = cursorDefault;
-        cursorMap[(int)MouseCursor.ResizeN]    = cursorNSResize;
-        cursorMap[(int)MouseCursor.ResizeS]    = cursorNSResize;
-        cursorMap[(int)MouseCursor.ResizeE]    = cursorEWResize;
-        cursorMap[(int)MouseCursor.ResizeW]    = cursorEWResize;
+        var map = cursorMap;
+        map[(int)MouseCursor.Arrow]     = cursorDefault;
+        map[(int)MouseCursor.ResizeN]   = cursorNSResize;
+        map[(int)MouseCursor.ResizeS]   = cursorNSResize;
+        map[(int)MouseCursor.ResizeE]   = cursorEWResize;
+        map[(int)MouseCursor.ResizeW]   = cursorEWResize;
         
-        cursorMap[(int)MouseCursor.ResizeNW]   = cursorNWSEResize;
-        cursorMap[(int)MouseCursor.ResizeSE]   = cursorNWSEResize;
-        cursorMap[(int)MouseCursor.ResizeNE]   = cursorNESWResize;
-        cursorMap[(int)MouseCursor.ResizeSW]   = cursorNESWResize;
+        map[(int)MouseCursor.ResizeNW]  = cursorNWSEResize;
+        map[(int)MouseCursor.ResizeSE]  = cursorNWSEResize;
+        map[(int)MouseCursor.ResizeNE]  = cursorNESWResize;
+        map[(int)MouseCursor.ResizeSW]  = cursorNESWResize;
     }
     
     internal void Shutdown()
