@@ -30,14 +30,22 @@ public enum VerticalAlignment
 }
 
 
-public struct GlyphInfo
+public readonly struct GlyphInfo
 {
-    public Vector2  sourcePos;  // Pixel position in the atlas (X, Y)
-    public Vector2  sourceSize; // Pixel dimensions in the atlas (Width, Height)
-    public Vector2  offset;     // Rendering offset relative to the cursor (bearingX, bearingY)
-    public float    advance;    // Horizontal advance to the next character
+    public readonly Vector2  sourcePos;  // Pixel position in the atlas (X, Y)
+    public readonly Vector2  sourceSize; // Pixel dimensions in the atlas (Width, Height)
+    public readonly Vector2  offset;     // Rendering offset relative to the cursor (bearingX, bearingY)
+    public readonly float    advance;    // Horizontal advance to the next character
 
     public override string ToString() => sourceSize == Vector2.Zero ? "null" : $"{sourceSize}";
+    
+    public GlyphInfo(Vector2 sourcePos, Vector2 sourceSize, Vector2 offset, float advance)
+    {
+        this.sourcePos  = sourcePos;
+        this.sourceSize = sourceSize;
+        this.offset     = offset;
+        this.advance    = advance;
+    }   
 }
 
 public sealed class SmFont : IDisposable
@@ -122,13 +130,12 @@ public sealed class SmFont : IDisposable
             else if (line.StartsWith("char") && line.Length > 4 && char.IsWhiteSpace(line[4]))
             {
                 var rune = new Rune(ParseValue(line, "id="));
-                var glyph = new GlyphInfo
-                {
-                    sourcePos  = new Vector2(ParseValue(line, "x="), ParseValue(line, "y=")),
-                    sourceSize = new Vector2(ParseValue(line, "width="), ParseValue(line, "height=")),
-                    offset     = new Vector2(ParseValue(line, "xoffset="), ParseValue(line, "yoffset=")),
-                    advance    = ParseValue(line, "xadvance=")
-                };
+                var glyph = new GlyphInfo(
+                    sourcePos:  new Vector2(ParseValue(line, "x="),       ParseValue(line, "y=")),
+                    sourceSize: new Vector2(ParseValue(line, "width="),   ParseValue(line, "height=")),
+                    offset:     new Vector2(ParseValue(line, "xoffset="), ParseValue(line, "yoffset=")),
+                    advance:    ParseValue(line, "xadvance=")
+                );
                 glyphs[rune.Value] = glyph;
             }
         }

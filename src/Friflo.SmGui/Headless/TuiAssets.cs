@@ -51,17 +51,18 @@ public sealed class TuiAssets : IGuiAssets
     private static SmFont CreateHeadlessFont()
     {
          // Simulate monospace font
-        var glyph = new GlyphInfo {
-            sourceSize = new Vector2(20.0f, 32.0f),
-            offset     = new Vector2( 2.0f,  3.0f),
-            advance    = 24.0f
-        };
+        var glyph = new GlyphInfo(
+            sourcePos:  default,
+            sourceSize: new Vector2(20.0f, 32.0f),
+            offset:     new Vector2( 2.0f,  3.0f),
+            advance:    24.0f
+        );
         var glyphs = new Dictionary<int, GlyphInfo>();
         for (int n = 0; n <= 190; n++)
         {
             int col = n % 20;
             int row = n / 20;
-            glyph.sourcePos = new Vector2(col * 24.0f, row * 35.0f);
+            glyph = new GlyphInfo(new Vector2(col * 24.0f, row * 35.0f), glyph.sourceSize, glyph.offset, glyph.advance);
             glyphs.Add((char)n, glyph);
         }
         var fontTexture = new TuiTexture("Default-Font", 512, 512);

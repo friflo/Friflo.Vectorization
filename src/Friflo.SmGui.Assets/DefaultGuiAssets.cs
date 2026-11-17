@@ -130,13 +130,13 @@ public sealed class DefaultGuiAssets : IGuiAssets
             var rune    = new Rune(firstChar + i);
             if (maxY < baked.y1) maxY = baked.y1; 
 
-            glyphs[rune.Value] = new GlyphInfo {
-                sourcePos  = new Vector2(baked.x0, baked.y0),
-                sourceSize = new Vector2(baked.x1 - baked.x0, baked.y1 - baked.y0),
+            glyphs[rune.Value] = new GlyphInfo(
+                sourcePos:  new Vector2(baked.x0, baked.y0),
+                sourceSize: new Vector2(baked.x1 - baked.x0, baked.y1 - baked.y0),
                 // Bake ascent directly into yoff -> top-left ready!
-                offset     = new Vector2(baked.xoff, baked.yoff + ascent),
-                advance    = baked.xadvance
-            };
+                offset:     new Vector2(baked.xoff, baked.yoff + ascent),
+                advance:    baked.xadvance
+            );
         }
         return new SmTrueTypeFontAsset {
             glyphs  = glyphs,
