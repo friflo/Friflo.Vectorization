@@ -42,11 +42,6 @@ public class GameApp : Game
         base.Initialize();
     }
 
-    protected override void LoadContent()
-    {
-        // spriteBatch = new SpriteBatch(GraphicsDevice);
-    }
-
     protected override void Draw(GameTime gameTime)
     {
         var device = GraphicsDevice;
