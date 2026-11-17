@@ -34,12 +34,12 @@ public enum SmMouseButton : byte
 
 public readonly struct SmEvent
 {
-    public readonly SmEventType     type;
-    public          SmMouseButton   mouseButton { get; init; }
-    public          Vector2         mouse       { get; init; }
-    public          Vector2         wheel       { get; init; }
-    public          KeyEvent        key         { get; init; }
-    public          GamepadEvent    gamepad     { get; init; }
+    public readonly SmEventType     type;                       //  1 byte
+    public          SmMouseButton   mouseButton { get; init; }  //  1 byte
+    public          Vector2         mouse       { get; init; }  //  8 bytes
+    public          Vector2         wheel       { get; init; }  //  8 bytes
+    public          KeyEvent        key         { get; init; }  //  8 bytes
+    public          GamepadEvent    gamepad     { get; init; }  //  2 bytes
 
     public override string ToString() => type.ToString();
     
@@ -130,9 +130,9 @@ public enum KeyMod : ushort
 
 public struct KeyEvent
 {
-    public KeyCode  code;
-    public KeyMod   mod;
-    public bool     isDown;
+    public KeyCode  code;   //  4 bytes
+    public KeyMod   mod;    //  2 bytes
+    public bool     isDown; //  1 bytes
 
     public override string ToString() => code.ToString();
 }

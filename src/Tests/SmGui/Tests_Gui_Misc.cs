@@ -54,5 +54,11 @@ public static class Tests_Gui_Misc
         var WsDrawCommand = assembly.GetType("Friflo.SmGui.Session.WsDrawCommand")!;
         Assert.AreEqual(92,  Marshal.SizeOf(WsDrawCommand));
         Assert.AreEqual( 8,  Unsafe.SizeOf<SeqChange>());
+        
+        // --- SmEvent
+        Assert.AreEqual( 32,  Unsafe.SizeOf<SmEvent>());
+        Assert.AreEqual(  1,  Unsafe.SizeOf<SmEventType>());
+        Assert.AreEqual(  8,  Unsafe.SizeOf<KeyEvent>());
+        Assert.AreEqual(  2,  Unsafe.SizeOf<GamepadEvent>());
     }
 }
