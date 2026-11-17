@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Numerics;
 using System.Text;
 
+// ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable InvertIf
 // ReSharper disable InconsistentNaming
@@ -36,8 +37,9 @@ public readonly struct GlyphInfo
     public readonly Vector2 sourceSize; //  8 bytes - Pixel dimensions in the atlas (Width, Height)
     public readonly Vector2 offset;     //  8 bytes - Rendering offset relative to the cursor (bearingX, bearingY)
     public readonly float   advance;    //  4 bytes - Horizontal advance to the next character
+    public readonly bool    isSet;      //  1 byte
 
-    public override string  ToString() => sourceSize == Vector2.Zero ? "null" : $"{sourceSize}";
+    public override string  ToString()  => isSet ? $"{sourceSize}" : "null";
     
     public GlyphInfo(Vector2 sourcePos, Vector2 sourceSize, Vector2 offset, float advance)
     {
@@ -45,6 +47,7 @@ public readonly struct GlyphInfo
         this.sourceSize = sourceSize;
         this.offset     = offset;
         this.advance    = advance;
+        isSet           = true;
     }   
 }
 
@@ -106,7 +109,7 @@ public sealed class SmFont : IDisposable
     {
         if (rune < fastGlyphsMax) {
             glyph = fastGlyphs[rune];
-            return glyph.sourceSize != Vector2.Zero;
+            return glyph.isSet;
         }
         return glyphs.TryGetValue(rune, out glyph);
     }

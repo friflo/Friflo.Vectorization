@@ -61,6 +61,6 @@ public static class Tests_Gui_Misc
         Assert.AreEqual(  8,  Unsafe.SizeOf<KeyEvent>());
         Assert.AreEqual(  2,  Unsafe.SizeOf<GamepadEvent>());
         
-        Assert.AreEqual( 28,  Unsafe.SizeOf<GlyphInfo>());
+        Assert.AreEqual( 32,  Unsafe.SizeOf<GlyphInfo>());
     }
 }
