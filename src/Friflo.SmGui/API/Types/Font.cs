@@ -6,6 +6,7 @@ using System;
 using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.Numerics;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 // ReSharper disable MemberCanBePrivate.Global
@@ -104,7 +105,7 @@ public sealed class SmFont : IDisposable
         }
     }
 
-
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool TryGetGlyph(int rune, out GlyphInfo glyph)
     {
         if (rune < fastGlyphsMax) {
@@ -115,7 +116,7 @@ public sealed class SmFont : IDisposable
     }
 
 
-    #region BM Font
+#region BM Font
     /// <summary>
     /// Parses a BMFont (.fnt text format) string and pairs it with the atlas texture.
     /// </summary>
