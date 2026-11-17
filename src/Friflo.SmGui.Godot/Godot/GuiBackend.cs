@@ -69,6 +69,6 @@ public sealed class GodotGuiBackend : SmGuiBackend
             image.Convert(Image.Format.Rgba8);
         }
         var pixels = image.GetData();
-        return new SmImageAsset { width = image.GetWidth(), height = image.GetHeight(), data = pixels, name = image.GetName() };
+        return new SmImageAsset { width = image.GetWidth(), height = image.GetHeight(), data = pixels, name = image.ResourceName };
     }
 }
