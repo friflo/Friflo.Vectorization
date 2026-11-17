@@ -13,10 +13,12 @@
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
-      <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    </PropertyGroup>
+    
+    <PropertyGroup>
       <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
     </PropertyGroup>
 
