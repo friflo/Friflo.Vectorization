@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using System.Numerics;
 using System.Text;
 
-
+// ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable InvertIf
 // ReSharper disable InconsistentNaming
 // ReSharper disable SuggestVarOrType_BuiltInTypes
@@ -32,12 +32,12 @@ public enum VerticalAlignment
 
 public readonly struct GlyphInfo
 {
-    public readonly Vector2  sourcePos;  // Pixel position in the atlas (X, Y)
-    public readonly Vector2  sourceSize; // Pixel dimensions in the atlas (Width, Height)
-    public readonly Vector2  offset;     // Rendering offset relative to the cursor (bearingX, bearingY)
-    public readonly float    advance;    // Horizontal advance to the next character
+    public readonly Vector2 sourcePos;  //  8 bytes - Pixel position in the atlas (X, Y)
+    public readonly Vector2 sourceSize; //  8 bytes - Pixel dimensions in the atlas (Width, Height)
+    public readonly Vector2 offset;     //  8 bytes - Rendering offset relative to the cursor (bearingX, bearingY)
+    public readonly float   advance;    //  4 bytes - Horizontal advance to the next character
 
-    public override string ToString() => sourceSize == Vector2.Zero ? "null" : $"{sourceSize}";
+    public override string  ToString() => sourceSize == Vector2.Zero ? "null" : $"{sourceSize}";
     
     public GlyphInfo(Vector2 sourcePos, Vector2 sourceSize, Vector2 offset, float advance)
     {
