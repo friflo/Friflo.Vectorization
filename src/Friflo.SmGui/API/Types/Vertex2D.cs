@@ -33,7 +33,10 @@ public struct Vertex2D
 }
 
 /// <summary>
-/// [0] Top-Left   [1] Top-Right   [2] Bottom-Right   [3] Bottom-Left
+/// [0] Top-Left     <br/>
+/// [1] Top-Right    <br/>
+/// [2] Bottom-Right <br/>
+/// [3] Bottom-Left
 /// </summary>
 [InlineArray(4)]
 public struct VertexQuad : IEquatable<VertexQuad>
