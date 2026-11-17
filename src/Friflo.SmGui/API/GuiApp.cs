@@ -7,10 +7,11 @@ using System;
 namespace Friflo.SmGui;
 
 /// <summary>
-/// Represents the base class for a SmGui application, managing its lifecycle and rendering configuration.
+/// Represents the base class for a SmGui application, managing its lifecycle and rendering configuration.<br/>
+/// The use of <see cref="SmGuiApp"/> is optional. It establishes a minimal skeleton for graphics-backend agnostic applications.
 /// </summary>
 /// <remarks>
-/// Designed to be lightweight and graphics-backend agnostic, keeping the library thin and non-opinionated.<br/>
+/// The class is designed to be lightweight and keeps the library thin and non-opinionated.<br/>
 /// It provides a lean API so that applications based on <see cref="SmGuiApp"/> remain decoupled from the underlying graphics backend.<br/>
 /// Note: <c>Friflo.SmGui</c> itself does not depend on or utilize this class.
 /// </remarks>
