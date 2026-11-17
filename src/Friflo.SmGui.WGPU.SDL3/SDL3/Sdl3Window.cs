@@ -35,8 +35,9 @@ public class Sdl3Window
     private     WgpuHost?               wgpuHost;
     private     IRenderer?              renderer;
     private     ExceptionDispatchInfo?  callbackException;
+    // --- SmGui fields
     private     SmGuiBackend?           guiBackend;
-    private     Sdl3GuiInput?           sdlGuiInput; // only required for guiBackend
+    private     Sdl3GuiInput?           sdlGuiInput;
     private     Sdl3Cursor?             sdlCursor;
 #endregion
     
