@@ -66,8 +66,8 @@
   </ItemGroup>
     
   <ItemGroup>
-    <EmbeddedResource Include="Assets\wgpu-transparent-dark-128x128.bmp" />
-    <EmbeddedResource Include="Assets\wgpu-transparent-light-128x128.bmp" />
+    <EmbeddedResource Include="Assets\wgpu-transparent-dark-128x128.bmp.gz" />
+    <EmbeddedResource Include="Assets\wgpu-transparent-light-128x128.bmp.gz" />
   </ItemGroup>
 
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.IO.Compression;
 using System.Runtime.ExceptionServices;
 using System.Runtime.InteropServices;
 using Friflo.SmGui;
@@ -162,11 +163,13 @@ public class Sdl3Window
     protected virtual void OnSystemThemeChanged()
     {
         var theme = SDL.GetSystemTheme();
-        var image = theme == SDL.SystemTheme.Dark ? "Friflo.WGPU.SDL3.Assets.wgpu-transparent-dark-128x128.bmp" : 
-                                                    "Friflo.WGPU.SDL3.Assets.wgpu-transparent-light-128x128.bmp";
+        var image = theme == SDL.SystemTheme.Dark ? "Friflo.WGPU.SDL3.Assets.wgpu-transparent-dark-128x128.bmp.gz" : 
+                                                    "Friflo.WGPU.SDL3.Assets.wgpu-transparent-light-128x128.bmp.gz";
+        
         using var stream = typeof(Sdl3Window).Assembly.GetManifestResourceStream(image);
         if (stream != null) {
-            SetWindowIcon(stream);
+            using var gzipStream = new GZipStream(stream, CompressionMode.Decompress);
+            SetWindowIcon(gzipStream);
         }
     }
     
