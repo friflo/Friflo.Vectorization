@@ -1,7 +1,7 @@
 using Godot;
 using Friflo.SmGui;
 using Friflo.SmGui.Godot;
-using GuiDemo;
+using GuiExample;
 
 public partial class SmGuiNode2d : Node2D
 {
@@ -14,7 +14,7 @@ public partial class SmGuiNode2d : Node2D
 	{
         guiBackend  = new GodotGuiBackend(new DefaultGuiAssets());
         batch       = guiBackend.CreateBatch();
-        app         = new DemoGuiApp(guiBackend, false);
+        app         = new GuiDemo(guiBackend, false);
 	}
 
 	// Called every frame. 'delta' is the elapsed time since the previous frame.

@@ -4,7 +4,7 @@ using System.Numerics;
 using DemoWidgets;
 using Friflo.SmGui;
 
-namespace GuiDemo;
+namespace GuiExample;
 
 
 public sealed class GuiDemoView : IGuiView

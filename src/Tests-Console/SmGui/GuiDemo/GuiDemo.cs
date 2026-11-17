@@ -6,7 +6,7 @@ using Friflo.SmGui.Http;
 using Friflo.SmGui.Session;
 using Microsoft.AspNetCore.Builder;
 
-namespace GuiDemo;
+namespace GuiExample;
 
 
 public sealed class GuiDemo : SmGuiApp

@@ -2,7 +2,7 @@ using System.Diagnostics;
 using System.Numerics;
 using Friflo.SmGui;
 
-namespace DrawDemo;
+namespace DrawExample;
 
 
 public class DrawDemoView : IGuiView

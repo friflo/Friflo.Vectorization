@@ -1,9 +1,9 @@
 using Friflo.SmGui;
 using Friflo.WGPU;
 using Friflo.WGPU.SDL3;
-using GuiDemo;
 using SDL3;
 using SmGui.MonoGame;
+using WgpuGuiUtils;
 
 
 // ReSharper disable ConvertToLocalFunction

@@ -1,6 +1,6 @@
 using Friflo.SmGui;
 
-namespace DrawDemo;
+namespace DrawExample;
 
 
 public sealed class DrawDemo : SmGuiApp
