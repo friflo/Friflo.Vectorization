@@ -37,6 +37,7 @@ public class Sdl3Window
     private     ExceptionDispatchInfo?  callbackException;
     private     SmGuiBackend?           guiBackend;
     private     Sdl3GuiInput?           sdlGuiInput; // only required for guiBackend
+    private     Sdl3Cursor?             sdlCursor;
 #endregion
     
     public int EnterAppMain(InitOptions opt)
@@ -153,7 +154,7 @@ public class Sdl3Window
         if (guiBackend != null) {
             guiBackend.SetClientActions(new Sdl3ClientAction(window));
             sdlGuiInput = new Sdl3GuiInput();
-            Sdl3Cursor.Init();
+            sdlCursor   = new Sdl3Cursor();
         }
     }
     
@@ -200,7 +201,7 @@ public class Sdl3Window
         
         renderer?.OnFrame(target);
         
-        if (guiBackend != null) Sdl3Cursor.SetCursor(guiBackend.input.CurrentCursor);
+        if (guiBackend != null) sdlCursor!.SetCursor(guiBackend.input.CurrentCursor);
         
         wgpuHost.Context.Queue.Submit();
         wgpuHost.Surface.Present();
@@ -237,7 +238,9 @@ public class Sdl3Window
         
         sdlGuiInput?.Dispose();
         sdlGuiInput = null;
-        Sdl3Cursor.Shutdown();
+        
+        sdlCursor?.Shutdown();
+        sdlCursor = null;
         
         renderer?.OnShutdown();
         renderer = null;

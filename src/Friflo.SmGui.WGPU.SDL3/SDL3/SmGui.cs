@@ -1,9 +1,9 @@
 using System;
-using System.Collections.Generic;
 using System.Numerics;
 using Friflo.SmGui;
 using SDL3;
 
+// ReSharper disable InconsistentNaming
 // ReSharper disable CheckNamespace
 namespace Friflo.WGPU.SDL3;
 
@@ -102,38 +102,51 @@ internal class Sdl3GuiInput : IDisposable
 /// <summary>
 /// Only required to visualize window resize indicator with <see cref="Friflo.SmGui.GuiInput.CurrentCursor"/> .
 /// </summary>
-internal static class Sdl3Cursor
+internal sealed class Sdl3Cursor
 {
-    private static readonly Dictionary<MouseCursor, IntPtr> CursorCache         = new();
-    private static          MouseCursor                     _currentCursorType  = MouseCursor.Arrow;
+    private readonly    nint        cursorDefault;
+    private readonly    nint        cursorNSResize;
+    private readonly    nint        cursorEWResize;
+    private readonly    nint        cursorNWSEResize;
+    private readonly    nint        cursorNESWResize;
+    private readonly    nint[]      cursorMap = new nint[(int)MouseCursor.ResizeSW + 1];
+    private             MouseCursor currentCursorType  = MouseCursor.Arrow;
 
-    internal static void Init() {
-        CursorCache[MouseCursor.Arrow]      = SDL.CreateSystemCursor(SDL.SystemCursor.Default);
-        CursorCache[MouseCursor.ResizeN]    = SDL.CreateSystemCursor(SDL.SystemCursor.NSResize);
-        CursorCache[MouseCursor.ResizeS]    = SDL.CreateSystemCursor(SDL.SystemCursor.NSResize);
-        CursorCache[MouseCursor.ResizeE]    = SDL.CreateSystemCursor(SDL.SystemCursor.EWResize);
-        CursorCache[MouseCursor.ResizeW]    = SDL.CreateSystemCursor(SDL.SystemCursor.EWResize);
+    internal Sdl3Cursor() {
+        cursorDefault       = SDL.CreateSystemCursor(SDL.SystemCursor.Default);
+        cursorNSResize      = SDL.CreateSystemCursor(SDL.SystemCursor.NSResize);
+        cursorEWResize      = SDL.CreateSystemCursor(SDL.SystemCursor.EWResize);
+        cursorNWSEResize    = SDL.CreateSystemCursor(SDL.SystemCursor.NWSEResize);
+        cursorNESWResize    = SDL.CreateSystemCursor(SDL.SystemCursor.NESWResize);
         
-        CursorCache[MouseCursor.ResizeNW]   = SDL.CreateSystemCursor(SDL.SystemCursor.NWSEResize);
-        CursorCache[MouseCursor.ResizeSE]   = SDL.CreateSystemCursor(SDL.SystemCursor.NWSEResize);
-        CursorCache[MouseCursor.ResizeNE]   = SDL.CreateSystemCursor(SDL.SystemCursor.NESWResize);
-        CursorCache[MouseCursor.ResizeSW]   = SDL.CreateSystemCursor(SDL.SystemCursor.NESWResize);
+        cursorMap[(int)MouseCursor.Arrow]      = cursorDefault;
+        cursorMap[(int)MouseCursor.ResizeN]    = cursorNSResize;
+        cursorMap[(int)MouseCursor.ResizeS]    = cursorNSResize;
+        cursorMap[(int)MouseCursor.ResizeE]    = cursorEWResize;
+        cursorMap[(int)MouseCursor.ResizeW]    = cursorEWResize;
+        
+        cursorMap[(int)MouseCursor.ResizeNW]   = cursorNWSEResize;
+        cursorMap[(int)MouseCursor.ResizeSE]   = cursorNWSEResize;
+        cursorMap[(int)MouseCursor.ResizeNE]   = cursorNESWResize;
+        cursorMap[(int)MouseCursor.ResizeSW]   = cursorNESWResize;
     }
     
-    internal static void Shutdown()
+    internal void Shutdown()
     {
-        foreach (var handle in CursorCache.Values) {
-            if (handle != IntPtr.Zero) SDL.DestroyCursor(handle);
-        }
-        CursorCache.Clear();
+        SDL.DestroyCursor(cursorNESWResize);
+        SDL.DestroyCursor(cursorNWSEResize);
+        SDL.DestroyCursor(cursorEWResize);
+        SDL.DestroyCursor(cursorNSResize);
+        SDL.DestroyCursor(cursorDefault);
     }
 
-    public static void SetCursor(MouseCursor cursor)
+    internal void SetCursor(MouseCursor cursor)
     {
-        if (cursor == _currentCursorType) return;
-        if (CursorCache.TryGetValue(cursor, out IntPtr handle)) {
-            SDL.SetCursor(handle);
-            _currentCursorType = cursor;
+        if (cursor == currentCursorType) return;
+        currentCursorType = cursor;
+        var index = (int)cursor;
+        if (index < cursorMap.Length) {
+            SDL.SetCursor(cursorMap[index]);
         }
     }
 }
