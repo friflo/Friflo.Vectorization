@@ -153,8 +153,8 @@ public class Sdl3Window
         if (guiBackend != null) {
             guiBackend.SetClientActions(new Sdl3ClientAction(window));
             sdlGuiInput = new Sdl3GuiInput();
+            Sdl3Cursor.Init();
         }
-        Sdl3Cursor.Init();
     }
     
     protected virtual void OnSystemThemeChanged()
