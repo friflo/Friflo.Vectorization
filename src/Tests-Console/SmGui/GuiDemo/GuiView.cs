@@ -9,7 +9,7 @@ namespace GuiDemo;
 
 public sealed class GuiView : IGuiView
 {
-    private readonly    GuiAppResources resources;
+    private readonly    DemoGuiApp      app;
     private             bool            mouseCircle;
     private             bool            monocraft;
     private             bool            fullScreen;
@@ -19,9 +19,9 @@ public sealed class GuiView : IGuiView
     private readonly    Color32[]       textColors = [0x0000FFFF, 0xFF0000FF, 0x009900FF, 0xFF00FFFF, 0xCC6600FF, 0x000000ff];
     
     
-    internal GuiView(GuiAppResources resources, ViewSession? session)
+    internal GuiView(DemoGuiApp app, ViewSession? session)
     {
-        this.resources  = resources;
+        this.app  = app;
         
         session?.Action.SetWindowTitle("Web client");
         session?.Action.SetClearColor(0x999c9eff, 0x404142ff); // same color as clearValue
@@ -88,7 +88,7 @@ public sealed class GuiView : IGuiView
         gui.Checkbox("mouse circle", ref mouseCircle);
         if(gui.Checkbox("Monocraft", ref monocraft)) {
             if (monocraft) {
-                gui.Batch.SetFont(resources.monocraftFont);
+                gui.Batch.SetFont(app.monocraftFont);
             } else {
                 gui.Batch.SetFontDefault();
             }
@@ -109,7 +109,7 @@ public sealed class GuiView : IGuiView
             if (space.IsFired) Console.WriteLine("Clicked: Sprite");
             var srcPos  = new Vector2(3 * 64, 0 * 64);  // tile pos in Sheet (3, 0)        
             var tint = gui.Colors.ButtonState(space.WidgetState);
-            gui.Draw.DrawSpriteRegion(resources.myTexture, space.Pos, space.Size, srcPos, space.Size, new(1024, 1024), tint);
+            gui.Draw.DrawSpriteRegion(app.myTexture, space.Pos, space.Size, srcPos, space.Size, new(1024, 1024), tint);
         }
         gui.Spacer();
         if (gui.Checkbox("fullScreen", ref fullScreen)) {
