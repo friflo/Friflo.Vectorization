@@ -160,7 +160,9 @@ public class Sdl3Window
         }
     }
     
-    protected virtual void OnSystemThemeChanged()
+    protected virtual void OnSystemThemeChanged() => SetDefaultWindowIcon();
+    
+    public void SetDefaultWindowIcon()
     {
         var theme = SDL.GetSystemTheme();
         var image = theme == SDL.SystemTheme.Dark ? "Friflo.WGPU.SDL3.Assets.wgpu-transparent-dark-128x128.bmp.gz" : 
