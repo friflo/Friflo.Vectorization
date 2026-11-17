@@ -11,7 +11,7 @@ namespace GuiDemo;
 
 public sealed class GuiDemo : SmGuiApp
 {
-    private readonly    GuiDemoView         nativeView;
+    private readonly    GuiDemoView     nativeView;
     private readonly    SmSessionLoop?  loop;
     private             WebApplication? webApp;
     // --- resources

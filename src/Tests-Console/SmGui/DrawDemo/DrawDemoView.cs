@@ -7,7 +7,7 @@ namespace DrawDemo;
 
 public class DrawDemoView : IGuiView
 {
-    private readonly    DrawDemo app;
+    private readonly    DrawDemo    app;
     private             float       rotation;
     private readonly    Stopwatch   stopwatch = Stopwatch.StartNew();
     private             float       lastTime;

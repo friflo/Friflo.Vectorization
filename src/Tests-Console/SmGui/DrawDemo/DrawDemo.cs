@@ -7,7 +7,7 @@ public sealed class DrawDemo : SmGuiApp
 {
     private  readonly   DrawDemoView    nativeView;
     // --- resources
-    internal readonly   SmTexture   myTexture;
+    internal readonly   SmTexture       myTexture;
     
     internal DrawDemo(SmGuiBackend backend)
     {

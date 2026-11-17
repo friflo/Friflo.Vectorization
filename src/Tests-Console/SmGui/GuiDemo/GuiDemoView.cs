@@ -9,7 +9,7 @@ namespace GuiDemo;
 
 public sealed class GuiDemoView : IGuiView
 {
-    private readonly    GuiDemo      app;
+    private readonly    GuiDemo         app;
     private             bool            mouseCircle;
     private             bool            monocraft;
     private             bool            fullScreen;
