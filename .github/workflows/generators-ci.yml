@@ -19,9 +19,6 @@ jobs:
       with:
         dotnet-version: 10.0.x
 
-    - name: Install .NET MAUI Workloads
-      run: dotnet workload restore
-
     - name: Install & Setup Mesa (Headless GPU)
       run: |
         # Fix APT hangup on Ubuntu 24.04 runners by disabling HTTP pipelining and forcing IPv4
