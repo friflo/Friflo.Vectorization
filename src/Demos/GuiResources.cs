@@ -12,7 +12,7 @@ public class GuiResources : IDisposable
     public GuiResources(SmGuiBackend backend) {
         var assembly = typeof(GuiResources).Assembly;
                 
-        using var stream = assembly.GetManifestResourceStream("Demos.Assets.world_tileset.png")!;
+        using var stream    = assembly.GetManifestResourceStream("Demos.Assets.world_tileset.png")!;
         worldTileset        = backend.LoadTexture(stream, "world_tileset.png");
         
         using var monoTtf   = assembly.GetManifestResourceStream("Demos.Assets.Monocraft.ttf")!;  
