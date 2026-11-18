@@ -13,4 +13,8 @@
         <RootNamespace>SkiaSharp</RootNamespace>
     </PropertyGroup>
 
+    <ItemGroup>
+
+    </ItemGroup>
+
 </Project>
