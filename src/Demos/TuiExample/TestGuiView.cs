@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 using System.Numerics;
 using System.Runtime.InteropServices;
 using Friflo.SmGui;
@@ -34,7 +35,7 @@ public class TestGuiView : IGuiView
     {
         this.session        = session;
         this.appState       = appState;
-        using var stream    = typeof(TestGuiView).Assembly.GetManifestResourceStream("TuiTerminal.Assets.sixel_test.png")!;
+        using var stream    = typeof(TestGuiView).Assembly.GetManifestResourceStream("Demos.Assets.sixel_test.png")!;
         var backend         = session.Backend;
         myTexture           = backend.LoadTexture(stream, "sixel_test.png");
         var uiType          = session.UiType;

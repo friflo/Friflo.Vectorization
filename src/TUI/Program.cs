@@ -1,4 +1,6 @@
-﻿using System.Net;
+﻿using System;
+using System.Net;
+using System.Threading.Tasks;
 using Friflo.SmGui;
 using Friflo.SmGui.Headless;
 using Friflo.SmGui.Http;

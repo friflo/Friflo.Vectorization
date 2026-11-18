@@ -4,7 +4,6 @@
         <OutputType>Exe</OutputType>
         <TargetFramework>net8.0</TargetFramework>
         <RootNamespace>TuiTerminal</RootNamespace>
-        <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         
         <IsAotCompatible>true</IsAotCompatible>
@@ -13,13 +12,10 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\Demos\Demos.csproj" />
       <ProjectReference Include="..\Friflo.SmGui.Assets\Friflo.SmGui.Assets.csproj" />
       <ProjectReference Include="..\Friflo.SmGui.Http\Friflo.SmGui.Http.csproj" />
       <ProjectReference Include="..\Friflo.SmGui.WebRTC\Friflo.SmGui.WebRTC.csproj" />
-    </ItemGroup>
-    
-    <ItemGroup>
-      <EmbeddedResource Include="Assets/**/*.png" />
     </ItemGroup>
 
 </Project>

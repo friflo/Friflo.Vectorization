@@ -1,4 +1,5 @@
-﻿using Friflo.SmGui;
+﻿using System.Collections.Generic;
+using Friflo.SmGui;
 
 namespace TuiTerminal;
 
@@ -19,14 +20,14 @@ public class AppState
     internal            DrawType    drawType = DrawType.None;
     internal            bool        useTerminalPixels;
     internal            bool        textureScissor;
-    internal            float       speed = 0.1f;
+    public              float       speed = 0.1f;
     internal readonly   SmTexture   worldTileset;   // texture shared by all sessions
     
     internal readonly List<string>  scrollAreaButtons = [];
     
     public AppState(SmGuiBackend backend)
     {
-        using var stream    = typeof(AppState).Assembly.GetManifestResourceStream("TuiTerminal.Assets.world_tileset.png")!;
+        using var stream    = typeof(AppState).Assembly.GetManifestResourceStream("Demos.Assets.world_tileset.png")!;
         worldTileset        = backend.LoadTexture(stream, "world_tileset.png");
     }
 }

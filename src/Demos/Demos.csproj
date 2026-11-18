@@ -12,6 +12,7 @@
 
     <ItemGroup>
       <EmbeddedResource Include="Assets\Monocraft.ttf" />
+      <EmbeddedResource Include="Assets\sixel_test.png" />
       <EmbeddedResource Include="Assets\world_tileset.png" />
     </ItemGroup>    
 
