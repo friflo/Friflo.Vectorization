@@ -6,17 +6,17 @@ using TestConsole;
 
 // HTTP server for Browser sessions.  nuget: Friflo.SmGui.Http
 var webApp = HttpUtils.CreateWebApplication(new IPEndPoint(IPAddress.IPv6Any, 8080));
-var guiHandler = webApp.UseWebSocketGuiSessions();
+var sessionHandler = webApp.UseWebSocketGuiSessions();
 await webApp.StartAsync();
 
-MonoGameRunner.Run("SmGui", 1280, 1200, guiHandler, backend => new Demos.BasicGui.BasicGuiApp(backend, true));
-MonoGameRunner.Run("SmDraw",1280,  720, guiHandler, backend => new Demos.BasicDraw.BasicDrawApp(backend));
+MonoGameRunner.Run("SmGui", 1280, 1200, sessionHandler, backend => new Demos.BasicGui.BasicGuiApp(backend, true));
+MonoGameRunner.Run("SmDraw",1280,  720, sessionHandler, backend => new Demos.BasicDraw.BasicDrawApp(backend));
 
-WgpuRunner.Run("SmGui",   1280, 1200, guiHandler, backend => new Demos.BasicGui.BasicGuiApp(backend, true));
-WgpuRunner.Run("SmDraw",  1280,  720, guiHandler, backend => new Demos.BasicDraw.BasicDrawApp(backend));
+WgpuRunner.Run("SmGui",   1280, 1200, sessionHandler, backend => new Demos.BasicGui.BasicGuiApp(backend, true));
+WgpuRunner.Run("SmDraw",  1280,  720, sessionHandler, backend => new Demos.BasicDraw.BasicDrawApp(backend));
 
-KniRunner.Run("SmGui", 1280, 1200, guiHandler, backend => new Demos.BasicGui.BasicGuiApp(backend, true));
-KniRunner.Run("SmDraw",1280,  720, guiHandler, backend => new Demos.BasicDraw.BasicDrawApp(backend));
+KniRunner.Run("SmGui", 1280, 1200, sessionHandler, backend => new Demos.BasicGui.BasicGuiApp(backend, true));
+KniRunner.Run("SmDraw",1280,  720, sessionHandler, backend => new Demos.BasicDraw.BasicDrawApp(backend));
 
 await webApp.StopAsync();
 
