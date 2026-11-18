@@ -2,8 +2,6 @@ using Friflo.SmGui;
 using Friflo.WGPU;
 using Friflo.WGPU.SDL3;
 using SDL3;
-using SmGui.MonoGame;
-using WgpuGuiUtils;
 
 // ReSharper disable ConvertToLocalFunction
 namespace TestConsole;
@@ -17,24 +15,5 @@ public static class AppRunner
         var window = new Sdl3Window();
         var opt = new InitOptions{ title = title, width = width, height = height, createRenderer = createRenderer, createGuiApp = createGuiApp };
         return window.EnterAppMain(opt);
-    }
-    
-    public static int RunGuiApp(string title, int width, int height, CreateGuiApp createGuiApp)
-    {
-        if (!SDL.Init(SDL.InitFlags.Video | SDL.InitFlags.Gamepad)) throw new Exception($"SDL3 initialization failed: {SDL.GetError()}");
-        var window = new Sdl3Window();
-        CreateRenderer createRenderer = wgpuHost => new GuiAppRenderer(wgpuHost);
-        var opt = new InitOptions{ title = title, width = width, height = height, createRenderer = createRenderer, createGuiApp = createGuiApp };
-        return window.EnterAppMain(opt);
-    }
-    
-    public static int RunMonoGame(string title, int width, int height, CreateGuiApp createGuiApp)
-    {
-        var app = new GameApp(title, width, height, createGuiApp);
-        
-        app.Run();
-        
-        app.Dispose();
-        return 0;
     }
 }

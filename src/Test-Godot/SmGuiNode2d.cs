@@ -14,7 +14,7 @@ public partial class SmGuiNode2d : Node2D
 	{
         guiBackend  = new GodotGuiBackend(new DefaultGuiAssets());
         batch       = guiBackend.CreateBatch();
-        app         = new GuiDemo(guiBackend, false);
+        app         = new GuiDemo(guiBackend, true);
 	}
 
 	// Called every frame. 'delta' is the elapsed time since the previous frame.

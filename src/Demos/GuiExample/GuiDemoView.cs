@@ -1,5 +1,7 @@
 // --- GuiView.cs
 
+using System;
+using System.Collections.Generic;
 using System.Numerics;
 using DemoWidgets;
 using Friflo.SmGui;

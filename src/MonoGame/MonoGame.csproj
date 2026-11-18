@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>net8.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        
+        <ApplicationIcon>Assets/friflo.ico</ApplicationIcon>
+        <ApplicationManifest>Assets/app.manifest</ApplicationManifest>
+        
+        <IsAotCompatible>true</IsAotCompatible>
+        <IsTrimmable>true</IsTrimmable>
+        <RootNamespace>MonoGame</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Friflo.SmGui.Assets\Friflo.SmGui.Assets.csproj" />
+      <ProjectReference Include="..\Friflo.SmGui.MonoGame\Friflo.SmGui.MonoGame.csproj" />
+      <ProjectReference Include="..\Demos\Demos.csproj" />
+    </ItemGroup>
+
+</Project>

@@ -2,13 +2,13 @@
 using Friflo.SmGui.WGPU;
 using Friflo.WGPU;
 
-namespace WgpuGuiUtils;
+namespace WGPU;
 
 /// <summary>
 /// Default WGPU renderer for <see cref="SmGuiApp"/> instances.
 /// You can copy and paste this class to customize the rendering pipeline or clear behavior.
 /// </summary>
-public sealed class GuiAppRenderer : IRenderer
+public sealed class WgpuRenderer : IRenderer
 {
     public              SmGuiBackend?           GuiBackend { get; }
     private             SmGuiApp?               app;
@@ -24,7 +24,7 @@ public sealed class GuiAppRenderer : IRenderer
         batch.Dispose();
     }
     
-    public GuiAppRenderer(WgpuHost wgpuHost)
+    public WgpuRenderer(WgpuHost wgpuHost)
     {
         var wgpuBackend = new WgpuGuiBackend(wgpuHost.Device, new DefaultGuiAssets());
         GuiBackend      = wgpuBackend;

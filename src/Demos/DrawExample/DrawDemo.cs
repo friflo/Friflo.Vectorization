@@ -17,7 +17,7 @@ public sealed class DrawDemo : SmGuiApp
         // --- resources
         var assembly = typeof(DrawDemo).Assembly;
         
-        using var stream = assembly.GetManifestResourceStream("Demos.Library.Assets.world_tileset.png")!;
+        using var stream = assembly.GetManifestResourceStream("Demos.Assets.world_tileset.png")!;
         myTexture        = backend.LoadTexture(stream, "world_tileset.png");
     }
 

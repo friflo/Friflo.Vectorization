@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>net8.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        
+        <ApplicationIcon>Assets/friflo.ico</ApplicationIcon>
+        <ApplicationManifest>Assets/app.manifest</ApplicationManifest>
+        <RootNamespace>All</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\MonoGame\MonoGame.csproj" />
+      <ProjectReference Include="..\Tests-Console\Tests-Console.csproj" />
+      <ProjectReference Include="..\WGPU\WGPU.csproj" />
+    </ItemGroup>
+
+</Project>

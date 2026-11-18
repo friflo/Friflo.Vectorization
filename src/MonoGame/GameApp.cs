@@ -2,7 +2,7 @@ using Friflo.SmGui;
 using Friflo.SmGui.MonoGame;
 using Microsoft.Xna.Framework;
 
-namespace SmGui.MonoGame;
+namespace MonoGame;
 
 /// <summary>
 /// Minimal <see cref="Game"/> implementation to create a <see href="https://docs.monogame.net/api/Microsoft.Xna.Framework.Game.html">MonoGame Game window</see>.<br/>
