@@ -2,11 +2,11 @@
 
 using TestConsole;
 
-MonoGameRunner.Run("SmGui", 1280, 1200, backend => new Demos.BasicDraw.BasicDrawApp(backend, true));
-MonoGameRunner.Run("SmDraw",1280,  720, backend => new Demos.BasicGui.BasicGuiApp(backend));
+MonoGameRunner.Run("SmGui", 1280, 1200, backend => new GuiExample.GuiDemo(backend, true));
+MonoGameRunner.Run("SmDraw",1280,  720, backend => new DrawExample.DrawDemo(backend));
 
-WgpuRunner.Run("SmGui",   1280, 1200, backend => new Demos.BasicDraw.BasicDrawApp(backend, true));
-WgpuRunner.Run("SmDraw",  1280,  720, backend => new Demos.BasicGui.BasicGuiApp(backend));
+WgpuRunner.Run("SmGui",   1280, 1200, backend => new GuiExample.GuiDemo(backend, true));
+WgpuRunner.Run("SmDraw",  1280,  720, backend => new DrawExample.DrawDemo(backend));
 
 AppRunner.Run("Particles",      1280, 720, wgpu => new Shaders.Particles.Renderer(wgpu));
 AppRunner.Run("RenderTest",     1280, 720, wgpu => new Shaders.RenderTest.Renderer(wgpu));

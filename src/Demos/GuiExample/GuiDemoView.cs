@@ -3,15 +3,15 @@
 using System;
 using System.Collections.Generic;
 using System.Numerics;
+using DemoWidgets;
 using Friflo.SmGui;
-using Widgets;
 
-namespace Demos.BasicDraw;
+namespace GuiExample;
 
 
-public sealed class BasicDrawView : IGuiView
+public sealed class GuiDemoView : IGuiView
 {
-    private readonly    BasicDrawApp    app;
+    private readonly    GuiDemo         app;
     private             bool            mouseCircle;
     private             bool            monocraft;
     private             bool            fullScreen;
@@ -21,7 +21,7 @@ public sealed class BasicDrawView : IGuiView
     private readonly    Color32[]       textColors = [0x0000FFFF, 0xFF0000FF, 0x009900FF, 0xFF00FFFF, 0xCC6600FF, 0x000000ff];
     
     
-    internal BasicDrawView(BasicDrawApp app, ViewSession? session)
+    internal GuiDemoView(GuiDemo app, ViewSession? session)
     {
         this.app  = app;
         
@@ -72,7 +72,7 @@ public sealed class BasicDrawView : IGuiView
     {
         gui.Button("hello GUI", Dim.Fill_X(0, Fit.Content), color: textColors);
         if (gui.Button("Web client")) {
-            gui.Action.OpenUrl($"https://localhost:{BasicDrawApp.Port}", "remote-gui");
+            gui.Action.OpenUrl($"https://localhost:{GuiDemo.Port}", "remote-gui");
         }
         if (gui.UiType != UiType.WebGui) {
             if (gui.Button("close session")) gui.Action.CloseWindow();

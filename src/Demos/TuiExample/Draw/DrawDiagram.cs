@@ -2,7 +2,7 @@ using System;
 using System.Numerics;
 using Friflo.SmGui;
 
-namespace Demos.BasicTui.Draw;
+namespace TuiTerminal.Draw;
 
 public class DrawDiagram
 {

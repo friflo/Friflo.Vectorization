@@ -4,7 +4,7 @@ using Friflo.SmGui;
 using Friflo.SmGui.Headless;
 using Friflo.SmGui.Session;
 using Friflo.SmGui.WebRTC;
-using BasicTui;
+using TuiTerminal;
 
 
 // requires one-time activation of developer certificate:

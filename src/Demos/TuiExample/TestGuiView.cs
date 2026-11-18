@@ -2,16 +2,16 @@
 using System.Diagnostics;
 using System.Numerics;
 using System.Runtime.InteropServices;
-using Demos.BasicTui.Draw;
 using Friflo.SmGui;
 using Friflo.SmGui.TUI;
+using TuiTerminal.Draw;
 
 // ReSharper disable ConvertToPrimaryConstructor
-namespace Demos.BasicTui;
+namespace TuiTerminal;
 
 
 /// <summary> Each session has its own <see cref="IGuiView"/> instance. </summary>
-public class BasicTuiView : IGuiView
+public class TestGuiView : IGuiView
 {
     private readonly    ViewSession     session;
     private readonly    AppState        appState;
@@ -31,11 +31,11 @@ public class BasicTuiView : IGuiView
     private const int CanvasWidth   = 800;
     private const int CanvasHeight  = 500;
     
-    public BasicTuiView(AppState appState, ViewSession session)
+    public TestGuiView(AppState appState, ViewSession session)
     {
         this.session        = session;
         this.appState       = appState;
-        using var stream    = typeof(BasicTuiView).Assembly.GetManifestResourceStream("Demos.Assets.sixel_test.png")!;
+        using var stream    = typeof(TestGuiView).Assembly.GetManifestResourceStream("Demos.Assets.sixel_test.png")!;
         var backend         = session.Backend;
         myTexture           = backend.LoadTexture(stream, "sixel_test.png");
         var uiType          = session.UiType;

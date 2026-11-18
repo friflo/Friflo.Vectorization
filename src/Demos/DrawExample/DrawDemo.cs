@@ -1,21 +1,21 @@
 using Friflo.SmGui;
 
-namespace Demos.BasicGui;
+namespace DrawExample;
 
 
-public sealed class BasicGuiApp : SmGuiApp
+public sealed class DrawDemo : SmGuiApp
 {
-    private  readonly   BasicGuiView    nativeView;
+    private  readonly   DrawDemoView    nativeView;
     // --- resources
     internal readonly   SmTexture       myTexture;
     
-    public BasicGuiApp(SmGuiBackend backend)
+    public DrawDemo(SmGuiBackend backend)
     {
         clearValue  = 0x1A1A1AFF;
-        nativeView  = new BasicGuiView(this);
+        nativeView  = new DrawDemoView(this);
         
         // --- resources
-        var assembly = typeof(BasicGuiApp).Assembly;
+        var assembly = typeof(DrawDemo).Assembly;
         
         using var stream = assembly.GetManifestResourceStream("Demos.Assets.world_tileset.png")!;
         myTexture        = backend.LoadTexture(stream, "world_tileset.png");
