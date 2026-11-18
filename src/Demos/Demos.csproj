@@ -7,7 +7,8 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Friflo.SmGui.Http\Friflo.SmGui.Http.csproj" />
+      <ProjectReference Include="..\Friflo.SmGui\Friflo.SmGui.csproj" />
+      <ProjectReference Include="..\Friflo.SmGui.Http\Friflo.SmGui.Http.csproj" PrivateAssets="all"/>
     </ItemGroup>
 
     <ItemGroup>

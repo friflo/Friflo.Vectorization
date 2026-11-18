@@ -1,11 +1,12 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 using System.Numerics;
 using Friflo.SmGui;
 
 
 
 // ReSharper disable ConvertToPrimaryConstructor
-namespace Demos.BasicTui;
+namespace Demos.Wasm;
 
 
 /// <summary> Each session has its own <see cref="IGuiView"/> instance. </summary>
