@@ -1,7 +1,7 @@
 ﻿// See https://aka.ms/new-console-template for more information
 
 using Friflo.SmGui;
-using MonoGame;
+using KNI;
 
 
 KniRunner.Run("SmGui", 1280, 1200, backend => new Demos.BasicGui.BasicGuiApp(backend, true));

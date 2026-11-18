@@ -1,8 +1,9 @@
 using Friflo.SmGui;
-using Friflo.SmGui.MonoGame;
+using Friflo.SmGui.KNI;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 
-namespace MonoGame;
+namespace KNI;
 
 /// <summary>
 /// Minimal <see cref="Game"/> implementation to create a <see href="https://docs.monogame.net/api/Microsoft.Xna.Framework.Game.html">MonoGame Game window</see>.<br/>
@@ -11,8 +12,8 @@ namespace MonoGame;
 public class GameApp : Game
 {
     // private          SpriteBatch         spriteBatch; // not required for SmGui
-    private             MonoGameGuiBackend? guiBackend;
-    private             MonoGameBatch?      batch;
+    private             KniGuiBackend?      guiBackend;
+    private             KniBatch?           batch;
     private             SmGuiApp?           app;
     private readonly    CreateGuiApp        createGuiApp;
 
@@ -23,8 +24,9 @@ public class GameApp : Game
         var graphics = new GraphicsDeviceManager(this);
         IsMouseVisible = true;
         
-        graphics.PreferredBackBufferWidth  = width;
-        graphics.PreferredBackBufferHeight = height;
+        graphics.PreferredBackBufferWidth   = width;
+        graphics.PreferredBackBufferHeight  = height;
+        graphics.GraphicsProfile            = GraphicsProfile.HiDef;
         
         graphics.SynchronizeWithVerticalRetrace = false;    // disable VSync
         IsFixedTimeStep = false;                            // disable VSync
@@ -35,7 +37,7 @@ public class GameApp : Game
 
     protected override void Initialize()
     {
-        guiBackend  = new MonoGameGuiBackend(GraphicsDevice, new DefaultGuiAssets());
+        guiBackend  = new KniGuiBackend(GraphicsDevice, new DefaultGuiAssets());
         batch       = guiBackend.CreateBatch();
         app         = createGuiApp(guiBackend);
 
@@ -49,11 +51,11 @@ public class GameApp : Game
         
         var width   = device.PresentationParameters.BackBufferWidth;
         var height  = device.PresentationParameters.BackBufferHeight;
-        MonoGameInput.UpdateInput(guiBackend);
+        KniInput.UpdateInput(guiBackend);
         guiBackend?.NewFrame();
         app?.RenderApp(batch!, width, height);
         batch?.DrawCommandList(device, 0, 0, width, height);
-        MonoGameInput.SetMouseCursor(guiBackend);
+        KniInput.SetMouseCursor(guiBackend);
 
         base.Draw(gameTime);
     }
