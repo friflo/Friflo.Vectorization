@@ -11,7 +11,7 @@ namespace Demos.BasicGui;
 
 public sealed class GuiDemoView : IGuiView
 {
-    private readonly    GuiResources    resources;
+    private readonly    DemoResources   resources;
     private             bool            mouseCircle;
     private             bool            monocraft;
     private             bool            fullScreen;
@@ -21,7 +21,7 @@ public sealed class GuiDemoView : IGuiView
     private readonly    Color32[]       textColors = [0x0000FFFF, 0xFF0000FF, 0x009900FF, 0xFF00FFFF, 0xCC6600FF, 0x000000ff];
     
     
-    internal GuiDemoView(GuiResources resources, ViewSession? session)
+    internal GuiDemoView(DemoResources resources, ViewSession? session)
     {
         this.resources  = resources;
         

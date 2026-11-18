@@ -8,12 +8,12 @@ namespace Demos.BasicDraw;
 
 public class DrawDemoView : IGuiView
 {
-    private readonly    GuiResources    resources;
+    private readonly    DemoResources   resources;
     private             float           rotation;
     private readonly    Stopwatch       stopwatch = Stopwatch.StartNew();
     private             float           lastTime;
 
-    internal DrawDemoView(GuiResources resources) {
+    internal DrawDemoView(DemoResources resources) {
         this.resources = resources;
     }
 

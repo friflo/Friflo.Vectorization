@@ -8,11 +8,11 @@ namespace Demos.BasicGui;
 public sealed class BasicGuiApp : SmGuiApp
 {
     private readonly    GuiDemoView     nativeView;
-    private readonly    GuiResources    resources;
+    private readonly    DemoResources   resources;
 
     public BasicGuiApp(SmGuiBackend backend)
     {
-        resources = new GuiResources(backend);
+        resources   = new DemoResources(backend);
         nativeView  = new GuiDemoView(resources, null);
         Loop = CreateSessionLoop(backend);
     }
