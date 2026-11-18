@@ -1,8 +1,7 @@
 ﻿using Friflo.SmGui;
 using Friflo.SmGui.WGPU;
-using Friflo.WGPU;
 
-namespace WGPU;
+namespace Friflo.WGPU;
 
 /// <summary>
 /// Default WGPU renderer for <see cref="SmGuiApp"/> instances.

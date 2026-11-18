@@ -52,7 +52,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MonoGame", "src\MonoGame\Mo
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "All-Demos", "src\All-Demos\All-Demos.csproj", "{1A5652D0-4695-48D2-9C1A-B6E23548F705}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WGPU", "src\WGPU\WGPU.csproj", "{ED143B78-A400-4BEC-878C-963E3901B822}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Friflo-GPU", "src\Friflo-GPU\Friflo-GPU.csproj", "{ED143B78-A400-4BEC-878C-963E3901B822}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

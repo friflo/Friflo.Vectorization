@@ -6,7 +6,6 @@ using Friflo.SmGui;
 using Friflo.WGPU;
 using Friflo.WGPU.SDL3;
 using SDL3;
-using WGPU;
 
 
 WgpuRunner.Run("SmGui",   1280, 1200, backend => new Demos.BasicGui.BasicGuiApp(backend, true));
