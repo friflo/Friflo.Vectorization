@@ -11,7 +11,7 @@ namespace Friflo.WGPU;
 /// This frame-callback design ensures seamless compatibility across Desktop, Mobile, and WebAssembly (WASM), 
 /// where blocking the main thread would freeze the application or terminate the browser context.
 /// </remarks>
-public interface IRenderer
+public interface IWgpuRenderer
 {
     // --- WGPU lifecycle
     public void             OnWindowChanged(int width, int height);
@@ -24,4 +24,4 @@ public interface IRenderer
 }
 
 
-public delegate IRenderer CreateRenderer(WgpuHost wgpuHost);
+public delegate IWgpuRenderer CreateRenderer(WgpuHost wgpuHost);

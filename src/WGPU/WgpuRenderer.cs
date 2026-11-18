@@ -8,7 +8,7 @@ namespace WGPU;
 /// Default WGPU renderer for <see cref="SmGuiApp"/> instances.
 /// You can copy and paste this class to customize the rendering pipeline or clear behavior.
 /// </summary>
-public sealed class WgpuRenderer : IRenderer
+public sealed class WgpuRenderer : IWgpuRenderer
 {
     public              SmGuiBackend?           GuiBackend { get; }
     private             SmGuiApp?               app;

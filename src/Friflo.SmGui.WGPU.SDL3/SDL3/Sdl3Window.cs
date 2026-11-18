@@ -27,14 +27,14 @@ public class Sdl3Window
 {
     public      nint                    Window      => window;
     public      WgpuHost?               WgpuHost    => wgpuHost;
-    public      IRenderer?              Renderer    => renderer;
+    public      IWgpuRenderer?          Renderer    => renderer;
     public      SmGuiBackend?           GuiBackend  => guiBackend;
     public      InitOptions             initOptions;
    
 #region private fields
     private     nint                    window;
     private     WgpuHost?               wgpuHost;
-    private     IRenderer?              renderer;
+    private     IWgpuRenderer?          renderer;
     private     ExceptionDispatchInfo?  callbackException;
     // --- SmGui fields
     private     SmGuiBackend?           guiBackend;

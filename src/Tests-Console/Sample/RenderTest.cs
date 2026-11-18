@@ -13,7 +13,7 @@ namespace Shaders.RenderTest;
 /// This approach ensures the same renderer can be used on mobile devices or browsers without code changes.<br/>
 /// Those platforms only support event driven applications. An event loop would lead to application freeze.
 /// </summary>
-public partial class Renderer : IRenderer
+public partial class Renderer : IWgpuRenderer
 {
     // --- IDisposable fields
     protected readonly  GpuBuffer<VertexData>   data;

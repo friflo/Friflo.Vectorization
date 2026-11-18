@@ -14,7 +14,7 @@ Requirements:
 3. Provide the C# Renderer class containing the partial methods for updating and rendering, strictly following this exact architectural template style and caching pattern:
 [PASTE YOUR C# RENDERER CODE TEMPLATE HERE - e.g. from: RenderTest.cs]
 */
-public partial class Renderer : IRenderer
+public partial class Renderer : IWgpuRenderer
 {
     private readonly GpuBuffer<Particle>        particleBuffer;
     private readonly InView<Particle>           particleView;

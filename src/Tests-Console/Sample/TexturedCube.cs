@@ -7,7 +7,7 @@ using StbImageSharp;
 // ReSharper disable ConvertToPrimaryConstructor
 namespace Shaders.TexturedCube;
 
-public partial class Renderer : IRenderer
+public partial class Renderer : IWgpuRenderer
 {
     // --- IDisposable fields
     private readonly    GpuTexture          cubeTexture;

@@ -6,7 +6,7 @@ using Friflo.WGPU;
 // ReSharper disable ConvertToPrimaryConstructor
 namespace Shaders.TwoCubes;
 
-public partial class Renderer : IRenderer
+public partial class Renderer : IWgpuRenderer
 {
     // --- IDisposable fields
     private readonly    GpuBuffer<float>    verticesBuffer;
