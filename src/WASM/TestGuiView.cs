@@ -5,7 +5,7 @@ using Friflo.SmGui;
 
 
 // ReSharper disable ConvertToPrimaryConstructor
-namespace TuiTerminal;
+namespace BasicTui;
 
 
 /// <summary> Each session has its own <see cref="IGuiView"/> instance. </summary>

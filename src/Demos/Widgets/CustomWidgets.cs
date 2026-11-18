@@ -2,7 +2,7 @@ using System;
 using Friflo.SmGui;
 using Friflo.SmGui.Recorder;
 
-namespace DemoWidgets;
+namespace Widgets;
 
 public static class CustomWidgets
 {

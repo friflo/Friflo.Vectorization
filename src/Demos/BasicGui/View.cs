@@ -3,17 +3,17 @@ using System.Diagnostics;
 using System.Numerics;
 using Friflo.SmGui;
 
-namespace DrawExample;
+namespace Demos.BasicGui;
 
 
-public class DrawDemoView : IGuiView
+public class BasicGuiView : IGuiView
 {
-    private readonly    DrawDemo    app;
+    private readonly    BasicGuiApp app;
     private             float       rotation;
     private readonly    Stopwatch   stopwatch = Stopwatch.StartNew();
     private             float       lastTime;
 
-    internal DrawDemoView(DrawDemo app) {
+    internal BasicGuiView(BasicGuiApp app) {
         this.app = app;
     }
 
