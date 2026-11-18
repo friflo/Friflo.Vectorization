@@ -10,11 +10,11 @@
         
         <IsAotCompatible>true</IsAotCompatible>
         <IsTrimmable>true</IsTrimmable>
-        <RootNamespace>SkiaSharp</RootNamespace>
+        <RootNamespace>Skia</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>
-
+      <ProjectReference Include="..\Friflo.SmGui.SkiaSharp\Friflo.SmGui.SkiaSharp.csproj" />
     </ItemGroup>
 
 </Project>

@@ -58,7 +58,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KNI", "src\KNI\KNI.csproj",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Friflo.SmGui.SkiaSharp", "src\Friflo.SmGui.SkiaSharp\Friflo.SmGui.SkiaSharp.csproj", "{EC08AF70-B153-45E0-8A1E-B0AC4CCA6324}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SkiaSharp", "src\SkiaSharp\SkiaSharp.csproj", "{BF213C5B-345B-46B9-A39B-71B798C279C4}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Skia", "src\Skia\Skia.csproj", "{BF213C5B-345B-46B9-A39B-71B798C279C4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
