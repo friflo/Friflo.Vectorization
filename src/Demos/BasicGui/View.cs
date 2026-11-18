@@ -3,7 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Numerics;
-using DemoWidgets;
+using Demos.Widgets;
 using Friflo.SmGui;
 
 namespace Demos.BasicGui;
