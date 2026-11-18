@@ -10,13 +10,11 @@ public sealed class BasicGuiApp : SmGuiApp
     private readonly    GuiDemoView     nativeView;
     private readonly    GuiResources    resources;
 
-    public BasicGuiApp(SmGuiBackend backend, bool addSessionLoop)
+    public BasicGuiApp(SmGuiBackend backend)
     {
         resources = new GuiResources(backend);
         nativeView  = new GuiDemoView(resources, null);
-        if (addSessionLoop) {
-            Loop = CreateSessionLoop(backend);
-        }
+        Loop = CreateSessionLoop(backend);
     }
 
     public override void Dispose()

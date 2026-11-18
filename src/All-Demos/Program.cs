@@ -9,13 +9,13 @@ var webApp = HttpUtils.CreateWebApplication(new IPEndPoint(IPAddress.IPv6Any, 80
 var sessionHandler = webApp.UseWebSocketGuiSessions();
 await webApp.StartAsync();
 
-MonoGameRunner.Run("SmGui", 1280, 1200, sessionHandler, backend => new Demos.BasicGui.BasicGuiApp(backend, true));
+MonoGameRunner.Run("SmGui", 1280, 1200, sessionHandler, backend => new Demos.BasicGui.BasicGuiApp(backend));
 MonoGameRunner.Run("SmDraw",1280,  720, sessionHandler, backend => new Demos.BasicDraw.BasicDrawApp(backend));
 
-WgpuRunner.Run("SmGui",   1280, 1200, sessionHandler, backend => new Demos.BasicGui.BasicGuiApp(backend, true));
+WgpuRunner.Run("SmGui",   1280, 1200, sessionHandler, backend => new Demos.BasicGui.BasicGuiApp(backend));
 WgpuRunner.Run("SmDraw",  1280,  720, sessionHandler, backend => new Demos.BasicDraw.BasicDrawApp(backend));
 
-KniRunner.Run("SmGui", 1280, 1200, sessionHandler, backend => new Demos.BasicGui.BasicGuiApp(backend, true));
+KniRunner.Run("SmGui", 1280, 1200, sessionHandler, backend => new Demos.BasicGui.BasicGuiApp(backend));
 KniRunner.Run("SmDraw",1280,  720, sessionHandler, backend => new Demos.BasicDraw.BasicDrawApp(backend));
 
 await webApp.StopAsync();
