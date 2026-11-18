@@ -1,107 +1,79 @@
 ﻿// Copyright (c) Ullrich Praetz - https://github.com/friflo. All rights reserved.
 // See LICENSE file in the project root for full license information.
 
-// Batch.cs
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Vector2 = System.Numerics.Vector2;
-
+using SkiaSharp;
 
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable CheckNamespace
 namespace Friflo.SmGui.SkiaSharp;
 
+
 public sealed class SkiaSharpBatch : SmBatch
 {
     internal SkiaSharpBatch(SkiaSharpGuiBackend backend, int maxVertices)
         : base(default, backend, maxVertices, null)
-    {
-        // renderConfigs   = CreateRenderConfigs(targetFormat);
-        
-        // samplerLinear   = backend.samplerLinear;
-        // samplerNearest  = backend.samplerNearest;
-    }
+    { }
 
     protected override void InitBatch() { }
-
-    /* Omitted WGPU implementation. May not be required.   
-    private static RenderConfig[] CreateRenderConfigs(TextureFormat targetFormat)
-    { } */
     
-    private BasicEffect basicEffect;
-    
-    private readonly RasterizerState rasterizerState = new() {
-        CullMode                = CullMode.None,
-        DepthBias               = 0,
-        FillMode                = FillMode.Solid,
-        MultiSampleAntiAlias    = false,
-        ScissorTestEnable       = true,
-        SlopeScaleDepthBias     = 0
-    };
-    
-    public void DrawCommandList(GraphicsDevice graphicsDevice, int x, int y, int width, int height)
+    public void DrawCommandList(SKCanvas canvas, int x, int y, int width, int height)
     {
         EndBatch();
         
-        var lastViewport    = graphicsDevice.Viewport;
-        var lastScissorBox  = graphicsDevice.ScissorRectangle;
+        canvas.Save();
+        canvas.ClipRect(new SKRect(x, y, x + width, y + height));
         
-        graphicsDevice.BlendFactor          = Color.White;
-        graphicsDevice.BlendState           = Microsoft.Xna.Framework.Graphics.BlendState.NonPremultiplied;
-        graphicsDevice.RasterizerState      = rasterizerState;
-        graphicsDevice.DepthStencilState    = DepthStencilState.DepthRead;
-        
-        graphicsDevice.Viewport             = new Viewport(x, y, width, height);
-        
-        var scissor = new RectVector2(Vector2.Zero, viewport);
-
-        var vertexBuffer    = ((SkiaSharpVertexBuffer)gpuVertexBuffer).vertexBuffer;
-        var indices         = ((SkiaSharpIndexBuffer) gpuIndexBuffer).indexBuffer;
-
-        graphicsDevice.SetVertexBuffer(vertexBuffer);
-        graphicsDevice.Indices = indices;
+        var vertexBuffer = (SkiaSharpVertexBuffer)gpuVertexBuffer;
+        var indexBuffer  = (SkiaSharpIndexBuffer)gpuIndexBuffer;
         
         gpuVertexBuffer.Write(0, Vertices.Length);
-        // gpuIndexBuffer. Write(0, indices.IndexCount);
+        
+        var vertices = vertexBuffer.Memory.Span;
+        var indices  = indexBuffer.Memory.Span;
+        
+        using var paint = new SKPaint();
+        paint.IsAntialias = false;
         
         foreach (var cmd in DrawList)
         {
-            if (!cmd.scissor.Equals(scissor)) {
-                var pos  = cmd.scissor.pos;
-                var size = cmd.scissor.size;
-                graphicsDevice.ScissorRectangle = new Rectangle((int)pos.X, (int)pos.Y, (int)size.X, (int)size.Y);
-            }
-            var texture2D   = (Texture2D)cmd.texture.native!;
-            var vertexView  = cmd.vertexView;
-            var indexView   = cmd.indexView;
-            // var sampler  = cmd.samplerFilter == SamplerFilter.Linear ? samplerLinear : samplerNearest;   // todo  implement cmd.samplerFilter
-            // var config   = renderConfigs[(int)cmd.blendState];                                           // todo  implement cmd.blendState
+            canvas.Save();
             
-            var effect = basicEffect  ??= new BasicEffect(graphicsDevice);
-            effect.World                = Matrix.Identity;
-            effect.View                 = Matrix.Identity;
-            effect.Projection           = cmd.projection;
-            effect.TextureEnabled       = true;
-            effect.Texture              = texture2D;
-            effect.VertexColorEnabled   = true;
+            var pos  = cmd.scissor.pos;
+            var size = cmd.scissor.size;
+            canvas.ClipRect(new SKRect(pos.X, pos.Y, pos.X + size.X, pos.Y + size.Y));
             
-            foreach (var pass in effect.CurrentTechnique.Passes)
+            var bitmap   = (SKBitmap)cmd.texture.native!;
+            var vertexView = cmd.vertexView;
+            var indexView  = cmd.indexView;
+            
+            paint.Shader = SKShader.CreateBitmap(bitmap, SKShaderTileMode.Clamp, SKShaderTileMode.Clamp);
+            
+            int vCount = vertexView.length;
+            int iCount = indexView.length;
+            
+            SKPoint[] positions = new SKPoint[vCount];
+            SKPoint[] texs      = new SKPoint[vCount];
+            SKColor[] colors    = new SKColor[vCount];
+            ushort[]  skIndices = new ushort[iCount];
+            
+            for (int i = 0; i < vCount; i++)
             {
-                pass.Apply();
-                graphicsDevice.DrawIndexedPrimitives(PrimitiveType.TriangleList, vertexView.offset, indexView.offset, indexView.length / 3);
-                
-                /* [Obsolete("Use DrawIndexedPrimitives(PrimitiveType primitiveType, int baseVertex, int startIndex, int primitiveCount) instead. In future versions this method can be removed.")]
-                graphicsDevice.DrawIndexedPrimitives( 
-                    primitiveType:  PrimitiveType.TriangleList,
-                    baseVertex:     vertexView.offset,
-                    minVertexIndex: 0,
-                    numVertices:    vertexView.length,
-                    startIndex:     indexView.offset,
-                    primitiveCount: indexView.length / 3); */
+                var v = vertices[vertexView.offset + i];
+                positions[i] = new SKPoint(v.position.X, v.position.Y);
+                texs[i]      = new SKPoint(v.uv.X, v.uv.Y);
+                colors[i]    = new SKColor(v.color);
             }
+            
+            for (int i = 0; i < iCount; i++)
+            {
+                skIndices[i] = (ushort)(indices[indexView.offset + i] - vertexView.offset);
+            }
+            
+            canvas.DrawVertices(SKVertexMode.Triangles, positions, texs, colors, skIndices, paint);
+            
+            canvas.Restore();
         }
         
-        graphicsDevice.Viewport         = lastViewport;
-        graphicsDevice.ScissorRectangle = lastScissorBox;
+        canvas.Restore();
     }
 }

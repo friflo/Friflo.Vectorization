@@ -1,22 +1,20 @@
 ﻿// Copyright (c) Ullrich Praetz - https://github.com/friflo. All rights reserved.
 // See LICENSE file in the project root for full license information.
 
-// GuiExtensions.cs
-using Microsoft.Xna.Framework.Graphics;
+using SkiaSharp;
 
 // ReSharper disable CheckNamespace
 namespace Friflo.SmGui.SkiaSharp;
 
-
 public static class SkiaSharpGuiExtensions
 {
-    public static SmTexture AsSmTexture(this Texture2D texture2D)
+    public static SmTexture AsSmTexture(this SKBitmap bitmap)
     {
-        return new SmTexture(texture2D, 0);
+        return new SmTexture(bitmap, 0);
     }
     
-    public static Texture2D AsGpuTexture(in this SmTexture tmTexture)
+    public static SKBitmap AsGpuTexture(in this SmTexture smTexture)
     {
-        return (Texture2D)tmTexture.native;
+        return (SKBitmap)smTexture.native;
     }
 }

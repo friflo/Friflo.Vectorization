@@ -3,8 +3,7 @@
 
 // Buffer.cs
 using System;
-using System.Runtime.CompilerServices;
-using Microsoft.Xna.Framework.Graphics;
+
 
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable CheckNamespace
@@ -12,53 +11,35 @@ namespace Friflo.SmGui.SkiaSharp;
 
 internal sealed class SkiaSharpVertexBuffer : SmBuffer<Vertex2D>
 {
-    internal readonly VertexBuffer      vertexBuffer;
     private  readonly Vertex2D[]        vertexData;
     
     public   override Memory<Vertex2D>  Memory => vertexData;
     
-    public SkiaSharpVertexBuffer(VertexBuffer buffer) {
-        vertexBuffer    = buffer;
-        vertexData      = new Vertex2D[buffer.VertexCount];
+    public SkiaSharpVertexBuffer(int vertexCount) {
+        vertexData      = new Vertex2D[vertexCount];
     }
 
-    public override void Dispose() {
-        vertexBuffer.Dispose();
-    }
+    public override void Dispose() { }
     
     public override void Write(int start, int length) {
-        vertexBuffer.SetData(vertexData, start, length);
+        // SkiaSharp reads directly from managed arrays, no explicit GPU upload required.
     }
-
-    internal static readonly VertexDeclaration VertexDeclaration = new(
-        Unsafe.SizeOf<Vertex2D>(),
-        // Vertex2D.position
-        new VertexElement(0, VertexElementFormat.Vector2, VertexElementUsage.Position, 0),
-        // Vertex2D.uv
-        new VertexElement(8, VertexElementFormat.Vector2, VertexElementUsage.TextureCoordinate, 0),
-        // Vertex2D.color (Rgba8Pack)
-        new VertexElement(16, VertexElementFormat.Color, VertexElementUsage.Color, 0)
-    );
 }
 
 
 internal sealed class SkiaSharpIndexBuffer : SmBuffer<uint>
 {
-    internal readonly IndexBuffer   indexBuffer;
     private  readonly uint[]        indexData;
     
     public   override Memory<uint>  Memory => indexData;
     
-    public SkiaSharpIndexBuffer(IndexBuffer buffer) {
-        indexBuffer = buffer;
-        indexData   = new uint[buffer.IndexCount];
+    public SkiaSharpIndexBuffer(int indexCount) {
+        indexData   = new uint[indexCount];
     }
 
-    public override void Dispose() {
-        indexBuffer.Dispose();
-    }
+    public override void Dispose() { }
     
     public override void Write(int start, int length) {
-        indexBuffer.SetData(indexData, start, length);
+        // SkiaSharp reads directly from managed arrays, no explicit GPU upload required.
     }
 }
