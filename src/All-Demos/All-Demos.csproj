@@ -11,6 +11,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\KNI\KNI.csproj" />
       <ProjectReference Include="..\MonoGame\MonoGame.csproj" />
       <ProjectReference Include="..\Tests-Console\Tests-Console.csproj" />
       <ProjectReference Include="..\Friflo-GPU\Friflo-GPU.csproj" />
