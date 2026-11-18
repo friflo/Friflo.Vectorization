@@ -2,7 +2,7 @@ using System;
 using System.Numerics;
 using Friflo.SmGui;
 
-namespace TuiTerminal.Draw;
+namespace Demos.BasicTui.Draw;
 
 public static class DrawDonut
 {

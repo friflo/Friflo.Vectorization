@@ -6,10 +6,10 @@ using Friflo.SmGui.Http;
 using Friflo.SmGui.Session;
 using Microsoft.AspNetCore.Builder;
 
-namespace GuiExample;
+namespace Demos.BasicGui;
 
 
-public sealed class GuiDemo : SmGuiApp
+public sealed class BasicGuiApp : SmGuiApp
 {
     private readonly    GuiDemoView     nativeView;
     private readonly    SmSessionLoop?  loop;
@@ -18,14 +18,14 @@ public sealed class GuiDemo : SmGuiApp
     internal readonly   SmTexture       myTexture;
     internal readonly   SmFont          monocraftFont;
     
-    public GuiDemo(SmGuiBackend backend, bool addSessionLoop)
+    public BasicGuiApp(SmGuiBackend backend, bool addSessionLoop)
     {
         nativeView  = new GuiDemoView(this, null);
         if (addSessionLoop) {
             loop = CreateSessionLoop(backend);
         }
         // --- resources
-        var assembly = typeof(GuiDemo).Assembly;
+        var assembly = typeof(BasicGuiApp).Assembly;
         
         using var monoTtf   = assembly.GetManifestResourceStream("Demos.Assets.Monocraft.ttf")!;  
         monocraftFont       = backend.CreateTtfFont(monoTtf, 48, 256, 256, 32, 95, "Monocraft");

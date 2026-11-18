@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using Friflo.SmGui;
 
-namespace TuiTerminal;
+namespace Demos.BasicTui;
 
 
 public enum DrawType

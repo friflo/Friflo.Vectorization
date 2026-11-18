@@ -7,7 +7,7 @@ using Friflo.SmGui.Http;
 using Friflo.SmGui.Session;
 using Friflo.SmGui.WebRTC;
 using Microsoft.AspNetCore.Builder;
-using TuiTerminal;
+using Demos.BasicTui;
 
 /*
     Console           - local,  one session (console)       via: Console
@@ -51,7 +51,7 @@ var appState    = new AppState(cpuBackend);
 // Create one session loop per App
 var loop = SmSessionLoop.Create(new LoopOptions {
     Backend     = cpuBackend,
-    ViewFactory = session => new TestGuiView(appState, session),
+    ViewFactory = session => new BasicTuiView(appState, session),
     UseSecureSessionGuids = false
 });
 

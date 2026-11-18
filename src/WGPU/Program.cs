@@ -9,8 +9,8 @@ using SDL3;
 using WGPU;
 
 
-WgpuRunner.Run("SmGui",   1280, 1200, backend => new GuiExample.GuiDemo(backend, true));
-WgpuRunner.Run("SmDraw",  1280,  720, backend => new DrawExample.DrawDemo(backend));
+WgpuRunner.Run("SmGui",   1280, 1200, backend => new Demos.BasicGui.BasicGuiApp(backend, true));
+WgpuRunner.Run("SmDraw",  1280,  720, backend => new Demos.BasicDraw.BasicDrawApp(backend));
 
 
 public static class WgpuRunner
