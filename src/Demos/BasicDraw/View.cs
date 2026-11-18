@@ -8,13 +8,13 @@ namespace Demos.BasicDraw;
 
 public class DrawDemoView : IGuiView
 {
-    private readonly    BasicDrawApp app;
-    private             float       rotation;
-    private readonly    Stopwatch   stopwatch = Stopwatch.StartNew();
-    private             float       lastTime;
+    private readonly    GuiResources    resources;
+    private             float           rotation;
+    private readonly    Stopwatch       stopwatch = Stopwatch.StartNew();
+    private             float           lastTime;
 
-    internal DrawDemoView(BasicDrawApp app) {
-        this.app = app;
+    internal DrawDemoView(GuiResources resources) {
+        this.resources = resources;
     }
 
     public void RenderView(SmBatch batch, int targetWidth, int targetHeight)
@@ -49,7 +49,7 @@ public class DrawDemoView : IGuiView
     private void DrawSprites(SmDraw draw, float deltaTime)
     {
         // --- sprites
-        var myTexture = app.myTexture;
+        var myTexture = resources.worldTileset;
         draw.DrawSprite(myTexture, new Vector2( 50, 150), new Vector2(256, 256));
         draw.DrawSprite(myTexture, new Vector2(200, 150), new Vector2(256, 256), new Vector2(1f, 0f), new Vector2(0f, 1f)); // flipped sprite
         

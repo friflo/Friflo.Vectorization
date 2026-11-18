@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using System.Net;
 using Friflo.SmGui;
 using Friflo.SmGui.Headless;
@@ -14,33 +13,20 @@ public sealed class BasicGuiApp : SmGuiApp
     private readonly    GuiDemoView     nativeView;
     private readonly    SmSessionLoop?  loop;
     private             WebApplication? webApp;
-    // --- resources
-    internal readonly   SmTexture       myTexture;
-    internal readonly   SmFont          monocraftFont;
+    private  readonly   GuiResources    resources;
     
     public BasicGuiApp(SmGuiBackend backend, bool addSessionLoop)
     {
-        nativeView  = new GuiDemoView(this, null);
+        resources = new GuiResources(backend);
+        nativeView  = new GuiDemoView(resources, null);
         if (addSessionLoop) {
             loop = CreateSessionLoop(backend);
         }
-        // --- resources
-        var assembly = typeof(BasicGuiApp).Assembly;
-        
-        using var monoTtf   = assembly.GetManifestResourceStream("Demos.Assets.Monocraft.ttf")!;  
-        monocraftFont       = backend.CreateTtfFont(monoTtf, 48, 256, 256, 32, 95, "Monocraft");
-        Debug.Assert(monocraftFont.maxY == 244);
-
-        // create tile texture
-        using var stream    = assembly.GetManifestResourceStream("Demos.Assets.world_tileset.png")!;
-        myTexture           = backend.LoadTexture(stream, "world_tileset.png");
     }
 
     public override void Dispose()
     {
-        // --- resources
-        monocraftFont.Dispose();
-        myTexture.Dispose();
+        resources.Dispose();
         
         webApp?.StopAsync();
         loop?.Dispose();
@@ -62,7 +48,7 @@ public sealed class BasicGuiApp : SmGuiApp
     {
         var sessionLoop = SmSessionLoop.Create(new LoopOptions {
             Backend     = new CpuBackend("SmGui - Remote Test", backend),
-            ViewFactory = session => new GuiDemoView(this, session)
+            ViewFactory = session => new GuiDemoView(resources, session)
         });
         // HTTP server for Browser sessions.  nuget: Friflo.SmGui.Http
         webApp = HttpUtils.CreateWebApplication(new IPEndPoint(IPAddress.IPv6Any, Port));
