@@ -2,6 +2,7 @@
 // See LICENSE file in the project root for full license information.
 
 using System;
+using Friflo.SmGui.Session;
 
 // ReSharper disable CheckNamespace
 namespace Friflo.SmGui;
@@ -17,7 +18,8 @@ namespace Friflo.SmGui;
 /// </remarks>
 public abstract class SmGuiApp : IDisposable
 {
-    public Color32  clearValue = 0x999C9EFF;
+    public          Color32         clearValue = 0x999C9EFF;
+    public          SmSessionLoop?  Loop { get; protected init; }
     
     public abstract void RenderApp(SmBatch batch, int width, int height);
     public virtual  void Dispose() { }

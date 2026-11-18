@@ -8,13 +8,12 @@
 
     <ItemGroup>
       <ProjectReference Include="..\Friflo.SmGui\Friflo.SmGui.csproj" />
-      <ProjectReference Include="..\Friflo.SmGui.Http\Friflo.SmGui.Http.csproj" PrivateAssets="all"/>
     </ItemGroup>
 
     <ItemGroup>
       <EmbeddedResource Include="Assets\Monocraft.ttf" />
       <EmbeddedResource Include="Assets\sixel_test.png" />
       <EmbeddedResource Include="Assets\world_tileset.png" />
-    </ItemGroup>    
+    </ItemGroup>
 
 </Project>

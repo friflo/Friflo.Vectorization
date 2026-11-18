@@ -1,9 +1,6 @@
-using System.Net;
 using Friflo.SmGui;
 using Friflo.SmGui.Headless;
-using Friflo.SmGui.Http;
 using Friflo.SmGui.Session;
-using Microsoft.AspNetCore.Builder;
 
 namespace Demos.BasicGui;
 
@@ -11,16 +8,14 @@ namespace Demos.BasicGui;
 public sealed class BasicGuiApp : SmGuiApp
 {
     private readonly    GuiDemoView     nativeView;
-    private readonly    SmSessionLoop?  loop;
-    private             WebApplication? webApp;
-    private  readonly   GuiResources    resources;
-    
+    private readonly    GuiResources    resources;
+
     public BasicGuiApp(SmGuiBackend backend, bool addSessionLoop)
     {
         resources = new GuiResources(backend);
         nativeView  = new GuiDemoView(resources, null);
         if (addSessionLoop) {
-            loop = CreateSessionLoop(backend);
+            Loop = CreateSessionLoop(backend);
         }
     }
 
@@ -28,13 +23,12 @@ public sealed class BasicGuiApp : SmGuiApp
     {
         resources.Dispose();
         
-        webApp?.StopAsync();
-        loop?.Dispose();
+        Loop?.Dispose();
     }
     
     public override void RenderApp(SmBatch batch,  int width, int height)
     {
-        loop?.IterateSessions();
+        Loop?.IterateSessions();
         
         nativeView.RenderView(batch, width, height);
     }
@@ -50,10 +44,6 @@ public sealed class BasicGuiApp : SmGuiApp
             Backend     = new CpuBackend("SmGui - Remote Test", backend),
             ViewFactory = session => new GuiDemoView(resources, session)
         });
-        // HTTP server for Browser sessions.  nuget: Friflo.SmGui.Http
-        webApp = HttpUtils.CreateWebApplication(new IPEndPoint(IPAddress.IPv6Any, Port));
-        webApp.UseWebSocketGuiSessions(sessionLoop);
-        _ = webApp.StartAsync();
         return sessionLoop;
     }
     

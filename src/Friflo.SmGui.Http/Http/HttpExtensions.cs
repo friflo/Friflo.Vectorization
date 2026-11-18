@@ -22,7 +22,7 @@ public static class SmGuiHttpExtensions
     private static readonly string  WebRoot = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "wwwroot");
 
     
-    public static void UseWebSocketGuiSessions(this IApplicationBuilder app, SmSessionLoop loop, string? webRoot = null)
+    public static HttpGuiHandler UseWebSocketGuiSessions(this IApplicationBuilder app, SmSessionLoop? loop = null, string? webRoot = null)
     {
         webRoot ??= WebRoot;
         
@@ -56,14 +56,15 @@ public static class SmGuiHttpExtensions
 
             app.UseStaticFiles(staticFileOptions);
         }
+        return guiWebHandler;
     }
 }
 
 public sealed class HttpGuiHandler
 {
-    private readonly SmSessionLoop loop;
+    public SmSessionLoop? loop;
 
-    public HttpGuiHandler(SmSessionLoop loop)
+    public HttpGuiHandler(SmSessionLoop? loop)
     {
         this.loop = loop;
     }
@@ -97,7 +98,7 @@ public sealed class HttpGuiHandler
     {
         var path = context.Request.Path;
         
-        if (context.WebSockets.IsWebSocketRequest && path == "/ws")
+        if (loop != null && context.WebSockets.IsWebSocketRequest && path == "/ws")
         {
             try
             {
@@ -118,7 +119,7 @@ public sealed class HttpGuiHandler
             var fileName = path.Value.Substring(AssetResources.AssetsPath.Length + "/".Length);
             
             var response = context.Response;
-            if (loop.resources.TryGetImageResource(fileName, out var image))
+            if (loop != null && loop.resources.TryGetImageResource(fileName, out var image))
             {
                 if (context.Request.Headers.IfNoneMatch == image.Etag) {
                     response.StatusCode = StatusCodes.Status304NotModified;

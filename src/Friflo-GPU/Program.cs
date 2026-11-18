@@ -2,24 +2,36 @@
 
 // ReSharper disable ConvertToLocalFunction
 using System;
+using System.Net;
 using Friflo.SmGui;
+using Friflo.SmGui.Http;
 using Friflo.WGPU;
 using Friflo.WGPU.SDL3;
 using SDL3;
 
+// HTTP server for Browser sessions.  nuget: Friflo.SmGui.Http
+var webApp = HttpUtils.CreateWebApplication(new IPEndPoint(IPAddress.IPv6Any, 8080));
+var guiHandler = webApp.UseWebSocketGuiSessions();
+await webApp.StartAsync();
 
-WgpuRunner.Run("SmGui",   1280, 1200, backend => new Demos.BasicGui.BasicGuiApp(backend, true));
-WgpuRunner.Run("SmDraw",  1280,  720, backend => new Demos.BasicDraw.BasicDrawApp(backend));
+WgpuRunner.Run("SmGui",   1280, 1200, guiHandler, backend => new Demos.BasicGui.BasicGuiApp(backend, true));
+WgpuRunner.Run("SmDraw",  1280,  720, guiHandler, backend => new Demos.BasicDraw.BasicDrawApp(backend));
 
+await webApp.StopAsync();
 
 public static class WgpuRunner
 {
-    public static int Run(string title, int width, int height, CreateGuiApp createGuiApp)
+    public static int Run(string title, int width, int height, HttpGuiHandler? guiHandler, CreateGuiApp createGuiApp)
     {
+        SmGuiApp CreateApp(SmGuiBackend backend) {
+            var app = createGuiApp(backend);
+            if (guiHandler != null) guiHandler.loop = app.Loop;
+            return app;
+        }
         if (!SDL.Init(SDL.InitFlags.Video | SDL.InitFlags.Gamepad)) throw new Exception($"SDL3 initialization failed: {SDL.GetError()}");
         var window = new Sdl3Window();
         CreateRenderer createRenderer = wgpuHost => new WgpuRenderer(wgpuHost);
-        var opt = new InitOptions{ title = title, width = width, height = height, createRenderer = createRenderer, createGuiApp = createGuiApp };
+        var opt = new InitOptions{ title = title, width = width, height = height, createRenderer = createRenderer, createGuiApp = CreateApp };
         return window.EnterAppMain(opt);
     }
 }

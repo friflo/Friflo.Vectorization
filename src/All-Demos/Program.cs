@@ -1,15 +1,24 @@
 ﻿// See https://aka.ms/new-console-template for more information
 
+using System.Net;
+using Friflo.SmGui.Http;
 using TestConsole;
 
-MonoGameRunner.Run("SmGui", 1280, 1200, backend => new Demos.BasicGui.BasicGuiApp(backend, true));
-MonoGameRunner.Run("SmDraw",1280,  720, backend => new Demos.BasicDraw.BasicDrawApp(backend));
+// HTTP server for Browser sessions.  nuget: Friflo.SmGui.Http
+var webApp = HttpUtils.CreateWebApplication(new IPEndPoint(IPAddress.IPv6Any, 8080));
+var guiHandler = webApp.UseWebSocketGuiSessions();
+await webApp.StartAsync();
 
-WgpuRunner.Run("SmGui",   1280, 1200, backend => new Demos.BasicGui.BasicGuiApp(backend, true));
-WgpuRunner.Run("SmDraw",  1280,  720, backend => new Demos.BasicDraw.BasicDrawApp(backend));
+MonoGameRunner.Run("SmGui", 1280, 1200, guiHandler, backend => new Demos.BasicGui.BasicGuiApp(backend, true));
+MonoGameRunner.Run("SmDraw",1280,  720, guiHandler, backend => new Demos.BasicDraw.BasicDrawApp(backend));
 
-KniRunner.Run("SmGui", 1280, 1200, backend => new Demos.BasicGui.BasicGuiApp(backend, true));
-KniRunner.Run("SmDraw",1280,  720, backend => new Demos.BasicDraw.BasicDrawApp(backend));
+WgpuRunner.Run("SmGui",   1280, 1200, guiHandler, backend => new Demos.BasicGui.BasicGuiApp(backend, true));
+WgpuRunner.Run("SmDraw",  1280,  720, guiHandler, backend => new Demos.BasicDraw.BasicDrawApp(backend));
+
+KniRunner.Run("SmGui", 1280, 1200, guiHandler, backend => new Demos.BasicGui.BasicGuiApp(backend, true));
+KniRunner.Run("SmDraw",1280,  720, guiHandler, backend => new Demos.BasicDraw.BasicDrawApp(backend));
+
+await webApp.StopAsync();
 
 AppRunner.Run("Particles",      1280, 720, wgpu => new Shaders.Particles.Renderer(wgpu));
 AppRunner.Run("RenderTest",     1280, 720, wgpu => new Shaders.RenderTest.Renderer(wgpu));

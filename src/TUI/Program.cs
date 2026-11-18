@@ -67,7 +67,7 @@ webApp.MapGet("/api/speed", async () => {
     await Task.Run(() => Task.Delay(1000)); // avoid blocking loop thread: run heavy / IO operations on worker thread (example)
     return speed;
 });
-_ = webApp.StartAsync();
+await webApp.StartAsync();
 
 // Acquire stdin/stdout for Console session
 loop.UseConsoleTuiSession();
@@ -76,3 +76,5 @@ loop.UseConsoleTuiSession();
 loop.UseTerminalTuiSessions(new IPEndPoint(IPAddress.IPv6Any, 9000));
 
 loop.Run(); // Blocks Main-Thread directly
+
+await webApp.StopAsync();
