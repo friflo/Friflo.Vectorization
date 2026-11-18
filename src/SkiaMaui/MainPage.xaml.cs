@@ -1,23 +1,31 @@
-﻿namespace SkiaMaui;
+﻿using SkiaSharp;
+using SkiaSharp.Views.Maui;
+using SkiaSharp.Views.Maui.Controls;
+
+namespace SkiaMaui;
 
 public partial class MainPage : ContentPage
 {
-    int count = 0;
-
     public MainPage()
     {
         InitializeComponent();
     }
 
-    private void OnCounterClicked(object? sender, EventArgs e)
+    private void OnCanvasViewPaintSurface(object? sender, SKPaintSurfaceEventArgs e)
     {
-        count++;
+        var canvas = e.Surface.Canvas;
 
-        if (count == 1)
-            CounterBtn.Text = $"Clicked {count} time";
-        else
-            CounterBtn.Text = $"Clicked {count} times";
+        // Canvas leeren (Weiß)
+        canvas.Clear(SKColors.White);
 
-        SemanticScreenReader.Announce(CounterBtn.Text);
+        // Einen blauen Kreis zeichnen, um SkiaSharp zu testen
+        using var paint = new SKPaint
+        {
+            Color = SKColors.Blue,
+            Style = SKPaintStyle.Fill,
+            IsAntialias = true
+        };
+
+        canvas.DrawCircle(200, 200, 100, paint);
     }
 }
