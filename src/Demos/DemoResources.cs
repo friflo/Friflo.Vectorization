@@ -4,6 +4,12 @@ using Friflo.SmGui;
 
 namespace Demos;
 
+
+public static class DemoConfig
+{
+    public const int HttpsPort = 8080;
+}
+
 /// <summary>
 /// Use the same set of resources for all demos for simplicity.<br/>
 /// Using a separate class is optional, but it helps to organize resources. 

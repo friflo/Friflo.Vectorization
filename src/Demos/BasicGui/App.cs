@@ -44,6 +44,4 @@ public sealed class BasicGuiApp : SmGuiApp
         });
         return sessionLoop;
     }
-    
-    internal const int Port = 8080;
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Net;
 using System.Threading.Tasks;
+using Demos;
 using Friflo.SmGui;
 using Friflo.SmGui.Headless;
 using Friflo.SmGui.Http;
@@ -59,7 +60,7 @@ var loop = SmSessionLoop.Create(new LoopOptions {
 loop.UseWebRtcGuiSessions(new Uri("wss://localhost:8081/signaling"), "test-app", "auto");
 
 // HTTP server for Browser sessions.  nuget: Friflo.SmGui.Http
-var webApp = HttpUtils.CreateWebApplication(new IPEndPoint(IPAddress.IPv6Any, 8080));
+var webApp = HttpUtils.CreateWebApplication(new IPEndPoint(IPAddress.IPv6Any, DemoConfig.HttpsPort));
 webApp.UseWebSocketGuiSessions(loop);
 webApp.MapGet("/api/speed", async () => {
     await loop.DispatchAsync();             // continue execution on loop thread to avoid explicit locks and contention

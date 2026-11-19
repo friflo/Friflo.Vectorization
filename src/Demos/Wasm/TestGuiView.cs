@@ -50,7 +50,7 @@ public class TestGuiView : IGuiView
     {
         using (gui.BeginHorizontal()) {
             if (gui.Button("Web")) {
-                gui.Action.OpenUrl($"https://localhost:8080", "web");
+                gui.Action.OpenUrl($"https://localhost:{DemoConfig.HttpsPort}", "web");
             }
             if (gui.Button("WebRTC")) {
                 gui.Action.OpenUrl($"https://localhost:8081/?app={session.AppId}", "webrtc");

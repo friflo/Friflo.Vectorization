@@ -72,7 +72,7 @@ public sealed class GuiDemoView : IGuiView
     {
         gui.Button("hello GUI", Dim.Fill_X(0, Fit.Content), color: textColors);
         if (gui.Button("Web client")) {
-            gui.Action.OpenUrl($"https://localhost:{BasicGuiApp.Port}", "remote-gui");
+            gui.Action.OpenUrl($"https://localhost:{DemoConfig.HttpsPort}", "remote-gui");
         }
         if (gui.UiType != UiType.WebGui) {
             if (gui.Button("close session")) gui.Action.CloseWindow();

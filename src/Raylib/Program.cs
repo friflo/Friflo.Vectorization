@@ -1,13 +1,14 @@
 ﻿// See https://aka.ms/new-console-template for more information
 
 using System.Net;
+using Demos;
 using Friflo.SmGui;
 using Friflo.SmGui.Http;
 using Raylib;
 
 
 // HTTP server for Browser sessions.  nuget: Friflo.SmGui.Http
-var webApp = HttpUtils.CreateWebApplication(new IPEndPoint(IPAddress.IPv6Any, 8080));
+var webApp = HttpUtils.CreateWebApplication(new IPEndPoint(IPAddress.IPv6Any, DemoConfig.HttpsPort));
 var sessionHandler = webApp.UseWebSocketGuiSessions();
 await webApp.StartAsync();
 

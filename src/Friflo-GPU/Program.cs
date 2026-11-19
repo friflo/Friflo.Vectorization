@@ -3,6 +3,7 @@
 // ReSharper disable ConvertToLocalFunction
 using System;
 using System.Net;
+using Demos;
 using Friflo.SmGui;
 using Friflo.SmGui.Http;
 using Friflo.WGPU;
@@ -10,7 +11,7 @@ using Friflo.WGPU.SDL3;
 using SDL3;
 
 // HTTP server for Browser sessions.  nuget: Friflo.SmGui.Http
-var webApp = HttpUtils.CreateWebApplication(new IPEndPoint(IPAddress.IPv6Any, 8080));
+var webApp = HttpUtils.CreateWebApplication(new IPEndPoint(IPAddress.IPv6Any, DemoConfig.HttpsPort));
 var sessionHandler = webApp.UseWebSocketGuiSessions();
 await webApp.StartAsync();
 
