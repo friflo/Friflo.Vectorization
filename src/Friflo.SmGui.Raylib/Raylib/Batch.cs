@@ -53,6 +53,7 @@ public sealed class RaylibBatch : SmBatch
             var vertexView  = cmd.vertexView;
             var indexView   = cmd.indexView;
 
+            // TODO  could optimize performance with Rlgl.DrawVertexArrayElements() to minimize Rlgl calls from N to 1
             Rlgl.Begin(DrawMode.Triangles);
             for (int i = 0; i < indexView.length; i += 3) {
                 // Reverse triangle winding (0, 2, 1) to match rlgl front-face culling.
@@ -83,7 +84,7 @@ public sealed class RaylibBatch : SmBatch
         byte g = (byte)((packedColor >> 8) & 0xFF);
         byte b = (byte)((packedColor >> 16) & 0xFF);
         byte a = (byte)((packedColor >> 24) & 0xFF);
-
+        
         Rlgl.Color4ub(r, g, b, a);
         Rlgl.TexCoord2f(v.uv.X, v.uv.Y);
         Rlgl.Vertex2f(v.position.X, v.position.Y);
