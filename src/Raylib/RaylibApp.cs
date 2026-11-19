@@ -54,11 +54,11 @@ public class RaylibApp : IDisposable
 
         var width   = Raylib.GetScreenWidth();
         var height  = Raylib.GetScreenHeight();
-        // RaylibInput.UpdateInput(guiBackend);
+        RaylibInput.UpdateInput(guiBackend);
         guiBackend?.NewFrame();
         app?.RenderApp(batch!, width, height);
         batch?.DrawCommandList(0, 0, width, height);
-        // RaylibInput.SetMouseCursor(guiBackend);
+        RaylibInput.SetMouseCursor(guiBackend);
 
         Raylib.EndDrawing();
     }
