@@ -46,7 +46,6 @@ public class RaylibApp : IDisposable
         {
             Draw();
         }
-        Rl.CloseWindow();
     }
 
     private void Draw()
@@ -59,14 +58,20 @@ public class RaylibApp : IDisposable
         RaylibInput.UpdateInput(guiBackend);
         guiBackend?.NewFrame();
         app?.RenderApp(batch!, width, height);
+        if (!Rl.IsWindowReady()) {
+            return;
+        }
         batch?.DrawCommandList(0, 0, width, height);
         RaylibInput.SetMouseCursor(guiBackend);
-
+        
         Rl.EndDrawing();
     }
 
     public void Dispose()
     {
+        if (Rl.IsWindowReady()) {
+            Rl.CloseWindow();
+        }
         app?.Dispose();
         app = null;
         batch?.Dispose();
