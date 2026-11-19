@@ -38,7 +38,7 @@ internal sealed class Sdl3ClientAction : ClientAction
         var ev = new SDL.Event { Type = (uint)SDL.EventType.Quit };
         SDL.PushEvent(ref ev);
     }
-} 
+}
 
 // -------- SDL3 input handling: keyboard, mouse & gamepad - required when using:  Friflo.SmGui --------
 internal class Sdl3GuiInput : IDisposable

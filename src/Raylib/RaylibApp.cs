@@ -2,10 +2,11 @@ using System;
 using Friflo.SmGui;
 using Friflo.SmGui.Raylib;
 using Raylib_cs;
+using Rl = Raylib_cs.Raylib;
 
 // ReSharper disable CheckNamespace
 // ReSharper disable ConvertToPrimaryConstructor
-namespace RaylibDemo;
+namespace Raylib;
 
 /// <summary>
 /// Minimal implementation to create a <see href="https://github.com/raylib-cs/raylib-cs">raylib window</see>.<br/>
@@ -21,16 +22,16 @@ public class RaylibApp : IDisposable
     public RaylibApp(string title, int width, int height, CreateGuiApp createGuiApp)
     {
         this.createGuiApp = createGuiApp;
-        Raylib.SetConfigFlags(ConfigFlags.ResizableWindow);
-        Raylib.InitWindow(width, height, title);
+        Rl.SetConfigFlags(ConfigFlags.ResizableWindow);
+        Rl.InitWindow(width, height, title);
     }
     
     private void SetWindowIcon()
     {
         using var stream  = typeof(RaylibGuiBackend).Assembly.GetManifestResourceStream("Friflo.SmGui.Raylib.Assets.raylib-cs.png")!;
         var texture = guiBackend!.LoadTexture(stream, "raylib-cs").AsGpuTexture();
-        var image = Raylib.LoadImageFromTexture(texture.native);
-        Raylib.SetWindowIcon(image);
+        var image = Rl.LoadImageFromTexture(texture.native);
+        Rl.SetWindowIcon(image);
     }
 
     public void Run()
@@ -38,29 +39,30 @@ public class RaylibApp : IDisposable
         guiBackend  = new RaylibGuiBackend(new DefaultGuiAssets());
         batch       = guiBackend.CreateBatch();
         app         = createGuiApp(guiBackend);
+        guiBackend.SetClientActions(new RaylibClientAction());
         SetWindowIcon();
 
-        while (!Raylib.WindowShouldClose())
+        while (!Rl.WindowShouldClose())
         {
             Draw();
         }
-        Raylib.CloseWindow();
+        Rl.CloseWindow();
     }
 
     private void Draw()
     {
-        Raylib.BeginDrawing();
-        Raylib.ClearBackground(((Color32)0xE2E2E2ff).AsRaylibColor());
+        Rl.BeginDrawing();
+        Rl.ClearBackground(((Color32)0xE2E2E2ff).AsRaylibColor());
 
-        var width   = Raylib.GetScreenWidth();
-        var height  = Raylib.GetScreenHeight();
+        var width   = Rl.GetScreenWidth();
+        var height  = Rl.GetScreenHeight();
         RaylibInput.UpdateInput(guiBackend);
         guiBackend?.NewFrame();
         app?.RenderApp(batch!, width, height);
         batch?.DrawCommandList(0, 0, width, height);
         RaylibInput.SetMouseCursor(guiBackend);
 
-        Raylib.EndDrawing();
+        Rl.EndDrawing();
     }
 
     public void Dispose()
