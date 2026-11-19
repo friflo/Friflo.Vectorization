@@ -31,6 +31,7 @@ public sealed class RaylibBatch : SmBatch
 
         // Flush pending rlgl vertices before applying custom viewport and scissor state.
         Rlgl.DrawRenderBatchActive();
+        Rlgl.DisableBackfaceCulling(); // TODO remove workaround
         Rlgl.Viewport(x, y, width, height);
 
         scissorActive   = false;
@@ -83,7 +84,8 @@ public sealed class RaylibBatch : SmBatch
         Rlgl.SetTexture(0);
     }
 
-    private void UpdateScissor(in RectVector2 scissor, int vpX, int vpY, int vpWidth, int vpHeight) {
+    private void UpdateScissor(in RectVector2 scissor, int vpX, int vpY, int vpWidth, int vpHeight)
+    {
         bool fullViewport =
             scissor.pos.X <= 0f && scissor.pos.Y <= 0f &&
             scissor.size.X >= vpWidth && scissor.size.Y >= vpHeight;
@@ -99,7 +101,8 @@ public sealed class RaylibBatch : SmBatch
 
         if (!scissorActive || !scissor.Equals(lastScissor)) {
             int sx = vpX + (int)scissor.pos.X;
-            int sy = vpY + (int)scissor.pos.Y;
+            // Flip Y for OpenGL/rlgl bottom-left scissor origin relative to viewport/screen height.
+            int sy = (vpY + vpHeight) - ((int)scissor.pos.Y + (int)scissor.size.Y);
             int sw = Math.Max(0, (int)scissor.size.X);
             int sh = Math.Max(0, (int)scissor.size.Y);
 
