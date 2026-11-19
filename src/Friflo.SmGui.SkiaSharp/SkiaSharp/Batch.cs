@@ -1,8 +1,10 @@
 ﻿// Copyright (c) Ullrich Praetz - https://github.com/friflo. All rights reserved.
 // See LICENSE file in the project root for full license information.
 
+using System.Numerics;
 using SkiaSharp;
 
+// ReSharper disable InconsistentNaming
 // ReSharper disable SuggestVarOrType_Elsewhere
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable CheckNamespace
@@ -38,6 +40,8 @@ public sealed class SkiaSharpBatch : SmBatch
         foreach (var cmd in DrawList)
         {
             canvas.Save();
+            // TODO  use cmd.projection (Matrix4x4)
+            _ = cmd.projection;
             
             var pos  = cmd.scissor.pos;
             var size = cmd.scissor.size;
@@ -81,4 +85,19 @@ public sealed class SkiaSharpBatch : SmBatch
 
         canvas.Restore();
     }
+    
+    static SKMatrix ToSKMatrix(in Matrix4x4 m) => new SKMatrix
+    {
+        ScaleX = m.M11,
+        SkewX  = m.M21,
+        TransX = m.M41,
+
+        SkewY  = m.M12,
+        ScaleY = m.M22,
+        TransY = m.M42,
+
+        Persp0 = m.M14,
+        Persp1 = m.M24,
+        Persp2 = m.M44 == 0 ? 1f : m.M44
+    };
 }
