@@ -68,7 +68,8 @@ public sealed class SkiaSharpBatch : SmBatch
                 // todo  remove - seems to be a workaround
                 // Convert normalized UVs (0..1) to pixel coordinates if needed  - 
                 texs[i]      = new SKPoint(v.uv.X * bitmap.Width, v.uv.Y * bitmap.Height);
-                // texs[i]      = new SKPoint(v.uv.X, v.uv.Y);
+                
+                // texs[i]      = new SKPoint(v.uv.X, v.uv.Y); // expect this is the correct/faster assignment
                 
                 colors[i]    = new SKColor(v.color);
             }
