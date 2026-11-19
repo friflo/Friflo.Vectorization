@@ -1,106 +1,116 @@
 ﻿// Copyright (c) Ullrich Praetz - https://github.com/friflo. All rights reserved.
 // See LICENSE file in the project root for full license information.
 
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Vector2 = System.Numerics.Vector2;
+using System;
+using Raylib_cs;
 
-
+// ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable CheckNamespace
 namespace Friflo.SmGui.Raylib;
 
+
 public sealed class RaylibBatch : SmBatch
 {
+    private RectVector2 lastScissor;
+    private bool scissorActive;
+
     internal RaylibBatch(RaylibGuiBackend backend, int maxVertices)
-        : base(default, backend, maxVertices, null)
-    {
-        // renderConfigs   = CreateRenderConfigs(targetFormat);
-        
-        // samplerLinear   = backend.samplerLinear;
-        // samplerNearest  = backend.samplerNearest;
+        : base(default, backend, maxVertices, null) {
     }
 
-    protected override void InitBatch() { }
+    protected override void InitBatch() {
+    }
 
-    /* Omitted WGPU implementation. May not be required.   
-    private static RenderConfig[] CreateRenderConfigs(TextureFormat targetFormat)
-    { } */
-    
-    private BasicEffect basicEffect;
-    
-    private readonly RasterizerState rasterizerState = new() {
-        CullMode                = CullMode.None,
-        DepthBias               = 0,
-        FillMode                = FillMode.Solid,
-        MultiSampleAntiAlias    = false,
-        ScissorTestEnable       = true,
-        SlopeScaleDepthBias     = 0
-    };
-    
-    public void DrawCommandList(GraphicsDevice graphicsDevice, int x, int y, int width, int height)
+    public void DrawCommandList(int x, int y, int width, int height)
     {
         EndBatch();
-        
-        var lastViewport    = graphicsDevice.Viewport;
-        var lastScissorBox  = graphicsDevice.ScissorRectangle;
-        
-        graphicsDevice.BlendFactor          = Color.White;
-        graphicsDevice.BlendState           = Microsoft.Xna.Framework.Graphics.BlendState.NonPremultiplied;
-        graphicsDevice.RasterizerState      = rasterizerState;
-        graphicsDevice.DepthStencilState    = DepthStencilState.DepthRead;
-        
-        graphicsDevice.Viewport             = new Viewport(x, y, width, height);
-        
-        var scissor = new RectVector2(Vector2.Zero, viewport);
 
-        var vertexBuffer    = ((RaylibVertexBuffer)gpuVertexBuffer).vertexBuffer;
-        var indices         = ((RaylibIndexBuffer) gpuIndexBuffer).indexBuffer;
+        var vertices    = ((RaylibVertexBuffer)gpuVertexBuffer).AsSpan();
+        var indices     = ((RaylibIndexBuffer)gpuIndexBuffer).AsSpan();
 
-        graphicsDevice.SetVertexBuffer(vertexBuffer);
-        graphicsDevice.Indices = indices;
-        
-        gpuVertexBuffer.Write(0, Vertices.Length);
-        // gpuIndexBuffer. Write(0, indices.IndexCount);
-        
-        foreach (var cmd in DrawList)
-        {
-            if (!cmd.scissor.Equals(scissor)) {
-                var pos  = cmd.scissor.pos;
-                var size = cmd.scissor.size;
-                graphicsDevice.ScissorRectangle = new Rectangle((int)pos.X, (int)pos.Y, (int)size.X, (int)size.Y);
+        // Flush pending rlgl vertices before applying custom viewport and scissor state.
+        Rlgl.DrawRenderBatchActive();
+        Rlgl.Viewport(x, y, width, height);
+
+        scissorActive   = false;
+        uint currentTex = uint.MaxValue;
+
+        foreach (var cmd in DrawList) {
+            UpdateScissor(cmd.scissor, x, y, width, height);
+
+            var texture = cmd.texture.AsGpuTexture();
+            if (texture.Id != currentTex) {
+                // Flush before switching texture id inside rlgl.
+                Rlgl.DrawRenderBatchActive();
+                Rlgl.SetTexture(texture.Id);
+                currentTex = texture.Id;
             }
-            var texture2D   = (Texture2D)cmd.texture.native!;
+
+            var filter = cmd.samplerFilter == SamplerFilter.Linear ? 0x2601 : 0x2600;
+            Rlgl.TextureParameters(texture.Id, 0x2800, filter);
+            Rlgl.TextureParameters(texture.Id, 0x2801, filter);
+
             var vertexView  = cmd.vertexView;
             var indexView   = cmd.indexView;
-            // var sampler  = cmd.samplerFilter == SamplerFilter.Linear ? samplerLinear : samplerNearest;   // todo  implement cmd.samplerFilter
-            // var config   = renderConfigs[(int)cmd.blendState];                                           // todo  implement cmd.blendState
-            
-            var effect = basicEffect  ??= new BasicEffect(graphicsDevice);
-            effect.World                = Matrix.Identity;
-            effect.View                 = Matrix.Identity;
-            effect.Projection           = cmd.projection;
-            effect.TextureEnabled       = true;
-            effect.Texture              = texture2D;
-            effect.VertexColorEnabled   = true;
-            
-            foreach (var pass in effect.CurrentTechnique.Passes)
-            {
-                pass.Apply();
-                graphicsDevice.DrawIndexedPrimitives(PrimitiveType.TriangleList, vertexView.offset, indexView.offset, indexView.length / 3);
-                
-                /* [Obsolete("Use DrawIndexedPrimitives(PrimitiveType primitiveType, int baseVertex, int startIndex, int primitiveCount) instead. In future versions this method can be removed.")]
-                graphicsDevice.DrawIndexedPrimitives( 
-                    primitiveType:  PrimitiveType.TriangleList,
-                    baseVertex:     vertexView.offset,
-                    minVertexIndex: 0,
-                    numVertices:    vertexView.length,
-                    startIndex:     indexView.offset,
-                    primitiveCount: indexView.length / 3); */
+
+            Rlgl.Begin(DrawMode.Triangles);
+            for (int i = 0; i < indexView.length; i++) {
+                uint idx = indices[indexView.offset + i];
+                ref readonly var v = ref vertices[vertexView.offset + (int)idx];
+
+                // Pack color bytes directly into R, G, B, A for minimal overhead.
+                uint packedColor = v.color;
+                byte r = (byte)(packedColor & 0xFF);
+                byte g = (byte)((packedColor >> 8) & 0xFF);
+                byte b = (byte)((packedColor >> 16) & 0xFF);
+                byte a = (byte)((packedColor >> 24) & 0xFF);
+
+                Rlgl.Color4ub(r, g, b, a);
+                Rlgl.TexCoord2f(v.uv.X, v.uv.Y);
+                Rlgl.Vertex2f(v.position.X, v.position.Y);
             }
+            Rlgl.End();
         }
-        
-        graphicsDevice.Viewport         = lastViewport;
-        graphicsDevice.ScissorRectangle = lastScissorBox;
+
+        if (scissorActive) {
+            Rlgl.DrawRenderBatchActive();
+            Rlgl.DisableScissorTest();
+            scissorActive = false;
+        }
+
+        Rlgl.DrawRenderBatchActive();
+        Rlgl.SetTexture(0);
+    }
+
+    private void UpdateScissor(in RectVector2 scissor, int vpX, int vpY, int vpWidth, int vpHeight) {
+        bool fullViewport =
+            scissor.pos.X <= 0f && scissor.pos.Y <= 0f &&
+            scissor.size.X >= vpWidth && scissor.size.Y >= vpHeight;
+
+        if (fullViewport) {
+            if (scissorActive) {
+                Rlgl.DrawRenderBatchActive();
+                Rlgl.DisableScissorTest();
+                scissorActive = false;
+            }
+            return;
+        }
+
+        if (!scissorActive || !scissor.Equals(lastScissor)) {
+            int sx = vpX + (int)scissor.pos.X;
+            int sy = vpY + (int)scissor.pos.Y;
+            int sw = Math.Max(0, (int)scissor.size.X);
+            int sh = Math.Max(0, (int)scissor.size.Y);
+
+            // Flush before changing scissor state so previous commands keep their clip rect.
+            Rlgl.DrawRenderBatchActive();
+            if (!scissorActive) {
+                Rlgl.EnableScissorTest();
+                scissorActive = true;
+            }
+            Rlgl.Scissor(sx, sy, sw, sh);
+            lastScissor = scissor;
+        }
     }
 }

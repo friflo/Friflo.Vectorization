@@ -1,18 +1,21 @@
 // Copyright (c) Ullrich Praetz - https://github.com/friflo. All rights reserved.
 // See LICENSE file in the project root for full license information.
 
-/*
-using Microsoft.Xna.Framework.Graphics;
+using System;
+using Raylib_cs;
 
 
 // ReSharper disable CheckNamespace
 namespace Friflo.SmGui.Raylib;
 
-internal class RaylibTexture
+public class RaylibTexture : IDisposable
 {
     internal readonly   Texture2D   native;
     internal readonly   byte[]      pixels;
     internal readonly   string      name;
+    private             bool        disposed;
+    
+    internal            uint        Id  => native.Id;
     
     internal RaylibTexture(Texture2D native, byte[] pixels, string name)
     {
@@ -20,4 +23,17 @@ internal class RaylibTexture
         this.pixels = pixels;
         this.name   = name;
     }
-} */
+
+    public void Dispose()
+    {
+        if (disposed) {
+            return;
+        }
+        disposed = true;
+
+        if (native.Id != 0) {
+            Rlgl.UnloadTexture(native.Id);
+        }
+        GC.SuppressFinalize(this);
+    }
+}

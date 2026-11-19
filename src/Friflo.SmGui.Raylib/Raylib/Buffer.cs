@@ -1,10 +1,8 @@
 ﻿// Copyright (c) Ullrich Praetz - https://github.com/friflo. All rights reserved.
 // See LICENSE file in the project root for full license information.
 
-
 using System;
-using System.Runtime.CompilerServices;
-using Microsoft.Xna.Framework.Graphics;
+
 
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable CheckNamespace
@@ -12,53 +10,42 @@ namespace Friflo.SmGui.Raylib;
 
 internal sealed class RaylibVertexBuffer : SmBuffer<Vertex2D>
 {
-    internal readonly VertexBuffer      vertexBuffer;
-    private  readonly Vertex2D[]        vertexData;
-    
-    public   override Memory<Vertex2D>  Memory => vertexData;
-    
-    public RaylibVertexBuffer(VertexBuffer buffer) {
-        vertexBuffer    = buffer;
-        vertexData      = new Vertex2D[buffer.VertexCount];
+    private readonly Vertex2D[] vertexData;
+
+    public override Memory<Vertex2D> Memory => vertexData;
+
+    public RaylibVertexBuffer(int vertexCount) {
+        vertexData = new Vertex2D[vertexCount];
     }
 
     public override void Dispose() {
-        vertexBuffer.Dispose();
+        // No dedicated unmanaged GPU buffer needed; rlgl batches vertices directly in DrawCommandList.
     }
-    
+
     public override void Write(int start, int length) {
-        vertexBuffer.SetData(vertexData, start, length);
+        // Direct span access via AsSpan() in DrawCommandList avoids extra staging copies.
     }
 
-    internal static readonly VertexDeclaration VertexDeclaration = new(
-        Unsafe.SizeOf<Vertex2D>(),
-        // Vertex2D.position
-        new VertexElement(0, VertexElementFormat.Vector2, VertexElementUsage.Position, 0),
-        // Vertex2D.uv
-        new VertexElement(8, VertexElementFormat.Vector2, VertexElementUsage.TextureCoordinate, 0),
-        // Vertex2D.color (Rgba8Pack)
-        new VertexElement(16, VertexElementFormat.Color, VertexElementUsage.Color, 0)
-    );
+    internal ReadOnlySpan<Vertex2D> AsSpan() => vertexData;
 }
-
 
 internal sealed class RaylibIndexBuffer : SmBuffer<uint>
 {
-    internal readonly IndexBuffer   indexBuffer;
-    private  readonly uint[]        indexData;
-    
-    public   override Memory<uint>  Memory => indexData;
-    
-    public RaylibIndexBuffer(IndexBuffer buffer) {
-        indexBuffer = buffer;
-        indexData   = new uint[buffer.IndexCount];
+    private readonly uint[] indexData;
+
+    public override Memory<uint> Memory => indexData;
+
+    public RaylibIndexBuffer(int indexCount) {
+        indexData = new uint[indexCount];
     }
 
     public override void Dispose() {
-        indexBuffer.Dispose();
+        // No dedicated unmanaged GPU buffer needed; rlgl batches indices directly in DrawCommandList.
     }
-    
+
     public override void Write(int start, int length) {
-        indexBuffer.SetData(indexData, start, length);
+        // Direct span access via AsSpan() in DrawCommandList avoids extra staging copies.
     }
+
+    internal ReadOnlySpan<uint> AsSpan() => indexData;
 }
