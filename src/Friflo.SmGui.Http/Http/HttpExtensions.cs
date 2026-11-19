@@ -62,11 +62,25 @@ public static class SmGuiHttpExtensions
 
 public sealed class WebSessionHandler
 {
-    public SmSessionLoop? loop;
+    private SmSessionLoop? loop;
 
     public WebSessionHandler(SmSessionLoop? loop)
     {
         this.loop = loop;
+    }
+    
+    public static CreateGuiApp CreateSessionAppDelegate(CreateGuiApp createGuiApp, WebSessionHandler? sessionHandler)
+    {
+        if (sessionHandler == null) {
+            return createGuiApp;
+        }
+        return CreateSessionApp;
+
+        SmGuiApp CreateSessionApp(SmGuiBackend backend) {
+            var app = createGuiApp(backend);
+            sessionHandler.loop = app.Loop;
+            return app;
+        }
     }
     
     private static WebSocketAcceptContext CreateWebSocketAcceptContext()

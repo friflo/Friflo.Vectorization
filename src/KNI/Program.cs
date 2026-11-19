@@ -19,12 +19,8 @@ public static class KniRunner
 {
     public static int Run(string title, int width, int height, WebSessionHandler? sessionHandler, CreateGuiApp createGuiApp)
     {
-        SmGuiApp CreateApp(SmGuiBackend backend) {
-            var app = createGuiApp(backend);
-            if (sessionHandler != null) sessionHandler.loop = app.Loop;
-            return app;
-        }
-        var app = new GameApp(title, width, height, CreateApp);
+        var createSessionApp = WebSessionHandler.CreateSessionAppDelegate(createGuiApp, sessionHandler);
+        var app = new GameApp(title, width, height, createSessionApp);
         app.Run();
         app.Dispose();
         return 0;

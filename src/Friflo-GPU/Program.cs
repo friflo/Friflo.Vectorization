@@ -23,15 +23,11 @@ public static class WgpuRunner
 {
     public static int Run(string title, int width, int height, WebSessionHandler? sessionHandler, CreateGuiApp createGuiApp)
     {
-        SmGuiApp CreateApp(SmGuiBackend backend) {
-            var app = createGuiApp(backend);
-            if (sessionHandler != null) sessionHandler.loop = app.Loop;
-            return app;
-        }
+        var createSessionApp = WebSessionHandler.CreateSessionAppDelegate(createGuiApp, sessionHandler);
         if (!SDL.Init(SDL.InitFlags.Video | SDL.InitFlags.Gamepad)) throw new Exception($"SDL3 initialization failed: {SDL.GetError()}");
         var window = new Sdl3Window();
         CreateRenderer createRenderer = wgpuHost => new WgpuRenderer(wgpuHost);
-        var opt = new InitOptions{ title = title, width = width, height = height, createRenderer = createRenderer, createGuiApp = CreateApp };
+        var opt = new InitOptions{ title = title, width = width, height = height, createRenderer = createRenderer, createGuiApp = createSessionApp };
         return window.EnterAppMain(opt);
     }
 }
