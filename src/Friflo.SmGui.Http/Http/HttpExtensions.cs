@@ -62,14 +62,14 @@ public static class SmGuiHttpExtensions
 
 public sealed class WebSessionHandler
 {
-    private SmSessionLoop? loop;
+    private SmSessionLoop? sessionLoop;
 
     public WebSessionHandler(SmSessionLoop? loop) {
-        this.loop = loop;
+        sessionLoop = loop;
     }
     
     public void RemoveSessionLoop() {
-        loop = null;
+        sessionLoop = null;
     }
     
     /// <summary>
@@ -84,7 +84,7 @@ public sealed class WebSessionHandler
 
         SmGuiApp CreateSessionApp(SmGuiBackend backend) {
             var app = createGuiApp(backend);
-            sessionHandler.loop = app.Loop;
+            sessionHandler.sessionLoop = app.SessionLoop;
             return app;
         }
     }
@@ -117,6 +117,7 @@ public sealed class WebSessionHandler
     public async Task HandleGuiRequestAsync(HttpContext context, Func<Task> next)
     {
         var path = context.Request.Path;
+        var loop = sessionLoop;
         
         if (loop != null && context.WebSockets.IsWebSocketRequest && path == "/ws")
         {

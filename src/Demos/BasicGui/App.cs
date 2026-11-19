@@ -14,19 +14,19 @@ public sealed class BasicGuiApp : SmGuiApp
     {
         resources   = new DemoResources(backend);
         nativeView  = new GuiDemoView(resources, null);
-        Loop = CreateSessionLoop(backend);
+        SessionLoop = CreateSessionLoop(backend);
     }
 
     public override void Dispose()
     {
         resources.Dispose();
         
-        Loop?.Dispose();
+        SessionLoop?.Dispose();
     }
     
     public override void RenderApp(SmBatch batch,  int width, int height)
     {
-        Loop?.IterateSessions();
+        SessionLoop?.IterateSessions();
         
         nativeView.RenderView(batch, width, height);
     }

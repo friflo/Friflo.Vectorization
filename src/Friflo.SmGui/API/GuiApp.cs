@@ -18,8 +18,8 @@ namespace Friflo.SmGui;
 /// </remarks>
 public abstract class SmGuiApp : IDisposable
 {
-    public          Color32         clearValue = 0x999C9EFF;
-    public          SmSessionLoop?  Loop { get; protected init; }
+    public          Color32         clearValue  = 0x999C9EFF;
+    public          SmSessionLoop?  SessionLoop { get; protected init; }
     
     public abstract void RenderApp(SmBatch batch, int width, int height);
     public virtual  void Dispose() { }
