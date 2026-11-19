@@ -3,6 +3,7 @@
 
 using System;
 using System.IO;
+using System.Runtime.InteropServices;
 using SkiaSharp;
 
 // ReSharper disable ConvertToPrimaryConstructor
@@ -22,11 +23,8 @@ public sealed class SkiaSharpGuiBackend : SmGuiBackend
     public override SmTexture CreateTexture(string name, int width, int height, ReadOnlySpan<byte> rgbaPixels)
     {
         var bitmap = new SKBitmap(width, height, SKColorType.Rgba8888, SKAlphaType.Premul);
-        unsafe {
-            fixed (byte* ptr = rgbaPixels) {
-                Buffer.MemoryCopy(ptr, (void*)bitmap.GetPixels(), rgbaPixels.Length, rgbaPixels.Length);
-            }
-        }
+        int length = Math.Min(rgbaPixels.Length, bitmap.ByteCount);
+        rgbaPixels[..length].CopyTo(bitmap.GetPixelSpan());
         return bitmap.AsSmTexture();
     }
 
@@ -44,11 +42,9 @@ public sealed class SkiaSharpGuiBackend : SmGuiBackend
     {
         var image = assets.LoadImage(stream, SmColorComponents.RedGreenBlueAlpha);
         var bitmap = new SKBitmap(image.width, image.height, SKColorType.Rgba8888, SKAlphaType.Premul);
-        unsafe {
-            fixed (byte* ptr = image.data) {
-                Buffer.MemoryCopy(ptr, (void*)bitmap.GetPixels(), image.data.Length, image.data.Length);
-            }
-        }
+        
+        int length = image.data.Length; // ggf. auf die Zielbuffer-Größe begrenzen
+        Marshal.Copy(image.data, 0, bitmap.GetPixels(), length);
         return bitmap.AsSmTexture();
     }
     
@@ -56,10 +52,8 @@ public sealed class SkiaSharpGuiBackend : SmGuiBackend
     {
         var bitmap = (SKBitmap)texture.native!;
         var length = bitmap.RowBytes * bitmap.Height;
-        var pixels = new byte[length];
-        unsafe {
-            System.Runtime.InteropServices.Marshal.Copy(bitmap.GetPixels(), pixels, 0, length);
-        }
+        var pixels = new byte[length];                          // todo  avoid allocation
+        Marshal.Copy(bitmap.GetPixels(), pixels, 0, length);
         return new SmImageAsset { width = bitmap.Width, height = bitmap.Height, data = pixels, name = string.Empty };
     }
 }
