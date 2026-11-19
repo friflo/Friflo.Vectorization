@@ -10,7 +10,7 @@ namespace Friflo.SmGui.Raylib;
 
 public class RaylibTexture : IDisposable
 {
-    internal readonly   Texture2D   native;
+    public   readonly   Texture2D   native;
     internal readonly   byte[]      pixels;
     internal readonly   string      name;
     private             bool        disposed;

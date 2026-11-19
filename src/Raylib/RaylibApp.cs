@@ -24,12 +24,21 @@ public class RaylibApp : IDisposable
         Raylib.SetConfigFlags(ConfigFlags.ResizableWindow);
         Raylib.InitWindow(width, height, title);
     }
+    
+    private void SetWindowIcon()
+    {
+        using var stream  = typeof(RaylibApp).Assembly.GetManifestResourceStream("Raylib.Assets.friflo.bmp")!;
+        var texture = guiBackend!.LoadTexture(stream, "friflo.bmp").AsGpuTexture();
+        var image = Raylib.LoadImageFromTexture(texture.native);
+        Raylib.SetWindowIcon(image);
+    }
 
     public void Run()
     {
         guiBackend  = new RaylibGuiBackend(new DefaultGuiAssets());
         batch       = guiBackend.CreateBatch();
         app         = createGuiApp(guiBackend);
+        SetWindowIcon();
 
         while (!Raylib.WindowShouldClose())
         {
@@ -41,7 +50,7 @@ public class RaylibApp : IDisposable
     private void Draw()
     {
         Raylib.BeginDrawing();
-        Raylib.ClearBackground(Color32.CornflowerBlue.AsRaylibColor());
+        Raylib.ClearBackground(((Color32)0xE2E2E2ff).AsRaylibColor());
 
         var width   = Raylib.GetScreenWidth();
         var height  = Raylib.GetScreenHeight();
