@@ -16,7 +16,9 @@ public class RaylibTexture : IDisposable
     private             bool        disposed;
     
     internal            uint        Id  => native.Id;
-    
+
+    public   override   string      ToString() => $"{name} ({Id}) {native.Width} x {native.Height}";
+
     internal RaylibTexture(Texture2D native, byte[] pixels, string name)
     {
         this.native = native;
