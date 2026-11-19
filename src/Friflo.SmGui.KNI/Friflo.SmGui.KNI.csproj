@@ -63,6 +63,7 @@
     <ProjectReference Include="..\Friflo.SmGui\Friflo.SmGui.csproj" />
     <PackageReference Include="nkast.Xna.Framework.Graphics" Version="4.3.9001" />
     <PackageReference Include="nkast.Xna.Framework.Input"    Version="4.3.9001" />
+    <PackageReference Include="nkast.Xna.Framework.Game"     Version="4.3.9001" />
   </ItemGroup>
 
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">

@@ -11,17 +11,18 @@ namespace KNI;
 /// </summary>
 public class GameApp : Game
 {
-    // private          SpriteBatch         spriteBatch; // not required for SmGui
-    private             KniGuiBackend?      guiBackend;
-    private             KniBatch?           batch;
-    private             SmGuiApp?           app;
-    private readonly    CreateGuiApp        createGuiApp;
+    // private          SpriteBatch             spriteBatch; // not required for SmGui
+    private             KniGuiBackend?          guiBackend;
+    private             KniBatch?               batch;
+    private             SmGuiApp?               app;
+    private readonly    CreateGuiApp            createGuiApp;
+    private readonly    GraphicsDeviceManager   graphics;
 
     public GameApp(string title, int width, int height, CreateGuiApp createGuiApp)
     {
         this.createGuiApp = createGuiApp;
         
-        var graphics = new GraphicsDeviceManager(this);
+        graphics = new GraphicsDeviceManager(this);
         IsMouseVisible = true;
         
         graphics.PreferredBackBufferWidth   = width;
@@ -40,7 +41,7 @@ public class GameApp : Game
         guiBackend  = new KniGuiBackend(GraphicsDevice, new DefaultGuiAssets());
         batch       = guiBackend.CreateBatch();
         app         = createGuiApp(guiBackend);
-
+        guiBackend.SetClientActions(new KniClientAction(this, graphics));
         base.Initialize();
     }
 
