@@ -68,11 +68,15 @@ public sealed class WebSessionHandler
         sessionLoop = loop;
     }
     
+    /// <summary>
+    /// Removes the <see cref="SmSessionLoop"/> added with <see cref="AddSessionLoop"/>
+    /// </summary>
     public void RemoveSessionLoop() {
         sessionLoop = null;
     }
     
     /// <summary>
+    /// Adds the <see cref="SmGuiApp.SessionLoop"/> to the passed <paramref name="sessionHandler"/> after the <see cref="SmGuiApp"/> is created.<br/>
     /// To remove a <see cref="SmSessionLoop"/> call <see cref="RemoveSessionLoop"/>
     /// </summary>
     public static CreateGuiApp AddSessionLoop(CreateGuiApp createGuiApp, WebSessionHandler? sessionHandler)
