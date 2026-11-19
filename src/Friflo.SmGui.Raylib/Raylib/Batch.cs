@@ -2,6 +2,7 @@
 // See LICENSE file in the project root for full license information.
 
 using System;
+using System.Numerics;
 using System.Runtime.CompilerServices;
 using Raylib_cs;
 
@@ -37,11 +38,14 @@ public sealed class RaylibBatch : SmBatch
         // Rlgl.DisableBackfaceCulling();  - not required. EmitVertex() uses correct triangle winding.
         Rlgl.Viewport(x, y, width, height);
 
-        scissorActive   = false;
+        scissorActive = false;
+        var previousProjection = Rlgl.GetMatrixProjection();
 
         foreach (DrawCommand cmd in DrawList)
         {
             UpdateScissor(cmd.scissor, x, y, width, height);
+            // Apply command projection (already mapped to normalized clip space for viewport size).
+            Rlgl.SetMatrixProjection(Matrix4x4.Transpose(cmd.projection));
 
             var texture = cmd.texture.AsGpuTexture();
             Rlgl.SetTexture(texture.Id);
@@ -65,6 +69,8 @@ public sealed class RaylibBatch : SmBatch
          
             Rlgl.DrawRenderBatchActive(); // flush after every DrawCommand 
         }
+
+        Rlgl.SetMatrixProjection(previousProjection);
 
         if (scissorActive) {
             Rlgl.DisableScissorTest();
