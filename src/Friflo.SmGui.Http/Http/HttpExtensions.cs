@@ -64,12 +64,18 @@ public sealed class WebSessionHandler
 {
     private SmSessionLoop? loop;
 
-    public WebSessionHandler(SmSessionLoop? loop)
-    {
+    public WebSessionHandler(SmSessionLoop? loop) {
         this.loop = loop;
     }
     
-    public static CreateGuiApp CreateSessionAppDelegate(CreateGuiApp createGuiApp, WebSessionHandler? sessionHandler)
+    public void RemoveSessionLoop() {
+        loop = null;
+    }
+    
+    /// <summary>
+    /// To remove a <see cref="SmSessionLoop"/> call <see cref="RemoveSessionLoop"/>
+    /// </summary>
+    public static CreateGuiApp AddSessionLoop(CreateGuiApp createGuiApp, WebSessionHandler? sessionHandler)
     {
         if (sessionHandler == null) {
             return createGuiApp;
