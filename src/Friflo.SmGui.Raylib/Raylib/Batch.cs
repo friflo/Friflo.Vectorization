@@ -2,6 +2,7 @@
 // See LICENSE file in the project root for full license information.
 
 using System;
+using System.Runtime.CompilerServices;
 using Raylib_cs;
 
 // ReSharper disable SuggestVarOrType_BuiltInTypes
@@ -31,7 +32,7 @@ public sealed class RaylibBatch : SmBatch
 
         // Flush pending rlgl vertices before applying custom viewport and scissor state.
         Rlgl.DrawRenderBatchActive();
-        Rlgl.DisableBackfaceCulling(); // TODO remove workaround
+        // Rlgl.DisableBackfaceCulling();  - not required. EmitVertex() uses correct triangle winding.
         Rlgl.Viewport(x, y, width, height);
 
         scissorActive   = false;
@@ -56,20 +57,11 @@ public sealed class RaylibBatch : SmBatch
             var indexView   = cmd.indexView;
 
             Rlgl.Begin(DrawMode.Triangles);
-            for (int i = 0; i < indexView.length; i++) {
-                uint idx = indices[indexView.offset + i];
-                ref readonly var v = ref vertices[vertexView.offset + (int)idx];
-
-                // Pack color bytes directly into R, G, B, A for minimal overhead.
-                uint packedColor = v.color;
-                byte r = (byte)(packedColor & 0xFF);
-                byte g = (byte)((packedColor >> 8) & 0xFF);
-                byte b = (byte)((packedColor >> 16) & 0xFF);
-                byte a = (byte)((packedColor >> 24) & 0xFF);
-
-                Rlgl.Color4ub(r, g, b, a);
-                Rlgl.TexCoord2f(v.uv.X, v.uv.Y);
-                Rlgl.Vertex2f(v.position.X, v.position.Y);
+            for (int i = 0; i < indexView.length; i += 3) {
+                // Reverse triangle winding (0, 2, 1) to match rlgl front-face culling.
+                EmitVertex(vertices, vertexView.offset, indices[indexView.offset + i]);
+                EmitVertex(vertices, vertexView.offset, indices[indexView.offset + i + 2]);
+                EmitVertex(vertices, vertexView.offset, indices[indexView.offset + i + 1]);
             }
             Rlgl.End();
         }
@@ -82,6 +74,23 @@ public sealed class RaylibBatch : SmBatch
 
         Rlgl.DrawRenderBatchActive();
         Rlgl.SetTexture(0);
+    }
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static void EmitVertex(ReadOnlySpan<Vertex2D> vertices, int baseVertex, uint index)
+    {
+        ref readonly var v = ref vertices[baseVertex + (int)index];
+
+        // Pack color bytes directly into R, G, B, A for minimal overhead.
+        uint packedColor = v.color;
+        byte r = (byte)(packedColor & 0xFF);
+        byte g = (byte)((packedColor >> 8) & 0xFF);
+        byte b = (byte)((packedColor >> 16) & 0xFF);
+        byte a = (byte)((packedColor >> 24) & 0xFF);
+
+        Rlgl.Color4ub(r, g, b, a);
+        Rlgl.TexCoord2f(v.uv.X, v.uv.Y);
+        Rlgl.Vertex2f(v.position.X, v.position.Y);
     }
 
     private void UpdateScissor(in RectVector2 scissor, int vpX, int vpY, int vpWidth, int vpHeight)
