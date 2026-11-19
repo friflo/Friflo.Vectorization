@@ -16,4 +16,6 @@ public static class RaylibGuiExtensions
     public static RaylibTexture AsGpuTexture(in this SmTexture smTexture) {
         return (RaylibTexture)smTexture.native!;
     }
+    
+    public static Color AsRaylibColor(this Color32 color32) => new Color(color32.R, color32.G, color32.B, color32.A);
 }

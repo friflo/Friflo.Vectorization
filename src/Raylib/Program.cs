@@ -3,7 +3,7 @@
 using System.Net;
 using Friflo.SmGui;
 using Friflo.SmGui.Http;
-using Raylib;
+using RaylibDemo;
 
 
 // HTTP server for Browser sessions.  nuget: Friflo.SmGui.Http
@@ -21,7 +21,7 @@ public static class RaylibRunner
     public static int Run(string title, int width, int height, WebSessionHandler? sessionHandler, CreateGuiApp createGuiApp)
     {
         var createSessionApp = WebSessionHandler.CreateSessionAppDelegate(createGuiApp, sessionHandler);
-        var app = new GameApp(title, width, height, createSessionApp);
+        var app = new RaylibApp(title, width, height, createSessionApp);
         app.Run();
 
         app.Dispose();

@@ -24,8 +24,10 @@ public sealed class RaylibGuiBackend : SmGuiBackend
         return batch;
     }
 
-    public override unsafe SmTexture CreateTexture(string name, int width, int height, ReadOnlySpan<byte> rgbaPixels) {
-        fixed (byte* ptr = rgbaPixels) {
+    public override unsafe SmTexture CreateTexture(string name, int width, int height, ReadOnlySpan<byte> rgbaPixels)
+    {
+        var pixelArray = rgbaPixels.ToArray();
+        fixed (byte* ptr = pixelArray) {
             // Upload RGBA8 pixels directly via rlgl without requiring Raylib.LoadTextureFromImage.
             uint id = Rlgl.LoadTexture(ptr, width, height, PixelFormat.UncompressedR8G8B8A8, 1);
             var texture = new Texture2D {
@@ -35,7 +37,7 @@ public sealed class RaylibGuiBackend : SmGuiBackend
                 Mipmaps = 1,
                 Format  = PixelFormat.UncompressedR8G8B8A8
             };
-            var raylibTexture = new RaylibTexture(texture, rgbaPixels.ToArray(), name);
+            var raylibTexture = new RaylibTexture(texture, pixelArray, name);
             return raylibTexture.AsSmTexture();
         }
     }
