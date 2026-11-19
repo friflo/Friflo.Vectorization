@@ -12,9 +12,6 @@ namespace Friflo.SmGui.Raylib;
 
 public sealed class RaylibGuiBackend : SmGuiBackend
 {
-    // Reusable staging buffer to avoid per-call pixel array allocations in GetTextureImage.
-    private byte[] readbackBuffer = Array.Empty<byte>();
-
     public RaylibGuiBackend(IGuiAssets assets) : base(assets) {
     }
 
@@ -55,14 +52,9 @@ public sealed class RaylibGuiBackend : SmGuiBackend
         return CreateTexture(label!, imageAsset.width, imageAsset.height, imageAsset.data);
     }
 
-    public override SmImageAsset GetTextureImage(SmTexture texture) {
+    public override SmImageAsset GetTextureImage(SmTexture texture)
+    {
         var rayTexture = texture.AsGpuTexture();
-        int byteCount = rayTexture.native.Width * rayTexture.native.Height * 4;
-
-        // Reuse staging buffer across calls when size is sufficient.
-        if (readbackBuffer.Length < byteCount) {
-            readbackBuffer = new byte[byteCount];
-        }
         return new SmImageAsset {
             width   = rayTexture.native.Width,
             height  = rayTexture.native.Height,
