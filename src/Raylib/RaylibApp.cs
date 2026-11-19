@@ -27,8 +27,8 @@ public class RaylibApp : IDisposable
     
     private void SetWindowIcon()
     {
-        using var stream  = typeof(RaylibApp).Assembly.GetManifestResourceStream("Raylib.Assets.friflo.bmp")!;
-        var texture = guiBackend!.LoadTexture(stream, "friflo.bmp").AsGpuTexture();
+        using var stream  = typeof(RaylibGuiBackend).Assembly.GetManifestResourceStream("Friflo.SmGui.Raylib.Assets.raylib-cs.png")!;
+        var texture = guiBackend!.LoadTexture(stream, "raylib-cs").AsGpuTexture();
         var image = Raylib.LoadImageFromTexture(texture.native);
         Raylib.SetWindowIcon(image);
     }

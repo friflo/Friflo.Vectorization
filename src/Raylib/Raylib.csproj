@@ -19,9 +19,5 @@
       <ProjectReference Include="..\Friflo.SmGui.Http\Friflo.SmGui.Http.csproj"/>
       <ProjectReference Include="..\Demos\Demos.csproj" />
     </ItemGroup>
-    
-    <ItemGroup>
-      <EmbeddedResource Include="Assets\friflo.bmp" />
-    </ItemGroup>
 
 </Project>
