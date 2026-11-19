@@ -10,7 +10,6 @@ namespace MonoGame;
 /// </summary>
 public class GameApp : Game
 {
-    // private          SpriteBatch             spriteBatch; // not required for SmGui
     private             MonoGameGuiBackend?     guiBackend;
     private             MonoGameBatch?          batch;
     private             SmGuiApp?               app;

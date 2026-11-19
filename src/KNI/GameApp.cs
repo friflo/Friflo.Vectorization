@@ -11,7 +11,6 @@ namespace KNI;
 /// </summary>
 public class GameApp : Game
 {
-    // private          SpriteBatch             spriteBatch; // not required for SmGui
     private             KniGuiBackend?          guiBackend;
     private             KniBatch?               batch;
     private             SmGuiApp?               app;
