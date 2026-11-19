@@ -5,6 +5,8 @@ using System;
 using System.Runtime.CompilerServices;
 using Raylib_cs;
 
+// ReSharper disable MergeIntoPattern
+// ReSharper disable SuggestVarOrType_SimpleTypes
 // ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable CheckNamespace
@@ -14,7 +16,7 @@ namespace Friflo.SmGui.Raylib;
 public sealed class RaylibBatch : SmBatch
 {
     private RectVector2 lastScissor;
-    private bool scissorActive;
+    private bool        scissorActive;
 
     internal RaylibBatch(RaylibGuiBackend backend, int maxVertices)
         : base(default, backend, maxVertices, null) {
@@ -36,18 +38,13 @@ public sealed class RaylibBatch : SmBatch
         Rlgl.Viewport(x, y, width, height);
 
         scissorActive   = false;
-        uint currentTex = uint.MaxValue;
 
-        foreach (var cmd in DrawList) {
+        foreach (DrawCommand cmd in DrawList)
+        {
             UpdateScissor(cmd.scissor, x, y, width, height);
 
             var texture = cmd.texture.AsGpuTexture();
-            if (texture.Id != currentTex) {
-                // Flush before switching texture id inside rlgl.
-                Rlgl.DrawRenderBatchActive();
-                Rlgl.SetTexture(texture.Id);
-                currentTex = texture.Id;
-            }
+            Rlgl.SetTexture(texture.Id);
 
             var filter = cmd.samplerFilter == SamplerFilter.Linear ? 0x2601 : 0x2600;
             Rlgl.TextureParameters(texture.Id, 0x2800, filter);
@@ -64,15 +61,14 @@ public sealed class RaylibBatch : SmBatch
                 EmitVertex(vertices, vertexView.offset, indices[indexView.offset + i + 1]);
             }
             Rlgl.End();
+         
+            Rlgl.DrawRenderBatchActive(); // flush after every DrawCommand 
         }
 
         if (scissorActive) {
-            Rlgl.DrawRenderBatchActive();
             Rlgl.DisableScissorTest();
             scissorActive = false;
         }
-
-        Rlgl.DrawRenderBatchActive();
         Rlgl.SetTexture(0);
     }
     
@@ -95,34 +91,32 @@ public sealed class RaylibBatch : SmBatch
 
     private void UpdateScissor(in RectVector2 scissor, int vpX, int vpY, int vpWidth, int vpHeight)
     {
-        bool fullViewport =
-            scissor.pos.X <= 0f && scissor.pos.Y <= 0f &&
-            scissor.size.X >= vpWidth && scissor.size.Y >= vpHeight;
+        bool fullViewport = scissor.pos.X  <= 0f      && scissor.pos.Y  <= 0f &&
+                            scissor.size.X >= vpWidth && scissor.size.Y >= vpHeight;
 
         if (fullViewport) {
-            if (scissorActive) {
-                Rlgl.DrawRenderBatchActive();
-                Rlgl.DisableScissorTest();
-                scissorActive = false;
+            if (!scissorActive) {
+                return;
             }
+            Rlgl.DisableScissorTest();
+            scissorActive = false;
             return;
         }
 
-        if (!scissorActive || !scissor.Equals(lastScissor)) {
-            int sx = vpX + (int)scissor.pos.X;
-            // Flip Y for OpenGL/rlgl bottom-left scissor origin relative to viewport/screen height.
-            int sy = (vpY + vpHeight) - ((int)scissor.pos.Y + (int)scissor.size.Y);
-            int sw = Math.Max(0, (int)scissor.size.X);
-            int sh = Math.Max(0, (int)scissor.size.Y);
-
-            // Flush before changing scissor state so previous commands keep their clip rect.
-            Rlgl.DrawRenderBatchActive();
-            if (!scissorActive) {
-                Rlgl.EnableScissorTest();
-                scissorActive = true;
-            }
-            Rlgl.Scissor(sx, sy, sw, sh);
-            lastScissor = scissor;
+        if (scissorActive && scissor.Equals(lastScissor)) {
+            return;
         }
+        int sx = vpX + (int)scissor.pos.X;
+        // Flip Y for OpenGL/rlgl bottom-left scissor origin relative to viewport/screen height.
+        int sy = (vpY + vpHeight) - ((int)scissor.pos.Y + (int)scissor.size.Y);
+        int sw = Math.Max(0, (int)scissor.size.X);
+        int sh = Math.Max(0, (int)scissor.size.Y);
+
+        if (!scissorActive) {
+            Rlgl.EnableScissorTest();
+            scissorActive = true;
+        }
+        Rlgl.Scissor(sx, sy, sw, sh);
+        lastScissor = scissor;
     }
 }
