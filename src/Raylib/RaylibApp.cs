@@ -3,6 +3,7 @@ using Friflo.SmGui;
 using Friflo.SmGui.Raylib;
 using Raylib_cs;
 
+// ReSharper disable CheckNamespace
 // ReSharper disable ConvertToPrimaryConstructor
 namespace RaylibDemo;
 
@@ -16,24 +17,16 @@ public class RaylibApp : IDisposable
     private             RaylibBatch?        batch;
     private             SmGuiApp?           app;
     private readonly    CreateGuiApp        createGuiApp;
-    private readonly    string              title;
-    private readonly    int                 initialWidth;
-    private readonly    int                 initialHeight;
 
     public RaylibApp(string title, int width, int height, CreateGuiApp createGuiApp)
     {
-        this.createGuiApp   = createGuiApp;
-        this.title          = title;
-        initialWidth        = width;
-        initialHeight       = height;
+        this.createGuiApp = createGuiApp;
+        Raylib.SetConfigFlags(ConfigFlags.ResizableWindow);
+        Raylib.InitWindow(width, height, title);
     }
 
     public void Run()
     {
-        // Enable resizable window before creating the Raylib context.
-        Raylib.SetConfigFlags(ConfigFlags.ResizableWindow);
-        Raylib.InitWindow(initialWidth, initialHeight, title);
-
         guiBackend  = new RaylibGuiBackend(new DefaultGuiAssets());
         batch       = guiBackend.CreateBatch();
         app         = createGuiApp(guiBackend);
