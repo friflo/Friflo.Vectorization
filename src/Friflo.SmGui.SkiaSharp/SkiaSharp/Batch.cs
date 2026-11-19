@@ -4,6 +4,7 @@
 using System.Numerics;
 using SkiaSharp;
 
+// ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable InconsistentNaming
 // ReSharper disable SuggestVarOrType_Elsewhere
 // ReSharper disable ConvertToPrimaryConstructor
@@ -24,70 +25,65 @@ public sealed class SkiaSharpBatch : SmBatch
         EndBatch();
 
         canvas.Save();
-        canvas.ClipRect(new SKRect(x, y, x + width, y + height));
+        canvas.ClipRect(new SKRect(x, y, x + width, y + height));   // in device space, before the transform
+        
+        // same mapping as Godot: viewport -> target rect. cmd.projection is not needed (Skia canvas is in pixels)
+        var scaleX = viewport.X > 0 ? width  / viewport.X : 1f;
+        var scaleY = viewport.Y > 0 ? height / viewport.Y : 1f;
+        canvas.Translate(x, y);
+        canvas.Scale(scaleX, scaleY);
 
         var vertexBuffer = (SkiaSharpVertexBuffer)gpuVertexBuffer;
-        var indexBuffer  = (SkiaSharpIndexBuffer)gpuIndexBuffer;
-
+        var indexBuffer  = (SkiaSharpIndexBuffer) gpuIndexBuffer;
         gpuVertexBuffer.Write(0, Vertices.Length);
-
         var vertices = vertexBuffer.Memory.Span;
-        var indices  = indexBuffer.Memory.Span;
+        var indices  = indexBuffer. Memory.Span;
 
-        using var paint = new SKPaint();
-        paint.IsAntialias = false;
+        using var paint = new SKPaint { IsAntialias = false };
 
         foreach (var cmd in DrawList)
         {
+            var indexView  = cmd.indexView;
+            var vertexView = cmd.vertexView;
+            int iCount     = indexView.length;
+            if (iCount == 0) continue;
+
+            // indices are relative to vertexView.offset (like baseVertex) -> no subtraction
+            var skIndices = new ushort[iCount];
+            uint maxIndex  = 0;
+            for (int i = 0; i < iCount; i++) {
+                var index    = indices[indexView.offset + i];
+                skIndices[i] = (ushort)index;
+                if (index > maxIndex) maxIndex = index;
+            }
+            uint vCount = maxIndex + 1;
+
+            var bitmap    = (SKBitmap)cmd.texture.native!;
+            var positions = new SKPoint[vCount];
+            var texs      = new SKPoint[vCount];
+            var colors    = new SKColor[vCount];
+            for (int i = 0; i < vCount; i++) {
+                ref readonly var v = ref vertices[vertexView.offset + i];
+                positions[i] = new SKPoint(v.position.X, v.position.Y);
+                texs[i]      = new SKPoint(v.uv.X * bitmap.Width, v.uv.Y * bitmap.Height);   // Skia: bitmap shader uses pixel coords
+                colors[i]    = new SKColor(v.color); // todo  check color conversion
+            }
+
             canvas.Save();
-            // TODO  use cmd.projection (Matrix4x4)
-            _ = cmd.projection;
-            
             var pos  = cmd.scissor.pos;
             var size = cmd.scissor.size;
-            canvas.ClipRect(new SKRect(pos.X, pos.Y, pos.X + size.X, pos.Y + size.Y));
+            canvas.ClipRect(new SKRect(pos.X, pos.Y, pos.X + size.X, pos.Y + size.Y));   // viewport space: scaled by the transform
 
-            var bitmap   = (SKBitmap)cmd.texture.native!;
-            var vertexView = cmd.vertexView;
-            var indexView  = cmd.indexView;
-
-            paint.Shader = SKShader.CreateBitmap(bitmap, SKShaderTileMode.Clamp, SKShaderTileMode.Clamp);
-
-            int vCount = vertexView.length;
-            int iCount = indexView.length;
-
-            SKPoint[] positions = new SKPoint[vCount];
-            SKPoint[] texs      = new SKPoint[vCount];
-            SKColor[] colors    = new SKColor[vCount];
-            ushort[]  skIndices = new ushort[iCount];
-
-            for (int i = 0; i < vCount; i++)
-            {
-                var v = vertices[vertexView.offset + i];
-                positions[i] = new SKPoint(v.position.X, v.position.Y);
-                // todo  remove - seems to be a workaround
-                // Convert normalized UVs (0..1) to pixel coordinates if needed  - 
-                texs[i]      = new SKPoint(v.uv.X * bitmap.Width, v.uv.Y * bitmap.Height);
-                
-                // texs[i]      = new SKPoint(v.uv.X, v.uv.Y); // expect this is the correct/faster assignment
-                
-                colors[i]    = new SKColor(v.color);
-            }
-
-            for (int i = 0; i < iCount; i++)
-            {
-                skIndices[i] = (ushort)(indices[indexView.offset + i] - vertexView.offset);
-            }
-
+            using var shader = SKShader.CreateBitmap(bitmap, SKShaderTileMode.Clamp, SKShaderTileMode.Clamp);
+            paint.Shader = shader;
             canvas.DrawVertices(SKVertexMode.Triangles, positions, texs, colors, skIndices, paint);
-
             canvas.Restore();
         }
-
+        paint.Shader = null;
         canvas.Restore();
     }
     
-    static SKMatrix ToSKMatrix(in Matrix4x4 m) => new SKMatrix
+    private static SKMatrix ToSKMatrix(in Matrix4x4 m) => new()
     {
         ScaleX = m.M11,
         SkewX  = m.M21,
