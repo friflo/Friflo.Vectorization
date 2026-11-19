@@ -23,11 +23,11 @@ public static class WgpuRunner
 {
     public static int Run(string title, int width, int height, WebSessionHandler? sessionHandler, CreateGuiApp createGuiApp)
     {
-        var createSessionApp = WebSessionHandler.AddSessionLoop(createGuiApp, sessionHandler);
+        createGuiApp = WebSessionHandler.AddSessionLoop(createGuiApp, sessionHandler);
         if (!SDL.Init(SDL.InitFlags.Video | SDL.InitFlags.Gamepad)) throw new Exception($"SDL3 initialization failed: {SDL.GetError()}");
         var window = new Sdl3Window();
         CreateRenderer createRenderer = wgpuHost => new WgpuRenderer(wgpuHost);
-        var opt = new InitOptions{ title = title, width = width, height = height, createRenderer = createRenderer, createGuiApp = createSessionApp };
+        var opt = new InitOptions{ title = title, width = width, height = height, createRenderer = createRenderer, createGuiApp = createGuiApp };
         var result = window.EnterAppMain(opt);
         
         sessionHandler?.RemoveSessionLoop();

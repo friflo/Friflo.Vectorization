@@ -20,8 +20,8 @@ public static class RaylibRunner
 {
     public static int Run(string title, int width, int height, WebSessionHandler? sessionHandler, CreateGuiApp createGuiApp)
     {
-        var createSessionApp = WebSessionHandler.AddSessionLoop(createGuiApp, sessionHandler);
-        var app = new RaylibApp(title, width, height, createSessionApp);
+        createGuiApp = WebSessionHandler.AddSessionLoop(createGuiApp, sessionHandler);
+        var app = new RaylibApp(title, width, height, createGuiApp);
         app.Run();
 
         sessionHandler?.RemoveSessionLoop();
