@@ -25,7 +25,7 @@ public partial class SkiaView : ContentView
     private void OnCanvasViewPaintSurface(object? sender, SKPaintSurfaceEventArgs e)
     {
         var canvas = e.Surface.Canvas;
-        canvas.Clear(SKColors.White);
+        canvas.Clear(SKColors.LightGray);
         
         var width = e.Info.Width;
         var height = e.Info.Height;

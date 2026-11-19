@@ -3,6 +3,7 @@
 
 using SkiaSharp;
 
+// ReSharper disable SuggestVarOrType_Elsewhere
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable CheckNamespace
 namespace Friflo.SmGui.SkiaSharp;
@@ -19,21 +20,21 @@ public sealed class SkiaSharpBatch : SmBatch
     public void DrawCommandList(SKCanvas canvas, int x, int y, int width, int height)
     {
         EndBatch();
-        
+
         canvas.Save();
         canvas.ClipRect(new SKRect(x, y, x + width, y + height));
-        
+
         var vertexBuffer = (SkiaSharpVertexBuffer)gpuVertexBuffer;
         var indexBuffer  = (SkiaSharpIndexBuffer)gpuIndexBuffer;
-        
+
         gpuVertexBuffer.Write(0, Vertices.Length);
-        
+
         var vertices = vertexBuffer.Memory.Span;
         var indices  = indexBuffer.Memory.Span;
-        
+
         using var paint = new SKPaint();
         paint.IsAntialias = false;
-        
+
         foreach (var cmd in DrawList)
         {
             canvas.Save();
@@ -41,39 +42,43 @@ public sealed class SkiaSharpBatch : SmBatch
             var pos  = cmd.scissor.pos;
             var size = cmd.scissor.size;
             canvas.ClipRect(new SKRect(pos.X, pos.Y, pos.X + size.X, pos.Y + size.Y));
-            
+
             var bitmap   = (SKBitmap)cmd.texture.native!;
             var vertexView = cmd.vertexView;
             var indexView  = cmd.indexView;
-            
+
             paint.Shader = SKShader.CreateBitmap(bitmap, SKShaderTileMode.Clamp, SKShaderTileMode.Clamp);
-            
+
             int vCount = vertexView.length;
             int iCount = indexView.length;
-            
+
             SKPoint[] positions = new SKPoint[vCount];
             SKPoint[] texs      = new SKPoint[vCount];
             SKColor[] colors    = new SKColor[vCount];
             ushort[]  skIndices = new ushort[iCount];
-            
+
             for (int i = 0; i < vCount; i++)
             {
                 var v = vertices[vertexView.offset + i];
                 positions[i] = new SKPoint(v.position.X, v.position.Y);
-                texs[i]      = new SKPoint(v.uv.X, v.uv.Y);
+                // todo  remove - seems to be a workaround
+                // Convert normalized UVs (0..1) to pixel coordinates if needed  - 
+                texs[i]      = new SKPoint(v.uv.X * bitmap.Width, v.uv.Y * bitmap.Height);
+                // texs[i]      = new SKPoint(v.uv.X, v.uv.Y);
+                
                 colors[i]    = new SKColor(v.color);
             }
-            
+
             for (int i = 0; i < iCount; i++)
             {
                 skIndices[i] = (ushort)(indices[indexView.offset + i] - vertexView.offset);
             }
-            
+
             canvas.DrawVertices(SKVertexMode.Triangles, positions, texs, colors, skIndices, paint);
-            
+
             canvas.Restore();
         }
-        
+
         canvas.Restore();
     }
 }
