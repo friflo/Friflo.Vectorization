@@ -65,12 +65,19 @@ public static class UiTypeExtensions
 /// Represents a GUI view managed by a <see cref="SmSessionLoop"/> and associated with a <see cref="ViewSession"/>, 
 /// capable of rendering user interface frames.
 /// </summary>
-public interface IGuiView
+public abstract class GuiView
 {
+    protected readonly ViewSession session;
+    
+    protected GuiView(ViewSession session) {
+        this.session = session;
+        session.session!.guiView = this;
+    }
+        
     /// <summary>
     /// Renders the GUI into the specified <paramref name="batch"/> for the given viewport dimensions.
     /// </summary>
-    void RenderView(SmBatch batch, int targetWidth, int targetHeight);
+    public abstract void  RenderView(SmBatch batch, int targetWidth, int targetHeight);
     
     /// <summary>
     /// Is called (push model) when a message is received for this view, dispatched from <see cref="ViewSession.PostMessage"/>.<br/>
@@ -80,16 +87,16 @@ public interface IGuiView
     /// Can be used to enqueue messages into a local <see cref="Queue{T}"/> for processing inside <see cref="RenderView"/> (pull model).<br/>
     /// Because this method executes on the single-threaded session loop, local queue operations are thread-safe and lock-free.
     /// </remarks>
-    void OnMessage(object? state, Payload payload, int data) { }
+    protected internal virtual void OnMessage(object? state, Payload payload, int data) { }
 }
 
 
 /// <summary>
-/// Represents a factory delegate used by <see cref="SmSessionLoop"/> to create a new <see cref="IGuiView"/> instance for a given session.
+/// Represents a factory delegate used by <see cref="SmSessionLoop"/> to create a new <see cref="GuiView"/> instance for a given session.
 /// </summary>
-/// <param name="session">The <see cref="ViewSession"/> associated with <see cref="IGuiView"/>.</param>
-/// <returns>An instance implementing <see cref="IGuiView"/> for the session.</returns>
-public delegate IGuiView ViewFactory(ViewSession session);
+/// <param name="session">The <see cref="ViewSession"/> associated with <see cref="GuiView"/>.</param>
+/// <returns>An instance implementing <see cref="GuiView"/> for the session.</returns>
+public delegate GuiView ViewFactory(ViewSession session);
 
 
 /// <summary>
@@ -119,14 +126,14 @@ public sealed class ViewSession
     /// <summary> Provides access to client actions not related to GUI or rendering. </summary>
     public          ClientAction    Action  { [Hide] get => Backend.host.clientAction; }
 
-    /// <summary> Enables triggering <see cref="IGuiView.RenderView"/> at configured time intervals. </summary>
+    /// <summary> Enables triggering <see cref="GuiView.RenderView"/> at configured time intervals. </summary>
     public          SessionTimer    Timer   { [Hide] get => sessionTimer ?? throw SessionTerminatedException(); }
 
 #region private fields
     private             SmGuiBackend?   backend;
     private             SessionTimer?   sessionTimer;
     // Note! session reference MUST stay private. Otherwise, user may store a reference which prevents GC collecting the session.
-    private             SmSession?      session;
+    internal            SmSession?      session;
     private  readonly   SmSessionLoop   loop;
 #endregion
     
@@ -142,7 +149,7 @@ public sealed class ViewSession
         this.loop       = loop;
         this.args       = args;
         this.backend    = backend;
-        sessionTimer       = timer;
+        sessionTimer    = timer;
         this.session    = session;
         SessionId       = session.keys.id;
         UiType          = client.UiType;
@@ -157,8 +164,8 @@ public sealed class ViewSession
 #endregion
     
     /// <summary>
-    /// Posts a message via the event loop of <see cref="SmSessionLoop"/> to the <see cref="IGuiView"/> associated with this session.<br/>
-    /// The message is dispatched to <see cref="IGuiView.OnMessage"/> on the session loop thread (typically the main thread).<br/>
+    /// Posts a message via the event loop of <see cref="SmSessionLoop"/> to the <see cref="GuiView"/> associated with this session.<br/>
+    /// The message is dispatched to <see cref="GuiView.OnMessage"/> on the session loop thread (typically the main thread).<br/>
     /// This method is thread-safe and can be called from any thread.
     /// </summary>
     public bool PostMessage(object? state, Payload payload, int data)
@@ -171,7 +178,7 @@ public sealed class ViewSession
     }
     
     /// <summary>
-    /// Enqueues a redraw (<see cref="IGuiView.RenderView"/>) for all sessions of the app.
+    /// Enqueues a redraw (<see cref="GuiView.RenderView"/>) for all sessions of the app.
     /// </summary>
     /// <remarks>
     /// Applies to native GUI window, console TUI, browser clients, and terminal emulators.<br/>
@@ -183,7 +190,7 @@ public sealed class ViewSession
     }
     
     /// <summary>
-    /// Enqueues a redraw (<see cref="IGuiView.RenderView"/>) for a specific session.
+    /// Enqueues a redraw (<see cref="GuiView.RenderView"/>) for a specific session.
     /// </summary>
     /// <remarks>
     /// Applies to native GUI window, console TUI, browser clients, and terminal emulators.<br/>

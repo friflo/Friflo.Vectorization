@@ -122,6 +122,10 @@ internal sealed partial class TuiSession : SmSession
     
     internal override SmSendMessage ProcessUI(in AssetResources resources)
     {
+        var view = guiView;
+        if (view == null) {
+            return default;
+        }
         isDirty = false;
 
         cpuBackend.NewFrame();
@@ -130,11 +134,11 @@ internal sealed partial class TuiSession : SmSession
         var pixelWidth  = (int)(frameWidth  * tuiBatch.CharWidth);
         var pixelHeight = (int)(frameHeight * tuiBatch.LineHeight);
         
-        guiView!.RenderView(tuiBatch, pixelWidth, pixelHeight);
+        view.RenderView(tuiBatch, pixelWidth, pixelHeight);
         
         if (tuiBatch.guiState.scrollAreaChanged) {
             cpuBackend.NewFrame();
-            guiView.RenderView(tuiBatch, pixelWidth, pixelHeight);
+            view.RenderView(tuiBatch, pixelWidth, pixelHeight);
             // Console.WriteLine("Scroll Area Changed");
         }
         

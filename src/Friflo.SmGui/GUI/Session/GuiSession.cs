@@ -64,10 +64,14 @@ internal sealed partial class GuiSession : SmSession
 
     internal override SmSendMessage ProcessUI(in AssetResources resources)
     {
+        var view = guiView;
+        if (view == null) {
+            return default;
+        }
         isDirty = false;
 
         guiBackend.NewFrame();
-        guiView!.RenderView(guiBatch, canvasWidth, canvasHeight);
+        view.RenderView(guiBatch, canvasWidth, canvasHeight);
         
         return BuildMessage(resources);
     }

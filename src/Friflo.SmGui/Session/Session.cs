@@ -12,7 +12,7 @@ namespace Friflo.SmGui;
 
 internal abstract class SmSession
 {
-    protected internal          IGuiView?       guiView;
+    protected internal          GuiView?        guiView;
     internal  readonly          SmClient        client;
     internal  readonly          SessionKeys     keys;
     protected volatile          bool            isDirty;

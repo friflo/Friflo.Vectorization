@@ -15,7 +15,7 @@ var webApp = HttpUtils.CreateWebApplication(new IPEndPoint(IPAddress.IPv6Any, De
 webApp.UseWebSocketGuiSessions(sessionHandlers);
 await webApp.StartAsync();
 
-SmSignalingClient.Connect(sessionHandlers, new Uri("wss://localhost:8081/signaling"), "test-app", "auto");
+SmSignalingClient.Connect(sessionHandlers, DemoConfig.SignalingUrl, "test-app", "auto");
 
 MonoGameRunner.Run("SmGui", 1280, 1200, sessionHandlers, backend => new Demos.BasicGui.BasicGuiApp(backend));
 MonoGameRunner.Run("SmDraw",1280,  720, sessionHandlers, backend => new Demos.BasicDraw.BasicDrawApp(backend));

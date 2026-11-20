@@ -9,7 +9,7 @@ using Friflo.SmGui;
 namespace Demos.BasicGui;
 
 
-public sealed class GuiDemoView : IGuiView
+public sealed class GuiDemoView : GuiView
 {
     private readonly    DemoResources   resources;
     private             bool            mouseCircle;
@@ -17,18 +17,18 @@ public sealed class GuiDemoView : IGuiView
     private             bool            fullScreen;
     private             int             helloCounter;
     private             float           volume = 0.8f;
-    private             ViewSession?    session;
     private readonly    List<string>    scrollAreaButtons = [];
     private readonly    Color32[]       textColors = [0x0000FFFF, 0xFF0000FF, 0x009900FF, 0xFF00FFFF, 0xCC6600FF, 0x000000ff];
     
     
-    internal GuiDemoView(DemoResources resources, ViewSession? session)
+    internal GuiDemoView(DemoResources resources, ViewSession session) : base(session)
     {
         this.resources  = resources;
-        this.session    = session;
         
-        session?.Action.SetWindowTitle("Web client");
-        session?.Action.SetClearColor(0x999c9eff, 0x404142ff); // same color as clearValue
+        if (session.UiType.IsWeb()) {
+            // session.Action.SetWindowTitle(session.UiType == UiType.WebGui ? "Web" : "WebRTC");
+            session.Action.SetClearColor(0x999c9eff, 0x404142ff); // same color as clearValue
+        }
     }
     
     private readonly GuiStyle redButtonStyle = new() {
@@ -53,7 +53,7 @@ public sealed class GuiDemoView : IGuiView
         }
     };
     
-    public void RenderView(SmBatch batch, int width, int height)
+    public override void RenderView(SmBatch batch, int width, int height)
     {
         var gui = batch.BeginGui(width, height);
         
@@ -77,7 +77,7 @@ public sealed class GuiDemoView : IGuiView
             gui.Action.OpenUrl($"https://localhost:{DemoConfig.HttpsPort}", "remote-gui");
         }
         if (gui.Button("WebRTC")) {
-            gui.Action.OpenUrl($"https://localhost:8081/?app={session?.AppId}", "webrtc");
+            gui.Action.OpenUrl($"https://localhost:8081/?app={session.AppId}", "webrtc");
         }
         if (gui.UiType != UiType.WebGui) {
             if (gui.Button("close session")) gui.Action.CloseWindow();

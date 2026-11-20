@@ -1,21 +1,25 @@
 ﻿// See https://aka.ms/new-console-template for more information
 
+using System;
 using System.Net;
 using Demos;
 using Friflo.SmGui;
 using Friflo.SmGui.Http;
+using Friflo.SmGui.WebRTC;
 using Raylib;
 
 
-var sessionHandler = new SessionHandlers();
+var sessionHandlers = new SessionHandlers();
 
 // HTTP server for Browser sessions.  nuget: Friflo.SmGui.Http
 var webApp = HttpUtils.CreateWebApplication(new IPEndPoint(IPAddress.IPv6Any, DemoConfig.HttpsPort));
-webApp.UseWebSocketGuiSessions(sessionHandler);
+webApp.UseWebSocketGuiSessions(sessionHandlers);
 await webApp.StartAsync();
 
-RaylibRunner.Run("SmGui", 1280, 1200, sessionHandler, backend => new Demos.BasicGui.BasicGuiApp(backend));
-RaylibRunner.Run("SmDraw",1280,  720, sessionHandler, backend => new Demos.BasicDraw.BasicDrawApp(backend));
+SmSignalingClient.Connect(sessionHandlers, DemoConfig.SignalingUrl, "test-app", "auto");
+
+RaylibRunner.Run("SmGui", 1280, 1200, sessionHandlers, backend => new Demos.BasicGui.BasicGuiApp(backend));
+RaylibRunner.Run("SmDraw",1280,  720, sessionHandlers, backend => new Demos.BasicDraw.BasicDrawApp(backend));
 
 await webApp.StopAsync();
 

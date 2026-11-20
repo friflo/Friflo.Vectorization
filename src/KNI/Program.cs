@@ -1,9 +1,11 @@
 ﻿// See https://aka.ms/new-console-template for more information
 
+using System;
 using System.Net;
 using Demos;
 using Friflo.SmGui;
 using Friflo.SmGui.Http;
+using Friflo.SmGui.WebRTC;
 using KNI;
 
 var sessionHandlers = new SessionHandlers();
@@ -12,6 +14,8 @@ var sessionHandlers = new SessionHandlers();
 var webApp = HttpUtils.CreateWebApplication(new IPEndPoint(IPAddress.IPv6Any, DemoConfig.HttpsPort));
  webApp.UseWebSocketGuiSessions(sessionHandlers);
 await webApp.StartAsync();
+
+SmSignalingClient.Connect(sessionHandlers, DemoConfig.SignalingUrl, "test-app", "auto");
 
 KniRunner.Run("SmGui", 1280, 1200, sessionHandlers, backend => new Demos.BasicGui.BasicGuiApp(backend));
 KniRunner.Run("SmDraw",1280,  720, sessionHandlers, backend => new Demos.BasicDraw.BasicDrawApp(backend));

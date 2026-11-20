@@ -10,10 +10,9 @@ using Friflo.SmGui.TUI;
 namespace Demos.BasicTui;
 
 
-/// <summary> Each session has its own <see cref="IGuiView"/> instance. </summary>
-public class BasicTuiView : IGuiView
+/// <summary> Each session has its own <see cref="GuiView"/> instance. </summary>
+public class BasicTuiView : GuiView
 {
-    private readonly    ViewSession     session;
     private readonly    AppState        appState;
     private readonly    Color32[]       textColors = [0x0000FFFF, 0xFF0000FF, 0x009900FF, 0xFF00FFFF, 0xCC6600FF, 0x000000ff];
     private readonly    SmTexture       myTexture;      // texture available only for this session
@@ -31,9 +30,8 @@ public class BasicTuiView : IGuiView
     private const int CanvasWidth   = 800;
     private const int CanvasHeight  = 500;
     
-    public BasicTuiView(AppState appState, ViewSession session)
+    public BasicTuiView(AppState appState, ViewSession session) : base(session)
     {
-        this.session        = session;
         this.appState       = appState;
         using var stream    = typeof(BasicTuiView).Assembly.GetManifestResourceStream("Demos.Assets.sixel_test.png")!;
         var backend         = session.Backend;
@@ -49,7 +47,7 @@ public class BasicTuiView : IGuiView
     
     DrawType oldDrawType;
     
-    public void RenderView(SmBatch batch, int targetWidth, int targetHeight)
+    public override void RenderView(SmBatch batch, int targetWidth, int targetHeight)
     {
         oldDrawType = appState.drawType;
 

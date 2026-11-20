@@ -13,8 +13,8 @@ public sealed class BasicGuiApp : SmGuiApp
     public BasicGuiApp(SmGuiBackend backend)
     {
         resources   = new DemoResources(backend);
-        nativeView  = new GuiDemoView(resources, null);
         SessionLoop = CreateSessionLoop(backend);
+        nativeView  = new GuiDemoView(resources, SessionLoop.CreateLocalSession(backend));
     }
 
     public override void Dispose()

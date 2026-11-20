@@ -9,19 +9,17 @@ using Friflo.SmGui;
 namespace Demos.Wasm;
 
 
-/// <summary> Each session has its own <see cref="IGuiView"/> instance. </summary>
-public class TestGuiView : IGuiView
+/// <summary> Each session has its own <see cref="GuiView"/> instance. </summary>
+public class TestGuiView : GuiView
 {
-    private readonly    ViewSession     session;
-    private             long            frameStart = Stopwatch.GetTimestamp();
-    private             double          frameTime;
-    private             long            memStart;
-    private             long            memDiff;
-    private             long            renderMem;
+    private long    frameStart = Stopwatch.GetTimestamp();
+    private double  frameTime;
+    private long    memStart;
+    private long    memDiff;
+    private long    renderMem;
     
-    public TestGuiView(ViewSession session)
+    public TestGuiView(ViewSession session) : base(session)
     {
-        this.session        = session;
         var uiType          = session.UiType;
         session.Timer.Enabled    = uiType.IsGui();
         session.Action.SetWindowTitle(uiType == UiType.WebRtcGui ? $"{session.AppId} 🔀" : session.AppId ?? "App");
@@ -29,7 +27,7 @@ public class TestGuiView : IGuiView
     }
     
     
-    public void RenderView(SmBatch batch, int targetWidth, int targetHeight)
+    public override void RenderView(SmBatch batch, int targetWidth, int targetHeight)
     {
         var timestamp   = Stopwatch.GetTimestamp();
         frameTime       = Stopwatch.GetElapsedTime(frameStart, timestamp).TotalMilliseconds;

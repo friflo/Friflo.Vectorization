@@ -58,8 +58,8 @@ public delegate void SessionsChanged(SessionsChangedArgs args);
 /// All client sessions are processed exclusively on the main thread, enabling lock-free access
 /// to application and session state and greatly simplifying application development.<br/>
 /// <br/>
-/// The <see cref="ViewFactory"/> delegate passed to the <see cref="SmSessionLoop"/> constructor must return an instance implementing <see cref="IGuiView"/>.<br/>
-/// If a client has pending input or a dirty session, a new frame is rendered via <see cref="IGuiView.RenderView"/> and transmitted to the client.<br/>
+/// The <see cref="ViewFactory"/> delegate passed to the <see cref="SmSessionLoop"/> constructor must return an instance implementing <see cref="GuiView"/>.<br/>
+/// If a client has pending input or a dirty session, a new frame is rendered via <see cref="GuiView.RenderView"/> and transmitted to the client.<br/>
 /// <br/>
 /// Use <see cref="Run"/> to let the loop run automatically (ideal for console and terminal applications).<br/>
 /// Alternatively, call <see cref="IterateSessions"/> periodically if your application manages its own custom event loop, such as a game loop.
@@ -82,7 +82,7 @@ public sealed partial class SmSessionLoop : IDisposable
     private  readonly   Dictionary<SessionId, SmSession>            sessions            = new(); // non-thread-safe state
     private  readonly   ConcurrentDictionary<SessionId, SmSession>  concurrentSessions  = new(); // thread-safe - used only for SetSessionDirty(SessionId) 
     internal readonly   int                                         sessionThreadId;
-    private  readonly   ViewFactory                                 viewFactory;        // IGuiView factory
+    private  readonly   ViewFactory                                 viewFactory;        // GuiView factory
     private  readonly   CancellationTokenSource                     cts                 = new();
     private             bool                                        isDisposed;
     internal readonly   TuiSessionShared                            tuiShared;          // shared among all TuiSession's
@@ -155,10 +155,9 @@ public sealed partial class SmSessionLoop : IDisposable
         var keys            = new SessionKeys(client.sessionId, default);
         var session         = new TuiSession(client, keys, this, sessionTimer, TuiColorMode.RGB24);
         var viewSession     = new ViewSession(this, session, args, client, session.Backend, sessionTimer);
-        var guiView         = viewFactory(viewSession);
+        viewFactory(viewSession);
         session.viewSession = viewSession;
         
-        session.guiView = guiView;
         AddSession(client.sessionId, session);
         
         var msgStart    = firstLine == -1 ? 0 : firstLine + 1;
@@ -176,16 +175,32 @@ public sealed partial class SmSessionLoop : IDisposable
         var keys            = new SessionKeys(sessionId, sessionGuid);
         var session         = new GuiSession(client, keys, this, sessionTimer);
         var viewSession     = new ViewSession(this, session, [], client, session.Backend, sessionTimer);
-        var guiView         = viewFactory(viewSession);
+        viewFactory(viewSession);
         session.viewSession = viewSession;
         
-        session.guiView = guiView;
         AddSession(client.sessionId, session);
         
         firstPayload    = default;
         
         SessionsChanged?.Invoke(new SessionsChangedArgs(client.sessionId, SessionsChangedType.Added));
         return session;
+    }
+    
+    public ViewSession CreateLocalSession(SmGuiBackend backend)
+    {
+        var client          = new LocalClient(this);
+        var sessionId       = client.sessionId;
+        var sessionTimer    = new SessionTimer(appTimer, sessionId);
+        var sessionGuid     = useSecureSessionGuids ? new SessionGuid(Guid.NewGuid()) : new SessionGuid(sessionId.id);
+        var keys            = new SessionKeys(sessionId, sessionGuid);
+        var session         = new LocalSession(client, keys);
+        var viewSession     = new ViewSession(this, session, [], client, backend, sessionTimer);
+        session.viewSession = viewSession;
+        
+        AddSession(client.sessionId, session);
+       
+        SessionsChanged?.Invoke(new SessionsChangedArgs(client.sessionId, SessionsChangedType.Added));
+        return viewSession;
     }
 
     /// Is called only from session loop thread. Synchronizing Add/Remove is not necessary for set dirty.
@@ -225,7 +240,7 @@ public sealed partial class SmSessionLoop : IDisposable
 #endregion
 
     /// <summary>
-    /// Enqueues a redraw (<see cref="IGuiView.RenderView"/>) for all clients of the app.
+    /// Enqueues a redraw (<see cref="GuiView.RenderView"/>) for all clients of the app.
     /// </summary>
     /// <remarks>
     /// Applies to native GUI window, console TUI, browser clients, and terminal emulators.<br/>
@@ -241,7 +256,7 @@ public sealed partial class SmSessionLoop : IDisposable
     }
     
     /// <summary>
-    /// Enqueues a redraw (<see cref="IGuiView.RenderView"/>) for all clients of a specific session.
+    /// Enqueues a redraw (<see cref="GuiView.RenderView"/>) for all clients of a specific session.
     /// </summary>
     /// <remarks>
     /// Applies to native GUI window, console TUI, browser clients, and terminal emulators.<br/>

@@ -7,20 +7,20 @@ using Friflo.SmGui.TUI;
 namespace SmGui.SignalingServer;
 
 
-/// <summary> Each session has its own <see cref="IGuiView"/> instance. </summary>
-public class SignalingView : IGuiView
+/// <summary> Each session has its own <see cref="GuiView"/> instance. </summary>
+public class SignalingView : GuiView
 {
     private readonly    SmSignaling         signaling;
     private readonly    List<SmSignalApp>   apps    = [];
     private readonly    List<SmSignalPeer>  clients = [];
     
-    public SignalingView(SmSignaling signaling, ViewSession session)
+    public SignalingView(SmSignaling signaling, ViewSession session) : base(session)
     {
         this.signaling = signaling;
         session.Action.SetWindowTitle("Signaling Server");
     }
     
-    public void RenderView(SmBatch batch, int targetWidth, int targetHeight)
+    public override void RenderView(SmBatch batch, int targetWidth, int targetHeight)
     {
         var gui = batch.BeginGui(targetWidth, targetHeight);
         using (gui.BeginWindow("WebRTC apps", new Vector2(50, 50),  new Vector2(600, 400), traits: 0, TuiBorder.Rounded)) { // (500, 450) (1000, 850)

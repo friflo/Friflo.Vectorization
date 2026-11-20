@@ -6,7 +6,7 @@ using Friflo.SmGui;
 namespace Demos.BasicDraw;
 
 
-public class DrawDemoView : IGuiView
+public class DrawDemoView
 {
     private readonly    DemoResources   resources;
     private             float           rotation;
