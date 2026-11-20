@@ -11,14 +11,19 @@ namespace Friflo.SmGui;
 
 public class SessionHandlers
 {
-    private readonly    List<ISessionHandler>  list = [];
-    public  readonly    SmSessionLoop?         sessionLoop;
+    private readonly    List<ISessionHandler>   list = [];
+    public  readonly    SmSessionLoop?          sessionLoop;
+    public              string?                 AppId { get; private set; }
 
     public  override    string                  ToString() => $"count: {list.Count}";
 
     public SessionHandlers(SmSessionLoop? sessionLoop = null) {
         this.sessionLoop = sessionLoop;
-    } 
+    }
+    
+    public void SetAppId(string? appId) {
+        AppId = appId;
+    }
     
     public void Add(ISessionHandler sessionHandler)
     {
@@ -37,6 +42,7 @@ public class SessionHandlers
             var app = createGuiApp(backend);
             var loop = app.SessionLoop;
             if (loop != null) {
+                loop.appId = AppId;
                 foreach (var handler in list) {
                     handler.AddSessionLoop(loop); 
                 }

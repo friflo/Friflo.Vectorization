@@ -40,8 +40,9 @@ public sealed partial class SmSignalingClient : ISessionHandler
         if (OperatingSystem.IsBrowser()) throw new PlatformNotSupportedException($"Browser requires: {nameof(ConnectAsync)}");
         
         var signalingClient = new SmSignalingClient(sessionHandlers.sessionLoop);
-        signalingClient.ConnectAsync(uri, app, instance, cancellationToken).GetAwaiter().GetResult(); // stay on main thread
+        var appId = signalingClient.ConnectAsync(uri, app, instance, cancellationToken).GetAwaiter().GetResult(); // stay on main thread
         sessionHandlers.Add(signalingClient);
+        sessionHandlers.SetAppId(appId);
         
         _ = signalingClient.RunAsync();
         return signalingClient;
@@ -68,7 +69,7 @@ public sealed partial class SmSignalingClient : ISessionHandler
         _ =  clientWebSocket?.SendAsync(payload, WebSocketMessageType.Text, true, CancellationToken.None);
     }
         
-    public async Task ConnectAsync(Uri uri, string app, string? instance = null, CancellationToken cancellationToken = default)
+    public async Task<string?> ConnectAsync(Uri uri, string app, string? instance = null, CancellationToken cancellationToken = default)
     {
         clientWebSocket = new ClientWebSocket();
 
@@ -94,6 +95,7 @@ public sealed partial class SmSignalingClient : ISessionHandler
             throw new InvalidOperationException($"register failed: {message.sdpOrCandidate}");
         }
         sessionLoop?.appId = message.app;
+        return message.app;
     }
     
     public Task RunAsync()
