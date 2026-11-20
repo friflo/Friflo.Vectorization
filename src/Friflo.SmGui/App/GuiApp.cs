@@ -15,7 +15,7 @@ namespace Friflo.SmGui;
 /// <remarks>
 /// The class is designed to be lightweight and keeps the library thin and non-opinionated.<br/>
 /// It provides a lean API so that applications based on <see cref="SmGuiApp"/> remain decoupled from the underlying graphics backend.<br/>
-/// Note: <c>Friflo.SmGui</c> itself does not depend on or utilize this class.
+/// Note: This class is used in <c>Friflo.SmGui</c> only by <see cref="SessionHandlers"/>.
 /// </remarks>
 public abstract class SmGuiApp : IDisposable
 {
