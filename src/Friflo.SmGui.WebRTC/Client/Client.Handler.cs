@@ -46,7 +46,8 @@ public sealed partial class SmSignalingClient
         if (!sessions.TryRemove(connection, out _)) {
             return;
         }
-        var msg     = new SignalMessage("close", null, connection, null, loop.SessionCount);
+        int sessionCount = sessionLoop?.SessionCount ?? 0;
+        var msg     = new SignalMessage("close", null, connection, null, sessionCount);
         var payload = JsonSerializer.SerializeToUtf8Bytes(msg, ApiJson.Default.SignalMessage);
         if (webSocket.State == WebSocketState.Open) {
             _ = webSocket.SendAsync(payload, WebSocketMessageType.Text, true, CancellationToken.None);
@@ -55,6 +56,10 @@ public sealed partial class SmSignalingClient
     
     private async Task ProcessOffer(WebSocket webSocket, SignalMessage message)
     {
+        var loop = sessionLoop;
+        if (loop == null) {
+            return;
+        }
         // Get or create peer session using a method group (no lambdas)
         var connection      = RtcFactory.Instance.CreatePeerConnection();
         var guiDataChannel  = await connection.createDataChannel("tm-gui-channel", 1);

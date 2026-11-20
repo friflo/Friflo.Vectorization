@@ -9,7 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Friflo.SmGui.Session;
 
-
+// ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable CheckNamespace
 namespace Friflo.SmGui.WebRTC;
@@ -17,12 +17,12 @@ namespace Friflo.SmGui.WebRTC;
 
 public sealed partial class SmSignalingClient
 {
-    private  readonly   SmSessionLoop       loop;
+    private  readonly   SmSessionLoop?      sessionLoop;
     private             ClientWebSocket?    clientWebSocket;
         
     private SmSignalingClient(SmSessionLoop loop)
     {
-        this.loop = loop;
+        sessionLoop = loop;
         loop.SessionsChanged += SessionsChanged;
     }
     
@@ -48,6 +48,10 @@ public sealed partial class SmSignalingClient
     
     private void SessionsChanged(SessionsChangedArgs args)
     {
+        var loop = sessionLoop;
+        if (loop == null) {
+            return;
+        }
         var msg     = new SignalMessage{ type = "stats", app = loop.appId, sessions = loop.SessionCount };
         var payload = JsonSerializer.SerializeToUtf8Bytes(msg, ApiJson.Default.SignalMessage);
         _ =  clientWebSocket?.SendAsync(payload, WebSocketMessageType.Text, true, CancellationToken.None);
@@ -59,7 +63,9 @@ public sealed partial class SmSignalingClient
 
         // Connect to the specified signaling server URL
         await clientWebSocket.ConnectAsync(uri, cancellationToken);
-        var msg = new SignalMessage{ type = "register", app = app, sdpOrCandidate = instance, sessions = loop.SessionCount };
+        
+        int sessionCount = sessionLoop?.SessionCount ?? 0;
+        var msg = new SignalMessage{ type = "register", app = app, sdpOrCandidate = instance, sessions = sessionCount };
         byte[] payload = JsonSerializer.SerializeToUtf8Bytes(msg, ApiJson.Default.SignalMessage);
 
         await clientWebSocket.SendAsync(payload, WebSocketMessageType.Text, true, cancellationToken);
@@ -76,7 +82,7 @@ public sealed partial class SmSignalingClient
         if (message.sdpOrCandidate != "registered") {
             throw new InvalidOperationException($"register failed: {message.sdpOrCandidate}");
         }
-        loop.appId = message.app;
+        sessionLoop?.appId = message.app;
     }
     
     public Task RunAsync()
