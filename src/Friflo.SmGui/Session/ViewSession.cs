@@ -198,11 +198,12 @@ public sealed class ViewSession
     /// </remarks>
     public void SetDirty()
     {
-        if (session != null) {
-            if (session.SetDirty()) {
+        var local = session;
+        if (local != null) {
+            if (local.SetDirty()) {
                 return;
             }
-            session.client.TryEnqueueSessionEvent(LoopEventType.RenderView, default);
+            local.client.TryEnqueueSessionEvent(LoopEventType.RenderView, default);
         }
     }
 }
