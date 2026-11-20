@@ -7,8 +7,8 @@ namespace Friflo.SmGui.Session;
 
 public class SmRuntime
 {
-    protected static SmSessionLoop? SessionLoop => Loop;
-    internal  static SmSessionLoop? Loop;
+    protected SmSessionLoop? SessionLoop => loop;
+    internal  SmSessionLoop? loop;
     
     public virtual SmTimer CreateTimer()
     {

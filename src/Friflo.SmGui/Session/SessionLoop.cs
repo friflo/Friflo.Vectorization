@@ -95,8 +95,9 @@ public sealed partial class SmSessionLoop : IDisposable
     {
         var loop = new SmSessionLoop(options.Backend, options.ViewFactory);
         loop.useSecureSessionGuids      = options.UseSecureSessionGuids;
-        SmRuntime.Loop                  = loop;
-        loop.eventQueue.runtime         = options.Runtime ?? new SmRuntime();
+        var runtime     = options.Runtime ?? new SmRuntime();
+        runtime.loop    = loop;
+        loop.eventQueue.runtime = runtime;
         return loop;
     }
 
