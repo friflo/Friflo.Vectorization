@@ -24,7 +24,7 @@ public abstract class SmGuiApp : IDisposable
     /// If initialized by the app the <see cref="SessionLoop"/> is added via <see cref="SessionHandlers"/> to an HTTP server or a signaling client.
     /// </summary>
     /// <remarks>
-    /// E.g. at startup in <c>Program.cs</c>
+    /// <example>E.g. at startup in <c>Program.cs</c>
     /// <code>
     ///     var sessionHandlers = new SessionHandlers();
     ///     
@@ -34,8 +34,9 @@ public abstract class SmGuiApp : IDisposable
     ///     await webApp.StartAsync();
     ///     
     ///     // nuget:  Friflo.SmGui.WebRTC
-    ///     SmSignalingClient.Connect(sessionHandlers, DemoConfig.SignalingUrl, "test-app", "auto");
+    ///     SmSignalingClient.Connect(sessionHandlers, new Uri("wss://localhost:8081/signaling"), "test-app", "auto");
     /// </code>
+    /// </example>
     /// </remarks>
     public  SmSessionLoop? SessionLoop { get; protected init; }
     
