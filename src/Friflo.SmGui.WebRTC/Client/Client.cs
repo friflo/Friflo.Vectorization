@@ -15,23 +15,41 @@ using Friflo.SmGui.Session;
 namespace Friflo.SmGui.WebRTC;
 
 
-public sealed partial class SmSignalingClient
+public sealed partial class SmSignalingClient : ISessionHandler
 {
-    private  readonly   SmSessionLoop?      sessionLoop;
-    private             ClientWebSocket?    clientWebSocket;
+    private SmSessionLoop?      sessionLoop;
+    private ClientWebSocket?    clientWebSocket;
         
-    private SmSignalingClient(SmSessionLoop loop)
+    private SmSignalingClient(SmSessionLoop? loop)
     {
         sessionLoop = loop;
-        loop.SessionsChanged += SessionsChanged;
+        loop?.SessionsChanged += SessionsChanged;
     }
     
-    public static SmSignalingClient Connect(SmSessionLoop loop, Uri uri, string app, string? instance = null, CancellationToken cancellationToken = default)
+    // --- ISessionHandler
+    public void RemoveSessionLoop() {
+        sessionLoop = null;
+    }
+    
+    public CreateGuiApp AddSessionLoop(CreateGuiApp createGuiApp)
+    {
+        return CreateSessionApp;
+
+        SmGuiApp CreateSessionApp(SmGuiBackend backend) {
+            var app = createGuiApp(backend);
+            sessionLoop = app.SessionLoop;
+            return app;
+        }
+    }
+    
+    public static SmSignalingClient Connect(SessionHandlers sessionHandlers, Uri uri, string app, string? instance = null, CancellationToken cancellationToken = default)
     {
         if (OperatingSystem.IsBrowser()) throw new PlatformNotSupportedException($"Browser requires: {nameof(ConnectAsync)}");
         
-        var signalingClient = new SmSignalingClient(loop);
+        var signalingClient = new SmSignalingClient(sessionHandlers.sessionLoop);
         signalingClient.ConnectAsync(uri, app, instance, cancellationToken).GetAwaiter().GetResult(); // stay on main thread
+        sessionHandlers.Add(signalingClient);
+        
         _ = signalingClient.RunAsync();
         return signalingClient;
     }

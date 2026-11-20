@@ -5,7 +5,6 @@ using System;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
-using Friflo.SmGui.Session;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
@@ -94,7 +93,7 @@ public static class HttpUtils
     /// for a more direct, unnested setup.
     /// </remarks>
     [Obsolete("Use CreateWebApplication for a modern WebApplicationBuilder workflow.")]
-    public static IHostBuilder CreateHostBuilder(EndPoint endPoint, SmSessionLoop loop, string? webRoot = null)
+    public static IHostBuilder CreateHostBuilder(EndPoint endPoint, SessionHandlers sessionHandlers, string? webRoot = null)
     {
         var builder = Host.CreateDefaultBuilder();
 
@@ -114,7 +113,7 @@ public static class HttpUtils
             });
 
             webBuilder.Configure(app => {
-                app.UseWebSocketGuiSessions(loop, webRoot);
+                app.UseWebSocketGuiSessions(sessionHandlers, webRoot);
             });
         });
 

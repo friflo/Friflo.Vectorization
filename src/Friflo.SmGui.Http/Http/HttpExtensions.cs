@@ -21,8 +21,7 @@ public static class SmGuiHttpExtensions
 {
     private static readonly string  WebRoot = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "wwwroot");
 
-    
-    public static ISessionHandler UseWebSocketGuiSessions(this IApplicationBuilder app, SmSessionLoop? loop = null, string? webRoot = null)
+    public static IApplicationBuilder UseWebSocketGuiSessions(this IApplicationBuilder app, SessionHandlers sessionHandlers, string? webRoot = null)
     {
         webRoot ??= WebRoot;
         
@@ -35,7 +34,9 @@ public static class SmGuiHttpExtensions
 
         app.UseWebSockets();
         
-        var sessionHandler = new WebSessionHandler(loop);
+        var sessionHandler = new WebSessionHandler(sessionHandlers.sessionLoop);
+        sessionHandlers.Add(sessionHandler);
+        
         app.Use(sessionHandler.HandleGuiRequestAsync);
 
         // Serve Static Files from wwwroot with custom ContentTypes
@@ -56,7 +57,7 @@ public static class SmGuiHttpExtensions
 
             app.UseStaticFiles(staticFileOptions);
         }
-        return sessionHandler;
+        return app;
     }
 }
 

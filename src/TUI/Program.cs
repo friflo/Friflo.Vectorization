@@ -56,12 +56,14 @@ var loop = SmSessionLoop.Create(new LoopOptions {
     UseSecureSessionGuids = false
 });
 
+var sessionHandlers = new SessionHandlers(loop);
+
 // Connect to Signaling Server for WebRTC Browser sessions.  nuget: Friflo.SmGui.WebRTC
-SmSignalingClient.Connect(loop, new Uri("wss://localhost:8081/signaling"), "test-app", "auto");
+SmSignalingClient.Connect(sessionHandlers, new Uri("wss://localhost:8081/signaling"), "test-app", "auto");
 
 // HTTP server for Browser sessions.  nuget: Friflo.SmGui.Http
 var webApp = HttpUtils.CreateWebApplication(new IPEndPoint(IPAddress.IPv6Any, DemoConfig.HttpsPort));
-webApp.UseWebSocketGuiSessions(loop);
+webApp.UseWebSocketGuiSessions(sessionHandlers);
 webApp.MapGet("/api/speed", async () => {
     await loop.DispatchAsync();             // continue execution on loop thread to avoid explicit locks and contention
     var speed = appState.speed;             // capture state safely on loop thread

@@ -2,8 +2,10 @@
 // See LICENSE file in the project root for full license information.
 
 using System;
+using System.Collections.Generic;
 using Friflo.SmGui.Session;
 
+// ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable CheckNamespace
 namespace Friflo.SmGui;
 
@@ -29,6 +31,42 @@ public abstract class SmGuiApp : IDisposable
 /// Factory delegate used to instantiate a <see cref="SmGuiApp"/> with a given backend.
 /// </summary>
 public delegate SmGuiApp CreateGuiApp(SmGuiBackend backend);
+
+
+public class SessionHandlers
+{
+    private readonly    List<ISessionHandler>  list = [];
+    public  readonly    SmSessionLoop?         sessionLoop;
+
+    public  override    string                  ToString() => $"count: {list.Count}";
+
+    public SessionHandlers(SmSessionLoop? sessionLoop = null) {
+        this.sessionLoop = sessionLoop;
+    } 
+    
+    public void Add(ISessionHandler sessionHandler)
+    {
+        if (sessionLoop != null) {
+            return;
+        }
+        list.Add(sessionHandler);
+    }
+    
+    public CreateGuiApp AddSessionLoop(CreateGuiApp createGuiApp)
+    {
+        foreach (var handler in list) {
+            createGuiApp = handler.AddSessionLoop(createGuiApp); 
+        }
+        return createGuiApp;
+    }
+    
+    public void RemoveSessionLoop()
+    {
+        foreach (var handler in list) {
+            handler.RemoveSessionLoop(); 
+        }
+    }
+}
 
 public interface ISessionHandler
 {

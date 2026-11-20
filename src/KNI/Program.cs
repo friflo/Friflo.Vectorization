@@ -6,9 +6,11 @@ using Friflo.SmGui;
 using Friflo.SmGui.Http;
 using KNI;
 
+var sessionHandler = new SessionHandlers();
+
 // HTTP server for Browser sessions.  nuget: Friflo.SmGui.Http
 var webApp = HttpUtils.CreateWebApplication(new IPEndPoint(IPAddress.IPv6Any, DemoConfig.HttpsPort));
-var sessionHandler = webApp.UseWebSocketGuiSessions();
+ webApp.UseWebSocketGuiSessions(sessionHandler);
 await webApp.StartAsync();
 
 KniRunner.Run("SmGui", 1280, 1200, sessionHandler, backend => new Demos.BasicGui.BasicGuiApp(backend));
@@ -18,13 +20,13 @@ await webApp.StopAsync();
 
 public static class KniRunner
 {
-    public static int Run(string title, int width, int height, ISessionHandler? sessionHandler, CreateGuiApp createGuiApp)
+    public static int Run(string title, int width, int height, SessionHandlers? sessionHandlers, CreateGuiApp createGuiApp)
     {
-        createGuiApp = sessionHandler?.AddSessionLoop(createGuiApp) ?? createGuiApp;
+        createGuiApp = sessionHandlers?.AddSessionLoop(createGuiApp) ?? createGuiApp;
         var app = new GameApp(title, width, height, createGuiApp);
         app.Run();
         
-        sessionHandler?.RemoveSessionLoop();
+        sessionHandlers?.RemoveSessionLoop();
         app.Dispose();
         return 0;
     }

@@ -10,9 +10,11 @@ using Friflo.WGPU;
 using Friflo.WGPU.SDL3;
 using SDL3;
 
+var sessionHandler = new SessionHandlers();
+
 // HTTP server for Browser sessions.  nuget: Friflo.SmGui.Http
 var webApp = HttpUtils.CreateWebApplication(new IPEndPoint(IPAddress.IPv6Any, DemoConfig.HttpsPort));
-var sessionHandler = webApp.UseWebSocketGuiSessions();
+webApp.UseWebSocketGuiSessions(sessionHandler);
 await webApp.StartAsync();
 
 WgpuRunner.Run("SmGui",   1280, 1200, sessionHandler, backend => new Demos.BasicGui.BasicGuiApp(backend));
@@ -22,16 +24,16 @@ await webApp.StopAsync();
 
 public static class WgpuRunner
 {
-    public static int Run(string title, int width, int height, ISessionHandler? sessionHandler, CreateGuiApp createGuiApp)
+    public static int Run(string title, int width, int height, SessionHandlers? sessionHandlers, CreateGuiApp createGuiApp)
     {
-        createGuiApp = sessionHandler?.AddSessionLoop(createGuiApp) ?? createGuiApp;
+        createGuiApp = sessionHandlers?.AddSessionLoop(createGuiApp) ?? createGuiApp;
         if (!SDL.Init(SDL.InitFlags.Video | SDL.InitFlags.Gamepad)) throw new Exception($"SDL3 initialization failed: {SDL.GetError()}");
         var window = new Sdl3Window();
         CreateRenderer createRenderer = wgpuHost => new WgpuRenderer(wgpuHost);
         var opt = new InitOptions{ title = title, width = width, height = height, createRenderer = createRenderer, createGuiApp = createGuiApp };
         var result = window.EnterAppMain(opt);
         
-        sessionHandler?.RemoveSessionLoop();
+        sessionHandlers?.RemoveSessionLoop();
         return result;
     }
 }

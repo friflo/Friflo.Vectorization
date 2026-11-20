@@ -2,12 +2,15 @@
 
 using System.Net;
 using Demos;
+using Friflo.SmGui;
 using Friflo.SmGui.Http;
 using TestConsole;
 
+var sessionHandler = new SessionHandlers();
+
 // HTTP server for Browser sessions.  nuget: Friflo.SmGui.Http
 var webApp = HttpUtils.CreateWebApplication(new IPEndPoint(IPAddress.IPv6Any, DemoConfig.HttpsPort));
-var sessionHandler = webApp.UseWebSocketGuiSessions();
+webApp.UseWebSocketGuiSessions(sessionHandler);
 await webApp.StartAsync();
 
 MonoGameRunner.Run("SmGui", 1280, 1200, sessionHandler, backend => new Demos.BasicGui.BasicGuiApp(backend));
