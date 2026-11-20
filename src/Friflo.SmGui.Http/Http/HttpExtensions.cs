@@ -22,7 +22,7 @@ public static class SmGuiHttpExtensions
     private static readonly string  WebRoot = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "wwwroot");
 
     
-    public static WebSessionHandler UseWebSocketGuiSessions(this IApplicationBuilder app, SmSessionLoop? loop = null, string? webRoot = null)
+    public static ISessionHandler UseWebSocketGuiSessions(this IApplicationBuilder app, SmSessionLoop? loop = null, string? webRoot = null)
     {
         webRoot ??= WebRoot;
         
@@ -60,7 +60,7 @@ public static class SmGuiHttpExtensions
     }
 }
 
-public sealed class WebSessionHandler
+public sealed class WebSessionHandler : ISessionHandler
 {
     private SmSessionLoop? sessionLoop;
 
@@ -79,16 +79,13 @@ public sealed class WebSessionHandler
     /// Adds the <see cref="SmGuiApp.SessionLoop"/> to the passed <paramref name="sessionHandler"/> after the <see cref="SmGuiApp"/> is created.<br/>
     /// To remove a <see cref="SmSessionLoop"/> call <see cref="RemoveSessionLoop"/>
     /// </summary>
-    public static CreateGuiApp AddSessionLoop(CreateGuiApp createGuiApp, WebSessionHandler? sessionHandler)
+    public CreateGuiApp AddSessionLoop(CreateGuiApp createGuiApp)
     {
-        if (sessionHandler == null) {
-            return createGuiApp;
-        }
         return CreateSessionApp;
 
         SmGuiApp CreateSessionApp(SmGuiBackend backend) {
             var app = createGuiApp(backend);
-            sessionHandler.sessionLoop = app.SessionLoop;
+            sessionLoop = app.SessionLoop;
             return app;
         }
     }

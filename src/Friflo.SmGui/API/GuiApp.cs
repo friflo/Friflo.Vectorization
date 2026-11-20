@@ -29,3 +29,17 @@ public abstract class SmGuiApp : IDisposable
 /// Factory delegate used to instantiate a <see cref="SmGuiApp"/> with a given backend.
 /// </summary>
 public delegate SmGuiApp CreateGuiApp(SmGuiBackend backend);
+
+public interface ISessionHandler
+{
+    /// <summary>
+    /// Adds the <see cref="SmGuiApp.SessionLoop"/> to the session handler after the <see cref="SmGuiApp"/> is created.<br/>
+    /// To remove a <see cref="SmSessionLoop"/> call <see cref="RemoveSessionLoop"/>
+    /// </summary>
+    public CreateGuiApp AddSessionLoop(CreateGuiApp createGuiApp);
+    
+    /// <summary>
+    /// Removes the <see cref="SmSessionLoop"/> added with <see cref="AddSessionLoop"/>
+    /// </summary>
+    public void RemoveSessionLoop();
+}

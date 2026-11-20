@@ -18,9 +18,9 @@ await webApp.StopAsync();
 
 public static class KniRunner
 {
-    public static int Run(string title, int width, int height, WebSessionHandler? sessionHandler, CreateGuiApp createGuiApp)
+    public static int Run(string title, int width, int height, ISessionHandler? sessionHandler, CreateGuiApp createGuiApp)
     {
-        createGuiApp = WebSessionHandler.AddSessionLoop(createGuiApp, sessionHandler);
+        createGuiApp = sessionHandler?.AddSessionLoop(createGuiApp) ?? createGuiApp;
         var app = new GameApp(title, width, height, createGuiApp);
         app.Run();
         

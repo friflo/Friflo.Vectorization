@@ -22,9 +22,9 @@ await webApp.StopAsync();
 
 public static class WgpuRunner
 {
-    public static int Run(string title, int width, int height, WebSessionHandler? sessionHandler, CreateGuiApp createGuiApp)
+    public static int Run(string title, int width, int height, ISessionHandler? sessionHandler, CreateGuiApp createGuiApp)
     {
-        createGuiApp = WebSessionHandler.AddSessionLoop(createGuiApp, sessionHandler);
+        createGuiApp = sessionHandler?.AddSessionLoop(createGuiApp) ?? createGuiApp;
         if (!SDL.Init(SDL.InitFlags.Video | SDL.InitFlags.Gamepad)) throw new Exception($"SDL3 initialization failed: {SDL.GetError()}");
         var window = new Sdl3Window();
         CreateRenderer createRenderer = wgpuHost => new WgpuRenderer(wgpuHost);
