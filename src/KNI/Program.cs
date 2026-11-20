@@ -12,10 +12,10 @@ var sessionHandlers = new SessionHandlers();
 
 // HTTP server for Browser sessions.  nuget: Friflo.SmGui.Http
 var webApp = HttpUtils.CreateWebApplication(new IPEndPoint(IPAddress.IPv6Any, DemoConfig.HttpsPort));
- webApp.UseWebSocketGuiSessions(sessionHandlers);
+webApp.UseWebSocketGuiSessions(sessionHandlers);
 await webApp.StartAsync();
 
-SmSignalingClient.Connect(sessionHandlers, DemoConfig.SignalingUrl, "test-app", "auto");
+SmSignalingClient.Connect(sessionHandlers, new Uri(DemoConfig.SignalingUrl), "test-app", "auto");
 
 KniRunner.Run("SmGui", 1280, 1200, sessionHandlers, backend => new Demos.BasicGui.BasicGuiApp(backend));
 KniRunner.Run("SmDraw",1280,  720, sessionHandlers, backend => new Demos.BasicDraw.BasicDrawApp(backend));

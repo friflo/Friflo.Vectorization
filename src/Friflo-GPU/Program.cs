@@ -18,7 +18,7 @@ var webApp = HttpUtils.CreateWebApplication(new IPEndPoint(IPAddress.IPv6Any, De
 webApp.UseWebSocketGuiSessions(sessionHandlers);
 await webApp.StartAsync();
 
-SmSignalingClient.Connect(sessionHandlers, DemoConfig.SignalingUrl, "test-app", "auto");
+SmSignalingClient.Connect(sessionHandlers, new Uri(DemoConfig.SignalingUrl), "test-app", "auto");
 
 WgpuRunner.Run("SmGui",   1280, 1200, sessionHandlers, backend => new Demos.BasicGui.BasicGuiApp(backend));
 WgpuRunner.Run("SmDraw",  1280,  720, sessionHandlers, backend => new Demos.BasicDraw.BasicDrawApp(backend));
