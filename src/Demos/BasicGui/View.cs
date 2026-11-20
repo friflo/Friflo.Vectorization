@@ -17,6 +17,7 @@ public sealed class GuiDemoView : IGuiView
     private             bool            fullScreen;
     private             int             helloCounter;
     private             float           volume = 0.8f;
+    private             ViewSession?    session;
     private readonly    List<string>    scrollAreaButtons = [];
     private readonly    Color32[]       textColors = [0x0000FFFF, 0xFF0000FF, 0x009900FF, 0xFF00FFFF, 0xCC6600FF, 0x000000ff];
     
@@ -24,6 +25,7 @@ public sealed class GuiDemoView : IGuiView
     internal GuiDemoView(DemoResources resources, ViewSession? session)
     {
         this.resources  = resources;
+        this.session    = session;
         
         session?.Action.SetWindowTitle("Web client");
         session?.Action.SetClearColor(0x999c9eff, 0x404142ff); // same color as clearValue
@@ -73,6 +75,9 @@ public sealed class GuiDemoView : IGuiView
         gui.Button("hello GUI", Dim.Fill_X(0, Fit.Content), color: textColors);
         if (gui.Button("Web client")) {
             gui.Action.OpenUrl($"https://localhost:{DemoConfig.HttpsPort}", "remote-gui");
+        }
+        if (gui.Button("WebRTC")) {
+            gui.Action.OpenUrl($"https://localhost:8081/?app={session?.AppId}", "webrtc");
         }
         if (gui.UiType != UiType.WebGui) {
             if (gui.Button("close session")) gui.Action.CloseWindow();

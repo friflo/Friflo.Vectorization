@@ -1,20 +1,24 @@
 ﻿// See https://aka.ms/new-console-template for more information
 
+using System;
 using System.Net;
 using Demos;
 using Friflo.SmGui;
 using Friflo.SmGui.Http;
+using Friflo.SmGui.WebRTC;
 using MonoGame;
 
-var sessionHandler = new SessionHandlers();
+var sessionHandlers = new SessionHandlers();
 
 // HTTP server for Browser sessions.  nuget: Friflo.SmGui.Http
 var webApp = HttpUtils.CreateWebApplication(new IPEndPoint(IPAddress.IPv6Any, DemoConfig.HttpsPort));
-webApp.UseWebSocketGuiSessions(sessionHandler);
+webApp.UseWebSocketGuiSessions(sessionHandlers);
 await webApp.StartAsync();
 
-MonoGameRunner.Run("SmGui", 1280, 1200, sessionHandler, backend => new Demos.BasicGui.BasicGuiApp(backend));
-MonoGameRunner.Run("SmDraw",1280,  720, sessionHandler, backend => new Demos.BasicDraw.BasicDrawApp(backend));
+SmSignalingClient.Connect(sessionHandlers, new Uri("wss://localhost:8081/signaling"), "test-app", "auto");
+
+MonoGameRunner.Run("SmGui", 1280, 1200, sessionHandlers, backend => new Demos.BasicGui.BasicGuiApp(backend));
+MonoGameRunner.Run("SmDraw",1280,  720, sessionHandlers, backend => new Demos.BasicDraw.BasicDrawApp(backend));
 
 await webApp.StopAsync();
 
