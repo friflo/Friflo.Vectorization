@@ -31,15 +31,8 @@ public sealed partial class SmSignalingClient : ISessionHandler
         sessionLoop = null;
     }
     
-    public CreateGuiApp AddSessionLoop(CreateGuiApp createGuiApp)
-    {
-        return CreateSessionApp;
-
-        SmGuiApp CreateSessionApp(SmGuiBackend backend) {
-            var app = createGuiApp(backend);
-            sessionLoop = app.SessionLoop;
-            return app;
-        }
+    public void AddSessionLoop(SmSessionLoop loop) {
+        sessionLoop = loop;
     }
     
     public static SmSignalingClient Connect(SessionHandlers sessionHandlers, Uri uri, string app, string? instance = null, CancellationToken cancellationToken = default)

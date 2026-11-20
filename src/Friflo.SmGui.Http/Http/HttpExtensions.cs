@@ -73,15 +73,8 @@ public sealed class WebSessionHandler : ISessionHandler
         sessionLoop = null;
     }
     
-    public CreateGuiApp AddSessionLoop(CreateGuiApp createGuiApp)
-    {
-        return CreateSessionApp;
-
-        SmGuiApp CreateSessionApp(SmGuiBackend backend) {
-            var app = createGuiApp(backend);
-            sessionLoop = app.SessionLoop;
-            return app;
-        }
+    public void AddSessionLoop(SmSessionLoop loop) {
+        sessionLoop = loop;
     }
     
     private static WebSocketAcceptContext CreateWebSocketAcceptContext()

@@ -54,10 +54,19 @@ public class SessionHandlers
     
     public CreateGuiApp AddSessionLoop(CreateGuiApp createGuiApp)
     {
-        foreach (var handler in list) {
-            createGuiApp = handler.AddSessionLoop(createGuiApp); 
+        return CreateSessionApp;
+
+        SmGuiApp CreateSessionApp(SmGuiBackend backend)
+        {
+            var app = createGuiApp(backend);
+            var loop = app.SessionLoop;
+            if (loop != null) {
+                foreach (var handler in list) {
+                    handler.AddSessionLoop(loop); 
+                }
+            }
+            return app;
         }
-        return createGuiApp;
     }
     
     public void RemoveSessionLoop()
@@ -74,7 +83,7 @@ public interface ISessionHandler
     /// Adds the <see cref="SmGuiApp.SessionLoop"/> to the session handler after the <see cref="SmGuiApp"/> is created.<br/>
     /// To remove a <see cref="SmSessionLoop"/> call <see cref="RemoveSessionLoop"/>
     /// </summary>
-    public CreateGuiApp AddSessionLoop(CreateGuiApp createGuiApp);
+    public void AddSessionLoop(SmSessionLoop loop);
     
     /// <summary>
     /// Removes the <see cref="SmSessionLoop"/> added with <see cref="AddSessionLoop"/>
