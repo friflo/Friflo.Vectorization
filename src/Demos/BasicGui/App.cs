@@ -14,7 +14,7 @@ public sealed class BasicGuiApp : SmGuiApp
     {
         resources   = new DemoResources(backend);
 
-        // Add session loop for remote browser GUIs 
+        // Set session loop for remote browser GUIs
         SessionLoop = SmSessionLoop.Create(new LoopOptions {
             Backend     = new CpuBackend("SmGui - Remote Test", backend),
             ViewFactory = session => new GuiDemoView(resources, session)
