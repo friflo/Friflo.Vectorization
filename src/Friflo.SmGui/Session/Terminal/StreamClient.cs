@@ -14,18 +14,21 @@ using System.Threading.Tasks;
 namespace Friflo.SmGui.Session;
 
 
-public sealed class StreamClient : SmClient
+public sealed class StreamClient : SmClient, IExitHandler
 {
     private Stream inputStream;
     private Stream outputStream;
+    private readonly    PosixSignalHandler  signalHandler = new();
 
     public StreamClient(Stream inputStream, Stream outputStream, SmSessionLoop loop) : base(loop)
     {
         this.inputStream = inputStream;
         this.outputStream = outputStream;
+        signalHandler.AddExitHandler(this);
     }
     
     public override void Dispose() {
+        signalHandler.RemoveExitHandler();
         inputStream     = null!;
         outputStream    = null!;
     }
@@ -48,7 +51,7 @@ public sealed class StreamClient : SmClient
     
     protected internal override void SendCommand(SmSendCommand command) { }
     
-    protected internal override void RestoreTerminal()
+    public void RestoreTerminal()
     {
         Send(new SmSendMessage(VT100.TerminalReset));
     }

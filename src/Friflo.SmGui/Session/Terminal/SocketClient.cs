@@ -15,16 +15,19 @@ using System.Threading.Tasks;
 namespace Friflo.SmGui.Session;
 
 
-public sealed class SocketClient : SmClient
+public sealed class SocketClient : SmClient, IExitHandler
 {
-    private  Socket? socket;
+    private             Socket?             socket;
+    private readonly    PosixSignalHandler  signalHandler = new();
     
     public SocketClient(Socket socket, SmSessionLoop loop) : base(loop)
     {
         this.socket = socket;
+        signalHandler.AddExitHandler(this);
     }
     
     public override void Dispose() {
+        signalHandler.RemoveExitHandler();
         var sock = socket;
         if (sock == null) return;
         socket = null;
@@ -60,7 +63,7 @@ public sealed class SocketClient : SmClient
     
     protected internal override void SendCommand(SmSendCommand command) { }
     
-    protected internal override void RestoreTerminal()
+    public void RestoreTerminal()
     {
         Send(new SmSendMessage(VT100.TerminalReset));
     }

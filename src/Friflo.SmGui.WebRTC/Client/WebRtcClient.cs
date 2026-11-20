@@ -124,8 +124,6 @@ internal sealed class WebRtcClient : SmClient
         dataChannel.send(command.payload);
     }
 
-    protected override void RestoreTerminal() { } // only applicable for terminal emulators
-
     private void FlushPendingBuffer()
     {
         var buffer = doubleBuffer!;

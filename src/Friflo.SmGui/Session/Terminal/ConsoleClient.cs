@@ -24,12 +24,13 @@ public static class SmConsoleExtensions
     }
 }
 
-public sealed class ConsoleClient : SmClient
+public sealed class ConsoleClient : SmClient, IExitHandler
 {
-    private     Stream? inputStream;
-    private     Stream? outputStream;
-    private     int     consoleWidth  = -1;
-    private     int     consoleHeight = -1;
+    private             Stream?             inputStream;
+    private             Stream?             outputStream;
+    private             int                 consoleWidth  = -1;
+    private             int                 consoleHeight = -1;
+    private readonly    PosixSignalHandler  signalHandler = new();
     
     public ConsoleClient(SmSessionLoop loop) : base(loop)
     {
@@ -41,10 +42,12 @@ public sealed class ConsoleClient : SmClient
         } else {
             inputStream = new AnsiConsoleIn();
         }
+        signalHandler.AddExitHandler(this);
     }
     
     public override void Dispose()
     {
+        signalHandler.RemoveExitHandler();
         inputStream?.Dispose();
         outputStream?.Dispose();
         inputStream     = null;
@@ -77,7 +80,7 @@ public sealed class ConsoleClient : SmClient
     
     protected internal override void SendCommand(SmSendCommand command) { }
     
-    protected internal override void RestoreTerminal()
+    public void RestoreTerminal()
     {
         if (OperatingSystem.IsWindows()) {
             WinConsoleIn.RestoreConsoleMode();

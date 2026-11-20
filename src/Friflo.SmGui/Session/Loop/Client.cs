@@ -141,7 +141,6 @@ public abstract class SmClient
     protected internal abstract     ValueTask<int>  SendAsync(SmSendMessage message, CancellationToken cancellationToken);
     protected internal abstract     int             Send(SmSendMessage message);
     protected internal abstract     void            SendCommand(SmSendCommand command);
-    protected internal abstract     void            RestoreTerminal();
     
     /// <summary>
     /// Extending classes should null field references to managed types.<br/>

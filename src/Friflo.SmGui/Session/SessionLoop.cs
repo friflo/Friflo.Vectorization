@@ -85,7 +85,6 @@ public sealed partial class SmSessionLoop : IDisposable
     private  readonly   ViewFactory                                 viewFactory;        // IGuiView factory
     private  readonly   CancellationTokenSource                     cts                 = new();
     private             bool                                        isDisposed;
-    private  readonly   Action                                      exitHandler;
     internal readonly   TuiSessionShared                            tuiShared;          // shared among all TuiSession's
     internal readonly   GuiSessionShared                            guiShared;          // shared among all GuiSession's
     internal readonly   CpuBackend                                  cpuBackend;         // shared among all sessions
@@ -109,13 +108,9 @@ public sealed partial class SmSessionLoop : IDisposable
         
         eventQueue          = new SmEventQueue(this);
         
-        exitHandler         = ExitHandler;
         tuiShared           = new TuiSessionShared();
         guiShared           = new GuiSessionShared();
         sessionThreadId     = Environment.CurrentManagedThreadId;
-        if (!OperatingSystem.IsBrowser()) {
-            PosixSignalUtils.AddExitHandler(exitHandler);
-        }
         appTimer            = new AppTimer(this, 60);
     }
     
@@ -139,21 +134,6 @@ public sealed partial class SmSessionLoop : IDisposable
     }
     
 #region internal methods
-    private void ExitHandler()
-    {
-        PosixSignalUtils.RemoveExitHandler(exitHandler);
-        
-        foreach (var session in sessions.Values) {
-            try {
-                session.client.RestoreTerminal();
-            }
-            // ReSharper disable once EmptyGeneralCatchClause
-            catch {
-                // nothing useful can be done here
-            }
-        }
-    }
-    
     private static string[] GetArgs(ReadOnlySpan<byte> payload)
     {
         // Convert initial payload to string (e.g. "--view logs --user 42")

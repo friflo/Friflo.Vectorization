@@ -78,7 +78,6 @@ internal sealed class WebSocketClient : SmClient
         var buffer = Encoding.UTF8.GetBytes(command.payload);
         _ = ws.SendAsync(buffer, WebSocketMessageType.Text, true, CancellationToken.None);
     }
-    protected override void RestoreTerminal() { } // only applicable for terminal emulators
 
     private async Task FlushPendingBufferAsync(CancellationToken ct)
     {
