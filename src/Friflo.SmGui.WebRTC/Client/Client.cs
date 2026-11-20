@@ -15,43 +15,36 @@ using Friflo.SmGui.Session;
 namespace Friflo.SmGui.WebRTC;
 
 
-public static class SmSignalingExtensions
-{
-    extension(SmSessionLoop loop)
-    {
-        public SmSessionLoop UseWebRtcGuiSessions(Uri uri, string app, string? instance = null, CancellationToken cancellationToken = default)
-        {
-            if (OperatingSystem.IsBrowser()) throw new PlatformNotSupportedException($"Browser requires: {nameof(UseWebRtcGuiSessionsAsync)}");
-            
-            var signalingClient =  new SmSignalingClient(loop);
-            signalingClient.ConnectAsync(uri, app, instance, cancellationToken).GetAwaiter().GetResult(); // stay on main thread
-            _ = signalingClient.RunAsync();
-        
-            return loop;
-        }
-
-        public async Task<SmSessionLoop> UseWebRtcGuiSessionsAsync(Uri uri, string app, string? instance = null, CancellationToken cancellationToken = default)
-        {
-            var signalingClient =  new SmSignalingClient(loop);
-            await signalingClient.ConnectAsync(uri, app, instance, cancellationToken);
-            _ = signalingClient.RunAsync();
-        
-            return loop;
-        }
-    }
-}
-
-
 public sealed partial class SmSignalingClient
 {
     private  readonly   SmSessionLoop       loop;
     private             ClientWebSocket?    clientWebSocket;
         
-    public SmSignalingClient(SmSessionLoop loop)
+    private SmSignalingClient(SmSessionLoop loop)
     {
         this.loop = loop;
         loop.SessionsChanged += SessionsChanged;
     }
+    
+    public static SmSignalingClient Connect(SmSessionLoop loop, Uri uri, string app, string? instance = null, CancellationToken cancellationToken = default)
+    {
+        if (OperatingSystem.IsBrowser()) throw new PlatformNotSupportedException($"Browser requires: {nameof(ConnectAsync)}");
+        
+        var signalingClient = new SmSignalingClient(loop);
+        signalingClient.ConnectAsync(uri, app, instance, cancellationToken).GetAwaiter().GetResult(); // stay on main thread
+        _ = signalingClient.RunAsync();
+        return signalingClient;
+    }
+    
+    public static async Task<SmSessionLoop> ConnectAsync(SmSessionLoop loop, Uri uri, string app, string? instance = null, CancellationToken cancellationToken = default)
+    {
+        var signalingClient =  new SmSignalingClient(loop);
+        await signalingClient.ConnectAsync(uri, app, instance, cancellationToken);
+        _ = signalingClient.RunAsync();
+    
+        return loop;
+    }
+    
     
     private void SessionsChanged(SessionsChangedArgs args)
     {
