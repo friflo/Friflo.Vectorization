@@ -13,8 +13,13 @@ public sealed class BasicGuiApp : SmGuiApp
     public BasicGuiApp(SmGuiBackend backend)
     {
         resources   = new DemoResources(backend);
-        SessionLoop = CreateSessionLoop(backend);
-        nativeView  = new GuiDemoView(resources, SessionLoop.CreateLocalSession(backend));
+
+        // Add session loop for remote browser GUIs 
+        SessionLoop = SmSessionLoop.Create(new LoopOptions {
+            Backend     = new CpuBackend("SmGui - Remote Test", backend),
+            ViewFactory = session => new GuiDemoView(resources, session)
+        });
+        nativeView = new GuiDemoView(resources, SessionLoop.CreateLocalSession(backend));
     }
 
     public override void Dispose()
@@ -29,19 +34,5 @@ public sealed class BasicGuiApp : SmGuiApp
         SessionLoop?.IterateSessions();
         
         nativeView.RenderView(batch, width, height);
-    }
-    
-    /// <summary>
-    /// Starts an HTTP server and creates a session loop that handles all web client sessions on the main thread.<br/>
-    /// By calling <see cref="SmSessionLoop.IterateSessions"/> periodically, queued user input (mouse and keyboard) is processed. 
-    /// Every client with pending input or a dirty session renders a new frame via <see cref="GuiDemoView.RenderView"/>, which is then sent to the client. 
-    /// </summary>
-    private SmSessionLoop CreateSessionLoop(SmGuiBackend backend)
-    {
-        var sessionLoop = SmSessionLoop.Create(new LoopOptions {
-            Backend     = new CpuBackend("SmGui - Remote Test", backend),
-            ViewFactory = session => new GuiDemoView(resources, session)
-        });
-        return sessionLoop;
     }
 }

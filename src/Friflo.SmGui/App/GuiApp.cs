@@ -19,8 +19,25 @@ namespace Friflo.SmGui;
 /// </remarks>
 public abstract class SmGuiApp : IDisposable
 {
-    public          Color32         clearValue  = 0x999C9EFF;
-    public          SmSessionLoop?  SessionLoop { get; protected init; }
+    public  Color32 clearValue  = 0x999C9EFF;
+    /// <summary>
+    /// If initialized by the app the <see cref="SessionLoop"/> is added via <see cref="SessionHandlers"/> to an HTTP server or a signaling client.
+    /// </summary>
+    /// <remarks>
+    /// E.g. at startup in <c>Program.cs</c>
+    /// <code>
+    ///     var sessionHandlers = new SessionHandlers();
+    ///     
+    ///     // nuget:  Friflo.SmGui.Http
+    ///     var webApp = HttpUtils.CreateWebApplication(new IPEndPoint(IPAddress.IPv6Any, 8080));
+    ///     webApp.UseWebSocketGuiSessions(sessionHandlers);
+    ///     await webApp.StartAsync();
+    ///     
+    ///     // nuget:  Friflo.SmGui.WebRTC
+    ///     SmSignalingClient.Connect(sessionHandlers, DemoConfig.SignalingUrl, "test-app", "auto");
+    /// </code>
+    /// </remarks>
+    public  SmSessionLoop? SessionLoop { get; protected init; }
     
     public abstract void RenderApp(SmBatch batch, int width, int height);
     public virtual  void Dispose() { }
