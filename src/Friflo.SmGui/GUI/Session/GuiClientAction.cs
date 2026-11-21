@@ -27,7 +27,7 @@ internal sealed class GuiClientAction : ClientAction
     
     public override bool OpenUrl(ReadOnlySpan<char> url, ReadOnlySpan<char> target = default)
     {
-        if (url.StartsWith("error:")) {
+        if (url.StartsWith("error:") || url.StartsWith("log:")) {
             var sb = StringBuilder();
             sb.Append("open-url");
             sb.Append('|');

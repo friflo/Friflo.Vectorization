@@ -17,6 +17,10 @@ internal static class OpenUrlUtils
             Console.Error.WriteLine(url);
             return true;
         }
+        if (url.StartsWith("log:")) {
+            Console.WriteLine(url.ToString());
+            return true;
+        }
         var urlStr = url.ToString();
         // Validate that it is a valid absolute URI and uses safe protocols (http or https)
         if (Uri.TryCreate(urlStr, UriKind.Absolute, out Uri? uriResult) &&

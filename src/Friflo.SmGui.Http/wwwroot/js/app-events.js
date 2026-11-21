@@ -301,11 +301,15 @@ export function invokeAction(data) {
     {
         case "open-url":
             const url = args[1];
-            if (url.startsWith("error:")) {
+            if (url.startsWith("error:") || url.startsWith("log:")) {
                 const blob = new Blob([url], { type: "text/plain;charset=utf-8" });
                 const objectURL = URL.createObjectURL(blob);
                 window.open(objectURL, "_blank");
-                console.error(url);
+                if (url.startsWith("error:")) {
+                    console.error(url);
+                } else {
+                    console.log(url);
+                }
             } else {
                 const parsed = new URL(url, window.location.href);
                 if (parsed.protocol === "http:" || parsed.protocol === "https:") {

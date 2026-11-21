@@ -29,8 +29,9 @@ public abstract class ClientAction
     protected ClientAction() { }
     
     /// <summary>
-    /// Opens the passed <paramref name="url"/> in a browser.<br/>
-    /// In a browser GUI this method calls <c>window.open(url, target)</c>.
+    /// Opens <paramref name="url"/> in a browser when it starts with <c>http://</c> or <c>https://</c>,
+    /// or writes it to the console when it starts with <c>error:</c> or <c>log:</c>.<br/>
+    /// In a browser GUI, this calls <c>window.open(url, target)</c>.
     /// </summary>
     public virtual bool OpenUrl(ReadOnlySpan<char> url, ReadOnlySpan<char> target = default) {
         return OpenUrlUtils.OpenUrl(url);
