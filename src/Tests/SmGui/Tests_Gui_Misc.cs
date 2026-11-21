@@ -6,6 +6,8 @@ using Friflo.SmGui;
 using Friflo.SmGui.Session;
 using Friflo.SmGui.TUI;
 using NUnit.Framework;
+// ReSharper disable ConvertToPrimaryConstructor
+// ReSharper disable UnusedType.Global
 
 // ReSharper disable InconsistentNaming
 // ReSharper disable SuggestVarOrType_Elsewhere
@@ -13,6 +15,15 @@ using NUnit.Framework;
 // ReSharper disable UnusedMember.Local
 // ReSharper disable once InconsistentNaming
 namespace Tests.SmGui;
+
+
+/// <summary> Ensure <see cref="AppConfig"/> can be extended </summary>
+internal sealed class CustomConfig : AppConfig
+{
+    public CustomConfig(SmSessionLoop? sessionLoop = null)
+        :  base(sessionLoop) {
+    }
+}
 
 public static class Tests_Gui_Misc
 {
