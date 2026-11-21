@@ -36,7 +36,7 @@ public interface IAppConfig
 /// </code>
 /// </example>
 /// </remarks>
-// Note: not a sealed class. Maybe useful to extended by user
+// Note: not a sealed class. Maybe useful to be extended by user
 public class AppConfig : IAppConfig
 {
     public  string      WebAppUrl       { get; private set; }
