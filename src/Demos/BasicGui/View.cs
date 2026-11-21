@@ -77,7 +77,7 @@ public sealed class GuiDemoView : GuiView
             gui.Action.OpenUrl($"https://localhost:{DemoConfig.HttpsPort}", "remote-gui");
         }
         if (gui.Button("WebRTC")) {
-            gui.Action.OpenUrl($"https://localhost:8081/?app={session.Config.AppId}", "webrtc");
+            gui.Action.OpenUrl(session.Config.WebRtcAppUrl, "webrtc");
         }
         if (gui.UiType != UiType.WebGui) {
             if (gui.Button("close session")) gui.Action.CloseWindow();

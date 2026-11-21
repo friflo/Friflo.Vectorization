@@ -1,6 +1,7 @@
 // Copyright (c) Ullrich Praetz - https://github.com/friflo. All rights reserved.
 // See LICENSE file in the project root for full license information.
 
+using System;
 using System.Collections.Generic;
 using Friflo.SmGui.Session;
 
@@ -11,19 +12,26 @@ namespace Friflo.SmGui;
 
 public class AppConfig
 {
+    public  string?     AppId           { get; private set; }
+    public  string      WebRtcAppUrl    { get; private set; }
+
+#region private fields
     private readonly    List<ISessionHandler>   list = [];
     public  readonly    SmSessionLoop?          sessionLoop;
-    public              string?                 AppId { get; private set; }
+#endregion
 
     public  override    string                  ToString() => $"count: {list.Count}";
 
     public AppConfig(SmSessionLoop? sessionLoop = null) {
         this.sessionLoop = sessionLoop;
         sessionLoop?.Config = this;
+        WebRtcAppUrl = "Signaling not configured";
     }
     
-    public void SetAppId(string? appId) {
-        AppId = appId;
+    public void SetWebRtcUrl(Uri uri, string? appId) {
+        AppId           = appId;
+        var scheme      = uri.Scheme == "wss" ? "https" : "http";
+        WebRtcAppUrl    = $"{scheme}://{uri.Host}:{uri.Port}/?app={appId}";
     }
     
     public void Add(ISessionHandler sessionHandler)

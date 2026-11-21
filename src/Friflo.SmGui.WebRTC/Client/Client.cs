@@ -42,7 +42,7 @@ public sealed partial class SmSignalingClient : ISessionHandler
         var signalingClient = new SmSignalingClient(config.sessionLoop);
         var appId = signalingClient.ConnectAsync(uri, app, instance, cancellationToken).GetAwaiter().GetResult(); // stay on main thread
         config.Add(signalingClient);
-        config.SetAppId(appId);
+        config.SetWebRtcUrl(uri, appId);
         
         _ = signalingClient.RunAsync();
         return signalingClient;
@@ -94,7 +94,7 @@ public sealed partial class SmSignalingClient : ISessionHandler
         if (message.sdpOrCandidate != "registered") {
             throw new InvalidOperationException($"register failed: {message.sdpOrCandidate}");
         }
-        sessionLoop?.Config.SetAppId(message.app);
+        sessionLoop?.Config.SetWebRtcUrl(uri, message.app);
         return message.app;
     }
     
