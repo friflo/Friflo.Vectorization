@@ -13,8 +13,11 @@ internal static class OpenUrlUtils
 {
     internal static bool OpenUrl(ReadOnlySpan<char> url)
     {
+        if (url.StartsWith("error:")) {
+            Console.Error.WriteLine(url);
+            return true;
+        }
         var urlStr = url.ToString();
-
         // Validate that it is a valid absolute URI and uses safe protocols (http or https)
         if (Uri.TryCreate(urlStr, UriKind.Absolute, out Uri? uriResult) &&
             (uriResult.Scheme == Uri.UriSchemeHttp || uriResult.Scheme == Uri.UriSchemeHttps))

@@ -300,7 +300,14 @@ export function invokeAction(data) {
     switch (args[0])
     {
         case "open-url":
-            window.open(args[1], args[2]);
+            if (args[1].startsWith("error:")) {
+                const style = "<style>body { font-family: Arial, Helvetica, sans-serif; white-space: pre-line; }</style>";
+                const blob = new Blob([style + args[1]], { type: "text/html;charset=utf-8" });
+                const url = URL.createObjectURL(blob);
+                window.open(url, "_blank");
+            } else {
+                window.open(args[1], args[2]);
+            }
             break;
         case "set-title":
             document.title = args[1];

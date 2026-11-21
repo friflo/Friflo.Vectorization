@@ -27,6 +27,19 @@ internal sealed class GuiClientAction : ClientAction
     
     public override bool OpenUrl(ReadOnlySpan<char> url, ReadOnlySpan<char> target = default)
     {
+        if (url.StartsWith("error:")) {
+            var sb = StringBuilder();
+            sb.Append("open-url");
+            sb.Append('|');
+            sb.Append(url);
+            if (target.Length > 0) {
+                sb.Append('|');
+                sb.Append(target);
+            }
+            var command = new SmSendCommand(sb.ToString());
+            client.SendCommand(command);
+            return true;
+        }
         var urlStr = url.ToString();
 
         // Allow both relative and absolute URIs
