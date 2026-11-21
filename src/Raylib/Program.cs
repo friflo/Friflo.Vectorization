@@ -15,7 +15,7 @@ var webApp = HttpUtils.CreateWebApplication(new IPEndPoint(IPAddress.IPv6Any, 80
 webApp.UseWebSocketGuiSessions(config, new Uri("https://localhost:8080"));
 await webApp.StartAsync();
 
-SmSignalingClient.Connect(config, new Uri("https://localhost:8081"), "test-app", AppId.Auto);
+SmSignalingClient.Connect(config, new Uri("https://localhost:8081"), "test-app", AppIdType.Auto);
 
 RaylibRunner.Run("SmGui", 1280, 1200, config, backend => new Demos.BasicGui.BasicGuiApp(backend));
 RaylibRunner.Run("SmDraw",1280,  720, config, backend => new Demos.BasicDraw.BasicDrawApp(backend));

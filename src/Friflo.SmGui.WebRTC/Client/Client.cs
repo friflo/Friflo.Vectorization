@@ -14,7 +14,7 @@ using Friflo.SmGui.Session;
 // ReSharper disable CheckNamespace
 namespace Friflo.SmGui.WebRTC;
 
-public enum AppId
+public enum AppIdType
 {
     /// <summary>
     /// The app id is fixed. Only a single client can be registered with a unique app id.
@@ -53,12 +53,12 @@ public sealed partial class SmSignalingClient : ISessionHandler
          return new Uri($"{(uri.Scheme == "https" ? "wss" : "ws")}://{uri.Host}:{uri.Port}/signaling");
     }
     
-    public static SmSignalingClient Connect(AppConfig config, Uri uri, string app, AppId appId, CancellationToken cancellationToken = default)
+    public static SmSignalingClient Connect(AppConfig config, Uri uri, string app, AppIdType appIdType, CancellationToken cancellationToken = default)
     {
         if (OperatingSystem.IsBrowser()) throw new PlatformNotSupportedException($"Browser requires: {nameof(ConnectAsync)}");
         var wsUri = GetSignalingWebSocketUri(uri);
         var signalingClient = new SmSignalingClient(config.sessionLoop);
-        var finalAppId = signalingClient.ConnectAsync(wsUri, app, appId, cancellationToken).GetAwaiter().GetResult(); // stay on main thread
+        var finalAppId = signalingClient.ConnectAsync(wsUri, app, appIdType, cancellationToken).GetAwaiter().GetResult(); // stay on main thread
         config.Add(signalingClient);
         config.SetWebRtcUrl(uri, finalAppId);
         
@@ -66,11 +66,11 @@ public sealed partial class SmSignalingClient : ISessionHandler
         return signalingClient;
     }
     
-    public static async Task<SmSessionLoop> ConnectAsync(SmSessionLoop loop, Uri uri, string app, AppId appId, CancellationToken cancellationToken = default)
+    public static async Task<SmSessionLoop> ConnectAsync(SmSessionLoop loop, Uri uri, string app, AppIdType appIdType, CancellationToken cancellationToken = default)
     {
         var signalingClient =  new SmSignalingClient(loop);
         var wsUri = GetSignalingWebSocketUri(uri);
-        await signalingClient.ConnectAsync(wsUri, app, appId, cancellationToken);
+        await signalingClient.ConnectAsync(wsUri, app, appIdType, cancellationToken);
         _ = signalingClient.RunAsync();
     
         return loop;
@@ -88,7 +88,7 @@ public sealed partial class SmSignalingClient : ISessionHandler
         _ =  clientWebSocket?.SendAsync(payload, WebSocketMessageType.Text, true, CancellationToken.None);
     }
         
-    public async Task<string?> ConnectAsync(Uri uri, string app, AppId appId, CancellationToken cancellationToken = default)
+    public async Task<string?> ConnectAsync(Uri uri, string app, AppIdType appIdType, CancellationToken cancellationToken = default)
     {
         clientWebSocket = new ClientWebSocket();
 
@@ -96,8 +96,8 @@ public sealed partial class SmSignalingClient : ISessionHandler
         await clientWebSocket.ConnectAsync(uri, cancellationToken);
         
         int sessionCount = sessionLoop?.SessionCount ?? 0;
-        var appIdType   = appId == AppId.Auto ? "auto" : null;
-        var msg         = new SignalMessage{ type = "register", app = app, sdpOrCandidate = appIdType, sessions = sessionCount };
+        var idType      = appIdType == AppIdType.Auto ? "auto" : null;
+        var msg         = new SignalMessage{ type = "register", app = app, sdpOrCandidate = idType, sessions = sessionCount };
         byte[] payload  = JsonSerializer.SerializeToUtf8Bytes(msg, ApiJson.Default.SignalMessage);
 
         await clientWebSocket.SendAsync(payload, WebSocketMessageType.Text, true, cancellationToken);
