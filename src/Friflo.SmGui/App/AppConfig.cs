@@ -47,8 +47,7 @@ public class AppConfig : IAppConfig
     
     public void SetWebRtcUrl(Uri uri, string? appId) {
         AppId           = appId;
-        var scheme      = uri.Scheme == "wss" ? "https" : "http";
-        WebRtcAppUrl    = $"{scheme}://{uri.Host}:{uri.Port}/?app={appId}";
+        WebRtcAppUrl    = $"{uri}?app={appId}";
     }
     
     public void Add(ISessionHandler sessionHandler)

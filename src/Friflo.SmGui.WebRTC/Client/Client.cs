@@ -35,12 +35,17 @@ public sealed partial class SmSignalingClient : ISessionHandler
         sessionLoop = loop;
     }
     
+    // ReSharper disable once MemberCanBePrivate.Global
+    public static Uri GetSignalingWebSocketUri(Uri uri) {
+         return new Uri($"{(uri.Scheme == "https" ? "wss" : "ws")}://{uri.Host}:{uri.Port}/signaling");
+    }
+    
     public static SmSignalingClient Connect(AppConfig config, Uri uri, string app, string? instance = null, CancellationToken cancellationToken = default)
     {
         if (OperatingSystem.IsBrowser()) throw new PlatformNotSupportedException($"Browser requires: {nameof(ConnectAsync)}");
-        
+        var wsUri = GetSignalingWebSocketUri(uri);
         var signalingClient = new SmSignalingClient(config.sessionLoop);
-        var appId = signalingClient.ConnectAsync(uri, app, instance, cancellationToken).GetAwaiter().GetResult(); // stay on main thread
+        var appId = signalingClient.ConnectAsync(wsUri, app, instance, cancellationToken).GetAwaiter().GetResult(); // stay on main thread
         config.Add(signalingClient);
         config.SetWebRtcUrl(uri, appId);
         
@@ -51,7 +56,8 @@ public sealed partial class SmSignalingClient : ISessionHandler
     public static async Task<SmSessionLoop> ConnectAsync(SmSessionLoop loop, Uri uri, string app, string? instance = null, CancellationToken cancellationToken = default)
     {
         var signalingClient =  new SmSignalingClient(loop);
-        await signalingClient.ConnectAsync(uri, app, instance, cancellationToken);
+        var wsUri = GetSignalingWebSocketUri(uri);
+        await signalingClient.ConnectAsync(wsUri, app, instance, cancellationToken);
         _ = signalingClient.RunAsync();
     
         return loop;

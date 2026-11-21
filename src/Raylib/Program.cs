@@ -2,7 +2,6 @@
 
 using System;
 using System.Net;
-using Demos;
 using Friflo.SmGui;
 using Friflo.SmGui.Http;
 using Friflo.SmGui.WebRTC;
@@ -16,7 +15,7 @@ var webApp = HttpUtils.CreateWebApplication(new IPEndPoint(IPAddress.IPv6Any, 80
 webApp.UseWebSocketGuiSessions(config, new Uri("https://localhost:8080"));
 await webApp.StartAsync();
 
-SmSignalingClient.Connect(config, new Uri(DemoConfig.SignalingUrl), "test-app", "auto");
+SmSignalingClient.Connect(config, new Uri("https://localhost:8081"), "test-app", "auto");
 
 RaylibRunner.Run("SmGui", 1280, 1200, config, backend => new Demos.BasicGui.BasicGuiApp(backend));
 RaylibRunner.Run("SmDraw",1280,  720, config, backend => new Demos.BasicDraw.BasicDrawApp(backend));

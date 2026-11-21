@@ -5,11 +5,6 @@ using Friflo.SmGui;
 namespace Demos;
 
 
-public static class DemoConfig
-{
-    public const    string  SignalingUrl    = "wss://localhost:8081/signaling";
-}
-
 /// <summary>
 /// Use the same set of resources for all demos for simplicity.<br/>
 /// Using a separate class is optional, but it helps to organize resources. 

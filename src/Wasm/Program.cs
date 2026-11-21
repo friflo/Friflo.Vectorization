@@ -24,7 +24,7 @@ internal static class Program
             ViewFactory = session => new TestGuiView(session),
             Runtime     = new WasmRuntime()
         });
-        await SmSignalingClient.ConnectAsync(loop, new Uri("wss://localhost:8081/signaling"), "test-app", "auto");
+        await SmSignalingClient.ConnectAsync(loop, new Uri("https://localhost:8081"), "test-app", "auto");
         
         JSHost.GlobalThis.SetProperty("onAppStarted", loop.Config.AppId);
     }
