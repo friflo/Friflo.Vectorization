@@ -5,16 +5,16 @@ using Friflo.SmGui;
 using Friflo.SmGui.Headless;
 using Friflo.SmGui.Session;
 
-namespace Headless;
+namespace CLI;
 
 
-public class ConsoleApp : IDisposable
+public class Cli : IDisposable
 {
     private readonly    CpuBackend      guiBackend;
     private readonly    SmGuiApp        app;
     private readonly    SmSessionLoop   loop;
 
-    public ConsoleApp(string title, CreateGuiApp createGuiApp)
+    public Cli(string title, CreateGuiApp createGuiApp)
     {
         guiBackend  = new CpuBackend("Console", new DefaultGuiAssets());
         app         = createGuiApp(guiBackend);

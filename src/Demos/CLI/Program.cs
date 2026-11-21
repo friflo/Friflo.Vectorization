@@ -5,7 +5,7 @@ using System.Net;
 using Friflo.SmGui;
 using Friflo.SmGui.Http;
 using Friflo.SmGui.WebRTC;
-using Headless;
+using CLI;
 
 var config = new AppConfig();
 
@@ -28,12 +28,12 @@ public static class HeadlessRunner
     public static int Run(string title, AppConfig config, CreateGuiApp createGuiApp)
     {
         createGuiApp = config.AddSessionLoop(createGuiApp);
-        var app = new ConsoleApp(title, createGuiApp);
+        var cli = new Cli(title, createGuiApp);
         
-        app.Run();
+        cli.Run();
 
         config.RemoveSessionLoop();
-        app.Dispose();
+        cli.Dispose();
         return 0;
     }
 }
