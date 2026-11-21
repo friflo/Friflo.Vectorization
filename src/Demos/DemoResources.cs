@@ -7,7 +7,6 @@ namespace Demos;
 
 public static class DemoConfig
 {
-    public const    int     HttpsPort       = 8080;
     public const    string  SignalingUrl    = "wss://localhost:8081/signaling";
 }
 

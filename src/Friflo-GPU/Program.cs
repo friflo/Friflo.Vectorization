@@ -14,8 +14,8 @@ using SDL3;
 var config = new AppConfig();
 
 // HTTP server for Browser sessions.  nuget: Friflo.SmGui.Http
-var webApp = HttpUtils.CreateWebApplication(new IPEndPoint(IPAddress.IPv6Any, DemoConfig.HttpsPort));
-webApp.UseWebSocketGuiSessions(config, new Uri($"https://localhost:{DemoConfig.HttpsPort}"));
+var webApp = HttpUtils.CreateWebApplication(new IPEndPoint(IPAddress.IPv6Any, 8080));
+webApp.UseWebSocketGuiSessions(config, new Uri("https://localhost:8080"));
 await webApp.StartAsync();
 
 SmSignalingClient.Connect(config, new Uri(DemoConfig.SignalingUrl), "test-app", "auto");
