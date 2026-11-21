@@ -44,7 +44,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Friflo.SmGui.Godot", "src\F
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Friflo.SmGui.KNI", "src\Friflo.SmGui.KNI\Friflo.SmGui.KNI.csproj", "{5918CB24-B50B-4A03-8012-8A9EBD8D89DC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Demos", "src\Demos\Demos.csproj", "{023AC4E8-4835-4C69-B4E8-068D69A8566F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Apps", "src\Apps\Apps.csproj", "{023AC4E8-4835-4C69-B4E8-068D69A8566F}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Demos", "Demos", "{D62260B8-F067-4FDC-BFF9-81BCE1556799}"
 EndProject
