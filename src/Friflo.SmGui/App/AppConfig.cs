@@ -26,12 +26,12 @@ public interface IAppConfig
 /// <code>
 ///     var config = new AppConfig();
 ///     
-///     // HTTP server.  nuget: Friflo.SmGui.Http
+///     // WebSocket browser sessions: this app hosts the page.  nuget: Friflo.SmGui.Http
 ///     var webApp = HttpUtils.CreateWebApplication(new IPEndPoint(IPAddress.IPv6Any, 8080));
 ///     webApp.UseWebSocketGuiSessions(config, new Uri("https://localhost:8080"));
 ///     await webApp.StartAsync();
 ///     
-///     // Signaling client.  nuget: Friflo.SmGui.WebRTC
+///     // WebRTC browser sessions: signaling server hosts the page.  nuget: Friflo.SmGui.WebRTC
 ///     SmSignalingClient.Connect(config, new Uri("https://localhost:8081/?app=test-app"), AppIdType.Auto);
 /// </code>
 /// </example>

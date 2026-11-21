@@ -9,11 +9,12 @@ using TestConsole;
 
 var config = new AppConfig();
 
-// HTTP server for Browser sessions.  nuget: Friflo.SmGui.Http
+// WebSocket browser sessions: this app hosts the page.  nuget: Friflo.SmGui.Http
 var webApp = HttpUtils.CreateWebApplication(new IPEndPoint(IPAddress.IPv6Any, 8080));
 webApp.UseWebSocketGuiSessions(config, new Uri("https://localhost:8080"));
 await webApp.StartAsync();
 
+// WebRTC browser sessions: signaling server hosts the page.  nuget: Friflo.SmGui.WebRTC
 SmSignalingClient.Connect(config, new Uri("https://localhost:8081/?app=test-app"), AppIdType.Auto);
 
 MonoGameRunner.Run("SmGui", 1280, 1200, config, backend => new Demos.BasicGui.BasicGuiApp(backend));

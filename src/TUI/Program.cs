@@ -57,10 +57,10 @@ var loop = SmSessionLoop.Create(new LoopOptions {
 
 var config = new AppConfig(loop);
 
-// Connect to Signaling Server for WebRTC Browser sessions.  nuget: Friflo.SmGui.WebRTC
+// WebRTC browser sessions: signaling server hosts the page.  nuget: Friflo.SmGui.WebRTC
 SmSignalingClient.Connect(config, new Uri("https://localhost:8081/?app=test-app"), AppIdType.Auto);
 
-// HTTP server for Browser sessions.  nuget: Friflo.SmGui.Http
+// WebSocket browser sessions: this app hosts the page.  nuget: Friflo.SmGui.Http
 var webApp = HttpUtils.CreateWebApplication(new IPEndPoint(IPAddress.IPv6Any, 8080));
 webApp.UseWebSocketGuiSessions(config, new Uri("https://localhost:8080"));
 webApp.MapGet("/api/speed", async () => {
