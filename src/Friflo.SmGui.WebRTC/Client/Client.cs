@@ -87,6 +87,7 @@ public sealed partial class SmSignalingClient : ISessionHandler
         var signalingClient = new SmSignalingClient(config.sessionLoop);
         var app = GetQueryValue(uri, "app")!;
         var finalAppId = signalingClient.ConnectAsync(wsUri, app, appIdType, cancellationToken).GetAwaiter().GetResult(); // stay on main thread
+        
         config.Add(signalingClient);
         config.SetWebRtcUrl(uri, finalAppId);
         
@@ -94,15 +95,20 @@ public sealed partial class SmSignalingClient : ISessionHandler
         return signalingClient;
     }
     
-    public static async Task<SmSessionLoop> ConnectAsync(SmSessionLoop loop, Uri uri, AppIdType appIdType, CancellationToken cancellationToken = default)
+    public static async Task<SmSignalingClient> ConnectAsync(AppConfig config, Uri uri, AppIdType appIdType, CancellationToken cancellationToken = default)
     {
-        var signalingClient =  new SmSignalingClient(loop);
+        config.SetWebRtcUrl(uri, null);
+        var signalingClient =  new SmSignalingClient(config.sessionLoop);
         var wsUri = GetSignalingWebSocketUri(uri);
         var app = GetQueryValue(uri, "app")!;
-        await signalingClient.ConnectAsync(wsUri, app, appIdType, cancellationToken);
+        var finalAppId = await signalingClient.ConnectAsync(wsUri, app, appIdType, cancellationToken);
+        
+        config.Add(signalingClient);
+        config.SetWebRtcUrl(uri, finalAppId);
+        
         _ = signalingClient.RunAsync();
     
-        return loop;
+        return signalingClient;
     }
     
     
