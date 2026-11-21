@@ -55,8 +55,8 @@ public class AppConfig : IAppConfig
     public AppConfig(SmSessionLoop? sessionLoop = null) {
         this.sessionLoop = sessionLoop;
         sessionLoop?.config = this;
-        WebAppUrl       = "error: HTTP server not configured.\nCheck example at: https://github.com/friflo/Friflo.Vectorization/blob/main/src/MonoGame/Program.cs";
-        WebRtcAppUrl    = "error: Signaling client not configured.\nCheck example at: https://github.com/friflo/Friflo.Vectorization/blob/main/src/MonoGame/Program.cs";
+        WebAppUrl       = "error: HTTP server not configured.\nCheck example at: https://github.com/friflo/Friflo.Vectorization/blob/main/src/Demos/MonoGame/Program.cs";
+        WebRtcAppUrl    = "error: Signaling client not configured.\nCheck example at: https://github.com/friflo/Friflo.Vectorization/blob/main/src/Demos/MonoGame/Program.cs";
     }
     
     public void SetWebAppUrl(Uri uri) {
