@@ -38,14 +38,26 @@ public class ConsoleApp : IDisposable
     private async Task ConsoleReader()
     {
         while (true) {
+            await SwitchToThreadPool();     // ensure running on ThreadPool worker thread
+            await Console.Out.WriteAsync(">");
             var cmd = await Console.In.ReadLineAsync();
-            if (cmd == "exit") break;
-            await Console.Out.WriteLineAsync($"> {cmd}");
             await loop.DispatchAsync();     // continue execution on loop thread to avoid explicit locks and contention
                                             // capture state safely on loop thread
-            
-            await SwitchToThreadPool();     // switch back to ThreadPool worker thread
+            switch (cmd) {
+                case "exit": goto LeaveLoop;
+                case "delay":
+                    await Console.Out.WriteAsync($"delay (5 sec) ... ");
+                    // avoid blocking loop thread - browser sessions stay responsive. Run IO heavy operations on worker thread
+                    await Task.Run(() => Task.Delay(5000)); 
+                    await Console.Out.WriteLineAsync($" finished");
+                    break;
+                default:
+                    await Console.Out.WriteLineAsync($"invalid cmd: {cmd}");
+                    break;
+            }
         }
+    LeaveLoop:
+        await Console.Out.WriteLineAsync($"exiting");
     }
     
     private static ThreadPoolAwaiter SwitchToThreadPool() => default;
