@@ -17,7 +17,24 @@ public interface IAppConfig
     public  string      WebRtcAppUrl    { get; }
 }
 
-
+/// <summary>
+/// <see cref="AppConfig"/> provides the configuration for browser clients using an HTTP server or a signaling client.
+/// </summary>
+/// <remarks>
+/// <example>E.g. at startup in <c>Program.cs</c>
+/// <code>
+///     var config = new AppConfig();
+///     
+///     // HTTP server.  nuget: Friflo.SmGui.Http
+///     var webApp = HttpUtils.CreateWebApplication(new IPEndPoint(IPAddress.IPv6Any, 8080));
+///     webApp.UseWebSocketGuiSessions(config, new Uri("https://localhost:8080"));
+///     await webApp.StartAsync();
+///
+///     // nuget: Friflo.SmGui.WebRTC
+///     SmSignalingClient.Connect(config, new Uri("https://localhost:8081"), "test-app", "auto");
+/// </code>
+/// </example>
+/// </remarks>
 public class AppConfig : IAppConfig
 {
     public  string      WebAppUrl       { get; private set; }
