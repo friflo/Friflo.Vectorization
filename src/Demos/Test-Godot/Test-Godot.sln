@@ -10,7 +10,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Friflo.SmGui.Http", "..\..\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Friflo.SmGui.Assets", "..\..\Friflo.SmGui.Assets\Friflo.SmGui.Assets.csproj", "{1D2C1F95-5798-4C88-AA70-A20E310AE2BF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Demos", "..\Demos\Demos.csproj", "{A7DE6866-6548-408E-A63E-40A27F3010E2}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Apps", "..\Apps\Apps.csproj", "{A7DE6866-6548-408E-A63E-40A27F3010E2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
