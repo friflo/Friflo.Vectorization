@@ -10,7 +10,15 @@ using Friflo.SmGui.Session;
 namespace Friflo.SmGui;
 
 
-public class AppConfig
+public interface IAppConfig
+{
+    public  string      WebAppUrl       { get; }
+    public  string?     AppId           { get; }
+    public  string      WebRtcAppUrl    { get; }
+}
+
+
+public class AppConfig : IAppConfig
 {
     public  string      WebAppUrl       { get; private set; }
     public  string?     AppId           { get; private set; }
@@ -22,10 +30,13 @@ public class AppConfig
 #endregion
 
     public  override    string                  ToString() => $"count: {list.Count}";
+    
+    internal static readonly InvalidOperationException SessionLoopException =
+        new($"No Config assigned. Assign a Config with: {nameof(AppConfig)}() or {nameof(AppConfig)}.{nameof(AddSessionLoop)}().");
 
     public AppConfig(SmSessionLoop? sessionLoop = null) {
         this.sessionLoop = sessionLoop;
-        sessionLoop?.Config = this;
+        sessionLoop?.config = this;
         WebAppUrl       = "HTTP server not configured";
         WebRtcAppUrl    = "Signaling not configured";
     }
@@ -57,7 +68,7 @@ public class AppConfig
             var app = createGuiApp(backend);
             var loop = app.SessionLoop;
             if (loop != null) {
-                loop.Config = this;
+                loop.config = this;
                 foreach (var handler in list) {
                     handler.AddSessionLoop(loop); 
                 }

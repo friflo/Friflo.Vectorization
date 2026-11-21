@@ -124,7 +124,7 @@ public sealed class ViewSession
 
     public          SmGuiBackend    Backend { [Hide] get => backend ?? throw SessionTerminatedException(); }
 
-    public          AppConfig       Config  { [Hide] get => loop.Config; }
+    public          IAppConfig      Config  { [Hide] get => loop.Config; }
 
     /// <summary> Provides access to client actions not related to GUI or rendering. </summary>
     public          ClientAction    Action  { [Hide] get => Backend.host.clientAction; }

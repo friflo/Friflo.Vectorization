@@ -67,12 +67,13 @@ public delegate void SessionsChanged(SessionsChangedArgs args);
 public sealed partial class SmSessionLoop : IDisposable
 {
     public   readonly   AssetResources      resources;
-    public              AppConfig           Config                  { get; internal set; }
+    public              IAppConfig          Config                  => config           ?? throw AppConfig.SessionLoopException;
     public              int                 SessionCount            => sessions.Count;
     public   event      SessionsChanged?    SessionsChanged;
     public              AppTimer            AppTimer                => appTimer;
 
 #region private fields
+    internal            IAppConfig?                                 config;
     internal            bool                                        useSecureSessionGuids;
     // --- queue
     internal readonly   SmEventQueue                                eventQueue;

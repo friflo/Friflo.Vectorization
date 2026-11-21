@@ -94,7 +94,6 @@ public sealed partial class SmSignalingClient : ISessionHandler
         if (message.sdpOrCandidate != "registered") {
             throw new InvalidOperationException($"register failed: {message.sdpOrCandidate}");
         }
-        sessionLoop?.Config.SetWebRtcUrl(uri, message.app);
         return message.app;
     }
     
