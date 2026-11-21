@@ -62,7 +62,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests-Generators-Code", "sr
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests-Generators-Verify", "src\Tests-Generators-Verify\Tests-Generators-Verify.csproj", "{9CE90315-E330-41C0-BAF3-2672C7E453BA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Headless", "src\Demos\Headless\Headless.csproj", "{820BE3BC-1FA5-495D-8080-9346776316E7}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Console", "src\Demos\Console\Console.csproj", "{820BE3BC-1FA5-495D-8080-9346776316E7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
