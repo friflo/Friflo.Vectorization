@@ -31,7 +31,7 @@ public interface IAppConfig
 ///     webApp.UseWebSocketGuiSessions(config, new Uri("https://localhost:8080"));
 ///     await webApp.StartAsync();
 ///     
-///     // nuget: Friflo.SmGui.WebRTC
+///     // Signaling client.  nuget: Friflo.SmGui.WebRTC
 ///     SmSignalingClient.Connect(config, new Uri("https://localhost:8081/?app=test-app"), AppIdType.Auto);
 /// </code>
 /// </example>
