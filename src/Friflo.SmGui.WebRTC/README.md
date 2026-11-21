@@ -12,11 +12,11 @@ GUI vector data is streamed via WebRTC data channels instead of an HTTP WebSocke
 
 Friflo.SmGui.WebRTC supports multiple concurrent sessions.  
 Each session has its own state and its own UI, so many browser clients can use the same application at the same time, independently of each other.  
-The page title (`document.title`) of WebRTC browser clients are typically marked with 🔀.
+The page title (`document.title`) of a WebRTC browser client is typically marked with 🔀.
 
 The key difference of a **WebRTC** setup:  
 An app built with this setup **does not act as a server**.  
-A server requires hosting and configuration: endpoint, IP, port, firewall, router, reverse proxy, certificate, deployment, ... .  
+A server requires hosting and configuration: endpoint, IP, port, firewall, router, reverse proxy, certificate, deployment, ...  
 Hosting a server usually means paying for infrastructure.  
 Operating a server on a smartphone or data center node may be forbidden or hard to realize.
 
@@ -25,8 +25,8 @@ Operating a server on a smartphone or data center node may be forbidden or hard 
 Friflo.SmGui.WebRTC is a pure client architecture:  
 The app opens only outgoing connections (a WebSocket for signaling, WebRTC for GUI clients).  
 A small signaling server hosts the browser page and brokers the connection.  
-The GUI data flows directly between app and browser and never passes through the signaling server.  
+The GUI data flows directly between the app and the browser and never passes through the signaling server.  
 Unlike most "serverless" offerings, the app itself requires no hosting and never listens on a port.  
 It utilizes **WebRTC** and [ClientWebSocket](https://learn.microsoft.com/en-us/dotnet/api/system.net.websockets.clientwebsocket).  
-In a native .NET application [SIPSorcery](https://github.com/sipsorcery-org/sipsorcery) provides WebRTC.  
-In a browser the built-in WebRTC API is used directly, so SIPSorcery is not a dependency.
+In a native .NET application, [SIPSorcery](https://github.com/sipsorcery-org/sipsorcery) provides WebRTC.  
+In a browser, the built-in WebRTC API is used directly, so SIPSorcery is not a dependency.
