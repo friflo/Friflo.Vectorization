@@ -18,7 +18,7 @@ internal static class OpenUrlUtils
             return true;
         }
         if (url.StartsWith("log:")) {
-            Console.WriteLine(url.ToString());
+            Console.Out.WriteLine(url);
             return true;
         }
         var urlStr = url.ToString();
