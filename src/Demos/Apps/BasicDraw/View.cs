@@ -6,18 +6,19 @@ using Friflo.SmGui;
 namespace Demos.BasicDraw;
 
 
-public class DrawDemoView
+public class DrawDemoView : GuiView
 {
     private readonly    DemoResources   resources;
     private             float           rotation;
     private readonly    Stopwatch       stopwatch = Stopwatch.StartNew();
     private             float           lastTime;
 
-    internal DrawDemoView(DemoResources resources) {
+    internal DrawDemoView(DemoResources resources, ViewSession session) : base(session)
+    {
         this.resources = resources;
     }
 
-    public void RenderView(SmBatch batch, int targetWidth, int targetHeight)
+    public override void RenderView(SmBatch batch, int targetWidth, int targetHeight)
     {
         var currentTime = (float)stopwatch.Elapsed.TotalSeconds;
         var deltaTime   = currentTime - lastTime;

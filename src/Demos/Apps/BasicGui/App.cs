@@ -24,9 +24,8 @@ public sealed class BasicGuiApp : SmGuiApp
 
     public override void Dispose()
     {
-        resources.Dispose();
-        
         SessionLoop?.Dispose();
+        resources.Dispose();
     }
     
     public override void RenderApp(SmBatch batch,  int width, int height)

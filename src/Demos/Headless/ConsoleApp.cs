@@ -14,7 +14,7 @@ public class ConsoleApp : IDisposable
 
     public ConsoleApp(string title, CreateGuiApp createGuiApp)
     {
-        guiBackend  = new CpuBackend("CPU", new DefaultGuiAssets());
+        guiBackend  = new CpuBackend("Console", new DefaultGuiAssets());
         app         = createGuiApp(guiBackend);
         loop        = app.SessionLoop!;
         Console.Out.WriteLine($"{title} started");
