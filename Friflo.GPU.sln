@@ -1,4 +1,4 @@
-
+﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Demos", "Demos", "{D62260B8-F067-4FDC-BFF9-81BCE1556799}"
 EndProject
@@ -61,6 +61,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests-Generators-Code", "src\Tests-Generators\Tests-Generators-Code.csproj", "{1D0CC391-A07E-4196-8927-FF2D59C4ED74}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests-Generators-Verify", "src\Tests-Generators-Verify\Tests-Generators-Verify.csproj", "{9CE90315-E330-41C0-BAF3-2672C7E453BA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Headless", "src\Demos\Headless\Headless.csproj", "{820BE3BC-1FA5-495D-8080-9346776316E7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -188,6 +190,10 @@ Global
 		{9CE90315-E330-41C0-BAF3-2672C7E453BA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9CE90315-E330-41C0-BAF3-2672C7E453BA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9CE90315-E330-41C0-BAF3-2672C7E453BA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{820BE3BC-1FA5-495D-8080-9346776316E7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{820BE3BC-1FA5-495D-8080-9346776316E7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{820BE3BC-1FA5-495D-8080-9346776316E7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{820BE3BC-1FA5-495D-8080-9346776316E7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{1A5652D0-4695-48D2-9C1A-B6E23548F705} = {D62260B8-F067-4FDC-BFF9-81BCE1556799}
@@ -198,5 +204,6 @@ Global
 		{D0EBFFAD-C03E-4985-A25D-D4A478DD560E} = {D62260B8-F067-4FDC-BFF9-81BCE1556799}
 		{F1063E3C-546B-47DF-B69C-304AB6283E19} = {D62260B8-F067-4FDC-BFF9-81BCE1556799}
 		{02B12839-1AB5-4F1F-93D4-7EAE31AC1B49} = {D62260B8-F067-4FDC-BFF9-81BCE1556799}
+		{820BE3BC-1FA5-495D-8080-9346776316E7} = {D62260B8-F067-4FDC-BFF9-81BCE1556799}
 	EndGlobalSection
 EndGlobal
