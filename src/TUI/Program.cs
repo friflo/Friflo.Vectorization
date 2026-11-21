@@ -63,7 +63,7 @@ SmSignalingClient.Connect(config, new Uri(DemoConfig.SignalingUrl), "test-app", 
 
 // HTTP server for Browser sessions.  nuget: Friflo.SmGui.Http
 var webApp = HttpUtils.CreateWebApplication(new IPEndPoint(IPAddress.IPv6Any, DemoConfig.HttpsPort));
-webApp.UseWebSocketGuiSessions(config);
+webApp.UseWebSocketGuiSessions(config, new Uri($"https://localhost:{DemoConfig.HttpsPort}"));
 webApp.MapGet("/api/speed", async () => {
     await loop.DispatchAsync();             // continue execution on loop thread to avoid explicit locks and contention
     var speed = appState.speed;             // capture state safely on loop thread

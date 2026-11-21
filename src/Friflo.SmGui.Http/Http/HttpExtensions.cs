@@ -21,9 +21,10 @@ public static class SmGuiHttpExtensions
 {
     private static readonly string  WebRoot = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "wwwroot");
 
-    public static IApplicationBuilder UseWebSocketGuiSessions(this IApplicationBuilder app, AppConfig config, string? webRoot = null)
+    public static IApplicationBuilder UseWebSocketGuiSessions(this IApplicationBuilder app, AppConfig config, Uri webAppUri, string? webRoot = null)
     {
         webRoot ??= WebRoot;
+        config.SetWebAppUrl(webAppUri);
         
         // Set up custom MIME types (especially for .wgsl WebGPU shaders)
         var provider = new FileExtensionContentTypeProvider {

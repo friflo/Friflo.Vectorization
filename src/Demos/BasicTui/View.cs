@@ -83,7 +83,7 @@ public class BasicTuiView : GuiView
     {
         using (gui.BeginHorizontal()) {
             if (gui.Button("Web")) {
-                gui.Action.OpenUrl($"https://localhost:{DemoConfig.HttpsPort}", "web");
+                gui.Action.OpenUrl(session.Config.WebAppUrl, "web");
             }
             if (gui.Button("WebRTC")) {
                 gui.Action.OpenUrl(session.Config.WebRtcAppUrl, "webrtc");

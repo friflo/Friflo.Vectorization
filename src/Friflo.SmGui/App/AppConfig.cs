@@ -12,6 +12,7 @@ namespace Friflo.SmGui;
 
 public class AppConfig
 {
+    public  string      WebAppUrl       { get; private set; }
     public  string?     AppId           { get; private set; }
     public  string      WebRtcAppUrl    { get; private set; }
 
@@ -25,7 +26,12 @@ public class AppConfig
     public AppConfig(SmSessionLoop? sessionLoop = null) {
         this.sessionLoop = sessionLoop;
         sessionLoop?.Config = this;
-        WebRtcAppUrl = "Signaling not configured";
+        WebAppUrl       = "HTTP server not configured";
+        WebRtcAppUrl    = "Signaling not configured";
+    }
+    
+    public void SetWebAppUrl(Uri uri) {
+        WebAppUrl = $"{uri.Scheme}://{uri.Host}:{uri.Port}";
     }
     
     public void SetWebRtcUrl(Uri uri, string? appId) {
