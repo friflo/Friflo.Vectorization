@@ -11,32 +11,32 @@ using Friflo.WGPU;
 using Friflo.WGPU.SDL3;
 using SDL3;
 
-var sessionHandlers = new SessionHandlers();
+var config = new AppConfig();
 
 // HTTP server for Browser sessions.  nuget: Friflo.SmGui.Http
 var webApp = HttpUtils.CreateWebApplication(new IPEndPoint(IPAddress.IPv6Any, DemoConfig.HttpsPort));
-webApp.UseWebSocketGuiSessions(sessionHandlers);
+webApp.UseWebSocketGuiSessions(config);
 await webApp.StartAsync();
 
-SmSignalingClient.Connect(sessionHandlers, new Uri(DemoConfig.SignalingUrl), "test-app", "auto");
+SmSignalingClient.Connect(config, new Uri(DemoConfig.SignalingUrl), "test-app", "auto");
 
-WgpuRunner.Run("SmGui",   1280, 1200, sessionHandlers, backend => new Demos.BasicGui.BasicGuiApp(backend));
-WgpuRunner.Run("SmDraw",  1280,  720, sessionHandlers, backend => new Demos.BasicDraw.BasicDrawApp(backend));
+WgpuRunner.Run("SmGui",   1280, 1200, config, backend => new Demos.BasicGui.BasicGuiApp(backend));
+WgpuRunner.Run("SmDraw",  1280,  720, config, backend => new Demos.BasicDraw.BasicDrawApp(backend));
 
 await webApp.StopAsync();
 
 public static class WgpuRunner
 {
-    public static int Run(string title, int width, int height, SessionHandlers? sessionHandlers, CreateGuiApp createGuiApp)
+    public static int Run(string title, int width, int height, AppConfig config, CreateGuiApp createGuiApp)
     {
-        createGuiApp = sessionHandlers?.AddSessionLoop(createGuiApp) ?? createGuiApp;
+        createGuiApp = config.AddSessionLoop(createGuiApp);
         if (!SDL.Init(SDL.InitFlags.Video | SDL.InitFlags.Gamepad)) throw new Exception($"SDL3 initialization failed: {SDL.GetError()}");
         var window = new Sdl3Window();
         CreateRenderer createRenderer = wgpuHost => new WgpuRenderer(wgpuHost);
         var opt = new InitOptions{ title = title, width = width, height = height, createRenderer = createRenderer, createGuiApp = createGuiApp };
         var result = window.EnterAppMain(opt);
         
-        sessionHandlers?.RemoveSessionLoop();
+        config.RemoveSessionLoop();
         return result;
     }
 }

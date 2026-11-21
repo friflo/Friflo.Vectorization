@@ -18,11 +18,11 @@ var loop = SmSessionLoop.Create(new LoopOptions {
 });
 signaling.StateChanged = loop.SetAppDirty;
 
-var sessionHandler = new SessionHandlers(loop);
+var config = new AppConfig(loop);
 
 // HTTP server for Browser sessions.  nuget: Friflo.SmGui.Http
 var webApp = HttpUtils.CreateWebApplication(new IPEndPoint(IPAddress.IPv6Any, 8081));
-webApp.UseWebSocketGuiSessions(sessionHandler);
+webApp.UseWebSocketGuiSessions(config);
 webApp.UseSignaling(signaling);
 _ = webApp.StartAsync();
     

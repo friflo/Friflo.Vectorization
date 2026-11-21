@@ -21,7 +21,7 @@ public static class SmGuiHttpExtensions
 {
     private static readonly string  WebRoot = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "wwwroot");
 
-    public static IApplicationBuilder UseWebSocketGuiSessions(this IApplicationBuilder app, SessionHandlers sessionHandlers, string? webRoot = null)
+    public static IApplicationBuilder UseWebSocketGuiSessions(this IApplicationBuilder app, AppConfig config, string? webRoot = null)
     {
         webRoot ??= WebRoot;
         
@@ -34,8 +34,8 @@ public static class SmGuiHttpExtensions
 
         app.UseWebSockets();
         
-        var sessionHandler = new WebSessionHandler(sessionHandlers.sessionLoop);
-        sessionHandlers.Add(sessionHandler);
+        var sessionHandler = new WebSessionHandler(config.sessionLoop);
+        config.Add(sessionHandler);
         
         app.Use(sessionHandler.HandleGuiRequestAsync);
 

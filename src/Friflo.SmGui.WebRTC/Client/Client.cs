@@ -35,14 +35,14 @@ public sealed partial class SmSignalingClient : ISessionHandler
         sessionLoop = loop;
     }
     
-    public static SmSignalingClient Connect(SessionHandlers sessionHandlers, Uri uri, string app, string? instance = null, CancellationToken cancellationToken = default)
+    public static SmSignalingClient Connect(AppConfig config, Uri uri, string app, string? instance = null, CancellationToken cancellationToken = default)
     {
         if (OperatingSystem.IsBrowser()) throw new PlatformNotSupportedException($"Browser requires: {nameof(ConnectAsync)}");
         
-        var signalingClient = new SmSignalingClient(sessionHandlers.sessionLoop);
+        var signalingClient = new SmSignalingClient(config.sessionLoop);
         var appId = signalingClient.ConnectAsync(uri, app, instance, cancellationToken).GetAwaiter().GetResult(); // stay on main thread
-        sessionHandlers.Add(signalingClient);
-        sessionHandlers.SetAppId(appId);
+        config.Add(signalingClient);
+        config.SetAppId(appId);
         
         _ = signalingClient.RunAsync();
         return signalingClient;

@@ -93,7 +93,7 @@ public static class HttpUtils
     /// for a more direct, unnested setup.
     /// </remarks>
     [Obsolete("Use CreateWebApplication for a modern WebApplicationBuilder workflow.")]
-    public static IHostBuilder CreateHostBuilder(EndPoint endPoint, SessionHandlers sessionHandlers, string? webRoot = null)
+    public static IHostBuilder CreateHostBuilder(EndPoint endPoint, AppConfig config, string? webRoot = null)
     {
         var builder = Host.CreateDefaultBuilder();
 
@@ -113,7 +113,7 @@ public static class HttpUtils
             });
 
             webBuilder.Configure(app => {
-                app.UseWebSocketGuiSessions(sessionHandlers, webRoot);
+                app.UseWebSocketGuiSessions(config, webRoot);
             });
         });
 

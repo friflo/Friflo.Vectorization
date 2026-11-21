@@ -8,26 +8,26 @@ using Friflo.SmGui.Http;
 using Friflo.SmGui.WebRTC;
 using TestConsole;
 
-var sessionHandlers = new SessionHandlers();
+var config = new AppConfig();
 
 // HTTP server for Browser sessions.  nuget: Friflo.SmGui.Http
 var webApp = HttpUtils.CreateWebApplication(new IPEndPoint(IPAddress.IPv6Any, DemoConfig.HttpsPort));
-webApp.UseWebSocketGuiSessions(sessionHandlers);
+webApp.UseWebSocketGuiSessions(config);
 await webApp.StartAsync();
 
-SmSignalingClient.Connect(sessionHandlers, new Uri(DemoConfig.SignalingUrl), "test-app", "auto");
+SmSignalingClient.Connect(config, new Uri(DemoConfig.SignalingUrl), "test-app", "auto");
 
-MonoGameRunner.Run("SmGui", 1280, 1200, sessionHandlers, backend => new Demos.BasicGui.BasicGuiApp(backend));
-MonoGameRunner.Run("SmDraw",1280,  720, sessionHandlers, backend => new Demos.BasicDraw.BasicDrawApp(backend));
+MonoGameRunner.Run("SmGui", 1280, 1200, config, backend => new Demos.BasicGui.BasicGuiApp(backend));
+MonoGameRunner.Run("SmDraw",1280,  720, config, backend => new Demos.BasicDraw.BasicDrawApp(backend));
 
-WgpuRunner.Run("SmGui",   1280, 1200, sessionHandlers, backend => new Demos.BasicGui.BasicGuiApp(backend));
-WgpuRunner.Run("SmDraw",  1280,  720, sessionHandlers, backend => new Demos.BasicDraw.BasicDrawApp(backend));
+WgpuRunner.Run("SmGui",   1280, 1200, config, backend => new Demos.BasicGui.BasicGuiApp(backend));
+WgpuRunner.Run("SmDraw",  1280,  720, config, backend => new Demos.BasicDraw.BasicDrawApp(backend));
 
-KniRunner.Run("SmGui", 1280, 1200, sessionHandlers, backend => new Demos.BasicGui.BasicGuiApp(backend));
-KniRunner.Run("SmDraw",1280,  720, sessionHandlers, backend => new Demos.BasicDraw.BasicDrawApp(backend));
+KniRunner.Run("SmGui", 1280, 1200, config, backend => new Demos.BasicGui.BasicGuiApp(backend));
+KniRunner.Run("SmDraw",1280,  720, config, backend => new Demos.BasicDraw.BasicDrawApp(backend));
 
-RaylibRunner.Run("SmGui", 1280, 1200, sessionHandlers, backend => new Demos.BasicGui.BasicGuiApp(backend));
-RaylibRunner.Run("SmDraw",1280,  720, sessionHandlers, backend => new Demos.BasicDraw.BasicDrawApp(backend));
+RaylibRunner.Run("SmGui", 1280, 1200, config, backend => new Demos.BasicGui.BasicGuiApp(backend));
+RaylibRunner.Run("SmDraw",1280,  720, config, backend => new Demos.BasicDraw.BasicDrawApp(backend));
 
 await webApp.StopAsync();
 

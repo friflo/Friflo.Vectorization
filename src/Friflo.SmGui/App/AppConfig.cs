@@ -9,7 +9,7 @@ using Friflo.SmGui.Session;
 namespace Friflo.SmGui;
 
 
-public class SessionHandlers
+public class AppConfig
 {
     private readonly    List<ISessionHandler>   list = [];
     public  readonly    SmSessionLoop?          sessionLoop;
@@ -17,7 +17,7 @@ public class SessionHandlers
 
     public  override    string                  ToString() => $"count: {list.Count}";
 
-    public SessionHandlers(SmSessionLoop? sessionLoop = null) {
+    public AppConfig(SmSessionLoop? sessionLoop = null) {
         this.sessionLoop = sessionLoop;
     }
     
