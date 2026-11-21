@@ -37,22 +37,23 @@ public class Cli : IDisposable
     
     private async Task ConsoleReader()
     {
+        var cout = Console.Out;
         while (true) {
             await SwitchToThreadPool();     // ensure running on ThreadPool worker thread
-            await Console.Out.WriteAsync(">");
+            await cout.WriteAsync(">");
             var cmd = await Console.In.ReadLineAsync();
             await loop.DispatchAsync();     // continue execution on loop thread to avoid explicit locks and contention
                                             // capture state safely on loop thread
             switch (cmd) {
                 case "exit": goto LeaveLoop;
                 case "delay":
-                    await Console.Out.WriteAsync($"delay (5 sec) ... ");
+                    await cout.WriteAsync($"delay (5 sec) ... ");
                     // avoid blocking loop thread - browser sessions stay responsive. Run IO heavy operations on worker thread
                     await Task.Run(() => Task.Delay(5000)); 
-                    await Console.Out.WriteLineAsync($" finished");
+                    await cout.WriteLineAsync($" finished");
                     break;
                 default:
-                    await Console.Out.WriteLineAsync($"invalid cmd: {cmd}");
+                    await cout.WriteLineAsync($"invalid cmd: {cmd}");
                     break;
             }
         }
