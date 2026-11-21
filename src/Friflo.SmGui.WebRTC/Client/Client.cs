@@ -17,15 +17,17 @@ namespace Friflo.SmGui.WebRTC;
 public enum AppIdType
 {
     /// <summary>
-    /// The app id is fixed. Only a single client can be registered with a unique app id.
-    /// </summary>
-    Fixed,
-
-    /// <summary>
     /// The signaling server assigns a dynamic app id by appending a sequence number to the passed app id (e.g., <c>test-app.4</c>).<br/>
-    /// This allows multiple instances of the same application to register on the signaling server.
+    /// This allows multiple instances of the same application to register on the signaling server.<br/>
+    /// The final app id is available at <see cref="AppConfig.AppId"/>.
     /// </summary>
-    Auto
+    Auto,
+    
+    /// <summary>
+    /// The app id is fixed. Only a single client can be registered with a unique app id.<br/>
+    /// If an app is already registered with the same app id an exception is thrown.
+    /// </summary>
+    Fixed
 }
 
 public sealed partial class SmSignalingClient : ISessionHandler
