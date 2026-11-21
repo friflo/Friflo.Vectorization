@@ -26,6 +26,6 @@ internal static class Program
         });
         await SmSignalingClient.ConnectAsync(loop, new Uri("wss://localhost:8081/signaling"), "test-app", "auto");
         
-        JSHost.GlobalThis.SetProperty("onAppStarted", loop.appId);
+        JSHost.GlobalThis.SetProperty("onAppStarted", loop.Config.AppId);
     }
 }

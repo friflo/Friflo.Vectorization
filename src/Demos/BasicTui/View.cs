@@ -39,7 +39,7 @@ public class BasicTuiView : GuiView
         var uiType          = session.UiType;
         canvasTexture       = uiType.IsTui() ? backend.CreateTexture("canvas", CanvasWidth, CanvasHeight, new byte[CanvasWidth * CanvasHeight * 4]) : default;
         session.Timer.Enabled    = uiType.IsGui();
-        session.Action.SetWindowTitle(uiType == UiType.WebRtcGui ? $"{session.AppId} 🔀" : session.AppId ?? "App");
+        session.Action.SetWindowTitle(uiType == UiType.WebRtcGui ? $"{session.Config.AppId} 🔀" : session.Config.AppId ?? "App");
         session.Action.SetClearColor(0x999c9eff, 0x404142ff);
     }
     
@@ -85,7 +85,7 @@ public class BasicTuiView : GuiView
                 gui.Action.OpenUrl($"https://localhost:{DemoConfig.HttpsPort}", "web");
             }
             if (gui.Button("WebRTC")) {
-                gui.Action.OpenUrl($"https://localhost:8081/?app={session.AppId}", "webrtc");
+                gui.Action.OpenUrl($"https://localhost:8081/?app={session.Config.AppId}", "webrtc");
             }
             if (gui.Checkbox("fullScreen", ref fullScreen)) {
                 session.SetAppDirty();

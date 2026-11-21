@@ -67,7 +67,7 @@ public delegate void SessionsChanged(SessionsChangedArgs args);
 public sealed partial class SmSessionLoop : IDisposable
 {
     public   readonly   AssetResources      resources;
-    public              string?             appId;
+    public              AppConfig           Config                  { get; internal set; }
     public              int                 SessionCount            => sessions.Count;
     public   event      SessionsChanged?    SessionsChanged;
     public              AppTimer            AppTimer                => appTimer;

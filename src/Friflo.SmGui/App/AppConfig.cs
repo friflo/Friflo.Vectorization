@@ -19,6 +19,7 @@ public class AppConfig
 
     public AppConfig(SmSessionLoop? sessionLoop = null) {
         this.sessionLoop = sessionLoop;
+        sessionLoop?.Config = this;
     }
     
     public void SetAppId(string? appId) {
@@ -42,7 +43,7 @@ public class AppConfig
             var app = createGuiApp(backend);
             var loop = app.SessionLoop;
             if (loop != null) {
-                loop.appId = AppId;
+                loop.Config = this;
                 foreach (var handler in list) {
                     handler.AddSessionLoop(loop); 
                 }

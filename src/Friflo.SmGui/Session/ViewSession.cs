@@ -124,8 +124,7 @@ public sealed class ViewSession
 
     public          SmGuiBackend    Backend { [Hide] get => backend ?? throw SessionTerminatedException(); }
 
-    /// <summary> The app id passed to <see cref="SmSessionLoop.appId"/>. </summary>
-    public          string?         AppId   { [Hide] get => loop.appId; }
+    public          AppConfig       Config  { [Hide] get => loop.Config; }
 
     /// <summary> Provides access to client actions not related to GUI or rendering. </summary>
     public          ClientAction    Action  { [Hide] get => Backend.host.clientAction; }

@@ -64,7 +64,7 @@ public sealed partial class SmSignalingClient : ISessionHandler
         if (loop == null) {
             return;
         }
-        var msg     = new SignalMessage{ type = "stats", app = loop.appId, sessions = loop.SessionCount };
+        var msg     = new SignalMessage{ type = "stats", app = loop.Config.AppId, sessions = loop.SessionCount };
         var payload = JsonSerializer.SerializeToUtf8Bytes(msg, ApiJson.Default.SignalMessage);
         _ =  clientWebSocket?.SendAsync(payload, WebSocketMessageType.Text, true, CancellationToken.None);
     }
@@ -94,7 +94,7 @@ public sealed partial class SmSignalingClient : ISessionHandler
         if (message.sdpOrCandidate != "registered") {
             throw new InvalidOperationException($"register failed: {message.sdpOrCandidate}");
         }
-        sessionLoop?.appId = message.app;
+        sessionLoop?.Config.SetAppId(message.app);
         return message.app;
     }
     
