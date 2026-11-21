@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using Friflo.SmGui.Session;
 
+// ReSharper disable ConvertIfStatementToConditionalTernaryExpression
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable CheckNamespace
 namespace Friflo.SmGui;
@@ -31,7 +32,7 @@ public interface IAppConfig
 ///     await webApp.StartAsync();
 ///
 ///     // nuget: Friflo.SmGui.WebRTC
-///     SmSignalingClient.Connect(config, new Uri("https://localhost:8081"), "test-app", "auto");
+///     SmSignalingClient.Connect(config, new Uri("https://localhost:8081/?app=test-app"), "test-app", "auto");
 /// </code>
 /// </example>
 /// </remarks>
@@ -64,7 +65,11 @@ public class AppConfig : IAppConfig
     
     public void SetWebRtcUrl(Uri uri, string? appId) {
         AppId           = appId;
-        WebRtcAppUrl    = $"{uri}?app={appId}";
+        if (appId == null) {
+            WebRtcAppUrl = uri.ToString();
+        } else {
+            WebRtcAppUrl = $"{uri.Scheme}://{uri.Host}:{uri.Port}/?app={appId}";    
+        }
     }
     
     public void Add(ISessionHandler sessionHandler)

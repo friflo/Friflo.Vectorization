@@ -48,16 +48,42 @@ public sealed partial class SmSignalingClient : ISessionHandler
         sessionLoop = loop;
     }
     
+    private static string? GetQueryValue(Uri uri, string key)
+    {
+        if (string.IsNullOrEmpty(uri.Query))
+            return null;
+
+        // Trim leading '?' and split parameters
+        foreach (var pair in uri.Query[1..].Split('&', StringSplitOptions.RemoveEmptyEntries))
+        {
+            var idx = pair.IndexOf('=');
+            var rawKey = idx >= 0 ? pair[..idx] : pair;
+            var currentKey = Uri.UnescapeDataString(rawKey.Replace('+', ' '));
+
+            if (!string.Equals(currentKey, key, StringComparison.Ordinal))
+                continue;
+
+            if (idx < 0) {
+                return string.Empty;
+            }
+            var rawValue = pair[(idx + 1)..];
+            return Uri.UnescapeDataString(rawValue.Replace('+', ' '));
+        }
+        return null;
+    }
+    
     // ReSharper disable once MemberCanBePrivate.Global
     public static Uri GetSignalingWebSocketUri(Uri uri) {
          return new Uri($"{(uri.Scheme == "https" ? "wss" : "ws")}://{uri.Host}:{uri.Port}/signaling");
     }
     
-    public static SmSignalingClient Connect(AppConfig config, Uri uri, string app, AppIdType appIdType, CancellationToken cancellationToken = default)
+    public static SmSignalingClient Connect(AppConfig config, Uri uri, AppIdType appIdType, CancellationToken cancellationToken = default)
     {
         if (OperatingSystem.IsBrowser()) throw new PlatformNotSupportedException($"Browser requires: {nameof(ConnectAsync)}");
+        config.SetWebRtcUrl(uri, null);
         var wsUri = GetSignalingWebSocketUri(uri);
         var signalingClient = new SmSignalingClient(config.sessionLoop);
+        var app = GetQueryValue(uri, "app")!;
         var finalAppId = signalingClient.ConnectAsync(wsUri, app, appIdType, cancellationToken).GetAwaiter().GetResult(); // stay on main thread
         config.Add(signalingClient);
         config.SetWebRtcUrl(uri, finalAppId);
@@ -66,10 +92,11 @@ public sealed partial class SmSignalingClient : ISessionHandler
         return signalingClient;
     }
     
-    public static async Task<SmSessionLoop> ConnectAsync(SmSessionLoop loop, Uri uri, string app, AppIdType appIdType, CancellationToken cancellationToken = default)
+    public static async Task<SmSessionLoop> ConnectAsync(SmSessionLoop loop, Uri uri, AppIdType appIdType, CancellationToken cancellationToken = default)
     {
         var signalingClient =  new SmSignalingClient(loop);
         var wsUri = GetSignalingWebSocketUri(uri);
+        var app = GetQueryValue(uri, "app")!;
         await signalingClient.ConnectAsync(wsUri, app, appIdType, cancellationToken);
         _ = signalingClient.RunAsync();
     
