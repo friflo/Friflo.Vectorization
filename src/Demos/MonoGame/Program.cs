@@ -22,6 +22,7 @@ MonoGameRunner.Run("SmDraw",1280,  720, config, backend => new Demos.BasicDraw.B
 
 await webApp.StopAsync();
 
+
 public static class MonoGameRunner
 {
     public static int Run(string title, int width, int height, AppConfig config, CreateGuiApp createGuiApp)

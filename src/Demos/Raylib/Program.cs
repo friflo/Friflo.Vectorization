@@ -7,7 +7,6 @@ using Friflo.SmGui.Http;
 using Friflo.SmGui.WebRTC;
 using Raylib;
 
-
 var config = new AppConfig();
 
 // WebSocket browser sessions: this app hosts the page.  nuget: Friflo.SmGui.Http
@@ -22,6 +21,7 @@ RaylibRunner.Run("SmGui", 1280, 1200, config, backend => new Demos.BasicGui.Basi
 RaylibRunner.Run("SmDraw",1280,  720, config, backend => new Demos.BasicDraw.BasicDrawApp(backend));
 
 await webApp.StopAsync();
+
 
 public static class RaylibRunner
 {

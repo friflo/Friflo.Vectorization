@@ -22,6 +22,7 @@ KniRunner.Run("SmDraw",1280,  720, config, backend => new Demos.BasicDraw.BasicD
 
 await webApp.StopAsync();
 
+
 public static class KniRunner
 {
     public static int Run(string title, int width, int height, AppConfig config, CreateGuiApp createGuiApp)

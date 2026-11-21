@@ -22,6 +22,7 @@ HeadlessRunner.Run("SmDraw", config, backend => new Demos.BasicDraw.BasicDrawApp
 
 await webApp.StopAsync();
 
+
 public static class HeadlessRunner
 {
     public static int Run(string title, AppConfig config, CreateGuiApp createGuiApp)

@@ -25,6 +25,7 @@ WgpuRunner.Run("SmDraw",  1280,  720, config, backend => new Demos.BasicDraw.Bas
 
 await webApp.StopAsync();
 
+
 public static class WgpuRunner
 {
     public static int Run(string title, int width, int height, AppConfig config, CreateGuiApp createGuiApp)
