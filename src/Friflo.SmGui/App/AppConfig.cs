@@ -32,7 +32,7 @@ public interface IAppConfig
 ///     await webApp.StartAsync();
 ///
 ///     // nuget: Friflo.SmGui.WebRTC
-///     SmSignalingClient.Connect(config, new Uri("https://localhost:8081/?app=test-app"), "test-app", "auto");
+///     SmSignalingClient.Connect(config, new Uri("https://localhost:8081/?app=test-app"), AppIdType.Auto);
 /// </code>
 /// </example>
 /// </remarks>
