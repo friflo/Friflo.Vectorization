@@ -2,13 +2,13 @@
 # Visual Studio 2012
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test-Godot", "Test-Godot.csproj", "{D437E72D-D749-4225-987B-CE5239428BAE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Friflo.SmGui.Godot", "..\Friflo.SmGui.Godot\Friflo.SmGui.Godot.csproj", "{CB596CC6-85C7-4414-A571-2931F6786D72}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Friflo.SmGui.Godot", "..\..\Friflo.SmGui.Godot\Friflo.SmGui.Godot.csproj", "{CB596CC6-85C7-4414-A571-2931F6786D72}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Friflo.SmGui", "..\Friflo.SmGui\Friflo.SmGui.csproj", "{41F9E52C-C8B1-43EF-858B-49A7671E3CDD}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Friflo.SmGui", "..\..\Friflo.SmGui\Friflo.SmGui.csproj", "{41F9E52C-C8B1-43EF-858B-49A7671E3CDD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Friflo.SmGui.Http", "..\Friflo.SmGui.Http\Friflo.SmGui.Http.csproj", "{EB2AE946-A5B5-436E-8EB8-33E97F43D6AE}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Friflo.SmGui.Http", "..\..\Friflo.SmGui.Http\Friflo.SmGui.Http.csproj", "{EB2AE946-A5B5-436E-8EB8-33E97F43D6AE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Friflo.SmGui.Assets", "..\Friflo.SmGui.Assets\Friflo.SmGui.Assets.csproj", "{1D2C1F95-5798-4C88-AA70-A20E310AE2BF}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Friflo.SmGui.Assets", "..\..\Friflo.SmGui.Assets\Friflo.SmGui.Assets.csproj", "{1D2C1F95-5798-4C88-AA70-A20E310AE2BF}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Demos", "..\Demos\Demos.csproj", "{A7DE6866-6548-408E-A63E-40A27F3010E2}"
 EndProject

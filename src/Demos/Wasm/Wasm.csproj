@@ -14,12 +14,12 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Apps\Apps.csproj" />
-    <ProjectReference Include="..\Friflo.SmGui.Assets\Friflo.SmGui.Assets.csproj" />
-    <ProjectReference Include="..\Friflo.SmGui.WebRTC\Friflo.SmGui.WebRTC.csproj" />
+    <ProjectReference Include="..\..\Friflo.SmGui.Assets\Friflo.SmGui.Assets.csproj" />
+    <ProjectReference Include="..\..\Friflo.SmGui.WebRTC\Friflo.SmGui.WebRTC.csproj" />
   </ItemGroup>
    
   <!-- Import is required when using Friflo.SmGui.WebRTC.csproj as ProjectReference -->
-  <Import Project="..\Friflo.SmGui.WebRTC\build\Friflo.SmGui.WebRTC.targets" />
+  <Import Project="..\..\Friflo.SmGui.WebRTC\build\Friflo.SmGui.WebRTC.targets" />
     
   <ItemGroup>
     <None Include="wwwroot\**\*">

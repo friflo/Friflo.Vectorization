@@ -22,7 +22,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Friflo.Generators.CodeFixes
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Friflo.SmGui", "src\Friflo.SmGui\Friflo.SmGui.csproj", "{C79EDF8C-9DA8-42B1-9C22-35BF1364A398}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TUI", "src\TUI\TUI.csproj", "{F1063E3C-546B-47DF-B69C-304AB6283E19}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TUI", "src\Demos\TUI\TUI.csproj", "{F1063E3C-546B-47DF-B69C-304AB6283E19}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Friflo.SmGui.Assets", "src\Friflo.SmGui.Assets\Friflo.SmGui.Assets.csproj", "{C6BA8462-C8AF-4250-98C1-F39A6F24EB76}"
 EndProject
@@ -32,7 +32,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SignalingServer", "src\Sign
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Friflo.SmGui.WebRTC", "src\Friflo.SmGui.WebRTC\Friflo.SmGui.WebRTC.csproj", "{B7CC6832-B934-4296-8404-50984A67C078}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wasm", "src\Wasm\Wasm.csproj", "{02B12839-1AB5-4F1F-93D4-7EAE31AC1B49}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wasm", "src\Demos\Wasm\Wasm.csproj", "{02B12839-1AB5-4F1F-93D4-7EAE31AC1B49}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Friflo.SmGui.WGPU", "src\Friflo.SmGui.WGPU\Friflo.SmGui.WGPU.csproj", "{0007A077-BD00-4528-B96E-C7B2F27DD1FF}"
 EndProject
@@ -44,23 +44,23 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Friflo.SmGui.Godot", "src\F
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Friflo.SmGui.KNI", "src\Friflo.SmGui.KNI\Friflo.SmGui.KNI.csproj", "{5918CB24-B50B-4A03-8012-8A9EBD8D89DC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Apps", "src\Apps\Apps.csproj", "{023AC4E8-4835-4C69-B4E8-068D69A8566F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Apps", "src\Demos\Apps\Apps.csproj", "{023AC4E8-4835-4C69-B4E8-068D69A8566F}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Demos", "Demos", "{D62260B8-F067-4FDC-BFF9-81BCE1556799}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MonoGame", "src\MonoGame\MonoGame.csproj", "{01600864-BFB5-4C33-9E3B-D9F2641FF40D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MonoGame", "src\Demos\MonoGame\MonoGame.csproj", "{01600864-BFB5-4C33-9E3B-D9F2641FF40D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "All-Demos", "src\All-Demos\All-Demos.csproj", "{1A5652D0-4695-48D2-9C1A-B6E23548F705}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "All-Demos", "src\Demos\All-Demos\All-Demos.csproj", "{1A5652D0-4695-48D2-9C1A-B6E23548F705}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Friflo-GPU", "src\Friflo-GPU\Friflo-GPU.csproj", "{ED143B78-A400-4BEC-878C-963E3901B822}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Friflo-GPU", "src\Demos\Friflo-GPU\Friflo-GPU.csproj", "{ED143B78-A400-4BEC-878C-963E3901B822}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KNI", "src\KNI\KNI.csproj", "{F965BA1B-E2B8-4FCD-87CF-D17A05CE2500}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KNI", "src\Demos\KNI\KNI.csproj", "{F965BA1B-E2B8-4FCD-87CF-D17A05CE2500}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Friflo.SmGui.SkiaSharp", "src\Friflo.SmGui.SkiaSharp\Friflo.SmGui.SkiaSharp.csproj", "{EC08AF70-B153-45E0-8A1E-B0AC4CCA6324}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Friflo.SmGui.Raylib", "src\Friflo.SmGui.Raylib\Friflo.SmGui.Raylib.csproj", "{ABAADAEC-DC27-45B0-A1F7-7C9165F6F6A1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Raylib", "src\Raylib\Raylib.csproj", "{D0EBFFAD-C03E-4985-A25D-D4A478DD560E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Raylib", "src\Demos\Raylib\Raylib.csproj", "{D0EBFFAD-C03E-4985-A25D-D4A478DD560E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

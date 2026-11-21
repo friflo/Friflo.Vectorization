@@ -13,9 +13,9 @@
 
     <ItemGroup>
       <ProjectReference Include="..\Apps\Apps.csproj" />
-      <ProjectReference Include="..\Friflo.SmGui.Assets\Friflo.SmGui.Assets.csproj" />
-      <ProjectReference Include="..\Friflo.SmGui.Http\Friflo.SmGui.Http.csproj" />
-      <ProjectReference Include="..\Friflo.SmGui.WebRTC\Friflo.SmGui.WebRTC.csproj" />
+      <ProjectReference Include="..\..\Friflo.SmGui.Assets\Friflo.SmGui.Assets.csproj" />
+      <ProjectReference Include="..\..\Friflo.SmGui.Http\Friflo.SmGui.Http.csproj" />
+      <ProjectReference Include="..\..\Friflo.SmGui.WebRTC\Friflo.SmGui.WebRTC.csproj" />
     </ItemGroup>
 
 </Project>

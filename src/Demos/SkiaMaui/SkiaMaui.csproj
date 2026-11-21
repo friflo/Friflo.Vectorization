@@ -73,8 +73,8 @@
 
     <ItemGroup>
       <ProjectReference Include="..\Demos\Demos.csproj" />
-      <ProjectReference Include="..\Friflo.SmGui.Assets\Friflo.SmGui.Assets.csproj" />
-      <ProjectReference Include="..\Friflo.SmGui.SkiaSharp\Friflo.SmGui.SkiaSharp.csproj" />
+      <ProjectReference Include="..\..\Friflo.SmGui.Assets\Friflo.SmGui.Assets.csproj" />
+      <ProjectReference Include="..\..\Friflo.SmGui.SkiaSharp\Friflo.SmGui.SkiaSharp.csproj" />
     </ItemGroup>
 
 </Project>
