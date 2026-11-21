@@ -300,13 +300,17 @@ export function invokeAction(data) {
     switch (args[0])
     {
         case "open-url":
-            if (args[1].startsWith("error:")) {
-                const style = "<style>body { font-family: Arial, Helvetica, sans-serif; white-space: pre-line; }</style>";
-                const blob = new Blob([style + args[1]], { type: "text/html;charset=utf-8" });
-                const url = URL.createObjectURL(blob);
-                window.open(url, "_blank");
+            const url = args[1];
+            if (url.startsWith("error:")) {
+                const blob = new Blob([url], { type: "text/plain;charset=utf-8" });
+                const objectURL = URL.createObjectURL(blob);
+                window.open(objectURL, "_blank");
+                console.error(url);
             } else {
-                window.open(args[1], args[2]);
+                const parsed = new URL(url, window.location.href);
+                if (parsed.protocol === "http:" || parsed.protocol === "https:") {
+                    window.open(parsed.href, args[2]);
+                }
             }
             break;
         case "set-title":
