@@ -31,34 +31,43 @@ public class Cli : IDisposable
     }
 
     public void Run() {
-        _ = Task.Run(ConsoleReader);
+        _ = Task.Run(ReadConsoleLoopAsync);
         loop.Run();
     }
     
-    private async Task ConsoleReader()
+    private bool running = true;
+    
+    private async Task ReadConsoleLoopAsync()
+    {
+        while (running) {
+            await SwitchToThreadPool();     // ensure running on ThreadPool worker thread
+            await Console.Out.WriteAsync(">");
+            var command = await Console.In.ReadLineAsync();
+            
+            await loop.DispatchAsync();     // continue execution on loop thread to avoid explicit locks and contention
+                                            // <- now running on main (loop) thread here
+            await ExecuteCommandAsync(command);
+        }
+        await Console.Out.WriteLineAsync($"exiting");
+    }
+    
+    private async Task ExecuteCommandAsync(string? cmd)
     {
         var cout = Console.Out;
-        while (true) {
-            await SwitchToThreadPool();     // ensure running on ThreadPool worker thread
-            await cout.WriteAsync(">");
-            var cmd = await Console.In.ReadLineAsync();
-            await loop.DispatchAsync();     // continue execution on loop thread to avoid explicit locks and contention
-                                            // capture state safely on loop thread
-            switch (cmd) {
-                case "exit": goto LeaveLoop;
-                case "delay":
-                    await cout.WriteAsync($"delay (5 sec) ... ");
-                    // avoid blocking loop thread - browser sessions stay responsive. Run IO heavy operations on worker thread
-                    await Task.Run(() => Task.Delay(5000)); 
-                    await cout.WriteLineAsync($" finished");
-                    break;
-                default:
-                    await cout.WriteLineAsync($"invalid cmd: {cmd}");
-                    break;
-            }
+        switch (cmd) {
+            case "exit":
+                running = false;
+                return;
+            case "delay":
+                await cout.WriteAsync($"delay (5 sec) ... ");
+                // avoid blocking loop thread - browser sessions stay responsive. Run IO heavy operations on worker thread
+                await Task.Run(() => Task.Delay(5000)); 
+                await cout.WriteLineAsync($"finished");
+                break;
+            default:
+                await cout.WriteLineAsync($"invalid cmd: {cmd}");
+                break;
         }
-    LeaveLoop:
-        await Console.Out.WriteLineAsync($"exiting");
     }
     
     private static ThreadPoolAwaiter SwitchToThreadPool() => default;
