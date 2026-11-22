@@ -1,6 +1,6 @@
 ﻿Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test-Godot", "Test-Godot.csproj", "{D437E72D-D749-4225-987B-CE5239428BAE}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Godot", "Godot.csproj", "{D437E72D-D749-4225-987B-CE5239428BAE}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Friflo.SmGui.Godot", "..\..\Friflo.SmGui.Godot\Friflo.SmGui.Godot.csproj", "{CB596CC6-85C7-4414-A571-2931F6786D72}"
 EndProject
