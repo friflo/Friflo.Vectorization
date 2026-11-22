@@ -1,3 +1,4 @@
+using System;
 using Friflo.SmGui;
 using Friflo.SmGui.KNI;
 using Microsoft.Xna.Framework;
@@ -30,6 +31,7 @@ public class GameApp : Game
         
         graphics.SynchronizeWithVerticalRetrace = false;    // disable VSync
         IsFixedTimeStep = false;                            // disable VSync
+        InactiveSleepTime = TimeSpan.FromMilliseconds(1);   // optional: low latency message handling of remote clients
         
         Window.AllowUserResizing    = true;
         Window.Title                = title;
@@ -42,6 +44,12 @@ public class GameApp : Game
         app         = createGuiApp(guiBackend);
         guiBackend.SetClientActions(new KniClientAction(this, graphics));
         base.Initialize();
+    }
+    
+    protected override void Update(GameTime gameTime)
+    {
+        app?.SessionLoop?.IterateSessions(); // set InactiveSleepTime = 1 ms for low latency message handling of remote clients
+        base.Update(gameTime);
     }
 
     protected override void Draw(GameTime gameTime)
