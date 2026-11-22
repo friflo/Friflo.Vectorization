@@ -19,7 +19,7 @@ public interface IWgpuRenderer
     public void             OnShutdown();
     
     // --- SmGui setup
-    public void             CreateGuiApp   (CreateGuiApp createGui) { }
+    public SmGuiApp?        CreateGuiApp   (CreateGuiApp createGui) => null;
     public SmGuiBackend?    GuiBackend      => null;
 }
 

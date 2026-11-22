@@ -4,6 +4,7 @@ using System.IO.Compression;
 using System.Runtime.ExceptionServices;
 using System.Runtime.InteropServices;
 using Friflo.SmGui;
+using Friflo.SmGui.Session;
 using SDL3;
 
 // ReSharper disable MemberCanBeProtected.Global
@@ -40,6 +41,9 @@ public class Sdl3Window
     private     SmGuiBackend?           guiBackend;
     private     Sdl3GuiInput?           sdlGuiInput;
     private     Sdl3Cursor?             sdlCursor;
+    private     SmSessionLoop?          sessionLoop;
+    
+    private static readonly uint NotifyEventReadyType = SDL.RegisterEvents(1);
 #endregion
     
     public int EnterAppMain(InitOptions opt)
@@ -147,7 +151,9 @@ public class Sdl3Window
         wgpuHost    = new WgpuHost(osHandle, osInstance, driver);
         renderer    = initOptions.createRenderer(wgpuHost);
         if (initOptions.createGuiApp != null) {
-            renderer.CreateGuiApp(initOptions.createGuiApp);
+            var app = renderer.CreateGuiApp(initOptions.createGuiApp);
+            sessionLoop = app?.SessionLoop;
+            sessionLoop?.NotifyEventReady = NotifyEventReady;
         }
         SetWindowSize();
 
@@ -158,6 +164,14 @@ public class Sdl3Window
             sdlGuiInput = new Sdl3GuiInput();
             sdlCursor   = new Sdl3Cursor();
         }
+    }
+    
+    private static void NotifyEventReady() {
+        var ev = new SDL.Event {
+            Type = NotifyEventReadyType,
+            User = new SDL.UserEvent { Type = NotifyEventReadyType, Timestamp = SDL.GetTicksNS(), Code = 0 }
+        };
+        SDL.PushEvent(ref ev);
     }
     
     protected virtual void OnSystemThemeChanged() => SetDefaultWindowIcon();
@@ -229,6 +243,11 @@ public class Sdl3Window
                 break;
             case SDL.EventType.SystemThemeChanged:
                 OnSystemThemeChanged();
+                break;
+            default:
+                if (ev.Type == NotifyEventReadyType) {
+                    sessionLoop?.IterateSessions();
+                }
                 break;
         }
         if (guiBackend != null && wgpuHost != null) {

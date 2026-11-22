@@ -30,8 +30,8 @@ public sealed class WgpuRenderer : IWgpuRenderer
         batch           = wgpuBackend.CreateBatch(wgpuHost.SwapChainFormat);
     }
     
-    public void CreateGuiApp(CreateGuiApp createGui) {
-        app = createGui(GuiBackend!);
+    public SmGuiApp CreateGuiApp(CreateGuiApp createGui) {
+        return app = createGui(GuiBackend!);
     }
     
     public void OnWindowChanged(int width, int height)

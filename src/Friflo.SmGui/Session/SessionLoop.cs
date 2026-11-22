@@ -47,6 +47,8 @@ public sealed class LoopOptions
 
 public delegate void SessionsChanged(SessionsChangedArgs args);
 
+public delegate void NotifyEventReady();
+
 /// <summary>
 /// Manages concurrent client sessions (such as web browsers, remote terminals, or consoles),
 /// processing queued user inputs and coordinating on-demand frame rendering and transmission
@@ -69,6 +71,7 @@ public sealed partial class SmSessionLoop : IDisposable
     public              IAppConfig          Config                  => config           ?? throw AppConfig.SessionLoopException;
     public              int                 SessionCount            => sessions.Count;
     public   event      SessionsChanged?    SessionsChanged;
+    public              NotifyEventReady?   NotifyEventReady        { get => eventQueue.notifyEventReady; set => eventQueue.notifyEventReady = value; }
     public              AppTimer            AppTimer                => appTimer;
 
     public   override   string              ToString()              => $"sessions: {sessions.Count}";

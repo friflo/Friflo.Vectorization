@@ -156,6 +156,9 @@ public partial class SmSessionLoop
     public void IterateSessions()
     {
         ObjectDisposedException.ThrowIf(isDisposed, this);
+
+        Interlocked.Exchange(ref eventQueue.eventReadyRendering, 0);
+        
         var localQueue  = queue;
         var eventCount  = localQueue.Count;
         

@@ -48,7 +48,7 @@ public sealed class WgpuHost
     
     // --- Dynamic Surface State ---
     public              CompositeAlphaMode  AlphaMode       { get; private set; }
-    public              PresentMode         PresentMode     { get; private set; } = PresentMode.Immediate; //  Fifo = VSync, Immediate = max
+    public              PresentMode         PresentMode     { get; private set; } = PresentMode.Fifo; //  Fifo = VSync, Immediate = max
     public              TextureFormat       SwapChainFormat { get; private set; }
     public              TextureUsage        SwapChainUsage  { get; private set; } = TextureUsage.RenderAttachment;
     
