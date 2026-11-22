@@ -40,13 +40,12 @@ public class Cli : IDisposable
     private async Task ReadConsoleLoopAsync()
     {
         while (running) {
-            await SwitchToThreadPool();     // ensure running on ThreadPool worker thread
-            await Console.Out.WriteAsync(">");
+            await SwitchToThreadPool();         // ensure running on ThreadPool worker thread
+            await Console.Out.WriteAsync(">");  // <- running on worker thread here
             var command = await Console.In.ReadLineAsync();
             
-            await loop.DispatchAsync();     // continue execution on loop thread to avoid explicit locks and contention
-                                            // <- now running on main (loop) thread here
-            await ExecuteCommandAsync(command);
+            await loop.DispatchAsync();         // continue execution on loop thread to avoid explicit locks and contention
+            await ExecuteCommandAsync(command); // <- now running on main (loop) thread here
         }
         await Console.Out.WriteLineAsync($"exiting");
     }
