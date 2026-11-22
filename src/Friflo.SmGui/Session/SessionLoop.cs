@@ -129,8 +129,6 @@ public sealed partial class SmSessionLoop : IDisposable
             session.client.Dispose();
         }
 
-        // signal all loops to stop
-        // eventChannel?.Writer.TryComplete();
         cts.Cancel();
         cts.Dispose();
     }
