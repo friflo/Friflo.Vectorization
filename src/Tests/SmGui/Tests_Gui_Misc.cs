@@ -20,7 +20,7 @@ namespace Tests.SmGui;
 /// <summary> Ensure <see cref="AppConfig"/> can be extended </summary>
 internal sealed class CustomConfig : AppConfig
 {
-    public CustomConfig(SmSessionLoop? sessionLoop = null)
+    public CustomConfig(SmSessionLoop sessionLoop = null)
         :  base(sessionLoop) {
     }
 }
