@@ -6,7 +6,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "All-Demos", "src\Demos\All-
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Apps", "src\Demos\Apps\Apps.csproj", "{023AC4E8-4835-4C69-B4E8-068D69A8566F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Friflo-GPU", "src\Demos\Friflo-GPU\Friflo-GPU.csproj", "{ED143B78-A400-4BEC-878C-963E3901B822}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "wgpu", "src\Demos\wgpu\wgpu.csproj", "{ED143B78-A400-4BEC-878C-963E3901B822}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KNI", "src\Demos\KNI\KNI.csproj", "{F965BA1B-E2B8-4FCD-87CF-D17A05CE2500}"
 EndProject
