@@ -15,7 +15,6 @@ namespace Friflo.SmGui.WebRTC;
 [SupportedOSPlatform("browser")]
 public sealed partial class WasmRuntime : SmRuntime
 {
-    private static volatile bool            _isEventReady;
     private static          WasmRuntime?    instance;
     
     public WasmRuntime()
@@ -23,11 +22,7 @@ public sealed partial class WasmRuntime : SmRuntime
         instance = this;
     }
         
-    public override void NotifyEventReady() {
-        if (_isEventReady) {
-            return;
-        }
-        _isEventReady = true;
+    public static void NotifyEventReady() {
         SetEventReady();
     }
     
@@ -37,7 +32,6 @@ public sealed partial class WasmRuntime : SmRuntime
     [JSExport]
     private static Task ProcessEvents()
     {
-        _isEventReady = false;
         instance?.SessionLoop?.IterateSessions();
         return Task.CompletedTask;
     }

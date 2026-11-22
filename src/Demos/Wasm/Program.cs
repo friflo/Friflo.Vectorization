@@ -24,6 +24,8 @@ internal static class Program
             ViewFactory = session => new TestGuiView(session),
             Runtime     = new WasmRuntime()
         });
+        loop.NotifyEventReady = WasmRuntime.NotifyEventReady;
+        
         var config = new AppConfig(loop);
         await SmSignalingClient.ConnectAsync(config, new Uri("https://localhost:8081/?app=test-app"), AppIdType.Auto);
         

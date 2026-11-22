@@ -14,6 +14,4 @@ public class SmRuntime
     {
         return new ThreadTimer(16);
     }
-    
-    public virtual void NotifyEventReady() { } // todo  remove redundant notifier
 }
