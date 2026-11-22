@@ -20,9 +20,9 @@ public class SignalingView : GuiView
         session.Action.SetWindowTitle("Signaling Server");
     }
     
-    public override void RenderView(SmBatch batch, int targetWidth, int targetHeight)
+    public override void RenderView(SmBatch batch, int width, int height)
     {
-        var gui = batch.BeginGui(targetWidth, targetHeight);
+        var gui = batch.BeginGui(width, height);
         using (gui.BeginWindow("WebRTC apps", new Vector2(50, 50),  new Vector2(600, 400), traits: 0, TuiBorder.Rounded)) { // (500, 450) (1000, 850)
             Apps(gui);
         }

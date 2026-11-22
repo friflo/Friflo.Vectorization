@@ -81,7 +81,7 @@ public abstract class GuiView
     /// <summary>
     /// Renders the GUI into the specified <paramref name="batch"/> for the given viewport dimensions.
     /// </summary>
-    public abstract void  RenderView(SmBatch batch, int targetWidth, int targetHeight);
+    public abstract void  RenderView(SmBatch batch, int width, int height);
     
     /// <summary>
     /// Is called (push model) when a message is received for this view, dispatched from <see cref="ViewSession.PostMessage"/>.<br/>

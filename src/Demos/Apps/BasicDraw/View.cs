@@ -18,18 +18,22 @@ public class DrawDemoView : GuiView
         this.resources = resources;
     }
 
-    public override void RenderView(SmBatch batch, int targetWidth, int targetHeight)
+    public override void RenderView(SmBatch batch, int width, int height) {
+        RenderGui(batch, width, height);        
+    }
+    
+    internal void RenderGui(SmBatch batch, int width, int height)
     {
         var currentTime = (float)stopwatch.Elapsed.TotalSeconds;
         var deltaTime   = currentTime - lastTime;
         lastTime        = currentTime;
         
-        var draw = batch.BeginDraw(targetWidth, targetHeight);
+        var draw = batch.BeginDraw(width, height);
         // draw.SetBlendState(BlendState.Additive);
         // draw.SetFilterMode(FilterMode.Nearest); // Demonstrates pixel jittering (nearest) vs. smooth interpolation (linear)
         
-        using (draw.PushTransform(CreateAnimatedTransform(targetWidth, targetHeight, currentTime))) {
-            DrawShapes(draw, targetWidth, targetHeight);
+        using (draw.PushTransform(CreateAnimatedTransform(width, height, currentTime))) {
+            DrawShapes(draw, width, height);
             DrawSprites(draw, deltaTime);
         }
         DrawText(draw);

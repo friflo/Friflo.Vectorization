@@ -53,7 +53,11 @@ public sealed class GuiDemoView : GuiView
         }
     };
     
-    public override void RenderView(SmBatch batch, int width, int height)
+    public override void RenderView(SmBatch batch, int width, int height) {
+        RenderGui(batch, width, height);        
+    }
+    
+    internal void RenderGui(SmBatch batch, int width, int height)
     {
         var gui = batch.BeginGui(width, height);
         

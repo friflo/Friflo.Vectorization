@@ -34,6 +34,6 @@ public sealed class BasicDrawApp : SmGuiApp
     public override void RenderApp(SmBatch batch,  int width, int height)
     {
         SessionLoop?.IterateSessions();
-        nativeView.RenderView(batch, width, height);
+        nativeView.RenderGui(batch, width, height);
     }
 }

@@ -48,7 +48,7 @@ public class BasicTuiView : GuiView
     
     DrawType oldDrawType;
     
-    public override void RenderView(SmBatch batch, int targetWidth, int targetHeight)
+    public override void RenderView(SmBatch batch, int width, int height)
     {
         oldDrawType = appState.drawType;
 
@@ -65,7 +65,7 @@ public class BasicTuiView : GuiView
         memStart    = mem;
         batch.EnableStepRendering = true;
         
-        var gui = batch.BeginGui(targetWidth, targetHeight);
+        var gui = batch.BeginGui(width, height);
         using (gui.BeginWindow("Window 1", new Vector2(0, 0), new Vector2(1230, 1680), traits: 0, TuiBorder.Rounded)) { // (500, 450) (1000, 850)
             Window1(gui);
         }

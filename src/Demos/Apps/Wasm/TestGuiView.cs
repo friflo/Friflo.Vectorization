@@ -28,7 +28,7 @@ public class TestGuiView : GuiView
     }
     
     
-    public override void RenderView(SmBatch batch, int targetWidth, int targetHeight)
+    public override void RenderView(SmBatch batch, int width, int height)
     {
         var timestamp   = Stopwatch.GetTimestamp();
         frameTime       = Stopwatch.GetElapsedTime(frameStart, timestamp).TotalMilliseconds;
@@ -38,7 +38,7 @@ public class TestGuiView : GuiView
         memDiff     = mem - memStart;
         memStart    = mem;
         
-        var gui = batch.BeginGui(targetWidth, targetHeight);
+        var gui = batch.BeginGui(width, height);
         using (gui.BeginWindow("Window 1", new Vector2(0, 0), new Vector2(1230, 1680), traits: 0)) { // (500, 450) (1000, 850)
             Window1(gui);
         }

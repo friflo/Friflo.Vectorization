@@ -32,6 +32,6 @@ public sealed class BasicGuiApp : SmGuiApp
     {
         SessionLoop?.IterateSessions();
         
-        nativeView.RenderView(batch, width, height);
+        nativeView.RenderGui(batch, width, height);
     }
 }
