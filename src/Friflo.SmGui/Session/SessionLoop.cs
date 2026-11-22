@@ -72,7 +72,9 @@ public sealed partial class SmSessionLoop : IDisposable
     public   event      SessionsChanged?    SessionsChanged;
     public              AppTimer            AppTimer                => appTimer;
 
-#region private fields
+    public   override   string              ToString()              => $"sessions: {sessions.Count}";
+
+    #region private fields
     internal            IAppConfig?                                 config;
     internal            bool                                        useSecureSessionGuids;
     // --- queue
@@ -84,7 +86,7 @@ public sealed partial class SmSessionLoop : IDisposable
     private  readonly   ConcurrentDictionary<SessionId, SmSession>  concurrentSessions  = new(); // thread-safe - used only for SetSessionDirty(SessionId) 
     internal readonly   int                                         sessionThreadId;
     private  readonly   ViewFactory                                 viewFactory;        // GuiView factory
-    private  readonly   CancellationTokenSource                     cts                 = new();
+    private             bool                                        loopRunning;
     private             bool                                        isDisposed;
     internal readonly   TuiSessionShared                            tuiShared;          // shared among all TuiSession's
     internal readonly   GuiSessionShared                            guiShared;          // shared among all GuiSession's
@@ -116,21 +118,25 @@ public sealed partial class SmSessionLoop : IDisposable
         appTimer            = new AppTimer(this, 60);
     }
     
+    /// <summary>
+    /// Note: Must be called from loop (main) thread.
+    /// </summary>
     public void Dispose()
     {
         if (isDisposed) {
             return;
         }
-        appTimer.Dispose();
-        eventQueue.isDisposed = true;
         isDisposed = true;
+        appTimer.Dispose();
+        
+        loopRunning = false;
+        eventQueue.ExitLoop();
         
         foreach (var session in sessions.Values) {
             session.client.Dispose();
         }
-
-        cts.Cancel();
-        cts.Dispose();
+        concurrentSessions.Clear();
+        sessions.Clear();
     }
     
 #region internal methods

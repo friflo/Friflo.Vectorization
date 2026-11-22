@@ -3,7 +3,6 @@
 
 using System;
 using System.Diagnostics;
-using System.Threading;
 
 
 // ReSharper disable InlineTemporaryVariable
@@ -19,13 +18,12 @@ public partial class SmSessionLoop
     {
         ObjectDisposedException.ThrowIf(isDisposed, this);
 
-        WaitHandle[] handles = [eventReady, cts.Token.WaitHandle];
+        loopRunning = true;
 
-        while (!cts.Token.IsCancellationRequested)
+        while (loopRunning)
         {
-            // Blocks thread cleanly with 0% CPU usage when empty
-            // Wakes up immediately when an event arrives or cancellation is requested. ZERO allocations
-            WaitHandle.WaitAny(handles);
+            // Blocks thread cleanly with 0% CPU usage when empty. Wakes up immediately when an event arrives
+            eventReady.WaitOne();
 
             while (queue.TryDequeue(out LoopEvent evt)) {
                 if (evt.sessionId.id != 0) {
@@ -94,6 +92,8 @@ public partial class SmSessionLoop
     {
         try {
             switch (evt.type) {
+                case LoopEventType.ExitLoop:
+                    break;
                 case LoopEventType.WebsocketConnected: {
                     var client = (SmClient)evt.state!;
                     CreateGuiSession(client, out var _);

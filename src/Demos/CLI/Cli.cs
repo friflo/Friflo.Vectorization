@@ -48,6 +48,7 @@ public class Cli : IDisposable
             await ExecuteCommandAsync(command); // <- now running on main (loop) thread here
         }
         await Console.Out.WriteLineAsync($"exiting");
+        loop.Dispose();
     }
     
     private async Task ExecuteCommandAsync(string? cmd)

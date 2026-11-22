@@ -1,7 +1,6 @@
 // Copyright (c) Ullrich Praetz - https://github.com/friflo. All rights reserved.
 // See LICENSE file in the project root for full license information.
 
-using System;
 using System.Collections.Concurrent;
 using System.Threading;
 using System.Threading.Tasks;
@@ -22,7 +21,7 @@ internal sealed class SmEventQueue
     private  readonly   ConcurrentQueue<LoopEvent>  queue;
     private  readonly   AutoResetEvent              eventReady;
     internal            SmRuntime                   runtime = new();
-    internal            bool                        isDisposed;
+    private             bool                        isDisposed;
     
     private  const      int                         MaxQueueCapacity = 16384; // 16384 events == 512 KB memory
 
@@ -34,7 +33,9 @@ internal sealed class SmEventQueue
     
     internal bool TryEnqueueEvent(SmClient? client, SessionId sessionId, LoopEventType type, object? state, Payload payload, int data)
     {
-        ObjectDisposedException.ThrowIf(isDisposed, this);
+        if (isDisposed) {
+            return false;
+        }
 
         var queueCount = queue.Count;
         
@@ -46,13 +47,23 @@ internal sealed class SmEventQueue
         }
         client?.IncrementPendingEvents();
         
-        var ev = new LoopEvent(sessionId, type, state, payload, data);
-
-        queue.Enqueue(ev);
+        queue.Enqueue(new LoopEvent(sessionId, type, state, payload, data));
         eventReady.Set(); // Wake up worker thread
 
         runtime.NotifyEventReady(); // Wake up main thread to run:  ProcessEvents() > IterateSessions()
         return true;
+    }
+    
+    /// Clears queue and adds a single event to exit the loop
+    internal void ExitLoop()
+    {
+        isDisposed = true; // avoid enqueuing any other event 
+        queue.Clear();
+        
+        queue.Enqueue(new LoopEvent(default, LoopEventType.ExitLoop, null, default, 0));
+        eventReady.Set(); // Wake up worker thread
+        
+        runtime.NotifyEventReady();
     }
 }
 

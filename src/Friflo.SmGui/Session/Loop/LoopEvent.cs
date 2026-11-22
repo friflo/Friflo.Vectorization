@@ -25,6 +25,7 @@ public enum LoopEventType
     PostMessage,
     
     // --- app events
+    ExitLoop,
     TerminalConnected,
     WebsocketConnected,
     SetAppDirty,
