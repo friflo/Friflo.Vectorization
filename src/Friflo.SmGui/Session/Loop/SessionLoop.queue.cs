@@ -3,6 +3,7 @@
 
 using System;
 using System.Diagnostics;
+using System.Threading;
 
 
 // ReSharper disable InlineTemporaryVariable
@@ -18,6 +19,8 @@ public partial class SmSessionLoop
     {
         ObjectDisposedException.ThrowIf(isDisposed, this);
 
+        var eventReady = eventQueue.eventReady = new AutoResetEvent(true); // process pending events queue not empty
+        
         loopRunning = true;
 
         while (loopRunning)
@@ -33,6 +36,8 @@ public partial class SmSessionLoop
                 }
             }
         }
+        eventQueue.eventReady = null;
+        eventReady.Dispose();
     }
     
     private void ProcessSessionEvent (in LoopEvent evt)

@@ -6,7 +6,6 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Text;
-using System.Threading;
 using Friflo.SmGui.Headless;
 using Friflo.SmGui.TUI;
 using Friflo.SmGui.TUI.Session;
@@ -80,13 +79,12 @@ public sealed partial class SmSessionLoop : IDisposable
     // --- queue
     internal readonly   SmEventQueue                                eventQueue;
     internal readonly   ConcurrentQueue<LoopEvent>                  queue               = new();
-    internal readonly   AutoResetEvent                              eventReady          = new(false);
     //
     private  readonly   Dictionary<SessionId, SmSession>            sessions            = new(); // non-thread-safe state
     private  readonly   ConcurrentDictionary<SessionId, SmSession>  concurrentSessions  = new(); // thread-safe - used only for SetSessionDirty(SessionId) 
     internal readonly   int                                         sessionThreadId;
     private  readonly   ViewFactory                                 viewFactory;        // GuiView factory
-    private             bool                                        loopRunning;
+    private             bool                                        loopRunning;        // true when using SmSessionLoop.Run()
     private             bool                                        isDisposed;
     internal readonly   TuiSessionShared                            tuiShared;          // shared among all TuiSession's
     internal readonly   GuiSessionShared                            guiShared;          // shared among all GuiSession's

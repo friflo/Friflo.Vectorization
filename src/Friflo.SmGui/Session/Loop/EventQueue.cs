@@ -19,7 +19,8 @@ namespace Friflo.SmGui.Session;
 internal sealed class SmEventQueue
 {
     private  readonly   ConcurrentQueue<LoopEvent>  queue;
-    private  readonly   AutoResetEvent              eventReady;
+    /// <see cref="eventReady"/> is only used / relevant when using <see cref="SmSessionLoop.Run"/>
+    internal            AutoResetEvent?             eventReady; 
     internal            SmRuntime                   runtime = new();
     private             bool                        isDisposed;
     
@@ -27,8 +28,7 @@ internal sealed class SmEventQueue
 
     internal SmEventQueue(SmSessionLoop loop)
     {
-        queue           = loop.queue;
-        eventReady      = loop.eventReady;
+        queue = loop.queue;
     }
     
     internal bool TryEnqueueEvent(SmClient? client, SessionId sessionId, LoopEventType type, object? state, Payload payload, int data)
@@ -48,7 +48,7 @@ internal sealed class SmEventQueue
         client?.IncrementPendingEvents();
         
         queue.Enqueue(new LoopEvent(sessionId, type, state, payload, data));
-        eventReady.Set(); // Wake up worker thread
+        eventReady?.Set(); // Wake up worker thread
 
         runtime.NotifyEventReady(); // Wake up main thread to run:  ProcessEvents() > IterateSessions()
         return true;
@@ -61,7 +61,7 @@ internal sealed class SmEventQueue
         queue.Clear();
         
         queue.Enqueue(new LoopEvent(default, LoopEventType.ExitLoop, null, default, 0));
-        eventReady.Set(); // Wake up worker thread
+        eventReady?.Set(); // Wake up worker thread
         
         runtime.NotifyEventReady();
     }
