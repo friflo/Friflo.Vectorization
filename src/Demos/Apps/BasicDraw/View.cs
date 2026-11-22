@@ -19,7 +19,7 @@ public class DrawDemoView : GuiView
     }
 
     public override void RenderView(SmBatch batch, int width, int height) {
-        RenderGui(batch, width, height);        
+        RenderGui(batch, width, height);
     }
     
     internal void RenderGui(SmBatch batch, int width, int height)
