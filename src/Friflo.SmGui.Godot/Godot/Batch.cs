@@ -102,8 +102,15 @@ public sealed class GodotBatch : SmBatch
             } else {
                 RenderingServer.CanvasItemSetCustomRect(item, false);
             }
-            var indexSpan = indices.Slice(cmd.indexView.offset);
-            RenderingServer.CanvasItemAddTriangleArray(item, indexSpan, points, colors, uvs, default, default, texture, indices.Length / 3);
+            var vertexStart = cmd.vertexView.offset;
+            var vertexLen   = cmd.vertexView.length;
+            if (vertexLen / 4 != cmd.indexView.length / 6) throw new InvalidOperationException();
+            RenderingServer.CanvasItemAddTriangleArray(item,
+                indices.Slice(cmd.indexView.offset, cmd.indexView.length),
+                points.AsSpan(vertexStart, vertexLen),
+                colors.AsSpan(vertexStart, vertexLen),
+                uvs.   AsSpan(vertexStart, vertexLen),
+                default, default, texture, -1);
         }
         // clear items of previous frame not used by this frame
         for (int n = itemCount; n < commandItems.Count; n++) {
@@ -125,6 +132,7 @@ public sealed class GodotBatch : SmBatch
         }
         var item = RenderingServer.CanvasItemCreate();
         RenderingServer.CanvasItemSetParent(item, parent);
+        RenderingServer.CanvasItemSetDrawIndex(item, index); // assigning z-oder is necessary
         commandItems.Add(item);
         return item;
     }
