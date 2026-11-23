@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Numerics;
+using Demos.Utils;
 using Demos.Widgets;
 using Friflo.SmGui;
 
@@ -17,6 +18,7 @@ public sealed class GuiDemoView : GuiView
     private             bool            fullScreen;
     private             int             helloCounter;
     private             float           volume = 0.8f;
+    private readonly    FrameStats      frameStats = new();
     private readonly    List<string>    scrollAreaButtons = [];
     private readonly    Color32[]       textColors = [0x0000FFFF, 0xFF0000FF, 0x009900FF, 0xFF00FFFF, 0xCC6600FF, 0x000000ff];
     
@@ -59,6 +61,7 @@ public sealed class GuiDemoView : GuiView
     
     internal void RenderGui(SmBatch batch, int width, int height)
     {
+        frameStats.Update();
         var gui = batch.BeginGui(width, height);
         
         using (gui.BeginWindow("Window 1", new(100, 20), new(400, 950))) {
@@ -77,6 +80,10 @@ public sealed class GuiDemoView : GuiView
     private void Window1(Gui gui)
     {
         gui.Button("hello GUI", Dim.Fill_X(0, Fit.Content), color: textColors);
+        
+        var span = frameStats.AsSpan(gui.Batch);
+        gui.Label(span, Color32.Teal);
+        
         if (gui.Button("Web client")) {
             gui.Action.OpenUrl(session.Config.WebAppUrl, "remote-gui");
         }
