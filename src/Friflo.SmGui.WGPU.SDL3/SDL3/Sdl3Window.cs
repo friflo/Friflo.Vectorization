@@ -4,7 +4,7 @@ using System.IO.Compression;
 using System.Runtime.ExceptionServices;
 using System.Runtime.InteropServices;
 using Friflo.SmGui;
-using Friflo.SmGui.Session;
+using Friflo.SmGui.Runtime;
 using SDL3;
 
 // ReSharper disable MemberCanBeProtected.Global
@@ -41,9 +41,7 @@ public class Sdl3Window
     private     SmGuiBackend?           guiBackend;
     private     Sdl3GuiInput?           sdlGuiInput;
     private     Sdl3Cursor?             sdlCursor;
-    private     SmSessionLoop?          sessionLoop;
-    
-    private static readonly uint NotifyEventReadyType = SDL.RegisterEvents(1);
+    private     ProcessReadyEvents?     processSessionEvents;
 #endregion
     
     public int EnterAppMain(InitOptions opt)
@@ -152,8 +150,12 @@ public class Sdl3Window
         renderer    = initOptions.createRenderer(wgpuHost);
         if (initOptions.createGuiApp != null) {
             var app = renderer.CreateGuiApp(initOptions.createGuiApp);
-            sessionLoop = app?.SessionLoop;
-            sessionLoop?.NotifyEventReady = NotifyEventReady;
+            var loop = app?.SessionLoop;
+            if (loop != null) {
+                loop.RuntimeEventHandler = Sdl3RuntimeEventHandler.Instance;
+                processSessionEvents = loop.IterateSessions;
+                Sdl3RuntimeEventHandler.Instance.ProcessReadyEvents += processSessionEvents;
+            }
         }
         SetWindowSize();
 
@@ -166,13 +168,6 @@ public class Sdl3Window
         }
     }
     
-    private static void NotifyEventReady() {
-        var ev = new SDL.Event {
-            Type = NotifyEventReadyType,
-            User = new SDL.UserEvent { Type = NotifyEventReadyType, Timestamp = SDL.GetTicksNS(), Code = 0 }
-        };
-        SDL.PushEvent(ref ev);
-    }
     
     protected virtual void OnSystemThemeChanged() => SetDefaultWindowIcon();
     
@@ -245,8 +240,8 @@ public class Sdl3Window
                 OnSystemThemeChanged();
                 break;
             default:
-                if (ev.Type == NotifyEventReadyType) {
-                    sessionLoop?.IterateSessions();
+                if (ev.Type == Sdl3RuntimeEventHandler.NotifyEventReadyType) {
+                    Sdl3RuntimeEventHandler.Instance.ProcessEvents(); // calls SmSessionLoop.IterateSessions()
                 }
                 break;
         }
@@ -258,6 +253,8 @@ public class Sdl3Window
     
     protected virtual void OnQuit()
     {
+        Sdl3RuntimeEventHandler.Instance.ProcessReadyEvents -= processSessionEvents;
+        
         guiBackend?.Dispose();
         guiBackend = null;
         
@@ -277,5 +274,23 @@ public class Sdl3Window
         window = IntPtr.Zero;
         
         SDL.Quit();
+    }
+}
+
+
+internal sealed class Sdl3RuntimeEventHandler : SmRuntimeEventHandler
+{
+    internal static readonly Sdl3RuntimeEventHandler    Instance = new();
+    internal static readonly uint                       NotifyEventReadyType = SDL.RegisterEvents(1);
+    
+    private Sdl3RuntimeEventHandler() { }
+    
+    protected override void OnNotifyEventReady()
+    {
+        var ev = new SDL.Event {
+            Type = NotifyEventReadyType,
+            User = new SDL.UserEvent { Type = NotifyEventReadyType, Timestamp = SDL.GetTicksNS(), Code = 0 }
+        };
+        SDL.PushEvent(ref ev);
     }
 }

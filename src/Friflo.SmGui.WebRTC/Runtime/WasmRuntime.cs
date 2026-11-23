@@ -6,7 +6,7 @@ using System.Runtime.InteropServices.JavaScript;
 using System.Runtime.Versioning;
 using System.Threading.Tasks;
 using Friflo.SmGui.RTC.WASM;
-using Friflo.SmGui.Session;
+using Friflo.SmGui.Runtime;
 
 // ReSharper disable EmptyConstructor
 // ReSharper disable CheckNamespace
@@ -22,17 +22,13 @@ public sealed partial class WasmRuntime : SmRuntime
         instance = this;
     }
         
-    public static void NotifyEventReady() {
-        SetEventReady();
-    }
-    
     [JSImport("setEventReady", Wasm.JsModule)]
-    private static partial void SetEventReady();
+    internal static partial void SetEventReady();
     
     [JSExport]
     private static Task ProcessEvents()
     {
-        instance?.SessionLoop?.IterateSessions();
+        WasmRuntimeEventHandler.Instance.ProcessEvents(); // calls SmSessionLoop.IterateSessions()
         return Task.CompletedTask;
     }
     

@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 using System.Threading;
 
 // ReSharper disable once CheckNamespace
-namespace Friflo.SmGui.Session;
+namespace Friflo.SmGui.Runtime;
 
 
 public abstract class SmTimer : IDisposable

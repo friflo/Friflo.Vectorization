@@ -2,14 +2,11 @@
 // See LICENSE file in the project root for full license information.
 
 // ReSharper disable once CheckNamespace
-namespace Friflo.SmGui.Session;
+namespace Friflo.SmGui.Runtime;
 
 
 public class SmRuntime
 {
-    protected SmSessionLoop? SessionLoop => loop;
-    internal  SmSessionLoop? loop;
-    
     public virtual SmTimer CreateTimer()
     {
         return new ThreadTimer(16);

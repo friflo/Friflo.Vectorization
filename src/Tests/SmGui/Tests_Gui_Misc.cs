@@ -6,9 +6,9 @@ using Friflo.SmGui;
 using Friflo.SmGui.Session;
 using Friflo.SmGui.TUI;
 using NUnit.Framework;
+
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable UnusedType.Global
-
 // ReSharper disable InconsistentNaming
 // ReSharper disable SuggestVarOrType_Elsewhere
 // ReSharper disable SuggestVarOrType_SimpleTypes

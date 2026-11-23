@@ -4,6 +4,7 @@
 using System.Collections.Concurrent;
 using System.Threading;
 using System.Threading.Tasks;
+using Friflo.SmGui.Runtime;
 
 // ReSharper disable CheckNamespace
 namespace Friflo.SmGui.Session;
@@ -23,8 +24,8 @@ internal sealed class SmEventQueue
     internal            AutoResetEvent?             eventReady; 
     internal            SmRuntime                   runtime = new();
     private             bool                        isDisposed;
-    internal            NotifyEventReady?           notifyEventReady;
-    internal volatile   int                         eventReadyRendering;
+    internal            SmRuntimeEventHandler?      runtimeEventHandler;
+
     
     private  const      int                         MaxQueueCapacity = 16384; // 16384 events == 512 KB memory
 
@@ -52,9 +53,8 @@ internal sealed class SmEventQueue
         queue.Enqueue(new LoopEvent(sessionId, type, state, payload, data));
         eventReady?.Set(); // Wake up worker thread
 
-        if (Interlocked.Exchange(ref eventReadyRendering, 1) == 0) {
-            notifyEventReady?.Invoke(); // Wake up main thread to run:  ProcessEvents() > IterateSessions()
-        }
+        runtimeEventHandler?.NotifyEventReady();
+
         return true;
     }
     
@@ -67,7 +67,7 @@ internal sealed class SmEventQueue
         queue.Enqueue(new LoopEvent(default, LoopEventType.ExitLoop, null, default, 0));
         eventReady?.Set(); // Wake up worker thread
         
-        notifyEventReady?.Invoke();
+        runtimeEventHandler?.NotifyEventReady();
     }
 }
 

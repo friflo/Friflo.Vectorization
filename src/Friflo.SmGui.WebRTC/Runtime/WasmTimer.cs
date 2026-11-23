@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices.JavaScript;
 using System.Runtime.Versioning;
 using Friflo.SmGui.RTC.WASM;
-using Friflo.SmGui.Session;
+using Friflo.SmGui.Runtime;
 
 // ReSharper disable EmptyConstructor
 // ReSharper disable CheckNamespace

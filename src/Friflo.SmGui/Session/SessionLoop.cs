@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Text;
 using Friflo.SmGui.Headless;
+using Friflo.SmGui.Runtime;
 using Friflo.SmGui.TUI;
 using Friflo.SmGui.TUI.Session;
 
@@ -47,7 +48,6 @@ public sealed class LoopOptions
 
 public delegate void SessionsChanged(SessionsChangedArgs args);
 
-public delegate void NotifyEventReady();
 
 /// <summary>
 /// Manages concurrent client sessions (such as web browsers, remote terminals, or consoles),
@@ -67,14 +67,14 @@ public delegate void NotifyEventReady();
 /// </remarks>
 public sealed partial class SmSessionLoop : IDisposable
 {
-    public   readonly   AssetResources      resources;
-    public              IAppConfig          Config                  => config           ?? throw AppConfig.SessionLoopException;
-    public              int                 SessionCount            => sessions.Count;
-    public   event      SessionsChanged?    SessionsChanged;
-    public              NotifyEventReady?   NotifyEventReady        { get => eventQueue.notifyEventReady; set => eventQueue.notifyEventReady = value; }
-    public              AppTimer            AppTimer                => appTimer;
+    public   readonly   AssetResources          resources;
+    public              IAppConfig              Config                  => config           ?? throw AppConfig.SessionLoopException;
+    public              int                     SessionCount            => sessions.Count;
+    public   event      SessionsChanged?        SessionsChanged;
+    public              SmRuntimeEventHandler?  RuntimeEventHandler     { get => eventQueue.runtimeEventHandler; set => eventQueue.runtimeEventHandler = value; }
+    public              AppTimer                AppTimer                => appTimer;
 
-    public   override   string              ToString()              => $"sessions: {sessions.Count}";
+    public   override   string                  ToString()              => $"sessions: {sessions.Count}";
 
     #region private fields
     internal            IAppConfig?                                 config;
@@ -99,8 +99,7 @@ public sealed partial class SmSessionLoop : IDisposable
     {
         var loop = new SmSessionLoop(options.Backend, options.ViewFactory);
         loop.useSecureSessionGuids      = options.UseSecureSessionGuids;
-        var runtime     = options.Runtime ?? new SmRuntime();
-        runtime.loop    = loop;
+        var runtime = options.Runtime ?? new SmRuntime();
         loop.eventQueue.runtime = runtime;
         return loop;
     }
