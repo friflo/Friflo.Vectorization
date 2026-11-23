@@ -3,6 +3,7 @@
 
 using System;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using System.Threading;
 
 
@@ -18,6 +19,7 @@ public partial class SmSessionLoop
     public void Run()
     {
         ObjectDisposedException.ThrowIf(isDisposed, this);
+        if (sessionThreadId != Environment.CurrentManagedThreadId) throw InvalidThreadException();
 
         var eventReady = eventQueue.eventReady = new AutoResetEvent(true); // process pending events queue not empty
         
@@ -156,6 +158,7 @@ public partial class SmSessionLoop
     public void IterateSessions()
     {
         ObjectDisposedException.ThrowIf(isDisposed, this);
+        if (sessionThreadId != Environment.CurrentManagedThreadId) throw InvalidThreadException();
 
         var localQueue  = queue;
         var eventCount  = localQueue.Count;
@@ -171,5 +174,12 @@ public partial class SmSessionLoop
                 break;
             }
         }
+    }
+    
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    private InvalidOperationException InvalidThreadException()
+    {
+        var msg = $"Expect call from thread the session loop was created. expect: {sessionThreadId}  was; {Environment.CurrentManagedThreadId}";
+        return new InvalidOperationException(msg);
     }
 }
