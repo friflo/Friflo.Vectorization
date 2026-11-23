@@ -37,7 +37,7 @@ public sealed class GodotBatch : SmBatch
     private             GdColor[]   colors      = [];
     
     /// <c>canvasItem</c> is the parent canvas item the GUI is drawn into. E.g. <see cref="CanvasItem.GetCanvasItem"/>
-public void DrawCommandList(Rid canvasItem, int x, int y, int width, int height)
+    public void DrawCommandList(Rid canvasItem, int x, int y, int width, int height)
     {
         EndBatch();
         
