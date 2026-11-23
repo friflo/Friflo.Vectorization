@@ -1,6 +1,7 @@
 using System;
 using System.Diagnostics;
 using System.Numerics;
+using Demos.Utils;
 using Friflo.SmGui;
 
 namespace Demos.BasicDraw;
@@ -12,6 +13,7 @@ public class DrawDemoView : GuiView
     private             float           rotation;
     private readonly    Stopwatch       stopwatch = Stopwatch.StartNew();
     private             float           lastTime;
+    private  readonly   FrameStats      frameStats = new();
 
     internal DrawDemoView(DemoResources resources, ViewSession session) : base(session)
     {
@@ -24,6 +26,7 @@ public class DrawDemoView : GuiView
     
     internal void RenderGui(SmBatch batch, int width, int height)
     {
+        frameStats.Update();
         var currentTime = (float)stopwatch.Elapsed.TotalSeconds;
         var deltaTime   = currentTime - lastTime;
         lastTime        = currentTime;
@@ -114,7 +117,7 @@ public class DrawDemoView : GuiView
         draw.FillTriangleStrip(stripVertices, color: 0xbb00bbff);
     }
     
-    private static void DrawText(SmDraw draw)
+    private void DrawText(SmDraw draw)
     {
         var textSize = draw.MeasureText("wgpu");
         draw.StrokeRect(new Vector2(700, 50), textSize, 2, Color32.Gray);
@@ -128,7 +131,7 @@ public class DrawDemoView : GuiView
         
         draw.StrokeRect(new Vector2(750, 150), new Vector2(200, 220), 2, Color32.Gray);
             using (draw.PushScissor(new Vector2(750, 150), new Vector2(200, 220))) {
-            var lineCount = draw.DrawTextWrapped("Clipped long text with word wrapping. More text that need to be clipped.", new Vector2(750, 150), 200, Color32.CornflowerBlue);
+            var lineCount = draw.DrawTextWrapped("Clipped long text with word wrapping. More text that need to be clipped.", new Vector2(750, 150), 200, Color32.White);
             Debug.Assert(lineCount == 8);
         }
         {
@@ -142,6 +145,8 @@ public class DrawDemoView : GuiView
             draw.FillRectRounded(btnPos, btnSize, 14, Color32.DarkGray);
             draw.DrawTextInRect("OK", btnPos, btnSize, TextAlignment.Center, VerticalAlignment.Middle, Color32.White, scale: 2);
         }
+        var span = frameStats.AsSpan(draw.Batch);
+        draw.DrawText(span, new Vector2(700, 400), Color32.White);
         
         var font = draw.Font;
         Debug.Assert(font.name == "Inter-Regular");
