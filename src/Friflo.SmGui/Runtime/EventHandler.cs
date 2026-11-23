@@ -2,6 +2,7 @@
 // See LICENSE file in the project root for full license information.
 
 using System.Threading;
+using Friflo.SmGui.Session;
 
 // ReSharper disable once CheckNamespace
 namespace Friflo.SmGui.Runtime;
@@ -12,8 +13,18 @@ public delegate void ProcessReadyEvents();
 
 /// <summary>
 /// Thread-safe, zero-allocation wake-up coordinator between background producers and the UI thread.<br/>
-/// Uses <see cref="NotifyEventReady"/> to signal pending work and dispatch <see cref="ProcessReadyEvents"/> on the UI thread.
+/// Uses <see cref="NotifyEventReady"/> to signal pending work and dispatches <see cref="ProcessReadyEvents"/> on the UI thread.
 /// </summary>
+/// <remarks>
+/// Subclasses of this class can reduce latency between remote browser client input (such as mouse movement)
+/// and rendering when using <see cref="SmSessionLoop.IterateSessions"/>.<br/>
+/// <br/>
+/// <see cref="SmSessionLoop.IterateSessions"/> is typically called inside <c>Update()</c> or <c>Draw()</c>
+/// of a graphics backend such as MonoGame, KNI, or raylib.<br/>
+/// At 60 Hz, polling once per frame can introduce up to ~16 ms of latency between incoming input and rendering.<br/>
+/// If a backend exposes access to its event or message loop, a custom implementation can wake and process
+/// events with lower latency—for example with SDL3 or SDL. See <c>Sdl3RuntimeEventHandler</c>.
+/// </remarks>
 public abstract class SmRuntimeEventHandler
 {
     public  event   ProcessReadyEvents? ProcessReadyEvents;
@@ -21,7 +32,7 @@ public abstract class SmRuntimeEventHandler
     
     /// <summary>
     /// Notify that events need to be processed on the UI thread within the main message loop.<br/>
-    /// It is currently used to process events at <see cref="Friflo.SmGui.Session.SmSessionLoop.IterateSessions"/>. <br/>
+    /// It is currently used to process events at <see cref="SmSessionLoop.IterateSessions"/>. <br/>
     /// </summary>
     /// <remarks>
     /// Method is thread-safe - can be called from any thread.
