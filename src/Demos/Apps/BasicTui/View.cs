@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Numerics;
 using System.Runtime.InteropServices;
 using Demos.BasicTui.Draw;
+using Demos.Utils;
 using Friflo.SmGui;
 using Friflo.SmGui.TUI;
 
@@ -18,12 +19,9 @@ public class BasicTuiView : GuiView
     private readonly    SmTexture       myTexture;      // texture available only for this session
     private readonly    SmTexture       canvasTexture;  // canvas only required for TUI. GUI draws to GPU surface
     private             bool            fullScreen;
+    private  readonly   FrameStats      frameStats = new();
     private             float           time;
-    private             long            frameStart = Stopwatch.GetTimestamp();
-    private             double          frameTime;
     private             bool            mouseCircle;
-    private             long            memStart;
-    private             long            memDiff;
     private readonly    DrawDiagram     diagram = new ();
     
     
@@ -54,15 +52,9 @@ public class BasicTuiView : GuiView
 
         Static.Noop();
         
-        var timestamp   = Stopwatch.GetTimestamp();
-        frameTime       = Stopwatch.GetElapsedTime(frameStart, timestamp).TotalMilliseconds;
-        frameStart      = timestamp;
-        
-        if (batch.Timer.Enabled) time += (float)frameTime * appState.speed * 2f * 0.001f;
-        
-        var mem     = GC.GetAllocatedBytesForCurrentThread();
-        memDiff     = mem - memStart;
-        memStart    = mem;
+        frameStats.Update();
+        if (batch.Timer.Enabled) time += (float)frameStats.FrameTime * appState.speed * 2f * 0.001f;
+
         batch.EnableStepRendering = true;
         
         var gui = batch.BeginGui(width, height);
@@ -101,11 +93,8 @@ public class BasicTuiView : GuiView
         }
         gui.Spacer();
 
-        var sb = gui.widget.StringBuilder();
-        sb.Clear().Append($"frame time: ");
-        if (gui.Batch.Timer.Enabled) sb.Append($"{frameTime,5:F1} ms"); else sb.Append($" ---");
-        sb.Append($"  alloc: {memDiff,3}");
-        gui.Label(sb.Span(), Color32.Teal);
+        var span = frameStats.AsSpan(gui);
+        gui.Label(span, Color32.Teal);
         
         using (gui.BeginHorizontal()) {
             ref var drawType = ref appState.drawType;
@@ -173,6 +162,7 @@ public class BasicTuiView : GuiView
         }
         
         gui.Spacer();
+        var sb = gui.widget.StringBuilder();
         sb.Clear().Append($"{RuntimeInformation.OSArchitecture} - {RuntimeInformation.OSDescription}");
         gui.Label(sb.Span(), Color32.Gray);
         gui.Button("hello TUI 💻 🙂", Dim.Fill_X(0, Fit.Content), color: textColors);
