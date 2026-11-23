@@ -2,13 +2,16 @@
 // See LICENSE file in the project root for full license information.
 
 // file: Batch.cs
+
+using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using Godot;
 using GdColor   = Godot.Color;
 using GdVector2 = Godot.Vector2;
 using Vector2   = System.Numerics.Vector2;
 
-
+// ReSharper disable ReplaceSliceWithRangeIndexer
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable CheckNamespace
 namespace Friflo.SmGui.Godot;
@@ -27,8 +30,11 @@ public sealed class GodotBatch : SmBatch
     // Godot clips per canvas item (not per draw call like a GPU scissor rect).
     // So every draw command is added to its own child canvas item. The items are reused every frame.
     // Child items are drawn in creation order => item[i] is drawn before item[i + 1].
-    private readonly List<Rid>  commandItems = [];
-    private          Rid        parentItem;
+    private readonly    List<Rid>   commandItems = [];
+    private             Rid         parentItem;
+    private             GdVector2[] points      = [];
+    private             GdVector2[] uvs         = [];
+    private             GdColor[]   colors      = [];
     
     /// <c>canvasItem</c> is the parent canvas item the GUI is drawn into. E.g. <see cref="CanvasItem.GetCanvasItem"/>
     public void DrawCommandList(Rid canvasItem, int x, int y, int width, int height)
@@ -50,43 +56,32 @@ public sealed class GodotBatch : SmBatch
         
         var scissor = new RectVector2(Vector2.Zero, viewport);
 
+        // --- cast indexData and copy vertexData
         var vertexData  = ((GodotVertexBuffer)gpuVertexBuffer).vertexData;
         var indexData   = ((GodotIndexBuffer) gpuIndexBuffer).indexData;
         
-        gpuVertexBuffer.Write(0, Vertices.Length);
-        // gpuIndexBuffer. Write(0, indices.IndexCount);
+        ReadOnlySpan<int> indices = MemoryMarshal.Cast<uint, int>(indexData);
         
+        var vertexCount = Vertices.Length;
+        if (points.Length < vertexCount) {
+            points  = new GdVector2[vertexCount];
+            uvs     = new GdVector2[vertexCount];
+            colors  = new GdColor  [vertexCount];
+        }
+        for (int n = 0; n < vertexCount; n++) {
+            ref readonly var vertex = ref vertexData[n];
+            points[n] = new GdVector2(vertex.position.X, vertex.position.Y);
+            uvs[n]    = new GdVector2(vertex.uv.X,       vertex.uv.Y);
+            colors[n] = ToColor(vertex.color);
+        }
         var itemCount = 0;
         foreach (var cmd in DrawList)
         {
             var item        = GetCommandItem(canvasItem, itemCount++);
             var texture     = ((Texture2D)cmd.texture.native!).GetRid();
-            var vertexView  = cmd.vertexView;
-            var indexView   = cmd.indexView;
+
             // var sampler  = cmd.samplerFilter == SamplerFilter.Linear ? samplerLinear : samplerNearest;   // todo  implement cmd.samplerFilter
             // var config   = renderConfigs[(int)cmd.blendState];                                           // todo  implement cmd.blendState
-            
-            // Godot has no baseVertex / startIndex => copy the used range of the shared buffers.
-            // Indices are relative to vertexView.offset (same as baseVertex in DrawIndexedPrimitives).
-            var indexCount  = indexView.length;
-            var indices     = new int[indexCount];
-            var maxIndex    = 0;
-            for (int n = 0; n < indexCount; n++) {
-                var index   = (int)indexData[indexView.offset + n];
-                indices[n]  = index;
-                if (index > maxIndex) maxIndex = index;
-            }
-            var pointCount  = indexCount == 0 ? 0 : maxIndex + 1;
-            var points      = new GdVector2[pointCount];
-            var uvs         = new GdVector2[pointCount];
-            var colors      = new GdColor  [pointCount];
-            var vertexStart = vertexView.offset;
-            for (int n = 0; n < pointCount; n++) {
-                ref readonly var vertex = ref vertexData[vertexStart + n];
-                points[n]   = new GdVector2(vertex.position.X, vertex.position.Y);
-                uvs   [n]   = new GdVector2(vertex.uv.X,       vertex.uv.Y);
-                colors[n]   = ToColor(vertex.color);
-            }
             
             RenderingServer.CanvasItemClear(item);
             RenderingServer.CanvasItemSetTransform(item, transform);
@@ -100,10 +95,8 @@ public sealed class GodotBatch : SmBatch
             } else {
                 RenderingServer.CanvasItemSetCustomRect(item, false);
             }
-            if (indexCount == 0) {
-                continue;
-            }
-            RenderingServer.CanvasItemAddTriangleArray(item, indices, points, colors, uvs: uvs, texture: texture);
+            var indexSpan = indices.Slice(cmd.indexView.offset);
+            RenderingServer.CanvasItemAddTriangleArray(item, indexSpan, points, colors, uvs, default, default, texture, indices.Length / 3);
         }
         // clear items of previous frame not used by this frame
         for (int n = itemCount; n < commandItems.Count; n++) {
