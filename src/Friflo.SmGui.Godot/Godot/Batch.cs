@@ -37,7 +37,7 @@ public sealed class GodotBatch : SmBatch
     private             GdColor[]   colors      = [];
     
     /// <c>canvasItem</c> is the parent canvas item the GUI is drawn into. E.g. <see cref="CanvasItem.GetCanvasItem"/>
-    public void DrawCommandList(Rid canvasItem, int x, int y, int width, int height)
+public void DrawCommandList(Rid canvasItem, int x, int y, int width, int height)
     {
         EndBatch();
         
@@ -47,14 +47,6 @@ public sealed class GodotBatch : SmBatch
                 RenderingServer.CanvasItemSetParent(item, canvasItem);
             }
         }
-        
-        // Godot canvas coordinates are already in pixels => cmd.projection is not required.
-        // The viewport (x, y, width, height) maps to the item transform.
-        var scaleX      = viewport.X > 0 ? width  / viewport.X : 1f;
-        var scaleY      = viewport.Y > 0 ? height / viewport.Y : 1f;
-        var transform   = new Transform2D(new GdVector2(scaleX, 0), new GdVector2(0, scaleY), new GdVector2(x, y));
-        
-        var scissor = new RectVector2(Vector2.Zero, viewport);
 
         // --- cast indexData and copy vertexData
         var vertexData  = ((GodotVertexBuffer)gpuVertexBuffer).vertexData;
@@ -83,6 +75,21 @@ public sealed class GodotBatch : SmBatch
             // var sampler  = cmd.samplerFilter == SamplerFilter.Linear ? samplerLinear : samplerNearest;   // todo  implement cmd.samplerFilter
             // var config   = renderConfigs[(int)cmd.blendState];                                           // todo  implement cmd.blendState
             
+            // Map cmd.projection (clip/NDC space) into the target viewport rectangle (x, y, width, height).
+            var oNdc        = System.Numerics.Vector3.Transform(System.Numerics.Vector3.Zero,  cmd.projection);
+            var xNdc        = System.Numerics.Vector3.Transform(System.Numerics.Vector3.UnitX, cmd.projection);
+            var yNdc        = System.Numerics.Vector3.Transform(System.Numerics.Vector3.UnitY, cmd.projection);
+
+            var origin      = NdcToViewport(oNdc, x, y, width, height);
+            var xAxis       = NdcToViewport(xNdc, x, y, width, height) - origin;
+            var yAxis       = NdcToViewport(yNdc, x, y, width, height) - origin;
+            var transform   = new Transform2D(
+                new GdVector2(xAxis.X, xAxis.Y),
+                new GdVector2(yAxis.X, yAxis.Y),
+                new GdVector2(origin.X, origin.Y)
+            );
+            var scissor     = new RectVector2(Vector2.Zero, viewport);
+            
             RenderingServer.CanvasItemClear(item);
             RenderingServer.CanvasItemSetTransform(item, transform);
             
@@ -102,6 +109,13 @@ public sealed class GodotBatch : SmBatch
         for (int n = itemCount; n < commandItems.Count; n++) {
             RenderingServer.CanvasItemClear(commandItems[n]);
         }
+    }
+    
+    private static Vector2 NdcToViewport(System.Numerics.Vector3 ndc, int x, int y, int width, int height)
+    {
+        var vx = x + (ndc.X * 0.5f + 0.5f) * width;
+        var vy = y + (0.5f - ndc.Y * 0.5f) * height;
+        return new Vector2(vx, vy);
     }
     
     private Rid GetCommandItem(Rid parent, int index)
