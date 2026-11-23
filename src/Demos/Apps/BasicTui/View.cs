@@ -53,7 +53,7 @@ public class BasicTuiView : GuiView
         Static.Noop();
         
         frameStats.Update();
-        if (batch.Timer.Enabled) time += (float)frameStats.FrameTime * appState.speed * 2f * 0.001f;
+        if (batch.Timer.Enabled) time += (float)frameStats.FrameTime.TotalMilliseconds * appState.speed * 2f * 0.001f;
 
         batch.EnableStepRendering = true;
         
