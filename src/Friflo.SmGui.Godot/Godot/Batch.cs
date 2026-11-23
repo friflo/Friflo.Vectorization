@@ -10,6 +10,7 @@ using Godot;
 using GdColor   = Godot.Color;
 using GdVector2 = Godot.Vector2;
 using Vector2   = System.Numerics.Vector2;
+using Vector3   = System.Numerics.Vector3;
 
 // ReSharper disable ReplaceSliceWithRangeIndexer
 // ReSharper disable ConvertToPrimaryConstructor
@@ -56,9 +57,10 @@ public sealed class GodotBatch : SmBatch
         
         var vertexCount = Vertices.Length;
         if (points.Length < vertexCount) {
-            points  = new GdVector2[vertexCount];
-            uvs     = new GdVector2[vertexCount];
-            colors  = new GdColor  [vertexCount];
+            var capacity = Math.Max((int)(points.Length * 1.3), vertexCount);
+            points  = new GdVector2[capacity];
+            uvs     = new GdVector2[capacity];
+            colors  = new GdColor  [capacity];
         }
         for (int n = 0; n < vertexCount; n++) {
             ref readonly var vertex = ref vertexData[n];
@@ -76,9 +78,9 @@ public sealed class GodotBatch : SmBatch
             // var config   = renderConfigs[(int)cmd.blendState];                                           // todo  implement cmd.blendState
             
             // Map cmd.projection (clip/NDC space) into the target viewport rectangle (x, y, width, height).
-            var oNdc        = System.Numerics.Vector3.Transform(System.Numerics.Vector3.Zero,  cmd.projection);
-            var xNdc        = System.Numerics.Vector3.Transform(System.Numerics.Vector3.UnitX, cmd.projection);
-            var yNdc        = System.Numerics.Vector3.Transform(System.Numerics.Vector3.UnitY, cmd.projection);
+            var oNdc        = Vector3.Transform(Vector3.Zero,  cmd.projection);
+            var xNdc        = Vector3.Transform(Vector3.UnitX, cmd.projection);
+            var yNdc        = Vector3.Transform(Vector3.UnitY, cmd.projection);
 
             var origin      = NdcToViewport(oNdc, x, y, width, height);
             var xAxis       = NdcToViewport(xNdc, x, y, width, height) - origin;
@@ -104,7 +106,7 @@ public sealed class GodotBatch : SmBatch
             }
             var vertexStart = cmd.vertexView.offset;
             var vertexLen   = cmd.vertexView.length;
-            if (vertexLen / 4 != cmd.indexView.length / 6) throw new InvalidOperationException();
+
             RenderingServer.CanvasItemAddTriangleArray(item,
                 indices.Slice(cmd.indexView.offset, cmd.indexView.length),
                 points.AsSpan(vertexStart, vertexLen),
@@ -118,7 +120,7 @@ public sealed class GodotBatch : SmBatch
         }
     }
     
-    private static Vector2 NdcToViewport(System.Numerics.Vector3 ndc, int x, int y, int width, int height)
+    private static Vector2 NdcToViewport(Vector3 ndc, int x, int y, int width, int height)
     {
         var vx = x + (ndc.X * 0.5f + 0.5f) * width;
         var vy = y + (0.5f - ndc.Y * 0.5f) * height;
