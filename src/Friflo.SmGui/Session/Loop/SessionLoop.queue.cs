@@ -161,13 +161,11 @@ public partial class SmSessionLoop
         ObjectDisposedException.ThrowIf(isDisposed, this);
         if (sessionThreadId != Environment.CurrentManagedThreadId) throw InvalidThreadException();
 
-        var localQueue  = queue;
-        var remaining   = eventQueue.queueCount;
+        var localQueue = queue;
         
-        while (remaining > 0 && localQueue.TryDequeue(out LoopEvent evt))
+        while (localQueue.TryDequeue(out LoopEvent evt))
         {
             Interlocked.Decrement(ref eventQueue.queueCount);
-            remaining--;
             
             if (evt.sessionId.id != 0) {
                 ProcessSessionEvent(evt);
