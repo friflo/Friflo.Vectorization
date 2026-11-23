@@ -28,11 +28,11 @@ public class FrameStats
         memStart    = mem;
     }
     
-    public ReadOnlySpan<char> AsSpan(Gui gui)
+    public ReadOnlySpan<char> AsSpan(SmBatch batch)
     {
-        var sb = gui.widget.StringBuilder();
+        var sb = batch.StringBuilder();
         sb.Clear().Append($"frame time: ");
-        if (gui.Batch.Timer.Enabled) {
+        if (batch.Timer.Enabled) {
             sb.Append(CultureInfo.InvariantCulture, $"{frameTime,5:F1} ms");
         } else {
             sb.Append($" ---");

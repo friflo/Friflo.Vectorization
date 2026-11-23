@@ -179,7 +179,7 @@ public abstract class SmBatch : IDisposable
         rasterAssets            = backend.Assets;
     }
     
-    internal StringBuilder StringBuilder()
+    public StringBuilder StringBuilder()
     {
         stringBuilder.Clear();
         return stringBuilder;

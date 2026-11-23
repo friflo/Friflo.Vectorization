@@ -93,7 +93,7 @@ public class BasicTuiView : GuiView
         }
         gui.Spacer();
 
-        var span = frameStats.AsSpan(gui);
+        var span = frameStats.AsSpan(gui.Batch);
         gui.Label(span, Color32.Teal);
         
         using (gui.BeginHorizontal()) {
