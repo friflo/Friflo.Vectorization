@@ -20,6 +20,7 @@ namespace Friflo.SmGui.Session;
 internal sealed class SmEventQueue
 {
     private  readonly   ConcurrentQueue<LoopEvent>  queue;
+    internal            int                         queueCount; // avoids using ConcurrentQueue<>.Count which runs with O(N)
     /// <see cref="eventReady"/> is only used / relevant when using <see cref="SmSessionLoop.Run"/>
     internal            AutoResetEvent?             eventReady; 
     internal            SmRuntime                   runtime = new();
@@ -39,11 +40,11 @@ internal sealed class SmEventQueue
         if (isDisposed) {
             return false;
         }
-
-        var queueCount = queue.Count;
+        var count = Interlocked.Increment(ref queueCount);
         
         // Synchronous path backpressure check
-        if (queueCount >= MaxQueueCapacity) {
+        if (count >= MaxQueueCapacity) {
+            Interlocked.Decrement(ref queueCount);
             // Queue capacity reached: drop event and release memory back to pool
             payload.Return();
             return false;
@@ -64,6 +65,7 @@ internal sealed class SmEventQueue
         isDisposed = true; // avoid enqueuing any other event 
         queue.Clear();
         
+        Interlocked.Increment(ref queueCount);
         queue.Enqueue(new LoopEvent(default, LoopEventType.ExitLoop, null, default, 0));
         eventReady?.Set(); // Wake up worker thread
         

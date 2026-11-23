@@ -31,6 +31,7 @@ public partial class SmSessionLoop
             eventReady.WaitOne();
 
             while (queue.TryDequeue(out LoopEvent evt)) {
+                Interlocked.Decrement(ref eventQueue.queueCount);
                 if (evt.sessionId.id != 0) {
                     ProcessSessionEvent(evt);
                 } else {
@@ -161,17 +162,17 @@ public partial class SmSessionLoop
         if (sessionThreadId != Environment.CurrentManagedThreadId) throw InvalidThreadException();
 
         var localQueue  = queue;
-        var eventCount  = localQueue.Count;
+        var remaining   = eventQueue.queueCount;
         
-        while (localQueue.TryDequeue(out LoopEvent evt))
+        while (remaining > 0 && localQueue.TryDequeue(out LoopEvent evt))
         {
+            Interlocked.Decrement(ref eventQueue.queueCount);
+            remaining--;
+            
             if (evt.sessionId.id != 0) {
                 ProcessSessionEvent(evt);
             } else {
                 ProcessAppEvent(evt);
-            }
-            if (--eventCount == 0) {
-                break;
             }
         }
     }
