@@ -6,6 +6,7 @@ using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 
+// ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable RedundantOverriddenMember
 namespace OpenTkApp;
 
@@ -38,16 +39,19 @@ class OpenTkWindow : GameWindow
             Profile = ContextProfile.Core,
             ClientSize = (width, height),
             StartFocused = true,
-            StartVisible = true,
+            StartVisible = false,
             Title = title,
             WindowBorder = WindowBorder.Resizable,
             WindowState = WindowState.Normal,
         };
 
-        return new OpenTkWindow(gwSettings, nwSettings, createGuiApp);
+        var window = new OpenTkWindow(gwSettings, nwSettings, createGuiApp);
+        window.CenterWindow();
+        window.IsVisible = true;
+        return window;
     }
 
-    public OpenTkWindow(GameWindowSettings gwSettings, NativeWindowSettings nwSettings, CreateGuiApp createGuiApp)
+    private OpenTkWindow(GameWindowSettings gwSettings, NativeWindowSettings nwSettings, CreateGuiApp createGuiApp)
         : base(gwSettings, nwSettings)
     {
         this.createGuiApp = createGuiApp;
