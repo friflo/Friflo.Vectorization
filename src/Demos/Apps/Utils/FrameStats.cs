@@ -31,8 +31,8 @@ public class FrameStats
     public ReadOnlySpan<char> AsSpan(SmBatch batch)
     {
         var sb = batch.StringBuilder();
-        sb.Append($"frame time: ");
-        if (batch.Timer.Enabled) {
+        sb.Append($"frame: ");
+        if (batch.Timer.Enabled || batch.UiType.IsLocal()) {
             sb.Append(CultureInfo.InvariantCulture, $"{FrameTime.TotalMilliseconds,5:F1} ms");
         } else {
             sb.Append($" ---");
