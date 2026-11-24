@@ -61,7 +61,8 @@
   
   <ItemGroup>
     <ProjectReference Include="..\Friflo.SmGui\Friflo.SmGui.csproj" />
-    <ProjectReference Include="..\Friflo.WGPU\Friflo.WGPU.csproj" />
+    <PackageReference Include="OpenTK.Graphics"           Version="4.9.4" />
+    <PackageReference Include="OpenTK.Windowing.Desktop"  Version="4.9.4" />
   </ItemGroup>
 
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
@@ -77,10 +78,6 @@
   
   <ItemGroup>
     <None Remove="*.csproj.lscache" />
-  </ItemGroup>
-  
-  <ItemGroup>
-    <EmbeddedResource Include="shaders\imdraw\draw2d.wgsl" />
   </ItemGroup>
 
 </Project>

@@ -3,8 +3,8 @@
 
 using System;
 using System.IO;
-using Friflo.GPU;
-using Friflo.WGPU;
+using System.Runtime.InteropServices;
+using OpenTK.Graphics.OpenGL4;
 
 
 // ReSharper disable ConvertToPrimaryConstructor
@@ -15,75 +15,69 @@ namespace Friflo.SmGui.OpenTK;
 
 public sealed class OpenTkGuiBackend : SmGuiBackend
 {
-    private  readonly   GpuDevice       device;
-    internal readonly   GpuSampler      samplerLinear;
-    internal readonly   GpuSampler      samplerNearest;
-    
-    public OpenTkGuiBackend(GpuDevice device, IGuiAssets assets) : base(assets) {
-        this.device = device;
-        samplerLinear   = device.CreateSampler(new GpuSamplerDescriptor { label = "Linear Sampler",  magFilter = FilterMode.Linear,  minFilter = FilterMode.Linear  });
-        samplerNearest  = device.CreateSampler(new GpuSamplerDescriptor { label = "Nearest Sampler", magFilter = FilterMode.Nearest, minFilter = FilterMode.Nearest });
-    }
-    
-    public override void Dispose() {
-        base.Dispose();
-        samplerLinear.Dispose();
-        samplerNearest.Dispose();
-    }
-    
-    public OpenTkBatch CreateBatch(TextureFormat targetFormat, int maxVertices = 60_000) {
-        var batch = new OpenTkBatch(this, targetFormat, maxVertices) { UiType = UiType.NativeGui };
+    public OpenTkGuiBackend(IGuiAssets assets) : base(assets) { }
+
+    public OpenTkBatch CreateBatch(int maxVertices = 60_000)
+    {
+        var batch = new OpenTkBatch(this, maxVertices) { UiType = UiType.NativeGui };
         InitBatch(batch);
         return batch;
     }
-    
+
     public override SmTexture CreateTexture(string name, int width, int height, ReadOnlySpan<byte> rgbaPixels)
     {
-        var texture = device.CreateTexture(new GpuTextureDescriptor {
-            label   = name,
-            size    = [width, height],
-            format  = TextureFormat.RGBA8Unorm,
-            usage   = TextureUsage.TextureBinding | TextureUsage.CopyDst
-        });
-        texture.Write(rgbaPixels, bytesPerRow: width * 4, rowsPerImage: height);
+        int texId = GL.GenTexture();
+        GL.BindTexture(TextureTarget.Texture2D, texId);
+        GL.PixelStore(PixelStoreParameter.UnpackRowLength, width);
 
-        var textureView = texture.CreateView(); // Note: textures created via SmGui use always the default GpuTextureView
-        return textureView.AsSmTexture();
+        var copy = rgbaPixels.ToArray();
+        GL.TexImage2D(
+            TextureTarget.Texture2D,
+            0,
+            PixelInternalFormat.Rgba,
+            width,
+            height,
+            0,
+            PixelFormat.Rgba,
+            PixelType.UnsignedByte,
+            copy);
+
+        GL.PixelStore(PixelStoreParameter.UnpackRowLength, 0);
+        GL.BindTexture(TextureTarget.Texture2D, 0);
+
+        var data = new OpenTkTextureData(texId, width, height, name, copy);
+        return data.AsSmTexture();
     }
 
     protected override SmBuffer<Vertex2D> CreateVertexBuffer(int vertexCount)
     {
-        var vertices = new Memory<Vertex2D>(new Vertex2D[vertexCount]);
-        var buffer   = device.CreateBuffer(vertices, "SmBatch Vertices", BufferProfile.StaticIn, BufferType.Vertex);
-        return new OpenTkBuffer<Vertex2D>(buffer);
+        int vbo = GL.GenBuffer();
+        var array = new Vertex2D[vertexCount];
+        GL.BindBuffer(BufferTarget.ArrayBuffer, vbo);
+        GL.BufferData(BufferTarget.ArrayBuffer, array.Length * Marshal.SizeOf<Vertex2D>(), IntPtr.Zero, BufferUsageHint.DynamicDraw);
+        GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
+        return new OpenTkBuffer<Vertex2D>(vbo, BufferTarget.ArrayBuffer, array);
     }
 
     protected override SmBuffer<uint> CreateIndexBuffer(int indexCount)
     {
-        var indices = new Memory<uint>(new uint[indexCount]);
-        var buffer  = device.CreateBuffer(indices, "SmBatch Indices", BufferProfile.StaticIn, BufferType.Index);
-        return new OpenTkBuffer<uint>(buffer);
+        int ebo = GL.GenBuffer();
+        var array = new uint[indexCount];
+        GL.BindBuffer(BufferTarget.ElementArrayBuffer, ebo);
+        GL.BufferData(BufferTarget.ElementArrayBuffer, array.Length * sizeof(uint), IntPtr.Zero, BufferUsageHint.DynamicDraw);
+        GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
+        return new OpenTkBuffer<uint>(ebo, BufferTarget.ElementArrayBuffer, array);
     }
-    
+
     public override SmTexture LoadTexture(Stream stream, string label = null, SmTextureUsage usage = SmTextureUsage.TextureBinding | SmTextureUsage.CopyDst)
     {
         var image = assets.LoadImage(stream, SmColorComponents.RedGreenBlueAlpha);
-
-        var texture = device.CreateTexture(new GpuTextureDescriptor {
-            label  = label,
-            size   = [image.width, image.height],
-            format = TextureFormat.RGBA8Unorm,
-            usage  = (TextureUsage)usage
-        });
-        texture.Write(image.data, bytesPerRow: image.width * 4, rowsPerImage: image.height);
-        
-        var textureView = texture.CreateView(); // Note: textures created via SmGui use always the default GpuTextureView
-        return textureView.AsSmTexture();
+        return CreateTexture(label, image.width, image.height, image.data);
     }
-    
+
     public override SmImageAsset GetTextureImage(SmTexture texture)
     {
-        var tex = (GpuTexture)texture.native!;
-        return new SmImageAsset { width = tex.Descriptor.size.width, height = tex.Descriptor.size.height, data = tex.guiPixels, name = tex.Label };
+        var tex = (OpenTkTextureData)texture.native!;
+        return new SmImageAsset { width = tex.Width, height = tex.Height, data = tex.Pixels, name = tex.Label };
     }
 }

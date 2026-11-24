@@ -1,7 +1,6 @@
 ﻿// Copyright (c) Ullrich Praetz - https://github.com/friflo. All rights reserved.
 // See LICENSE file in the project root for full license information.
 
-using Friflo.WGPU;
 
 
 // ReSharper disable ConvertToPrimaryConstructor
@@ -10,13 +9,13 @@ namespace Friflo.SmGui.OpenTK;
 
 public static class OpenTkGuiExtensions
 {
-    public static SmTexture AsSmTexture(this GpuTextureView textureView)
+    public static SmTexture AsSmTexture(this OpenTkTextureData texture)
     {
-        return new SmTexture(textureView.texture, textureView.Handle);
+        return new SmTexture(texture, texture.TextureId);
     }
-    
-    public static GpuTexture AsGpuTexture(in this SmTexture tmTexture)
+
+    public static OpenTkTextureData AsOpenTkTexture(in this SmTexture smTexture)
     {
-        return (GpuTexture)tmTexture.native;
+        return (OpenTkTextureData)smTexture.native!;
     }
 }
