@@ -55,7 +55,7 @@ public class GameApp : Game
     protected override void Draw(GameTime gameTime)
     {
         var device = GraphicsDevice;
-        device.Clear(Color.CornflowerBlue);
+        device.Clear(new Color(0x77, 0x5f, 0x08));  // original Color(0xff, 0xcc, 0x10)
         
         var width   = device.PresentationParameters.BackBufferWidth;
         var height  = device.PresentationParameters.BackBufferHeight;
