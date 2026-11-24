@@ -13,4 +13,12 @@
         <PackageReference Include="OpenTK.Windowing.Desktop"    Version="4.9.4" />
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\..\Friflo.SmGui.Assets\Friflo.SmGui.Assets.csproj" />
+      <ProjectReference Include="..\..\Friflo.SmGui.Http\Friflo.SmGui.Http.csproj" />
+      <ProjectReference Include="..\..\Friflo.SmGui.OpenTK\Friflo.SmGui.OpenTK.csproj" />
+      <ProjectReference Include="..\..\Friflo.SmGui.WebRTC\Friflo.SmGui.WebRTC.csproj" />
+      <ProjectReference Include="..\Apps\Apps.csproj" />
+    </ItemGroup>
+
 </Project>

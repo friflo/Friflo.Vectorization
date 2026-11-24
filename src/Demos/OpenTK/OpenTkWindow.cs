@@ -1,4 +1,5 @@
-
+using Friflo.SmGui;
+using Friflo.SmGui.OpenTK;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
@@ -9,7 +10,12 @@ namespace OpenTkApp;
 
 class OpenTkWindow : GameWindow
 {
-    public static OpenTkWindow Create()
+    private             OpenTkGuiBackend?   guiBackend;
+    private             OpenTkBatch?        batch;
+    private             SmGuiApp?           app;
+    private readonly    CreateGuiApp        createGuiApp;
+    
+    public static OpenTkWindow Create(string title, int width, int height, CreateGuiApp createGuiApp)
     {
         Vector2 a = (1E-45f, -5.9167414f);
         Vector2 b = (1E-45f, 13.882292f);
@@ -32,10 +38,10 @@ class OpenTkWindow : GameWindow
             Flags = ContextFlags.Debug | ContextFlags.ForwardCompatible,
             IsEventDriven = false,
             Profile = ContextProfile.Core,
-            ClientSize = (800, 600),
+            ClientSize = (width, height),
             StartFocused = true,
             StartVisible = true,
-            Title = "Local OpenTK Test",
+            Title = title,
             WindowBorder = WindowBorder.Resizable,
             WindowState = WindowState.Normal,
         };
@@ -53,6 +59,10 @@ class OpenTkWindow : GameWindow
 
         string ver = GLFW.GetVersionString();
         Console.WriteLine($"GLFW version: {ver}");
+        
+        guiBackend  = new OpenTkGuiBackend(new DefaultGuiAssets());
+        batch       = guiBackend.CreateBatch();
+        app         = createGuiApp(guiBackend);
     }
 
     protected override void OnUnload()
@@ -80,6 +90,13 @@ class OpenTkWindow : GameWindow
 
         GL.ClearColor(color);
         GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+        
+        var width  = Bounds.Size.X;
+        var height = Bounds.Size.Y;
+        
+        app?.RenderApp(batch!, width, height);
+        batch?.DrawCommandList(width, height);
+        
 
         SwapBuffers();
     }
