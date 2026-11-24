@@ -1,41 +1,38 @@
 // Copyright (c) Ullrich Praetz - https://github.com/friflo. All rights reserved.
 // See LICENSE file in the project root for full license information.
 
-#if REMOVE_ME
-
 using System;
-using Microsoft.Xna.Framework;
+using OpenTK.Graphics.OpenGL4;
+using OpenTK.Windowing.Common;
+using OpenTK.Windowing.Desktop;
 
 // ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable once CheckNamespace
 namespace Friflo.SmGui.OpenTK;
 
+
 public sealed class OpenTkClientAction : ClientAction
 {
-    private readonly Game game;
-    private readonly GraphicsDeviceManager graphics;
+    private readonly NativeWindow window;
 
-    public OpenTkClientAction(Game game, GraphicsDeviceManager graphics)
+    public OpenTkClientAction(NativeWindow window)
     {
-        this.game = game;
-        this.graphics = graphics;
+        this.window = window;
     }
 
     public override void SetDisplayMode(SmDisplayMode mode)
     {
-        game.GraphicsDevice.SetRenderTarget(null);
+        GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
         switch (mode) {
             case SmDisplayMode.Fullscreen:
-                if (!graphics.IsFullScreen) {
-                    graphics.IsFullScreen = true;
-                    graphics.ApplyChanges();
+                if (window.WindowState != WindowState.Fullscreen) {
+                    window.WindowState = WindowState.Fullscreen;
                 }
                 break;
             case SmDisplayMode.Windowed:
-                if (graphics.IsFullScreen) {
-                    graphics.IsFullScreen = false;
-                    graphics.ApplyChanges();
+                if (window.WindowState == WindowState.Fullscreen) {
+                    window.WindowState = WindowState.Normal;
                 }
                 break;
         }
@@ -43,13 +40,11 @@ public sealed class OpenTkClientAction : ClientAction
 
     public override void SetWindowTitle(ReadOnlySpan<char> value)
     {
-        game.Window.Title = value.ToString();
+        window.Title = value.ToString();
     }
 
     public override void CloseWindow()
     {
-        game.Exit();
+        window.Close();
     }
 }
-
-#endif

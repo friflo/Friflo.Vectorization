@@ -64,6 +64,7 @@ class OpenTkWindow : GameWindow
         batch       = guiBackend.CreateBatch();
         app         = createGuiApp(guiBackend);
         
+        guiBackend.SetClientActions(new OpenTkClientAction(this));
         Icon = OpenTkUtils.LoadWindowIcon(guiBackend.Assets);
     }
 
