@@ -10,19 +10,19 @@ namespace Friflo.SmGui.OpenTK;
 
 public sealed class OpenTkTextureData : IDisposable
 {
-    internal readonly int    TextureId;
-    internal readonly int    Width;
-    internal readonly int    Height;
-    internal readonly string Label;
-    internal readonly byte[] Pixels;
+    internal readonly   int     textureId;
+    internal readonly   int     width;
+    internal readonly   int     height;
+    internal readonly   string  label;
+    internal readonly   byte[]  pixels;
 
     public OpenTkTextureData(int textureId, int width, int height, string label, byte[] pixels)
     {
-        TextureId = textureId;
-        Width     = width;
-        Height    = height;
-        Label     = label;
-        Pixels    = pixels;
+        this.textureId = textureId;
+        this.width     = width;
+        this.height    = height;
+        this.label     = label;
+        this.pixels    = pixels;
     }
 
     public void Dispose() {

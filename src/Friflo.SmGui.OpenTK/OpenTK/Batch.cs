@@ -13,10 +13,10 @@ namespace Friflo.SmGui.OpenTK;
 
 public sealed class OpenTkBatch : SmBatch
 {
-    private readonly int            vao;
-    private readonly int            shaderProgram;
-    private readonly int            projLocation;
-    private readonly int            texLocation;
+    private readonly    int vao;
+    private readonly    int shaderProgram;
+    private readonly    int projLocation;
+    private readonly    int texLocation;
 
     internal OpenTkBatch(OpenTkGuiBackend backend, int maxVertices)
         : base(default, backend, maxVertices, null)
@@ -28,8 +28,8 @@ public sealed class OpenTkBatch : SmBatch
         vao = GL.GenVertexArray();
         GL.BindVertexArray(vao);
 
-        var vbo = ((OpenTkBuffer<Vertex2D>)gpuVertexBuffer).Handle;
-        var ebo = ((OpenTkBuffer<uint>)gpuIndexBuffer).Handle;
+        var vbo = ((OpenTkBuffer<Vertex2D>)gpuVertexBuffer).handle;
+        var ebo = ((OpenTkBuffer<uint>)gpuIndexBuffer).handle;
 
         GL.BindBuffer(BufferTarget.ArrayBuffer, vbo);
         GL.BindBuffer(BufferTarget.ElementArrayBuffer, ebo);
@@ -87,8 +87,8 @@ public sealed class OpenTkBatch : SmBatch
             GL.UniformMatrix4(projLocation, false, ref proj);
 
             var tex = (OpenTkTextureData)cmd.texture.native!;
-            GL.BindTexture(TextureTarget.Texture2D, tex.TextureId);
-            ApplySamplerFilter(tex.TextureId, cmd.samplerFilter);
+            GL.BindTexture(TextureTarget.Texture2D, tex.textureId);
+            ApplySamplerFilter(tex.textureId, cmd.samplerFilter);
 
             int indexCount  = cmd.indexView.length;
             int indexOffset = cmd.indexView.offset * sizeof(uint);
@@ -98,7 +98,7 @@ public sealed class OpenTkBatch : SmBatch
                 PrimitiveType.Triangles,
                 indexCount,
                 DrawElementsType.UnsignedInt,
-                (IntPtr)indexOffset,
+                indexOffset,
                 baseVertex);
         }
 

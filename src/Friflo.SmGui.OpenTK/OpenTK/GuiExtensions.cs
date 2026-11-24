@@ -11,7 +11,7 @@ public static class OpenTkGuiExtensions
 {
     public static SmTexture AsSmTexture(this OpenTkTextureData texture)
     {
-        return new SmTexture(texture, texture.TextureId);
+        return new SmTexture(texture, texture.textureId);
     }
 
     public static OpenTkTextureData AsOpenTkTexture(in this SmTexture smTexture)

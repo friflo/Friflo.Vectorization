@@ -78,6 +78,6 @@ public sealed class OpenTkGuiBackend : SmGuiBackend
     public override SmImageAsset GetTextureImage(SmTexture texture)
     {
         var tex = (OpenTkTextureData)texture.native!;
-        return new SmImageAsset { width = tex.Width, height = tex.Height, data = tex.Pixels, name = tex.Label };
+        return new SmImageAsset { width = tex.width, height = tex.height, data = tex.pixels, name = tex.label };
     }
 }
