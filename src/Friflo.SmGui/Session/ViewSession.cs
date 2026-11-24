@@ -67,14 +67,14 @@ public static class UiTypeExtensions
 /// </summary>
 public abstract class GuiView
 {
-    protected readonly ViewSession session;
+    protected readonly ViewSession Session;
     
     /// <summary>
     /// For a local view, create a <see cref="ViewSession"/> with <see cref="SmSessionLoop.CreateLocalSession"/> and pass it to this constructor.<br/>
     /// Local views are views using a local graphics backend like: Vulkan, DirectX 12, Metal, OpenGL, WebGPU, Godot, MonoGame, raylib, KNI, Skia, etc.
     /// </summary>
     protected GuiView(ViewSession session) {
-        this.session = session;
+        Session = session;
         session.session!.guiView = this;
     }
         

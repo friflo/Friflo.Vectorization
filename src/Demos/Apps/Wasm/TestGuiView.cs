@@ -49,13 +49,13 @@ public class TestGuiView : GuiView
     {
         using (gui.BeginHorizontal()) {
             if (gui.Button("Web")) {
-                gui.Action.OpenUrl(session.Config.WebAppUrl, "web");
+                gui.Action.OpenUrl(Session.Config.WebAppUrl, "web");
             }
             if (gui.Button("WebRTC")) {
-                gui.Action.OpenUrl(session.Config.WebRtcAppUrl, "webrtc");
+                gui.Action.OpenUrl(Session.Config.WebRtcAppUrl, "webrtc");
             }
             if (!gui.UiType.IsWeb()) {
-                if (gui.Button("close session")) session.Action.CloseWindow();
+                if (gui.Button("close session")) Session.Action.CloseWindow();
             }
         }
         using (gui.BeginHorizontal()) {
@@ -64,7 +64,7 @@ public class TestGuiView : GuiView
         var animate = gui.Timer.Enabled;
         if (gui.Checkbox("animate", ref animate)) {
             gui.Timer.Enabled = animate;
-            session.SetAppDirty();
+            Session.SetAppDirty();
         }
         
         var sb = gui.widget.StringBuilder();

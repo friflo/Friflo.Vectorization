@@ -75,17 +75,17 @@ public class BasicTuiView : GuiView
     {
         using (gui.BeginHorizontal()) {
             if (gui.Button("Web")) {
-                gui.Action.OpenUrl(session.Config.WebAppUrl, "web");
+                gui.Action.OpenUrl(Session.Config.WebAppUrl, "web");
             }
             if (gui.Button("WebRTC")) {
-                gui.Action.OpenUrl(session.Config.WebRtcAppUrl, "webrtc");
+                gui.Action.OpenUrl(Session.Config.WebRtcAppUrl, "webrtc");
             }
             if (gui.Checkbox("fullScreen", ref fullScreen)) {
-                session.SetAppDirty();
+                Session.SetAppDirty();
                 gui.Action.SetDisplayMode(fullScreen ? SmDisplayMode.Fullscreen : SmDisplayMode.Windowed);
             }
             if (!gui.UiType.IsWeb()) {
-                if (gui.Button("close session")) session.Action.CloseWindow();
+                if (gui.Button("close session")) Session.Action.CloseWindow();
             }
         }
         using (gui.BeginHorizontal()) {
@@ -114,22 +114,22 @@ public class BasicTuiView : GuiView
             if (gui.Checkbox("live",        ref live)       && live)        drawType = DrawType.LiveDiagram;
             gui.Spacer();
             if (gui.Checkbox("none",        ref none)       && none)        drawType = DrawType.None;
-            if (drawType != currentType) session.SetAppDirty();
+            if (drawType != currentType) Session.SetAppDirty();
         }
         
         var batch = gui.Batch;
         var animate = batch.Timer.Enabled;
         if (gui.Checkbox("animate", ref animate)) {
             batch.Timer.Enabled = animate;
-            session.SetAppDirty();
+            Session.SetAppDirty();
         }
         gui.Checkbox("texture scissor", ref appState.textureScissor);
         gui.Checkbox("rotate texture", ref appState.rotateTexture);
         gui.Spacer();
-        if (gui.Slider("Speed", ref appState.speed, 0f, 1f, 300)) session.SetAppDirty();
+        if (gui.Slider("Speed", ref appState.speed, 0f, 1f, 300)) Session.SetAppDirty();
         gui.Spacer();
         
-        if (session.UiType.IsTui()) {
+        if (Session.UiType.IsTui()) {
             gui.Checkbox("terminal pixels", ref appState.useTerminalPixels);
         }
         diagram.Update(time);
@@ -167,7 +167,7 @@ public class BasicTuiView : GuiView
         gui.Label(sb.Span(), Color32.Gray);
         gui.Button("hello TUI 💻 🙂", Dim.Fill_X(0, Fit.Content), color: textColors);
 
-        if (session.UiType.IsGui()) {
+        if (Session.UiType.IsGui()) {
             gui.Checkbox("mouse circle", ref mouseCircle);
         }
         gui.BeginHorizontal();
@@ -244,11 +244,11 @@ public class BasicTuiView : GuiView
                 for (int n = 0; n < 100_000; n++) {
                     buttons.Add($"Added {buttons.Count}");
                 }
-                session.SetAppDirty();
+                Session.SetAppDirty();
             }
             if (gui.Button("Clear")) {
                 appState.scrollAreaButtons.Clear();
-                session.SetAppDirty();
+                Session.SetAppDirty();
             }
         }
         var scrollArea = gui.BeginScrollArea(3, Dim.Fill(0, 60));

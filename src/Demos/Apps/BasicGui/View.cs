@@ -85,10 +85,10 @@ public sealed class GuiDemoView : GuiView
         gui.Label(span, Color32.Teal);
         
         if (gui.Button("Web client")) {
-            gui.Action.OpenUrl(session.Config.WebAppUrl, "remote-gui");
+            gui.Action.OpenUrl(Session.Config.WebAppUrl, "remote-gui");
         }
         if (gui.Button("WebRTC")) {
-            gui.Action.OpenUrl(session.Config.WebRtcAppUrl, "webrtc");
+            gui.Action.OpenUrl(Session.Config.WebRtcAppUrl, "webrtc");
         }
         if (gui.UiType != UiType.WebGui) {
             if (gui.Button("close session")) gui.Action.CloseWindow();
