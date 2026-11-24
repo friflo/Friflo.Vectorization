@@ -5,6 +5,7 @@ using System;
 using System.Runtime.InteropServices;
 using System.Threading;
 
+// ReSharper disable RedundantNameQualifier
 // ReSharper disable once CheckNamespace
 namespace Friflo.SmGui.Runtime;
 
@@ -28,10 +29,9 @@ public abstract class SmTimer : IDisposable
 
 internal sealed class ThreadTimer : SmTimer
 {
-    /// Type: <see cref="System.Threading.Timer"/>
-    private readonly    Timer               systemTimer;
-    private readonly    CancellationToken   cancellationToken = CancellationToken.None;
-    private             int                 period;
+    private readonly    System.Threading.Timer  systemTimer;
+    private readonly    CancellationToken       cancellationToken = CancellationToken.None;
+    private             int                     period;
     
     internal ThreadTimer(int period)
     {
