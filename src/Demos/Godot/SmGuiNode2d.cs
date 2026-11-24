@@ -36,6 +36,11 @@ public partial class SmGuiNode2d : Node2D
         
         var canvasTarget = GetCanvasItem();
         batch?.DrawCommandList(canvasTarget, 0, 0, width, height);
+        GodotInput.SetMouseCursor(guiBackend);
+	}
+	
+	public override void _UnhandledInput(InputEvent ev) {
+		GodotInput.UpdateInput(guiBackend, ev);
 	}
     
     public override void _ExitTree()

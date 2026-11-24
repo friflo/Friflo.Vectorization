@@ -1,12 +1,9 @@
 // Copyright (c) Ullrich Praetz - https://github.com/friflo. All rights reserved.
 // See LICENSE file in the project root for full license information.
 
-#if USE_INPUT
+using Godot;
 
-using System;
-using Microsoft.Xna.Framework.Input;
-using Xna = Microsoft.Xna.Framework.Input;
-
+// ReSharper disable MergeIntoPattern
 // ReSharper disable SuggestVarOrType_SimpleTypes
 // ReSharper disable CheckNamespace
 namespace Friflo.SmGui.Godot;
@@ -14,53 +11,60 @@ namespace Friflo.SmGui.Godot;
 
 public static class GodotInput
 {
-    private static readonly Keys[] AllKeys          = Enum.GetValues<Keys>();
-    private static readonly bool[] KeyDownStates    = new bool[256];
-    
-    public static void UpdateInput(SmGuiBackend backend)
+    public static void UpdateInput(SmGuiBackend backend, InputEvent ev)
     {
         // --- mouse events
-        var mouse = Mouse.GetState();
-        backend.AddMousePositionState(mouse.X, mouse.Y);
-        backend.AddMouseButtonState(SmMouseButton.Left,     mouse.LeftButton    == ButtonState.Pressed);
-        backend.AddMouseButtonState(SmMouseButton.Right,    mouse.RightButton   == ButtonState.Pressed);
-        backend.AddMouseButtonState(SmMouseButton.Middle,   mouse.MiddleButton  == ButtonState.Pressed);
-        backend.AddMouseButtonState(SmMouseButton.X1,       mouse.XButton1      == ButtonState.Pressed);
-        backend.AddMouseButtonState(SmMouseButton.X2,       mouse.XButton2      == ButtonState.Pressed);
+        if (ev is InputEventMouseMotion mouseMotion) {
+            backend.AddMousePositionState(mouseMotion.Position.X, mouseMotion.Position.Y);
+            return;
+        }
+        if (ev is InputEventMouseButton mouseButton) {
+            backend.AddMousePositionState(mouseButton.Position.X, mouseButton.Position.Y);
+            if (TryMapMouseButton(mouseButton.ButtonIndex, out var smButton)) {
+                backend.AddMouseButtonState(smButton, mouseButton.Pressed);
+            }
+            return;
+        }
         
         // --- keyboard events
-        var keyboard = Keyboard.GetState();
-        var keyStates = KeyDownStates;
-        foreach (var key in AllKeys)
-        {
-            if (!TryMapKey(key, out KeyCode keyCode)) {
-                continue;
+        if (ev is InputEventKey keyEvent && !keyEvent.Echo) {
+            if (TryMapKey(keyEvent.Keycode, out KeyCode keyCode)) {
+                var isKeyDown = keyEvent.Pressed;
+                var smKeyEvent = new KeyEvent { code = keyCode, isDown = isKeyDown };
+                backend.AddEvent(new SmEvent(isKeyDown ? SmEventType.KeyDown : SmEventType.KeyUp, smKeyEvent));
             }
-            var isKeyDown = keyboard.IsKeyDown(key);
-            if (keyStates[(int)key] == isKeyDown) {
-                continue;
-            }
-            keyStates[(int)key] = isKeyDown;
-            var keyEvent = new KeyEvent { code = keyCode, isDown = isKeyDown };
-            backend.AddEvent(new SmEvent(isKeyDown ? SmEventType.KeyDown : SmEventType.KeyUp, keyEvent));
         }
     }
-    
-    private static bool TryMapKey(Keys monoKey, out KeyCode keyCode)
+
+    private static bool TryMapMouseButton(MouseButton buttonIndex, out SmMouseButton smButton)
     {
-        if (monoKey == Keys.None) {
+        smButton = buttonIndex switch {
+            MouseButton.Left        => SmMouseButton.Left,
+            MouseButton.Right       => SmMouseButton.Right,
+            MouseButton.Middle      => SmMouseButton.Middle,
+            MouseButton.Xbutton1    => SmMouseButton.X1,
+            MouseButton.Xbutton2    => SmMouseButton.X2,
+            _                       => default,
+        };
+        return buttonIndex is MouseButton.Left or MouseButton.Right or MouseButton.Middle or MouseButton.Xbutton1 or MouseButton.Xbutton2;
+    }
+    
+    private static bool TryMapKey(Key godotKey, out KeyCode keyCode)
+    {
+        if (godotKey == Key.None) {
             keyCode = default;
             return false;
         }
-        keyCode = monoKey switch {
-            Keys.Tab    => KeyCode.Tab,
-            Keys.Enter  => KeyCode.Return,
-            Keys.Space  => KeyCode.Space,
+        keyCode = godotKey switch {
+            Key.Tab     => KeyCode.Tab,
+            Key.Enter   => KeyCode.Return,
+            Key.KpEnter => KeyCode.Return,
+            Key.Space   => KeyCode.Space,
             //
-            Keys.Left   => KeyCode.Left,
-            Keys.Right  => KeyCode.Right,
-            Keys.Up     => KeyCode.Up,
-            Keys.Down   => KeyCode.Down,
+            Key.Left    => KeyCode.Left,
+            Key.Right   => KeyCode.Right,
+            Key.Up      => KeyCode.Up,
+            Key.Down    => KeyCode.Down,
 
             _           => default,
         };
@@ -77,20 +81,18 @@ public static class GodotInput
         }
         _mouseCursor = cursor;
             
-        var monoCursor = cursor switch  {
-            MouseCursor.Arrow       => Xna.MouseCursor.Arrow,
-            MouseCursor.ResizeN     => Xna.MouseCursor.SizeNS,
-            MouseCursor.ResizeS     => Xna.MouseCursor.SizeNS,
-            MouseCursor.ResizeE     => Xna.MouseCursor.SizeWE,
-            MouseCursor.ResizeW     => Xna.MouseCursor.SizeWE,
-            MouseCursor.ResizeNW    => Xna.MouseCursor.SizeNWSE,
-            MouseCursor.ResizeSE    => Xna.MouseCursor.SizeNWSE,
-            MouseCursor.ResizeNE    => Xna.MouseCursor.SizeNESW,
-            MouseCursor.ResizeSW    => Xna.MouseCursor.SizeNESW,
-            _                       => Xna.MouseCursor.Arrow
+        var shape = cursor switch  {
+            MouseCursor.Arrow       => DisplayServer.CursorShape.Arrow,
+            MouseCursor.ResizeN     => DisplayServer.CursorShape.Vsize,
+            MouseCursor.ResizeS     => DisplayServer.CursorShape.Vsize,
+            MouseCursor.ResizeE     => DisplayServer.CursorShape.Hsize,
+            MouseCursor.ResizeW     => DisplayServer.CursorShape.Hsize,
+            MouseCursor.ResizeNW    => DisplayServer.CursorShape.Fdiagsize,
+            MouseCursor.ResizeSE    => DisplayServer.CursorShape.Fdiagsize,
+            MouseCursor.ResizeNE    => DisplayServer.CursorShape.Bdiagsize,
+            MouseCursor.ResizeSW    => DisplayServer.CursorShape.Bdiagsize,
+            _                       => DisplayServer.CursorShape.Arrow
         };
-        Mouse.SetCursor(monoCursor);
+        DisplayServer.CursorSetShape(shape);
     }
 }
-
-#endif
