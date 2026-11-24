@@ -27,7 +27,7 @@ public sealed class WgpuRenderer : IWgpuRenderer
     public WgpuRenderer(WgpuHost wgpuHost)
     {
         var wgpuBackend = new WgpuGuiBackend(wgpuHost.Device, new DefaultGuiAssets()) {
-            RuntimeEventHandler = Sdl3RuntimeEventHandler.Instance
+            RuntimeEventHandler = Sdl3EventHandler.Instance
         };
         GuiBackend      = wgpuBackend;
         batch           = wgpuBackend.CreateBatch(wgpuHost.SwapChainFormat);

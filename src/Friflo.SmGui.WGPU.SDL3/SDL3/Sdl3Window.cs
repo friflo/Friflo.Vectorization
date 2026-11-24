@@ -1,10 +1,12 @@
-﻿using System;
+﻿// Copyright (c) Ullrich Praetz - https://github.com/friflo. All rights reserved.
+// See LICENSE file in the project root for full license information.
+
+using System;
 using System.IO;
 using System.IO.Compression;
 using System.Runtime.ExceptionServices;
 using System.Runtime.InteropServices;
 using Friflo.SmGui;
-using Friflo.SmGui.Runtime;
 using SDL3;
 
 // ReSharper disable MemberCanBeProtected.Global
@@ -233,8 +235,8 @@ public class Sdl3Window
                 OnSystemThemeChanged();
                 break;
             default:
-                if (ev.Type == Sdl3RuntimeEventHandler.NotifyEventReadyType) {
-                    Sdl3RuntimeEventHandler.Instance.ProcessEvents(); // calls SmSessionLoop.IterateSessions()
+                if (ev.Type == Sdl3EventHandler.NotifyEventReadyType) {
+                    Sdl3EventHandler.Instance.ProcessEvents(); // calls SmSessionLoop.IterateSessions()
                 }
                 break;
         }
@@ -269,19 +271,3 @@ public class Sdl3Window
 }
 
 
-public sealed class Sdl3RuntimeEventHandler : SmRuntimeEventHandler
-{
-    public   static readonly Sdl3RuntimeEventHandler    Instance = new();
-    internal static readonly uint                       NotifyEventReadyType = SDL.RegisterEvents(1);
-    
-    private Sdl3RuntimeEventHandler() { }
-    
-    protected override void OnNotifyEventReady()
-    {
-        var ev = new SDL.Event {
-            Type = NotifyEventReadyType,
-            User = new SDL.UserEvent { Type = NotifyEventReadyType, Timestamp = SDL.GetTicksNS(), Code = 0 }
-        };
-        SDL.PushEvent(ref ev);
-    }
-}
