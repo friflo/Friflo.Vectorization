@@ -25,7 +25,7 @@ class OpenTkWindow : GameWindow
     {
         GameWindowSettings gwSettings = new GameWindowSettings()
         {
-            UpdateFrequency = 250,
+            UpdateFrequency = 0, // 0: max fps, otherwise fps
             // Win32OnSizeMoveBehavior = Win32OnSizeMoveBehavior.SendFrameEvents,
         };
 

@@ -31,11 +31,16 @@ public class FrameStats
     public ReadOnlySpan<char> AsSpan(SmBatch batch)
     {
         var sb = batch.StringBuilder();
-        sb.Append($"frame: ");
         if (batch.Timer.Enabled || batch.UiType.IsLocal()) {
-            sb.Append(CultureInfo.InvariantCulture, $"{FrameTime.TotalMilliseconds,5:F1} ms");
+            if (FrameTime.TotalMilliseconds < 200) {
+                sb.Append($"fps: ");
+                sb.Append((int)(1000 / FrameTime.TotalMilliseconds));
+            } else {
+                sb.Append($"frame: ");
+                sb.Append(CultureInfo.InvariantCulture, $"{FrameTime.TotalMilliseconds,5:F1} ms");
+            }
         } else {
-            sb.Append($" ---");
+            sb.Append("fps: ---");
         }
         sb.Append($"  alloc: {memDiff,3}");
         return sb.Span();
