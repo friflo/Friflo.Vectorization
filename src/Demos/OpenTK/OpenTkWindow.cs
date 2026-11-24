@@ -46,11 +46,13 @@ class OpenTkWindow : GameWindow
             WindowState = WindowState.Normal,
         };
 
-        return new OpenTkWindow(gwSettings, nwSettings);
+        return new OpenTkWindow(gwSettings, nwSettings, createGuiApp);
     }
 
-    public OpenTkWindow(GameWindowSettings gwSettings, NativeWindowSettings nwSettings) : base(gwSettings, nwSettings)
+    public OpenTkWindow(GameWindowSettings gwSettings, NativeWindowSettings nwSettings, CreateGuiApp createGuiApp)
+        : base(gwSettings, nwSettings)
     {
+        this.createGuiApp = createGuiApp;
     }
 
     protected override void OnLoad()
