@@ -69,7 +69,9 @@ class OpenTkWindow : GameWindow
         app         = createGuiApp(guiBackend);
         
         guiBackend.SetClientActions(new OpenTkClientAction(this));
-        Icon = OpenTkUtils.LoadWindowIcon(guiBackend.Assets);
+        if (OperatingSystem.IsWindows()) {
+            Icon = OpenTkUtils.LoadWindowIcon(guiBackend.Assets); // fail on macOS
+        }
     }
 
     protected override void OnUnload()
