@@ -88,9 +88,11 @@ class OpenTkWindow : GameWindow
         var width  = Bounds.Size.X;
         var height = Bounds.Size.Y;
         
+        OpenTkInput.UpdateInput(guiBackend, this);
+        guiBackend?.NewFrame();
         app?.RenderApp(batch!, width, height);
         batch?.DrawCommandList(width, height);
-        
+        OpenTkInput.SetMouseCursor(guiBackend, this);
 
         SwapBuffers();
     }

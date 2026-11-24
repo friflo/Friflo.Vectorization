@@ -1,11 +1,10 @@
 // Copyright (c) Ullrich Praetz - https://github.com/friflo. All rights reserved.
 // See LICENSE file in the project root for full license information.
 
-#if REMOVE_ME
-
 using System;
-using Microsoft.Xna.Framework.Input;
-using Xna = Microsoft.Xna.Framework.Input;
+using OpenTK.Windowing.Desktop;
+using OpenTK.Windowing.GraphicsLibraryFramework;
+using MouseCursorShape = OpenTK.Windowing.Common.Input.MouseCursor;
 
 // ReSharper disable SuggestVarOrType_SimpleTypes
 // ReSharper disable CheckNamespace
@@ -15,21 +14,21 @@ namespace Friflo.SmGui.OpenTK;
 public static class OpenTkInput
 {
     private static readonly Keys[] AllKeys          = Enum.GetValues<Keys>();
-    private static readonly bool[] KeyDownStates    = new bool[256];
+    private static readonly bool[] KeyDownStates    = new bool[512];
     
-    public static void UpdateInput(SmGuiBackend backend)
+    public static void UpdateInput(SmGuiBackend backend, NativeWindow window)
     {
         // --- mouse events
-        var mouse = Mouse.GetState();
+        var mouse = window.MouseState;
         backend.AddMousePositionState(mouse.X, mouse.Y);
-        backend.AddMouseButtonState(SmMouseButton.Left,     mouse.LeftButton    == ButtonState.Pressed);
-        backend.AddMouseButtonState(SmMouseButton.Right,    mouse.RightButton   == ButtonState.Pressed);
-        backend.AddMouseButtonState(SmMouseButton.Middle,   mouse.MiddleButton  == ButtonState.Pressed);
-        backend.AddMouseButtonState(SmMouseButton.X1,       mouse.XButton1      == ButtonState.Pressed);
-        backend.AddMouseButtonState(SmMouseButton.X2,       mouse.XButton2      == ButtonState.Pressed);
+        backend.AddMouseButtonState(SmMouseButton.Left,     mouse.IsButtonDown(MouseButton.Left));
+        backend.AddMouseButtonState(SmMouseButton.Right,    mouse.IsButtonDown(MouseButton.Right));
+        backend.AddMouseButtonState(SmMouseButton.Middle,   mouse.IsButtonDown(MouseButton.Middle));
+        backend.AddMouseButtonState(SmMouseButton.X1,       mouse.IsButtonDown(MouseButton.Button4));
+        backend.AddMouseButtonState(SmMouseButton.X2,       mouse.IsButtonDown(MouseButton.Button5));
         
         // --- keyboard events
-        var keyboard = Keyboard.GetState();
+        var keyboard = window.KeyboardState;
         var keyStates = KeyDownStates;
         foreach (var key in AllKeys)
         {
@@ -46,13 +45,13 @@ public static class OpenTkInput
         }
     }
     
-    private static bool TryMapKey(Keys monoKey, out KeyCode keyCode)
+    private static bool TryMapKey(Keys openTkKey, out KeyCode keyCode)
     {
-        if (monoKey == Keys.None) {
+        if (openTkKey == Keys.Unknown) {
             keyCode = default;
             return false;
         }
-        keyCode = monoKey switch {
+        keyCode = openTkKey switch {
             Keys.Tab    => KeyCode.Tab,
             Keys.Enter  => KeyCode.Return,
             Keys.Space  => KeyCode.Space,
@@ -69,7 +68,7 @@ public static class OpenTkInput
     
     private static MouseCursor _mouseCursor;
     
-    public static void SetMouseCursor(SmGuiBackend backend)
+    public static void SetMouseCursor(SmGuiBackend backend, NativeWindow window)
     {
         var cursor = backend.input.CurrentCursor;
         if (cursor == _mouseCursor) {
@@ -77,20 +76,18 @@ public static class OpenTkInput
         }
         _mouseCursor = cursor;
             
-        var monoCursor = cursor switch  {
-            MouseCursor.Arrow       => Xna.MouseCursor.Arrow,
-            MouseCursor.ResizeN     => Xna.MouseCursor.SizeNS,
-            MouseCursor.ResizeS     => Xna.MouseCursor.SizeNS,
-            MouseCursor.ResizeE     => Xna.MouseCursor.SizeWE,
-            MouseCursor.ResizeW     => Xna.MouseCursor.SizeWE,
-            MouseCursor.ResizeNW    => Xna.MouseCursor.SizeNWSE,
-            MouseCursor.ResizeSE    => Xna.MouseCursor.SizeNWSE,
-            MouseCursor.ResizeNE    => Xna.MouseCursor.SizeNESW,
-            MouseCursor.ResizeSW    => Xna.MouseCursor.SizeNESW,
-            _                       => Xna.MouseCursor.Arrow
+        MouseCursorShape shape = cursor switch  {
+            MouseCursor.Arrow       => MouseCursorShape.Default,
+            MouseCursor.ResizeN     => MouseCursorShape.ResizeNS,
+            MouseCursor.ResizeS     => MouseCursorShape.ResizeNS,
+            MouseCursor.ResizeE     => MouseCursorShape.ResizeEW,
+            MouseCursor.ResizeW     => MouseCursorShape.ResizeEW,
+            MouseCursor.ResizeNW    => MouseCursorShape.ResizeNWSE,
+            MouseCursor.ResizeSE    => MouseCursorShape.ResizeNWSE,
+            MouseCursor.ResizeNE    => MouseCursorShape.ResizeNESW,
+            MouseCursor.ResizeSW    => MouseCursorShape.ResizeNESW,
+            _                       => MouseCursorShape.Default
         };
-        Mouse.SetCursor(monoCursor);
+        window.Cursor = shape;
     }
 }
-
-#endif
