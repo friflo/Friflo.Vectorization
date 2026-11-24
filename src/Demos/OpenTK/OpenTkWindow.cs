@@ -70,6 +70,13 @@ class OpenTkWindow : GameWindow
 
     protected override void OnUnload()
     {
+        app?.Dispose();
+        app = null;
+        batch?.Dispose();
+        batch = null;
+        guiBackend?.Dispose();
+        guiBackend = null;
+        
         base.OnUnload();
     }
 
