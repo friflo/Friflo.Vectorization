@@ -15,7 +15,18 @@ namespace Friflo.SmGui.OpenTK;
 
 public sealed class OpenTkGuiBackend : SmGuiBackend
 {
-    public OpenTkGuiBackend(IGuiAssets assets) : base(assets) { }
+    internal readonly   int shaderProgram;
+    
+    public OpenTkGuiBackend(IGuiAssets assets) : base(assets) {
+        shaderProgram = OpenTkShader.CreateShaderProgram();
+    }
+
+    public override void Dispose() {
+        if (shaderProgram != 0) {
+            GL.DeleteProgram(shaderProgram);
+        }
+        base.Dispose();
+    }
 
     public OpenTkBatch CreateBatch(int maxVertices = 60_000)
     {

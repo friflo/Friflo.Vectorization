@@ -21,7 +21,7 @@ public sealed class OpenTkBatch : SmBatch
     internal OpenTkBatch(OpenTkGuiBackend backend, int maxVertices)
         : base(default, backend, maxVertices, null)
     {
-        shaderProgram = OpenTkShader.CreateShaderProgram();
+        shaderProgram = backend.shaderProgram;
         projLocation  = GL.GetUniformLocation(shaderProgram, "uProjection");
         texLocation   = GL.GetUniformLocation(shaderProgram, "uTexture");
 
@@ -168,9 +168,8 @@ public sealed class OpenTkBatch : SmBatch
     public void Dispose()
     {
         base.Dispose();
-        if (vao != 0)
+        if (vao != 0) {
             GL.DeleteVertexArray(vao);
-        if (shaderProgram != 0)
-            GL.DeleteProgram(shaderProgram);
+        }
     }
 }
