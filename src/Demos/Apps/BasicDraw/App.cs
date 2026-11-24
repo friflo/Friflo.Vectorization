@@ -6,7 +6,7 @@ namespace Demos.BasicDraw;
 
 public sealed class BasicDrawApp : SmGuiApp
 {
-    private  readonly   DrawDemoView    nativeView;
+    private  readonly   DrawDemoView    view;
     private  readonly   DemoResources   resources;
 
     
@@ -23,7 +23,7 @@ public sealed class BasicDrawApp : SmGuiApp
                 return new DrawDemoView(resources, session);
             }
         });
-        nativeView = new DrawDemoView(resources, SessionLoop.CreateLocalSession(backend));
+        view = new DrawDemoView(resources, SessionLoop.CreateLocalSession(backend));
     }
 
     public override void Dispose()
@@ -35,6 +35,6 @@ public sealed class BasicDrawApp : SmGuiApp
     public override void RenderApp(SmBatch batch,  int width, int height)
     {
         SessionLoop?.IterateSessions();
-        nativeView.RenderGui(batch, width, height);
+        view.RenderGui(batch, width, height);
     }
 }

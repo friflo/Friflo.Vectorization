@@ -6,7 +6,7 @@ namespace Demos.BasicGui;
 
 public sealed class BasicGuiApp : SmGuiApp
 {
-    private readonly    GuiDemoView     nativeView;
+    private readonly    GuiDemoView     view;
     private readonly    DemoResources   resources;
 
     public BasicGuiApp(SmGuiBackend backend)
@@ -18,7 +18,7 @@ public sealed class BasicGuiApp : SmGuiApp
             Backend     = backend,
             ViewFactory = session => new GuiDemoView(resources, session)
         });
-        nativeView = new GuiDemoView(resources, SessionLoop.CreateLocalSession(backend));
+        view = new GuiDemoView(resources, SessionLoop.CreateLocalSession(backend));
     }
 
     public override void Dispose()
@@ -31,6 +31,6 @@ public sealed class BasicGuiApp : SmGuiApp
     {
         SessionLoop?.IterateSessions();
         
-        nativeView.RenderGui(batch, width, height);
+        view.RenderGui(batch, width, height);
     }
 }
