@@ -32,7 +32,8 @@ public partial class SmGuiNode2d : Node2D
         var width  = (int)viewportSize.X;
         var height = (int)viewportSize.Y;
         
-        app?.RenderApp(batch!, width, height);              
+        guiBackend?.NewFrame();
+        app?.RenderApp(batch!, width, height);
         
         var canvasTarget = GetCanvasItem();
         batch?.DrawCommandList(canvasTarget, 0, 0, width, height);
