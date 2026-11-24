@@ -31,7 +31,7 @@ public enum UiType
 {
     None        =  0,
     
-    /// <summary>Native App GUI - Vulkan, DX12, Metal, OpenGL (wgpu-native)</summary>
+    /// <summary>Native GUI - Vulkan, DX12, Metal, OpenGL (all via wgpu) or MonoGame, KNI, raylib, Godot, Skia, etc.</summary>
     /// <remarks>Pure native setup for apps or games. Windows, Linux, macOS, Android, iOS. No server / client code included.</remarks>
     NativeGui   =  1,
     /// <summary>Browser GUI (WebSocket) - WebGPU</summary>
