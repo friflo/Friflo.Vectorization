@@ -72,15 +72,10 @@ public static class GodotInput
         return keyCode != default;
     }
     
-    private static MouseCursor _mouseCursor;
     
     public static void SetMouseCursor(SmGuiBackend backend)
     {
         var cursor = backend.input.CurrentCursor;
-        if (cursor == _mouseCursor) {
-            return;
-        }
-        _mouseCursor = cursor;
             
         var shape = cursor switch  {
             MouseCursor.Arrow       => CursorShape.Arrow,
@@ -94,6 +89,7 @@ public static class GodotInput
             MouseCursor.ResizeSW    => CursorShape.Bdiagsize,
             _                       => CursorShape.Arrow
         };
+        // in Godot the CursorShape is not a permanent state. It must always be set
         DisplayServer.CursorSetShape(shape);
     }
 }
