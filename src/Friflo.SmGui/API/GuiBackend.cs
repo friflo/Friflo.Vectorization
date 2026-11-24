@@ -3,6 +3,7 @@
 
 using System;
 using System.IO;
+using Friflo.SmGui.Runtime;
 
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable InconsistentNaming
@@ -35,12 +36,14 @@ public enum SmTextureUsage
 
 public abstract class SmGuiBackend : IDisposable
 {
-    private             SmFont?         defaultFont;
-    protected readonly  IGuiAssets      assets;
-    public    readonly  GuiInput        input;
-    internal  readonly  GuiHost         host;
-    public              IGuiAssets      Assets => assets;
-    public              ClientAction    Action => host.clientAction;
+    private             SmFont?                 defaultFont;
+    protected readonly  IGuiAssets              assets;
+    public    readonly  GuiInput                input;
+    internal  readonly  GuiHost                 host;
+    public              IGuiAssets              Assets              => assets;
+    public              ClientAction            Action              => host.clientAction;
+    public              SmRuntime               Runtime             { get; init; } = new();
+    public              SmRuntimeEventHandler?  RuntimeEventHandler { get; init; }
     
     public    virtual   SmFont      DefaultFont => defaultFont ??= assets.CreateDefaultFont(this);
 

@@ -7,7 +7,6 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Text;
 using Friflo.SmGui.Headless;
-using Friflo.SmGui.Runtime;
 using Friflo.SmGui.TUI;
 using Friflo.SmGui.TUI.Session;
 
@@ -43,7 +42,6 @@ public sealed class LoopOptions
     public required     SmGuiBackend    Backend                 { get; init; }
     public required     ViewFactory     ViewFactory             { get; init; }
     public              bool            UseSecureSessionGuids   { get; init; }
-    public              SmRuntime?      Runtime                 { get; init; }
 }
 
 public delegate void SessionsChanged(SessionsChangedArgs args);
@@ -71,7 +69,6 @@ public sealed partial class SmSessionLoop : IDisposable
     public              IAppConfig              Config                  => config           ?? throw AppConfig.SessionLoopException;
     public              int                     SessionCount            => sessions.Count;
     public   event      SessionsChanged?        SessionsChanged;
-    public              SmRuntimeEventHandler?  RuntimeEventHandler     { get => eventQueue.runtimeEventHandler; set => eventQueue.runtimeEventHandler = value; }
     public              AppTimer                AppTimer                => appTimer;
 
     public   override   string                  ToString()              => $"sessions: {sessions.Count}";
@@ -102,9 +99,14 @@ public sealed partial class SmSessionLoop : IDisposable
             cpuBackend = new CpuBackend("CPU", backend);
         }
         var loop = new SmSessionLoop(cpuBackend, options.ViewFactory);
-        loop.useSecureSessionGuids      = options.UseSecureSessionGuids;
-        var runtime = options.Runtime ?? new SmRuntime();
-        loop.eventQueue.runtime = runtime;
+        loop.useSecureSessionGuids  = options.UseSecureSessionGuids;
+        loop.eventQueue.runtime     = backend.Runtime;
+        
+        var runtimeEventHandler = backend.RuntimeEventHandler;
+        loop.eventQueue.runtimeEventHandler = runtimeEventHandler;
+        if (runtimeEventHandler != null) {
+            runtimeEventHandler.ProcessReadyEvents += loop.IterateSessions;
+        }
         return loop;
     }
 
@@ -133,6 +135,10 @@ public sealed partial class SmSessionLoop : IDisposable
         isDisposed = true;
         appTimer.Dispose();
         
+        var runtimeEventHandler = eventQueue.runtimeEventHandler;
+        if (runtimeEventHandler != null) {
+            runtimeEventHandler.ProcessReadyEvents -= IterateSessions;
+        }
         loopRunning = false;
         eventQueue.ExitLoop();
         

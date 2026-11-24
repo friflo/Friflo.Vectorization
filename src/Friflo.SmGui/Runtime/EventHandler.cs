@@ -8,7 +8,7 @@ using Friflo.SmGui.Session;
 namespace Friflo.SmGui.Runtime;
 
 
-public delegate void ProcessReadyEvents();
+internal delegate void ProcessReadyEvents();
 
 
 /// <summary>
@@ -27,7 +27,7 @@ public delegate void ProcessReadyEvents();
 /// </remarks>
 public abstract class SmRuntimeEventHandler
 {
-    public  event   ProcessReadyEvents? ProcessReadyEvents;
+    internal event  ProcessReadyEvents? ProcessReadyEvents;
     private         int                 eventReadyPending;
     
     /// <summary>
@@ -37,7 +37,7 @@ public abstract class SmRuntimeEventHandler
     /// <remarks>
     /// Method is thread-safe - can be called from any thread.
     /// </remarks>
-    public void NotifyEventReady()
+    internal void NotifyEventReady()
     {
         if (Interlocked.Exchange(ref eventReadyPending, 1) == 0) {
             OnNotifyEventReady(); // Wake up main thread to run:  ProcessEvents() > IterateSessions()

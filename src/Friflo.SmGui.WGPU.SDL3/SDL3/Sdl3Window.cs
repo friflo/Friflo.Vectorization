@@ -41,7 +41,6 @@ public class Sdl3Window
     private     SmGuiBackend?           guiBackend;
     private     Sdl3GuiInput?           sdlGuiInput;
     private     Sdl3Cursor?             sdlCursor;
-    private     ProcessReadyEvents?     processSessionEvents;
 #endregion
     
     public int EnterAppMain(InitOptions opt)
@@ -149,13 +148,7 @@ public class Sdl3Window
         wgpuHost    = new WgpuHost(osHandle, osInstance, driver);
         renderer    = initOptions.createRenderer(wgpuHost);
         if (initOptions.createGuiApp != null) {
-            var app = renderer.CreateGuiApp(initOptions.createGuiApp);
-            var loop = app?.SessionLoop;
-            if (loop != null) {
-                loop.RuntimeEventHandler = Sdl3RuntimeEventHandler.Instance;
-                processSessionEvents = loop.IterateSessions;
-                Sdl3RuntimeEventHandler.Instance.ProcessReadyEvents += processSessionEvents;
-            }
+            renderer.CreateGuiApp(initOptions.createGuiApp);
         }
         SetWindowSize();
 
@@ -253,8 +246,6 @@ public class Sdl3Window
     
     protected virtual void OnQuit()
     {
-        Sdl3RuntimeEventHandler.Instance.ProcessReadyEvents -= processSessionEvents;
-        
         guiBackend?.Dispose();
         guiBackend = null;
         
@@ -278,9 +269,9 @@ public class Sdl3Window
 }
 
 
-internal sealed class Sdl3RuntimeEventHandler : SmRuntimeEventHandler
+public sealed class Sdl3RuntimeEventHandler : SmRuntimeEventHandler
 {
-    internal static readonly Sdl3RuntimeEventHandler    Instance = new();
+    public   static readonly Sdl3RuntimeEventHandler    Instance = new();
     internal static readonly uint                       NotifyEventReadyType = SDL.RegisterEvents(1);
     
     private Sdl3RuntimeEventHandler() { }

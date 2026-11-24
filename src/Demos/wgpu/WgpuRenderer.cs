@@ -1,5 +1,6 @@
 ﻿using Friflo.SmGui;
 using Friflo.SmGui.WGPU;
+using Friflo.WGPU.SDL3;
 
 namespace Friflo.WGPU;
 
@@ -25,7 +26,9 @@ public sealed class WgpuRenderer : IWgpuRenderer
     
     public WgpuRenderer(WgpuHost wgpuHost)
     {
-        var wgpuBackend = new WgpuGuiBackend(wgpuHost.Device, new DefaultGuiAssets());
+        var wgpuBackend = new WgpuGuiBackend(wgpuHost.Device, new DefaultGuiAssets()) {
+            RuntimeEventHandler = Sdl3RuntimeEventHandler.Instance
+        };
         GuiBackend      = wgpuBackend;
         batch           = wgpuBackend.CreateBatch(wgpuHost.SwapChainFormat);
     }
