@@ -16,7 +16,7 @@ public class Cli : IDisposable
 
     public Cli(string title, CreateGuiApp createGuiApp)
     {
-        guiBackend  = new CpuBackend("Console", new DefaultGuiAssets());
+        guiBackend  = new CpuBackend("CLI", new DefaultGuiAssets());
         app         = createGuiApp(guiBackend);
         loop        = app.SessionLoop!;
         Console.Out.WriteLine($"{title} started");

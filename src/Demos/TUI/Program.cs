@@ -45,7 +45,7 @@ PuTTY - Session                 Host Name: localhost    Port: 9000    Connection
 
 Console.WriteLine("App");
 
-var cpuBackend  = new CpuBackend("App", new DefaultGuiAssets());
+var cpuBackend  = new CpuBackend("TUI", new DefaultGuiAssets());
 var appState    = new AppState(cpuBackend);
 
 // Create one session loop per App

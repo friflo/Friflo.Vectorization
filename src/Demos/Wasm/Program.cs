@@ -16,7 +16,7 @@ internal static class Program
     // called from JS via:  await runtime.runMain();
     private static async Task Main(string[] _)
     {
-        var cpuBackend  = new CpuBackend("App", new DefaultGuiAssets()) {
+        var cpuBackend  = new CpuBackend("Wasm", new DefaultGuiAssets()) {
             Runtime             = new WasmRuntime(),
             RuntimeEventHandler = WasmRuntimeEventHandler.Instance
         };
