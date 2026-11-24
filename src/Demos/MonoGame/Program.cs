@@ -17,8 +17,8 @@ await webApp.StartAsync();
 // WebRTC browser sessions: signaling server hosts the page.  nuget: Friflo.SmGui.WebRTC
 SmSignalingClient.Connect(config, new Uri("https://localhost:8081/?app=test-app"), AppIdType.Auto);
 
-MonoGameRunner.Run("SmGui", 1280, 1200, config, backend => new Demos.BasicGui.BasicGuiApp(backend));
-MonoGameRunner.Run("SmDraw",1280, 1200, config, backend => new Demos.BasicDraw.BasicDrawApp(backend));
+MonoGameRunner.Run("BasicGui",  1280, 1200, config, backend => new Demos.BasicGui.BasicGuiApp(backend));
+MonoGameRunner.Run("BasicDraw", 1280, 1200, config, backend => new Demos.BasicDraw.BasicDrawApp(backend));
 
 await webApp.StopAsync();
 

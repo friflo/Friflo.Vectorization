@@ -17,20 +17,20 @@ await webApp.StartAsync();
 // WebRTC browser sessions: signaling server hosts the page.  nuget: Friflo.SmGui.WebRTC
 SmSignalingClient.Connect(config, new Uri("https://localhost:8081/?app=test-app"), AppIdType.Auto);
 
-MonoGameRunner.Run("SmGui", 1280, 1200, config, backend => new Demos.BasicGui.BasicGuiApp(backend));
-MonoGameRunner.Run("SmDraw",1280, 1200, config, backend => new Demos.BasicDraw.BasicDrawApp(backend));
+MonoGameRunner.Run("BasicGui",  1280, 1200, config, backend => new Demos.BasicGui.BasicGuiApp(backend));
+MonoGameRunner.Run("BasicDraw", 1280, 1200, config, backend => new Demos.BasicDraw.BasicDrawApp(backend));
 
-WgpuRunner.Run("SmGui",   1280, 1200, config, backend => new Demos.BasicGui.BasicGuiApp(backend));
-WgpuRunner.Run("SmDraw",  1280, 1200, config, backend => new Demos.BasicDraw.BasicDrawApp(backend));
+WgpuRunner.Run("BasicGui",      1280, 1200, config, backend => new Demos.BasicGui.BasicGuiApp(backend));
+WgpuRunner.Run("BasicDraw",     1280, 1200, config, backend => new Demos.BasicDraw.BasicDrawApp(backend));
 
-KniRunner.Run("SmGui", 1280, 1200, config, backend => new Demos.BasicGui.BasicGuiApp(backend));
-KniRunner.Run("SmDraw",1280, 1200, config, backend => new Demos.BasicDraw.BasicDrawApp(backend));
+KniRunner.Run("BasicGui",       1280, 1200, config, backend => new Demos.BasicGui.BasicGuiApp(backend));
+KniRunner.Run("BasicDraw",      1280, 1200, config, backend => new Demos.BasicDraw.BasicDrawApp(backend));
 
-RaylibRunner.Run("SmGui", 1280, 1200, config, backend => new Demos.BasicGui.BasicGuiApp(backend));
-RaylibRunner.Run("SmDraw",1280, 1200, config, backend => new Demos.BasicDraw.BasicDrawApp(backend));
+RaylibRunner.Run("BasicGui",    1280, 1200, config, backend => new Demos.BasicGui.BasicGuiApp(backend));
+RaylibRunner.Run("BasicDraw",   1280, 1200, config, backend => new Demos.BasicDraw.BasicDrawApp(backend));
 
-OpenTkRunner.Run("SmGui", 1280, 1200, config, backend => new Demos.BasicGui.BasicGuiApp(backend));
-OpenTkRunner.Run("SmDraw",1280, 1200, config, backend => new Demos.BasicDraw.BasicDrawApp(backend));
+OpenTkRunner.Run("BasicGui",    1280, 1200, config, backend => new Demos.BasicGui.BasicGuiApp(backend));
+OpenTkRunner.Run("BasicDraw",   1280, 1200, config, backend => new Demos.BasicDraw.BasicDrawApp(backend));
 
 await webApp.StopAsync();
 
