@@ -85,8 +85,8 @@ class OpenTkWindow : GameWindow
         GL.ClearColor(color);
         GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
         
-        var width  = Bounds.Size.X;
-        var height = Bounds.Size.Y;
+        var width  = ClientSize.X;
+        var height = ClientSize.Y;
         
         OpenTkInput.UpdateInput(guiBackend, this);
         guiBackend?.NewFrame();
