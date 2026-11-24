@@ -1,4 +1,3 @@
-using System;
 using Demos.BasicDraw;
 using Demos.BasicGui;
 using Godot;
@@ -15,9 +14,6 @@ public partial class SmGuiNode2d : Node2D
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
 	{
-		// Engine.MaxFps = 0;
-		// DisplayServer.WindowSetVsyncMode(DisplayServer.VSyncMode.Disabled);
-		
         guiBackend  = new GodotGuiBackend(new DefaultGuiAssets());
         batch       = guiBackend.CreateBatch();
         app         = new BasicGuiApp(guiBackend);
