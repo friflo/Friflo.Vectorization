@@ -2,6 +2,7 @@
 // See LICENSE file in the project root for full license information.
 
 using System.Numerics;
+using System.Runtime.CompilerServices;
 using SkiaSharp;
 
 // ReSharper disable SuggestVarOrType_BuiltInTypes
@@ -66,7 +67,7 @@ public sealed class SkiaSharpBatch : SmBatch
                 ref readonly var v = ref vertices[vertexView.offset + i];
                 positions[i] = new SKPoint(v.position.X, v.position.Y);
                 texs[i]      = new SKPoint(v.uv.X * bitmap.Width, v.uv.Y * bitmap.Height);   // Skia: bitmap shader uses pixel coords
-                colors[i]    = new SKColor(v.color); // todo  check color conversion
+                colors[i]    = ToSKColor(v.color);
             }
 
             canvas.Save();
@@ -81,6 +82,15 @@ public sealed class SkiaSharpBatch : SmBatch
         }
         paint.Shader = null;
         canvas.Restore();
+    }
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static SKColor ToSKColor(uint rgbaPacked) {
+        return new SKColor(
+            (byte)( rgbaPacked         & 0xff),
+            (byte)((rgbaPacked >>  8)  & 0xff),
+            (byte)((rgbaPacked >> 16)  & 0xff),
+            (byte)( rgbaPacked >> 24         ));
     }
     
     private static SKMatrix ToSKMatrix(in Matrix4x4 m) => new()
