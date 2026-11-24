@@ -68,9 +68,8 @@ public sealed class KniBatch : SmBatch
         foreach (var cmd in DrawList)
         {
             if (!cmd.scissor.Equals(scissor)) {
-                var pos  = cmd.scissor.pos;
-                var size = cmd.scissor.size;
-                graphicsDevice.ScissorRectangle = new Rectangle((int)pos.X, (int)pos.Y, (int)size.X, (int)size.Y);
+                scissor = cmd.scissor;
+                graphicsDevice.ScissorRectangle = new Rectangle((int)scissor.pos.X, (int)scissor.pos.Y, (int)scissor.size.X, (int)scissor.size.Y);
             }
             var texture2D   = (Texture2D)cmd.texture.native!;
             var vertexView  = cmd.vertexView;
