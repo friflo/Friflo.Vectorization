@@ -1,5 +1,4 @@
 using Friflo.SmGui;
-using Friflo.SmGui.Headless;
 using Friflo.SmGui.Session;
 
 namespace Demos.BasicGui;
