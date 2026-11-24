@@ -10,13 +10,13 @@ using TestConsole;
 
 Console.OutputEncoding = System.Text.Encoding.UTF8; // support UTF-8 chars like 🙂
 
-AppRunner.Run("Particles",      1280, 720, wgpu => new Shaders.Particles.Renderer(wgpu));
-AppRunner.Run("RenderTest",     1280, 720, wgpu => new Shaders.RenderTest.Renderer(wgpu));
-AppRunner.Run("ShadowMapping",  1280, 720, wgpu => new Shaders.ShadowMapping.Renderer(wgpu));
-AppRunner.Run("InstancedCube",  1280, 720, wgpu => new Shaders.InstancedCube.Renderer(wgpu));
-AppRunner.Run("TwoCubes",       1280, 720, wgpu => new Shaders.TwoCubes.Renderer(wgpu));
-AppRunner.Run("TexturedCube",   1280, 720, wgpu => new Shaders.TexturedCube.Renderer(wgpu));
-return AppRunner.Run("ConfigTest",     1280, 720, wgpu => new Shaders.RenderTest.ConfigTest(wgpu));
+AppRunner.Run("Particles",      1280, 1200, wgpu => new Shaders.Particles.Renderer(wgpu));
+AppRunner.Run("RenderTest",     1280, 1200, wgpu => new Shaders.RenderTest.Renderer(wgpu));
+AppRunner.Run("ShadowMapping",  1280, 1200, wgpu => new Shaders.ShadowMapping.Renderer(wgpu));
+AppRunner.Run("InstancedCube",  1280, 1200, wgpu => new Shaders.InstancedCube.Renderer(wgpu));
+AppRunner.Run("TwoCubes",       1280, 1200, wgpu => new Shaders.TwoCubes.Renderer(wgpu));
+AppRunner.Run("TexturedCube",   1280, 1200, wgpu => new Shaders.TexturedCube.Renderer(wgpu));
+return AppRunner.Run("ConfigTest",     1280, 1200, wgpu => new Shaders.RenderTest.ConfigTest(wgpu));
 
 
 // using var instance    = CpuInstance.CreateInstance();
