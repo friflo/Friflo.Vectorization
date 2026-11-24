@@ -2,6 +2,7 @@
 // See LICENSE file in the project root for full license information.
 
 using Godot;
+using CursorShape = Godot.DisplayServer.CursorShape;
 
 // ReSharper disable MergeIntoPattern
 // ReSharper disable SuggestVarOrType_SimpleTypes
@@ -82,16 +83,16 @@ public static class GodotInput
         _mouseCursor = cursor;
             
         var shape = cursor switch  {
-            MouseCursor.Arrow       => DisplayServer.CursorShape.Arrow,
-            MouseCursor.ResizeN     => DisplayServer.CursorShape.Vsize,
-            MouseCursor.ResizeS     => DisplayServer.CursorShape.Vsize,
-            MouseCursor.ResizeE     => DisplayServer.CursorShape.Hsize,
-            MouseCursor.ResizeW     => DisplayServer.CursorShape.Hsize,
-            MouseCursor.ResizeNW    => DisplayServer.CursorShape.Fdiagsize,
-            MouseCursor.ResizeSE    => DisplayServer.CursorShape.Fdiagsize,
-            MouseCursor.ResizeNE    => DisplayServer.CursorShape.Bdiagsize,
-            MouseCursor.ResizeSW    => DisplayServer.CursorShape.Bdiagsize,
-            _                       => DisplayServer.CursorShape.Arrow
+            MouseCursor.Arrow       => CursorShape.Arrow,
+            MouseCursor.ResizeN     => CursorShape.Vsize,
+            MouseCursor.ResizeS     => CursorShape.Vsize,
+            MouseCursor.ResizeE     => CursorShape.Hsize,
+            MouseCursor.ResizeW     => CursorShape.Hsize,
+            MouseCursor.ResizeNW    => CursorShape.Fdiagsize,
+            MouseCursor.ResizeSE    => CursorShape.Fdiagsize,
+            MouseCursor.ResizeNE    => CursorShape.Bdiagsize,
+            MouseCursor.ResizeSW    => CursorShape.Bdiagsize,
+            _                       => CursorShape.Arrow
         };
         DisplayServer.CursorSetShape(shape);
     }
