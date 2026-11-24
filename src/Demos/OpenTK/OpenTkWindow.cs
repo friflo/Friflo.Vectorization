@@ -65,6 +65,8 @@ class OpenTkWindow : GameWindow
         guiBackend  = new OpenTkGuiBackend(new DefaultGuiAssets());
         batch       = guiBackend.CreateBatch();
         app         = createGuiApp(guiBackend);
+        
+        Icon = OpenTkUtils.LoadWindowIcon(guiBackend.Assets);
     }
 
     protected override void OnUnload()
