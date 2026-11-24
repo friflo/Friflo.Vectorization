@@ -18,7 +18,7 @@ public sealed class BasicDrawApp : SmGuiApp
         
         // Set session loop for remote browser GUIs
         SessionLoop = SmSessionLoop.Create(new LoopOptions {
-            Backend     = new CpuBackend("SmGui - Remote Test", backend),
+            Backend     = backend,
             ViewFactory = session => {
                 session.Timer.Enabled = true; // gui view has animation so enable 60 Hz timer
                 return new DrawDemoView(resources, session);

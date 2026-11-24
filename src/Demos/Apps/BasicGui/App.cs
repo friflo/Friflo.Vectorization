@@ -16,7 +16,7 @@ public sealed class BasicGuiApp : SmGuiApp
 
         // Set session loop for remote browser GUIs
         SessionLoop = SmSessionLoop.Create(new LoopOptions {
-            Backend     = new CpuBackend("SmGui - Remote Test", backend),
+            Backend     = backend,
             ViewFactory = session => new GuiDemoView(resources, session)
         });
         nativeView = new GuiDemoView(resources, SessionLoop.CreateLocalSession(backend));

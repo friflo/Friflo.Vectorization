@@ -40,7 +40,7 @@ public readonly struct SessionsChangedArgs
 
 public sealed class LoopOptions
 {
-    public required     CpuBackend      Backend                 { get; init; }
+    public required     SmGuiBackend    Backend                 { get; init; }
     public required     ViewFactory     ViewFactory             { get; init; }
     public              bool            UseSecureSessionGuids   { get; init; }
     public              SmRuntime?      Runtime                 { get; init; }
@@ -97,7 +97,11 @@ public sealed partial class SmSessionLoop : IDisposable
     
     public static SmSessionLoop Create(LoopOptions options)
     {
-        var loop = new SmSessionLoop(options.Backend, options.ViewFactory);
+        var backend = options.Backend;
+        if (backend is not CpuBackend cpuBackend) {
+            cpuBackend = new CpuBackend("CPU", backend);
+        }
+        var loop = new SmSessionLoop(cpuBackend, options.ViewFactory);
         loop.useSecureSessionGuids      = options.UseSecureSessionGuids;
         var runtime = options.Runtime ?? new SmRuntime();
         loop.eventQueue.runtime = runtime;
