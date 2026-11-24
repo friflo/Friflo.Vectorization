@@ -21,8 +21,8 @@ public class DemoResources : IDisposable
         worldTileset        = backend.LoadTexture(stream, "world_tileset.png");
         
         using var monoTtf   = assembly.GetManifestResourceStream("Demos.Assets.Monocraft.ttf")!;  
-        monocraftFont       = backend.CreateTtfFont(monoTtf, 48, 256, 256, 32, 95, "Monocraft");
-        Debug.Assert(monocraftFont.maxY == 244);
+        monocraftFont       = backend.CreateTtfFont(monoTtf, 48, 512, 512, 32, 224, "Monocraft");
+        Debug.Assert(monocraftFont.maxY == 312);
     }
 
     public void Dispose()
