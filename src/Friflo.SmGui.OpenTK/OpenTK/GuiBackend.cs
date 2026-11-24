@@ -16,12 +16,18 @@ namespace Friflo.SmGui.OpenTK;
 public sealed class OpenTkGuiBackend : SmGuiBackend
 {
     internal readonly   int shaderProgram;
+    internal readonly   int vao;
     
     public OpenTkGuiBackend(IGuiAssets assets) : base(assets) {
-        shaderProgram = OpenTkShader.CreateShaderProgram();
+        shaderProgram   = OpenTkShader.CreateShaderProgram();
+        vao             = CreateVao();
     }
 
-    public override void Dispose() {
+    public override void Dispose()
+    {
+        if (vao != 0) {
+            GL.DeleteVertexArray(vao);
+        }
         if (shaderProgram != 0) {
             GL.DeleteProgram(shaderProgram);
         }
@@ -58,6 +64,26 @@ public sealed class OpenTkGuiBackend : SmGuiBackend
 
         var data = new OpenTkTextureData(texId, width, height, name, copy);
         return data.AsSmTexture();
+    }
+    
+    private static int CreateVao()
+    {
+        var vao = GL.GenVertexArray();
+        GL.BindVertexArray(vao);
+
+        // Vertex2D layout: position (vec2), uv (vec2), color (4x unorm byte)
+        var stride = Marshal.SizeOf<Vertex2D>();
+        GL.EnableVertexAttribArray(0);
+        GL.VertexAttribPointer(0, 2, VertexAttribPointerType.Float, false, stride, 0);
+
+        GL.EnableVertexAttribArray(1);
+        GL.VertexAttribPointer(1, 2, VertexAttribPointerType.Float, false, stride, 8);
+
+        GL.EnableVertexAttribArray(2);
+        GL.VertexAttribPointer(2, 4, VertexAttribPointerType.UnsignedByte, true, stride, 16);
+
+        GL.BindVertexArray(0);
+        return vao;
     }
 
     protected override SmBuffer<Vertex2D> CreateVertexBuffer(int vertexCount)

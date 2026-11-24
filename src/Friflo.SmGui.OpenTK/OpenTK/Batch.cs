@@ -6,10 +6,10 @@ using System.Runtime.InteropServices;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
 
-
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable CheckNamespace
 namespace Friflo.SmGui.OpenTK;
+
 
 public sealed class OpenTkBatch : SmBatch
 {
@@ -17,35 +17,15 @@ public sealed class OpenTkBatch : SmBatch
     private readonly    int shaderProgram;
     private readonly    int projLocation;
     private readonly    int texLocation;
+    private             int boundVbo;
 
     internal OpenTkBatch(OpenTkGuiBackend backend, int maxVertices)
         : base(default, backend, maxVertices, null)
     {
-        shaderProgram = backend.shaderProgram;
-        projLocation  = GL.GetUniformLocation(shaderProgram, "uProjection");
-        texLocation   = GL.GetUniformLocation(shaderProgram, "uTexture");
-
-        vao = GL.GenVertexArray();
-        GL.BindVertexArray(vao);
-
-        var vbo = ((OpenTkBuffer<Vertex2D>)gpuVertexBuffer).handle;
-        var ebo = ((OpenTkBuffer<uint>)gpuIndexBuffer).handle;
-
-        GL.BindBuffer(BufferTarget.ArrayBuffer, vbo);
-        GL.BindBuffer(BufferTarget.ElementArrayBuffer, ebo);
-
-        // Vertex2D layout: position (vec2), uv (vec2), color (4x unorm byte)
-        var stride = Marshal.SizeOf<Vertex2D>();
-        GL.EnableVertexAttribArray(0);
-        GL.VertexAttribPointer(0, 2, VertexAttribPointerType.Float, false, stride, 0);
-
-        GL.EnableVertexAttribArray(1);
-        GL.VertexAttribPointer(1, 2, VertexAttribPointerType.Float, false, stride, 8);
-
-        GL.EnableVertexAttribArray(2);
-        GL.VertexAttribPointer(2, 4, VertexAttribPointerType.UnsignedByte, true, stride, 16);
-
-        GL.BindVertexArray(0);
+        shaderProgram   = backend.shaderProgram;
+        vao             = backend.vao;
+        projLocation    = GL.GetUniformLocation(shaderProgram, "uProjection");
+        texLocation     = GL.GetUniformLocation(shaderProgram, "uTexture");
     }
 
     protected override void InitBatch() { }
@@ -64,6 +44,20 @@ public sealed class OpenTkBatch : SmBatch
         GL.ActiveTexture(TextureUnit.Texture0);
 
         GL.BindVertexArray(vao);
+        var vbo = ((OpenTkBuffer<Vertex2D>)gpuVertexBuffer).handle;
+        var ebo = ((OpenTkBuffer<uint>)gpuIndexBuffer).handle;
+        GL.BindBuffer(BufferTarget.ElementArrayBuffer, ebo);
+
+        // Re-bind attribute pointers when VBO handle changes on shared VAO
+        if (boundVbo != vbo) {
+            boundVbo = vbo;
+            GL.BindBuffer(BufferTarget.ArrayBuffer, vbo);
+
+            var stride = Marshal.SizeOf<Vertex2D>();
+            GL.VertexAttribPointer(0, 2, VertexAttribPointerType.Float, false, stride, 0);
+            GL.VertexAttribPointer(1, 2, VertexAttribPointerType.Float, false, stride, 8);
+            GL.VertexAttribPointer(2, 4, VertexAttribPointerType.UnsignedByte, true, stride, 16);
+        }
 
         var scissor = new RectVector2(System.Numerics.Vector2.Zero, viewport);
         GL.Scissor(0, 0, viewportWidth, viewportHeight);
@@ -161,15 +155,5 @@ public sealed class OpenTkBatch : SmBatch
             m.M21, m.M22, m.M23, m.M24,
             m.M31, m.M32, m.M33, m.M34,
             m.M41, m.M42, m.M43, m.M44);
-    }
-
-
-
-    public void Dispose()
-    {
-        base.Dispose();
-        if (vao != 0) {
-            GL.DeleteVertexArray(vao);
-        }
     }
 }
