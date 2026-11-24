@@ -5,7 +5,7 @@ using System;
 using Friflo.WGPU;
 
 // ReSharper disable CheckNamespace
-namespace Friflo.SmGui.WGPU;
+namespace Friflo.SmGui.OpenTK;
 
 internal static class GuiEffect
 {

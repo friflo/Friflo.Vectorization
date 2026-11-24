@@ -10,15 +10,15 @@ using Shaders.Imdraw;
 
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable CheckNamespace
-namespace Friflo.SmGui.WGPU;
+namespace Friflo.SmGui.OpenTK;
 
-public sealed partial class WgpuBatch : SmBatch
+public sealed partial class OpenTkBatch : SmBatch
 {
     private  readonly   GpuSampler      samplerLinear;      // the default sampler
     private  readonly   GpuSampler      samplerNearest; 
     private  readonly   RenderConfig[]  renderConfigs;      // each RenderConfig is a 4 bytes ID. used to support blend states
 
-    internal WgpuBatch(WgpuGuiBackend backend, TextureFormat targetFormat, int maxVertices)
+    internal OpenTkBatch(OpenTkGuiBackend backend, TextureFormat targetFormat, int maxVertices)
         : base(default, backend, maxVertices, null)
     {
         renderConfigs   = CreateRenderConfigs(targetFormat);
@@ -63,8 +63,8 @@ public sealed partial class WgpuBatch : SmBatch
         
         var scissor = new RectVector2(Vector2.Zero, viewport);
 
-        var vertices = ((SmWgpuBuffer<Vertex2D>)gpuVertexBuffer).native;
-        var indices  = ((SmWgpuBuffer<uint>)    gpuIndexBuffer).native;
+        var vertices = ((OpenTkBuffer<Vertex2D>)gpuVertexBuffer).native;
+        var indices  = ((OpenTkBuffer<uint>)    gpuIndexBuffer).native;
 
         descriptor.colorAttachments[0].view = target.View;
         using var pass = target.BeginRenderPass(descriptor);

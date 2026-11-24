@@ -6,9 +6,9 @@ using Friflo.WGPU;
 
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable CheckNamespace
-namespace Friflo.SmGui.WGPU;
+namespace Friflo.SmGui.OpenTK;
 
-public static class WgpuGuiExtensions
+public static class OpenTkGuiExtensions
 {
     public static SmTexture AsSmTexture(this GpuTextureView textureView)
     {

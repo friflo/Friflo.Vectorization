@@ -11,15 +11,15 @@ using Friflo.WGPU;
 // ReSharper disable InconsistentNaming
 // ReSharper disable UnusedMember.Global
 // ReSharper disable once CheckNamespace
-namespace Friflo.SmGui.WGPU;
+namespace Friflo.SmGui.OpenTK;
 
-public sealed class WgpuGuiBackend : SmGuiBackend
+public sealed class OpenTkGuiBackend : SmGuiBackend
 {
     private  readonly   GpuDevice       device;
     internal readonly   GpuSampler      samplerLinear;
     internal readonly   GpuSampler      samplerNearest;
     
-    public WgpuGuiBackend(GpuDevice device, IGuiAssets assets) : base(assets) {
+    public OpenTkGuiBackend(GpuDevice device, IGuiAssets assets) : base(assets) {
         this.device = device;
         samplerLinear   = device.CreateSampler(new GpuSamplerDescriptor { label = "Linear Sampler",  magFilter = FilterMode.Linear,  minFilter = FilterMode.Linear  });
         samplerNearest  = device.CreateSampler(new GpuSamplerDescriptor { label = "Nearest Sampler", magFilter = FilterMode.Nearest, minFilter = FilterMode.Nearest });
@@ -31,8 +31,8 @@ public sealed class WgpuGuiBackend : SmGuiBackend
         samplerNearest.Dispose();
     }
     
-    public WgpuBatch CreateBatch(TextureFormat targetFormat, int maxVertices = 60_000) {
-        var batch = new WgpuBatch(this, targetFormat, maxVertices) { UiType = UiType.NativeGui };
+    public OpenTkBatch CreateBatch(TextureFormat targetFormat, int maxVertices = 60_000) {
+        var batch = new OpenTkBatch(this, targetFormat, maxVertices) { UiType = UiType.NativeGui };
         InitBatch(batch);
         return batch;
     }
@@ -55,14 +55,14 @@ public sealed class WgpuGuiBackend : SmGuiBackend
     {
         var vertices = new Memory<Vertex2D>(new Vertex2D[vertexCount]);
         var buffer   = device.CreateBuffer(vertices, "SmBatch Vertices", BufferProfile.StaticIn, BufferType.Vertex);
-        return new SmWgpuBuffer<Vertex2D>(buffer);
+        return new OpenTkBuffer<Vertex2D>(buffer);
     }
 
     protected override SmBuffer<uint> CreateIndexBuffer(int indexCount)
     {
         var indices = new Memory<uint>(new uint[indexCount]);
         var buffer  = device.CreateBuffer(indices, "SmBatch Indices", BufferProfile.StaticIn, BufferType.Index);
-        return new SmWgpuBuffer<uint>(buffer);
+        return new OpenTkBuffer<uint>(buffer);
     }
     
     public override SmTexture LoadTexture(Stream stream, string label = null, SmTextureUsage usage = SmTextureUsage.TextureBinding | SmTextureUsage.CopyDst)

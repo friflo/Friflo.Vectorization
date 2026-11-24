@@ -13,10 +13,10 @@ using Shaders.Imdraw;
 // ReSharper disable InconsistentNaming
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable CheckNamespace
-namespace Friflo.SmGui.WGPU;
+namespace Friflo.SmGui.OpenTK;
 
 // Note: Copied from source generated file to avoid build deadlock in case of generator issues.
-public sealed partial class WgpuBatch
+public sealed partial class OpenTkBatch
 {
     private static partial void Draw(
         RenderPass                  pass,
@@ -89,7 +89,7 @@ public sealed partial class WgpuBatch
         }
         layouts[0] = layout_0;
         
-        var pipeline = device.CreateRenderPipeline(layouts, config, typeof(WgpuBatch), _Draw_GPU_Shaders, "Draw_pipeline"u8);
+        var pipeline = device.CreateRenderPipeline(layouts, config, typeof(OpenTkBatch), _Draw_GPU_Shaders, "Draw_pipeline"u8);
 
         var bindGroupCache = new _Draw_GPU_Cache();
         return ref device.CreatePipelineCache(_Draw_GPU_ShaderId, config, _Draw_GPU_WgslHash, pipeline, layouts, bindGroupCache);
