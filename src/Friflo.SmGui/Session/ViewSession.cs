@@ -31,21 +31,21 @@ public enum UiType
 {
     None        =  0,
     
-    /// <summary>Native GUI - Vulkan, DX12, Metal, OpenGL (all via wgpu) or MonoGame, KNI, raylib, Godot, Skia, etc.</summary>
+    /// <summary>Local (native) GUI - Vulkan, DX12, Metal, OpenGL (all via wgpu) or MonoGame, KNI, raylib, Godot, Skia, etc.</summary>
     /// <remarks>Pure native setup for apps or games. Windows, Linux, macOS, Android, iOS. No server / client code included.</remarks>
     NativeGui   =  1,
-    /// <summary>Browser GUI (WebSocket) - WebGPU</summary>
+    /// <summary>Remote Browser GUI (WebSocket) - WebGPU</summary>
     /// <remarks>Requires an SmGui http / WebSocket server streaming the GUI as delta vector data.</remarks>
     WebGui      =  2,
-    /// <summary>Browser GUI (WebRTC) - WebGP. </summary>
+    /// <summary>Remote Browser GUI (WebRTC) - WebGPU. </summary>
     /// <remarks>Browser connects via a signaling server to another SmGui WebRTC peer which streams the GUI as vector data.<br/>
     /// Browser page title (<c>document.title</c>) typically marked with 🔀</remarks>
     WebRtcGui   =  3,
     
-    /// <summary>Native Console TUI</summary>
+    /// <summary>Local Console TUI</summary>
     /// <remarks>Pure native. No server / client is used.</remarks>
     ConsoleTui  =  4,
-    /// <summary>Terminal Emulator (TCP) TUI</summary>
+    /// <summary>Remote Terminal Emulator (TCP) TUI</summary>
     /// <remarks>Requires a TCP server streaming the TUI. Same TUI as in console.</remarks>
     TerminalTui =  5,
 }
