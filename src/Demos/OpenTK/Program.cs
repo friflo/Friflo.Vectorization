@@ -4,4 +4,6 @@ using OpenTkApp;
 
 Console.WriteLine("Hello, World!");
 
-OpenTkWindow.Create();
+using var window = OpenTkWindow.Create();
+
+window.Run();

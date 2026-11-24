@@ -9,7 +9,7 @@ namespace OpenTkApp;
 
 class OpenTkWindow : GameWindow
 {
-    public static void Create()
+    public static OpenTkWindow Create()
     {
         Vector2 a = (1E-45f, -5.9167414f);
         Vector2 b = (1E-45f, 13.882292f);
@@ -40,10 +40,7 @@ class OpenTkWindow : GameWindow
             WindowState = WindowState.Normal,
         };
 
-        using (OpenTkWindow window = new OpenTkWindow(gwSettings, nwSettings))
-        {
-            window.Run();
-        }
+        return new OpenTkWindow(gwSettings, nwSettings);
     }
 
     public OpenTkWindow(GameWindowSettings gwSettings, NativeWindowSettings nwSettings) : base(gwSettings, nwSettings)
