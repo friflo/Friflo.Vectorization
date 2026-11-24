@@ -6,6 +6,7 @@ using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 
+// ReSharper disable RedundantOverriddenMember
 namespace OpenTkApp;
 
 /// <summary>
@@ -21,13 +22,6 @@ class OpenTkWindow : GameWindow
     
     public static OpenTkWindow Create(string title, int width, int height, CreateGuiApp createGuiApp)
     {
-        Vector2 a = (1E-45f, -5.9167414f);
-        Vector2 b = (1E-45f, 13.882292f);
-        Vector2 c = Vector2.Slerp(a, b, 0);
-        Vector2 d = Vector2.Slerp(a, b, 1);
-
-        var res = Vector3.Elerp((1e-45f, 1, 1), (1, 1, 4), 0.3f);
-
         GameWindowSettings gwSettings = new GameWindowSettings()
         {
             UpdateFrequency = 250,
@@ -83,19 +77,11 @@ class OpenTkWindow : GameWindow
         base.OnUpdateFrame(args);
     }
 
-    float time = 0;
-
     protected override void OnRenderFrame(FrameEventArgs args)
     {
         base.OnRenderFrame(args);
 
-        const float CycleTime = 8.0f;
-
-        time += (float)args.Time;
-        if (time > CycleTime) time = 0;
-
-        Color4 color = Color4.FromHsv(new Vector4(time / CycleTime, 1, 1, 1));
-
+        var color =new Color4(0x35 / 255f, 0x6A / 255f, 0xA7 / 255f, 1.0f); // color from OpenTK icon
         GL.ClearColor(color);
         GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
         
