@@ -22,6 +22,7 @@ public partial class SkiaView : ContentView
 
         HandlerChanged  += OnHandlerChanged;
         Unloaded        += OnUnloaded;
+        MauiInput.AttachPointerGestures(CanvasView, guiBackend!);
     }
 
 
@@ -77,11 +78,11 @@ public partial class SkiaView : ContentView
         if (width <= 0 || height <= 0)
             return;
 
-        // MauiInput.UpdateInput(guiBackend);
+
         guiBackend?.NewFrame();
         app?.RenderApp(batch!, width, height);
         batch?.DrawCommandList(canvas, 0, 0, width, height);
-        // MauiInput.SetMouseCursor(guiBackend);
+        MauiInput.SetMouseCursor(guiBackend);
 
         /* using var paint = new SKPaint {
             Color = SKColors.Blue,
