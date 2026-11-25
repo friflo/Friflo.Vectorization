@@ -9,7 +9,7 @@ namespace MonoGame;
 /// Minimal <see cref="Game"/> implementation to create a <see href="https://docs.monogame.net/api/Microsoft.Xna.Framework.Game.html">MonoGame Game window</see>.<br/>
 /// You can copy this class for customization or for using MonoGame-specific APIs.
 /// </summary>
-public class GameWindow : Game
+public class MonoGameWindow : Game
 {
     private             MonoGameGuiBackend?     guiBackend;
     private             MonoGameBatch?          batch;
@@ -17,7 +17,7 @@ public class GameWindow : Game
     private readonly    CreateGuiApp            createGuiApp;
     private readonly    GraphicsDeviceManager   graphics;
 
-    public GameWindow(string title, int width, int height, CreateGuiApp createGuiApp)
+    public MonoGameWindow(string title, int width, int height, CreateGuiApp createGuiApp)
     {
         this.createGuiApp = createGuiApp;
         
