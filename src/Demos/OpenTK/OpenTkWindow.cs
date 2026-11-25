@@ -96,7 +96,7 @@ class OpenTkWindow : GameWindow
     {
         base.OnRenderFrame(args);
         var color = app?.ClearValue ?? 0x356AA7FF; // color from OpenTK icon
-        GL.ClearColor(color.AsOpenTkColor());
+        GL.ClearColor(color.AsGlColor());
         GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
         
         var width  = ClientSize.X;

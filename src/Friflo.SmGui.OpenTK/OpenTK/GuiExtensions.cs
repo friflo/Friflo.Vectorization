@@ -23,5 +23,5 @@ public static class OpenTkGuiExtensions
     }
     
     private const float Scale = 1 / 255f;
-    public static Color4 AsOpenTkColor(this Color32 c) => new(c.R * Scale, c.G * Scale, c.B * Scale, c.A * Scale);
+    public static Color4 AsGlColor(this Color32 c) => new(c.R * Scale, c.G * Scale, c.B * Scale, c.A * Scale);
 }
