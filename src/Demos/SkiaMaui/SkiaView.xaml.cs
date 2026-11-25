@@ -79,11 +79,10 @@ public partial class SkiaView : ContentView
         if (width <= 0 || height <= 0)
             return;
 
-
         guiBackend?.NewFrame();
         app?.RenderApp(batch!, width, height);
         batch?.DrawCommandList(canvas, 0, 0, width, height);
-        MauiInput.SetMouseCursor(guiBackend);
+        MauiCursor.SetMouseCursor(guiBackend, this);
 
         /* using var paint = new SKPaint {
             Color = SKColors.Blue,

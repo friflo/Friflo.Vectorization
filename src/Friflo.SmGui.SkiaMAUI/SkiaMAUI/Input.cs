@@ -13,8 +13,6 @@ namespace Friflo.SmGui.SkiaSharp;
 
 public static class MauiInput
 {
-    private static MouseCursor _mouseCursor;
-    
     private static Vector2? GetPosition(SKCanvasView targetView, PointerEventArgs pointerArgs)
     {
         Point? pos = pointerArgs.GetPosition(targetView);
@@ -70,14 +68,5 @@ public static class MauiInput
         return default;
     }
 
-    public static void SetMouseCursor(SmGuiBackend backend)
-    {
-        var cursor = backend.input.CurrentCursor;
-        if (cursor == _mouseCursor) {
-            return;
-        }
-        _mouseCursor = cursor;
 
-        // Platform cursor changes in MAUI require platform-specific handlers (e.g. WinUI/MacCatalyst).
-    }
 }
