@@ -64,11 +64,11 @@ public class Cli : IDisposable
     {
         switch (cmd) {
             case null:
-            case "exit":    Exit();             return;
-            case "":                            return;
-            case "help":    Help();             return;
-            case "delay":   await Delay();      return;
-            default:        InvalidCmd(cmd);    return;
+            case "exit":    Exit();                 return;
+            case "":                                return;
+            case "help":    Help();                 return;
+            case "delay":   await DelayExample();   return;
+            default:        InvalidCmd(cmd);        return;
         }
     }
     
@@ -77,14 +77,14 @@ public class Cli : IDisposable
     }
     
     protected virtual void Help() {
-        Cout.WriteLine("commands: exit, delay, help");
+        Cout.WriteLine("commands: exit, help, delay");
     }
     
     private static void InvalidCmd(string? cmd) {
         Cout.WriteLine($"invalid cmd: {cmd}");
     }
     
-    private static async Task Delay()
+    private static async Task DelayExample()
     {
         await Cout.WriteAsync($"delay (5 sec) - browser sessions stay responsive ... ");
         // avoid blocking loop thread - browser sessions stay responsive. Run IO heavy operations on worker thread
