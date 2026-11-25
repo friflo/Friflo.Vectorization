@@ -15,9 +15,16 @@ namespace Friflo.SmGui.SkiaSharp;
 
 public sealed class SkiaSharpBatch : SmBatch
 {
+    private readonly SKPaint paint = new() { IsAntialias = false };
+        
     internal SkiaSharpBatch(SkiaSharpGuiBackend backend, int maxVertices)
         : base(default, backend, maxVertices, null)
     { }
+    
+    public void Destroy() {
+        Dispose();
+        paint.Dispose();
+    }
 
     protected override void InitBatch() { }
     
@@ -39,8 +46,6 @@ public sealed class SkiaSharpBatch : SmBatch
         gpuVertexBuffer.Write(0, Vertices.Length);
         var vertices = vertexBuffer.Memory.Span;
         var indices  = indexBuffer. Memory.Span;
-
-        using var paint = new SKPaint { IsAntialias = false };
 
         foreach (var cmd in DrawList)
         {

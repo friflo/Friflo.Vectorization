@@ -25,7 +25,7 @@ public partial class SkiaView : ContentView
     }
 
 
-    private void StartRenderLoop(double fps = 60.0)
+    private void StartRenderLoop(double fps)
     {
         var dispatcher = Dispatcher ?? Application.Current?.Dispatcher;
         if (dispatcher is null)
@@ -55,7 +55,7 @@ public partial class SkiaView : ContentView
     private void OnHandlerChanged(object? sender, EventArgs e)
     {
         if (Handler is not null) {
-            StartRenderLoop(60.0);
+            StartRenderLoop(200.0);
         } else {
             StopRenderLoop();
         }
@@ -63,6 +63,7 @@ public partial class SkiaView : ContentView
 
     private void OnUnloaded(object? sender, EventArgs e) {
         StopRenderLoop();
+        batch?.Destroy();
     }
 
     private void OnCanvasViewPaintSurface(object? sender, SKPaintSurfaceEventArgs e)
