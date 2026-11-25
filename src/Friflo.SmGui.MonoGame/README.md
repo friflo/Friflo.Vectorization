@@ -1,4 +1,4 @@
 # Friflo.SmGui.MonoGame
 
 
-TODO fill content
+SmGui backend for MonoGame: https://github.com/monogame/monogame

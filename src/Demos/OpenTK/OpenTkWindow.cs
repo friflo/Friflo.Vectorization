@@ -10,6 +10,7 @@ using OpenTK.Windowing.GraphicsLibraryFramework;
 // ReSharper disable RedundantOverriddenMember
 namespace OpenTK;
 
+// backend:  https://github.com/opentk/opentk
 /// <summary>
 /// Minimal <see cref="GameWindow"/> implementation based on <see href="https://github.com/opentk/opentk/blob/master/tests/LocalTest/Program.cs">OpenTK LocalTest GameWindow</see>.<br/>
 /// You can copy this class for customization or for using OpenTK-specific APIs.

@@ -8,8 +8,9 @@ using Rl = Raylib_cs.Raylib;
 // ReSharper disable ConvertToPrimaryConstructor
 namespace Raylib;
 
+// backend:  https://github.com/raylib-cs/raylib-cs
 /// <summary>
-/// Minimal implementation to create a <see href="https://github.com/raylib-cs/raylib-cs">raylib window</see>.<br/>
+/// Minimal implementation to create a <see href="https://github.com/raylib-cs/raylib-cs#hello-world">raylib window</see>.<br/>
 /// You can copy this class for customization or for using raylib-specific APIs.
 /// </summary>
 public class RaylibWindow : IDisposable

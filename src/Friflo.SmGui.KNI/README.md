@@ -1,4 +1,4 @@
-# Friflo.SmGui.FNI
+# Friflo.SmGui.KNI
 
 
-TODO fill content
+SmGui backend for KNI: https://github.com/kniEngine/kni

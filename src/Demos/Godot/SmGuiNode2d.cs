@@ -5,6 +5,7 @@ using Friflo.SmGui;
 using Friflo.SmGui.Godot;
 
 
+// backend:  https://github.com/godotengine/godot
 public partial class SmGuiNode2d : Node2D
 {
     private GodotGuiBackend?    guiBackend;

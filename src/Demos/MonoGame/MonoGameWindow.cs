@@ -5,6 +5,7 @@ using Microsoft.Xna.Framework;
 
 namespace MonoGame;
 
+// backend:  https://github.com/monogame/monogame
 /// <summary>
 /// Minimal <see cref="Game"/> implementation to create a <see href="https://docs.monogame.net/api/Microsoft.Xna.Framework.Game.html">MonoGame Game window</see>.<br/>
 /// You can copy this class for customization or for using MonoGame-specific APIs.

@@ -1,4 +1,4 @@
 # Friflo.SmGui.OpenTK
 
 
-TODO fill content
+SmGui backend for OpenTK: https://github.com/opentk/opentk
