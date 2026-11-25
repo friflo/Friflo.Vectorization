@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Ullrich Praetz - https://github.com/friflo. All rights reserved.
 // See LICENSE file in the project root for full license information.
 
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
 // ReSharper disable CheckNamespace
@@ -18,4 +19,6 @@ public static class KniGuiExtensions
     {
         return (Texture2D)tmTexture.native;
     }
+    
+    public static Color AsXnaColor(this Color32 c) => new(c.R, c.G, c.B, c.A);
 }

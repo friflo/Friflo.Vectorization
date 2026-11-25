@@ -5,6 +5,9 @@
 
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable CheckNamespace
+
+using OpenTK.Mathematics;
+
 namespace Friflo.SmGui.OpenTK;
 
 public static class OpenTkGuiExtensions
@@ -18,4 +21,6 @@ public static class OpenTkGuiExtensions
     {
         return (OpenTkTextureData)smTexture.native!;
     }
+    
+    public static Color4 AsOpenTkColor(this Color32 c) => new Color4(c.R / 255f, c.G / 255f, c.B / 255f, c.A / 255f);
 }

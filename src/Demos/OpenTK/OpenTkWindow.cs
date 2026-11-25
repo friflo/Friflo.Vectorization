@@ -95,8 +95,8 @@ class OpenTkWindow : GameWindow
     protected override void OnRenderFrame(FrameEventArgs args)
     {
         base.OnRenderFrame(args);
-        var c = app?.ClearValue ?? 0x356AA7FF; // color from OpenTK icon
-        GL.ClearColor(new Color4(c.R / 255f, c.G / 255f, c.B / 255f, c.A / 255f));
+        var color = app?.ClearValue ?? 0x356AA7FF; // color from OpenTK icon
+        GL.ClearColor(color.AsOpenTkColor());
         GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
         
         var width  = ClientSize.X;

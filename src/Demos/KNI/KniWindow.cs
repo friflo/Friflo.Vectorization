@@ -56,8 +56,8 @@ public class KniWindow : Game
     protected override void Draw(GameTime gameTime)
     {
         var device = GraphicsDevice;
-        var c = app?.ClearValue ?? 0x775f08ff;   // original Color: 0xffcc10ff
-        device.Clear(new Color(c.R, c.G, c.B, c.A));
+        var color = app?.ClearValue ?? 0x775f08ff;   // original Color: 0xffcc10ff
+        device.Clear(color.AsXnaColor());
         
         var width   = device.PresentationParameters.BackBufferWidth;
         var height  = device.PresentationParameters.BackBufferHeight;

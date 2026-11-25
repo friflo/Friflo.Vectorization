@@ -19,4 +19,6 @@ public static class WgpuGuiExtensions
     {
         return (GpuTexture)tmTexture.native;
     }
+    
+    public static GpuColor AsGpuColor(this Color32 c) =>  new GpuColor(c.R / 255f, c.G / 255f, c.B / 255f, c.A / 255f);
 }

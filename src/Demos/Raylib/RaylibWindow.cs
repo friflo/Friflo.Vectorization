@@ -52,8 +52,8 @@ public class RaylibWindow : IDisposable
     private void Draw()
     {
         Rl.BeginDrawing();
-        var c = app?.ClearValue ?? 0xBA64D2ff; // 0xACACACFF / 0xE4B9F1FF
-        Rl.ClearBackground(c.AsRaylibColor());
+        var color = app?.ClearValue ?? 0xBA64D2ff; // 0xACACACFF / 0xE4B9F1FF
+        Rl.ClearBackground(color.AsRaylibColor());
 
         var width   = Rl.GetScreenWidth();
         var height  = Rl.GetScreenHeight();

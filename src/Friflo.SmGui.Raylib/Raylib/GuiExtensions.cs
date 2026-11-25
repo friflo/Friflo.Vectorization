@@ -17,5 +17,5 @@ public static class RaylibGuiExtensions
         return (RaylibTexture)smTexture.native!;
     }
     
-    public static Color AsRaylibColor(this Color32 color32) => new Color(color32.R, color32.G, color32.B, color32.A);
+    public static Color AsRaylibColor(this Color32 color32) => new(color32.R, color32.G, color32.B, color32.A);
 }

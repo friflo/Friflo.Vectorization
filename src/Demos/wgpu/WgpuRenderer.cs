@@ -29,8 +29,8 @@ public sealed class WgpuRenderer : IWgpuRenderer
         var wgpuBackend = new WgpuGuiBackend(wgpuHost.Device, new DefaultGuiAssets()) {
             RuntimeEventHandler = Sdl3EventHandler.Instance
         };
-        GuiBackend      = wgpuBackend;
-        batch           = wgpuBackend.CreateBatch(wgpuHost.SwapChainFormat);
+        GuiBackend  = wgpuBackend;
+        batch       = wgpuBackend.CreateBatch(wgpuHost.SwapChainFormat);
     }
     
     public SmGuiApp CreateGuiApp(CreateGuiApp createGui) {
@@ -39,11 +39,11 @@ public sealed class WgpuRenderer : IWgpuRenderer
     
     public void OnWindowChanged(int width, int height)
     {
-        var c = app!.ClearValue ?? 0x999C9EFF;
+        var color = app!.ClearValue ?? 0x999C9EFF;
         renderPassDescriptor.colorAttachments[0] = new GpuRenderPassColorAttachment {
             loadOp      = LoadOp.Clear,
             storeOp     = StoreOp.Store,
-            clearValue  = new GpuColor(c.R / 255f, c.G / 255f, c.B / 255f, c.A / 255f)
+            clearValue  = color.AsGpuColor()
         };
     }
     
