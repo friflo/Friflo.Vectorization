@@ -30,7 +30,6 @@ public sealed class BasicGuiApp : SmGuiApp
     public override void RenderApp(SmBatch batch,  int width, int height)
     {
         SessionLoop?.IterateSessions();
-        
         view.RenderGui(batch, width, height);
     }
 }

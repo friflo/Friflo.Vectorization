@@ -8,7 +8,6 @@ public sealed class BasicDrawApp : SmGuiApp
 {
     private  readonly   DrawDemoView    view;
     private  readonly   DemoResources   resources;
-
     
     public BasicDrawApp(SmGuiBackend backend)
     {
