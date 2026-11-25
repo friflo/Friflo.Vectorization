@@ -55,18 +55,20 @@ public class Cli : IDisposable
     {
         var cout = Console.Out;
         switch (cmd) {
+            case "":
+                return;
             case "exit":
                 running = false;
                 return;
             case "delay":
                 await cout.WriteAsync($"delay (5 sec) ... ");
                 // avoid blocking loop thread - browser sessions stay responsive. Run IO heavy operations on worker thread
-                await Task.Run(() => Task.Delay(5000)); 
+                await Task.Run(() => Thread.Sleep(5000)); // Sleep does not block main thread
                 await cout.WriteLineAsync($"finished");
-                break;
+                return;
             default:
                 await cout.WriteLineAsync($"invalid cmd: {cmd}");
-                break;
+                return;
         }
     }
     
