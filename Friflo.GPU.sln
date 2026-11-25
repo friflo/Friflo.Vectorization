@@ -64,7 +64,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests-Generators-Verify", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CLI", "src\Demos\CLI\CLI.csproj", "{820BE3BC-1FA5-495D-8080-9346776316E7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenTKApp", "src\Demos\OpenTK\OpenTKApp.csproj", "{E238B4C4-1142-435A-A9FA-6FF6FE9A0194}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenTK", "src\Demos\OpenTK\OpenTK.csproj", "{E238B4C4-1142-435A-A9FA-6FF6FE9A0194}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Friflo.SmGui.OpenTK", "src\Friflo.SmGui.OpenTK\Friflo.SmGui.OpenTK.csproj", "{C6B75A0E-6ED0-4C4F-A3E7-AB1939FAC23F}"
 EndProject
