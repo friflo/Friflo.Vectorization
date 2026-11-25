@@ -21,9 +21,9 @@ public class Cli : IDisposable
         guiBackend  = new CpuBackend("CLI", new DefaultGuiAssets());
         app         = createGuiApp(guiBackend);
         loop        = app.SessionLoop!;
-        Console.Out.WriteLine($"{title} started");
-        Console.Out.WriteLine($"Web:    {loop.Config.WebAppUrl}");
-        Console.Out.WriteLine($"WebRTC: {loop.Config.WebRtcAppUrl}");
+        Cout.WriteLine($"{title} started");
+        Cout.WriteLine($"Web:    {loop.Config.WebAppUrl}");
+        Cout.WriteLine($"WebRTC: {loop.Config.WebRtcAppUrl}");
         Help();
     }
     
@@ -45,10 +45,10 @@ public class Cli : IDisposable
         while (running) {
             await SwitchToThreadPool();         // ensure running on ThreadPool worker thread
             await Cout.WriteAsync(">");  // <- running on worker thread here
-            var command = await Console.In.ReadLineAsync();
+            var cmd = await Console.In.ReadLineAsync();
             
             await loop.DispatchAsync();         // continue execution on loop thread to avoid explicit locks and contention
-            await ExecuteCommandAsync(command); // <- now running on main (loop) thread here
+            await ExecuteCommandAsync(cmd); // <- now running on main (loop) thread here
         }
         await Cout.WriteLineAsync($"exiting");
         loop.Dispose();
@@ -78,7 +78,7 @@ public class Cli : IDisposable
     }
     
     private static void Help() {
-        Console.Out.WriteLine("commands: exit, delay, help");
+        Cout.WriteLine("commands: exit, delay, help");
     }
     
     
