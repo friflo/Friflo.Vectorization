@@ -22,6 +22,7 @@ public partial class SkiaView : ContentView
 
         HandlerChanged  += OnHandlerChanged;
         Unloaded        += OnUnloaded;
+        // CanvasView.IgnorePixelScaling = true;
         MauiInput.AttachPointerGestures(CanvasView, guiBackend!);
     }
 

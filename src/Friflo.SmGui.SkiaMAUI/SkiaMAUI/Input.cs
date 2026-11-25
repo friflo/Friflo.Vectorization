@@ -1,9 +1,10 @@
 // Copyright (c) Ullrich Praetz - https://github.com/friflo. All rights reserved.
 // See LICENSE file in the project root for full license information.
 
-
+using System.Numerics;
 using Microsoft.Maui.Controls;
-
+using Microsoft.Maui.Graphics;
+using SkiaSharp.Views.Maui.Controls;
 
 // ReSharper disable SuggestVarOrType_SimpleTypes
 // ReSharper disable CheckNamespace
@@ -13,32 +14,42 @@ namespace Friflo.SmGui.SkiaSharp;
 public static class MauiInput
 {
     private static MouseCursor _mouseCursor;
+    
+    private static Vector2? GetPosition(SKCanvasView targetView, PointerEventArgs pointerArgs)
+    {
+        Point? pos = pointerArgs.GetPosition(targetView);
+        if (pos is { } p) {
+            return new Vector2((float)(p.X * targetView.CanvasSize.Width  / targetView.Width),
+                               (float)(p.Y * targetView.CanvasSize.Height / targetView.Height));
+        }
+        return null;
+    }
 
-    public static void AttachPointerGestures(View targetView, SmGuiBackend backend)
+    public static void AttachPointerGestures(SKCanvasView targetView, SmGuiBackend backend)
     {
         // Attach pointer gestures to the MAUI view to feed SmGui mouse state.
         var pointerGesture = new PointerGestureRecognizer();
 
         pointerGesture.PointerMoved += (_, e) => {
-            var pos = e.GetPosition(targetView);
+            var pos = GetPosition(targetView, e);
             if (pos is { } p) {
-                backend.AddMousePositionState((float)p.X, (float)p.Y);
+                backend.AddMousePositionState(p.X, p.Y);
             }
         };
 
         pointerGesture.PointerPressed += (_, e) => {
-            var pos = e.GetPosition(targetView);
+            var pos = GetPosition(targetView, e);
             if (pos is { } p) {
-                backend.AddMousePositionState((float)p.X, (float)p.Y);
+                backend.AddMousePositionState(p.X, p.Y);
             }
             var button = MapPointerButton(e);
             backend.AddMouseButtonState(button, true);
         };
 
         pointerGesture.PointerReleased += (_, e) => {
-            var pos = e.GetPosition(targetView);
+            var pos = GetPosition(targetView, e);
             if (pos is { } p) {
-                backend.AddMousePositionState((float)p.X, (float)p.Y);
+                backend.AddMousePositionState(p.X, p.Y);
             }
             var button = MapPointerButton(e);
             backend.AddMouseButtonState(button, false);
