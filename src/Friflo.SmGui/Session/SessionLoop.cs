@@ -291,7 +291,9 @@ public sealed partial class SmSessionLoop : IDisposable
     }
     
     /// <summary>
-    /// Dispatches the current asynchronous continuation to be executed on the session loop thread.
+    /// Dispatches the current asynchronous continuation to be executed on the session loop thread.<br/>
+    /// After processing use <see cref="ThreadPoolAwaiter.SwitchToAsync"/> to switch execution
+    /// to worker thread before entering a blocking state. 
     /// </summary>
     /// <remarks>
     /// <para><b>Use Case:</b> Used within async endpoints or background handlers to safely access or mutate 
