@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Friflo.SmGui;
@@ -10,9 +11,10 @@ namespace CLI;
 
 public class Cli : IDisposable
 {
-    private readonly    CpuBackend      guiBackend;
-    private readonly    SmGuiApp        app;
-    private readonly    SmSessionLoop   loop;
+    private readonly        CpuBackend      guiBackend;
+    private readonly        SmGuiApp        app;
+    private readonly        SmSessionLoop   loop;
+    private static readonly TextWriter      Cout = Console.Out;
 
     public Cli(string title, CreateGuiApp createGuiApp)
     {
@@ -22,6 +24,7 @@ public class Cli : IDisposable
         Console.Out.WriteLine($"{title} started");
         Console.Out.WriteLine($"Web:    {loop.Config.WebAppUrl}");
         Console.Out.WriteLine($"WebRTC: {loop.Config.WebRtcAppUrl}");
+        Help();
     }
     
     public void Dispose()
@@ -41,36 +44,43 @@ public class Cli : IDisposable
     {
         while (running) {
             await SwitchToThreadPool();         // ensure running on ThreadPool worker thread
-            await Console.Out.WriteAsync(">");  // <- running on worker thread here
+            await Cout.WriteAsync(">");  // <- running on worker thread here
             var command = await Console.In.ReadLineAsync();
             
             await loop.DispatchAsync();         // continue execution on loop thread to avoid explicit locks and contention
             await ExecuteCommandAsync(command); // <- now running on main (loop) thread here
         }
-        await Console.Out.WriteLineAsync($"exiting");
+        await Cout.WriteLineAsync($"exiting");
         loop.Dispose();
     }
     
     private async Task ExecuteCommandAsync(string? cmd)
     {
-        var cout = Console.Out;
         switch (cmd) {
-            case "":
-                return;
-            case "exit":
-                running = false;
-                return;
-            case "delay":
-                await cout.WriteAsync($"delay (5 sec) ... ");
-                // avoid blocking loop thread - browser sessions stay responsive. Run IO heavy operations on worker thread
-                await Task.Run(() => Thread.Sleep(5000)); // Sleep does not block main thread
-                await cout.WriteLineAsync($"finished");
-                return;
-            default:
-                await cout.WriteLineAsync($"invalid cmd: {cmd}");
-                return;
+            case "":                            return;
+            case "exit":    running = false;    return;
+            case "help":    Help();             return;
+            case "delay":   await Delay();      return;
+            default:        InvalidCmd(cmd);    return;
         }
     }
+    
+    private static void InvalidCmd(string? cmd) {
+        Cout.WriteLineAsync($"invalid cmd: {cmd}");
+    }
+    
+    private static async Task Delay()
+    {
+        await Cout.WriteAsync($"delay (5 sec) ... ");
+        // avoid blocking loop thread - browser sessions stay responsive. Run IO heavy operations on worker thread
+        await Task.Run(() => Thread.Sleep(5000)); // Sleep does not block main thread
+        await Cout.WriteLineAsync($"finished");
+    }
+    
+    private static void Help() {
+        Console.Out.WriteLine("commands: exit, delay, help");
+    }
+    
     
     private static ThreadPoolAwaiter SwitchToThreadPool() => default;
 
