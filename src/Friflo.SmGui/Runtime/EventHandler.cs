@@ -23,7 +23,7 @@ internal delegate void ProcessReadyEvents();
 /// of a graphics backend such as MonoGame, KNI, raylib or OpenTK.<br/>
 /// At 60 Hz, polling once per frame can introduce up to ~16 ms of latency between incoming input and rendering.<br/>
 /// If a backend exposes access to its event or message loop, a custom implementation can wake and process
-/// events with lower latency—for example with SDL3 or SDL. See <c>Sdl3RuntimeEventHandler</c>.
+/// events with lower latency - for example with SDL3 or SDL. See <c>Sdl3RuntimeEventHandler</c>.
 /// <example>
 /// Using an <see cref="SmRuntimeEventHandler"/> allows processing incoming remote messages during the idle phase.
 /// Without it, message processing occurs when calling <see cref="SmSessionLoop.IterateSessions"/>.
