@@ -77,7 +77,14 @@ public sealed class SkiaSharpBatch : SmBatch
 
             using var shader = SKShader.CreateBitmap(bitmap, SKShaderTileMode.Clamp, SKShaderTileMode.Clamp);
             paint.Shader = shader;
-            canvas.DrawVertices(SKVertexMode.Triangles, positions, texs, colors, skIndices, paint);
+            
+            // was: canvas.DrawVertices(SKVertexMode.Triangles, positions, texs, colors, skIndices, paint);
+            
+            // todo  use degenerated triangles (same triangle indices) to avoid array allocations
+            var blendMode = GetBlendMode(cmd.blendState);
+            var skVertices = SKVertices.CreateCopy(SKVertexMode.Triangles, positions, texs, colors, skIndices);
+            canvas.DrawVertices(skVertices, blendMode, paint);
+            
             canvas.Restore();
         }
         paint.Shader = null;
@@ -91,6 +98,18 @@ public sealed class SkiaSharpBatch : SmBatch
             (byte)((rgbaPacked >>  8)  & 0xff),
             (byte)((rgbaPacked >> 16)  & 0xff),
             (byte)( rgbaPacked >> 24         ));
+    }
+    
+    private static SKBlendMode GetBlendMode(BlendState blendState) {
+        return blendState switch {
+            BlendState.Alpha            => SKBlendMode.Modulate,
+            BlendState.Opaque           => SKBlendMode.Src,
+            BlendState.Additive         => SKBlendMode.Plus,        // Closest SKBlendMode equivalent to SrcAlpha + One.
+            BlendState.Multiply         => SKBlendMode.Modulate,
+            BlendState.AddColors        => SKBlendMode.Plus,
+            BlendState.SubtractColors   => SKBlendMode.Difference,  // Approximation; SkiaSharp has no direct subtract mode.
+            _                           => SKBlendMode.Modulate
+        };
     }
     
     private static SKMatrix ToSKMatrix(in Matrix4x4 m) => new()
