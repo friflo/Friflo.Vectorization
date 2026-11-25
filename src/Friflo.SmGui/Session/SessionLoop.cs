@@ -41,9 +41,9 @@ public readonly struct SessionsChangedArgs
 
 public sealed class LoopOptions
 {
-    public required     SmGuiBackend    Backend                 { get; init; }
-    public required     ViewFactory     ViewFactory             { get; init; }
-    public              bool            UseSecureSessionGuids   { get; init; }
+    public required SmGuiBackend    Backend                 { get; init; }
+    public required ViewFactory     ViewFactory             { get; init; }
+    public          bool            UseSecureSessionGuids   { get; init; }
 }
 
 public delegate void SessionsChanged(SessionsChangedArgs args);
