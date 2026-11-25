@@ -80,9 +80,10 @@ public sealed class SkiaSharpBatch : SmBatch
             
             // was: canvas.DrawVertices(SKVertexMode.Triangles, positions, texs, colors, skIndices, paint);
             
-            // todo  use degenerated triangles (same triangle indices) to avoid array allocations
             var blendMode = GetBlendMode(cmd.blendState);
-            var skVertices = SKVertices.CreateCopy(SKVertexMode.Triangles, positions, texs, colors, skIndices);
+            
+            var skVertices = SkiaApiNative.CreateCopy(SKVertexMode.Triangles, positions.Length, positions, texs, colors, skIndices.Length, skIndices);
+            // var skVertices = SKVertices.CreateCopy(SKVertexMode.Triangles, positions, texs, colors, skIndices);
             canvas.DrawVertices(skVertices, blendMode, paint);
             
             canvas.Restore();
