@@ -10,7 +10,7 @@ namespace KNI;
 /// Minimal <see cref="Game"/> implementation to create a <see href="https://docs.monogame.net/api/Microsoft.Xna.Framework.Game.html">MonoGame Game window</see>.<br/>
 /// You can copy this class for customization or for using MonoGame-specific APIs.
 /// </summary>
-public class GameApp : Game
+public class GameWindow : Game
 {
     private             KniGuiBackend?          guiBackend;
     private             KniBatch?               batch;
@@ -18,7 +18,7 @@ public class GameApp : Game
     private readonly    CreateGuiApp            createGuiApp;
     private readonly    GraphicsDeviceManager   graphics;
 
-    public GameApp(string title, int width, int height, CreateGuiApp createGuiApp)
+    public GameWindow(string title, int width, int height, CreateGuiApp createGuiApp)
     {
         this.createGuiApp = createGuiApp;
         

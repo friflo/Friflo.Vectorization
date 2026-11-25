@@ -28,7 +28,7 @@ public static class KniRunner
     public static int Run(string title, int width, int height, AppConfig config, CreateGuiApp createGuiApp)
     {
         createGuiApp = config.AddSessionLoop(createGuiApp);
-        var app = new GameApp(title, width, height, createGuiApp);
+        var app = new GameWindow(title, width, height, createGuiApp);
         app.Run();
         
         config.RemoveSessionLoop();

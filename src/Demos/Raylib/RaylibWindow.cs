@@ -12,14 +12,14 @@ namespace Raylib;
 /// Minimal implementation to create a <see href="https://github.com/raylib-cs/raylib-cs">raylib window</see>.<br/>
 /// You can copy this class for customization or for using raylib-specific APIs.
 /// </summary>
-public class RaylibApp : IDisposable
+public class RaylibWindow : IDisposable
 {
     private             RaylibGuiBackend?   guiBackend;
     private             RaylibBatch?        batch;
     private             SmGuiApp?           app;
     private readonly    CreateGuiApp        createGuiApp;
 
-    public RaylibApp(string title, int width, int height, CreateGuiApp createGuiApp)
+    public RaylibWindow(string title, int width, int height, CreateGuiApp createGuiApp)
     {
         this.createGuiApp = createGuiApp;
         Rl.SetConfigFlags(ConfigFlags.ResizableWindow);
