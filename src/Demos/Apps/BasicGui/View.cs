@@ -10,7 +10,7 @@ using Friflo.SmGui;
 namespace Demos.BasicGui;
 
 
-public sealed class GuiDemoView : GuiView
+public sealed class BasicGuiView : GuiView
 {
     private readonly    DemoResources   resources;
     private             bool            mouseCircle;
@@ -23,7 +23,7 @@ public sealed class GuiDemoView : GuiView
     private readonly    Color32[]       textColors = [0x0000FFFF, 0xFF0000FF, 0x009900FF, 0xFF00FFFF, 0xCC6600FF, 0x000000ff];
     
     
-    internal GuiDemoView(DemoResources resources, ViewSession session) : base(session)
+    internal BasicGuiView(DemoResources resources, ViewSession session) : base(session)
     {
         this.resources  = resources;
         

@@ -6,7 +6,7 @@ namespace Demos.BasicDraw;
 
 public sealed class BasicDrawApp : SmGuiApp
 {
-    private  readonly   DrawDemoView    view;
+    private  readonly   BasicDrawView   view;
     private  readonly   DemoResources   resources;
     
     public BasicDrawApp(SmGuiBackend backend)
@@ -19,10 +19,10 @@ public sealed class BasicDrawApp : SmGuiApp
             Backend     = backend,
             ViewFactory = session => {
                 session.Timer.Enabled = true; // gui view has animation so enable 60 Hz timer
-                return new DrawDemoView(resources, session);
+                return new BasicDrawView(resources, session);
             }
         });
-        view = new DrawDemoView(resources, SessionLoop.CreateLocalSession(backend));
+        view = new BasicDrawView(resources, SessionLoop.CreateLocalSession(backend));
     }
 
     public override void Dispose()

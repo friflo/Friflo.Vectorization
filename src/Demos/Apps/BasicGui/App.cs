@@ -6,7 +6,7 @@ namespace Demos.BasicGui;
 
 public sealed class BasicGuiApp : SmGuiApp
 {
-    private readonly    GuiDemoView     view;
+    private readonly    BasicGuiView    view;
     private readonly    DemoResources   resources;
 
     public BasicGuiApp(SmGuiBackend backend)
@@ -16,9 +16,9 @@ public sealed class BasicGuiApp : SmGuiApp
         // Set session loop for remote browser GUIs
         SessionLoop = SmSessionLoop.Create(new LoopOptions {
             Backend     = backend,
-            ViewFactory = session => new GuiDemoView(resources, session)
+            ViewFactory = session => new BasicGuiView(resources, session)
         });
-        view = new GuiDemoView(resources, SessionLoop.CreateLocalSession(backend));
+        view = new BasicGuiView(resources, SessionLoop.CreateLocalSession(backend));
     }
 
     public override void Dispose()

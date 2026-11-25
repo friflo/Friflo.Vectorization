@@ -7,7 +7,7 @@ using Friflo.SmGui;
 namespace Demos.BasicDraw;
 
 
-public class DrawDemoView : GuiView
+public class BasicDrawView : GuiView
 {
     private readonly    DemoResources   resources;
     private             float           rotation;
@@ -15,7 +15,7 @@ public class DrawDemoView : GuiView
     private             float           lastTime;
     private  readonly   FrameStats      frameStats = new();
 
-    internal DrawDemoView(DemoResources resources, ViewSession session) : base(session)
+    internal BasicDrawView(DemoResources resources, ViewSession session) : base(session)
     {
         this.resources = resources;
     }
