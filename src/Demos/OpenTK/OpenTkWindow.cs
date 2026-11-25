@@ -8,7 +8,7 @@ using OpenTK.Windowing.GraphicsLibraryFramework;
 
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable RedundantOverriddenMember
-namespace OpenTkApp;
+namespace OpenTK;
 
 /// <summary>
 /// Minimal <see cref="GameWindow"/> implementation based on <see href="https://github.com/opentk/opentk/blob/master/tests/LocalTest/Program.cs">OpenTK LocalTest GameWindow</see>.<br/>

@@ -4,7 +4,7 @@ using System.Net;
 using Friflo.SmGui;
 using Friflo.SmGui.Http;
 using Friflo.SmGui.WebRTC;
-using OpenTkApp;
+using OpenTK;
 
 var config = new AppConfig();
 
