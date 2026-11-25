@@ -44,11 +44,11 @@ public class Cli : IDisposable
     {
         while (running) {
             await SwitchToThreadPool();         // ensure running on ThreadPool worker thread
-            await Cout.WriteAsync(">");  // <- running on worker thread here
+            await Cout.WriteAsync(">");         // <- running on worker thread here
             var cmd = await Console.In.ReadLineAsync();
             
             await loop.DispatchAsync();         // continue execution on loop thread to avoid explicit locks and contention
-            await ExecuteCommandAsync(cmd); // <- now running on main (loop) thread here
+            await ExecuteCommandAsync(cmd);     // <- now running on main (loop) thread here
         }
         await Cout.WriteLineAsync($"exiting");
         loop.Dispose();
