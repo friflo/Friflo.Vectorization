@@ -43,12 +43,12 @@ public class Cli : IDisposable
     private async Task ReadConsoleLoopAsync()
     {
         while (running) {
-            await SwitchToThreadPool();         // ensure running on ThreadPool worker thread
-            await Cout.WriteAsync(">");         // <- running on worker thread here
+            await ThreadPoolAwaiter.SwitchToAsync();    // ensure running on ThreadPool worker thread
+            await Cout.WriteAsync(">");                 // <- running on worker thread here
             var cmd = await Console.In.ReadLineAsync();
             
-            await loop.DispatchAsync();         // continue execution on loop thread to avoid explicit locks and contention
-            await ExecuteCommandAsync(cmd);     // <- now running on main (loop) thread here
+            await loop.DispatchAsync();                 // continue execution on loop thread to avoid explicit locks and contention
+            await ExecuteCommandAsync(cmd);             // <- now running on main (loop) thread here
         }
         await Cout.WriteLineAsync($"exiting");
         loop.Dispose();
@@ -81,19 +81,5 @@ public class Cli : IDisposable
     private static void Help() {
         Cout.WriteLine("commands: exit, delay, help");
     }
-    
-    
-    private static ThreadPoolAwaiter SwitchToThreadPool() => default;
-
-    private readonly struct ThreadPoolAwaiter : System.Runtime.CompilerServices.INotifyCompletion
-    {
-        public bool IsCompleted => false; // always force async continuation so it cannot run inline on the current thread
-
-        public void OnCompleted(Action continuation) =>
-            ThreadPool.UnsafeQueueUserWorkItem(static state => ((Action)state!)(), continuation);
-
-        public void GetResult() { }
-
-        public ThreadPoolAwaiter GetAwaiter() => this;
-    }
 }
+

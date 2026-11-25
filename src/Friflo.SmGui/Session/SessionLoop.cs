@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 using System.Text;
 using Friflo.SmGui.Headless;
 using Friflo.SmGui.TUI;
@@ -18,11 +17,13 @@ using Friflo.SmGui.TUI.Session;
 // ReSharper disable CheckNamespace
 namespace Friflo.SmGui.Session;
 
+
 public enum SessionsChangedType
 {
     Added,
     Removed,
 }
+
 
 public readonly struct SessionsChangedArgs
 {
@@ -36,6 +37,7 @@ public readonly struct SessionsChangedArgs
         this.type       = type;
     }
 }
+
 
 public sealed class LoopOptions
 {
@@ -302,29 +304,6 @@ public sealed partial class SmSessionLoop : IDisposable
     public LoopAwaiter DispatchAsync()
     {
         return new LoopAwaiter(this);
-    }
-}
-
-/// <summary>
-/// Provides an awaiter that transitions the execution context to the single-threaded session loop,
-/// enforcing thread confinement without heap allocations.
-/// </summary>
-public readonly struct LoopAwaiter : ICriticalNotifyCompletion
-{
-    private readonly SmEventQueue eventQueue;
-
-    internal LoopAwaiter(SmSessionLoop loop) => eventQueue = loop.eventQueue;
-    
-    public bool         IsCompleted     => false; // loop.IsCurrentThread; as possible alternative
-    public LoopAwaiter  GetAwaiter()    => this;
-    public void         GetResult()     { }
-
-    public void OnCompleted(Action continuation) {
-        eventQueue.TryEnqueueEvent(null, default, LoopEventType.DispatchAsync, continuation, default, 0);
-    }
-
-    public void UnsafeOnCompleted(Action continuation) {
-        eventQueue.TryEnqueueEvent(null, default, LoopEventType.DispatchAsync, continuation, default, 0);
     }
 }
 
