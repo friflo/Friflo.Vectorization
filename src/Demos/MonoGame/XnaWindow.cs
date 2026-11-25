@@ -1,34 +1,32 @@
 using System;
 using Friflo.SmGui;
-using Friflo.SmGui.KNI;
+using Friflo.SmGui.MonoGame;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 
-namespace KNI;
+namespace MonoGame;
 
-// backend:  https://github.com/kniEngine/kni
+// backend:  https://github.com/monogame/monogame
 /// <summary>
 /// Minimal <see cref="Game"/> implementation to create a <see href="https://docs.monogame.net/api/Microsoft.Xna.Framework.Game.html">MonoGame Game window</see>.<br/>
 /// You can copy this class for customization or for using MonoGame-specific APIs.
 /// </summary>
-public class KniWindow : Game
+public class XnaWindow : Game
 {
-    private             KniGuiBackend?          guiBackend;
-    private             KniBatch?               batch;
+    private             MonoGameGuiBackend?     guiBackend;
+    private             MonoGameBatch?          batch;
     private             SmGuiApp?               app;
     private readonly    CreateGuiApp            createGuiApp;
     private readonly    GraphicsDeviceManager   graphics;
 
-    public KniWindow(string title, int width, int height, CreateGuiApp createGuiApp)
+    public XnaWindow(string title, int width, int height, CreateGuiApp createGuiApp)
     {
         this.createGuiApp = createGuiApp;
         
         graphics = new GraphicsDeviceManager(this);
         IsMouseVisible = true;
         
-        graphics.PreferredBackBufferWidth   = width;
-        graphics.PreferredBackBufferHeight  = height;
-        graphics.GraphicsProfile            = GraphicsProfile.HiDef;
+        graphics.PreferredBackBufferWidth  = width;
+        graphics.PreferredBackBufferHeight = height;
         
         graphics.SynchronizeWithVerticalRetrace = false;    // disable VSync
         IsFixedTimeStep = false;                            // disable VSync
@@ -40,13 +38,13 @@ public class KniWindow : Game
 
     protected override void Initialize()
     {
-        guiBackend  = new KniGuiBackend(GraphicsDevice, new DefaultGuiAssets());
+        guiBackend  = new MonoGameGuiBackend(GraphicsDevice, new DefaultGuiAssets());
         batch       = guiBackend.CreateBatch();
         app         = createGuiApp(guiBackend);
-        guiBackend.SetClientActions(new KniClientAction(this, graphics));
+        guiBackend.SetClientActions(new MonoGameClientAction(this, graphics));
         base.Initialize();
     }
-    
+
     protected override void Update(GameTime gameTime)
     {
         app?.SessionLoop?.IterateSessions(); // set InactiveSleepTime = 1 ms for low latency message handling of remote clients
@@ -56,16 +54,16 @@ public class KniWindow : Game
     protected override void Draw(GameTime gameTime)
     {
         var device = GraphicsDevice;
-        var color = app?.ClearValue ?? 0x775f08ff;   // original Color: 0xffcc10ff
+        var color = app?.ClearValue ?? Color32.CornflowerBlue;
         device.Clear(color.AsXnaColor());
         
         var width   = device.PresentationParameters.BackBufferWidth;
         var height  = device.PresentationParameters.BackBufferHeight;
-        KniInput.UpdateInput(guiBackend);
+        MonoGameInput.UpdateInput(guiBackend);
         guiBackend?.NewFrame();
         app?.RenderApp(batch!, width, height);
         batch?.DrawCommandList(device, 0, 0, width, height);
-        KniInput.SetMouseCursor(guiBackend);
+        MonoGameInput.SetMouseCursor(guiBackend);
 
         base.Draw(gameTime);
     }
