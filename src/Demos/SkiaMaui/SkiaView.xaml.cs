@@ -8,19 +8,62 @@ namespace SkiaMaui;
 
 public partial class SkiaView : ContentView
 {
-    private             SkiaSharpGuiBackend?    guiBackend;
-    private             SkiaSharpBatch?         batch;
-    private             SmGuiApp?               app;
-    
+    private SkiaSharpGuiBackend?    guiBackend;
+    private SkiaSharpBatch?         batch;
+    private SmGuiApp?               app;
+    private IDispatcherTimer?       renderTimer;
+
     public SkiaView()
     {
         InitializeComponent();
-        guiBackend  = new SkiaSharpGuiBackend(new DefaultGuiAssets());
-        batch       = guiBackend.CreateBatch();
-        app         = new BasicGuiApp(guiBackend);
+        guiBackend = new SkiaSharpGuiBackend(new DefaultGuiAssets());
+        batch = guiBackend.CreateBatch();
+        app = new BasicGuiApp(guiBackend);
+
+        HandlerChanged  += OnHandlerChanged;
+        Unloaded        += OnUnloaded;
     }
 
-    public void InvalidateCanvas() => CanvasView.InvalidateSurface();
+
+    private void StartRenderLoop(double fps = 60.0)
+    {
+        var dispatcher = Dispatcher ?? Application.Current?.Dispatcher;
+        if (dispatcher is null)
+            return;
+
+        renderTimer ??= dispatcher.CreateTimer();
+        renderTimer.Interval = TimeSpan.FromSeconds(1.0 / fps);
+        renderTimer.Tick -= OnRenderTimerTick;
+        renderTimer.Tick += OnRenderTimerTick;
+
+        if (!renderTimer.IsRunning)
+            renderTimer.Start();
+    }
+
+    private void StopRenderLoop()
+    {
+        if (renderTimer is not null && renderTimer.IsRunning) {
+            renderTimer.Stop();
+        }
+    }
+
+    private void OnRenderTimerTick(object? sender, EventArgs e)
+    {
+        CanvasView.InvalidateSurface();
+    }
+
+    private void OnHandlerChanged(object? sender, EventArgs e)
+    {
+        if (Handler is not null) {
+            StartRenderLoop(60.0);
+        } else {
+            StopRenderLoop();
+        }
+    }
+
+    private void OnUnloaded(object? sender, EventArgs e) {
+        StopRenderLoop();
+    }
 
     private void OnCanvasViewPaintSurface(object? sender, SKPaintSurfaceEventArgs e)
     {
@@ -29,6 +72,9 @@ public partial class SkiaView : ContentView
         
         var width = e.Info.Width;
         var height = e.Info.Height;
+
+        if (width <= 0 || height <= 0)
+            return;
 
         // MauiInput.UpdateInput(guiBackend);
         guiBackend?.NewFrame();
