@@ -66,7 +66,7 @@ public class Cli : IDisposable
     }
     
     private static void InvalidCmd(string? cmd) {
-        Cout.WriteLineAsync($"invalid cmd: {cmd}");
+        Cout.WriteLine($"invalid cmd: {cmd}");
     }
     
     private static async Task Delay()
