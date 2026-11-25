@@ -57,8 +57,9 @@ public class Cli : IDisposable
     private async Task ExecuteCommandAsync(string? cmd)
     {
         switch (cmd) {
-            case "":                            return;
+            case null:
             case "exit":    running = false;    return;
+            case "":                            return;
             case "help":    Help();             return;
             case "delay":   await Delay();      return;
             default:        InvalidCmd(cmd);    return;
