@@ -17,18 +17,20 @@ internal static unsafe class SkiaApiNative
     /// <see cref="SKVertices.CreateCopy(SKVertexMode, SKPoint[], SKPoint[], SKColor[], ushort[])"/>
     internal static SKVertices CreateCopy(
         SKVertexMode    vmode,
-        int             vertexCount,
-        SKPoint[]       positions,
-        SKPoint[]       texs,
-        SKColor[]       colors,
-        int             indexCount,
-        ushort[]        indices)
+        Span<SKPoint>   positions,
+        Span<SKPoint>   texs,
+        Span<SKColor>   colors,
+        Span<ushort>    indices)
     {
+        var vertexCount = positions.Length;
+        if (vertexCount != texs.Length || vertexCount != colors.Length) {
+            throw new ArgumentException("invalid lengths");
+        }
         fixed (SKPoint* positions1  = positions)
         fixed (SKPoint* texs1       = texs)
         fixed (SKColor* colors1     = colors)
         fixed(ushort*   indices1    = indices) {
-            var handle = MakeCopy(vmode, vertexCount, positions1, texs1, (uint*)colors1, indexCount, indices1);
+            var handle = MakeCopy(vmode, vertexCount, positions1, texs1, (uint*)colors1, indices.Length, indices1);
             return GetObject(handle);
         }
     }
