@@ -71,7 +71,7 @@ public class Cli : IDisposable
     
     private static async Task Delay()
     {
-        await Cout.WriteAsync($"delay (5 sec) ... ");
+        await Cout.WriteAsync($"delay (5 sec) - browser sessions stay response ... ");
         // avoid blocking loop thread - browser sessions stay responsive. Run IO heavy operations on worker thread
         await Task.Run(() => Thread.Sleep(5000)); // Sleep does not block main thread
         await Cout.WriteLineAsync($"finished");
