@@ -6,9 +6,14 @@ using Friflo.SmGui;
 using Friflo.SmGui.Headless;
 using Friflo.SmGui.Session;
 
+// ReSharper disable ClassWithVirtualMembersNeverInherited.Global
 namespace CLI;
 
 
+/// <summary>
+/// Minimal CLI implementation supporting remote browser sessions.<br/>
+/// Copy this class to customize it, or subclass it and override <see cref="ExecuteCommandAsync"/>.
+/// </summary>
 public class Cli : IDisposable
 {
     private readonly        CpuBackend      guiBackend;
@@ -24,7 +29,6 @@ public class Cli : IDisposable
         Cout.WriteLine($"{title} started");
         Cout.WriteLine($"Web:    {loop.Config.WebAppUrl}");
         Cout.WriteLine($"WebRTC: {loop.Config.WebRtcAppUrl}");
-        Help();
     }
     
     public void Dispose()
@@ -34,6 +38,7 @@ public class Cli : IDisposable
     }
 
     public void Run() {
+        Help();
         _ = Task.Run(ReadConsoleLoopAsync);
         loop.Run();
     }
@@ -54,16 +59,25 @@ public class Cli : IDisposable
         loop.Dispose();
     }
     
-    private async Task ExecuteCommandAsync(string? cmd)
+    // ----------------------------- commands ----------------------------- 
+    protected virtual async Task ExecuteCommandAsync(string? cmd)
     {
         switch (cmd) {
             case null:
-            case "exit":    running = false;    return;
+            case "exit":    Exit();             return;
             case "":                            return;
             case "help":    Help();             return;
             case "delay":   await Delay();      return;
             default:        InvalidCmd(cmd);    return;
         }
+    }
+    
+    protected virtual void Exit() {
+        running = false;
+    }
+    
+    protected virtual void Help() {
+        Cout.WriteLine("commands: exit, delay, help");
     }
     
     private static void InvalidCmd(string? cmd) {
@@ -76,10 +90,6 @@ public class Cli : IDisposable
         // avoid blocking loop thread - browser sessions stay responsive. Run IO heavy operations on worker thread
         await Task.Run(() => Thread.Sleep(5000)); // Sleep does not block main thread
         await Cout.WriteLineAsync($"finished");
-    }
-    
-    private static void Help() {
-        Cout.WriteLine("commands: exit, delay, help");
     }
 }
 
