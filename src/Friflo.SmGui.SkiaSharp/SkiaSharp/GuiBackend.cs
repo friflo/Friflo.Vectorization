@@ -22,7 +22,8 @@ public sealed class SkiaSharpGuiBackend : SmGuiBackend
     
     public override SmTexture CreateTexture(string name, int width, int height, ReadOnlySpan<byte> rgbaPixels)
     {
-        var bitmap = new SKBitmap(width, height, SKColorType.Rgba8888, SKAlphaType.Premul);
+        // NOTE!  Using SKAlphaType.Premul resulted rendering glyphs with visible rectangle.
+        var bitmap = new SKBitmap(width, height, SKColorType.Rgba8888, SKAlphaType.Unpremul);
         int length = Math.Min(rgbaPixels.Length, bitmap.ByteCount);
         rgbaPixels[..length].CopyTo(bitmap.GetPixelSpan());
         return bitmap.AsSmTexture();
@@ -41,9 +42,10 @@ public sealed class SkiaSharpGuiBackend : SmGuiBackend
     public override SmTexture LoadTexture(Stream stream, string label = null, SmTextureUsage usage = SmTextureUsage.TextureBinding | SmTextureUsage.CopyDst)
     {
         var image = assets.LoadImage(stream, SmColorComponents.RedGreenBlueAlpha);
-        var bitmap = new SKBitmap(image.width, image.height, SKColorType.Rgba8888, SKAlphaType.Premul);
+        // TODO  check SKAlphaType.Unpremul is correct (was: SKAlphaType.Premul)
+        var bitmap = new SKBitmap(image.width, image.height, SKColorType.Rgba8888, SKAlphaType.Unpremul);
         
-        int length = image.data.Length; // ggf. auf die Zielbuffer-Größe begrenzen
+        int length = image.data.Length;
         Marshal.Copy(image.data, 0, bitmap.GetPixels(), length);
         return bitmap.AsSmTexture();
     }
