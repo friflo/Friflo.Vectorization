@@ -11,7 +11,6 @@ public sealed class BasicDrawApp : SmGuiApp
     
     public BasicDrawApp(SmGuiBackend backend)
     {
-        clearValue  = 0x1A1A1AFF;
         resources   = new DemoResources(backend);
         
         // Set session loop for remote browser GUIs

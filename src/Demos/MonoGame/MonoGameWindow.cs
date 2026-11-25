@@ -54,7 +54,8 @@ public class MonoGameWindow : Game
     protected override void Draw(GameTime gameTime)
     {
         var device = GraphicsDevice;
-        device.Clear(Color.CornflowerBlue);
+        var c = app?.ClearValue ?? Color32.CornflowerBlue;
+        device.Clear(new Color(c.R, c.G, c.B, c.A));
         
         var width   = device.PresentationParameters.BackBufferWidth;
         var height  = device.PresentationParameters.BackBufferHeight;

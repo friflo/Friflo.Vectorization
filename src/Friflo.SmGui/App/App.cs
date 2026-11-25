@@ -4,6 +4,8 @@
 using System;
 using Friflo.SmGui.Session;
 
+// ReSharper disable UnassignedField.Global
+// ReSharper disable InconsistentNaming
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable CheckNamespace
 namespace Friflo.SmGui;
@@ -19,7 +21,11 @@ namespace Friflo.SmGui;
 /// </remarks>
 public abstract class SmGuiApp : IDisposable
 {
-    public  Color32 clearValue  = 0x999C9EFF;
+    /// <summary>
+    /// Sets a custom background clear color for the backend window. <br/>
+    /// Falls back to the color set by the specific backend when <see langword="null"/>.
+    /// </summary>
+    public  Color32? ClearValue;
 
     /// <summary>
     /// If initialized by the app the <see cref="SessionLoop"/> is added via <see cref="AppConfig"/> to an HTTP server or a signaling client.<br/>

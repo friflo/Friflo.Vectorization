@@ -39,7 +39,7 @@ public sealed class WgpuRenderer : IWgpuRenderer
     
     public void OnWindowChanged(int width, int height)
     {
-        var c = app!.clearValue;
+        var c = app!.ClearValue ?? 0x999C9EFF;
         renderPassDescriptor.colorAttachments[0] = new GpuRenderPassColorAttachment {
             loadOp      = LoadOp.Clear,
             storeOp     = StoreOp.Store,
