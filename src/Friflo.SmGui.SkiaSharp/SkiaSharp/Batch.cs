@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Ullrich Praetz - https://github.com/friflo. All rights reserved.
 // See LICENSE file in the project root for full license information.
 
+using System.Collections.Generic;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using SkiaSharp;
@@ -15,13 +16,19 @@ namespace Friflo.SmGui.SkiaSharp;
 
 public sealed class SkiaSharpBatch : SmBatch
 {
-    private readonly SKPaint paint = new() { IsAntialias = false };
+    private readonly SKPaint                    paint;
+    private readonly Dictionary<nint, SKShader> bitmapShader = new();
         
     internal SkiaSharpBatch(SkiaSharpGuiBackend backend, int maxVertices)
         : base(default, backend, maxVertices, null)
-    { }
+    {
+        paint = new SKPaint { IsAntialias = false };
+    }
     
     public void Destroy() {
+        foreach (var shader in bitmapShader.Values) {
+            shader.Dispose();   
+        }
         Dispose();
         paint.Dispose();
     }
@@ -79,8 +86,11 @@ public sealed class SkiaSharpBatch : SmBatch
             var pos  = cmd.scissor.pos;
             var size = cmd.scissor.size;
             canvas.ClipRect(new SKRect(pos.X, pos.Y, pos.X + size.X, pos.Y + size.Y));   // viewport space: scaled by the transform
-
-            using var shader = SKShader.CreateBitmap(bitmap, SKShaderTileMode.Clamp, SKShaderTileMode.Clamp);
+            
+            if (!bitmapShader.TryGetValue(bitmap.Handle, out var shader)) {
+                shader = SKShader.CreateBitmap(bitmap, SKShaderTileMode.Clamp, SKShaderTileMode.Clamp);
+                bitmapShader[bitmap.Handle] = shader;
+            }
             paint.Shader = shader;
             
             // was: canvas.DrawVertices(SKVertexMode.Triangles, positions, texs, colors, skIndices, paint);
