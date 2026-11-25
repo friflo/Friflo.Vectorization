@@ -1,7 +1,6 @@
 using Friflo.SmGui;
 using Friflo.SmGui.OpenTK;
 using OpenTK.Graphics.OpenGL4;
-using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
 using OpenTK.Windowing.GraphicsLibraryFramework;
