@@ -73,7 +73,7 @@ public sealed partial class SmSessionLoop : IDisposable
 
     public   override   string                  ToString()              => $"sessions: {sessions.Count}";
 
-    #region private fields
+#region private fields
     internal            IAppConfig?                                 config;
     internal            bool                                        useSecureSessionGuids;
     // --- queue
