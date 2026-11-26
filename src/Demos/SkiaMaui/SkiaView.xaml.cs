@@ -1,7 +1,9 @@
-﻿using Demos.BasicGui;
+﻿using System.Diagnostics;
+using Demos.BasicGui;
 using Friflo.SmGui;
 using Friflo.SmGui.SkiaMAUI;
 using Friflo.SmGui.SkiaSharp;
+using MyApp;
 using SkiaSharp.Views.Maui;
 
 // ReSharper disable RedundantExtendsListEntry
@@ -15,7 +17,7 @@ public partial class SkiaView : ContentView
     private readonly    SmGuiApp            app;
     private readonly    MauiInputKeys       inputKeys;
     private             IDispatcherTimer?   renderTimer;
-
+    
     public SkiaView()
     {
         InitializeComponent();
@@ -30,6 +32,11 @@ public partial class SkiaView : ContentView
         inputKeys = new MauiInputKeys(CanvasView, guiBackend);
     }
 
+    internal bool RaiseKey(HostKeyEventArgs e)
+    {
+        Console.WriteLine($"{e.Key} {e.IsDown}");
+        return e.Handled;
+    }
 
     private void StartRenderLoop(double fps)
     {

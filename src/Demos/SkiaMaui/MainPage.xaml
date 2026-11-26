@@ -5,6 +5,6 @@
              x:Class="SkiaMaui.MainPage">
 
     <local:SkiaView x:Name="SkiaView"
-                    Background="LightGray"/>
-
+                    Background="Cornflowerblue"/>
+    
 </ContentPage>
