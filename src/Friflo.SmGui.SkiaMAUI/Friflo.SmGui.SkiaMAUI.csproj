@@ -72,11 +72,8 @@
   <ItemGroup>
     <ProjectReference Include="..\Friflo.SmGui\Friflo.SmGui.csproj" />
     
-    <!-- <PackageReference Include="SkiaSharp" Version="4.157.0" /> -->
-    <!-- <PackageReference Include="Microsoft.Maui.Controls" Version="$(MauiVersion)"/> -->
     <PackageReference Include="SkiaSharp.Views.Maui.Controls"  Version="4.157.0"/>
-    <PackageReference Include="Microsoft.Maui.Controls.Core" Version="$(MauiVersion)"/>    
-    <!-- <PackageReference Include="SkiaSharp.Views.Maui.Controls"  Version="4.157.0"/> -->
+    <PackageReference Include="Microsoft.Maui.Controls" Version="$(MauiVersion)"/>
   </ItemGroup>
 
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
@@ -87,7 +84,7 @@
   </PropertyGroup>
   
   <PropertyGroup>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
   </PropertyGroup>
   
   <ItemGroup>

@@ -1,5 +1,6 @@
 ﻿using Demos.BasicGui;
 using Friflo.SmGui;
+using Friflo.SmGui.SkiaMAUI;
 using Friflo.SmGui.SkiaSharp;
 using SkiaSharp;
 using SkiaSharp.Views.Maui;

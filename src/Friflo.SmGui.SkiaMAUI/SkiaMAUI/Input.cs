@@ -8,7 +8,7 @@ using SkiaSharp.Views.Maui.Controls;
 
 // ReSharper disable SuggestVarOrType_SimpleTypes
 // ReSharper disable CheckNamespace
-namespace Friflo.SmGui.SkiaSharp;
+namespace Friflo.SmGui.SkiaMAUI;
 
 
 public static class MauiInput
@@ -67,6 +67,4 @@ public static class MauiInput
         }
         return default;
     }
-
-
 }
