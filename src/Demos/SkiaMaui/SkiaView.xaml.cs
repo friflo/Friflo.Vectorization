@@ -25,8 +25,8 @@ public partial class SkiaView : ContentView
         HandlerChanged  += OnHandlerChanged;
         Unloaded        += OnUnloaded;
         
-        MauiInput.AttachPointerGestures(CanvasView, guiBackend!);
-        inputKeys = new MauiInputKeys(CanvasView, guiBackend!);
+        MauiInput.AttachPointerGestures(CanvasView, guiBackend);
+        inputKeys = new MauiInputKeys(CanvasView, guiBackend);
     }
 
 
@@ -69,7 +69,7 @@ public partial class SkiaView : ContentView
     private void OnUnloaded(object? sender, EventArgs e) {
         StopRenderLoop();
         inputKeys.Unhook();
-        batch?.Destroy();
+        batch.Destroy();
     }
 
     private void OnCanvasViewPaintSurface(object? sender, SKPaintSurfaceEventArgs e)
@@ -83,9 +83,9 @@ public partial class SkiaView : ContentView
         if (width <= 0 || height <= 0)
             return;
 
-        guiBackend?.NewFrame();
-        app?.RenderApp(batch!, width, height);
-        batch?.DrawCommandList(canvas, 0, 0, width, height);
+        guiBackend.NewFrame();
+        app.RenderApp(batch, width, height);
+        batch.DrawCommandList(canvas, 0, 0, width, height);
         MauiCursor.SetMouseCursor(guiBackend, this);
 
         /* using var paint = new SKPaint {
