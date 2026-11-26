@@ -13,7 +13,7 @@
     <TargetPlatformMinVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</TargetPlatformMinVersion>
     
     <ImplicitUsings>disable</ImplicitUsings>
-    <Nullable>disable</Nullable>
+    <Nullable>enable</Nullable>
     <RootNamespace>Friflo.SmGui.SkiaMAUI</RootNamespace>
     <AssemblyName>Friflo.SmGui.SkiaMAUI</AssemblyName>
     <LangVersion>14.0</LangVersion>

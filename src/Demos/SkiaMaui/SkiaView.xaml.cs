@@ -13,6 +13,7 @@ public partial class SkiaView : ContentView
     private SkiaSharpBatch?         batch;
     private SmGuiApp?               app;
     private IDispatcherTimer?       renderTimer;
+    private MauiInputKeys           inputKeys;
 
     public SkiaView()
     {
@@ -25,7 +26,7 @@ public partial class SkiaView : ContentView
         Unloaded        += OnUnloaded;
         
         MauiInput.AttachPointerGestures(CanvasView, guiBackend!);
-        MauiInputKeys.Attach(CanvasView, guiBackend!);
+        inputKeys = new MauiInputKeys(CanvasView, guiBackend!);
     }
 
 
@@ -67,7 +68,7 @@ public partial class SkiaView : ContentView
 
     private void OnUnloaded(object? sender, EventArgs e) {
         StopRenderLoop();
-        MauiInputKeys.Unhook();
+        inputKeys.Unhook();
         batch?.Destroy();
     }
 

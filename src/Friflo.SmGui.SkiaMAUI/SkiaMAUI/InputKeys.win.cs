@@ -14,68 +14,66 @@ using Windows.System;
 namespace Friflo.SmGui.SkiaMAUI;
 
 
-public static class MauiInputKeys
+public sealed class MauiInputKeys
 {
-    private static readonly Dictionary<int, bool> KeyDownStates = new();
-    private static SmGuiBackend? _backend;
-    private static UIElement? _hookedElement;
+    private readonly    Dictionary<int, bool>   keyDownStates = new();
+    private readonly    SmGuiBackend            backend;
+    private             UIElement?              hookedElement;
 
-    public static void Attach(View targetView, SmGuiBackend backend)
+    public MauiInputKeys(View targetView, SmGuiBackend backend)
     {
         // Bind keyboard events once the native WinUI element is available.
-        _backend = backend;
+        this.backend = backend;
         targetView.HandlerChanged += (_, _) => HookNativeElement(targetView);
         HookNativeElement(targetView);
     }
 
-    private static void HookNativeElement(View targetView)
+    private void HookNativeElement(View targetView)
     {
-        if (targetView.Handler?.PlatformView is not UIElement element || element == _hookedElement) {
+        if (targetView.Handler?.PlatformView is not UIElement element || element == hookedElement) {
             return;
         }
-
         Unhook();
-        _hookedElement = element;
-        _hookedElement.IsTabStop = true;
-        _hookedElement.KeyDown += OnKeyDown;
-        _hookedElement.KeyUp += OnKeyUp;
+        hookedElement = element;
+        hookedElement.IsTabStop = true;
+        hookedElement.KeyDown += OnKeyDown;
+        hookedElement.KeyUp += OnKeyUp;
     }
 
-    public static void Unhook()
+    public void Unhook()
     {
-        if (_hookedElement is null) {
+        if (hookedElement is null) {
             return;
         }
-
-        _hookedElement.KeyDown -= OnKeyDown;
-        _hookedElement.KeyUp -= OnKeyUp;
-        _hookedElement = null;
+        hookedElement.KeyDown -= OnKeyDown;
+        hookedElement.KeyUp -= OnKeyUp;
+        hookedElement = null;
     }
 
-    private static void OnKeyDown(object sender, KeyRoutedEventArgs e)
+    private void OnKeyDown(object sender, KeyRoutedEventArgs e)
     {
         UpdateKeyState((int)e.Key, true);
     }
 
-    private static void OnKeyUp(object sender, KeyRoutedEventArgs e)
+    private void OnKeyUp(object sender, KeyRoutedEventArgs e)
     {
         UpdateKeyState((int)e.Key, false);
     }
 
-    private static void UpdateKeyState(int rawKey, bool isKeyDown)
+    private void UpdateKeyState(int rawKey, bool isKeyDown)
     {
-        if (_backend is null || !TryMapKey(rawKey, out KeyCode keyCode)) {
+        if (!TryMapKey(rawKey, out KeyCode keyCode)) {
             return;
         }
 
-        KeyDownStates.TryGetValue(rawKey, out var previousDown);
+        keyDownStates.TryGetValue(rawKey, out var previousDown);
         if (previousDown == isKeyDown) {
             return;
         }
 
-        KeyDownStates[rawKey] = isKeyDown;
+        keyDownStates[rawKey] = isKeyDown;
         var keyEvent = new KeyEvent { code = keyCode, isDown = isKeyDown };
-        _backend.AddEvent(new SmEvent(isKeyDown ? SmEventType.KeyDown : SmEventType.KeyUp, keyEvent));
+        backend.AddEvent(new SmEvent(isKeyDown ? SmEventType.KeyDown : SmEventType.KeyUp, keyEvent));
     }
 
     private static bool TryMapKey(int rawKey, out KeyCode keyCode)

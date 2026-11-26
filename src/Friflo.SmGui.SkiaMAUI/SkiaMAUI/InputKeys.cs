@@ -10,14 +10,14 @@ using Microsoft.Maui.Controls;
 namespace Friflo.SmGui.SkiaMAUI;
 
 
-public static class MauiInputKeys
+public sealed class MauiInputKeys
 {
-    public static void Attach(View targetView, SmGuiBackend backend)
+    public MauiInputKeys(View targetView, SmGuiBackend backend)
     {
         // No polling keyboard API available on non-Windows MAUI targets without platform handlers.
     }
 
-    public static void Unhook()
+    public void Unhook()
     {
     }
 }
