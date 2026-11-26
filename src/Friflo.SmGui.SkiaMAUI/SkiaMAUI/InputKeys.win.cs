@@ -3,7 +3,6 @@
 
 #if WINDOWS
 
-using System.Collections.Generic;
 using Microsoft.Maui.Controls;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Input;
@@ -16,7 +15,6 @@ namespace Friflo.SmGui.SkiaMAUI;
 
 public sealed class MauiInputKeys
 {
-    private readonly    Dictionary<int, bool>   keyDownStates = new();
     private readonly    SmGuiBackend            backend;
     private             UIElement?              hookedElement;
 
@@ -36,7 +34,7 @@ public sealed class MauiInputKeys
         Unhook();
         hookedElement = element;
         element.KeyDown += OnKeyDown;
-        element.KeyUp += OnKeyUp;
+        element.KeyUp   += OnKeyUp;
         element.IsTabStop = true; // required to get key input
     }
 
@@ -52,33 +50,25 @@ public sealed class MauiInputKeys
 
     private void OnKeyDown(object sender, KeyRoutedEventArgs e)
     {
-        UpdateKeyState((int)e.Key, true);
+        UpdateKeyState(e.Key, true);
     }
 
     private void OnKeyUp(object sender, KeyRoutedEventArgs e)
     {
-        UpdateKeyState((int)e.Key, false);
+        UpdateKeyState(e.Key, false);
     }
 
-    private void UpdateKeyState(int rawKey, bool isKeyDown)
+    private void UpdateKeyState(VirtualKey rawKey, bool isKeyDown)
     {
         if (!TryMapKey(rawKey, out KeyCode keyCode)) {
             return;
         }
-
-        keyDownStates.TryGetValue(rawKey, out var previousDown);
-        if (previousDown == isKeyDown) {
-            return;
-        }
-
-        keyDownStates[rawKey] = isKeyDown;
         var keyEvent = new KeyEvent { code = keyCode, isDown = isKeyDown };
         backend.AddEvent(new SmEvent(isKeyDown ? SmEventType.KeyDown : SmEventType.KeyUp, keyEvent));
     }
 
-    private static bool TryMapKey(int rawKey, out KeyCode keyCode)
+    private static bool TryMapKey(VirtualKey key, out KeyCode keyCode)
     {
-        var key = (VirtualKey)rawKey;
         if (key == VirtualKey.None) {
             keyCode = default;
             return false;
