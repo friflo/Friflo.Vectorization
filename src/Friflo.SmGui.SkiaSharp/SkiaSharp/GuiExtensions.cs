@@ -17,4 +17,6 @@ public static class SkiaSharpGuiExtensions
     {
         return (SKBitmap)smTexture.native;
     }
+    
+    public static SKColor AsSkColor (this Color32 c) => new(c.R, c.G, c.B, c.A);
 }

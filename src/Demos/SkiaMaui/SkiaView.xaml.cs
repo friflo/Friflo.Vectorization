@@ -2,7 +2,6 @@
 using Friflo.SmGui;
 using Friflo.SmGui.SkiaMAUI;
 using Friflo.SmGui.SkiaSharp;
-using SkiaSharp;
 using SkiaSharp.Views.Maui;
 
 // ReSharper disable RedundantExtendsListEntry
@@ -77,7 +76,8 @@ public partial class SkiaView : ContentView
     private void OnCanvasViewPaintSurface(object? sender, SKPaintSurfaceEventArgs e)
     {
         var canvas = e.Surface.Canvas;
-        canvas.Clear(SKColors.LightGray);
+        var color = app.ClearValue ?? Color32.Transparent;
+        canvas.Clear(color.AsSkColor());
         
         var width = e.Info.Width;
         var height = e.Info.Height;

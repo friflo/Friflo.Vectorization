@@ -4,6 +4,7 @@
              xmlns:local="clr-namespace:SkiaMaui"
              x:Class="SkiaMaui.MainPage">
 
-    <local:SkiaView x:Name="SkiaView" />
+    <local:SkiaView x:Name="SkiaView"
+                    Background="LightGray"/>
 
 </ContentPage>
