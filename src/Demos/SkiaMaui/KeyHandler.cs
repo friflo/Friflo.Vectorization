@@ -1,7 +1,12 @@
 ﻿using System.Text;
+using Friflo.SmGui;
 using Microsoft.Maui.Handlers;
 using SkiaMaui;
 
+// ReSharper disable UnusedAutoPropertyAccessor.Global
+// ReSharper disable ConvertToPrimaryConstructor
+// ReSharper disable UnusedMember.Local
+// ReSharper disable CheckNamespace
 namespace MyApp;
 
 public static class KeyHandlerExtension
@@ -83,7 +88,7 @@ public static class KeyHandlerExtension
             // Handled = true stops the key from propagating further.
             e.Handled = Host.RaiseKey(new HostKeyEventArgs
             {
-                Key = e.KeyCode.ToString(),
+                Key = MapAndroidKey(e.KeyCode),
                 Character = character,
                 IsDown = ev.Action == Android.Views.KeyEventActions.Down,
                 Shift = ev.IsShiftPressed,
@@ -92,17 +97,37 @@ public static class KeyHandlerExtension
             });
         }
 
+        private static KeyCode MapAndroidKey(Android.Views.Keycode keyCode) => keyCode switch
+        {
+            Android.Views.Keycode.Tab => KeyCode.Tab,
+            Android.Views.Keycode.Enter or Android.Views.Keycode.NumpadEnter => KeyCode.Return,
+            Android.Views.Keycode.Space => KeyCode.Space,
+            Android.Views.Keycode.DpadRight => KeyCode.Right,
+            Android.Views.Keycode.DpadLeft => KeyCode.Left,
+            Android.Views.Keycode.DpadDown => KeyCode.Down,
+            Android.Views.Keycode.DpadUp => KeyCode.Up,
+            Android.Views.Keycode.CtrlLeft => KeyCode.LCtrl,
+            Android.Views.Keycode.ShiftLeft => KeyCode.LShift,
+            Android.Views.Keycode.AltLeft => KeyCode.LAlt,
+            Android.Views.Keycode.MetaLeft => KeyCode.LGUI,
+            Android.Views.Keycode.CtrlRight => KeyCode.RCtrl,
+            Android.Views.Keycode.ShiftRight => KeyCode.RShift,
+            Android.Views.Keycode.AltRight => KeyCode.RAlt,
+            Android.Views.Keycode.MetaRight => KeyCode.RGUI,
+            _ => default
+        };
+
 #elif WINDOWS
         // ContentPanel is not a Control and cannot receive focus.
         // Instead, listen on the window root and only forward keys while the
         // host is "active" (last click was inside the host, or Focus() was called).
-        private Microsoft.UI.Xaml.UIElement? _root;
-        private bool _active;
+        private Microsoft.UI.Xaml.UIElement? rootElement;
+        private bool hostActive;
 
         private void SetActive(bool active)
         {
-            if (_active == active) return;
-            _active = active;
+            if (hostActive == active) return;
+            hostActive = active;
             SetFocused(active);
         }
 
@@ -123,27 +148,27 @@ public static class KeyHandlerExtension
         {
             // XamlRoot is only available once the view is loaded.
             Detach();
-            _root = PlatformView.XamlRoot?.Content;
-            if (_root is null) return;
+            rootElement = PlatformView.XamlRoot?.Content;
+            if (rootElement is null) return;
 
-            _root.KeyDown += OnKeyDown;
-            _root.KeyUp += OnKeyUp;
+            rootElement.KeyDown += OnKeyDown;
+            rootElement.KeyUp += OnKeyUp;
 
             // handledEventsToo = true: also receive pointer events that child
             // controls have already marked as handled.
-            _root.AddHandler(Microsoft.UI.Xaml.UIElement.PointerPressedEvent,
+            rootElement.AddHandler(Microsoft.UI.Xaml.UIElement.PointerPressedEvent,
                 new Microsoft.UI.Xaml.Input.PointerEventHandler(OnRootPointerPressed), true);
         }
 
         private void Detach()
         {
-            if (_root is not null)
+            if (rootElement is not null)
             {
-                _root.KeyDown -= OnKeyDown;
-                _root.KeyUp -= OnKeyUp;
-                _root.RemoveHandler(Microsoft.UI.Xaml.UIElement.PointerPressedEvent,
+                rootElement.KeyDown -= OnKeyDown;
+                rootElement.KeyUp -= OnKeyUp;
+                rootElement.RemoveHandler(Microsoft.UI.Xaml.UIElement.PointerPressedEvent,
                     new Microsoft.UI.Xaml.Input.PointerEventHandler(OnRootPointerPressed));
-                _root = null;
+                rootElement = null;
             }
             SetActive(false);
         }
@@ -171,7 +196,7 @@ public static class KeyHandlerExtension
         private void Forward(Microsoft.UI.Xaml.Input.KeyRoutedEventArgs e, bool down)
         {
             // Ignore keys while the host is not active (e.g. user is typing in an Entry).
-            if (!_active || Host is null) return;
+            if (!hostActive || Host is null) return;
 
             static bool IsDown(Windows.System.VirtualKey k) =>
                 Microsoft.UI.Input.InputKeyboardSource.GetKeyStateForCurrentThread(k)
@@ -199,18 +224,38 @@ public static class KeyHandlerExtension
             }
 
             if (Host.RaiseKey(new HostKeyEventArgs
-                {
-                    Key = e.Key.ToString(),
-                    Character = character,
-                    IsDown = down,
-                    Shift = IsDown(Windows.System.VirtualKey.Shift),
-                    Ctrl = IsDown(Windows.System.VirtualKey.Control),
-                    Alt = IsDown(Windows.System.VirtualKey.Menu)
-                }))
+            {
+                Key = MapWindowsKey(e.Key),
+                Character = character,
+                IsDown = down,
+                Shift = IsDown(Windows.System.VirtualKey.Shift),
+                Ctrl = IsDown(Windows.System.VirtualKey.Control),
+                Alt = IsDown(Windows.System.VirtualKey.Menu)
+            }))
             {
                 e.Handled = true;
             }
         }
+
+        private static KeyCode MapWindowsKey(Windows.System.VirtualKey key) => key switch
+        {
+            Windows.System.VirtualKey.Tab => KeyCode.Tab,
+            Windows.System.VirtualKey.Enter => KeyCode.Return,
+            Windows.System.VirtualKey.Space => KeyCode.Space,
+            Windows.System.VirtualKey.Right => KeyCode.Right,
+            Windows.System.VirtualKey.Left => KeyCode.Left,
+            Windows.System.VirtualKey.Down => KeyCode.Down,
+            Windows.System.VirtualKey.Up => KeyCode.Up,
+            Windows.System.VirtualKey.LeftControl => KeyCode.LCtrl,
+            Windows.System.VirtualKey.LeftShift => KeyCode.LShift,
+            Windows.System.VirtualKey.LeftMenu => KeyCode.LAlt,
+            Windows.System.VirtualKey.LeftWindows => KeyCode.LGUI,
+            Windows.System.VirtualKey.RightControl => KeyCode.RCtrl,
+            Windows.System.VirtualKey.RightShift => KeyCode.RShift,
+            Windows.System.VirtualKey.RightMenu => KeyCode.RAlt,
+            Windows.System.VirtualKey.RightWindows => KeyCode.RGUI,
+            _ => default
+        };
 
 #elif IOS || MACCATALYST
         // Replace the default platform view with one that can become first responder
@@ -228,9 +273,9 @@ public static class KeyHandlerExtension
 
         private sealed class KeyContentView : Microsoft.Maui.Platform.ContentView
         {
-            private readonly Func<SkiaView?> _host;
+            private readonly Func<SkiaView?> skiaHost;
 
-            public KeyContentView(Func<SkiaView?> host) => _host = host;
+            public KeyContentView(Func<SkiaView?> host) => skiaHost = host;
 
             // Required so the view can receive key presses.
             public override bool CanBecomeFirstResponder => true;
@@ -239,14 +284,14 @@ public static class KeyHandlerExtension
             public override bool BecomeFirstResponder()
             {
                 var ok = base.BecomeFirstResponder();
-                if (ok && _host() is IView v) v.IsFocused = true;
+                if (ok && skiaHost() is IView v) v.IsFocused = true;
                 return ok;
             }
 
             public override bool ResignFirstResponder()
             {
                 var ok = base.ResignFirstResponder();
-                if (ok && _host() is IView v) v.IsFocused = false;
+                if (ok && skiaHost() is IView v) v.IsFocused = false;
                 return ok;
             }
 
@@ -272,7 +317,7 @@ public static class KeyHandlerExtension
 
             private bool Dispatch(Foundation.NSSet<UIKit.UIPress> presses, bool down)
             {
-                var host = _host();
+                var host = skiaHost();
                 if (host is null) return false;
 
                 var handled = false;
@@ -286,7 +331,7 @@ public static class KeyHandlerExtension
 
                     handled |= host.RaiseKey(new HostKeyEventArgs
                     {
-                        Key = key.KeyCode.ToString(),
+                        Key = MapAppleKey(key.KeyCode),
                         Character = character,
                         IsDown = down,
                         Shift = key.ModifierFlags.HasFlag(UIKit.UIKeyModifierFlags.Shift),
@@ -296,6 +341,26 @@ public static class KeyHandlerExtension
                 }
                 return handled;
             }
+
+            private static KeyCode MapAppleKey(UIKit.UIKeyboardHidUsage keyCode) => keyCode switch
+            {
+                UIKit.UIKeyboardHidUsage.KeyboardTab => KeyCode.Tab,
+                UIKit.UIKeyboardHidUsage.KeyboardReturnOrEnter or UIKit.UIKeyboardHidUsage.KeypadEnter => KeyCode.Return,
+                UIKit.UIKeyboardHidUsage.KeyboardSpacebar => KeyCode.Space,
+                UIKit.UIKeyboardHidUsage.KeyboardRightArrow => KeyCode.Right,
+                UIKit.UIKeyboardHidUsage.KeyboardLeftArrow => KeyCode.Left,
+                UIKit.UIKeyboardHidUsage.KeyboardDownArrow => KeyCode.Down,
+                UIKit.UIKeyboardHidUsage.KeyboardUpArrow => KeyCode.Up,
+                UIKit.UIKeyboardHidUsage.KeyboardLeftControl => KeyCode.LCtrl,
+                UIKit.UIKeyboardHidUsage.KeyboardLeftShift => KeyCode.LShift,
+                UIKit.UIKeyboardHidUsage.KeyboardLeftAlt => KeyCode.LAlt,
+                UIKit.UIKeyboardHidUsage.KeyboardLeftGui => KeyCode.LGUI,
+                UIKit.UIKeyboardHidUsage.KeyboardRightControl => KeyCode.RCtrl,
+                UIKit.UIKeyboardHidUsage.KeyboardRightShift => KeyCode.RShift,
+                UIKit.UIKeyboardHidUsage.KeyboardRightAlt => KeyCode.RAlt,
+                UIKit.UIKeyboardHidUsage.KeyboardRightGui => KeyCode.RGUI,
+                _ => default
+            };
         }
 #endif
     }
@@ -304,8 +369,8 @@ public static class KeyHandlerExtension
 
 public class HostKeyEventArgs : EventArgs
 {
-    /// <summary>Platform-specific key name (e.g. "Enter", "Back", "Left").</summary>
-    public string Key { get; init; } = "";
+    
+    public KeyCode Key { get; init; }
 
     /// <summary>Character produced by the key, if the platform provides one.</summary>
     public Rune? Character { get; init; }
