@@ -54,7 +54,7 @@ public static class MauiCursor
         prop?.SetValue(element, cursor);
     }
     
-    private static readonly PropertyInfo ProtectedCursorInfo =
+    private static readonly PropertyInfo? ProtectedCursorInfo =
         typeof(UIElement).GetProperty("ProtectedCursor", BindingFlags.Instance | BindingFlags.NonPublic);
 }
 

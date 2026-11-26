@@ -9,11 +9,11 @@ namespace SkiaMaui;
 
 public partial class SkiaView : ContentView
 {
-    private SkiaSharpGuiBackend?    guiBackend;
-    private SkiaSharpBatch?         batch;
-    private SmGuiApp?               app;
-    private IDispatcherTimer?       renderTimer;
-    private MauiInputKeys           inputKeys;
+    private readonly    SkiaSharpGuiBackend guiBackend;
+    private readonly    SkiaSharpBatch      batch;
+    private readonly    SmGuiApp            app;
+    private readonly    MauiInputKeys       inputKeys;
+    private             IDispatcherTimer?   renderTimer;
 
     public SkiaView()
     {
