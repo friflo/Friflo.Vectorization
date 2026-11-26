@@ -14,7 +14,6 @@ public partial class SkiaView : ContentView
     private readonly    SkiaSharpGuiBackend guiBackend;
     private readonly    SkiaSharpBatch      batch;
     private readonly    SmGuiApp            app;
-    private readonly    MauiInputKeys       inputKeys;
     private             IDispatcherTimer?   renderTimer;
     
     public SkiaView()
@@ -28,12 +27,13 @@ public partial class SkiaView : ContentView
         Unloaded        += OnUnloaded;
         
         MauiInput.AttachPointerGestures(CanvasView, guiBackend);
-        inputKeys = new MauiInputKeys(CanvasView, guiBackend);
     }
 
     internal bool RaiseKey(HostKeyEventArgs e)
     {
-        Console.WriteLine($"Key: {e.Key} Character: `{e.Character}` {e.IsDown} ");
+        // Console.WriteLine($"Key: {e.Key} Character: `{e.Character}` {e.IsDown} ");
+        var keyEvent = new KeyEvent { code = e.Key, isDown = e.IsDown };
+        guiBackend.AddEvent(new SmEvent(e.IsDown ? SmEventType.KeyDown : SmEventType.KeyUp, keyEvent));
         return e.Handled;
     }
 
@@ -75,7 +75,6 @@ public partial class SkiaView : ContentView
 
     private void OnUnloaded(object? sender, EventArgs e) {
         StopRenderLoop();
-        inputKeys.Unhook();
         batch.Destroy();
     }
 
