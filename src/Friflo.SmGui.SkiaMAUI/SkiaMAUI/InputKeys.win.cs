@@ -35,9 +35,9 @@ public sealed class MauiInputKeys
         }
         Unhook();
         hookedElement = element;
-        hookedElement.IsTabStop = true;
-        hookedElement.KeyDown += OnKeyDown;
-        hookedElement.KeyUp += OnKeyUp;
+        element.KeyDown += OnKeyDown;
+        element.KeyUp += OnKeyUp;
+        element.IsTabStop = true; // required to get key input
     }
 
     public void Unhook()
