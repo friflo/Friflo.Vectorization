@@ -1,4 +1,5 @@
-﻿using Microsoft.Maui.Handlers;
+﻿using System.Text;
+using Microsoft.Maui.Handlers;
 using SkiaMaui;
 
 namespace MyApp;
@@ -77,11 +78,13 @@ public static class KeyHandlerExtension
                 return;
             }
 
+            Rune? character = ev.UnicodeChar > 0 && Rune.TryCreate(ev.UnicodeChar, out var r) ? r : null;
+
             // Handled = true stops the key from propagating further.
             e.Handled = Host.RaiseKey(new HostKeyEventArgs
             {
                 Key = e.KeyCode.ToString(),
-                Character = ev.UnicodeChar > 0 ? ((char)ev.UnicodeChar).ToString() : null,
+                Character = character,
                 IsDown = ev.Action == Android.Views.KeyEventActions.Down,
                 Shift = ev.IsShiftPressed,
                 Ctrl = ev.IsCtrlPressed,
@@ -174,14 +177,36 @@ public static class KeyHandlerExtension
                 Microsoft.UI.Input.InputKeyboardSource.GetKeyStateForCurrentThread(k)
                     .HasFlag(Windows.UI.Core.CoreVirtualKeyStates.Down);
 
-            if (Host.RaiseKey(new HostKeyEventArgs
+            // KeyRoutedEventArgs in WinUI does not expose a character directly;
+            // map printable VirtualKey values as a best-effort fallback.
+            Rune? character = null;
+            if (down && !IsDown(Windows.System.VirtualKey.Control) && !IsDown(Windows.System.VirtualKey.Menu))
             {
-                Key = e.Key.ToString(),
-                IsDown = down,
-                Shift = IsDown(Windows.System.VirtualKey.Shift),
-                Ctrl = IsDown(Windows.System.VirtualKey.Control),
-                Alt = IsDown(Windows.System.VirtualKey.Menu)
-            }))
+                var vk = (int)e.Key;
+                if (vk is >= 0x41 and <= 0x5A) // A-Z
+                {
+                    var ch = IsDown(Windows.System.VirtualKey.Shift) ? (char)vk : char.ToLowerInvariant((char)vk);
+                    character = new Rune(ch);
+                }
+                else if (vk is >= 0x30 and <= 0x39 && !IsDown(Windows.System.VirtualKey.Shift)) // 0-9
+                {
+                    character = new Rune((char)vk);
+                }
+                else if (e.Key == Windows.System.VirtualKey.Space)
+                {
+                    character = new Rune(' ');
+                }
+            }
+
+            if (Host.RaiseKey(new HostKeyEventArgs
+                {
+                    Key = e.Key.ToString(),
+                    Character = character,
+                    IsDown = down,
+                    Shift = IsDown(Windows.System.VirtualKey.Shift),
+                    Ctrl = IsDown(Windows.System.VirtualKey.Control),
+                    Alt = IsDown(Windows.System.VirtualKey.Menu)
+                }))
             {
                 e.Handled = true;
             }
@@ -256,10 +281,13 @@ public static class KeyHandlerExtension
                     var key = press.Key;
                     if (key is null) continue;
 
+                    Rune? character = !string.IsNullOrEmpty(key.Characters) &&
+                        Rune.TryGetRuneAt(key.Characters, 0, out var r) ? r : null;
+
                     handled |= host.RaiseKey(new HostKeyEventArgs
                     {
                         Key = key.KeyCode.ToString(),
-                        Character = key.Characters,
+                        Character = character,
                         IsDown = down,
                         Shift = key.ModifierFlags.HasFlag(UIKit.UIKeyModifierFlags.Shift),
                         Ctrl = key.ModifierFlags.HasFlag(UIKit.UIKeyModifierFlags.Control),
@@ -280,7 +308,7 @@ public class HostKeyEventArgs : EventArgs
     public string Key { get; init; } = "";
 
     /// <summary>Character produced by the key, if the platform provides one.</summary>
-    public string? Character { get; init; }
+    public Rune? Character { get; init; }
 
     public bool IsDown { get; init; }
     public bool Shift { get; init; }
@@ -290,5 +318,3 @@ public class HostKeyEventArgs : EventArgs
     /// <summary>Set to true to stop the key from being passed on to the platform.</summary>
     public bool Handled { get; set; }
 }
-
-

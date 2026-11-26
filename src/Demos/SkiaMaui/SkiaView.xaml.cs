@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using Demos.BasicGui;
+﻿using Demos.BasicGui;
 using Friflo.SmGui;
 using Friflo.SmGui.SkiaMAUI;
 using Friflo.SmGui.SkiaSharp;
@@ -34,7 +33,7 @@ public partial class SkiaView : ContentView
 
     internal bool RaiseKey(HostKeyEventArgs e)
     {
-        Console.WriteLine($"{e.Key} {e.IsDown}");
+        Console.WriteLine($"Key: {e.Key} Character: `{e.Character}` {e.IsDown} ");
         return e.Handled;
     }
 
