@@ -5,7 +5,9 @@ using Friflo.SmGui.SkiaSharp;
 using SkiaSharp;
 using SkiaSharp.Views.Maui;
 
+// ReSharper disable RedundantExtendsListEntry
 namespace SkiaMaui;
+
 
 public partial class SkiaView : ContentView
 {
