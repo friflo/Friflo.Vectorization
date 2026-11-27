@@ -61,7 +61,7 @@
   
   <ItemGroup>
     <ProjectReference Include="..\Friflo.SmGui\Friflo.SmGui.csproj" />
-    <PackageReference Include="SkiaSharp" Version="4.157.0" />
+    <PackageReference Include="SkiaSharp" Version="4.156.0" />
   </ItemGroup>
 
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">

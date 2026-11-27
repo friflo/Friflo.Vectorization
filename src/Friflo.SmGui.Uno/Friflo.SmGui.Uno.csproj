@@ -1,8 +1,13 @@
-<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Uno.Sdk">
 
   <PropertyGroup>
     <OutputType>library</OutputType>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFrameworks>net10.0-android36.0;net10.0-ios26.0;net10.0-desktop</TargetFrameworks>
+    <!-- <TargetFrameworks>net10.0-android;net10.0-ios;net10.0-browserwasm;net10.0-desktop</TargetFrameworks> -->
+    <UnoFeatures>
+      Skia;
+    </UnoFeatures>
+    
     <ImplicitUsings>disable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <RootNamespace>Friflo.SmGui.Uno</RootNamespace>
@@ -61,7 +66,6 @@
   
   <ItemGroup>
     <ProjectReference Include="..\Friflo.SmGui.SkiaSharp\Friflo.SmGui.SkiaSharp.csproj" />
-    <PackageReference Include="Avalonia" Version="12.2.0"/>
   </ItemGroup>
 
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">

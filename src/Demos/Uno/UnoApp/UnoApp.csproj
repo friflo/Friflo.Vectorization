@@ -1,6 +1,7 @@
 <Project Sdk="Uno.Sdk">
     <PropertyGroup>
-        <TargetFrameworks>net10.0-android;net10.0-ios;net10.0-browserwasm;net10.0-desktop</TargetFrameworks>
+        <TargetFrameworks>net10.0-android36.0;net10.0-ios26.0;net10.0-desktop</TargetFrameworks>
+        <!-- <TargetFrameworks>net10.0-android;net10.0-ios;net10.0-browserwasm;net10.0-desktop</TargetFrameworks> -->
 
         <OutputType>Exe</OutputType>
         <UnoSingleProject>true</UnoSingleProject>
@@ -26,5 +27,9 @@
             Skia;
         </UnoFeatures>
     </PropertyGroup>
+    <ItemGroup>
+      <ProjectReference Include="..\..\..\Friflo.SmGui.Assets\Friflo.SmGui.Assets.csproj" />
+      <ProjectReference Include="..\..\..\Friflo.SmGui.Uno\Friflo.SmGui.Uno.csproj" />
+    </ItemGroup>
 
 </Project>
