@@ -14,11 +14,11 @@ using Microsoft.UI.Xaml;
 namespace Friflo.SmGui.MAUI;
 
 
-public static class MauiCursor
+public static partial class MauiCursor
 {
     private static MouseCursor _mouseCursor;
 
-    public static void SetMouseCursor(SmGuiBackend backend, View targetView)
+    private static void SetCursor(SmGuiBackend backend, View targetView)
     {
         var cursor = backend.input.CurrentCursor;
         if (cursor == _mouseCursor) {
