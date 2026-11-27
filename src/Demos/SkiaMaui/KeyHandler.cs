@@ -9,18 +9,7 @@ using SkiaMaui;
 // ReSharper disable CheckNamespace
 namespace MyApp;
 
-public static class KeyHandlerExtension
-{
-    public static MauiAppBuilder UseKeyHandler(this MauiAppBuilder builder)
-    {
-        builder.ConfigureMauiHandlers(handlers =>
-        {
-            handlers.AddHandler<SkiaView, SkiaGuiHostHandler>();
-        });
-        return builder;
-    }
-
-    private sealed class SkiaGuiHostHandler : ContentViewHandler
+    internal sealed class KeyHandler : ContentViewHandler
     {
 #if WINDOWS
         // Windows: Focus() must be mapped to our "active" state,
@@ -33,13 +22,13 @@ public static class KeyHandlerExtension
 
         private static void MapFocus(IContentViewHandler handler, IContentView view, object? args)
         {
-            if (handler is SkiaGuiHostHandler self)
+            if (handler is KeyHandler self)
                 self.SetActive(true);
         }
 
-        public SkiaGuiHostHandler() : base(Mapper, FocusCommandMapper) { }
+        public KeyHandler() : base(Mapper, FocusCommandMapper) { }
 #else
-        public SkiaGuiHostHandler() : base(Mapper, CommandMapper) { }
+        public KeyHandler() : base(Mapper, CommandMapper) { }
 #endif
 
         private SkiaView? Host => VirtualView as SkiaView;
@@ -364,22 +353,6 @@ public static class KeyHandlerExtension
         }
 #endif
     }
-}
 
 
-public class HostKeyEventArgs : EventArgs
-{
-    
-    public KeyCode Key { get; init; }
 
-    /// <summary>Character produced by the key, if the platform provides one.</summary>
-    public Rune? Character { get; init; }
-
-    public bool IsDown { get; init; }
-    public bool Shift { get; init; }
-    public bool Ctrl { get; init; }
-    public bool Alt { get; init; }
-
-    /// <summary>Set to true to stop the key from being passed on to the platform.</summary>
-    public bool Handled { get; set; }
-}
