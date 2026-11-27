@@ -8,6 +8,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Friflo.SmGui", "..\..\Frifl
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Friflo.SmGui.Assets", "..\..\Friflo.SmGui.Assets\Friflo.SmGui.Assets.csproj", "{E079906B-317F-4C11-8346-D5C080E15DA9}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Friflo.SmGui.SkiaSharp", "..\..\Friflo.SmGui.SkiaSharp\Friflo.SmGui.SkiaSharp.csproj", "{6614E846-B123-469E-9F23-DD902311E131}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -30,5 +32,9 @@ Global
 		{E079906B-317F-4C11-8346-D5C080E15DA9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E079906B-317F-4C11-8346-D5C080E15DA9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E079906B-317F-4C11-8346-D5C080E15DA9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6614E846-B123-469E-9F23-DD902311E131}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6614E846-B123-469E-9F23-DD902311E131}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6614E846-B123-469E-9F23-DD902311E131}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6614E846-B123-469E-9F23-DD902311E131}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

@@ -60,7 +60,7 @@
   
   
   <ItemGroup>
-    <ProjectReference Include="..\Friflo.SmGui\Friflo.SmGui.csproj" />
+    <ProjectReference Include="..\Friflo.SmGui.SkiaSharp\Friflo.SmGui.SkiaSharp.csproj" />
     <PackageReference Include="MonoGame.Framework.DesktopGL" Version="3.8.6.1" />
   </ItemGroup>
 
