@@ -25,7 +25,7 @@ public static partial class MauiCursor
             return;
         }
         _mouseCursor = cursor;
-        var platformView = targetView?.Handler?.PlatformView as UIElement;
+        var platformView = targetView.Handler?.PlatformView as UIElement;
         if (platformView is null) {
             return;
         }

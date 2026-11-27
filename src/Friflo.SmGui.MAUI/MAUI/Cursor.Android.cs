@@ -3,9 +3,9 @@
 
 #if ANDROID
 
-using Android.OS;
+using System;
+using System.Runtime.Versioning;
 using Android.Views;
-using Microsoft.Maui.Controls;
 
 // ReSharper disable UsePatternMatching
 // ReSharper disable SuggestVarOrType_SimpleTypes
@@ -24,13 +24,19 @@ public static partial class MauiCursor
             return;
         }
         _mouseCursor = cursor;
-        if (Build.VERSION.SdkInt < BuildVersionCodes.N) {
+        if (!OperatingSystem.IsAndroidVersionAtLeast(24)) {
             return;
         }
-        if (targetView?.Handler?.PlatformView is not Android.Views.View platformView) {
+        if (targetView.Handler?.PlatformView is not View platformView) {
             return;
         }
 
+        SetPointerIcon(platformView, cursor);
+    }
+
+    [SupportedOSPlatform("android24.0")]
+    private static void SetPointerIcon(View platformView, MouseCursor cursor)
+    {
         // Map SmGui cursor states to Android PointerIcon system icons.
         var iconType = cursor switch {
             MouseCursor.Arrow       => PointerIconType.Arrow,
@@ -44,8 +50,10 @@ public static partial class MauiCursor
             MouseCursor.ResizeSW    => PointerIconType.TopRightDiagonalDoubleArrow,
             _                       => PointerIconType.Arrow
         };
-
-        platformView.PointerIcon = PointerIcon.GetSystemIcon(platformView.Context, iconType);
+        var context = platformView.Context;
+        if (context != null) {
+            platformView.PointerIcon = PointerIcon.GetSystemIcon(context, iconType);    
+        }
     }
 }
 
