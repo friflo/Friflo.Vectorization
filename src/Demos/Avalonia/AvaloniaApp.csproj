@@ -16,4 +16,9 @@
             <PrivateAssets Condition="'$(Configuration)' != 'Debug'">All</PrivateAssets>
         </PackageReference>
     </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\..\Friflo.SmGui.Assets\Friflo.SmGui.Assets.csproj" />
+      <ProjectReference Include="..\..\Friflo.SmGui.Avalonia\Friflo.SmGui.Avalonia.csproj" />
+    </ItemGroup>
 </Project>
