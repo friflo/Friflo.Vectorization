@@ -65,7 +65,7 @@ public sealed class SkiaGuiView : ContentControl, IDisposable
         skCanvas = new SKCanvas(skBitmap);
         pixelBuffer = new byte[pixelWidth * pixelHeight * 4];
 
-        uiBitmap = new Microsoft.UI.Xaml.Media.Imaging.WriteableBitmap(pixelWidth, pixelHeight);
+        uiBitmap = new WriteableBitmap(pixelWidth, pixelHeight);
         uiImage.Source = uiBitmap;
     }
 
@@ -74,19 +74,10 @@ public sealed class SkiaGuiView : ContentControl, IDisposable
         if (skCanvas == null || skBitmap == null || uiBitmap == null || pixelBuffer == null) {
             return;
         }
-
         skCanvas.Clear(SKColors.Transparent);
 
-        float cx = pixelWidth * 0.5f;
-        float cy = pixelHeight * 0.5f;
-        float radius = Math.Min(cx, cy) * 0.6f;
-
-        using var paint = new SKPaint {
-            Color = SKColors.DodgerBlue,
-            IsAntialias = true,
-            Style = SKPaintStyle.Fill
-        };
-        skCanvas.DrawCircle(cx, cy, radius, paint);
+        using var paint = new SKPaint { Color = SKColors.DodgerBlue, IsAntialias = true, Style = SKPaintStyle.Fill };
+        skCanvas.DrawCircle((float)(pixelWidth * 0.5), (float)(pixelHeight * 0.5), 40f, paint);
 
         // Copy SKBitmap pixels into the reusable buffer and blit to WriteableBitmap
         IntPtr srcPtr = skBitmap.GetPixels();
