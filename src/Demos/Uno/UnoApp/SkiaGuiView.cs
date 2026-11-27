@@ -1,38 +1,29 @@
 ﻿using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.WindowsRuntime;
+using Microsoft.UI.Xaml.Media.Imaging;
 using SkiaSharp;
 
 // ReSharper disable CheckNamespace
 namespace Friflo.SmGui.Uno;
 
 
-public sealed class SkiaGuiView : Control, IDisposable
+public sealed class SkiaGuiView : ContentControl, IDisposable
 {
-    private Image?                  uiImage;
-    private SKBitmap?               skBitmap;
-    private SKCanvas?               skCanvas;
-    private Microsoft.UI.Xaml.Media.Imaging.WriteableBitmap? uiBitmap;
-    private byte[]?                 pixelBuffer;
-    private int                     pixelWidth;
-    private int                     pixelHeight;
+    private readonly Image      uiImage = new() { Stretch = Stretch.Fill };
+    private SKBitmap?           skBitmap;
+    private SKCanvas?           skCanvas;
+    private WriteableBitmap?    uiBitmap;
+    private byte[]?             pixelBuffer;
+    private int                 pixelWidth;
+    private int                 pixelHeight;
 
     public SkiaGuiView()
     {
-        DefaultStyleKey = typeof(SkiaGuiView);
+        // Attach Image directly as content instead of using a ControlTemplate
+        Content = uiImage;
         SizeChanged += OnSizeChanged;
         Loaded += OnLoaded;
         Unloaded += OnUnloaded;
-    }
-
-    protected override void OnApplyTemplate()
-    {
-        base.OnApplyTemplate();
-        // Retrieve the template image element used to display the rendered bitmap
-        uiImage = GetTemplateChild("PART_Image") as Image;
-        if (uiImage != null && uiBitmap != null) {
-            uiImage.Source = uiBitmap;
-        }
-        RenderCircle();
     }
 
     private void OnLoaded(object sender, RoutedEventArgs e)
@@ -75,9 +66,7 @@ public sealed class SkiaGuiView : Control, IDisposable
         pixelBuffer = new byte[pixelWidth * pixelHeight * 4];
 
         uiBitmap = new Microsoft.UI.Xaml.Media.Imaging.WriteableBitmap(pixelWidth, pixelHeight);
-        if (uiImage != null) {
-            uiImage.Source = uiBitmap;
-        }
+        uiImage.Source = uiBitmap;
     }
 
     private void RenderCircle()
@@ -86,7 +75,7 @@ public sealed class SkiaGuiView : Control, IDisposable
             return;
         }
 
-        skCanvas.Clear(SKColors.Red);
+        skCanvas.Clear(SKColors.Transparent);
 
         float cx = pixelWidth * 0.5f;
         float cy = pixelHeight * 0.5f;
