@@ -1,5 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
-using MyApp;
+﻿using Friflo.SmGui.MAUI;
+using Microsoft.Extensions.Logging;
 using SkiaSharp.Views.Maui.Controls.Hosting;
 
 namespace SkiaMaui;

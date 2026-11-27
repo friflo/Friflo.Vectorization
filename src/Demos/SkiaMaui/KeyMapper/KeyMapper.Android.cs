@@ -9,7 +9,7 @@ using Microsoft.Maui.Handlers;
 
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable CheckNamespace
-namespace MyApp;
+namespace Friflo.SmGui.MAUI;
 
 
 internal sealed partial class KeyMapper : ContentViewHandler

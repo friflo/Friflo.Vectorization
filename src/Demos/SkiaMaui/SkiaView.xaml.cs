@@ -1,12 +1,11 @@
 ﻿using Demos.BasicGui;
-using Friflo.SmGui;
-using Friflo.SmGui.SkiaMAUI;
 using Friflo.SmGui.SkiaSharp;
-using MyApp;
 using SkiaSharp.Views.Maui;
 
+
 // ReSharper disable RedundantExtendsListEntry
-namespace SkiaMaui;
+// ReSharper disable CheckNamespace
+namespace Friflo.SmGui.MAUI;
 
 
 public partial class SkiaView : ContentView

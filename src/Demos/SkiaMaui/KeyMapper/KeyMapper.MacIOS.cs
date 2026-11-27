@@ -10,7 +10,7 @@ using SkiaMaui;
 
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable CheckNamespace
-namespace MyApp;
+namespace Friflo.SmGui.MAUI;
 
 
 internal sealed partial class KeyMapper : ContentViewHandler

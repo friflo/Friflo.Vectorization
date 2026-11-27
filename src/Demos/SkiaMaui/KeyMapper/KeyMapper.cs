@@ -7,7 +7,7 @@ using SkiaMaui;
 
 // ReSharper disable UnusedAutoPropertyAccessor.Global
 // ReSharper disable CheckNamespace
-namespace MyApp;
+namespace Friflo.SmGui.MAUI;
 
 
 public static class KeyMapperExtension

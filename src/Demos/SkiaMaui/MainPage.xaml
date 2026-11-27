@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns:local="clr-namespace:SkiaMaui"
+             xmlns:maui="clr-namespace:Friflo.SmGui.MAUI"
              x:Class="SkiaMaui.MainPage">
 
-    <local:SkiaView x:Name="SkiaView"
+    <maui:SkiaView x:Name="SkiaView"
                     Background="Cornflowerblue"/>
     
 </ContentPage>

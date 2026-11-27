@@ -4,7 +4,7 @@
 #if !WINDOWS
 
 // ReSharper disable CheckNamespace
-namespace Friflo.SmGui.SkiaMAUI;
+namespace Friflo.SmGui.MAUI;
 
 public static class MauiCursor
 {
