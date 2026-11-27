@@ -10,5 +10,10 @@ namespace Friflo.SmGui.MAUI;
 public static partial class MauiCursor
 {
      public static void SetMouseCursor(SmGuiBackend backend, View targetView) => SetCursor(backend, targetView);
+     
+#if IOS
+     // iOS does not expose custom system mouse cursors like AppKit NSCursor.
+     private static void SetCursor(SmGuiBackend backend, View targetView) { }
+#endif
 }
 
