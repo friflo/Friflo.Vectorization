@@ -1,5 +1,4 @@
-﻿using Demos.BasicGui;
-using Friflo.SmGui.SkiaSharp;
+﻿using Friflo.SmGui.SkiaSharp;
 using SkiaSharp.Views.Maui;
 using SkiaSharp.Views.Maui.Controls;
 
@@ -11,10 +10,11 @@ namespace Friflo.SmGui.MAUI;
 
 public class SkiaGuiView : ContentView
 {
+    public              SmGuiBackend        GuiBackend => guiBackend;
     private readonly    SKCanvasView        canvasView;
     private readonly    SkiaSharpGuiBackend guiBackend;
     private readonly    SkiaSharpBatch      batch;
-    private readonly    SmGuiApp            app;
+    private             SmGuiApp?           app;
     private             IDispatcherTimer?   renderTimer;
     
     public SkiaGuiView()
@@ -25,12 +25,15 @@ public class SkiaGuiView : ContentView
 
         guiBackend = new SkiaSharpGuiBackend(new DefaultGuiAssets());
         batch = guiBackend.CreateBatch();
-        app = new BasicGuiApp(guiBackend);
 
         HandlerChanged  += OnHandlerChanged;
         Unloaded        += OnUnloaded;
         
         MauiInput.AttachPointerGestures(canvasView, guiBackend);
+    }
+    
+    public void AttachApp(SmGuiApp app) {
+        this.app = app;
     }
     
     internal bool RaiseKey(HostKeyEventArgs e)
@@ -85,7 +88,7 @@ public class SkiaGuiView : ContentView
     private void OnCanvasViewPaintSurface(object? sender, SKPaintSurfaceEventArgs e)
     {
         var canvas = e.Surface.Canvas;
-        var color = app.ClearValue ?? Color32.Transparent;
+        var color = app?.ClearValue ?? Color32.Transparent;
         canvas.Clear(color.AsSkColor());
         
         var width = e.Info.Width;
@@ -95,7 +98,7 @@ public class SkiaGuiView : ContentView
             return;
 
         guiBackend.NewFrame();
-        app.RenderApp(batch, width, height);
+        app?.RenderApp(batch, width, height);
         batch.DrawCommandList(canvas, 0, 0, width, height);
         MauiCursor.SetMouseCursor(guiBackend, this);
 
