@@ -68,6 +68,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenTK", "src\Demos\OpenTK\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Friflo.SmGui.OpenTK", "src\Friflo.SmGui.OpenTK\Friflo.SmGui.OpenTK.csproj", "{C6B75A0E-6ED0-4C4F-A3E7-AB1939FAC23F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Friflo.SmGui.Avalonia", "src\Friflo.SmGui.Avalonia\Friflo.SmGui.Avalonia.csproj", "{83BE705E-CB17-48C5-AFF6-7D1698738981}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -206,6 +208,10 @@ Global
 		{C6B75A0E-6ED0-4C4F-A3E7-AB1939FAC23F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C6B75A0E-6ED0-4C4F-A3E7-AB1939FAC23F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C6B75A0E-6ED0-4C4F-A3E7-AB1939FAC23F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{83BE705E-CB17-48C5-AFF6-7D1698738981}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{83BE705E-CB17-48C5-AFF6-7D1698738981}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{83BE705E-CB17-48C5-AFF6-7D1698738981}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{83BE705E-CB17-48C5-AFF6-7D1698738981}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{1A5652D0-4695-48D2-9C1A-B6E23548F705} = {D62260B8-F067-4FDC-BFF9-81BCE1556799}
