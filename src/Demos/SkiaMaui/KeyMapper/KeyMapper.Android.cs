@@ -7,9 +7,7 @@ using System.Text;
 using Friflo.SmGui;
 using Microsoft.Maui.Handlers;
 
-// ReSharper disable UnusedAutoPropertyAccessor.Global
 // ReSharper disable ConvertToPrimaryConstructor
-// ReSharper disable UnusedMember.Local
 // ReSharper disable CheckNamespace
 namespace MyApp;
 
