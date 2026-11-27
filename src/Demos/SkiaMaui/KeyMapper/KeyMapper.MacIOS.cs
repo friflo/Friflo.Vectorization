@@ -30,9 +30,9 @@ internal sealed partial class KeyMapper : ContentViewHandler
 
     private sealed class KeyContentView : Microsoft.Maui.Platform.ContentView
     {
-        private readonly Func<SkiaView?> skiaHost;
+        private readonly Func<SkiaGuiView?> skiaHost;
 
-        public KeyContentView(Func<SkiaView?> host) => skiaHost = host;
+        public KeyContentView(Func<SkiaGuiView?> host) => skiaHost = host;
 
         // Required so the view can receive key presses.
         public override bool CanBecomeFirstResponder => true;

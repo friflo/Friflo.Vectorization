@@ -8,14 +8,14 @@ using SkiaSharp.Views.Maui;
 namespace Friflo.SmGui.MAUI;
 
 
-public partial class SkiaView : ContentView
+public partial class SkiaGuiView : ContentView
 {
     private readonly    SkiaSharpGuiBackend guiBackend;
     private readonly    SkiaSharpBatch      batch;
     private readonly    SmGuiApp            app;
     private             IDispatcherTimer?   renderTimer;
     
-    public SkiaView()
+    public SkiaGuiView()
     {
         InitializeComponent();
         guiBackend = new SkiaSharpGuiBackend(new DefaultGuiAssets());

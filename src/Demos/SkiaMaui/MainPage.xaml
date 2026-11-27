@@ -4,7 +4,7 @@
              xmlns:maui="clr-namespace:Friflo.SmGui.MAUI"
              x:Class="SkiaMaui.MainPage">
 
-    <maui:SkiaView x:Name="SkiaView"
+    <maui:SkiaGuiView x:Name="SkiaView"
                     Background="Cornflowerblue"/>
     
 </ContentPage>
