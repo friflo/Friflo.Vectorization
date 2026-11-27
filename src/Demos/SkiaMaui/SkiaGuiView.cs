@@ -1,6 +1,5 @@
 ﻿using Demos.BasicGui;
 using Friflo.SmGui.SkiaSharp;
-using Microsoft.Maui.Controls;
 using SkiaSharp.Views.Maui;
 using SkiaSharp.Views.Maui.Controls;
 
@@ -10,7 +9,7 @@ using SkiaSharp.Views.Maui.Controls;
 namespace Friflo.SmGui.MAUI;
 
 
-public partial class SkiaGuiView : ContentView
+public class SkiaGuiView : ContentView
 {
     private readonly    SKCanvasView        canvasView;
     private readonly    SkiaSharpGuiBackend guiBackend;
