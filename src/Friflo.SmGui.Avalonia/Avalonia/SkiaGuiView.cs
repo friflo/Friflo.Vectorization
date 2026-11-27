@@ -8,10 +8,10 @@ using Avalonia.Controls;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
-using Demos.BasicGui;
 using Friflo.SmGui.SkiaSharp;
 using SkiaSharp;
 
+// ReSharper disable EmptyConstructor
 // ReSharper disable CheckNamespace
 namespace Friflo.SmGui.Avalonia;
 
@@ -25,10 +25,17 @@ public sealed class SkiaGuiView : Control, IDisposable
     private SKCanvas?               skCanvas;
     private WriteableBitmap?        uiBitmap;
     
-    public SkiaGuiView() {
-        guiBackend  = new SkiaSharpGuiBackend(new DefaultGuiAssets());
+    public SkiaGuiView() { }
+    
+    public void CreateGuiApp(CreateGuiApp createGuiApp, IGuiAssets assets)
+    {
+        if (guiBackend != null) {
+            throw new InvalidOperationException("GuiApp already attached");
+        }
+        guiBackend  = new SkiaSharpGuiBackend(assets);
         batch       = guiBackend.CreateBatch();
-        app         = new BasicGuiApp(guiBackend);
+        app         = createGuiApp(guiBackend);
+        // ValoniaInput.AttachPointerGestures(canvasView, guiBackend);
     }
 
     public override void Render(DrawingContext context)

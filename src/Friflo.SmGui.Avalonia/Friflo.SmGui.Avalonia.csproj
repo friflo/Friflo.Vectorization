@@ -4,7 +4,7 @@
     <OutputType>library</OutputType>
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>disable</ImplicitUsings>
-    <Nullable>disable</Nullable>
+    <Nullable>enable</Nullable>
     <RootNamespace>Friflo.SmGui.Avalonia</RootNamespace>
     <AssemblyName>Friflo.SmGui.Avalonia</AssemblyName>
     <LangVersion>14.0</LangVersion>
@@ -61,7 +61,7 @@
   
   <ItemGroup>
     <ProjectReference Include="..\Friflo.SmGui.SkiaSharp\Friflo.SmGui.SkiaSharp.csproj" />
-    <PackageReference Include="MonoGame.Framework.DesktopGL" Version="3.8.6.1" />
+    <PackageReference Include="Avalonia" Version="12.2.0"/>
   </ItemGroup>
 
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">

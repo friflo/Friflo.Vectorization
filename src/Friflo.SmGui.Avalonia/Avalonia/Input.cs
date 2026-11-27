@@ -1,6 +1,8 @@
 // Copyright (c) Ullrich Praetz - https://github.com/friflo. All rights reserved.
 // See LICENSE file in the project root for full license information.
 
+#if TODO
+
 using System;
 using Microsoft.Xna.Framework.Input;
 using Xna = Microsoft.Xna.Framework.Input;
@@ -90,3 +92,5 @@ public static class AvaloniaInput
         Mouse.SetCursor(monoCursor);
     }
 }
+
+#endif
