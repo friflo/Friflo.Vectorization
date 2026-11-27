@@ -13,7 +13,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Friflo.SmGui.Assets", "..\.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Apps", "..\Apps\Apps.csproj", "{58EA8AAA-F8B0-4198-AD80-1C7F620D792E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Friflo.SmGui.SkiaMAUI", "..\..\Friflo.SmGui.SkiaMAUI\Friflo.SmGui.SkiaMAUI.csproj", "{43497569-4AF9-428A-8575-65ADACF267D5}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Friflo.SmGui.MAUI", "..\..\Friflo.SmGui.MAUI\Friflo.SmGui.MAUI.csproj", "{43497569-4AF9-428A-8575-65ADACF267D5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
