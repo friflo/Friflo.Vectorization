@@ -9,6 +9,6 @@ public partial class MainPage
     {
         InitializeComponent();
         
-        SkiaView.CreateGuiApp(backend => new BasicGuiApp(backend), new DefaultGuiAssets());
+        SkiaGuiView.CreateGuiApp(backend => new BasicGuiApp(backend), new DefaultGuiAssets());
     }
 }
