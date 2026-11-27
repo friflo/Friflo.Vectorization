@@ -1,3 +1,4 @@
+using Demos.BasicDraw;
 using Demos.BasicGui;
 using Friflo.SmGui;
 
@@ -10,5 +11,6 @@ public partial class MainPage
         InitializeComponent();
         
         SkiaGuiView.CreateGuiApp(backend => new BasicGuiApp(backend), new DefaultGuiAssets());
+        // SkiaGuiView.CreateGuiApp(backend => new BasicDrawApp(backend), new DefaultGuiAssets());
     }
 }
