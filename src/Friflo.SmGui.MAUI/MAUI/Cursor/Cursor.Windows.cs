@@ -7,6 +7,7 @@ using Microsoft.Maui.Controls;
 using System.Reflection;
 using Microsoft.UI.Input;
 using Microsoft.UI.Xaml;
+// ReSharper disable InconsistentNaming
 
 // ReSharper disable UsePatternMatching
 // ReSharper disable SuggestVarOrType_SimpleTypes
@@ -17,6 +18,13 @@ namespace Friflo.SmGui.MAUI;
 public static partial class MauiCursor
 {
     private static MouseCursor _mouseCursor;
+
+    // Cache WinUI InputSystemCursor instances to avoid repeated Create() calls.
+    private static readonly InputSystemCursor Arrow         = InputSystemCursor.Create(InputSystemCursorShape.Arrow);
+    private static readonly InputSystemCursor ResizeNS      = InputSystemCursor.Create(InputSystemCursorShape.SizeNorthSouth);
+    private static readonly InputSystemCursor ResizeWE      = InputSystemCursor.Create(InputSystemCursorShape.SizeWestEast);
+    private static readonly InputSystemCursor ResizeNWSE    = InputSystemCursor.Create(InputSystemCursorShape.SizeNorthwestSoutheast);
+    private static readonly InputSystemCursor ResizeNESW    = InputSystemCursor.Create(InputSystemCursorShape.SizeNortheastSouthwest);
 
     private static void SetCursor(SmGuiBackend backend, View targetView)
     {
@@ -29,23 +37,24 @@ public static partial class MauiCursor
         if (platformView is null) {
             return;
         }
-        
-        // Map SmGui cursor states to WinUI InputSystemCursor shapes.
-        var systemCursor = cursor switch {
-            MouseCursor.Arrow       => InputSystemCursor.Create(InputSystemCursorShape.Arrow),
-            MouseCursor.ResizeN     => InputSystemCursor.Create(InputSystemCursorShape.SizeNorthSouth),
-            MouseCursor.ResizeS     => InputSystemCursor.Create(InputSystemCursorShape.SizeNorthSouth),
-            MouseCursor.ResizeE     => InputSystemCursor.Create(InputSystemCursorShape.SizeWestEast),
-            MouseCursor.ResizeW     => InputSystemCursor.Create(InputSystemCursorShape.SizeWestEast),
-            MouseCursor.ResizeNW    => InputSystemCursor.Create(InputSystemCursorShape.SizeNorthwestSoutheast),
-            MouseCursor.ResizeSE    => InputSystemCursor.Create(InputSystemCursorShape.SizeNorthwestSoutheast),
-            MouseCursor.ResizeNE    => InputSystemCursor.Create(InputSystemCursorShape.SizeNortheastSouthwest),
-            MouseCursor.ResizeSW    => InputSystemCursor.Create(InputSystemCursorShape.SizeNortheastSouthwest),
-            _                       => InputSystemCursor.Create(InputSystemCursorShape.Arrow)
-        };
 
+        var systemCursor = GetSystemCursor(cursor);
         SetCursor(platformView, systemCursor);
     }
+
+    // Map SmGui cursor states to cached WinUI InputSystemCursor shapes.
+    private static InputSystemCursor GetSystemCursor(MouseCursor cursor) => cursor switch {
+        MouseCursor.Arrow       => Arrow,
+        MouseCursor.ResizeN     => ResizeNS,
+        MouseCursor.ResizeS     => ResizeNS,
+        MouseCursor.ResizeE     => ResizeWE,
+        MouseCursor.ResizeW     => ResizeWE,
+        MouseCursor.ResizeNW    => ResizeNWSE,
+        MouseCursor.ResizeSE    => ResizeNWSE,
+        MouseCursor.ResizeNE    => ResizeNESW,
+        MouseCursor.ResizeSW    => ResizeNESW,
+        _                       => Arrow
+    };
 
     private static void SetCursor(UIElement element, InputSystemCursor cursor)
     {
