@@ -18,9 +18,22 @@ public static class KeyMapperExtension
     {
         builder.ConfigureMauiHandlers(handlers =>
         {
-            handlers.AddHandler<SkiaView, KeyHandler>();
+            handlers.AddHandler<SkiaView, KeyMapper>();
         });
         return builder;
+    }
+}
+
+
+internal sealed partial class KeyMapper
+{
+    private SkiaView? Host => VirtualView as SkiaView;
+
+    // Sets IView.IsFocused on the SkiaView, which raises Focused/Unfocused.
+    private void SetFocused(bool focused)
+    {
+        if (VirtualView is IView view && view.IsFocused != focused)
+            view.IsFocused = focused;
     }
 }
 
