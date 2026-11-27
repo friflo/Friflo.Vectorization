@@ -6,6 +6,8 @@ using Avalonia.Controls;
 using Avalonia.Media;
 using Avalonia.Rendering.SceneGraph;
 using Avalonia.Skia;
+using Demos.BasicGui;
+using Friflo.SmGui.SkiaSharp;
 using SkiaSharp;
 
 // ReSharper disable CheckNamespace
@@ -13,7 +15,16 @@ namespace Friflo.SmGui.Avalonia;
 
 public sealed class SkiaGuiView : Control, ICustomDrawOperation
 {
-    public new Rect Bounds { get; set; }
+    private             SkiaSharpGuiBackend?    guiBackend;
+    private             SkiaSharpBatch?         batch;
+    private             SmGuiApp?               app;
+    
+    public SkiaGuiView()
+    {
+        guiBackend  = new SkiaSharpGuiBackend(new DefaultGuiAssets());
+        batch       = guiBackend.CreateBatch();
+        app         = new BasicGuiApp(guiBackend);
+    }
 
     public override void Render(DrawingContext context)
     {
@@ -24,6 +35,19 @@ public sealed class SkiaGuiView : Control, ICustomDrawOperation
         Bounds = bounds;
         context.Custom(this);
     }
+    
+    private static void DrawCanvas(SKCanvas canvas, Rect bounds)
+    {
+        // Draw directly on SkiaSharp's SKCanvas.
+        using var paint = new SKPaint {
+            Color = SKColors.DodgerBlue,
+            IsAntialias = true
+        };
+        canvas.DrawCircle((float)(bounds.Width * 0.5), (float)(bounds.Height * 0.5), 40f, paint);
+    }
+
+    // --- ICustomDrawOperation
+    Rect ICustomDrawOperation.Bounds => base.Bounds;
 
     public bool HitTest(Point p) => Bounds.Contains(p);
 
@@ -41,15 +65,5 @@ public sealed class SkiaGuiView : Control, ICustomDrawOperation
 
         using var lease = leaseFeature.Lease();
         DrawCanvas(lease.SkCanvas, Bounds);
-    }
-
-    private static void DrawCanvas(SKCanvas canvas, Rect bounds)
-    {
-        // Draw directly on SkiaSharp's SKCanvas.
-        using var paint = new SKPaint {
-            Color = SKColors.DodgerBlue,
-            IsAntialias = true
-        };
-        canvas.DrawCircle((float)(bounds.Width * 0.5), (float)(bounds.Height * 0.5), 40f, paint);
     }
 }
