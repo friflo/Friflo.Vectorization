@@ -1,11 +1,13 @@
 ﻿// Copyright (c) Ullrich Praetz - https://github.com/friflo. All rights reserved.
 // See LICENSE file in the project root for full license information.
 
+using System;
+using System.Runtime.InteropServices;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Media;
-using Avalonia.Rendering.SceneGraph;
-using Avalonia.Skia;
+using Avalonia.Media.Imaging;
+using Avalonia.Platform;
 using Demos.BasicGui;
 using Friflo.SmGui.SkiaSharp;
 using SkiaSharp;
@@ -13,14 +15,16 @@ using SkiaSharp;
 // ReSharper disable CheckNamespace
 namespace Friflo.SmGui.Avalonia;
 
-public sealed class SkiaGuiView : Control, ICustomDrawOperation
+public sealed class SkiaGuiView : Control, IDisposable
 {
-    private             SkiaSharpGuiBackend?    guiBackend;
-    private             SkiaSharpBatch?         batch;
-    private             SmGuiApp?               app;
+    private SkiaSharpGuiBackend?    guiBackend;
+    private SkiaSharpBatch?         batch;
+    private SmGuiApp?               app;
     
-    public SkiaGuiView()
-    {
+    private SKBitmap?               skBitmap;
+    private WriteableBitmap?        uiBitmap;
+    
+    public SkiaGuiView() {
         guiBackend  = new SkiaSharpGuiBackend(new DefaultGuiAssets());
         batch       = guiBackend.CreateBatch();
         app         = new BasicGuiApp(guiBackend);
@@ -28,42 +32,80 @@ public sealed class SkiaGuiView : Control, ICustomDrawOperation
 
     public override void Render(DrawingContext context)
     {
-        var bounds = new Rect(0, 0, base.Bounds.Width, base.Bounds.Height);
+        var bounds = new Rect(0, 0, Bounds.Width, Bounds.Height);
         if (bounds.Width <= 0 || bounds.Height <= 0) {
             return;
         }
-        Bounds = bounds;
-        context.Custom(this);
+
+        // Runs on the UI/Main thread: update bitmaps if size changed, draw SmGui/Skia, and copy pixels.
+        var pixelWidth  = Math.Max(1, (int)Math.Ceiling(bounds.Width));
+        var pixelHeight = Math.Max(1, (int)Math.Ceiling(bounds.Height));
+
+        EnsureBitmaps(pixelWidth, pixelHeight);
+        
+        using var canvas = new SKCanvas(skBitmap!);
+        canvas.Clear(SKColors.Transparent);
+
+        if (guiBackend != null && batch != null) {
+            guiBackend.NewFrame();
+            app?.RenderApp(batch, pixelWidth, pixelHeight);
+            batch.DrawCommandList(canvas, 0, 0, pixelWidth, pixelHeight);
+            // AvaloniaCursor.SetMouseCursor(guiBackend, this);
+        }
+        // using var paint = new SKPaint { Color = SKColors.DodgerBlue, IsAntialias = true };
+        // canvas.DrawCircle((float)(bounds.Width * 0.5), (float)(bounds.Height * 0.5), 40f, paint);
+
+        CopyPixelsToWriteableBitmap(skBitmap!, uiBitmap!);
+        context.DrawImage(uiBitmap!, new Rect(0, 0, uiBitmap!.PixelSize.Width, uiBitmap.PixelSize.Height), bounds);
     }
-    
-    private static void DrawCanvas(SKCanvas canvas, Rect bounds)
+
+    public void Dispose()
     {
-        // Draw directly on SkiaSharp's SKCanvas.
-        using var paint = new SKPaint {
-            Color = SKColors.DodgerBlue,
-            IsAntialias = true
-        };
-        canvas.DrawCircle((float)(bounds.Width * 0.5), (float)(bounds.Height * 0.5), 40f, paint);
+        uiBitmap?.Dispose();
+        uiBitmap = null;
+        skBitmap?.Dispose();
+        skBitmap = null;
     }
 
-    // --- ICustomDrawOperation
-    Rect ICustomDrawOperation.Bounds => base.Bounds;
-
-    public bool HitTest(Point p) => Bounds.Contains(p);
-
-    public bool Equals(ICustomDrawOperation? other) => ReferenceEquals(this, other);
-
-    public void Dispose() { }
-
-    public void Render(ImmediateDrawingContext context)
+    private void EnsureBitmaps(int width, int height)
     {
-        // Lease the SkiaSharp canvas directly for this draw pass.
-        var leaseFeature = context.TryGetFeature<ISkiaSharpApiLeaseFeature>();
-        if (leaseFeature is null) {
+        if (skBitmap is not null && skBitmap.Width == width && skBitmap.Height == height && uiBitmap is not null) {
             return;
         }
 
-        using var lease = leaseFeature.Lease();
-        DrawCanvas(lease.SkCanvas, Bounds);
+        uiBitmap?.Dispose();
+        skBitmap?.Dispose();
+
+        skBitmap = new SKBitmap(width, height, SKColorType.Bgra8888, SKAlphaType.Premul);
+        uiBitmap = new WriteableBitmap(
+            new PixelSize(width, height),
+            new Vector(96, 96),
+            PixelFormat.Bgra8888,
+            AlphaFormat.Premul);
+    }
+
+    private static void CopyPixelsToWriteableBitmap(SKBitmap source, WriteableBitmap target)
+    {
+        // Copy raw BGRA8888 pixels via Marshal.Copy without unsafe pointers.
+        using var locked = target.Lock();
+        var srcPtr = source.GetPixels();
+        var dstPtr = locked.Address;
+        var srcRowBytes = source.RowBytes;
+        var dstRowBytes = locked.RowBytes;
+        var height = source.Height;
+
+        if (srcRowBytes == dstRowBytes) {
+            var totalBytes = srcRowBytes * height;
+            var buffer = new byte[totalBytes];
+            Marshal.Copy(srcPtr, buffer, 0, totalBytes);
+            Marshal.Copy(buffer, 0, dstPtr, totalBytes);
+            return;
+        }
+
+        var rowBuffer = new byte[Math.Min(srcRowBytes, dstRowBytes)];
+        for (var y = 0; y < height; y++) {
+            Marshal.Copy(srcPtr + y * srcRowBytes, rowBuffer, 0, rowBuffer.Length);
+            Marshal.Copy(rowBuffer, 0, dstPtr + y * dstRowBytes, rowBuffer.Length);
+        }
     }
 }
