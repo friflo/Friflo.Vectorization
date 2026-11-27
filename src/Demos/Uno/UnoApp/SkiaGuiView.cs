@@ -1,5 +1,6 @@
 ﻿using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.WindowsRuntime;
+using Friflo.SmGui.SkiaSharp;
 using Microsoft.UI.Xaml.Media.Imaging;
 using SkiaSharp;
 
@@ -9,13 +10,17 @@ namespace Friflo.SmGui.Uno;
 
 public sealed class SkiaGuiView : ContentControl, IDisposable
 {
-    private readonly Image      uiImage = new() { Stretch = Stretch.Fill };
-    private SKBitmap?           skBitmap;
-    private SKCanvas?           skCanvas;
-    private WriteableBitmap?    uiBitmap;
-    private byte[]?             pixelBuffer;
-    private int                 pixelWidth;
-    private int                 pixelHeight;
+    private SkiaSharpGuiBackend?    guiBackend;
+    private SkiaSharpBatch?         batch;
+    private SmGuiApp?               app;
+    //
+    private readonly Image          uiImage = new() { Stretch = Stretch.Fill };
+    private SKBitmap?               skBitmap;
+    private SKCanvas?               skCanvas;
+    private WriteableBitmap?        uiBitmap;
+    private byte[]?                 pixelBuffer;
+    private int                     pixelWidth;
+    private int                     pixelHeight;
 
     public SkiaGuiView()
     {
@@ -24,6 +29,17 @@ public sealed class SkiaGuiView : ContentControl, IDisposable
         SizeChanged += OnSizeChanged;
         Loaded += OnLoaded;
         Unloaded += OnUnloaded;
+    }
+    
+    public void CreateGuiApp(CreateGuiApp createGuiApp, IGuiAssets assets)
+    {
+        if (guiBackend != null) {
+            throw new InvalidOperationException("GuiApp already attached");
+        }
+        guiBackend  = new SkiaSharpGuiBackend(assets);
+        batch       = guiBackend.CreateBatch();
+        app         = createGuiApp(guiBackend);
+        // UnoInput.AttachPointerGestures(canvasView, guiBackend);
     }
 
     private void OnLoaded(object sender, RoutedEventArgs e)
@@ -75,9 +91,16 @@ public sealed class SkiaGuiView : ContentControl, IDisposable
             return;
         }
         skCanvas.Clear(SKColors.Transparent);
-
-        using var paint = new SKPaint { Color = SKColors.DodgerBlue, IsAntialias = true, Style = SKPaintStyle.Fill };
-        skCanvas.DrawCircle((float)(pixelWidth * 0.5), (float)(pixelHeight * 0.5), 40f, paint);
+        
+        if (guiBackend != null && batch != null) {
+            guiBackend.NewFrame();
+            app?.RenderApp(batch, pixelWidth, pixelHeight);
+            batch.DrawCommandList(skCanvas, 0, 0, pixelWidth, pixelHeight);
+            // UnoCursor.SetMouseCursor(guiBackend, this);
+        }
+        
+        // using var paint = new SKPaint { Color = SKColors.DodgerBlue, IsAntialias = true, Style = SKPaintStyle.Fill };
+        // skCanvas.DrawCircle((float)(pixelWidth * 0.5), (float)(pixelHeight * 0.5), 40f, paint);
 
         // Copy SKBitmap pixels into the reusable buffer and blit to WriteableBitmap
         IntPtr srcPtr = skBitmap.GetPixels();

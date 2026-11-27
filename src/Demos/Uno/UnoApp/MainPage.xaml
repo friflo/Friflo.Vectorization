@@ -7,7 +7,7 @@
                        HorizontalAlignment="Stretch"
                        VerticalAlignment="Stretch" /> -->
     <Grid>
-        <smGui:SkiaGuiView x:Name="GuiView"
+        <smGui:SkiaGuiView x:Name="SkiaGuiView"
                            HorizontalAlignment="Stretch"
                            VerticalAlignment="Stretch" />
     </Grid>
