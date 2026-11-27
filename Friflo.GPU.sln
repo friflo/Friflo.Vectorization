@@ -225,7 +225,4 @@ Global
 		{820BE3BC-1FA5-495D-8080-9346776316E7} = {D62260B8-F067-4FDC-BFF9-81BCE1556799}
 		{E238B4C4-1142-435A-A9FA-6FF6FE9A0194} = {D62260B8-F067-4FDC-BFF9-81BCE1556799}
 	EndGlobalSection
-	GlobalSection(RiderSharedRunConfigurations) = postSolution
-		File = src\Demos\Uno\.run\UnoApp.run.xml
-	EndGlobalSection
 EndGlobal
