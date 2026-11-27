@@ -1,6 +1,8 @@
 ﻿using Demos.BasicGui;
 using Friflo.SmGui.SkiaSharp;
+using Microsoft.Maui.Controls;
 using SkiaSharp.Views.Maui;
+using SkiaSharp.Views.Maui.Controls;
 
 
 // ReSharper disable RedundantExtendsListEntry
@@ -10,6 +12,7 @@ namespace Friflo.SmGui.MAUI;
 
 public partial class SkiaGuiView : ContentView
 {
+    private readonly    SKCanvasView        canvasView;
     private readonly    SkiaSharpGuiBackend guiBackend;
     private readonly    SkiaSharpBatch      batch;
     private readonly    SmGuiApp            app;
@@ -17,7 +20,10 @@ public partial class SkiaGuiView : ContentView
     
     public SkiaGuiView()
     {
-        InitializeComponent();
+        canvasView = new SKCanvasView();
+        canvasView.PaintSurface += OnCanvasViewPaintSurface;
+        Content = canvasView;
+
         guiBackend = new SkiaSharpGuiBackend(new DefaultGuiAssets());
         batch = guiBackend.CreateBatch();
         app = new BasicGuiApp(guiBackend);
@@ -25,9 +31,9 @@ public partial class SkiaGuiView : ContentView
         HandlerChanged  += OnHandlerChanged;
         Unloaded        += OnUnloaded;
         
-        MauiInput.AttachPointerGestures(CanvasView, guiBackend);
+        MauiInput.AttachPointerGestures(canvasView, guiBackend);
     }
-
+    
     internal bool RaiseKey(HostKeyEventArgs e)
     {
         // Console.WriteLine($"Key: {e.Key} Character: `{e.Character}` {e.IsDown} ");
@@ -60,7 +66,7 @@ public partial class SkiaGuiView : ContentView
 
     private void OnRenderTimerTick(object? sender, EventArgs e)
     {
-        CanvasView.InvalidateSurface();
+        canvasView.InvalidateSurface();
     }
 
     private void OnHandlerChanged(object? sender, EventArgs e)
