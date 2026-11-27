@@ -1,4 +1,5 @@
 using Demos.BasicGui;
+using Friflo.SmGui;
 
 namespace SkiaMaui;
 
@@ -8,7 +9,6 @@ public partial class MainPage
     {
         InitializeComponent();
         
-        var app = new BasicGuiApp(SkiaView.GuiBackend);
-        SkiaView.AttachApp(app);
+        SkiaView.CreateGuiApp(backend => new BasicGuiApp(backend), new DefaultGuiAssets());
     }
 }

@@ -4,6 +4,7 @@
 #if WINDOWS
 
 using System.Text;
+using Microsoft.Maui;
 using Microsoft.Maui.Handlers;
 
 // ReSharper disable ConvertToPrimaryConstructor

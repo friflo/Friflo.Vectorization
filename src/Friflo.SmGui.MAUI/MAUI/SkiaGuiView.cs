@@ -1,4 +1,7 @@
-﻿using Friflo.SmGui.SkiaSharp;
+﻿using System;
+using Friflo.SmGui.SkiaSharp;
+using Microsoft.Maui.Controls;
+using Microsoft.Maui.Dispatching;
 using SkiaSharp.Views.Maui;
 using SkiaSharp.Views.Maui.Controls;
 
@@ -10,12 +13,11 @@ namespace Friflo.SmGui.MAUI;
 
 public class SkiaGuiView : ContentView
 {
-    public              SmGuiBackend        GuiBackend => guiBackend;
-    private readonly    SKCanvasView        canvasView;
-    private readonly    SkiaSharpGuiBackend guiBackend;
-    private readonly    SkiaSharpBatch      batch;
-    private             SmGuiApp?           app;
-    private             IDispatcherTimer?   renderTimer;
+    private readonly    SKCanvasView            canvasView;
+    private             SkiaSharpGuiBackend?    guiBackend;
+    private             SkiaSharpBatch?         batch;
+    private             SmGuiApp?               app;
+    private             IDispatcherTimer?       renderTimer;
     
     public SkiaGuiView()
     {
@@ -23,24 +25,26 @@ public class SkiaGuiView : ContentView
         canvasView.PaintSurface += OnCanvasViewPaintSurface;
         Content = canvasView;
 
-        guiBackend = new SkiaSharpGuiBackend(new DefaultGuiAssets());
-        batch = guiBackend.CreateBatch();
-
         HandlerChanged  += OnHandlerChanged;
         Unloaded        += OnUnloaded;
-        
-        MauiInput.AttachPointerGestures(canvasView, guiBackend);
     }
     
-    public void AttachApp(SmGuiApp app) {
-        this.app = app;
+    public void CreateGuiApp(CreateGuiApp createGuiApp, IGuiAssets assets)
+    {
+        if (guiBackend != null) {
+            throw new InvalidOperationException("GuiApp already attached");
+        }
+        guiBackend  = new SkiaSharpGuiBackend(assets);
+        batch       = guiBackend.CreateBatch();
+        app         = createGuiApp(guiBackend);
+        MauiInput.AttachPointerGestures(canvasView, guiBackend);
     }
     
     internal bool RaiseKey(HostKeyEventArgs e)
     {
         // Console.WriteLine($"Key: {e.Key} Character: `{e.Character}` {e.IsDown} ");
         var keyEvent = new KeyEvent { code = e.Key, isDown = e.IsDown };
-        guiBackend.AddEvent(new SmEvent(e.IsDown ? SmEventType.KeyDown : SmEventType.KeyUp, keyEvent));
+        guiBackend?.AddEvent(new SmEvent(e.IsDown ? SmEventType.KeyDown : SmEventType.KeyUp, keyEvent));
         return e.Handled;
     }
 
@@ -82,7 +86,8 @@ public class SkiaGuiView : ContentView
 
     private void OnUnloaded(object? sender, EventArgs e) {
         StopRenderLoop();
-        batch.Destroy();
+        batch?.Destroy();
+        batch = null;
     }
 
     private void OnCanvasViewPaintSurface(object? sender, SKPaintSurfaceEventArgs e)
@@ -97,10 +102,12 @@ public class SkiaGuiView : ContentView
         if (width <= 0 || height <= 0)
             return;
 
-        guiBackend.NewFrame();
-        app?.RenderApp(batch, width, height);
-        batch.DrawCommandList(canvas, 0, 0, width, height);
-        MauiCursor.SetMouseCursor(guiBackend, this);
+        if (guiBackend != null && batch != null) {
+            guiBackend.NewFrame();
+            app?.RenderApp(batch, width, height);
+            batch.DrawCommandList(canvas, 0, 0, width, height);
+            MauiCursor.SetMouseCursor(guiBackend, this);
+        }
 
         /* using var paint = new SKPaint {
             Color = SKColors.Blue,

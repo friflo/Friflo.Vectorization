@@ -74,7 +74,6 @@
     <ItemGroup>
       <ProjectReference Include="..\Apps\Apps.csproj" />
       <ProjectReference Include="..\..\Friflo.SmGui.Assets\Friflo.SmGui.Assets.csproj" />
-      <ProjectReference Include="..\..\Friflo.SmGui.SkiaSharp\Friflo.SmGui.SkiaSharp.csproj" />
       <ProjectReference Include="..\..\Friflo.SmGui.MAUI\Friflo.SmGui.MAUI.csproj" />
     </ItemGroup>
 
