@@ -1,4 +1,4 @@
 # Friflo.SmGui.Uno
 
 
-SmGui backend for Avalonia: https://github.com/unoplatform/uno
+SmGui backend for Uno: https://github.com/unoplatform/uno
