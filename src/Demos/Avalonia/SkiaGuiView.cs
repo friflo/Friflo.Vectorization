@@ -22,6 +22,7 @@ public sealed class SkiaGuiView : Control, IDisposable
     private SmGuiApp?               app;
     
     private SKBitmap?               skBitmap;
+    private SKCanvas?               skCanvas;
     private WriteableBitmap?        uiBitmap;
     
     public SkiaGuiView() {
@@ -43,13 +44,12 @@ public sealed class SkiaGuiView : Control, IDisposable
 
         EnsureBitmaps(pixelWidth, pixelHeight);
         
-        using var canvas = new SKCanvas(skBitmap!);
-        canvas.Clear(SKColors.Transparent);
+        skCanvas?.Clear(SKColors.Transparent);
 
         if (guiBackend != null && batch != null) {
             guiBackend.NewFrame();
             app?.RenderApp(batch, pixelWidth, pixelHeight);
-            batch.DrawCommandList(canvas, 0, 0, pixelWidth, pixelHeight);
+            batch.DrawCommandList(skCanvas, 0, 0, pixelWidth, pixelHeight);
             // AvaloniaCursor.SetMouseCursor(guiBackend, this);
         }
         // using var paint = new SKPaint { Color = SKColors.DodgerBlue, IsAntialias = true };
@@ -63,25 +63,25 @@ public sealed class SkiaGuiView : Control, IDisposable
     {
         uiBitmap?.Dispose();
         uiBitmap = null;
+        skCanvas?.Dispose();
+        skCanvas = null;
         skBitmap?.Dispose();
         skBitmap = null;
     }
 
     private void EnsureBitmaps(int width, int height)
     {
-        if (skBitmap is not null && skBitmap.Width == width && skBitmap.Height == height && uiBitmap is not null) {
+        if (skBitmap is not null && skBitmap.Width == width && skBitmap.Height == height && skCanvas is not null && uiBitmap is not null) {
             return;
         }
 
         uiBitmap?.Dispose();
+        skCanvas?.Dispose();
         skBitmap?.Dispose();
 
         skBitmap = new SKBitmap(width, height, SKColorType.Bgra8888, SKAlphaType.Premul);
-        uiBitmap = new WriteableBitmap(
-            new PixelSize(width, height),
-            new Vector(96, 96),
-            PixelFormat.Bgra8888,
-            AlphaFormat.Premul);
+        skCanvas = new SKCanvas(skBitmap);
+        uiBitmap = new WriteableBitmap(new PixelSize(width, height), new Vector(96, 96), PixelFormat.Bgra8888, AlphaFormat.Premul);
     }
 
     private static void CopyPixelsToWriteableBitmap(SKBitmap source, WriteableBitmap target)
