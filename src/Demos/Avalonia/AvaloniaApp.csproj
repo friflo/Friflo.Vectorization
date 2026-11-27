@@ -20,5 +20,6 @@
     <ItemGroup>
       <ProjectReference Include="..\..\Friflo.SmGui.Assets\Friflo.SmGui.Assets.csproj" />
       <ProjectReference Include="..\..\Friflo.SmGui.Avalonia\Friflo.SmGui.Avalonia.csproj" />
+      <ProjectReference Include="..\Apps\Apps.csproj" />
     </ItemGroup>
 </Project>
