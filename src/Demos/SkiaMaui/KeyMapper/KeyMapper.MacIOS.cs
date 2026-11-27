@@ -4,9 +4,7 @@
 #if IOS || MACCATALYST
 
 using System.Text;
-using Friflo.SmGui;
 using Microsoft.Maui.Handlers;
-using SkiaMaui;
 
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable CheckNamespace

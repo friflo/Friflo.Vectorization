@@ -4,7 +4,6 @@
 #if ANDROID
 
 using System.Text;
-using Friflo.SmGui;
 using Microsoft.Maui.Handlers;
 
 // ReSharper disable ConvertToPrimaryConstructor

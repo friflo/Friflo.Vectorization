@@ -2,8 +2,7 @@
 // See LICENSE file in the project root for full license information.
 
 using System.Text;
-using Friflo.SmGui;
-using SkiaMaui;
+
 
 // ReSharper disable UnusedAutoPropertyAccessor.Global
 // ReSharper disable CheckNamespace
