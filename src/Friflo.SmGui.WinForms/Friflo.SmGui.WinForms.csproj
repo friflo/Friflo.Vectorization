@@ -61,7 +61,6 @@
   
   <ItemGroup>
     <ProjectReference Include="..\Friflo.SmGui.SkiaSharp\Friflo.SmGui.SkiaSharp.csproj" />
-    <PackageReference Include="SkiaSharp.Views.WindowsForms" Version="[4.148.0, 5.0.0)" />
   </ItemGroup>
 
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">

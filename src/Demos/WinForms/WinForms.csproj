@@ -9,6 +9,10 @@
         <RootNamespace>WinFormsApp</RootNamespace>
     </PropertyGroup>
 
+    <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+      <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    </PropertyGroup>
+
     <ItemGroup>
       <ProjectReference Include="..\..\Friflo.SmGui.WinForms\Friflo.SmGui.WinForms.csproj" />
     </ItemGroup>
