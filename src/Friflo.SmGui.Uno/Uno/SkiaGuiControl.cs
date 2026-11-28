@@ -95,7 +95,8 @@ public sealed class SkiaGuiControl : ContentControl, IDisposable
         if (skCanvas == null || skBitmap == null || uiBitmap == null || pixelBuffer == null) {
             return;
         }
-        skCanvas.Clear(SKColors.Transparent);
+        var color = app?.ClearValue ?? Color32.Transparent;
+        skCanvas.Clear(color.AsSkColor());
         
         if (guiBackend != null && batch != null) {
             guiBackend.NewFrame();
