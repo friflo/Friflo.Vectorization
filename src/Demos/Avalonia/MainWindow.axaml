@@ -6,5 +6,5 @@
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="AvaloniaApp.MainWindow"
         Title="AvaloniaApp">
-    <smGui:SkiaGuiView x:Name="SkiaGuiView"/>
+    <smGui:SkiaGuiControl x:Name="GuiControl"/>
 </Window>

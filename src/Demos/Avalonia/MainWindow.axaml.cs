@@ -9,7 +9,7 @@ public partial class MainWindow : Window
 {
     public MainWindow() {
         InitializeComponent();
-        SkiaGuiView.CreateGuiApp(backend => new BasicGuiApp(backend), new DefaultGuiAssets());
-        // SkiaGuiView.CreateGuiApp(backend => new BasicDrawApp(backend), new DefaultGuiAssets());
+        GuiControl.CreateGuiApp(backend => new BasicGuiApp(backend), new DefaultGuiAssets());
+        // GuiControl.CreateGuiApp(backend => new BasicDrawApp(backend), new DefaultGuiAssets());
     }
 }

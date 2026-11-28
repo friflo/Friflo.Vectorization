@@ -15,7 +15,7 @@ using SkiaSharp;
 // ReSharper disable CheckNamespace
 namespace Friflo.SmGui.Avalonia;
 
-public sealed class SkiaGuiView : Control, IDisposable
+public sealed class SkiaGuiControl : Control, IDisposable
 {
     private SkiaSharpGuiBackend?    guiBackend;
     private SkiaSharpBatch?         batch;
@@ -25,7 +25,7 @@ public sealed class SkiaGuiView : Control, IDisposable
     private SKCanvas?               skCanvas;
     private WriteableBitmap?        uiBitmap;
     
-    public SkiaGuiView() { }
+    public SkiaGuiControl() { }
     
     public void CreateGuiApp(CreateGuiApp createGuiApp, IGuiAssets assets)
     {
