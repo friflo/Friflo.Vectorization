@@ -12,6 +12,9 @@ using SkiaSharp;
 // ReSharper disable CheckNamespace
 namespace Friflo.SmGui.Uno;
 
+[AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
+internal sealed class PublicAttribute : Attribute;
+
 
 public sealed class SkiaGuiControl : ContentControl, IDisposable
 {
