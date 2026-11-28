@@ -51,7 +51,8 @@ public sealed class SkiaGuiControl : Control, IDisposable
 
         EnsureBitmaps(pixelWidth, pixelHeight);
         
-        skCanvas?.Clear(SKColors.Transparent);
+        var color = app?.ClearValue ?? Color32.Transparent;
+        skCanvas?.Clear(color.AsSkColor());
 
         if (guiBackend != null && batch != null) {
             guiBackend.NewFrame();

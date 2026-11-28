@@ -8,5 +8,5 @@ namespace Friflo.SmGui.Avalonia;
 
 public static class AvaloniaGuiExtensions
 {
-    // public static Color AsXnaColor(this Color32 c) => new(c.R, c.G, c.B, c.A);  todo
+
 }
