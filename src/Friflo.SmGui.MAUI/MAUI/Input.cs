@@ -11,6 +11,7 @@ using SkiaSharp.Views.Maui.Controls;
 namespace Friflo.SmGui.MAUI;
 
 
+[Public]
 public static class MauiInput
 {
     private static Vector2? GetPosition(SKCanvasView targetView, PointerEventArgs pointerArgs)
@@ -23,6 +24,7 @@ public static class MauiInput
         return null;
     }
 
+    [Public]
     public static void AttachPointerGestures(SKCanvasView targetView, SmGuiBackend backend)
     {
         // Attach pointer gestures to the MAUI view to feed SmGui mouse state.

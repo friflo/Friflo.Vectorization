@@ -7,8 +7,10 @@ using Microsoft.Maui.Controls;
 // ReSharper disable CheckNamespace
 namespace Friflo.SmGui.MAUI;
 
+[Public]
 public static partial class MauiCursor
 {
+     [Public]
      public static void SetMouseCursor(SmGuiBackend backend, View targetView) => SetCursor(backend, targetView);
      
 #if IOS

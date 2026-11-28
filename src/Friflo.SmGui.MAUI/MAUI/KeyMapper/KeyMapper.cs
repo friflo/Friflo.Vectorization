@@ -12,8 +12,10 @@ using Microsoft.Maui.Hosting;
 namespace Friflo.SmGui.MAUI;
 
 
+[Public]
 public static class KeyMapperExtension
 {
+    [Public]
     public static MauiAppBuilder UseKeyHandler(this MauiAppBuilder builder)
     {
         builder.ConfigureMauiHandlers(handlers =>
@@ -38,19 +40,18 @@ internal sealed partial class KeyMapper
 }
 
 
-public class HostKeyEventArgs : EventArgs
+internal class HostKeyEventArgs : EventArgs
 {
-    
-    public KeyCode Key { get; init; }
+    internal    KeyCode Key { get; init; }
 
     /// <summary>Character produced by the key, if the platform provides one.</summary>
-    public Rune? Character { get; init; }
+    internal    Rune?   Character { get; init; }
 
-    public bool IsDown { get; init; }
-    public bool Shift { get; init; }
-    public bool Ctrl { get; init; }
-    public bool Alt { get; init; }
+    internal    bool    IsDown  { get; init; }
+    internal    bool    Shift   { get; init; }
+    internal    bool    Ctrl    { get; init; }
+    internal    bool    Alt     { get; init; }
 
     /// <summary>Set to true to stop the key from being passed on to the platform.</summary>
-    public bool Handled { get; set; }
+    internal    bool    Handled { get; set; }
 }

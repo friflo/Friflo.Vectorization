@@ -10,6 +10,8 @@ using SkiaSharp.Views.Maui.Controls;
 // ReSharper disable CheckNamespace
 namespace Friflo.SmGui.MAUI;
 
+[AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
+internal sealed class PublicAttribute : Attribute;
 
 public class SkiaGuiView : ContentView
 {
