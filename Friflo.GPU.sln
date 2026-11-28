@@ -76,6 +76,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Friflo.SmGui.WinForms", "sr
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WPF", "src\Demos\WPF\WPF.csproj", "{9D602492-7ED6-45B3-AE48-8551E4D6ED47}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Friflo.SmGui.WPF", "src\Friflo.SmGui.WPF\Friflo.SmGui.WPF.csproj", "{A22F547B-D001-470B-9249-3CA41DB8A699}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -230,6 +232,10 @@ Global
 		{9D602492-7ED6-45B3-AE48-8551E4D6ED47}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9D602492-7ED6-45B3-AE48-8551E4D6ED47}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9D602492-7ED6-45B3-AE48-8551E4D6ED47}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A22F547B-D001-470B-9249-3CA41DB8A699}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A22F547B-D001-470B-9249-3CA41DB8A699}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A22F547B-D001-470B-9249-3CA41DB8A699}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A22F547B-D001-470B-9249-3CA41DB8A699}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{1A5652D0-4695-48D2-9C1A-B6E23548F705} = {D62260B8-F067-4FDC-BFF9-81BCE1556799}
