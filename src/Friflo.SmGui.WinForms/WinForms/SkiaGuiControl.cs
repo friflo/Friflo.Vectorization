@@ -1,4 +1,5 @@
 using System;
+using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Windows.Forms;
@@ -17,6 +18,8 @@ public class SkiaGuiControl : Control
     private SKBitmap?               bitmap;
     private SKCanvas?               skCanvas;
     private Bitmap?                 gdiBitmap;
+    
+    private readonly bool           isInDesignMode = LicenseManager.UsageMode == LicenseUsageMode.Designtime;
 
     public SkiaGuiControl() {
         // Reduce flicker during repeated OnPaint repaints
@@ -34,9 +37,12 @@ public class SkiaGuiControl : Control
         // ValoniaInput.AttachPointerGestures(canvasView, guiBackend);
     }
 
-    protected override void OnPaint(PaintEventArgs e) {
+    protected override void OnPaint(PaintEventArgs e)
+    {
         base.OnPaint(e);
-
+        if (isInDesignMode) {
+            return;
+        }
         int width = Math.Max(1, ClientSize.Width);
         int height = Math.Max(1, ClientSize.Height);
 
