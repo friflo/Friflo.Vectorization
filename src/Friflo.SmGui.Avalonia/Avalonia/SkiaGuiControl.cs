@@ -15,8 +15,10 @@ using SkiaSharp;
 // ReSharper disable CheckNamespace
 namespace Friflo.SmGui.Avalonia;
 
+/// Annotated classes and methods must be public to enable custom <see cref="SkiaGuiControl"/> implementations.
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
 internal sealed class PublicAttribute : Attribute;
+
 
 [Public]
 public sealed class SkiaGuiControl : Control, IDisposable

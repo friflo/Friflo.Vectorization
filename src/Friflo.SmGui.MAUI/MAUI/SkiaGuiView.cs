@@ -10,6 +10,7 @@ using SkiaSharp.Views.Maui.Controls;
 // ReSharper disable CheckNamespace
 namespace Friflo.SmGui.MAUI;
 
+/// Annotated classes and methods must be public to enable custom <see cref="SkiaGuiView"/> implementations.
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
 internal sealed class PublicAttribute : Attribute;
 
