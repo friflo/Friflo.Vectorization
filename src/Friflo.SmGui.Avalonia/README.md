@@ -1,4 +1,33 @@
 # Friflo.SmGui.Avalonia
 
 
-SmGui backend for Avalonia: https://github.com/avaloniaui/avalonia
+SmGui backend for Avalonia using Skia: https://github.com/avaloniaui/avalonia
+
+
+## Example
+
+MainPage.xaml
+```xml
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:smGui="using:Friflo.SmGui.Avalonia"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        x:Class="AvaloniaApp.MainWindow"
+        Title="AvaloniaApp">
+        
+    <smGui:SkiaGuiControl x:Name="GuiControl"/>
+</Window>
+```
+
+MainPage.xaml.cs
+```csharp
+public partial class MainWindow : Window
+{
+    public MainWindow() {
+        InitializeComponent();
+        GuiControl.CreateGuiApp(backend => new MyGuiApp(backend), new DefaultGuiAssets());
+    }
+}
+```
