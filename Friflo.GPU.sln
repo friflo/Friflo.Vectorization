@@ -70,7 +70,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Friflo.SmGui.OpenTK", "src\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Friflo.SmGui.Avalonia", "src\Friflo.SmGui.Avalonia\Friflo.SmGui.Avalonia.csproj", "{83BE705E-CB17-48C5-AFF6-7D1698738981}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WinFormsApp", "src\Demos\WinFormsApp\WinFormsApp.csproj", "{9C6C0D6A-C37E-4AFA-9496-1A3CBAD5DA92}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WinForms", "src\Demos\WinForms\WinForms.csproj", "{9C6C0D6A-C37E-4AFA-9496-1A3CBAD5DA92}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Friflo.SmGui.WinForms", "src\Friflo.SmGui.WinForms\Friflo.SmGui.WinForms.csproj", "{7E295976-510F-4DB4-A10B-9E5846ADC508}"
 EndProject
