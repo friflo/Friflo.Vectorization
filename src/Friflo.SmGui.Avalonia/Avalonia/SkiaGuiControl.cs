@@ -18,6 +18,7 @@ namespace Friflo.SmGui.Avalonia;
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
 internal sealed class PublicAttribute : Attribute;
 
+[Public]
 public sealed class SkiaGuiControl : Control, IDisposable
 {
     private SkiaSharpGuiBackend?    guiBackend;

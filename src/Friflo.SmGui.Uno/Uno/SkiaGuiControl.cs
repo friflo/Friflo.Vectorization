@@ -16,6 +16,7 @@ namespace Friflo.SmGui.Uno;
 internal sealed class PublicAttribute : Attribute;
 
 
+[Public]
 public sealed class SkiaGuiControl : ContentControl, IDisposable
 {
     private SkiaSharpGuiBackend?    guiBackend;

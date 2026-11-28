@@ -13,7 +13,9 @@ namespace Friflo.SmGui.MAUI;
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
 internal sealed class PublicAttribute : Attribute;
 
-public class SkiaGuiView : ContentView
+
+[Public]
+public sealed class SkiaGuiView : ContentView
 {
     private readonly    SKCanvasView            canvasView;
     private             SkiaSharpGuiBackend?    guiBackend;
