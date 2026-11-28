@@ -27,7 +27,7 @@ public static class OpenTkRunner
     public static int Run(string title, int width, int height, AppConfig config, CreateGuiApp createGuiApp)
     {
         createGuiApp = config.AddSessionLoop(createGuiApp);
-        var app = OpenTkWindow.Create(title, width, height, createGuiApp);
+        var app = OpenTkWindow.Create($"{title} - OpenTK", width, height, createGuiApp);
         app.Run();
 
         config.RemoveSessionLoop();

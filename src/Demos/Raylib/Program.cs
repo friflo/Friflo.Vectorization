@@ -28,7 +28,7 @@ public static class RaylibRunner
     public static int Run(string title, int width, int height, AppConfig config, CreateGuiApp createGuiApp)
     {
         createGuiApp = config.AddSessionLoop(createGuiApp);
-        var app = new RaylibWindow(title, width, height, createGuiApp);
+        var app = new RaylibWindow($"{title} - raylib", width, height, createGuiApp);
         app.Run();
 
         config.RemoveSessionLoop();
