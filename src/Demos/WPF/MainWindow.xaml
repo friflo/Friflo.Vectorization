@@ -5,6 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:smGui="clr-namespace:Friflo.SmGui.WPF;assembly=Friflo.SmGui.WPF"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="MainWindow" Height="450" Width="800"
+        Icon="Assets/wpf_logo.png">
     <smGui:SkiaGuiElement x:Name="GuiElement"/>
 </Window>

@@ -15,4 +15,8 @@
       <ProjectReference Include="..\Apps\Apps.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+        <Resource Include="Assets\wpf_logo.png"/>
+    </ItemGroup>    
+
 </Project>
