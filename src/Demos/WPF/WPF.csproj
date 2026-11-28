@@ -9,4 +9,14 @@
         <RootNamespace>WPFApp</RootNamespace>
     </PropertyGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\..\Friflo.SmGui.Assets\Friflo.SmGui.Assets.csproj" />
+      <ProjectReference Include="..\..\Friflo.SmGui.SkiaSharp\Friflo.SmGui.SkiaSharp.csproj" />
+      <ProjectReference Include="..\Apps\Apps.csproj" />
+    </ItemGroup>
+
+    <PropertyGroup>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    </PropertyGroup>
+
 </Project>
