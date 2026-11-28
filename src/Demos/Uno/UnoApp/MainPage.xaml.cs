@@ -8,6 +8,6 @@ public sealed partial class MainPage : Page
 {
     public MainPage() {
         InitializeComponent();
-        SkiaGuiView.CreateGuiApp(backend => new BasicGuiApp(backend), new DefaultGuiAssets());
+        GuiControl.CreateGuiApp(backend => new BasicGuiApp(backend), new DefaultGuiAssets());
     }
 }

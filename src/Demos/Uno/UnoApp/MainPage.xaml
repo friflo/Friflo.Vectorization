@@ -3,12 +3,8 @@
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:smGui="using:Friflo.SmGui.Uno"
       Background="{ThemeResource BackgroundBrush}">
-    <!-- <smGui:SkiaGuiView x:Name="GuiView"
+
+    <smGui:SkiaGuiControl x:Name="GuiControl"
                        HorizontalAlignment="Stretch"
-                       VerticalAlignment="Stretch" /> -->
-    <Grid>
-        <smGui:SkiaGuiView x:Name="SkiaGuiView"
-                           HorizontalAlignment="Stretch"
-                           VerticalAlignment="Stretch" />
-    </Grid>
+                       VerticalAlignment="Stretch" />
 </Page>

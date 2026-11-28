@@ -8,7 +8,7 @@ using SkiaSharp;
 namespace Friflo.SmGui.Uno;
 
 
-public sealed class SkiaGuiView : ContentControl, IDisposable
+public sealed class SkiaGuiControl : ContentControl, IDisposable
 {
     private SkiaSharpGuiBackend?    guiBackend;
     private SkiaSharpBatch?         batch;
@@ -22,7 +22,7 @@ public sealed class SkiaGuiView : ContentControl, IDisposable
     private int                     pixelWidth;
     private int                     pixelHeight;
 
-    public SkiaGuiView()
+    public SkiaGuiControl()
     {
         // Attach Image directly as content instead of using a ControlTemplate
         Content = uiImage;
