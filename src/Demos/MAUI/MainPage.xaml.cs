@@ -10,7 +10,7 @@ public partial class MainPage
     {
         InitializeComponent();
         
-        SkiaGuiView.CreateGuiApp(backend => new BasicGuiApp(backend), new DefaultGuiAssets());
-        // SkiaGuiView.CreateGuiApp(backend => new BasicDrawApp(backend), new DefaultGuiAssets());
+        GuiView.CreateGuiApp(backend => new BasicGuiApp(backend), new DefaultGuiAssets());
+        // GuiView.CreateGuiApp(backend => new BasicDrawApp(backend), new DefaultGuiAssets());
     }
 }
