@@ -1,3 +1,4 @@
+using Friflo.SmGui.SkiaSharp;
 using SkiaSharp;
 
 // ReSharper disable CheckNamespace
@@ -5,12 +6,27 @@ namespace Friflo.SmGui.WinForms;
 
 public class SkiaGuiControl : Control
 {
-    private SKBitmap?   bitmap;
-    private Bitmap?     gdiBitmap;
+    private SkiaSharpGuiBackend?    guiBackend;
+    private SkiaSharpBatch?         batch;
+    private SmGuiApp?               app;
+    
+    private SKBitmap?               bitmap;
+    private Bitmap?                 gdiBitmap;
 
     public SkiaGuiControl() {
         // Reduce flicker during repeated OnPaint repaints
         DoubleBuffered = true;
+    }
+    
+    public void CreateGuiApp(CreateGuiApp createGuiApp, IGuiAssets assets)
+    {
+        if (guiBackend != null) {
+            throw new InvalidOperationException("GuiApp already attached");
+        }
+        guiBackend  = new SkiaSharpGuiBackend(assets);
+        batch       = guiBackend.CreateBatch();
+        app         = createGuiApp(guiBackend);
+        // ValoniaInput.AttachPointerGestures(canvasView, guiBackend);
     }
 
     protected override void OnPaint(PaintEventArgs e) {
@@ -21,16 +37,12 @@ public class SkiaGuiControl : Control
 
         EnsureBuffers(width, height);
 
-        // Render onto SKCanvas backed by SKBitmap
+        // todo use same appraoch as in Avalonia
+        
+        // Render onto SKCanvas backed by SKBitmap todo comment
         using (var canvas = new SKCanvas(bitmap!)) {
             canvas.Clear(SKColors.White);
-
-            using var paint = new SKPaint {
-                Color = SKColors.DodgerBlue,
-                IsAntialias = true,
-                Style = SKPaintStyle.Fill
-            };
-
+            using var paint = new SKPaint { Color = SKColors.DodgerBlue, IsAntialias = true, Style = SKPaintStyle.Fill };
             canvas.DrawCircle(width / 2f, height / 2f, Math.Min(width, height) * 0.25f, paint);
         }
 
