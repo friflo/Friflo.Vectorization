@@ -72,6 +72,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Friflo.SmGui.Avalonia", "sr
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WinFormsApp", "src\Demos\WinFormsApp\WinFormsApp.csproj", "{9C6C0D6A-C37E-4AFA-9496-1A3CBAD5DA92}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Friflo.SmGui.WinForms", "src\Friflo.SmGui.WinForms\Friflo.SmGui.WinForms.csproj", "{7E295976-510F-4DB4-A10B-9E5846ADC508}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -218,6 +220,10 @@ Global
 		{9C6C0D6A-C37E-4AFA-9496-1A3CBAD5DA92}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9C6C0D6A-C37E-4AFA-9496-1A3CBAD5DA92}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9C6C0D6A-C37E-4AFA-9496-1A3CBAD5DA92}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7E295976-510F-4DB4-A10B-9E5846ADC508}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7E295976-510F-4DB4-A10B-9E5846ADC508}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7E295976-510F-4DB4-A10B-9E5846ADC508}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7E295976-510F-4DB4-A10B-9E5846ADC508}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{1A5652D0-4695-48D2-9C1A-B6E23548F705} = {D62260B8-F067-4FDC-BFF9-81BCE1556799}
