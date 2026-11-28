@@ -1,3 +1,4 @@
+using System.Drawing.Imaging;
 using Friflo.SmGui.SkiaSharp;
 using SkiaSharp;
 
@@ -11,6 +12,7 @@ public class SkiaGuiControl : Control
     private SmGuiApp?               app;
     
     private SKBitmap?               bitmap;
+    private SKCanvas?               skCanvas;
     private Bitmap?                 gdiBitmap;
 
     public SkiaGuiControl() {
@@ -37,20 +39,20 @@ public class SkiaGuiControl : Control
 
         EnsureBuffers(width, height);
 
-        // todo use same appraoch as in Avalonia
-        
-        // Render onto SKCanvas backed by SKBitmap todo comment
-        using (var canvas = new SKCanvas(bitmap!)) {
-            canvas.Clear(SKColors.White);
-            using var paint = new SKPaint { Color = SKColors.DodgerBlue, IsAntialias = true, Style = SKPaintStyle.Fill };
-            canvas.DrawCircle(width / 2f, height / 2f, Math.Min(width, height) * 0.25f, paint);
+        var color = app?.ClearValue ?? Color32.Transparent;
+        skCanvas?.Clear(color.AsSkColor());
+
+        if (guiBackend != null && batch != null) {
+            guiBackend.NewFrame();
+            app?.RenderApp(batch, width, height);
+            batch.DrawCommandList(skCanvas, 0, 0, width, height);
         }
 
         // Copy BGRA pixel buffer in a single Span.CopyTo call
         var bmpData = gdiBitmap!.LockBits(
             new Rectangle(0, 0, width, height),
-            System.Drawing.Imaging.ImageLockMode.WriteOnly,
-            System.Drawing.Imaging.PixelFormat.Format32bppPArgb);
+            ImageLockMode.WriteOnly,
+            PixelFormat.Format32bppPArgb);
 
         try {
             int byteLength = width * height * 4;
@@ -69,21 +71,27 @@ public class SkiaGuiControl : Control
 
     private void EnsureBuffers(int width, int height) {
         // Recreate backing bitmaps only when control size changes
-        if (bitmap is not null && bitmap.Width == width && bitmap.Height == height && gdiBitmap is not null) {
+        if (bitmap is not null && bitmap.Width == width && bitmap.Height == height && skCanvas is not null && gdiBitmap is not null) {
             return;
         }
 
+        skCanvas?.Dispose();
         bitmap?.Dispose();
         gdiBitmap?.Dispose();
 
         bitmap = new SKBitmap(width, height, SKColorType.Bgra8888, SKAlphaType.Premul);
-        gdiBitmap = new Bitmap(width, height, System.Drawing.Imaging.PixelFormat.Format32bppPArgb);
+        skCanvas = new SKCanvas(bitmap);
+        gdiBitmap = new Bitmap(width, height, PixelFormat.Format32bppPArgb);
     }
 
     protected override void Dispose(bool disposing) {
         if (disposing) {
+            skCanvas?.Dispose();
+            skCanvas = null;
             bitmap?.Dispose();
+            bitmap = null;
             gdiBitmap?.Dispose();
+            gdiBitmap = null;
         }
         base.Dispose(disposing);
     }
