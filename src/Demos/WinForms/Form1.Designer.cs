@@ -22,15 +22,33 @@ partial class Form1
     #region Windows Form Designer generated code
 
     /// <summary>
-    ///  Required method for Designer support - do not modify
-    ///  the contents of this method with the code editor.
+    /// Required method for Designer support - do not modify
+    /// the contents of this method with the code editor.
     /// </summary>
     private void InitializeComponent() {
-        components = new System.ComponentModel.Container();
-        AutoScaleMode = AutoScaleMode.Font;
-        ClientSize = new Size(800, 450);
+        guiControl = new Friflo.SmGui.WinForms.SkiaGuiControl();
+        SuspendLayout();
+        // 
+        // guiControl
+        // 
+        guiControl.Dock = System.Windows.Forms.DockStyle.Fill;
+        guiControl.Location = new System.Drawing.Point(0, 0);
+        guiControl.Name = "guiControl";
+        guiControl.Size = new System.Drawing.Size(1111, 1055);
+        guiControl.TabIndex = 0;
+        guiControl.Text = "skiaGuiControl1";
+        // 
+        // Form1
+        // 
+        AutoScaleDimensions = new System.Drawing.SizeF(15F, 37F);
+        AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+        ClientSize = new System.Drawing.Size(1111, 1055);
+        Controls.Add(guiControl);
         Text = "Form1";
+        ResumeLayout(false);
     }
+
+    private Friflo.SmGui.WinForms.SkiaGuiControl guiControl;
 
     #endregion
 }
