@@ -22,4 +22,8 @@
       <ProjectReference Include="..\..\Friflo.SmGui.Avalonia\Friflo.SmGui.Avalonia.csproj" />
       <ProjectReference Include="..\Apps\Apps.csproj" />
     </ItemGroup>
+
+    <ItemGroup>
+      <AvaloniaResource Include="Assets\Logo.png"/> <!-- https://github.com/AvaloniaUI/Avalonia.Samples/blob/main/_docs/_Assets/Logo.svg -->
+    </ItemGroup>
 </Project>

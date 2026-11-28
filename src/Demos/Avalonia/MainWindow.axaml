@@ -5,6 +5,7 @@
         xmlns:smGui="using:Friflo.SmGui.Avalonia"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="AvaloniaApp.MainWindow"
-        Title="AvaloniaApp">
+        Title="AvaloniaApp"
+        Icon="/Assets/Logo.png">
     <smGui:SkiaGuiControl x:Name="GuiControl"/>
 </Window>
