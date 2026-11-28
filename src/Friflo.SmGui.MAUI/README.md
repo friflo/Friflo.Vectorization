@@ -1,4 +1,4 @@
-# Friflo.SmGui.SkiaMAUI
+# Friflo.SmGui.MAUI
 
 
 SmGui backend for MAUI using Skia: https://github.com/dotnet/maui
